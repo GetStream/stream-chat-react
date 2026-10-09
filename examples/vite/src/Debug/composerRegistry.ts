@@ -46,7 +46,7 @@ export const listComposers = (client: StreamChat | undefined): ComposerEntry[] =
 
   const entries: ComposerEntry[] = [];
 
-  for (const channel of Object.values(client.activeChannels)) {
+  for (const channel of client.channelManager.values()) {
     if (!channel?.messageComposer) continue;
     entries.push({
       composer: channel.messageComposer,

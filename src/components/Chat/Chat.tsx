@@ -1,5 +1,5 @@
 import type { PropsWithChildren } from 'react';
-import React, { useMemo } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import type { StreamChat } from 'stream-chat';
 import {
   ChannelSearchSource,
@@ -142,6 +142,16 @@ export const Chat = (props: PropsWithChildren<ChatProps>) => {
       }),
     [client, customChannelSearchController],
   );
+
+  // The controller created here is this component's to release: its configuration subscription, and
+  // a channel search's hold on its results in the channel store. One passed in belongs to the app.
+  // Disposing in the cleanup is safe under StrictMode, whose second mount of the same instance
+  // takes everything back through `registerSubscriptions()`.
+  useEffect(() => {
+    if (customChannelSearchController) return;
+    searchController.registerSubscriptions();
+    return () => searchController.dispose();
+  }, [customChannelSearchController, searchController]);
 
   const chatContextValue = useCreateChatContext({
     channelManager: client.channelManager,

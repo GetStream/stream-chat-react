@@ -2,7 +2,6 @@ import type React from 'react';
 import { useCallback } from 'react';
 import throttle from 'lodash.throttle';
 
-import { useChannel } from '../../../context';
 import { useChatContext } from '../../../context/ChatContext';
 import { useComponentContext } from '../../../context/ComponentContext';
 import {
@@ -24,7 +23,6 @@ export const reactionHandlerWarning = `Reaction handler was called, but it is mi
 Make sure the ChannelAction and ChannelState contexts are properly set and the hook is initialized with a valid message.`;
 
 export const useReactionHandler = (message?: LocalMessage) => {
-  const channel = useChannel();
   const messagePaginator = useMessagePaginator();
   const { client } = useChatContext();
   const { reactionOptions = defaultReactionOptions } = useComponentContext();
@@ -114,14 +112,16 @@ export const useReactionHandler = (message?: LocalMessage) => {
     try {
       updateMessage(tempMessage);
       const messageResponse = add
-        ? await channel.sendReaction({
-            id,
-            reaction: {
-              type,
-              ...(emojiCode && { emoji_code: emojiCode }),
-            } as ReactionRequest,
-          })
-        : await channel.deleteReaction({ id, type });
+        ? await client.sendReaction(
+            { id },
+            {
+              reaction: {
+                type,
+                ...(emojiCode && { emoji_code: emojiCode }),
+              } as ReactionRequest,
+            },
+          )
+        : await client.deleteReaction({ id, type });
 
       // seems useless as we're expecting WS event to come in and replace this anyway
       updateMessage(messageResponse.message);

@@ -48,7 +48,7 @@ export const resolveSingleChannel = ({
       separatorIndex === -1
         ? ['messaging', channelKey]
         : [channelKey.slice(0, separatorIndex), channelKey.slice(separatorIndex + 1)];
-    return client.channel(type, id);
+    return client.channelManager.ensure({ id, type });
   }
 
   const loadedChannel = channelManager?.paginators.flatMap(
@@ -56,7 +56,10 @@ export const resolveSingleChannel = ({
   )[0];
   if (loadedChannel) return loadedChannel;
 
-  return client.channel('messaging', SINGLE_CHANNEL_DEFAULT_ID);
+  return client.channelManager.ensure({
+    id: SINGLE_CHANNEL_DEFAULT_ID,
+    type: 'messaging',
+  });
 };
 
 const channelDisplayName = (channel: StreamChannel) =>

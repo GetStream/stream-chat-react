@@ -33,7 +33,10 @@ describe('useIsChannelMuted', () => {
     // channel.muteStatus() this hook used to call throws `_checkInitialized` on such a
     // channel and crashed the app when it was rendered in the ChannelList (issue #2474).
     // Reading the reactive `muteStatus` slice is safe instead.
-    const channel = client.channel('messaging', 'never-watched-channel');
+    const channel = client.channelManager.ensure({
+      id: 'never-watched-channel',
+      type: 'messaging',
+    });
 
     expect(channel.initialized).toBe(false);
 
@@ -48,7 +51,10 @@ describe('useIsChannelMuted', () => {
     const client = await getTestClientWithUser(clientUser);
     const mockedChannel = generateChannel();
     useMockedApis(client, [getOrCreateChannelApi(mockedChannel)]);
-    const channel = client.channel('messaging', mockedChannel.channel.id);
+    const channel = client.channelManager.ensure({
+      id: mockedChannel.channel.id,
+      type: 'messaging',
+    });
     await channel.watch();
 
     const { result } = renderHook(() => useIsChannelMuted(channel), {
@@ -62,7 +68,10 @@ describe('useIsChannelMuted', () => {
     const client = await getTestClientWithUser(clientUser);
     const mockedChannel = generateChannel();
     useMockedApis(client, [getOrCreateChannelApi(mockedChannel)]);
-    const channel = client.channel('messaging', mockedChannel.channel.id);
+    const channel = client.channelManager.ensure({
+      id: mockedChannel.channel.id,
+      type: 'messaging',
+    });
     await channel.watch();
 
     expect(channel.initialized).toBe(true);
@@ -70,7 +79,7 @@ describe('useIsChannelMuted', () => {
     // initialized but is flagged pending disposal, and channel.getClient() throws on it —
     // which the imperative channel.muteStatus() went through, crashing the ChannelListItem
     // render (#2393 failure class). The reactive slice is readable regardless.
-    channel.pendingDisposal = true;
+    channel.state.partialNext({ pendingDisposal: true });
 
     const { result } = renderHook(() => useIsChannelMuted(channel), {
       wrapper: createWrapper(client),
@@ -83,7 +92,10 @@ describe('useIsChannelMuted', () => {
     const client = await getTestClientWithUser(clientUser);
     const mockedChannel = generateChannel();
     useMockedApis(client, [getOrCreateChannelApi(mockedChannel)]);
-    const channel = client.channel('messaging', mockedChannel.channel.id);
+    const channel = client.channelManager.ensure({
+      id: mockedChannel.channel.id,
+      type: 'messaging',
+    });
     await channel.watch();
 
     const { result } = renderHook(() => useIsChannelMuted(channel), {

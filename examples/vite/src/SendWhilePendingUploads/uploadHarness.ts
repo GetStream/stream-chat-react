@@ -1,5 +1,10 @@
-import type { MessageComposer, UploadRequestOptions } from 'stream-chat';
-import type { FileLike, FileReference } from 'stream-chat';
+import type {
+  FileLike,
+  FileReference,
+  MessageComposer,
+  UploadRequestFn,
+  UploadRequestOptions,
+} from 'stream-chat';
 
 /** Files whose name starts with this fail when the failure mode is `prefixed`. */
 export const FAILING_FILE_NAME_PREFIX = 'fail-';
@@ -11,11 +16,13 @@ export type UploadHarnessSettings = {
   delayMs: number;
   /** Which uploads should reject instead of completing. */
   failureMode: UploadFailureMode;
+  /** The request that stores the file: Stream's own, or one to a CDN. */
+  upload: UploadRequestFn;
 };
 
 /**
- * Dev-only harness wrapping `doUploadRequest`, so uploads can be slowed down and made to fail on
- * demand from **Settings → Composer**.
+ * Dev-only harness wrapping `doUploadRequest`, so uploads can be sent to a CDN, slowed down and made
+ * to fail on demand from **Settings → Composer**.
  *
  * Without the delay there is nothing to look at: this app's Stream project caps uploads at 3 MiB,
  * which lands in well under a second. Without the failure switch there is no way to reach the
@@ -24,11 +31,12 @@ export type UploadHarnessSettings = {
  * Both live in one function because a custom `doUploadRequest` cannot be un-set —
  * `MessageComposer.updateConfig` merges via `mergeWith`, which skips `undefined` — and the
  * attachment manager holds only one. So the harness is installed once and reads the current
- * settings on every upload; with the delay at `0` and failures off it is a pass-through.
+ * settings on every upload; with the delay at `0`, failures off and Stream as the destination it is
+ * a pass-through.
  *
  * Caveat: installing a custom `doUploadRequest` flips `hasCustomDoUploadRequest`, which slightly
  * changes the guard in `uploadFiles`. Irrelevant for the demo, but it is why the harness is
- * installed only once one of the switches is armed rather than unconditionally.
+ * installed only once one of the switches is armed or a CDN is chosen rather than unconditionally.
  */
 const PROGRESS_STEPS = 20;
 /**
@@ -55,19 +63,19 @@ const shouldFail = (fileLike: FileReference | FileLike, mode: UploadFailureMode)
 export const installUploadHarness = (
   composer: MessageComposer,
   /**
-   * Read at call time, not at install time, so changing either setting takes effect on the next
+   * Read at call time, not at install time, so changing any setting takes effect on the next
    * upload without re-running the composer setup.
    */
   getSettings: () => UploadHarnessSettings,
 ) => {
   composer.attachmentManager.setCustomUploadFn(
     async (fileLike: FileReference | FileLike, options?: UploadRequestOptions) => {
-      const { delayMs, failureMode } = getSettings();
+      const { delayMs, failureMode, upload } = getSettings();
       const failing = shouldFail(fileLike, failureMode);
 
       if (delayMs <= 0) {
         if (failing) throw new Error('Simulated upload failure');
-        return composer.attachmentManager.doDefaultUploadRequest(fileLike, options);
+        return upload(fileLike, options);
       }
 
       const rampMs = delayMs * RAMP_SHARE;
@@ -91,7 +99,7 @@ export const installUploadHarness = (
       }
       if (failing) throw new Error('Simulated upload failure');
 
-      return composer.attachmentManager.doDefaultUploadRequest(fileLike, options);
+      return upload(fileLike, options);
     },
   );
 };

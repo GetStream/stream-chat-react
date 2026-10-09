@@ -3,9 +3,11 @@ import type { ComponentType } from 'react';
 import { convertTimestampToDate, formatMessage } from 'stream-chat';
 import type {
   Channel,
+  ChannelLifecycleState,
   ChannelResponse,
   MessageFocusSignalState,
   MessageResponse,
+  StreamChat,
   UserResponse,
 } from 'stream-chat';
 
@@ -19,10 +21,43 @@ import {
   useTranslationContext,
   useWorkspaceNavigation,
 } from '../../../context';
+import type { TranslationContextValue } from '../../../context';
 import { Timestamp } from '../../../components/Message/Timestamp';
 import { useStateStore } from '../../../store';
 
 type SearchResultMessage = MessageResponse & { channel?: ChannelResponse };
+
+const pendingDisposalSelector = (state: ChannelLifecycleState) => ({
+  pendingDisposal: state.pendingDisposal,
+});
+
+/**
+ * Reports that a channel opened from a search result failed to load: its watch request failed, so it
+ * shows only what the search loaded and receives no new messages, which nothing on screen would show
+ * otherwise. For a direct message opened from a user result, the channel was not created.
+ */
+const reportLoadFailed = ({
+  channel,
+  client,
+  emitter,
+  error,
+  t,
+}: {
+  channel: Channel;
+  client: StreamChat;
+  emitter: string;
+  error: unknown;
+  t: TranslationContextValue['t'];
+}) => {
+  client.notifications.addError({
+    message: t('search.results.loadChannelFailed.text', 'Failed to load the channel'),
+    options: {
+      originalError: error instanceof Error ? error : new Error(String(error)),
+      type: 'api:channel:watch:failed',
+    },
+    origin: { context: { channel }, emitter },
+  });
+};
 
 const messageFocusSignalSelector = (state: MessageFocusSignalState) => ({
   focusedMessageId: state.signal?.messageId,
@@ -40,7 +75,8 @@ export const ChannelSearchResultItem = ({
   onSelect,
 }: ChannelSearchResultItemProps) => {
   const { openChannel } = useWorkspaceNavigation();
-  const { channelManager } = useChatContext();
+  const { channelManager, client } = useChatContext();
+  const { t } = useTranslationContext();
 
   const handleSelect = useCallback(
     (event: React.MouseEvent) => {
@@ -51,11 +87,22 @@ export const ChannelSearchResultItem = ({
       // Default: open the channel in the workspace, forwarding the event so a consumer overriding
       // `openChannel` (e.g. via ChatView's `deriveWorkspaceNavigation`) can honor ⌘/ctrl-click.
       openChannel(item, { event });
+      // Channel search doesn't watch its results, and `Channel` doesn't watch either, so the opened
+      // channel is watched here to receive its events.
+      item.ensureWatched().catch((error) =>
+        reportLoadFailed({
+          channel: item,
+          client,
+          emitter: 'ChannelSearchResultItem',
+          error,
+          t,
+        }),
+      );
       // Route the channel into the list(s) that should own it (the channel manager dedupes by cid,
       // inserts in sort order, and honors ownership/filters) so it appears without a re-query.
       channelManager.ingestChannel(item);
     },
-    [item, openChannel, channelManager, onSelect],
+    [item, openChannel, channelManager, client, onSelect, t],
   );
 
   return (
@@ -80,13 +127,20 @@ export const MessageSearchResultItem = ({
 }: ChannelByMessageSearchResultItemProps) => {
   const { channelManager, client } = useChatContext();
   const { isChannelActive, openChannel } = useWorkspaceNavigation();
+  const { t } = useTranslationContext();
 
-  const channel = useMemo(() => {
-    const { channel: channelData } = item;
-    const type = channelData?.type ?? 'unknown';
-    const id = channelData?.id ?? 'unknown';
-    return client.channel(type, id);
-  }, [client, item]);
+  // Looked up, not created: the message search stores every result's channel before returning it
+  // and keeps it stored while the search is active. A message without a channel shows no row.
+  const cid = item.cid ?? item.channel?.cid;
+  const storedChannel = cid ? channelManager.get(cid) : undefined;
+  // A channel that ends (deleted, the user removed, logout) is disposed and leaves the store without
+  // re-rendering this row, so the row follows the disposal: it then looks the channel up again and
+  // shows nothing while none is stored.
+  const { pendingDisposal } = useStateStore(
+    storedChannel?.state,
+    pendingDisposalSelector,
+  ) ?? { pendingDisposal: false };
+  const channel = storedChannel && !pendingDisposal ? storedChannel : undefined;
 
   const channelOpenInSlot = isChannelActive(channel?.cid ?? undefined);
   const { focusedMessageId } = useStateStore(
@@ -100,12 +154,30 @@ export const MessageSearchResultItem = ({
         onSelect(event);
         return;
       }
-      if (!channel) return;
-      openChannel(channel, { event });
-      channelManager.ingestChannel(channel);
-      void channel.messagePaginator.jumpToMessage(item.id);
+      // the stored instance at the time of the click: the one rendered may have ended since
+      const current = cid ? channelManager.get(cid) : undefined;
+      if (!current || current.pendingDisposal) return;
+      openChannel(current, { event });
+      channelManager.ingestChannel(current);
+      void (async () => {
+        // A channel stored but never loaded (the search stores a result's channel from the result
+        // when its query doesn't return it) is loaded first, through the one watch anything opening
+        // it shares; a first page landing after the jump would move the list away from the message.
+        if (!current.initialized) await current.ensureWatched();
+        // A channel stored but not watched, such as one a thread created, is watched with the
+        // request that loads the message, so it receives its events.
+        await current.messagePaginator.jumpToMessage(item.id, { watchChannel: true });
+      })().catch((error) =>
+        reportLoadFailed({
+          channel: current,
+          client,
+          emitter: 'MessageSearchResultItem',
+          error,
+          t,
+        }),
+      );
     },
-    [channel, item, openChannel, channelManager, onSelect],
+    [cid, item, openChannel, channelManager, client, onSelect, t],
   );
 
   // Preview the matched message itself (not the channel's latest) by overriding `previewedMessage`.
@@ -145,16 +217,30 @@ export const UserSearchResultItem = ({ item, onSelect }: UserSearchResultItemPro
         onSelect(event);
         return;
       }
-      const newChannel = client.channel(directMessagingChannelType, {
-        members: [{ user_id: client.userId as string }, { user_id: item.id }],
+      const newChannel = channelManager.ensure({
+        data: {
+          members: [{ user_id: client.userId as string }, { user_id: item.id }],
+        },
+        type: directMessagingChannelType,
       });
-      newChannel.watch();
       // Default: open the DM channel in the workspace, forwarding the event so a consumer overriding
       // `openChannel` can honor ⌘/ctrl-click.
       openChannel(newChannel, { event });
-      channelManager.ingestChannel(newChannel);
+      newChannel.ensureWatched().then(
+        // Listed only once the watch gives a new DM its id (lists refuse a channel without one).
+        // `ensureWatched()` resolves with the stored instance if another one took that id meanwhile.
+        (channel) => channelManager.ingestChannel(channel),
+        (error) =>
+          reportLoadFailed({
+            channel: newChannel,
+            client,
+            emitter: 'UserSearchResultItem',
+            error,
+            t,
+          }),
+      );
     },
-    [client, item, openChannel, channelManager, directMessagingChannelType, onSelect],
+    [client, item, openChannel, channelManager, directMessagingChannelType, onSelect, t],
   );
 
   return (

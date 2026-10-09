@@ -1,7 +1,7 @@
 import React from 'react';
 
 import { cleanup, fireEvent, render, screen } from '@testing-library/react';
-import type { StreamChat } from 'stream-chat';
+import type { PaginatorState, StreamChat, Thread } from 'stream-chat';
 
 import { ThreadList } from '../ThreadList';
 import { initClientWithChannels } from '../../../../mock-builders';
@@ -84,11 +84,9 @@ vi.mock('../../../Notifications', () => ({
 }));
 
 describe('ThreadList', () => {
-  // MERGE-RECONCILE (test migration): the ThreadList effects now call real ThreadManager APIs
-  // (`client.threads.state.getLatestValue()`, `partialNext`, `reload`). Use a real StreamChat
-  // client (via initClientWithChannels) so `client.threads.state` is a genuine StateStore rather
-  // than hand-mocking `client.threads`. `useStateStore` stays mocked to drive isLoading/threads,
-  // and `client.threads.reload` is stubbed to avoid a network call in the mount effect.
+  // A real StreamChat client (via initClientWithChannels), so `client.threads` and its paginator
+  // are genuine. `useStateStore` stays mocked to drive isLoading/threads, and
+  // `client.threads.reload` is stubbed to avoid a network call in the mount effect.
   let client: StreamChat;
 
   beforeEach(async () => {
@@ -133,6 +131,60 @@ describe('ThreadList', () => {
       'aria-label': 'Thread list',
       role: 'listbox',
     });
+  });
+
+  it('reads the threads and the loading state from the thread paginator', () => {
+    render(<ThreadList />);
+
+    const [store, selector] = mockUseStateStore.mock.calls[0];
+    expect(store).toBe(client.threads.paginator.state);
+    expect(
+      selector({ isLoading: true, items: undefined } as PaginatorState<Thread>),
+    ).toEqual({ isLoading: true, threads: [] });
+    const threads = [{ id: 'thread-1' }] as Thread[];
+    expect(
+      selector({ isLoading: false, items: threads } as PaginatorState<Thread>),
+    ).toEqual({ isLoading: false, threads });
+  });
+
+  it('keeps the loaded threads on screen while the paginator is loading', () => {
+    // `isLoading` with threads loaded is the next page, not the first load.
+    mockUseStateStore.mockReturnValue({ isLoading: true, threads: [{ id: 'thread-1' }] });
+
+    render(<ThreadList />);
+
+    expect(screen.getByTestId('virtuoso')).toBeInTheDocument();
+    expect(screen.queryByTestId('loading-channels')).not.toBeInTheDocument();
+  });
+
+  it('reloads the list on mount without resetting the manager state', () => {
+    client.threads.state.partialNext({ unseenThreadIds: ['unseen-thread'] });
+
+    render(<ThreadList />);
+
+    expect(client.threads.reload).toHaveBeenCalledWith({ force: true });
+    expect(client.threads.state.getLatestValue().unseenThreadIds).toEqual([
+      'unseen-thread',
+    ]);
+  });
+
+  it('loads the next page through the paginator when scrolled to the bottom', () => {
+    const toTail = vi
+      .spyOn(client.threads.paginator, 'toTail')
+      .mockResolvedValue(undefined);
+    mockUseStateStore.mockReturnValue({
+      isLoading: false,
+      threads: [{ id: 'thread-1' }],
+    });
+
+    render(<ThreadList />);
+    const { atBottomStateChange } = mockVirtuoso.mock.calls[0][0];
+
+    atBottomStateChange(false);
+    expect(toTail).not.toHaveBeenCalled();
+
+    atBottomStateChange(true);
+    expect(toTail).toHaveBeenCalledTimes(1);
   });
 
   // 5 threads, but the mocked Virtuoso only renders the first MOCK_WINDOW_SIZE (3).

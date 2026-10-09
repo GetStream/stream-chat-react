@@ -135,6 +135,35 @@
   justify-content: center;
 }
 
+.str-chat__chat-view__empty-placeholder {
+  --str-chat-icon-color: var(--str-chat__text-tertiary);
+
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--str-chat__spacing-sm);
+  height: 100%;
+  padding: var(--str-chat__spacing-3xl) var(--str-chat__spacing-xl);
+  background: var(--str-chat__background-core-app);
+  color: var(--str-chat__text-secondary);
+  font: var(--str-chat__font-caption-default);
+  text-align: center;
+
+  svg {
+    width: var(--str-chat__icon-size-lg);
+    height: var(--str-chat__icon-size-lg);
+    color: var(--str-chat-icon-color);
+  }
+
+  .str-chat__chat-view__empty-placeholder-text {
+    margin: 0;
+    max-width: 320px;
+    overflow-wrap: break-word;
+  }
+}
+
 .str-chat__chat-view__workspace-layout-slot {
   display: flex;
   flex: 1 1 0;

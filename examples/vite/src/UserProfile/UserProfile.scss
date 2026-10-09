@@ -1,0 +1,173 @@
+@layer stream-app-overrides {
+  .app__user-profile {
+    width: min(440px, 92vw);
+    max-height: min(80dvh, 720px);
+    display: flex;
+    flex-direction: column;
+    background: var(--str-chat__background-core-elevation-2);
+    color: var(--str-chat__text-primary);
+  }
+
+  .app__user-profile__body {
+    display: flex;
+    flex-direction: column;
+    gap: var(--str-chat__spacing-md);
+    overflow-y: auto;
+    padding-bottom: var(--str-chat__spacing-xl);
+  }
+
+  .app__user-profile__header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--str-chat__spacing-xs);
+  }
+
+  .app__user-profile__avatar-picker {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--str-chat__spacing-xs);
+  }
+
+  .app__user-profile__avatar-button {
+    position: relative;
+    padding: 0;
+    border: none;
+    border-radius: 50%;
+    background: none;
+    cursor: pointer;
+
+    &:disabled {
+      cursor: progress;
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--str-chat__border-utility-selected);
+      outline-offset: 2px;
+    }
+  }
+
+  // the camera icon over the avatar: shown on hover and focus, and while an upload is running
+  .app__user-profile__avatar-overlay {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: rgba(0, 0, 0, 0.45);
+    color: #fff;
+    opacity: 0;
+    transition: opacity 120ms ease;
+
+    svg {
+      width: 24px;
+      height: 24px;
+    }
+  }
+
+  .app__user-profile__avatar-button:hover .app__user-profile__avatar-overlay,
+  .app__user-profile__avatar-button:focus-visible .app__user-profile__avatar-overlay,
+  .app__user-profile__avatar-button:disabled .app__user-profile__avatar-overlay {
+    opacity: 1;
+  }
+
+  .app__user-profile__id {
+    font: var(--str-chat__font-caption-default);
+    color: var(--str-chat__text-secondary);
+  }
+
+  .app__user-profile__section {
+    display: flex;
+    flex-direction: column;
+    border-top: 1px solid var(--str-chat__border-core-default);
+    padding-top: var(--str-chat__spacing-sm);
+  }
+
+  .app__user-profile__section-title {
+    font: var(--str-chat__font-caption-default);
+    font-weight: 600;
+    color: var(--str-chat__text-secondary);
+    padding-bottom: var(--str-chat__spacing-xs);
+  }
+
+  // label above the value, both tight, so a row costs little vertical space
+  .app__user-profile__field {
+    display: flex;
+    flex-direction: column;
+    padding: var(--str-chat__spacing-xs) 0;
+  }
+
+  .app__user-profile__field-label {
+    font: var(--str-chat__font-caption-default);
+    color: var(--str-chat__text-secondary);
+  }
+
+  .app__user-profile__field-value-row {
+    display: flex;
+    align-items: center;
+    gap: var(--str-chat__spacing-xs);
+    min-height: 32px;
+  }
+
+  .app__user-profile__field-value {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .app__user-profile__field-empty {
+    color: var(--str-chat__text-tertiary);
+  }
+
+  .app__user-profile__add {
+    display: flex;
+    flex-direction: column;
+    gap: var(--str-chat__spacing-xs);
+    border-top: 1px solid var(--str-chat__border-core-default);
+    padding-top: var(--str-chat__spacing-sm);
+  }
+
+  .app__user-profile__add-inputs {
+    display: grid;
+    // minmax(0, …) and min-width: 0 let the inputs shrink below their intrinsic width, so the
+    // button stays inside the dialog
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto;
+    gap: var(--str-chat__spacing-xs);
+    align-items: center;
+
+    > * {
+      min-width: 0;
+    }
+  }
+
+  .app__user-profile__error {
+    font: var(--str-chat__font-caption-default);
+    color: var(--str-chat__text-utility-error);
+  }
+
+  .app__user-profile__hint {
+    font: var(--str-chat__font-caption-default);
+    color: var(--str-chat__text-tertiary);
+  }
+
+  // Below the settings group, with no padding: the avatar fills the whole button, the size the
+  // other selector buttons reach with their icon plus padding.
+  .str-chat__chat-view__selector .str-chat__button.app__user-profile-button {
+    --app-user-profile-button-size: calc(
+      var(--str-chat__icon-size-md) + 2 * var(--str-chat__spacing-xs)
+    );
+
+    padding: 0;
+    border-radius: 50%;
+
+    .str-chat__avatar {
+      flex-shrink: 0;
+      width: var(--app-user-profile-button-size);
+      height: var(--app-user-profile-button-size);
+    }
+  }
+}

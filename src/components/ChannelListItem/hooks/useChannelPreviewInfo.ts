@@ -1,12 +1,14 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo } from 'react';
 import type { Channel } from 'stream-chat';
 
 import { useChatContext } from '../../../context';
+import { useStateStore } from '../../../store';
 import {
-  getChannelDisplayImage,
-  getGroupChannelDisplayInfo,
-  type GroupChannelDisplayInfo,
-} from '../utils';
+  channelDisplayStateSelector,
+  deriveChannelDisplayImage,
+  deriveGroupChannelDisplayInfo,
+} from '../channelDisplayState';
+import type { GroupChannelDisplayInfo } from '../utils';
 import { useChannelDisplayName } from './useChannelDisplayName';
 
 const emptyGroupInfo: GroupChannelDisplayInfo = {
@@ -23,6 +25,11 @@ export type ChannelPreviewInfoParams = {
   overrideTitle?: string;
 };
 
+/**
+ * The title, image and group members a channel preview shows. Derived from the channel's `data`
+ * and `members`, so a preview re-renders only when its own channel changes: an updated user reaches
+ * the channels that contain them through the member the client replaces.
+ */
 export const useChannelPreviewInfo = (props: ChannelPreviewInfoParams) => {
   const { channel, overrideImage, overrideTitle } = props;
   const { client } = useChatContext();
@@ -30,43 +37,22 @@ export const useChannelPreviewInfo = (props: ChannelPreviewInfoParams) => {
   const channelDisplayName = useChannelDisplayName(channel);
   const displayTitle = overrideTitle ?? channelDisplayName;
 
-  const [displayImage, setDisplayImage] = useState<string | undefined>(() =>
-    channel
-      ? (overrideImage ?? getChannelDisplayImage(channel, client.userID ?? undefined))
-      : undefined,
+  const displayState = useStateStore(channel?.state, channelDisplayStateSelector);
+  const currentUserId = client.userID ?? undefined;
+
+  const displayImage = useMemo(
+    () =>
+      overrideImage ??
+      (displayState ? deriveChannelDisplayImage(displayState, currentUserId) : undefined),
+    [currentUserId, displayState, overrideImage],
   );
-  const [groupChannelDisplayInfo, setGroupChannelDisplayInfo] =
-    useState<GroupChannelDisplayInfo>(() =>
-      channel ? (getGroupChannelDisplayInfo(channel) ?? emptyGroupInfo) : emptyGroupInfo,
-    );
-
-  useEffect(() => {
-    if (!channel) return;
-    if (overrideImage) return;
-
-    const updateInfo = () => {
-      setDisplayImage(getChannelDisplayImage(channel, client.userID ?? undefined));
-      setGroupChannelDisplayInfo(getGroupChannelDisplayInfo(channel) ?? emptyGroupInfo);
-    };
-
-    updateInfo();
-    const { unsubscribe: unsubscribeChannelUpdated } = channel.on(
-      'channel.updated',
-      updateInfo,
-    );
-    const { unsubscribe: unsubscribeUserUpdated } = client.on('user.updated', updateInfo);
-    return () => {
-      unsubscribeChannelUpdated();
-      unsubscribeUserUpdated();
-    };
-  }, [channel, channel?.data, client, overrideImage]);
+  const groupChannelDisplayInfo = useMemo(
+    () => (displayState && deriveGroupChannelDisplayInfo(displayState)) ?? emptyGroupInfo,
+    [displayState],
+  );
 
   return useMemo(
-    () => ({
-      displayImage: overrideImage ?? displayImage,
-      displayTitle,
-      groupChannelDisplayInfo,
-    }),
-    [displayImage, displayTitle, groupChannelDisplayInfo, overrideImage],
+    () => ({ displayImage, displayTitle, groupChannelDisplayInfo }),
+    [displayImage, displayTitle, groupChannelDisplayInfo],
   );
 };

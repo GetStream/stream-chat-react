@@ -32,7 +32,10 @@ const getClientAndChannel = async (channelOverrides = {}) => {
   // eslint-disable-next-line react-hooks/rules-of-hooks
   useMockedApis(client, [getOrCreateChannelApi(mockedChannel)]);
 
-  const channel = client.channel('messaging', mockedChannel.channel.id);
+  const channel = client.channelManager.ensure({
+    id: mockedChannel.channel.id,
+    type: 'messaging',
+  });
   await channel.watch();
 
   return { channel, client };
@@ -135,6 +138,38 @@ describe('useChannelPreviewInfo', () => {
       ).toBe(true);
     });
 
+    it('does not re-render a group channel when a user outside it is updated', async () => {
+      const { channel, client } = await getClientAndChannel({
+        members: [
+          generateMember({ user: generateUser({ image: 'a.jpg', name: 'A' }) }),
+          generateMember({ user: generateUser({ image: 'b.jpg', name: 'B' }) }),
+          generateMember({ user: clientUser }),
+        ],
+      });
+      let renders = 0;
+      const { result } = renderHook(
+        () => {
+          renders += 1;
+          return useChannelPreviewInfo({ channel });
+        },
+        { wrapper: createWrapper(client) },
+      );
+      const before = result.current;
+      const rendersBefore = renders;
+
+      act(() => {
+        client.dispatchEvent(
+          fromPartial<Event>({
+            type: 'user.updated',
+            user: generateUser({ id: 'outsider', name: 'Outsider' }),
+          }),
+        );
+      });
+
+      expect(renders).toBe(rendersBefore);
+      expect(result.current).toBe(before);
+    });
+
     it('uses overrideTitle over channel display title', async () => {
       const { channel, client } = await getClientAndChannel({
         channel: { custom: { name: 'Channel Name' } },
@@ -161,74 +196,92 @@ describe('useChannelPreviewInfo', () => {
       expect(result.current.displayImage).toBe('https://override.jpg');
     });
 
-    it('subscribes to user.updated and updates displayImage and groupChannelDisplayInfo', async () => {
-      const imageUrl = 'https://initial.jpg';
+    it('shows an updated member in a DM title and image', async () => {
+      const other = generateUser({ id: 'other', image: 'before.jpg', name: 'Before' });
       const { channel, client } = await getClientAndChannel({
-        channel: { custom: { image: imageUrl } },
+        members: [generateMember({ user: clientUser }), generateMember({ user: other })],
+      });
+      const { result } = renderHook(() => useChannelPreviewInfo({ channel }), {
+        wrapper: createWrapper(client),
+      });
+      expect(result.current.displayTitle).toBe('Before');
+      expect(result.current.displayImage).toBe('before.jpg');
+
+      act(() => {
+        client.dispatchEvent(
+          fromPartial<Event>({
+            type: 'user.updated',
+            user: { ...other, image: 'after.jpg', name: 'After' },
+          }),
+        );
       });
 
-      const onSpy = vi.spyOn(client, 'on');
+      expect(result.current.displayTitle).toBe('After');
+      expect(result.current.displayImage).toBe('after.jpg');
+    });
 
+    it('shows an updated member in the group members', async () => {
+      const a = generateUser({ id: 'a', image: 'a.jpg', name: 'A' });
+      const { channel, client } = await getClientAndChannel({
+        members: [
+          generateMember({ user: a }),
+          generateMember({ user: generateUser({ image: 'b.jpg', name: 'B' }) }),
+          generateMember({ user: clientUser }),
+        ],
+      });
       const { result } = renderHook(() => useChannelPreviewInfo({ channel }), {
         wrapper: createWrapper(client),
       });
 
-      expect(result.current.displayImage).toBe(imageUrl);
-      expect(onSpy).toHaveBeenCalledWith('user.updated', expect.any(Function));
-
-      const updateInfo = onSpy.mock.calls.find((c) => c[0] === 'user.updated')?.[1];
-      expect(updateInfo).toBeDefined();
-
       act(() => {
-        updateInfo(fromPartial<Event>({}));
+        client.dispatchEvent(
+          fromPartial<Event>({
+            type: 'user.updated',
+            user: { ...a, image: 'a2.jpg', name: 'A2' },
+          }),
+        );
       });
 
-      expect(result.current.displayImage).toBe(imageUrl);
-
-      onSpy.mockRestore();
+      expect(result.current.groupChannelDisplayInfo.members).toContainEqual(
+        expect.objectContaining({ imageUrl: 'a2.jpg', userName: 'A2' }),
+      );
     });
 
-    it('does not subscribe to user.updated for image when overrideImage is set', async () => {
+    it('keeps overrideImage when a member is updated', async () => {
+      const other = generateUser({ id: 'other', image: 'before.jpg' });
       const { channel, client } = await getClientAndChannel({
-        channel: { custom: { image: 'https://channel.jpg' } },
+        members: [generateMember({ user: clientUser }), generateMember({ user: other })],
       });
-
-      const onSpy = vi.spyOn(client, 'on');
-
-      renderHook(
+      const { result } = renderHook(
         () => useChannelPreviewInfo({ channel, overrideImage: 'https://override.jpg' }),
         { wrapper: createWrapper(client) },
       );
 
-      // useChannelDisplayName always subscribes to user.updated (updateDisplayName),
-      // but the image-related subscription (updateInfo) from useChannelPreviewInfo should not be present.
-      const userUpdatedCalls = onSpy.mock.calls.filter((c) => c[0] === 'user.updated');
-      // Only the useChannelDisplayName subscription should be present
-      expect(userUpdatedCalls).toHaveLength(1);
-      expect(userUpdatedCalls[0][1].name).toBe('updateDisplayName');
+      act(() => {
+        client.dispatchEvent(
+          fromPartial<Event>({
+            type: 'user.updated',
+            user: { ...other, image: 'after.jpg' },
+          }),
+        );
+      });
 
-      onSpy.mockRestore();
+      expect(result.current.displayImage).toBe('https://override.jpg');
     });
 
-    it('unsubscribes from user.updated on unmount', async () => {
-      const { channel, client } = await getClientAndChannel();
-
-      const onSpy = vi.spyOn(client, 'on');
-      const offSpy = vi.spyOn(client, 'off');
-
-      const { unmount } = renderHook(() => useChannelPreviewInfo({ channel }), {
+    it('follows channel.data, e.g. after channel.updated', async () => {
+      const { channel, client } = await getClientAndChannel({
+        channel: { custom: { image: 'https://before.jpg' } },
+      });
+      const { result } = renderHook(() => useChannelPreviewInfo({ channel }), {
         wrapper: createWrapper(client),
       });
 
-      expect(onSpy).toHaveBeenCalledWith('user.updated', expect.any(Function));
-      const updateInfo = onSpy.mock.calls.find((c) => c[0] === 'user.updated')?.[1];
+      act(() => {
+        channel.data = { ...channel.data, custom: { image: 'https://after.jpg' } };
+      });
 
-      unmount();
-
-      expect(offSpy).toHaveBeenCalledWith('user.updated', updateInfo);
-
-      onSpy.mockRestore();
-      offSpy.mockRestore();
+      expect(result.current.displayImage).toBe('https://after.jpg');
     });
   });
 });

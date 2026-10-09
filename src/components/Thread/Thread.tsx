@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import type { PropsWithChildren } from 'react';
 
 import { WithAudioPlayback } from '../AudioPlayback';
@@ -7,12 +7,7 @@ import { useChatContext } from '../../context';
 import { ThreadProvider } from '../Threads';
 import { useStateStore } from '../../store';
 
-import type {
-  LocalMessage,
-  Thread as StreamThread,
-  ThreadManagerState,
-  ThreadState,
-} from 'stream-chat';
+import type { Thread as StreamThread, ThreadState } from 'stream-chat';
 import type { ChannelConfig } from 'stream-chat';
 
 const repliesStateSelector = ({ replies }: ChannelConfig) => ({
@@ -21,38 +16,33 @@ const repliesStateSelector = ({ replies }: ChannelConfig) => ({
 
 export type ThreadProps = PropsWithChildren<{
   /**
-   * The thread to render. Initialize it before passing it in; `Thread` does not query for it --
-   * it loads the replies of a thread the `ThreadManager` does not already hold.
+   * The thread to render. Get it from `client.threads.ensure()` (or `client.threads.get()`) rather
+   * than constructing it, so it is registered with the `ThreadManager` and receives events. `Thread`
+   * loads it while its state is stale, which is how a thread built from its parent message starts
+   * when it may have replies to load.
    */
   thread: StreamThread;
 }>;
 
-const selector = ({ isStateStale, parentMessage, replyCount }: ThreadState) => ({
-  // A thread exists server-side only once its parent has a reply. Selected as a boolean so the
-  // panel does not re-render on every incoming reply -- only on the transition that matters.
-  hasServerSideThread: replyCount > 0,
+const selector = ({
+  isLoading,
+  isStateStale,
+  parentMessage,
+  replyCount,
+}: ThreadState) => ({
+  // Whether the parent reports a reply. Selected as a boolean so the panel does not re-render on
+  // every incoming reply -- only on the transition that matters.
+  hasReplies: replyCount > 0,
+  isLoading,
   isStateStale,
   parentMessage,
 });
 
-// Same reasoning: the effects below only ask whether the replies have loaded, never what they are.
-const messagePaginatorSelector = ({
-  isLoading,
-  items,
-  lastQueryError,
-}: {
-  isLoading: boolean;
-  items: LocalMessage[] | undefined;
-  lastQueryError?: Error;
-}) => ({
-  hasLoadedReplies: items !== undefined,
-  isLoading,
-  lastQueryError,
-});
-
 /**
- * The container for a thread panel: it provides the thread to its subtree, loads it, registers it
- * with the `ThreadManager`, scopes audio playback to it, and renders whatever you compose inside.
+ * The container for a thread panel: it provides the thread to its subtree, loads it while its state
+ * is stale, scopes audio playback to it, and renders whatever you compose inside. It does not
+ * register the thread with the `ThreadManager`; `client.threads.ensure()` or `thread.activate()`
+ * does.
  *
  * It renders no UI of its own, the way `Channel` does not -- put the parts you want in as
  * children, and their own props say how they behave:
@@ -74,80 +64,37 @@ const messagePaginatorSelector = ({
  * the replies it shows.
  */
 export const Thread = ({ children, thread }: ThreadProps) => {
-  const { client, customClasses } = useChatContext();
+  const { customClasses } = useChatContext();
   const { repliesEnabled } = useStateStore(
     thread.channel.configState,
     repliesStateSelector,
   );
-  // `hasServerSideThread`: reloading a thread whose parent has no reply yet can only 404 --
-  // `Thread.reload()` swallows that and returns without state.
-  //
-  // Deferred, not cancelled: only a successful reload clears `isStateStale`, so a thread that
-  // stays stale reloads via the effect below as soon as the parent reports its first reply -- the
-  // same moment the rest of the UI learns about replies missed while unwatched.
-  const { hasServerSideThread, isStateStale, parentMessage } = useStateStore(
+  const { hasReplies, isLoading, isStateStale, parentMessage } = useStateStore(
     thread.state,
     selector,
   );
-  const { hasLoadedReplies, isLoading, lastQueryError } = useStateStore(
-    thread.messagePaginator.state,
-    messagePaginatorSelector,
+  // The thread and reply state the current staleness episode last loaded for.
+  const loadedFor = useRef<{ hasReplies: boolean; thread: StreamThread } | undefined>(
+    undefined,
   );
 
-  const isThreadManagedSelector = useCallback(
-    ({ threads }: ThreadManagerState) => ({
-      isThreadManaged: threads.some((managedThread) => managedThread.id === thread.id),
-    }),
-    [thread.id],
-  );
-  const { isThreadManaged } = useStateStore(
-    client.threads.state,
-    isThreadManagedSelector,
-  );
-
-  // Only an unmanaged thread is loaded here. The `ThreadManager` already loads and refreshes the
-  // ones it holds; an instance from `getThreadAndHydrate()` is registered nowhere, so it has no
-  // other owner.
+  // The only load trigger: a stale thread loads, once per staleness episode and reply state. A
+  // thread built from its parent message starts stale when it may have replies to load; listed
+  // threads and `getThreadAndHydrate()` instances arrive loaded. A thread without replies on the
+  // server answers not-found, which `reload()` takes as an empty thread and leaves stale, so it
+  // loads again once its parent reports a reply. `thread.reload()` ignores a call while a load is
+  // in flight, so a reply reported during a load is loaded once that load settles.
   useEffect(() => {
-    if (isThreadManaged) return;
-    if (!hasServerSideThread) return;
-    if (hasLoadedReplies || isLoading) return;
-    void thread.reload();
-  }, [hasLoadedReplies, hasServerSideThread, isLoading, isThreadManaged, thread]);
-
-  // Deliberately a separate effect rather than a branch of the one above: catching up a stale
-  // thread depends on `isStateStale` alone, so it fires once per staleness episode. Merged in, it
-  // would also re-run whenever the load branch's inputs change -- registering the thread flips
-  // `isThreadManaged`, which would request a second reload while the first is still in flight.
-  useEffect(() => {
-    if (isStateStale && hasServerSideThread) {
-      void thread.reload();
+    if (!isStateStale) {
+      loadedFor.current = undefined;
+      return;
     }
-  }, [hasServerSideThread, isStateStale, thread]);
-
-  useEffect(() => {
-    if (isThreadManaged) return;
     if (isLoading) return;
-    if (lastQueryError) return;
-    if (!hasLoadedReplies) return;
-
-    client.threads.state.next((current) => {
-      if (current.threads.some((managedThread) => managedThread.id === thread.id)) {
-        return current;
-      }
-      return {
-        ...current,
-        threads: [thread, ...current.threads],
-      };
-    });
-  }, [
-    client.threads.state,
-    hasLoadedReplies,
-    isLoading,
-    isThreadManaged,
-    lastQueryError,
-    thread,
-  ]);
+    const last = loadedFor.current;
+    if (last?.thread === thread && last.hasReplies === hasReplies) return;
+    loadedFor.current = { hasReplies, thread };
+    void thread.reload();
+  }, [hasReplies, isLoading, isStateStale, thread]);
 
   if (!parentMessage || repliesEnabled === false) return null;
 

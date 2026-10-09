@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import type { ChannelManagerState, ThreadManagerState } from 'stream-chat';
+import type { ChannelManagerState, PaginatorState, Thread } from 'stream-chat';
 import { Button, useChatContext, useStateStore } from 'stream-chat-react';
 import {
   SettingsTabBody,
@@ -50,7 +50,12 @@ const paginatorsSelector = (state: ChannelManagerState) => ({
   paginators: state.paginators,
 });
 
-const threadsSelector = (state: ThreadManagerState) => ({ threads: state.threads });
+// stable, so a list that hasn't loaded yet selects the same value each time
+const noThreads: Thread[] = [];
+
+const threadsSelector = (state: PaginatorState<Thread>) => ({
+  threads: state.items ?? noThreads,
+});
 
 /**
  * `client.config` keys its methods on the real key unions, so a segment parsed out of a dotted path
@@ -66,7 +71,7 @@ const isSetupKey = (key: string): key is InstanceSetupKey =>
 export const ConfigurationTab = ({ close }: ConfigurationTabProps) => {
   const { channelManager, client } = useChatContext();
   const { paginators } = useStateStore(channelManager.state, paginatorsSelector);
-  const { threads } = useStateStore(client.threads.state, threadsSelector);
+  const { threads } = useStateStore(client.threads.paginator.state, threadsSelector);
 
   const [scope, setScope] = useState<TreeKey | 'all'>('all');
   const [selectedType, setSelectedType] = useState('');

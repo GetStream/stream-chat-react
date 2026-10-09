@@ -535,6 +535,7 @@ export type TranslationCatalog = {
   'search.bar.clearSearch.ariaLabel': 'Clear search';
   'search.bar.exitSearch.ariaLabel': 'Exit search';
   'search.resultItem.selectUserChannel.ariaLabel': 'Select User Channel: {{ name }}';
+  'search.results.loadChannelFailed.text': 'Failed to load the channel';
   'search.results.searchResults.ariaLabel': 'Search results';
   'search.resultsHeader.ariaLabel': 'Search results header filter button for: {{ source }}';
   'search.resultsHeader.filterSource.channels': 'channels';
@@ -545,6 +546,8 @@ export type TranslationCatalog = {
   'search.sourceResults.searching.text': 'Searching for {{ searchSourceType }}...';
   'slotLayout.chatView.channels.text': 'Channels';
   'slotLayout.chatView.chatViewControls.ariaLabel': 'Chat view controls';
+  'slotLayout.chatView.empty.channels.text': 'No chat selected';
+  'slotLayout.chatView.empty.threads.text': 'No thread selected';
   'slotLayout.chatView.openChannelsView.ariaLabel': 'Open channels view';
   'slotLayout.chatView.openThreadsView.ariaLabel': 'Open threads view';
   'slotLayout.chatView.openThreadsViewUnread.ariaLabel_one': 'Open threads view, {{ count }} unread thread';

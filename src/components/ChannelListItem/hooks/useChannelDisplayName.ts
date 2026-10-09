@@ -1,39 +1,13 @@
-import { useEffect, useState } from 'react';
+import { useMemo } from 'react';
 import type { Channel } from 'stream-chat';
 
 import { useChatContext } from '../../../context';
 import { useTranslationContext } from '../../../context/TranslationContext';
-
-/**
- * 1. channel.data.custom.name
- * 2. DM (exactly 2 members): other member's name, then directMessageLabel
- * 3. Group (3+ members): comma-separated list of 2 other members' names (no ellipsis)
- * 4. undefined otherwise
- */
-function computeChannelDisplayName(
-  channel: Channel,
-  directMessageLabel: string,
-  currentUserId: string | undefined,
-): string | undefined {
-  const name = channel.data?.custom?.name;
-  if (name && typeof name === 'string') return name;
-
-  const memberList = Object.values(channel.state.members);
-  const otherMembers = memberList.filter((m) => m.user?.id !== currentUserId);
-
-  if (memberList.length === 2 && otherMembers.length === 1) {
-    const name = otherMembers[0].user?.name;
-    return name || directMessageLabel;
-  }
-  if (otherMembers.length >= 2) {
-    const names = otherMembers
-      .map((m) => m.user?.name)
-      .filter(Boolean)
-      .slice(0, 2) as string[];
-    if (names.length > 0) return names.join(', ');
-  }
-  return undefined;
-}
+import { useStateStore } from '../../../store';
+import {
+  channelDisplayStateSelector,
+  deriveChannelDisplayName,
+} from '../channelDisplayState';
 
 /**
  * Channel display name with translation context.
@@ -41,6 +15,9 @@ function computeChannelDisplayName(
  * 2. DM (exactly 2 members): other member's name, then translated "Direct message"
  * 3. Group (3+ members): comma-separated list of 2 other members' names (no ellipsis)
  * 4. undefined otherwise
+ *
+ * Re-derived from the channel's `data` and `members`, so it changes only when this channel does:
+ * an updated user reaches it through the member the client replaces.
  */
 export const useChannelDisplayName = (
   channel: Channel | undefined,
@@ -51,32 +28,14 @@ export const useChannelDisplayName = (
     'channelListItem.channelDisplayName.directMessage.label',
     'Direct message',
   );
+  const displayState = useStateStore(channel?.state, channelDisplayStateSelector);
+  const currentUserId = client.userID ?? undefined;
 
-  const [displayName, setDisplayName] = useState<string | undefined>(() =>
-    channel
-      ? computeChannelDisplayName(channel, directMessageLabel, client.userID ?? undefined)
-      : undefined,
+  return useMemo(
+    () =>
+      displayState
+        ? deriveChannelDisplayName(displayState, directMessageLabel, currentUserId)
+        : undefined,
+    [currentUserId, directMessageLabel, displayState],
   );
-
-  useEffect(() => {
-    if (!channel) {
-      setDisplayName(undefined);
-      return;
-    }
-    const updateDisplayName = () =>
-      setDisplayName(
-        computeChannelDisplayName(
-          channel,
-          directMessageLabel,
-          client.userID ?? undefined,
-        ),
-      );
-    updateDisplayName();
-    client.on('user.updated', updateDisplayName);
-    return () => {
-      client.off('user.updated', updateDisplayName);
-    };
-  }, [channel, channel?.data, client, directMessageLabel]);
-
-  return displayName;
 };

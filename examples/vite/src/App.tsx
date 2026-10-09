@@ -12,6 +12,7 @@ import type {
   LocalMessage,
   SortParamRequest,
   TextComposerMiddleware,
+  UploadRequestFn,
 } from 'stream-chat';
 import {
   ChannelPaginator,
@@ -30,7 +31,6 @@ import {
   type AttachmentProps,
   Chat,
   defaultReactionOptions,
-  getChannel,
   mapEmojiMartData,
   MessageReactions,
   NotificationList,
@@ -40,7 +40,7 @@ import {
   useCreateChatClient,
   WithComponents,
 } from 'stream-chat-react';
-import { ChatView } from 'stream-chat-react/slot-layout';
+import { ChatView, DisposedChannelRelease } from 'stream-chat-react/slot-layout';
 import { createTextComposerEmojiMiddleware, EmojiPicker } from 'stream-chat-react/emojis';
 import { init, SearchIndex } from 'emoji-mart';
 import data from '@emoji-mart/data/sets/14/native.json';
@@ -97,7 +97,11 @@ import { InlineEditableMessage } from './InlineEditMessage';
 import { SidebarToggle } from './Sidebar/SidebarToggle.tsx';
 import { CommandModeAttachmentSelector } from './CommandModeAttachmentSelector.tsx';
 import { StreamDebugHandles } from './Debug';
-import { installUploadHarness } from './SendWhilePendingUploads';
+import {
+  installUploadHarness,
+  MOCK_CDN_UPLOAD_URL,
+  uploadToCdn,
+} from './SendWhilePendingUploads';
 import { streamI18n } from './i18n';
 import {
   DocumentTitleManager,
@@ -287,7 +291,7 @@ const formatDocumentTitle = ({
 const App = () => {
   const { tokenProvider, userId, userImage, userName } = useUser();
   const chatView = useAppSettingsSelector((state) => state.chatView);
-  const { failUploads, sendMessagesWithPendingUploads, slowUploads } =
+  const { failUploads, sendMessagesWithPendingUploads, slowUploads, uploadDestination } =
     useAppSettingsSelector((state) => state.composer);
   // Project to a stable-shape object rather than returning `state.layout` directly. `layout`
   // starts as `{}`, and useStateStore only diffs the keys present in its *cached* selection — so
@@ -395,13 +399,13 @@ const App = () => {
 
     targets.forEach(({ cid, messageId }) => {
       const separatorIndex = cid.indexOf(':');
-      const channel = chatClient.channel(
-        cid.slice(0, separatorIndex),
-        cid.slice(separatorIndex + 1),
-      );
+      const channel = chatClient.channelManager.ensure({
+        id: cid.slice(separatorIndex + 1),
+        type: cid.slice(0, separatorIndex),
+      });
 
       void (async () => {
-        if (!channel.initialized) await getChannel({ channel, client: chatClient });
+        if (!channel.initialized) await channel.ensureWatched();
         await channel.messagePaginator.jumpToMessage(messageId);
       })();
     });
@@ -512,16 +516,29 @@ const App = () => {
     chatClient.config.setSetupFunction('messageComposer', ({ composer }) => {
       // Settings are read on every upload rather than captured here, so changing them in
       // Settings -> Composer takes effect without re-running setup - which matters because a
-      // custom doUploadRequest cannot be un-set once installed.
-      if (slowUploads || failUploads !== 'off') {
+      // custom doUploadRequest cannot be un-set once installed. The harness is installed once a
+      // setting needs it: this effect then registers a new setup function, which stream-chat runs
+      // on every open composer too, not only on those built afterwards.
+      if (slowUploads || failUploads !== 'off' || uploadDestination !== 'stream') {
         installUploadHarness(composer, () => {
           const {
+            customCdnUrl,
             failUploads: failureMode,
             slowUploadMs,
             slowUploads: slowArmed,
+            uploadDestination: destination,
           } = appSettingsStore.getLatestValue().composer;
+          const upload: UploadRequestFn =
+            destination === 'stream'
+              ? composer.attachmentManager.doDefaultUploadRequest
+              : (fileLike, options) =>
+                  uploadToCdn(
+                    destination === 'mock-cdn' ? MOCK_CDN_UPLOAD_URL : customCdnUrl,
+                    fileLike,
+                    options,
+                  );
 
-          return { delayMs: slowArmed ? slowUploadMs : 0, failureMode };
+          return { delayMs: slowArmed ? slowUploadMs : 0, failureMode, upload };
         });
       }
 
@@ -563,19 +580,21 @@ const App = () => {
         location: { enabled: true },
       });
     });
-  }, [chatClient, failUploads, slowUploads]);
+  }, [chatClient, failUploads, slowUploads, uploadDestination]);
 
   useEffect(() => {
     if (!chatClient) return;
 
-    // Declarative rather than in the setup function above, which only runs for composers built
-    // afterwards. A composer picks this up when it is constructed or when it registers
-    // subscriptions, and the latter is what mounting a channel does - so an open composer sees it
-    // at once and the rest on their way in.
+    // Declarative rather than in the setup function above: a composer picks this up when it is
+    // constructed or when it registers subscriptions, and the latter is what mounting a channel
+    // does - so an open composer sees it at once and the rest on their way in.
     chatClient.config.setConfig('messageComposer', {
-      attachments: { pendingUploadsEnabled: sendMessagesWithPendingUploads },
+      attachments: {
+        customCdn: uploadDestination !== 'stream',
+        pendingUploadsEnabled: sendMessagesWithPendingUploads,
+      },
     });
-  }, [chatClient, sendMessagesWithPendingUploads]);
+  }, [chatClient, sendMessagesWithPendingUploads, uploadDestination]);
 
   const chatTheme = themeMode === 'dark' ? 'str-chat__theme-dark' : 'messaging light';
   const initialAppLayoutStyle = useMemo(
@@ -666,9 +685,6 @@ const App = () => {
           searchController={searchController}
           theme={chatTheme}
         >
-          {/* Application code (examples/vite/src/DocumentTitleManager), not an SDK component: the
-              SDK never touches document.title, because what belongs in a tab title depends on what
-              the app is showing. */}
           <DocumentTitleManager formatTitle={formatDocumentTitle} />
           <ChatSkipNavigation />
           {/* Publishes window.streamDebug — see src/Debug/StreamDebugHandles.tsx */}
@@ -699,6 +715,7 @@ const App = () => {
                   views={chatViews}
                 >
                   <WorkspaceUrlSync />
+                  <DisposedChannelRelease />
                   <SidebarLayoutSync />
                 </ChatView>
               </SlotGeometryProvider>

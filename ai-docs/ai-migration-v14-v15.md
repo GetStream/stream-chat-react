@@ -322,20 +322,23 @@ dictionary: [`i18n-v15-migration.md`](./i18n-v15-migration.md).
 `Channel` used to call `channel.watch()` when it mounted an uninitialized channel. `initializeOnMount` turned that off and `channelQueryOptions` configured the query. The call and **both props are removed** — whoever supplies the channel initializes it.
 
 - **Channels from `ChannelList`, or any `queryChannels` call, arrive watched.** If that is where yours come from, nothing changes.
-- **Creating a channel and handing it straight to `Channel`** → watch it first, with the exported `getChannel`:
+- **Creating a channel and handing it straight to `Channel`** → watch it first, with `channel.ensureWatched()`:
 
   ```tsx
-  import { getChannel } from 'stream-chat-react';
-
-  const channel = client.channel('messaging', id, { members, custom });
-  if (!channel.initialized) await getChannel({ channel, client });
+  const channel = client.channelManager.ensure({
+    data: { custom, members },
+    id,
+    type: 'messaging',
+  });
+  if (!channel.initialized) await channel.ensureWatched();
   setChannel(channel);
   ```
 
-  Two separate guards, both worth keeping. `client.channel()` returns the cached instance, which may already be loaded, so `initialized` skips a query that is not needed. And prefer `getChannel` over a bare `channel.watch()` when one _is_ needed: it de-duplicates concurrent calls for the same channel (keyed on the sorted member list while a channel has no id yet), so an effect that runs twice, or two components opening the same channel, still produce one query. That de-duplication used to live inside `Channel`.
+  Two separate guards, both worth keeping. `client.channelManager.ensure()` (which `client.channel()` calls in stream-chat v10) returns the stored instance, which may already be loaded, so `initialized` skips a query that is not needed. And prefer `ensureWatched()` over a bare `channel.watch()` when one _is_ needed: it sends nothing for a channel already watched, and a call made while an earlier `ensureWatched()` with the same options is in flight waits for that one, so an effect that runs twice, or two components opening the same channel, still produce one query. `channel.watch()` always sends its request. That de-duplication used to live inside `Channel`.
 
-- **A direct message identified by members** → `getChannel({ client, type: 'messaging', members })` builds, watches and returns the instance.
-- **`channelQueryOptions`** → pass them to the watch you now own: `getChannel({ channel, client, options })`.
+- **A direct message identified by members** → `const channel = await client.channelManager.ensure({ data: { members }, type: 'messaging' }).ensureWatched();` (`ensureWatched()` resolves with the channel).
+- **`channelQueryOptions`** → pass them to the watch you now own: `channel.ensureWatched(options)`.
+- **`getChannel` → removed.** Get the instance from `client.channelManager.ensure()` and call `channel.ensureWatched(options)` on it. It de-duplicates per instance instead of per cid, which the channel store makes equivalent, as `ensure()` returns one instance per cid (and per member list for a channel without an id).
 - **An uninitialized channel renders as an empty channel, with no error**, because nothing failed. If a channel renders blank, check `channel.initialized` before looking anywhere else.
 - **Loading and error UI is yours.** `Channel` no longer renders the `LoadingIndicator` or `LoadingErrorIndicator` component slots, because it has no query to report on. Render them around `Channel`, where they sit in your layout instead of replacing the whole channel column.
 - **Why it changed:** `Channel` cannot make that call well. It does not know which query options a screen needs, whether a list or a search result already loaded the channel, whether a failed query should retry or navigate away, or what belongs on screen while the query is in flight. All of that belongs to the code that decides which channel to open. Full recipes: [providing a channel](/chat/docs/sdk/react/v15/guides/providing-a-channel/).
@@ -430,8 +433,8 @@ already gives one focus per list.
 
 - **To scroll a list to a message**, call `channel.messagePaginator.jumpToMessage(messageId)` (or
   `thread.messagePaginator.jumpToMessage(...)` for a thread reply). `jumpToMessage` does not watch the
-  channel, so query it first if it has never been opened — `getChannel({ channel, client })`
-  de-duplicates concurrent calls.
+  channel unless asked: pass `{ watchChannel: true }` to watch a channel that isn't watched yet with
+  the request that loads the window around the message.
 - **To read what a list is currently highlighting**, subscribe to
   `channel.messagePaginator.messageFocusSignal` and take `signal?.messageId`. This is what the built-in
   search results now use for their "you jumped here" marker, so the marker and the highlight share one
@@ -857,13 +860,16 @@ separate.
 
 Two type renames come with it:
 
-| v14                    | v15                                                                    |
-| ---------------------- | ---------------------------------------------------------------------- |
-| `WatcherState`         | `ChannelWatchState` (it now also answers whether _we_ are watching)    |
-| `channel.disconnected` | `channel.pendingDisposal` (**removed outright — no deprecated alias**) |
+| v14                    | v15                                                                                                              |
+| ---------------------- | ---------------------------------------------------------------------------------------------------------------- |
+| `WatcherState`         | `ChannelWatchState` (it now also answers whether _we_ are watching)                                              |
+| `channel.disconnected` | `channel.pendingDisposal`, read-only; set by `channel.disconnect()` (**removed outright — no deprecated alias**) |
 
 `pendingDisposal` is one-way and terminal: the paginators are disposed, subscriptions unregistered, and
-the client drops the channel from `activeChannels`, so the instance is never revived. `getClient()`
+the channel store drops the channel, so the instance is never revived. It is read-only: `channel.disconnect()` sets
+it, which stream-chat calls when a channel ends (deleted, the user removed from it, `disconnectUser()`, or
+released as unused). Call `channel.disconnect()` yourself to finish an instance you are done with; it
+doesn't remove the channel from the channel store. `getClient()`
 throws on such a channel — a reference held across a `disconnectUser()` now fails loudly rather than
 quietly requesting on a client with no user.
 
@@ -909,8 +915,9 @@ reads `muteStatus` instead of subscribing to `notification.channel_mutes_updated
 
 ### `<Channel>` declares the channel active, and owns its message window
 
-`<Channel>` now calls `channel.activate()` on mount and `channel.deactivate()` on unmount (refcounted,
-so several consumers can hold one instance), and calls `channel.reload()` on `connection.recovered`.
+`<Channel>` now calls `channel.activate()` on mount and the release function it returns on unmount
+(refcounted, so several consumers can hold one instance), and calls `channel.reload()` on
+`connection.recovered`.
 
 These two go together and **a custom channel surface must do both**. While a channel is active, the
 client deliberately skips re-seeding its message list on channel-list hydration and on reconnect — its
@@ -919,8 +926,8 @@ Nothing in the client calls `reload()` for you:
 
 ```ts
 useEffect(() => {
-  channel.activate();
-  return () => channel.deactivate();
+  const release = channel.activate();
+  return release;
 }, [channel]);
 
 client.on('connection.recovered', () => {
@@ -938,7 +945,7 @@ re-query surfaces them. Guard on `pendingDisposal` because `reload()` goes throu
 `getLatestValue is not a function`. Build a real store (the SDK ships
 `mock-builders/generator/channelState.ts` for its own suite). Also:
 
-| v14 mock                          | v15                                              |
-| --------------------------------- | ------------------------------------------------ |
-| `vi.spyOn(channel, 'muteStatus')` | seed `channel.state.partialNext({ muteStatus })` |
-| `channel.disconnected = true`     | `channel.pendingDisposal = true`                 |
+| v14 mock                          | v15                                                                       |
+| --------------------------------- | ------------------------------------------------------------------------- |
+| `vi.spyOn(channel, 'muteStatus')` | seed `channel.state.partialNext({ muteStatus })`                          |
+| `channel.disconnected = true`     | `channel.state.partialNext({ pendingDisposal: true })` (it has no setter) |

@@ -16,7 +16,7 @@ import { StreamChat } from 'stream-chat';
  *    header.
  *
  * 2. The client constructor takes `(key, options)` only — there is no secret parameter — and
- *    `client.channel(...)` throws without a connected user. So callers must not build `Channel`
+ *    `client.channelManager.ensure()` throws without a connected user. So callers must not build `Channel`
  *    objects; they issue requests through `client.api.sendRequest` instead (see serverSideMethods).
  *
  * `crypto.subtle` requires a secure context — fine on localhost and https.

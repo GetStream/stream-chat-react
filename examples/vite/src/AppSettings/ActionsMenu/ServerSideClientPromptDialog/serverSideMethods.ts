@@ -7,7 +7,7 @@ import type { StreamChat } from 'stream-chat';
  * member's channel-specific data, which a browser client cannot do.
  *
  * Everything goes through `client.api.sendRequest` rather than the generated helpers, for two
- * reasons: `client.channel(...)` throws without a connected user, and the generated
+ * reasons: `client.channelManager.ensure()` throws without a connected user, and the generated
  * `updateMemberPartial` sends no `user_id`, so it can only ever write the caller's own
  * membership. `sendRequest` is the same primitive the generated APIs use internally and it
  * accepts query params, which is where `user_id` belongs.
@@ -101,13 +101,13 @@ export const fetchChannelMembers = async ({
   limit?: number;
 }): Promise<ChannelMemberSummary[]> => {
   const { id, type } = parseCid(cid);
-  const { body } = await client.api.sendRequest<{
+  const { members } = await client.api.sendRequest<{
     members: { name?: string; user?: { id?: string; name?: string }; user_id?: string }[];
   }>('GET', '/api/v2/chat/members', undefined, {
     payload: JSON.stringify({ filter_conditions: {}, id, limit, type }),
   });
 
-  return (body.members ?? [])
+  return (members ?? [])
     .map((member) => ({
       name: member.user?.name,
       userId: member.user_id ?? member.user?.id ?? '',
@@ -133,7 +133,8 @@ export const serverSideMethods: ServerSideMethodDescriptor[] = [
         throw new Error('The payload needs a `set` object and/or an `unset` array.');
       }
 
-      const { body } = await client.api.sendRequest(
+      // the response body, with the request's `metadata` alongside
+      return await client.api.sendRequest(
         'PATCH',
         '/api/v2/chat/channels/{type}/{id}/member',
         { id, type },
@@ -141,8 +142,6 @@ export const serverSideMethods: ServerSideMethodDescriptor[] = [
         updates,
         'application/json',
       );
-
-      return body;
     },
     label: 'updateMemberPartial — write another member’s data',
     payloadTemplate: {

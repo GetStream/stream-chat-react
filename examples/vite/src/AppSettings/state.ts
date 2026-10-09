@@ -2,7 +2,7 @@ import { StateStore } from '@stream-io/state-store';
 import { useStateStore } from 'stream-chat-react';
 
 import { DEFAULT_LANGUAGE, streamI18n } from '../i18n';
-import type { UploadFailureMode } from '../SendWhilePendingUploads';
+import type { UploadDestination, UploadFailureMode } from '../SendWhilePendingUploads';
 
 export type ReactionsSettingsState = {
   flipHorizontalPosition: boolean;
@@ -100,6 +100,8 @@ export type LayoutSettingsState = {
 };
 
 export type ComposerSettingsState = {
+  /** The CDN upload endpoint used while `uploadDestination` is `custom-url`. */
+  customCdnUrl: string;
   /**
    * Allow sending a message while its attachments are still uploading.
    */
@@ -118,6 +120,12 @@ export type ComposerSettingsState = {
    * Useful for watching the default blocked behaviour too.
    */
   slowUploads: boolean;
+  /**
+   * Where attachments are uploaded: Stream's storage, the dev server's mock CDN, or the CDN at
+   * `customCdnUrl`. Either CDN marks the composer's uploads `customCdn`, so Stream's upload
+   * permission and the channel type's `uploads` flag no longer apply.
+   */
+  uploadDestination: UploadDestination;
 };
 
 export type AppSettingsState = {
@@ -176,10 +184,12 @@ const defaultAppSettingsState: AppSettingsState = {
     iconOnly: true,
   },
   composer: {
+    customCdnUrl: '',
     failUploads: 'off',
     sendMessagesWithPendingUploads: false,
     slowUploadMs: 20000,
     slowUploads: false,
+    uploadDestination: 'stream',
   },
   language: {
     code: DEFAULT_LANGUAGE,

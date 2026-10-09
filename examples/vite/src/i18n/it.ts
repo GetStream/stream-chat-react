@@ -716,6 +716,7 @@ export const itTranslations = {
   'search.bar.exitSearch.ariaLabel': 'Esci dalla ricerca',
   'search.resultItem.selectUserChannel.ariaLabel':
     'Seleziona il canale utente: {{ name }}',
+  'search.results.loadChannelFailed.text': 'Impossibile caricare il canale',
   'search.results.searchResults.ariaLabel': 'Risultati della ricerca',
   'search.resultsHeader.ariaLabel': 'Pulsante di filtro dei risultati per: {{ source }}',
   'search.resultsHeader.filterSource.channels': 'canali',
@@ -726,6 +727,8 @@ export const itTranslations = {
   'search.sourceResults.searching.text': 'Ricerca di {{ searchSourceType }}...',
   'slotLayout.chatView.channels.text': 'Canali',
   'slotLayout.chatView.chatViewControls.ariaLabel': 'Controlli della vista chat',
+  'slotLayout.chatView.empty.channels.text': 'Nessuna chat selezionata',
+  'slotLayout.chatView.empty.threads.text': 'Nessun thread selezionato',
   'slotLayout.chatView.openChannelsView.ariaLabel': 'Apri la vista dei canali',
   'slotLayout.chatView.openThreadsView.ariaLabel': 'Apri la vista dei thread',
   'slotLayout.chatView.openThreadsViewUnread.ariaLabel_one':

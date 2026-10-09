@@ -13,7 +13,7 @@ export const useRetryHandler = (): RetryHandler => {
 
   return useCallback(
     async (params: Omit<OperationParams<'retry'>, 'message'>) => {
-      await (thread ?? channel).retrySendMessageWithLocalUpdate(params);
+      await (thread ?? channel).messageOperations.retry(params);
     },
     [channel, thread],
   );

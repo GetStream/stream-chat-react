@@ -45,6 +45,25 @@
   pointer-events: auto;
   background-color: var(--str-chat__modal-overlay-color);
   backdrop-filter: var(--str-chat__modal-overlay-backdrop-filter);
+  // Scrolling over the modal stays in it rather than reaching the page behind. `overscroll-behavior`
+  // acts only on an element that scrolls, so the overlay scrolls by one pixel (`::before`), with no
+  // scrollbar shown.
+  overflow-y: auto;
+  overscroll-behavior: none;
+  scrollbar-width: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    width: 1px;
+    height: calc(100% + 1px);
+    pointer-events: none;
+  }
 
   .str-chat__modal__floating-dialog-overlay {
     z-index: 1;

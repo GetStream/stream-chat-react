@@ -15,7 +15,7 @@ export const useCreateChatContext = (value: ChatContextValue) => {
     useImageFlagEmojisOnWindows,
   } = value;
 
-  const clientValues = `${client.clientID}${Object.keys(client.activeChannels).length}${
+  const clientValues = `${client.clientID}${client.channelManager.values().length}${
     Object.keys(client.listeners).length
   }${client.mutedChannels.length}
   ${client.user?.id}`;

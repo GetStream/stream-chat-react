@@ -18,9 +18,8 @@ describe('useCloseThread', () => {
     vi.clearAllMocks();
   });
 
-  it('releases the slot of the thread in context and deactivates it', () => {
-    const deactivate = vi.fn();
-    const thread = fromPartial<Thread>({ deactivate, id: 'parent-1' });
+  it('releases the slot of the thread in context', () => {
+    const thread = fromPartial<Thread>({ id: 'parent-1' });
 
     const { result } = renderHook(() => useCloseThread(), {
       wrapper: ({ children }) => (
@@ -30,7 +29,6 @@ describe('useCloseThread', () => {
     result.current();
 
     expect(closeThread).toHaveBeenCalledWith('parent-1', { panel: 'beside' });
-    expect(deactivate).toHaveBeenCalledTimes(1);
   });
 
   it('closes the panel without a thread in context', () => {

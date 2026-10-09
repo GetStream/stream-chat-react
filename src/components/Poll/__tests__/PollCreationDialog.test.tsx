@@ -56,11 +56,11 @@ const getSubmitPollButton = () => screen.getByRole('button', { name: /send poll/
 const close = vi.fn();
 const user = generateUser();
 
-// The poll message is sent through `useSendMessageFn`, i.e. `channel.sendMessageWithLocalUpdate`.
+// The poll message is sent through `useSendMessageFn`, i.e. `channel.messageOperations.send`.
 // (`MessageComposerContextValue.handleSubmit` no longer exists - the composer context only carries
 // `onPaste` / `recordingController` / `textareaRef`.)
 const spyOnSendMessage = (channel: ChannelType) =>
-  vi.spyOn(channel, 'sendMessageWithLocalUpdate').mockResolvedValue(undefined);
+  vi.spyOn(channel.messageOperations, 'send').mockResolvedValue(undefined);
 
 const renderComponent = async (
   { channel: customChannel, client: customClient } = {} as {

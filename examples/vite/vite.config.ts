@@ -4,6 +4,7 @@ import { dirname, resolve } from 'node:path';
 import { defineConfig, loadEnv } from 'vite';
 import babel from 'vite-plugin-babel';
 import react from '@vitejs/plugin-react';
+import { mockCdnPlugin } from './mockCdnPlugin';
 
 const require = createRequire(import.meta.url);
 
@@ -89,6 +90,7 @@ export default defineConfig(({ mode }) => {
             },
           ]
         : []),
+      mockCdnPlugin({ storageDir: resolve(rootDir, '.mock-cdn') }),
       react(),
       babel({
         babelConfig: {

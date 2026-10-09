@@ -121,7 +121,7 @@ Each is a `StateStore`. Components read them with `useStateStore(store, selector
           └─ <MessageComposer>
 ```
 
-`Channel` takes a single `channel` prop (`src/components/Channel/Channel.tsx`). It activates the channel on mount, deactivates it on unmount, seeds the paginator's unread snapshot, and re-queries on `user.deleted` — nothing else. It does not query the channel for you: initialize it first (`getChannel` de-duplicates overlapping queries). There is no `Window` component in v15; compose layout yourself or through `ChatView` slots.
+`Channel` takes a single `channel` prop (`src/components/Channel/Channel.tsx`). It activates the channel on mount, deactivates it on unmount, seeds the paginator's unread snapshot, and re-queries on `user.deleted` — nothing else. It does not query the channel for you: initialize it first (`channel.ensureWatched()` sends one watch for overlapping calls, and none for a channel already watched). There is no `Window` component in v15; compose layout yourself or through `ChatView` slots.
 
 Read the bound channel with `useChannel()` (`src/context/useChannel.ts`, thread's channel first, then the `Channel` subtree's) and the active message list with `useMessagePaginator()` (`src/hooks/useMessagePaginator.ts`, thread first, then channel).
 
@@ -280,7 +280,7 @@ const {
 // Manual setup when you need control over the API responses
 const client = await getTestClientWithUser({ id: 'test-user' });
 useMockedApis(client, [getOrCreateChannelApi(mockedChannelData)]);
-const channel = client.channel('messaging', channelId);
+const channel = client.channelManager.ensure({ id: channelId, type: 'messaging' });
 await channel.watch();
 ```
 

@@ -27,7 +27,7 @@ export const ReactionsTab = ({ close }: ReactionsTabProps) => {
   // `useUserRole` -> `useChannelCapabilities`, which subscribes to it as a StateStore. A plain
   // object shaped like channel state crashes there, which is what this preview used to pass.
   const previewChannel = useMemo(
-    () => client.channel('messaging', 'reactions-preview'),
+    () => client.channelManager.ensure({ id: 'reactions-preview', type: 'messaging' }),
     [client],
   );
 
