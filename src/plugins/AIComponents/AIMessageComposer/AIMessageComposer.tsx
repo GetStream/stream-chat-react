@@ -18,6 +18,7 @@ import { useComponentContextIcons } from '../../../context/useComponentContextIc
 import { useTranslationContext } from '../../../context/TranslationContext';
 import { useStateStore } from '../../../store';
 import { useStableCallback } from '../../../utils/useStableCallback';
+import { useStableId } from '../../../components/UtilityComponents/useStableId';
 import { AttachmentPreview } from './AttachmentPreview';
 import { useSpeechToText, type UseSpeechToTextOptions } from './hooks/useSpeechToText';
 
@@ -81,7 +82,8 @@ const WithStableId = ({
 }: {
   children?: ReactNode | (({ id }: { id: string }) => ReactNode);
 }) => {
-  const id = useMemo(() => `file-input-${nanoId()}`, []);
+  // SSR/hydration-safe on React 18+ (React.useId), client-only id on React 17
+  const id = `file-input-${useStableId()}`;
 
   return <>{typeof children === 'function' ? children({ id }) : children}</>;
 };
@@ -334,15 +336,18 @@ export const AIMessageComposer: AIMessageComposer = ({
     }
   });
 
+  const handleReset = useStableCallback((e: React.FormEvent<HTMLFormElement>) => {
+    onReset?.(e);
+    // a reset clears the draft but must not re-enable a composer disabled via props
+    stateStore.next({ ...initialStoreState, disabled });
+  });
+
   return (
     <AIMessageComposerContext.Provider value={stateStore}>
       <form
         className='str-chat__ai-message-composer__form'
         onChange={handleChange}
-        onReset={(e) => {
-          onReset?.(e);
-          stateStore.next(initialStoreState);
-        }}
+        onReset={handleReset}
         {...restProps}
       >
         {children}

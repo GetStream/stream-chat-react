@@ -13,6 +13,24 @@ describe('AIMarkdown', () => {
     expect(container.querySelector('.str-chat__ai-syntax-highlighter-pre')).toBeNull();
   });
 
+  it('marks a fenced block without a language as block code', () => {
+    const { container } = render(<AIMarkdown>{'```\nplain text\n```'}</AIMarkdown>);
+    const code = container.querySelector('pre > code');
+    expect(code).toHaveTextContent('plain text');
+    expect(code).toHaveAttribute('data-inline', 'false');
+    expect(container.querySelector('[data-inline="true"]')).toBeNull();
+  });
+
+  it.each([
+    ['inline code', 'run `yarn build` now'],
+    ['a fenced block without a language', '```\nplain\n```'],
+    ['a fenced block with a language', '```ts\nconst a = 1;\n```'],
+  ])('does not leak the react-markdown node prop to the DOM for %s', (_, markdown) => {
+    const { container } = render(<AIMarkdown>{markdown}</AIMarkdown>);
+    expect(container.querySelector('code')).toBeInTheDocument();
+    expect(container.querySelector('[node]')).toBeNull();
+  });
+
   it('renders fenced code through the highlighter', () => {
     const { container } = render(<AIMarkdown>{'```ts\nconst a = 1;\n```'}</AIMarkdown>);
     expect(

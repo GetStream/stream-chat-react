@@ -34,4 +34,24 @@ describe('AIMessageComposer', () => {
     expect('SpeechRecognition' in window).toBe(false);
     expect(() => render(<Composer label='c' />)).not.toThrow();
   });
+
+  it('keeps a disabled composer disabled after a form reset', () => {
+    const { container } = render(
+      <AIMessageComposer disabled>
+        <AIMessageComposer.TextInput aria-label='message' />
+      </AIMessageComposer>,
+    );
+    const input = screen.getByLabelText('message');
+    expect(input).toBeDisabled();
+
+    fireEvent.reset(container.querySelector('form') as HTMLFormElement);
+    expect(input).toBeDisabled();
+  });
+
+  it('clears the text on form reset', () => {
+    const { container } = render(<Composer label='d' />);
+    fireEvent.change(screen.getByLabelText('d input'), { target: { value: 'draft' } });
+    fireEvent.reset(container.querySelector('form') as HTMLFormElement);
+    expect(screen.getByLabelText('d input')).toHaveValue('');
+  });
 });

@@ -48,8 +48,12 @@ type DefaultPreProps = BaseDefaultPreProps & {
   Pre?: ComponentType<BaseDefaultPreProps> | ElementType;
 };
 
+// true inside a plain (language-less) <pre>: lets DefaultCode tell a fenced
+// block without a language from inline code (react-markdown v9 has no `inline`)
+const InsidePreContext = React.createContext(false);
+
 const DefaultPre = (props: DefaultPreProps) => {
-  const { children, className, Pre = 'pre', ...restProps } = props;
+  const { children, className, node, Pre = 'pre', ...restProps } = props;
 
   const { toolComponents } = useContext(AIMarkdownContext);
 
@@ -84,8 +88,13 @@ const DefaultPre = (props: DefaultPreProps) => {
 
   // treat as regular pre/code block if there's no tool/language
   return (
-    <Pre className={clsx(className, 'str-chat__ai-pre')} {...restProps}>
-      {children}
+    <Pre
+      className={clsx(className, 'str-chat__ai-pre')}
+      // `node` is react-markdown metadata: forward it to components, never to DOM elements
+      {...(typeof Pre === 'string' ? {} : { node })}
+      {...restProps}
+    >
+      <InsidePreContext.Provider value={true}>{children}</InsidePreContext.Provider>
     </Pre>
   );
 };
@@ -141,21 +150,21 @@ const DefaultCode = (props: DefaultCodeProps) => {
     ...restProps
   } = props;
 
+  const insidePre = useContext(InsidePreContext);
   const language = getToolOrLanguage(className);
-  const inline = !language;
+  const inline = !language && !insidePre;
 
-  const Component = inline ? Code : SyntaxHighlighter;
+  const Component = language ? SyntaxHighlighter : Code;
 
   return (
     <Component
       className={clsx(className, 'str-chat__ai-code')}
-      node={node}
       {...(typeof Component === 'string'
         ? {
             'data-inline': inline ? 'true' : 'false',
             'data-language': language,
           }
-        : { inline, language })}
+        : { inline, language, node })}
       {...restProps}
     >
       {children}
