@@ -40,6 +40,12 @@
       "require": "./dist/cjs/mp3-encoder.js",
       "default": "./dist/cjs/mp3-encoder.js"
     },
+    "./ai-components": {
+      "types": "./dist/types/plugins/AIComponents/index.d.ts",
+      "import": "./dist/es/ai-components.mjs",
+      "require": "./dist/cjs/ai-components.js",
+      "default": "./dist/cjs/ai-components.js"
+    },
     "./dist/css/*": {
       "default": "./dist/css/*"
     },
@@ -57,13 +63,17 @@
       ],
       "mp3-encoder": [
         "./dist/types/plugins/encoders/mp3.d.ts"
+      ],
+      "ai-components": [
+        "./dist/types/plugins/AIComponents/index.d.ts"
       ]
     }
   },
   "sideEffects": [
     "*.css",
     "./dist/es/i18n/Streami18n.mjs",
-    "./dist/es/context/TranslationContext.mjs"
+    "./dist/es/context/TranslationContext.mjs",
+    "./dist/es/plugins/AIComponents/AIMarkdown/tools/charts/Chart.mjs"
   ],
   "keywords": [
     "chat",
@@ -213,9 +223,11 @@
     "test:watch": "vitest",
     "types": "tsc --project tsconfig.lib.json --noEmit",
     "types:tests": "tsc --project tsconfig.test.json --noEmit",
+    "types:scripts": "tsc --project tsconfig.scripts.json",
     "validate-translations": "node scripts/validate-translations.js",
     "validate-cjs": "concurrently 'node scripts/validate-cjs-node-bundle.cjs' 'node scripts/validate-cjs-browser-bundle.cjs'",
     "validate-esm": "node scripts/validate-esm-node-bundle.mjs",
+    "validate-entry-isolation": "node scripts/validate-entry-isolation.mts",
     "semantic-release": "semantic-release",
     "prepack": "yarn build",
     "examples:build": "yarn workspaces foreach -A --include '@stream-io/stream-chat-react-*' run build",
