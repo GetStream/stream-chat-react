@@ -1,3 +1,14 @@
+## [14.13.0](https://github.com/GetStream/stream-chat-react/compare/v14.12.2...v14.13.0) (2026-10-09)
+
+### Bug Fixes
+
+* **store:** provide getServerSnapshot to useStateStore so server rendering works ([b82e406](https://github.com/GetStream/stream-chat-react/commit/b82e40620c03d299388893596ee72d7508aa2c66))
+
+### Features
+
+* **ai-components:** add stream-chat-react/ai-components entry point ([84fb412](https://github.com/GetStream/stream-chat-react/commit/84fb412a128b74d1fa56a157f1c5c6a62f8be00f))
+* **ai-components:** add stream-chat-react/ai-components entry point ([#3314](https://github.com/GetStream/stream-chat-react/issues/3314)) ([627a890](https://github.com/GetStream/stream-chat-react/commit/627a890277cbaefd5496d624671ad326cc97e204))
+
 ## [14.12.2](https://github.com/GetStream/stream-chat-react/compare/v14.12.1...v14.12.2) (2026-10-05)
 
 ### Bug Fixes
