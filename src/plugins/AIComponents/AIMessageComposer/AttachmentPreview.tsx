@@ -53,7 +53,7 @@ export const Item = ({
       {state === 'failed' && (
         <div className='str-chat__ai-attachment-preview__failed-state-overlay'>
           <button
-            aria-label={t('Upload failed')}
+            aria-label={t('aria/Retry upload')}
             className='str-chat__ai-attachment-preview__retry-button'
             onClick={onRetry}
             type='button'

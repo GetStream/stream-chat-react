@@ -38,10 +38,10 @@ describe('AttachmentPreview.Item', () => {
     const { rerender } = render(
       <Item file={textFile()} onRetry={onRetry} state='pending' />,
     );
-    expect(screen.queryByLabelText('Upload failed')).toBeNull();
+    expect(screen.queryByLabelText('aria/Retry upload')).toBeNull();
 
     rerender(<Item file={textFile()} onRetry={onRetry} state='failed' />);
-    fireEvent.click(screen.getByLabelText('Upload failed'));
+    fireEvent.click(screen.getByLabelText('aria/Retry upload'));
     expect(onRetry).toHaveBeenCalledTimes(1);
   });
 

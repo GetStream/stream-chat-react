@@ -1,3 +1,5 @@
+@use './tokens' as *;
+
 .str-chat__ai-message-composer__form {
   display: flex;
   padding: 0.75rem;
@@ -6,6 +8,12 @@
   border: 1px solid #ccc;
   border-radius: 1.5rem;
   flex-grow: 1;
+
+  // the text input is `all: unset`, so show its focus on the form container
+  &:focus-within {
+    border-color: $ai-focus-ring-color;
+    box-shadow: 0 0 0 1px $ai-focus-ring-color;
+  }
 
   .str-chat__ai-message-composer__round-button {
     all: unset;
@@ -34,6 +42,17 @@
     &[aria-pressed='true'] {
       background-color: #d1eaff;
     }
+
+    &:focus-visible {
+      @include ai-focus-ring;
+    }
+  }
+
+  // the visually hidden native file input is the keyboard target; show its
+  // focus on the visible label that follows it
+  .str-chat__ai-message-composer__file-input:focus-visible
+    + .str-chat__ai-message-composer__round-button {
+    @include ai-focus-ring;
   }
 
   .str-chat__ai-message-composer__text-input {
@@ -58,5 +77,9 @@
     background-position-x: calc(100% - 5px);
     background-position-y: center;
     background-clip: border-box;
+
+    &:focus-visible {
+      @include ai-focus-ring;
+    }
   }
 }

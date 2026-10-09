@@ -88,3 +88,13 @@ $ai-tokens: (
   }
   @return string.unquote('var(--str-chat__ai-#{$name}, #{$fallback})');
 }
+
+// Focus ring for controls whose native outline is removed by `all: unset`.
+// Follows the SCR focus token (brand colour, light/dark aware) with a literal
+// fallback when rendered outside `.str-chat`.
+$ai-focus-ring-color: var(--str-chat__border-utility-focused, #005fff);
+
+@mixin ai-focus-ring {
+  outline: 2px solid $ai-focus-ring-color;
+  outline-offset: 2px;
+}

@@ -1,3 +1,5 @@
+@use './tokens' as *;
+
 .str-chat__ai-attachment-preview {
   &:empty {
     display: none;
@@ -79,6 +81,10 @@
         background: #ccc;
         cursor: pointer;
       }
+
+      &:focus-visible {
+        @include ai-focus-ring;
+      }
     }
   }
 
@@ -100,6 +106,10 @@
     &:hover:not(:disabled) {
       background: #ccc;
       cursor: pointer;
+    }
+
+    &:focus-visible {
+      @include ai-focus-ring;
     }
 
     svg {

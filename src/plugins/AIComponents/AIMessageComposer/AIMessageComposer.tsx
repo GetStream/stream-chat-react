@@ -1,6 +1,7 @@
 import {
   type ComponentPropsWithoutRef,
   createContext,
+  type CSSProperties,
   type ReactNode,
   useCallback,
   useContext,
@@ -22,22 +23,42 @@ import { useSpeechToText, type UseSpeechToTextOptions } from './hooks/useSpeechT
 
 const nanoId = customAlphabet('abcdefghijklmnopqrstuvwxyz0123456789', 15);
 
+// Visually hidden but still focusable: the native file input is the keyboard
+// target (Enter/Space open the picker, it is announced with its aria-label),
+// while the label is the visual/pointer target.
+const visuallyHiddenInputStyle: CSSProperties = {
+  border: 0,
+  clip: 'rect(0, 0, 0, 0)',
+  height: '1px',
+  margin: '-1px',
+  overflow: 'hidden',
+  padding: 0,
+  position: 'absolute',
+  whiteSpace: 'nowrap',
+  width: '1px',
+};
+
 const FileInput = ({
+  className,
   labelProps,
+  style,
   ...restProps
 }: ComponentPropsWithoutRef<'input'> & {
   labelProps?: ComponentPropsWithoutRef<'label'>;
 }) => {
   const { disabled } = useIsDisabled();
+  const { t } = useTranslationContext();
   const { IconPlus } = useComponentContextIcons();
   return (
     <WithStableId>
       {({ id }) => (
         <>
           <input
+            aria-label={t('aria/File upload')}
+            className={clsx('str-chat__ai-message-composer__file-input', className)}
             id={id}
             multiple
-            style={{ display: 'none' }}
+            style={{ ...visuallyHiddenInputStyle, ...style }}
             type='file'
             {...restProps}
             disabled={disabled}
@@ -45,7 +66,6 @@ const FileInput = ({
           <label
             className='str-chat__ai-message-composer__round-button'
             htmlFor={id}
-            tabIndex={0}
             {...labelProps}
           >
             <IconPlus />
@@ -397,9 +417,11 @@ const SubmitButton = ({
   ...restProps
 }: ComponentPropsWithoutRef<'button'> & { active?: boolean }) => {
   const { disabled } = useIsDisabled();
+  const { t } = useTranslationContext();
   const { IconSend } = useComponentContextIcons();
   return (
     <button
+      aria-label={t('aria/Send')}
       className={clsx(
         'str-chat__ai-message-composer__round-button',
         active && 'str-chat__ai-message-composer__round-button--active',

@@ -73,6 +73,17 @@
   }
 }
 
+@media (prefers-reduced-motion: reduce) {
+  .str-chat__ai-state-indicator__dot,
+  .str-chat__ai-state-indicator__text {
+    animation: none;
+  }
+
+  .str-chat__ai-state-indicator__dot {
+    opacity: 0.7;
+  }
+}
+
 /* Mobile responsiveness */
 @media (max-width: 768px) {
   .str-chat__ai-state-indicator {

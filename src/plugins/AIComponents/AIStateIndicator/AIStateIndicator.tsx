@@ -26,7 +26,7 @@ export const AIStateIndicator = ({ text }: { text?: string }) => {
   );
 
   return (
-    <div className='str-chat__ai-state-indicator'>
+    <div aria-live='polite' className='str-chat__ai-state-indicator' role='status'>
       <div className='str-chat__ai-state-indicator__content'>
         <div className='str-chat__ai-state-indicator__dots'>
           <span className='str-chat__ai-state-indicator__dot' />
