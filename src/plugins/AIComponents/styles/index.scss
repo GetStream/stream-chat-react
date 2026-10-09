@@ -1,0 +1,12 @@
+@use './attachment-preview.scss';
+@use './streaming-message.scss';
+@use './ai-message-composer.scss';
+@use './ai-state-indicator.scss';
+
+:root {
+  --aicr__bg-primary: #ffffff;
+  --aicr__bg-secondary: #f7f7f8;
+  --aicr__bg-tertiary: #ececf1;
+  --aicr__text-primary: #353740;
+  --aicr__text-secondary: #565869;
+}
