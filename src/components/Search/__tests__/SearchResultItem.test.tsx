@@ -258,6 +258,37 @@ describe('SearchResultItem Components', () => {
       expect(mockIngestChannel).toHaveBeenCalledTimes(1);
     });
 
+    it('loads a channel that was never loaded before jumping to the message', async () => {
+      const message = generateMessage();
+      const messageResponseData = {
+        id: message.id,
+        ...generateChannel({ messages: [message] }),
+      };
+      const { client } = await renderComponent({
+        messageResponseData,
+        SearchResultItemComponent,
+      });
+      const { id, type } = messageResponseData.channel;
+      const channel = client.channelManager.ensure({ id, type });
+      channel.state.partialNext({ initialized: false });
+      const calls: string[] = [];
+      vi.spyOn(channel, 'ensureWatched').mockImplementation(() => {
+        calls.push('ensureWatched');
+        return Promise.resolve(channel);
+      });
+      vi.spyOn(channel.messagePaginator, 'jumpToMessage').mockImplementation(() => {
+        calls.push('jumpToMessage');
+        return Promise.resolve(true);
+      });
+
+      await act(async () => {
+        fireEvent.click(screen.getByTestId(CHANNEL_PREVIEW_BUTTON_TEST_ID));
+        await Promise.resolve();
+      });
+
+      expect(calls).toEqual(['ensureWatched', 'jumpToMessage']);
+    });
+
     it('renders its stored channel without a connected user', async () => {
       const message = generateMessage();
       const messageResponseData = {

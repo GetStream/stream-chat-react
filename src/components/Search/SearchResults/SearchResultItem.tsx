@@ -125,8 +125,9 @@ export const MessageSearchResultItem = ({
   item,
   onSelect,
 }: ChannelByMessageSearchResultItemProps) => {
-  const { channelManager } = useChatContext();
+  const { channelManager, client } = useChatContext();
   const { isChannelActive, openChannel } = useWorkspaceNavigation();
+  const { t } = useTranslationContext();
 
   // Looked up, not created: the message search stores every result's channel before returning it
   // and keeps it stored while the search is active. A message without a channel shows no row.
@@ -158,11 +159,25 @@ export const MessageSearchResultItem = ({
       if (!current || current.pendingDisposal) return;
       openChannel(current, { event });
       channelManager.ingestChannel(current);
-      // A channel stored but not watched, such as one a thread created, is watched with the request
-      // that loads the message, so it receives its events.
-      void current.messagePaginator.jumpToMessage(item.id, { watchChannel: true });
+      void (async () => {
+        // A channel stored but never loaded (the search stores a result's channel from the result
+        // when its query doesn't return it) is loaded first, through the one watch anything opening
+        // it shares; a first page landing after the jump would move the list away from the message.
+        if (!current.initialized) await current.ensureWatched();
+        // A channel stored but not watched, such as one a thread created, is watched with the
+        // request that loads the message, so it receives its events.
+        await current.messagePaginator.jumpToMessage(item.id, { watchChannel: true });
+      })().catch((error) =>
+        reportLoadFailed({
+          channel: current,
+          client,
+          emitter: 'MessageSearchResultItem',
+          error,
+          t,
+        }),
+      );
     },
-    [cid, item, openChannel, channelManager, onSelect],
+    [cid, item, openChannel, channelManager, client, onSelect, t],
   );
 
   // Preview the matched message itself (not the channel's latest) by overriding `previewedMessage`.
