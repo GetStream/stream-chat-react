@@ -11,6 +11,7 @@
     "hoistingLimits": "workspaces"
   },
   "dependencies": {
+    "@stream-io/state-store": "^1.1.6",
     "clsx": "^2.1.1",
     "material-symbols": "^0.43.0",
     "nanoid": "^5.1.7",

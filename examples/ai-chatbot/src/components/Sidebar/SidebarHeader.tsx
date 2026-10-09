@@ -1,11 +1,9 @@
 'use client';
 
 import { useChatContext } from 'stream-chat-react';
-import { customAlphabet } from 'nanoid';
 import { useActiveChannel } from '@/components/ActiveChannelContext';
+import { createDraftConversation } from '@/components/createDraftConversation';
 import './SidebarHeader.scss';
-
-const nanoId = customAlphabet('abcdefghijklmnopqrstuvwxyz0123456789', 10);
 
 export const SidebarHeader = () => {
   const { client } = useChatContext();
@@ -13,11 +11,11 @@ export const SidebarHeader = () => {
 
   const handleNewChat = () => {
     // Check if there's unsent text in the composer
-    // We'll check the textarea element directly
-    const textarea = document.querySelector(
-      '.ai-message-composer__textarea',
-    ) as HTMLTextAreaElement;
-    const hasUnsentText = textarea?.value?.trim();
+    // We'll check the text input element directly
+    const textInput = document.querySelector<HTMLInputElement>(
+      '.str-chat__ai-message-composer__text-input',
+    );
+    const hasUnsentText = textInput?.value?.trim();
 
     if (hasUnsentText) {
       const confirmed = window.confirm(
@@ -26,12 +24,7 @@ export const SidebarHeader = () => {
       if (!confirmed) return;
     }
 
-    // Create a new channel
-    const newChannel = client.channel('messaging', `ai-${nanoId()}`, {
-      members: [{ user_id: client.userID as string }],
-    });
-
-    setActiveChannel(newChannel);
+    setActiveChannel(createDraftConversation(client));
   };
 
   return (

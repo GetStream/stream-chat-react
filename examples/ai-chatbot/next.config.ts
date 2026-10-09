@@ -6,6 +6,9 @@ import type { NextConfig } from 'next';
  * `stream-chat-react` workspace resolves the copies at the repository root. The SDK and the client
  * hand each other store instances, so the app must run exactly one copy of each: point every
  * import, the SDK's included, at the app's own.
+ *
+ * `turbopack.resolveAlias` applies to Turbopack only (the `next dev` / `next build` default).
+ * Running with `--webpack` ignores it and would load duplicate copies of these packages.
  */
 const singleCopyPackages = {
   '@stream-io/state-store': './node_modules/@stream-io/state-store',
