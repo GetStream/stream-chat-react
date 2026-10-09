@@ -46,22 +46,6 @@ export const itTranslations = {
   'a11y.interactionAnnouncements.voiceMessageSent.ariaLabel': 'Messaggio vocale inviato',
   'a11y.interactionAnnouncements.voiceRecordingAttached.ariaLabel':
     'Registrazione vocale allegata',
-  'attachment.actions.giphyActions.ariaLabel': 'Azioni Giphy',
-  'attachment.actions.giphyPreviewOnlyVisible.ariaLabel':
-    'Anteprima Giphy, visibile solo a te. Usa le azioni Invia, Mescola o Annulla.',
-  'attachment.actions.shuffle.label': 'Mescola',
-  'attachment.geolocation.liveUntil.text': 'In diretta fino a {{ timestamp }}',
-  'attachment.geolocation.locationSharingEnded.text':
-    'Condivisione della posizione terminata',
-  'attachment.geolocation.openLocationMap.ariaLabel': 'Apri la posizione su una mappa',
-  'attachment.geolocation.stopSharing.text': 'Interrompi la condivisione',
-  'attachment.giphy.animatedGif.ariaLabel': 'GIF animata',
-  'attachment.giphy.animatedGif.withTitle.ariaLabel': 'GIF animata: {{ title }}',
-  'attachment.modalGallery.openGalleryImage.label':
-    'Apri la galleria all’immagine {{ index }}',
-  'attachment.modalGallery.openImageGallery.label': 'Apri l’immagine nella galleria',
-  'attachment.unableRenderCard.text': 'questo contenuto non può essere visualizzato',
-  'attachment.visibilityDisclaimer.onlyVisible.text': 'Visibile solo a te',
   'aiComponents.attachmentPreview.deleteAttachment.ariaLabel': 'Elimina allegato',
   'aiComponents.attachmentPreview.unknownFileName.text': 'Nome file sconosciuto',
   'aiComponents.chart.loading.text': 'Caricamento del grafico...',
@@ -87,6 +71,22 @@ export const itTranslations = {
   'aiComponents.stateIndicator.workingMyMagic.text': 'Faccio la mia magia',
   'aiState.indicator.generating.label': 'Generazione in corso...',
   'aiState.indicator.thinking.label': 'Sto pensando...',
+  'attachment.actions.giphyActions.ariaLabel': 'Azioni Giphy',
+  'attachment.actions.giphyPreviewOnlyVisible.ariaLabel':
+    'Anteprima Giphy, visibile solo a te. Usa le azioni Invia, Mescola o Annulla.',
+  'attachment.actions.shuffle.label': 'Mescola',
+  'attachment.geolocation.liveUntil.text': 'In diretta fino a {{ timestamp }}',
+  'attachment.geolocation.locationSharingEnded.text':
+    'Condivisione della posizione terminata',
+  'attachment.geolocation.openLocationMap.ariaLabel': 'Apri la posizione su una mappa',
+  'attachment.geolocation.stopSharing.text': 'Interrompi la condivisione',
+  'attachment.giphy.animatedGif.ariaLabel': 'GIF animata',
+  'attachment.giphy.animatedGif.withTitle.ariaLabel': 'GIF animata: {{ title }}',
+  'attachment.modalGallery.openGalleryImage.label':
+    'Apri la galleria all’immagine {{ index }}',
+  'attachment.modalGallery.openImageGallery.label': 'Apri l’immagine nella galleria',
+  'attachment.unableRenderCard.text': 'questo contenuto non può essere visualizzato',
+  'attachment.visibilityDisclaimer.onlyVisible.text': 'Visibile solo a te',
   'audioPlayback.audioPlayerNotifications.cannotSeekRecording.label':
     'Impossibile spostarsi nella registrazione',
   'audioPlayback.audioPlayerNotifications.failedPlayRecording.label':
