@@ -26,11 +26,12 @@ describe('SupersededChannelSwap', () => {
     );
   });
 
-  const boundChannel = () => {
+  const boundEntity = () => {
     const state = layoutController.state.getLatestValue();
     const viewState = state.layouts?.[state.activeView];
-    return getChatViewEntityBinding(viewState?.slotBindings.slot1)?.source;
+    return getChatViewEntityBinding(viewState?.slotBindings.slot1);
   };
+  const boundChannel = () => boundEntity()?.source;
 
   const renderSwap = () =>
     render(
@@ -40,6 +41,56 @@ describe('SupersededChannelSwap', () => {
         slot='slot1'
       />,
     );
+
+  it('binds the slot again under the real cid once a channel created from members gets it', () => {
+    const created = client.channelManager.ensure({
+      data: { members: [{ user_id: 'ann' }, { user_id: 'bob' }] },
+      type: 'messaging',
+    });
+    const temporaryCid = created.cid;
+    layoutController.bind(
+      'slot1',
+      createChatViewSlotBinding({ key: temporaryCid, kind: 'channel', source: created }),
+    );
+    render(
+      <SupersededChannelSwap
+        bindingKey={temporaryCid}
+        channel={created}
+        layoutController={layoutController}
+        slot='slot1'
+      />,
+    );
+    const bind = vi.spyOn(layoutController, 'bind');
+
+    // what the first query does: the channel takes its real id and cid, then is marked initialized
+    act(() => {
+      created.id = '!members-real';
+      created.cid = 'messaging:!members-real';
+      created.state.partialNext({ initialized: true });
+    });
+
+    expect(boundEntity()?.key).toBe('messaging:!members-real');
+    expect(boundChannel()).toBe(created);
+    expect(bind).toHaveBeenCalledTimes(1);
+  });
+
+  it('leaves a slot whose key is its channel cid as it is', () => {
+    const bind = vi.spyOn(layoutController, 'bind');
+    render(
+      <SupersededChannelSwap
+        bindingKey={previous.cid}
+        channel={previous}
+        layoutController={layoutController}
+        slot='slot1'
+      />,
+    );
+
+    act(() => {
+      previous.state.partialNext({ initialized: true });
+    });
+
+    expect(bind).not.toHaveBeenCalled();
+  });
 
   it('leaves a channel that is not superseded in its slot', () => {
     renderSwap();

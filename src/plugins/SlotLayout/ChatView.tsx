@@ -439,7 +439,9 @@ export const ChatView = ({
   // every slot showing a channel, so one that gets superseded moves to the instance replacing it
   const channelSlots = viewState.availableSlots.flatMap((slot) => {
     const entity = getChatViewEntityBinding(viewState.slotBindings[slot]);
-    return entity?.kind === 'channel' ? [{ channel: entity.source, slot }] : [];
+    return entity?.kind === 'channel'
+      ? [{ bindingKey: entity.key, channel: entity.source, slot }]
+      : [];
   });
 
   return (
@@ -460,8 +462,9 @@ export const ChatView = ({
                 <DialogManagerProvider id={dialogManagerId}>
                   {content}
                 </DialogManagerProvider>
-                {channelSlots.map(({ channel, slot }) => (
+                {channelSlots.map(({ bindingKey, channel, slot }) => (
                   <SupersededChannelSwap
+                    bindingKey={bindingKey}
                     channel={channel}
                     key={slot}
                     layoutController={effectiveLayoutController}
