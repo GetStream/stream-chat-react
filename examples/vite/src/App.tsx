@@ -516,7 +516,9 @@ const App = () => {
     chatClient.config.setSetupFunction('messageComposer', ({ composer }) => {
       // Settings are read on every upload rather than captured here, so changing them in
       // Settings -> Composer takes effect without re-running setup - which matters because a
-      // custom doUploadRequest cannot be un-set once installed.
+      // custom doUploadRequest cannot be un-set once installed. The harness is installed once a
+      // setting needs it: this effect then registers a new setup function, which stream-chat runs
+      // on every open composer too, not only on those built afterwards.
       if (slowUploads || failUploads !== 'off' || uploadDestination !== 'stream') {
         installUploadHarness(composer, () => {
           const {
@@ -583,10 +585,9 @@ const App = () => {
   useEffect(() => {
     if (!chatClient) return;
 
-    // Declarative rather than in the setup function above, which only runs for composers built
-    // afterwards. A composer picks this up when it is constructed or when it registers
-    // subscriptions, and the latter is what mounting a channel does - so an open composer sees it
-    // at once and the rest on their way in.
+    // Declarative rather than in the setup function above: a composer picks this up when it is
+    // constructed or when it registers subscriptions, and the latter is what mounting a channel
+    // does - so an open composer sees it at once and the rest on their way in.
     chatClient.config.setConfig('messageComposer', {
       attachments: {
         customCdn: uploadDestination !== 'stream',

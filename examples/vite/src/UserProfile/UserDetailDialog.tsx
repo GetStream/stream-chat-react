@@ -202,11 +202,14 @@ const AddCustomProperty = ({
   const trimmedKey = key.trim();
   const keyError = !trimmedKey
     ? undefined
-    : RESERVED_KEYS.has(trimmedKey)
-      ? `"${trimmedKey}" is a built-in field`
-      : existingKeys.includes(trimmedKey)
-        ? `"${trimmedKey}" already exists; edit it above`
-        : undefined;
+    : // a partial update reads a dot as a path into a nested field, not as part of the name
+      trimmedKey.includes('.')
+      ? 'A name can\'t contain "."'
+      : RESERVED_KEYS.has(trimmedKey)
+        ? `"${trimmedKey}" is a built-in field`
+        : existingKeys.includes(trimmedKey)
+          ? `"${trimmedKey}" already exists; edit it above`
+          : undefined;
 
   const submit = async (event: FormEvent) => {
     event.preventDefault();

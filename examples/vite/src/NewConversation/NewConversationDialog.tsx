@@ -22,11 +22,13 @@ const useUserSearch = (query: string) => {
   const { client } = useChatContext();
   const [users, setUsers] = useState<UserResponse[]>([]);
   const [searching, setSearching] = useState(false);
+  const [failed, setFailed] = useState(false);
 
   useEffect(() => {
     const text = query.trim();
     if (!text) {
       setUsers([]);
+      setFailed(false);
       return;
     }
     let cancelled = false;
@@ -43,7 +45,16 @@ const useUserSearch = (query: string) => {
             sort: [{ direction: 1, field: 'id' }],
           },
         });
-        if (!cancelled) setUsers(response.users);
+        if (!cancelled) {
+          setUsers(response.users);
+          setFailed(false);
+        }
+      } catch {
+        // a failed search shows as such, not as "no one matches" over the previous query's users
+        if (!cancelled) {
+          setUsers([]);
+          setFailed(true);
+        }
       } finally {
         if (!cancelled) setSearching(false);
       }
@@ -54,7 +65,7 @@ const useUserSearch = (query: string) => {
     };
   }, [client, query]);
 
-  return { searching, users };
+  return { failed, searching, users };
 };
 
 const displayName = (user: UserResponse) => user.name || user.id;
@@ -144,7 +155,7 @@ export const NewConversationDialog = ({ onClose }: { onClose: () => void }) => {
   const [submitting, setSubmitting] = useState(false);
   const [lookUpExisting, setLookUpExisting] = useState(true);
   const [error, setError] = useState<string>();
-  const { searching, users } = useUserSearch(query);
+  const { failed, searching, users } = useUserSearch(query);
 
   const isOneToOne = selected.length === 1;
   // the connected user, who creates the conversation and is always one of its members
@@ -163,7 +174,9 @@ export const NewConversationDialog = ({ onClose }: { onClose: () => void }) => {
     ? 'Type a name or id'
     : searching
       ? 'Searching…'
-      : `No one else matches “${query.trim()}”`;
+      : failed
+        ? 'The search failed. Try again.'
+        : `No one else matches “${query.trim()}”`;
 
   const submit = async (event: FormEvent) => {
     event.preventDefault();

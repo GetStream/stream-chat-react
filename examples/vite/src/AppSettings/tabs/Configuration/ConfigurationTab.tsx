@@ -50,8 +50,11 @@ const paginatorsSelector = (state: ChannelManagerState) => ({
   paginators: state.paginators,
 });
 
+// stable, so a list that hasn't loaded yet selects the same value each time
+const noThreads: Thread[] = [];
+
 const threadsSelector = (state: PaginatorState<Thread>) => ({
-  threads: state.items ?? [],
+  threads: state.items ?? noThreads,
 });
 
 /**

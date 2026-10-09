@@ -11,9 +11,10 @@ import {
   WithComponents,
 } from 'stream-chat-react';
 
-// The row's avatar with a presence badge for a direct-message channel: whether its other member is
-// connected (`user.online`). Subscribes to the row's own channel, so a presence change re-renders
-// that row only. Reads the row's channel from its context, so it may only render inside a row.
+// The row's avatar with a presence badge for a direct-message channel (two members, one of them the
+// connected user): whether its other member is connected (`user.online`). Subscribes to the row's
+// own channel, so a presence change re-renders that row only. Reads the row's channel from its
+// context, so it may only render inside a row.
 const PresenceAvatar = (props: ChannelAvatarProps) => {
   const { channel } = useChannelListItemContext();
   const { client } = useChatContext();
@@ -21,7 +22,11 @@ const PresenceAvatar = (props: ChannelAvatarProps) => {
   const selector = useCallback(
     ({ members }: MembersState) => {
       const memberList = Object.values(members);
-      if (memberList.length !== 2) return { isOnline: undefined };
+      // a direct message is two members, one of them the connected user
+      const isDirectMessage =
+        memberList.length === 2 &&
+        memberList.some((member) => member.user?.id === ownUserId);
+      if (!isDirectMessage) return { isOnline: undefined };
       const other = memberList.find((member) => member.user?.id !== ownUserId);
       return { isOnline: !!other?.user?.online };
     },
