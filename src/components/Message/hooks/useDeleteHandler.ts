@@ -32,8 +32,8 @@ export const useDeleteHandler = (
 
     try {
       const entity = thread ?? channel;
-      if (entity.deleteMessageWithLocalUpdate) {
-        await entity.deleteMessageWithLocalUpdate({
+      if (entity.messageOperations) {
+        await entity.messageOperations.delete({
           localMessage: formatMessage(message),
           options,
         });

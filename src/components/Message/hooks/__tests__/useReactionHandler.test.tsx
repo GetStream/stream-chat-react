@@ -20,7 +20,7 @@ import { Channel } from '../../../Channel';
 import { Chat } from '../../../Chat';
 
 // MERGE-RECONCILE (test migration): PR #2909 rewrote useReactionHandler to send/delete
-// reactions through the channel instance (`channel.sendReaction`/`channel.deleteReaction`)
+// reactions through the client (`client.sendReaction`/`client.deleteReaction`)
 // and to apply optimistic updates via `messagePaginator.ingestItem` — replacing the removed
 // ChannelActionContext `updateMessage` and the ChannelStateContext capability check. The
 // wrapper now uses the real <Chat>/<Channel> providers and assertions spy on the channel /
@@ -98,7 +98,7 @@ describe('useReactionHandler custom hook', () => {
 
   it('should delete own reaction from channel if it was already there', async () => {
     const deleteReaction = vi
-      .spyOn(channel, 'deleteReaction')
+      .spyOn(client, 'deleteReaction')
       .mockResolvedValue({ message: generateMessage() } as never);
     const reaction = generateReaction({ user: alice });
     const message = generateMessage({ own_reactions: [reaction] });
@@ -112,7 +112,7 @@ describe('useReactionHandler custom hook', () => {
 
   it('should send reaction with emoji_code derived from the default reaction options', async () => {
     const sendReaction = vi
-      .spyOn(channel, 'sendReaction')
+      .spyOn(client, 'sendReaction')
       .mockResolvedValue({ message: generateMessage() } as never);
     const message = generateMessage({ own_reactions: [] });
     const handleReaction = await renderUseReactionHandlerHook({ message });
@@ -130,7 +130,7 @@ describe('useReactionHandler custom hook', () => {
 
   it('should send reaction without emoji_code when the type has no unicode', async () => {
     const sendReaction = vi
-      .spyOn(channel, 'sendReaction')
+      .spyOn(client, 'sendReaction')
       .mockResolvedValue({ message: generateMessage() } as never);
     const message = generateMessage({ own_reactions: [] });
     const handleReaction = await renderUseReactionHandlerHook({ message });
@@ -147,7 +147,7 @@ describe('useReactionHandler custom hook', () => {
 
   it('should derive emoji_code from custom reaction options provided via context', async () => {
     const sendReaction = vi
-      .spyOn(channel, 'sendReaction')
+      .spyOn(client, 'sendReaction')
       .mockResolvedValue({ message: generateMessage() } as never);
     const message = generateMessage({ own_reactions: [] });
     const handleReaction = await renderUseReactionHandlerHook({
@@ -177,7 +177,7 @@ describe('useReactionHandler custom hook', () => {
   });
 
   it('should stamp emoji_code on the optimistic reaction preview ingested into the paginator', async () => {
-    vi.spyOn(channel, 'sendReaction').mockResolvedValue({
+    vi.spyOn(client, 'sendReaction').mockResolvedValue({
       message: generateMessage(),
     } as never);
     const ingestItem = vi.spyOn(channel.messagePaginator, 'ingestItem');
@@ -192,7 +192,7 @@ describe('useReactionHandler custom hook', () => {
   });
 
   it('should rollback the optimistic reaction if the channel update fails', async () => {
-    vi.spyOn(channel, 'sendReaction').mockRejectedValueOnce(new Error('fail'));
+    vi.spyOn(client, 'sendReaction').mockRejectedValueOnce(new Error('fail'));
     const ingestItem = vi.spyOn(channel.messagePaginator, 'ingestItem');
     const reaction = generateReaction({ user: bob });
     const message = generateMessage({ own_reactions: [] });

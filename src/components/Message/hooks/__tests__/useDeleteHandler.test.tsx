@@ -16,11 +16,11 @@ import { Chat } from '../../../Chat';
 import { act } from '@testing-library/react';
 
 // MERGE-RECONCILE (test migration): PR #2909 rewrote useDeleteHandler to delete via the
-// channel's own `deleteMessageWithLocalUpdate` (with a `client.deleteMessage` +
+// channel's own `messageOperations.delete` (with a `client.deleteMessage` +
 // messagePaginator.ingestItem fallback) instead of the removed ChannelActionContext
 // `deleteMessage`/`updateMessage`/`removeMessage` handlers. The wrapper now uses the real
 // <Chat>/<Channel> providers (ChannelInstanceProvider + messagePaginator) and assertions spy
-// on `channel.deleteMessageWithLocalUpdate`. Tests for the removed ChannelActionContext
+// on `channel.messageOperations.delete`. Tests for the removed ChannelActionContext
 // behaviors (context updateMessage after delete; removeMessage special-case for
 // network-failed messages; promise rejection on server failure — the hook now swallows and
 // notifies) were dropped as obsolete.
@@ -70,7 +70,7 @@ describe('useDeleteHandler custom hook', () => {
 
   it('should delete a message without options via the channel local-update path', async () => {
     const deleteSpy = vi
-      .spyOn(channel, 'deleteMessageWithLocalUpdate')
+      .spyOn(channel.messageOperations, 'delete')
       .mockResolvedValue(undefined);
     const handleDelete = await renderUseDeleteHandler();
     await act(async () => {
@@ -84,7 +84,7 @@ describe('useDeleteHandler custom hook', () => {
 
   it('should delete a message with options via the channel local-update path', async () => {
     const deleteSpy = vi
-      .spyOn(channel, 'deleteMessageWithLocalUpdate')
+      .spyOn(channel.messageOperations, 'delete')
       .mockResolvedValue(undefined);
     const message = generateMessage();
     const deleteMessageOptions = { deleteForMe: true, hard: false };
@@ -99,7 +99,7 @@ describe('useDeleteHandler custom hook', () => {
   });
 
   it('should notify (and not throw) when the delete request fails', async () => {
-    vi.spyOn(channel, 'deleteMessageWithLocalUpdate').mockRejectedValue(
+    vi.spyOn(channel.messageOperations, 'delete').mockRejectedValue(
       new Error('delete failed'),
     );
     const notify = vi.fn();

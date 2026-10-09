@@ -65,7 +65,7 @@ vi.mock('../../../context/WorkspaceNavigationContext', async (importOriginal) =>
 }));
 
 // MERGE-RECONCILE (test migration): the bounce retry action moved from ChannelActionContext
-// `retrySendMessage` to the `useRetryHandler` hook (channel.retrySendMessageWithLocalUpdate).
+// `retrySendMessage` to the `useRetryHandler` hook (channel.messageOperations.retry).
 // Mocking this leaf hook doubles as a spy for the retry action AND sidesteps a source-level
 // circular-import fragility: MessageBounceContext imports useRetryHandler through the top
 // `../components` barrel, whose re-export resolves to `undefined` under the test module graph
