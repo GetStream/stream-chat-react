@@ -29,6 +29,41 @@ describe('useScrollerViewport', () => {
     document.body.removeChild(scroller);
   });
 
+  // The gate that gurads mark-read has to agree with the threshold that decides whether a
+  // jump-to-latest control is shown. If it were stricter there would be a band where the UI
+  // claims the list is at the bottom while the channel silently refuses to go read.
+  describe.each([
+    [300, 30],
+    [200, 20],
+    [1200, 100],
+  ])('viewport %ipx (threshold %ipx)', (viewportHeight, threshold) => {
+    const mount = (distanceFromBottom: number) => {
+      const scroller = document.createElement('div');
+      Object.defineProperty(scroller, 'clientHeight', { value: viewportHeight });
+      Object.defineProperty(scroller, 'scrollHeight', { value: viewportHeight + 5000 });
+      scroller.scrollTop = 5000 - distanceFromBottom;
+      document.body.appendChild(scroller);
+
+      const { result } = renderHook(() => useScrollerViewport());
+      act(() => {
+        result.current.handleScrollerRef(scroller);
+      });
+      document.body.removeChild(scroller);
+      return result;
+    };
+
+    it('is at the bottom just inside the threshold', () => {
+      const result = mount(threshold - 1);
+      expect(result.current.threshold).toBe(threshold);
+      expect(result.current.isAtTrueBottom).toBe(true);
+    });
+
+    it('is not at the bottom just outside the threshold', () => {
+      const result = mount(threshold + 1);
+      expect(result.current.isAtTrueBottom).toBe(false);
+    });
+  });
+
   // With `useWindowScroll` Virtuoso hands back the window rather than an element. Discarding it
   // would leave the list unmeasured, the thresholds at their full-height defaults, and the
   // true-bottom check answering "yes" forever.
