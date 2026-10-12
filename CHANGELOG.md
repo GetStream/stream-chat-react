@@ -1,3 +1,9 @@
+## [14.13.1](https://github.com/GetStream/stream-chat-react/compare/v14.13.0...v14.13.1) (2026-10-12)
+
+### Bug Fixes
+
+* **MessageList:** make older-page anchor restore idempotent on iOS WebKit ([#3312](https://github.com/GetStream/stream-chat-react/issues/3312)) ([3068e4c](https://github.com/GetStream/stream-chat-react/commit/3068e4c91d948c73ed6d810e91c83498ab2403ab))
+
 ## [14.13.0](https://github.com/GetStream/stream-chat-react/compare/v14.12.2...v14.13.0) (2026-10-09)
 
 ### Bug Fixes
