@@ -17,20 +17,48 @@ import { VirtualizedMessageList } from '../VirtualizedMessageList';
 
 import { Chat } from '../../Chat';
 import { Channel } from '../../Channel';
+import { useVirtualizedMessageListContext, WithComponents } from '../../../context';
 
-vi.mock('react-virtuoso', async () => {
-  const { Virtuoso } = await import('react-virtuoso');
-  const { forwardRef } = await import('react');
+// Records the props VML hands to Virtuoso and routes the imperative handle through a spy, so the
+// scroll target is assertable. The overrides keep the real Virtuoso renderable under jsdom, which
+// reports every element as 0px.
+const { scrollToIndexSpy, virtuosoProps } = vi.hoisted(() => ({
+  scrollToIndexSpy: vi.fn(),
+  virtuosoProps: [] as Record<string, any>[],
+}));
+
+vi.mock('react-virtuoso', async (importOriginal) => {
+  const { Virtuoso } = await importOriginal<typeof import('react-virtuoso')>();
+  const { forwardRef, useImperativeHandle, useRef } = await import('react');
   return {
-    Virtuoso: forwardRef((props: any, ref: any) => (
-      <Virtuoso
-        ref={ref}
-        {...props}
-        fixedItemHeight={30}
-        initialTopMostItemIndex={0}
-        overscan={0}
-      />
-    )),
+    Virtuoso: forwardRef((props: any, ref: any) => {
+      virtuosoProps.push(props);
+      const innerRef = useRef<any>(null);
+      useImperativeHandle(
+        ref,
+        () => ({
+          autoscrollToBottom: (...args: any[]) =>
+            innerRef.current?.autoscrollToBottom(...args),
+          scrollBy: (...args: any[]) => innerRef.current?.scrollBy(...args),
+          scrollIntoView: (...args: any[]) => innerRef.current?.scrollIntoView(...args),
+          scrollTo: (...args: any[]) => innerRef.current?.scrollTo(...args),
+          scrollToIndex: (...args: any[]) => {
+            scrollToIndexSpy(...args);
+            return innerRef.current?.scrollToIndex(...args);
+          },
+        }),
+        [],
+      );
+      return (
+        <Virtuoso
+          ref={innerRef}
+          {...props}
+          fixedItemHeight={30}
+          initialTopMostItemIndex={0}
+          overscan={0}
+        />
+      );
+    }),
   };
 });
 
@@ -99,6 +127,77 @@ describe('VirtualizedMessageList', () => {
     const virtualList = container.querySelector('.str-chat__virtual-list');
     expect(virtualList).toBeInTheDocument();
     expect(virtualList).toContainElement(emptyStateText);
+  });
+
+  // A bare index means align: 'start', which parks the last row's top at the viewport top and
+  // clips its bottom whenever that row is taller than the list -- visible in a short panel.
+  // jsdom has no layout, so these assert the scroll target rather than the clipping.
+  describe('scroll anchoring', () => {
+    let scrollToBottom: (() => Promise<void>) | undefined;
+
+    // scrollToBottom is published on a context VML opens around its own subtree, so the probe
+    // has to sit inside it. MessageListMainPanel is the outermost overridable slot in there.
+    const MainPanelProbe = ({ children }: React.PropsWithChildren) => {
+      scrollToBottom = useVirtualizedMessageListContext().scrollToBottom;
+      return <div>{children}</div>;
+    };
+
+    const MESSAGE_COUNT = 20;
+
+    const renderList = async () => {
+      const user1 = generateUser();
+      const user2 = generateUser();
+      const mockedChannel = generateChannel({
+        members: [generateMember({ user: user1 }), generateMember({ user: user2 })],
+        messages: Array.from({ length: MESSAGE_COUNT }, (_v, i) =>
+          generateMessage({ id: `anchor-msg-${i}`, user: i % 2 ? user1 : user2 }),
+        ),
+      });
+      const client = await getTestClientWithUser({ id: 'id' });
+      useMockedApis(client, [getOrCreateChannelApi(mockedChannel)]); // eslint-disable-line react-hooks/rules-of-hooks
+      const channel = client.channel('messaging', mockedChannel.channel.id);
+      await channel.watch();
+
+      await act(() => {
+        render(
+          <Chat client={client}>
+            <Channel channel={channel}>
+              <WithComponents overrides={{ MessageListMainPanel: MainPanelProbe }}>
+                <VirtualizedMessageList />
+              </WithComponents>
+            </Channel>
+          </Chat>,
+        );
+      });
+      return virtuosoProps[virtuosoProps.length - 1];
+    };
+
+    beforeEach(() => {
+      virtuosoProps.length = 0;
+      scrollToBottom = undefined;
+    });
+
+    it('anchors the initial scroll to the end of the last item', async () => {
+      const props = await renderList();
+      expect(props.initialTopMostItemIndex).toEqual({
+        align: 'end',
+        index: props.totalCount - 1,
+      });
+    });
+
+    it('anchors scrollToBottom to the end of the last item', async () => {
+      const props = await renderList();
+
+      await act(async () => {
+        await scrollToBottom?.();
+      });
+
+      expect(props.totalCount).toBe(MESSAGE_COUNT);
+      expect(scrollToIndexSpy).toHaveBeenCalledWith({
+        align: 'end',
+        index: MESSAGE_COUNT - 1,
+      });
+    });
   });
 });
 
