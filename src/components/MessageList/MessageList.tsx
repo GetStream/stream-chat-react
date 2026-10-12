@@ -151,6 +151,7 @@ const MessageListWithContext = (props: MessageListWithContextProps) => {
   } = useScrollLocationLogic({
     hasMoreNewer,
     listElement,
+    loadingMore: isLoading,
     loadMoreScrollThreshold,
     messages, // todo: is it correct to base the scroll logic on an array that does not contain date separators or intro?
     scrolledUpThreshold: props.scrolledUpThreshold,
