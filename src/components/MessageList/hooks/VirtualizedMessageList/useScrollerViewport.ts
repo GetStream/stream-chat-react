@@ -40,9 +40,9 @@ export type ScrollerViewport = {
  * scale with the rendered list rather than assuming a full-height one.
  */
 export const useScrollerViewport = (): ScrollerViewport => {
-  // State rather than a ref: the element arrives from Virtuoso's scrollerRef callback after
+  // State rather than a ref: the scroller arrives from Virtuoso's scrollerRef callback after
   // mount, and the observers below have to attach at that point.
-  const [scroller, setScroller] = useState<HTMLElement | null>(null);
+  const [scrollTarget, setScrollTarget] = useState<HTMLElement | Window | null>(null);
   // Until the scroller is measured, keep the behaviour a full-height list already had.
   const [viewportHeight, setViewportHeight] = useState(MAX_THRESHOLD / THRESHOLD_RATIO);
   const [isAtTrueBottom, setIsAtTrueBottom] = useState(true);
@@ -59,17 +59,26 @@ export const useScrollerViewport = (): ScrollerViewport => {
   }, []);
 
   const handleScrollerRef = useCallback((element: HTMLElement | Window | null) => {
-    // Virtuoso types this as HTMLElement | Window; the message list always scrolls an element.
-    setScroller(element instanceof HTMLElement ? element : null);
+    setScrollTarget(element);
   }, []);
 
   useEffect(() => {
-    if (!scroller) return;
+    if (!scrollTarget) return;
+
+    // With `useWindowScroll` Virtuoso hands back the window rather than an element. The scroll
+    // events still arrive on the window, but the measurements have to come from the document's
+    // scrolling element -- without this the list is never measured, the thresholds stay at their
+    // full-height defaults, and the true-bottom check silently answers "yes" forever.
+    const isWindow = !(scrollTarget instanceof HTMLElement);
+    const measured = isWindow
+      ? ((document.scrollingElement ?? document.documentElement) as HTMLElement | null)
+      : scrollTarget;
+    if (!measured) return;
 
     const measure = () => {
-      setViewportHeight(scroller.clientHeight);
+      setViewportHeight(measured.clientHeight);
       setIsAtTrueBottom(
-        scroller.scrollHeight - scroller.scrollTop - scroller.clientHeight <=
+        measured.scrollHeight - measured.scrollTop - measured.clientHeight <=
           TRUE_BOTTOM_EPSILON,
       );
     };
@@ -77,25 +86,25 @@ export const useScrollerViewport = (): ScrollerViewport => {
     measureRef.current = measure;
     const scheduleMeasure = remeasure;
 
-    scroller.addEventListener('scroll', scheduleMeasure, { passive: true });
+    scrollTarget.addEventListener('scroll', scheduleMeasure, { passive: true });
 
     // Matches useScrollLocationLogic: the panel can be resized without the list scrolling, but
     // environments without ResizeObserver (jsdom) still get the scroll-driven measurements.
     let resizeObserver: ResizeObserver | undefined;
     if (typeof ResizeObserver !== 'undefined') {
       resizeObserver = new ResizeObserver(scheduleMeasure);
-      resizeObserver.observe(scroller);
+      resizeObserver.observe(measured);
     }
     measure();
 
     return () => {
-      scroller.removeEventListener('scroll', scheduleMeasure);
+      scrollTarget.removeEventListener('scroll', scheduleMeasure);
       resizeObserver?.disconnect();
       if (frameRef.current !== null) cancelAnimationFrame(frameRef.current);
       frameRef.current = null;
       measureRef.current = () => undefined;
     };
-  }, [remeasure, scroller]);
+  }, [remeasure, scrollTarget]);
 
   return {
     handleScrollerRef,

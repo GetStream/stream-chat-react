@@ -144,7 +144,7 @@ describe('VirtualizedMessageList', () => {
 
     const MESSAGE_COUNT = 20;
 
-    const renderList = async () => {
+    const renderList = async ({ listProps = {} } = {}) => {
       const user1 = generateUser();
       const user2 = generateUser();
       const mockedChannel = generateChannel({
@@ -163,7 +163,7 @@ describe('VirtualizedMessageList', () => {
           <Chat client={client}>
             <Channel channel={channel}>
               <WithComponents overrides={{ MessageListMainPanel: MainPanelProbe }}>
-                <VirtualizedMessageList />
+                <VirtualizedMessageList {...listProps} />
               </WithComponents>
             </Channel>
           </Chat>,
@@ -183,6 +183,46 @@ describe('VirtualizedMessageList', () => {
         align: 'end',
         index: props.totalCount - 1,
       });
+    });
+
+    // The thresholds and the true-bottom check are only honest while these callbacks reach the
+    // viewport hook, so an integrator override has to compose with them rather than replace them.
+    it('still measures the viewport when a scrollerRef is supplied', async () => {
+      const scrollerRefFromProps = vi.fn();
+      const props = await renderList({
+        listProps: { additionalVirtuosoProps: { scrollerRef: scrollerRefFromProps } },
+      });
+
+      expect(props.scrollerRef).not.toBe(scrollerRefFromProps);
+
+      const scroller = document.createElement('div');
+      act(() => {
+        props.scrollerRef(scroller);
+      });
+
+      expect(scrollerRefFromProps).toHaveBeenCalledWith(scroller);
+      const measured = virtuosoProps[virtuosoProps.length - 1];
+      expect(measured.atBottomThreshold).not.toBe(100);
+      expect(measured.atBottomThreshold).toBe(measured.atTopThreshold);
+    });
+
+    it('still remeasures when a totalListHeightChanged is supplied', async () => {
+      const totalListHeightChangedFromProps = vi.fn();
+      const props = await renderList({
+        listProps: {
+          additionalVirtuosoProps: {
+            totalListHeightChanged: totalListHeightChangedFromProps,
+          },
+        },
+      });
+
+      expect(props.totalListHeightChanged).not.toBe(totalListHeightChangedFromProps);
+
+      act(() => {
+        props.totalListHeightChanged(1234);
+      });
+
+      expect(totalListHeightChangedFromProps).toHaveBeenCalledWith(1234);
     });
 
     it('anchors scrollToBottom to the end of the last item', async () => {
