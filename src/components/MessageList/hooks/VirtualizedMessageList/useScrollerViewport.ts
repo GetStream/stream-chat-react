@@ -10,9 +10,6 @@ const THRESHOLD_RATIO = 0.1;
 const MIN_THRESHOLD = 4;
 const MAX_THRESHOLD = 100;
 
-/** Distance from the true bottom, in pixels, still counted as "the last message is fully shown". */
-const TRUE_BOTTOM_EPSILON = 4;
-
 const clamp = (value: number, min: number, max: number) =>
   Math.min(Math.max(value, min), max);
 
@@ -28,9 +25,13 @@ export type ScrollerViewport = {
    */
   remeasure: () => void;
   /**
-   * Whether the list is at its true bottom, within a few pixels. Unlike Virtuoso's thresholded
-   * at-bottom flag this does not go true while part of the last message is still below the fold,
-   * which is what makes it safe to gate marking a channel read.
+   * Whether the list is at its bottom, measured against the same `threshold` Virtuoso uses. It
+   * deliberately shares that definition: the threshold is what decides whether the user is shown
+   * a jump-to-latest control, so gating mark-read on anything stricter would leave a band where
+   * the UI claims the list is at the bottom while the channel silently refuses to go read.
+   *
+   * It is still worth having separately from Virtuoso's own flag, which only updates when the
+   * at-bottom state flips -- this is re-measured whenever the content or the viewport changes.
    */
   isAtTrueBottom: boolean;
 };
@@ -76,10 +77,13 @@ export const useScrollerViewport = (): ScrollerViewport => {
     if (!measured) return;
 
     const measure = () => {
-      setViewportHeight(measured.clientHeight);
+      const height = measured.clientHeight;
+      setViewportHeight(height);
+      // Derived from the height just measured rather than from state, so the bottom check can
+      // never disagree with the threshold reported alongside it.
+      const threshold = clamp(height * THRESHOLD_RATIO, MIN_THRESHOLD, MAX_THRESHOLD);
       setIsAtTrueBottom(
-        measured.scrollHeight - measured.scrollTop - measured.clientHeight <=
-          TRUE_BOTTOM_EPSILON,
+        measured.scrollHeight - measured.scrollTop - measured.clientHeight <= threshold,
       );
     };
 
