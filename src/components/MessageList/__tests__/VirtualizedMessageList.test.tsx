@@ -225,6 +225,38 @@ describe('VirtualizedMessageList', () => {
       expect(totalListHeightChangedFromProps).toHaveBeenCalledWith(1234);
     });
 
+    // Virtuoso's window-scroll path never calls the supplied scrollerRef, so without feeding the
+    // hook directly the list is never measured and the true-bottom check answers "yes" forever.
+    describe('window scrolling', () => {
+      // Virtuoso's own window-viewport hook needs a ResizeObserver, which jsdom does not
+      // provide. mock-builders' ResizeObserverMock has no `unobserve`, which Virtuoso calls.
+      const OriginalResizeObserver = globalThis.ResizeObserver;
+
+      beforeEach(() => {
+        globalThis.ResizeObserver = class implements ResizeObserver {
+          disconnect = vi.fn();
+          observe = vi.fn();
+          unobserve = vi.fn();
+        };
+      });
+
+      afterEach(() => {
+        globalThis.ResizeObserver = OriginalResizeObserver;
+      });
+
+      it.each([
+        ['useWindowScroll', { useWindowScroll: true }],
+        ['customScrollParent', { customScrollParent: document.createElement('div') }],
+      ])('measures the viewport with %s', async (_label, virtuosoProp) => {
+        const props = await renderList({
+          listProps: { additionalVirtuosoProps: virtuosoProp },
+        });
+
+        expect(props.atBottomThreshold).not.toBe(100);
+        expect(props.atBottomThreshold).toBe(props.atTopThreshold);
+      });
+    });
+
     it('anchors scrollToBottom to the end of the last item', async () => {
       const props = await renderList();
 

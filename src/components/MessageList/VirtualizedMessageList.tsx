@@ -392,9 +392,19 @@ const VirtualizedMessageListWithContext = (
   // spread: these two callbacks are what keep the thresholds and the true-bottom check honest, so
   // an override must not be able to silently switch the measurement off.
   const {
+    customScrollParent,
     scrollerRef: scrollerRefFromProps,
     totalListHeightChanged: totalListHeightChangedFromProps,
+    useWindowScroll,
   } = overridingVirtuosoProps;
+
+  // Virtuoso's window-scroll path never calls the supplied `scrollerRef` -- it passes its own
+  // no-op in that slot -- so for these two modes the hook has to be told what to measure, or the
+  // thresholds stay at their full-height defaults and the true-bottom check always answers "yes".
+  useEffect(() => {
+    if (!useWindowScroll && !customScrollParent) return;
+    handleScrollerRef(customScrollParent ?? window);
+  }, [customScrollParent, handleScrollerRef, useWindowScroll]);
 
   const scrollerRef = useCallback(
     (element: HTMLElement | Window | null) => {
