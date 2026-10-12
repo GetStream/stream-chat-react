@@ -23,6 +23,7 @@ import {
   useUnreadMessagesNotificationVirtualized,
 } from './hooks/VirtualizedMessageList';
 import { useMarkRead } from './hooks/useMarkRead';
+import { useScrollerViewport } from './hooks/VirtualizedMessageList/useScrollerViewport';
 
 import {
   NotificationList as DefaultNotificationList,
@@ -193,7 +194,10 @@ function calculateInitialTopMostItemIndex(
       return { align: 'center', index } as const;
     }
   }
-  return messages.length - 1;
+  // A bare index aligns the row's top to the viewport top, which leaves the last message
+  // hanging below the fold whenever it is taller than the list. Anchoring its end keeps the
+  // list opening at true bottom regardless of how short the viewport is.
+  return { align: 'end', index: messages.length - 1 } as const;
 }
 
 const unreadStateSnapshotSelector = (state: UnreadSnapshotState) => state;
@@ -410,8 +414,13 @@ const VirtualizedMessageListWithContext = (
     setNewMessagesNotification,
   } = useNewMessageNotification(processedMessages, client.userID);
 
+  const { handleScrollerRef, isAtTrueBottom, threshold } = useScrollerViewport();
+
   useMarkRead({
     hasMoreNewer,
+    // Virtuoso's at-bottom flag carries a threshold, so on a short list it reads true while part
+    // of the last message is still clipped. Marking a channel read needs the stricter signal.
+    isAtTrueBottom,
     isMessageListScrolledToBottom,
     messageListIsThread: isThreadList,
   });
@@ -427,7 +436,12 @@ const VirtualizedMessageListWithContext = (
     if (messagePaginator.hasMoreHead) {
       await messagePaginator.jumpToTheLatestMessage();
     } else if (virtuoso.current) {
-      virtuoso.current.scrollToIndex(processedMessages.length - 1);
+      // `align: 'end'` for the same reason as `calculateInitialTopMostItemIndex`: without it a
+      // last message taller than the viewport lands with its bottom clipped.
+      virtuoso.current.scrollToIndex({
+        align: 'end',
+        index: processedMessages.length - 1,
+      });
     }
 
     setNewMessagesNotification(false);
@@ -556,9 +570,9 @@ const VirtualizedMessageListWithContext = (
             />
             <Virtuoso<UnknownType, VirtuosoContext>
               atBottomStateChange={atBottomStateChange}
-              atBottomThreshold={100}
+              atBottomThreshold={threshold}
               atTopStateChange={atTopStateChange}
-              atTopThreshold={100}
+              atTopThreshold={threshold}
               className='str-chat__message-list-scroll'
               components={{
                 EmptyPlaceholder,
@@ -612,6 +626,7 @@ const VirtualizedMessageListWithContext = (
               key={messageSetKey}
               overscan={overscan}
               ref={virtuoso}
+              scrollerRef={handleScrollerRef}
               style={{ overflowX: 'hidden' }}
               totalCount={processedMessages.length}
               {...overridingVirtuosoProps}

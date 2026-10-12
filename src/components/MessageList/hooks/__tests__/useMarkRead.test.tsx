@@ -250,6 +250,53 @@ describe('useMarkRead', () => {
       }
       expect(markRead).not.toHaveBeenCalled();
     });
+
+    // A thresholded at-bottom flag reads true while the last message is still partly below the
+    // fold. isViewingLive is what gates both marking read and the LLC's own-unread bump, so that
+    // is the contract to assert: it must not go live while the last message is clipped.
+    it('does not report viewing live while the last message is not fully shown', async () => {
+      const channelData = unreadLastMessageChannelData();
+      const {
+        channels: [channel],
+        client,
+      } = await initClientWithChannels({
+        channelsData: [channelData],
+        customUser: channelData.read[0].user,
+      });
+
+      await render({
+        channel,
+        client,
+        params: {
+          ...shouldMarkReadParams,
+          isAtTrueBottom: false,
+        },
+      });
+
+      expect(channel.messagePaginator.isViewingLive).toBe(false);
+    });
+
+    it('reports viewing live once the last message is fully shown', async () => {
+      const channelData = unreadLastMessageChannelData();
+      const {
+        channels: [channel],
+        client,
+      } = await initClientWithChannels({
+        channelsData: [channelData],
+        customUser: channelData.read[0].user,
+      });
+
+      await render({
+        channel,
+        client,
+        params: {
+          ...shouldMarkReadParams,
+          isAtTrueBottom: true,
+        },
+      });
+
+      expect(channel.messagePaginator.isViewingLive).toBe(true);
+    });
   });
 
   describe('on message.new', () => {

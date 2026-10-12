@@ -32,19 +32,46 @@ const threadWithParentMessage = () =>
     ),
   });
 
-vi.mock('react-virtuoso', async () => {
-  const { Virtuoso } = await import('react-virtuoso');
-  const { forwardRef } = await import('react');
+// Records the props VML hands to Virtuoso and routes the imperative handle through a spy, so the
+// scroll target is assertable. The overrides keep the real Virtuoso renderable under jsdom, which
+// reports every element as 0px.
+const { scrollToIndexSpy, virtuosoProps } = vi.hoisted(() => ({
+  scrollToIndexSpy: vi.fn(),
+  virtuosoProps: [] as Record<string, any>[],
+}));
+
+vi.mock('react-virtuoso', async (importOriginal) => {
+  const { Virtuoso } = await importOriginal<typeof import('react-virtuoso')>();
+  const { forwardRef, useImperativeHandle, useRef } = await import('react');
   return {
-    Virtuoso: forwardRef((props: any, ref: any) => (
-      <Virtuoso
-        ref={ref}
-        {...props}
-        fixedItemHeight={30}
-        initialTopMostItemIndex={0}
-        overscan={0}
-      />
-    )),
+    Virtuoso: forwardRef((props: any, ref: any) => {
+      virtuosoProps.push(props);
+      const innerRef = useRef<any>(null);
+      useImperativeHandle(
+        ref,
+        () => ({
+          autoscrollToBottom: (...args: any[]) =>
+            innerRef.current?.autoscrollToBottom(...args),
+          scrollBy: (...args: any[]) => innerRef.current?.scrollBy(...args),
+          scrollIntoView: (...args: any[]) => innerRef.current?.scrollIntoView(...args),
+          scrollTo: (...args: any[]) => innerRef.current?.scrollTo(...args),
+          scrollToIndex: (...args: any[]) => {
+            scrollToIndexSpy(...args);
+            return innerRef.current?.scrollToIndex(...args);
+          },
+        }),
+        [],
+      );
+      return (
+        <Virtuoso
+          ref={innerRef}
+          {...props}
+          fixedItemHeight={30}
+          initialTopMostItemIndex={0}
+          overscan={0}
+        />
+      );
+    }),
   };
 });
 
@@ -193,6 +220,89 @@ describe('VirtualizedMessageList', () => {
 
       expect(resolvedAt(container, 'inside')).toBe('CustomMessageUI');
       expect(resolvedAt(container, 'outside')).toBe('CustomMessageUI');
+    });
+  });
+
+  // A bare index means align: 'start', which parks the last row's top at the viewport top and
+  // clips its bottom whenever that row is taller than the list -- visible in a short panel.
+  // jsdom has no layout, so these assert the scroll target rather than the clipping.
+  describe('scroll anchoring', () => {
+    const MESSAGE_COUNT = 20;
+
+    let scrollToBottom: (() => Promise<void>) | undefined;
+
+    // VML passes scrollToBottom to TypingIndicator, which it renders inside its own context
+    // provider -- the simplest overridable seam that receives the callback.
+    const TypingIndicatorProbe = (props: { scrollToBottom: () => Promise<void> }) => {
+      scrollToBottom = props.scrollToBottom;
+      return null;
+    };
+
+    const renderList = async ({ hasMoreHead = false } = {}) => {
+      const user1 = generateUser();
+      const user2 = generateUser();
+      // The file-wide nanoid mock collapses generated ids, which would dedupe the messages down
+      // to one and let an off-by-one pass.
+      const mockedChannel = generateChannel({
+        members: [generateMember({ user: user1 }), generateMember({ user: user2 })],
+        messages: Array.from({ length: MESSAGE_COUNT }, (_v, i) =>
+          generateMessage({ id: `anchor-msg-${i}`, user: i % 2 ? user1 : user2 }),
+        ),
+      });
+      const client = await getTestClientWithUser({ id: 'id' });
+      useMockedApis(client, [getOrCreateChannelApi(mockedChannel)]); // eslint-disable-line react-hooks/rules-of-hooks
+      const channel = client.channelManager.ensure({
+        id: mockedChannel.channel.id,
+        type: 'messaging',
+      });
+      await channel.watch();
+      // With older pages still to load, scrollToBottom jumps to the latest message set instead of
+      // scrolling, so pin it to the branch that actually targets a Virtuoso index.
+      vi.spyOn(channel.messagePaginator, 'hasMoreHead', 'get').mockReturnValue(
+        hasMoreHead,
+      );
+
+      await act(() => {
+        render(
+          <Chat client={client}>
+            <Channel channel={channel}>
+              <WithComponents overrides={{ TypingIndicator: TypingIndicatorProbe }}>
+                <VirtualizedMessageList />
+              </WithComponents>
+            </Channel>
+          </Chat>,
+        );
+      });
+      return virtuosoProps[virtuosoProps.length - 1];
+    };
+
+    beforeEach(() => {
+      virtuosoProps.length = 0;
+      scrollToBottom = undefined;
+    });
+
+    it('anchors the initial scroll to the end of the last item', async () => {
+      const props = await renderList();
+
+      expect(props.totalCount).toBe(MESSAGE_COUNT);
+      expect(props.initialTopMostItemIndex).toEqual({
+        align: 'end',
+        index: MESSAGE_COUNT - 1,
+      });
+    });
+
+    it('anchors scrollToBottom to the end of the last item', async () => {
+      const props = await renderList();
+
+      await act(async () => {
+        await scrollToBottom?.();
+      });
+
+      expect(props.totalCount).toBe(MESSAGE_COUNT);
+      expect(scrollToIndexSpy).toHaveBeenCalledWith({
+        align: 'end',
+        index: MESSAGE_COUNT - 1,
+      });
     });
   });
 });
