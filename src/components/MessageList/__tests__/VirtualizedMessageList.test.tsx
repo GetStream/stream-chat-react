@@ -313,6 +313,12 @@ describe('VirtualizedMessageList', () => {
       const measured = virtuosoProps[virtuosoProps.length - 1];
       expect(measured.atBottomThreshold).not.toBe(100);
       expect(measured.atBottomThreshold).toBe(measured.atTopThreshold);
+
+      // Virtuoso passes null on teardown; the caller has to see that too.
+      act(() => {
+        props.scrollerRef(null);
+      });
+      expect(scrollerRefFromProps).toHaveBeenCalledWith(null);
     });
 
     it('still remeasures when a totalListHeightChanged is supplied', async () => {
