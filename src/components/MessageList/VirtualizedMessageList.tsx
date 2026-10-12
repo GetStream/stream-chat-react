@@ -414,7 +414,34 @@ const VirtualizedMessageListWithContext = (
     setNewMessagesNotification,
   } = useNewMessageNotification(processedMessages, client.userID);
 
-  const { handleScrollerRef, isAtTrueBottom, threshold } = useScrollerViewport();
+  const { handleScrollerRef, isAtTrueBottom, remeasure, threshold } =
+    useScrollerViewport();
+
+  // Composed with whatever the integrator passes, and applied after the `additionalVirtuosoProps`
+  // spread: these two callbacks are what keep the thresholds and the true-bottom check honest, so
+  // an override must not be able to silently switch the measurement off.
+  const {
+    scrollerRef: scrollerRefFromProps,
+    totalListHeightChanged: totalListHeightChangedFromProps,
+  } = overridingVirtuosoProps;
+
+  const scrollerRef = useCallback(
+    (element: HTMLElement | Window | null) => {
+      handleScrollerRef(element);
+      scrollerRefFromProps?.(element);
+    },
+    [handleScrollerRef, scrollerRefFromProps],
+  );
+
+  // Content can grow without the scroller resizing or scrolling -- a bubble whose avatar or image
+  // lands late -- which moves the true bottom without firing either event the hook observes.
+  const totalListHeightChanged = useCallback(
+    (height: number) => {
+      remeasure();
+      totalListHeightChangedFromProps?.(height);
+    },
+    [remeasure, totalListHeightChangedFromProps],
+  );
 
   useMarkRead({
     hasMoreNewer,
@@ -626,10 +653,11 @@ const VirtualizedMessageListWithContext = (
               key={messageSetKey}
               overscan={overscan}
               ref={virtuoso}
-              scrollerRef={handleScrollerRef}
               style={{ overflowX: 'hidden' }}
               totalCount={processedMessages.length}
               {...overridingVirtuosoProps}
+              scrollerRef={scrollerRef}
+              totalListHeightChanged={totalListHeightChanged}
               {...(scrollSeekPlaceHolder ? { scrollSeek: scrollSeekPlaceHolder } : {})}
               {...(defaultItemHeight ? { defaultItemHeight } : {})}
             />

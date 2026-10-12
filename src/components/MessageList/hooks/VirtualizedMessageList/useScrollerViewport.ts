@@ -22,6 +22,12 @@ export type ScrollerViewport = {
   /** Callback for Virtuoso's `scrollerRef` prop. */
   handleScrollerRef: (element: HTMLElement | Window | null) => void;
   /**
+   * Schedules a fresh measurement. Content can grow without the scroller resizing or scrolling --
+   * a message bubble whose avatar or image lands late -- which changes how far the list is from
+   * its true bottom without firing either event we observe.
+   */
+  remeasure: () => void;
+  /**
    * Whether the list is at its true bottom, within a few pixels. Unlike Virtuoso's thresholded
    * at-bottom flag this does not go true while part of the last message is still below the fold,
    * which is what makes it safe to gate marking a channel read.
@@ -41,6 +47,16 @@ export const useScrollerViewport = (): ScrollerViewport => {
   const [viewportHeight, setViewportHeight] = useState(MAX_THRESHOLD / THRESHOLD_RATIO);
   const [isAtTrueBottom, setIsAtTrueBottom] = useState(true);
   const frameRef = useRef<number | null>(null);
+  // Assigned by the effect below; held in a ref so `remeasure` can stay stable for callers.
+  const measureRef = useRef<() => void>(() => undefined);
+
+  const remeasure = useCallback(() => {
+    if (frameRef.current !== null) return;
+    frameRef.current = requestAnimationFrame(() => {
+      frameRef.current = null;
+      measureRef.current();
+    });
+  }, []);
 
   const handleScrollerRef = useCallback((element: HTMLElement | Window | null) => {
     // Virtuoso types this as HTMLElement | Window; the message list always scrolls an element.
@@ -51,7 +67,6 @@ export const useScrollerViewport = (): ScrollerViewport => {
     if (!scroller) return;
 
     const measure = () => {
-      frameRef.current = null;
       setViewportHeight(scroller.clientHeight);
       setIsAtTrueBottom(
         scroller.scrollHeight - scroller.scrollTop - scroller.clientHeight <=
@@ -59,10 +74,8 @@ export const useScrollerViewport = (): ScrollerViewport => {
       );
     };
 
-    const scheduleMeasure = () => {
-      if (frameRef.current !== null) return;
-      frameRef.current = requestAnimationFrame(measure);
-    };
+    measureRef.current = measure;
+    const scheduleMeasure = remeasure;
 
     scroller.addEventListener('scroll', scheduleMeasure, { passive: true });
 
@@ -80,12 +93,14 @@ export const useScrollerViewport = (): ScrollerViewport => {
       resizeObserver?.disconnect();
       if (frameRef.current !== null) cancelAnimationFrame(frameRef.current);
       frameRef.current = null;
+      measureRef.current = () => undefined;
     };
-  }, [scroller]);
+  }, [remeasure, scroller]);
 
   return {
     handleScrollerRef,
     isAtTrueBottom,
+    remeasure,
     threshold: clamp(viewportHeight * THRESHOLD_RATIO, MIN_THRESHOLD, MAX_THRESHOLD),
   };
 };

@@ -105,7 +105,12 @@ export const useMarkRead = ({
         ? (thread?.ownUnreadCount ?? 0) > 0
         : !!client.user?.id && !hasReadLastMessage(channel, client.user.id);
 
-      return messagePaginator.isViewingLive && !wasMarkedUnread && hasUnreadMessages;
+      return (
+        isAtTrueBottom &&
+        messagePaginator.isViewingLive &&
+        !wasMarkedUnread &&
+        hasUnreadMessages
+      );
     };
 
     const onVisibilityChange = () => {
@@ -143,6 +148,7 @@ export const useMarkRead = ({
     channel,
     client,
     hasMoreNewer,
+    isAtTrueBottom,
     isMessageListScrolledToBottom,
     markRead,
     resetUnreadSnapshot,
