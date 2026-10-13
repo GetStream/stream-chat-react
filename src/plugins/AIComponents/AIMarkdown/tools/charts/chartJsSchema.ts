@@ -1,5 +1,7 @@
 import * as zod from 'zod';
 
+import { CHART_JS_TYPES } from './chartTypes';
+
 export const chartJsSchema = zod.object({
   data: zod.object({
     datasets: zod.array(
@@ -34,14 +36,5 @@ export const chartJsSchema = zod.object({
     xLabels: zod.array(zod.union([zod.string(), zod.number()])).optional(),
     yLabels: zod.array(zod.union([zod.string(), zod.number()])).optional(),
   }),
-  type: zod.enum([
-    'pie',
-    'bar',
-    'line',
-    'bubble',
-    'doughnut',
-    'polarArea',
-    'radar',
-    'scatter',
-  ]),
+  type: zod.enum(CHART_JS_TYPES),
 });

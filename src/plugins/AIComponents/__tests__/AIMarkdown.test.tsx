@@ -55,6 +55,25 @@ describe('AIMarkdown', () => {
     expect(screen.getByText('Loading chart...')).toBeInTheDocument();
   });
 
+  it('renders a plain json fence as highlighted code, not as a chart', () => {
+    const { container } = render(
+      <AIMarkdown>{'```json\n{ "status": "ok", "items": [1, 2] }\n```'}</AIMarkdown>,
+    );
+    expect(screen.queryByText('Loading chart...')).toBeNull();
+    expect(
+      container.querySelector('.str-chat__ai-syntax-highlighter-pre'),
+    ).toHaveTextContent('"status"');
+  });
+
+  it('renders a json fence that holds a Chart.js config as a chart', () => {
+    const chartConfig = JSON.stringify({
+      data: { datasets: [{ data: [1, 2, 3] }], labels: ['a', 'b', 'c'] },
+      type: 'bar',
+    });
+    render(<AIMarkdown>{`\`\`\`json\n${chartConfig}\n\`\`\``}</AIMarkdown>);
+    expect(screen.getByText('Loading chart...')).toBeInTheDocument();
+  });
+
   it('has no a11y violations', async () => {
     const { container } = render(<AIMarkdown>{'# Title\n\n- a\n- b'}</AIMarkdown>);
     expect(await axe(container)).toHaveNoViolations();
