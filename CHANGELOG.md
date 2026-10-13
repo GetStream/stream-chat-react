@@ -1,3 +1,10 @@
+## [14.13.2](https://github.com/GetStream/stream-chat-react/compare/v14.13.1...v14.13.2) (2026-10-13)
+
+### Bug Fixes
+
+* **ai-components:** chart and markdown fixes ([#3320](https://github.com/GetStream/stream-chat-react/issues/3320)) ([8c1b9bf](https://github.com/GetStream/stream-chat-react/commit/8c1b9bf1bec097b55f05393b076ea70bf10bcfa8)), closes [#3314](https://github.com/GetStream/stream-chat-react/issues/3314) [#3315](https://github.com/GetStream/stream-chat-react/issues/3315)
+* **VirtualizedMessageList:** keep the last message fully visible in short lists ([#3317](https://github.com/GetStream/stream-chat-react/issues/3317)) ([1a6021e](https://github.com/GetStream/stream-chat-react/commit/1a6021e002cb3b1feff2c89a2df58f2cdfadeec9))
+
 ## [14.13.1](https://github.com/GetStream/stream-chat-react/compare/v14.13.0...v14.13.1) (2026-10-12)
 
 ### Bug Fixes
