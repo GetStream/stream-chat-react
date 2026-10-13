@@ -113,4 +113,172 @@ describe('useScrollLocationLogic', () => {
 
     expect(listElement.scrollTo).toHaveBeenCalled();
   });
+
+  describe('older page prepended', () => {
+    // The anchor message sits at the top of the viewport (100 px from the list's top edge) when
+    // loading starts. After the prepend its layout offset inside the list is `ANCHOR_CONTENT_TOP`.
+    const ANCHOR_CONTENT_TOP = 520;
+    const ANCHOR_ID = '25';
+
+    const originalCSS = Object.getOwnPropertyDescriptor(globalThis, 'CSS');
+    afterEach(() => {
+      if (originalCSS) Object.defineProperty(globalThis, 'CSS', originalCSS);
+      else delete (globalThis as Record<string, unknown>).CSS;
+    });
+    const setIosWebKit = (isIos: boolean) =>
+      Object.defineProperty(globalThis, 'CSS', {
+        configurable: true,
+        value: {
+          supports: (property: string) => isIos && property === '-webkit-touch-callout',
+        },
+      });
+
+    type FakeList = HTMLElement & {
+      scrollBy: ReturnType<typeof vi.fn>;
+      scrollTo: ReturnType<typeof vi.fn>;
+    };
+
+    /** A list near its top, holding one anchor message whose geometry the test controls. */
+    const createNearTopList = ({
+      unstableRects = false,
+    }: { unstableRects?: boolean } = {}) => {
+      let rectReads = 0;
+      const anchorElement = {
+        dataset: { messageId: ANCHOR_ID },
+        getBoundingClientRect: () => {
+          // Exact until the older page lands (that is when the anchor is captured). Afterwards iOS
+          // WebKit can still report pre-scroll geometry, so every read differs.
+          const pageLanded = (element as { scrollHeight: number }).scrollHeight > 600;
+          const top =
+            unstableRects && pageLanded
+              ? (rectReads++ % 2 ? 1 : -1) * 100 * rectReads
+              : 100;
+          return fromPartial<DOMRect>({ bottom: top + 120, height: 120, top });
+        },
+        offsetParent: null,
+        offsetTop: ANCHOR_CONTENT_TOP,
+      };
+      const element = {
+        clientHeight: 250,
+        clientTop: 0,
+        getBoundingClientRect: () =>
+          fromPartial<DOMRect>({ bottom: 350, height: 250, top: 100 }),
+        offsetHeight: 250,
+        offsetParent: null,
+        offsetTop: 0,
+        querySelector: () => anchorElement,
+        querySelectorAll: () => [anchorElement],
+        scrollBy: vi.fn(),
+        scrollHeight: 600,
+        scrollTo: vi.fn(),
+        scrollTop: 50,
+        style: { overflowY: '' },
+      };
+      return element as unknown as FakeList;
+    };
+
+    const renderOlderPageLoad = ({
+      listElement,
+      reportLoading = true,
+    }: {
+      listElement: FakeList;
+      reportLoading?: boolean;
+    }) => {
+      const current = generateMessages(25, 25);
+      const older = generateMessages(25, 0);
+      const hook = renderHook(
+        (props: { loadingMore: boolean; messages: LocalMessage[] }) =>
+          useScrollLocationLogic({
+            hasMoreNewer: false,
+            listElement,
+            loadingMore: props.loadingMore,
+            loadMoreScrollThreshold: 100,
+            messages: props.messages,
+            scrolledUpThreshold: 200,
+          }),
+        {
+          initialProps: { loadingMore: false, messages: current },
+          wrapper: ({ children }: React.PropsWithChildren) => (
+            <ChatProvider value={mockChatContext({ client })}>{children}</ChatProvider>
+          ),
+        },
+      );
+      act(() => hook.result.current.onScroll(fromPartial({ target: listElement })));
+      // Loading starts while the user is near, but not at, the top of the list.
+      if (reportLoading) {
+        hook.rerender({ loadingMore: true, messages: current });
+      }
+      listElement.scrollHeight = 900;
+      // The older page arrives and the load ends in the same update.
+      hook.rerender({ loadingMore: false, messages: older.concat(current) });
+      return hook;
+    };
+
+    const settle = () =>
+      act(() => new Promise<void>((resolve) => setTimeout(resolve, 150)));
+
+    it('restores the anchor with an absolute scroll position, whatever the geometry reads report', async () => {
+      const listElement = createNearTopList({ unstableRects: true });
+      renderOlderPageLoad({ listElement });
+      await settle();
+
+      expect(listElement.scrollBy).not.toHaveBeenCalled();
+      expect(listElement.scrollTop).toBe(ANCHOR_CONTENT_TOP);
+    });
+
+    it('ends the fling on iOS WebKit while restoring, then hands scrolling back', async () => {
+      setIosWebKit(true);
+      const listElement = createNearTopList();
+      renderOlderPageLoad({ listElement });
+
+      // iOS keeps animating a fling over programmatic positions until the overflow is hidden.
+      expect(listElement.style.overflowY).toBe('hidden');
+      await settle();
+      expect(listElement.style.overflowY).toBe('');
+      expect(listElement.scrollTop).toBe(ANCHOR_CONTENT_TOP);
+    });
+
+    it('leaves the overflow alone outside iOS WebKit', async () => {
+      setIosWebKit(false);
+      const listElement = createNearTopList();
+      renderOlderPageLoad({ listElement });
+
+      expect(listElement.style.overflowY).toBe('');
+      await settle();
+      expect(listElement.style.overflowY).toBe('');
+      expect(listElement.scrollTop).toBe(ANCHOR_CONTENT_TOP);
+    });
+
+    it('hands scrolling back when the list unmounts mid-restore', () => {
+      setIosWebKit(true);
+      const listElement = createNearTopList();
+      const { unmount } = renderOlderPageLoad({ listElement });
+      expect(listElement.style.overflowY).toBe('hidden');
+
+      unmount();
+
+      expect(listElement.style.overflowY).toBe('');
+    });
+
+    it('restores an inline overflow-y set by the app instead of clearing it', async () => {
+      setIosWebKit(true);
+      const listElement = createNearTopList();
+      listElement.style.overflowY = 'scroll';
+      renderOlderPageLoad({ listElement });
+      expect(listElement.style.overflowY).toBe('hidden');
+      await settle();
+
+      expect(listElement.style.overflowY).toBe('scroll');
+    });
+
+    it('does not restore an anchor when no page load is reported (previous height-delta behaviour)', async () => {
+      const listElement = createNearTopList();
+      renderOlderPageLoad({ listElement, reportLoading: false });
+      await settle();
+
+      // Without a reported load there is no anchor, so the page height is compensated instead.
+      expect(listElement.scrollBy).toHaveBeenCalledWith({ top: 300 });
+      expect(listElement.scrollTop).toBe(50);
+    });
+  });
 });
