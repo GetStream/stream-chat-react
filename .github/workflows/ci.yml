@@ -65,6 +65,14 @@ jobs:
         # src/i18n (tests, Streami18n, runtimeDefaults) do not trip it.
         run: git diff --exit-code -- src/i18n/keys.ts
 
+      - name: Build the ai-chatbot example
+        # Type-checks and bundles the Next.js example against the `dist` built above, so an SDK
+        # change that breaks it (or a stream-chat API it relies on) fails here. The page renders
+        # on demand, so the build needs no Stream credentials.
+        env:
+          NEXT_TELEMETRY_DISABLED: '1'
+        run: yarn workspace @stream-io/stream-chat-react-ai-chatbot build
+
       - name: Cache Build Output
         uses: actions/cache@v5
         with:
