@@ -9,7 +9,7 @@ import type {
   SortParamRequest,
 } from 'stream-chat';
 import { ChannelPaginator } from 'stream-chat';
-import { Chat, getChannel, useChatContext, useCreateChatClient } from 'stream-chat-react';
+import { Chat, useChatContext, useCreateChatClient } from 'stream-chat-react';
 import { ActiveChannelProvider, useActiveChannel } from '../ActiveChannelContext';
 import { Sidebar } from '../Sidebar';
 import { ChatContainer } from '../ChatContainer';
@@ -92,15 +92,18 @@ const ChatContent = ({
   }, [channel?.id, searchParams, router]);
 
   // Load initial channel from URL on mount. `Channel` no longer queries the channel it is given,
-  // so it is watched here first (`getChannel` de-duplicates concurrent watches).
+  // so it is watched here first. `channelManager.ensure()` returns the stored instance for the cid,
+  // and `ensureWatched()` de-duplicates concurrent watches of it.
   useEffect(() => {
     if (initialChannelId && client && !channel) {
       const loadChannel = async () => {
-        const targetChannel = await getChannel({
-          client,
+        const targetChannel = client.channelManager.ensure({
           id: initialChannelId,
           type: 'messaging',
         });
+        if (!targetChannel.initialized) {
+          await targetChannel.ensureWatched();
+        }
         setActiveChannel(targetChannel);
       };
       loadChannel().catch((err) => {

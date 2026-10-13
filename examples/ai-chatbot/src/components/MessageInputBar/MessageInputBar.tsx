@@ -9,7 +9,6 @@ import {
   type UploadRequestFn,
 } from 'stream-chat';
 import {
-  getChannel,
   useAttachmentsForPreview,
   useChannel,
   useChatContext,
@@ -130,22 +129,10 @@ export const MessageInputBar = () => {
 
           composer.textComposer.setText(message as string);
 
-          const composedData = await composer.compose();
-
-          if (!composedData) return;
-
-          target.reset();
-          composer.clear();
-
-          const { localMessage, message: messageRequest, sendOptions } = composedData;
-
-          // Show the message right away: creating the conversation and starting the agent
-          // below take a round trip each before the send itself.
-          channel.messagePaginator.ingestItem(localMessage);
-
           // A new conversation exists only locally until now; `Channel` no longer creates it.
+          // Both setup steps run before `send()`, so a failure here leaves the draft untouched.
           if (!channel.initialized) {
-            await getChannel({ channel, client });
+            await channel.ensureWatched();
           }
 
           const [platform, model] = (platformModel as string).split('|');
@@ -154,11 +141,16 @@ export const MessageInputBar = () => {
             await startAiAgent(channel, model, platform);
           }
 
-          await channel.sendMessageWithLocalUpdate({
-            localMessage,
-            message: messageRequest,
-            options: sendOptions,
-          });
+          // `send()` composes the message, shows it optimistically, releases the composer and
+          // reports a failed send itself (the message stays in the list marked `failed`).
+          const result = await composer.send();
+
+          // `nothing-to-send` keeps the composer's contents (e.g. an upload is still running).
+          if (result === 'nothing-to-send') return;
+
+          target.reset();
+
+          if (result !== 'sent') return;
 
           // Record message after successful send
           recordMessage(channel.id!);
