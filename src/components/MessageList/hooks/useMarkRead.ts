@@ -16,6 +16,13 @@ const hasReadLastMessage = (channel: Channel, userId: string) => {
 type UseMarkReadParams = {
   isMessageListScrolledToBottom: boolean;
   messageListIsThread: boolean;
+  /**
+   * Whether the last message is fully shown. Lists whose at-bottom flag carries a threshold --
+   * it can read true while part of the last message is still below the fold -- pass this so a
+   * channel is never marked read on a message nobody has seen. Omitted, only the at-bottom flag
+   * applies.
+   */
+  isAtTrueBottom?: boolean;
   wasMarkedUnread?: boolean;
 };
 
@@ -23,12 +30,15 @@ type UseMarkReadParams = {
  * Takes care of marking a channel read. The channel is read only if all the following applies:
  * 1. the message list is not rendered in a thread
  * 2. the message list is scrolled to the bottom
- * 3. the channel was not marked unread by the user
+ * 3. the last message is fully shown, where the caller can tell
+ * 4. the channel was not marked unread by the user
  * @param isMessageListScrolledToBottom
  * @param messageListIsThread
+ * @param isAtTrueBottom
  * @param wasChannelMarkedUnread
  */
 export const useMarkRead = ({
+  isAtTrueBottom = true,
   isMessageListScrolledToBottom,
   messageListIsThread,
   wasMarkedUnread,
@@ -48,6 +58,7 @@ export const useMarkRead = ({
       !wasMarkedUnread &&
       !messageListIsThread &&
       isMessageListScrolledToBottom &&
+      isAtTrueBottom &&
       client.user?.id &&
       !hasReadLastMessage(channel, client.user.id);
 
@@ -99,6 +110,7 @@ export const useMarkRead = ({
   }, [
     channel,
     client,
+    isAtTrueBottom,
     isMessageListScrolledToBottom,
     markRead,
     messageListIsThread,

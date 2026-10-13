@@ -242,6 +242,36 @@ describe('useMarkRead', () => {
       }
       expect(markRead).not.toHaveBeenCalled();
     });
+
+    // A thresholded at-bottom flag reads true while the last message is still partly below the
+    // fold, which would mark a channel read on a message nobody has seen. Same fixture as the
+    // first case in this block, which is the isAtTrueBottom: true counterpart.
+    it('should not mark channel read while the last message is not fully shown', async () => {
+      const channelData = unreadLastMessageChannelData();
+      const {
+        channels: [channel],
+        client,
+      } = await initClientWithChannels({
+        channelsData: [channelData],
+        customUser: channelData.read[0].user,
+      });
+
+      await render({
+        channel,
+        client,
+        params: {
+          ...shouldMarkReadParams,
+          isAtTrueBottom: false,
+        },
+      });
+
+      if (scenario === visibilityChangeScenario) {
+        await act(() => {
+          document.dispatchEvent(new Event('visibilitychange'));
+        });
+      }
+      expect(markRead).not.toHaveBeenCalled();
+    });
   });
 
   describe('on message.new', () => {
