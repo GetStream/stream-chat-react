@@ -81,13 +81,13 @@
       hyphens: none;
     }
 
-    code[class*='language-'] {
-      &::selection,
-      &::-moz-selection {
-        background: ai-token(syntax-selection-bg);
-        color: inherit;
-        text-shadow: none;
-      }
+    // `::selection` and `::-moz-selection` must not share a selector list: a browser that
+    // does not recognise one pseudo-element drops the whole rule (Chromium/WebKit drop
+    // `::-moz-selection`). Current Firefox supports `::selection`, so only that is needed.
+    code[class*='language-']::selection {
+      background: ai-token(syntax-selection-bg);
+      color: inherit;
+      text-shadow: none;
     }
 
     .token {

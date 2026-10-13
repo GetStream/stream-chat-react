@@ -12,6 +12,7 @@ import remarkGfm from 'remark-gfm';
 import { Prism, type SyntaxHighlighterProps } from 'react-syntax-highlighter';
 import clsx from 'clsx';
 
+import { JsonChart } from './tools/charts/JsonChart';
 import { SuspendedChart } from './tools/charts/SuspendedChart';
 
 type CodeElementProps = {
@@ -198,7 +199,7 @@ export const AIMarkdown: AIMarkdown = (props) => {
   const mergedToolComponents: ToolComponents = useMemo(
     () => ({
       chartjs: SuspendedChart,
-      json: SuspendedChart,
+      json: JsonChart,
       ...props.toolComponents,
     }),
     [props.toolComponents],

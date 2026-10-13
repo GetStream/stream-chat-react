@@ -8,6 +8,7 @@ import {
   LinearScale,
   LineElement,
   PointElement,
+  RadialLinearScale,
   Title as TitlePlugin,
   Tooltip,
 } from 'chart.js';
@@ -25,12 +26,15 @@ import type { ToolComponentProps } from '../../AIMarkdown';
 import { useTranslationContext } from '../../../../../context/TranslationContext';
 import { chartJsSchema } from './chartJsSchema';
 
+// react-chartjs-2 registers each chart type's controller, but not the scales those controllers
+// default to: `radar` and `polarArea` need `RadialLinearScale`.
 ChartJS.register(
   ArcElement,
   Tooltip,
   Legend,
   CategoryScale,
   LinearScale,
+  RadialLinearScale,
   BarElement,
   LineElement,
   PointElement,
