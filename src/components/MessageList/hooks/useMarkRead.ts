@@ -22,6 +22,12 @@ type UseMarkReadParams = {
   isMessageListScrolledToBottom: boolean;
   // todo: remove and infer only from useThreadContext return value - if undefined, not a thread list
   messageListIsThread: boolean;
+  /**
+   * Whether the last message is fully shown. Lists whose at-bottom flag carries a threshold -- it
+   * can read true while part of the last message is still below the fold -- pass this so a channel
+   * is never marked read on a message nobody has seen. Omitted, only the at-bottom flag applies.
+   */
+  isAtTrueBottom?: boolean;
 };
 
 /**
@@ -31,6 +37,7 @@ type UseMarkReadParams = {
  */
 export const useMarkRead = ({
   hasMoreNewer,
+  isAtTrueBottom = true,
   isMessageListScrolledToBottom,
   messageListIsThread,
 }: UseMarkReadParams) => {
@@ -71,7 +78,10 @@ export const useMarkRead = ({
     // the LLC skips the own-unread bump on `message.new` so the separator/banner never flash.
     const pushViewingLive = () =>
       messagePaginator.setViewingLive(
-        !document.hidden && isMessageListScrolledToBottom && !hasMoreNewer,
+        !document.hidden &&
+          isMessageListScrolledToBottom &&
+          isAtTrueBottom &&
+          !hasMoreNewer,
       );
 
     pushViewingLive();
@@ -81,7 +91,7 @@ export const useMarkRead = ({
       document.removeEventListener('visibilitychange', pushViewingLive);
       messagePaginator.setViewingLive(false);
     };
-  }, [hasMoreNewer, isMessageListScrolledToBottom, messagePaginator]);
+  }, [hasMoreNewer, isAtTrueBottom, isMessageListScrolledToBottom, messagePaginator]);
 
   useEffect(() => {
     // No read events means no server-side read state - but a channel counting unread locally still
@@ -95,7 +105,12 @@ export const useMarkRead = ({
         ? (thread?.ownUnreadCount ?? 0) > 0
         : !!client.user?.id && !hasReadLastMessage(channel, client.user.id);
 
-      return messagePaginator.isViewingLive && !wasMarkedUnread && hasUnreadMessages;
+      return (
+        isAtTrueBottom &&
+        messagePaginator.isViewingLive &&
+        !wasMarkedUnread &&
+        hasUnreadMessages
+      );
     };
 
     const onVisibilityChange = () => {
@@ -133,6 +148,7 @@ export const useMarkRead = ({
     channel,
     client,
     hasMoreNewer,
+    isAtTrueBottom,
     isMessageListScrolledToBottom,
     markRead,
     resetUnreadSnapshot,

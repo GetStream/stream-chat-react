@@ -6,3 +6,4 @@ export * from './usePrependMessagesCount';
 export * from './useScrollToBottomOnNewMessage';
 export * from './useShouldForceScrollToBottom';
 export * from './useUnreadMessagesNotificationVirtualized';
+export * from './useScrollerViewport';

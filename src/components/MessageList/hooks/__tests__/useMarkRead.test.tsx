@@ -250,6 +250,96 @@ describe('useMarkRead', () => {
       }
       expect(markRead).not.toHaveBeenCalled();
     });
+
+    // A thresholded at-bottom flag reads true while the last message is still partly below the
+    // fold. isViewingLive is what gates both marking read and the LLC's own-unread bump, so that
+    // is the contract to assert: it must not go live while the last message is clipped.
+    it('does not report viewing live while the last message is not fully shown', async () => {
+      const channelData = unreadLastMessageChannelData();
+      const {
+        channels: [channel],
+        client,
+      } = await initClientWithChannels({
+        channelsData: [channelData],
+        customUser: channelData.read[0].user,
+      });
+
+      await render({
+        channel,
+        client,
+        params: {
+          ...shouldMarkReadParams,
+          isAtTrueBottom: false,
+        },
+      });
+
+      expect(channel.messagePaginator.isViewingLive).toBe(false);
+    });
+
+    it('reports viewing live once the last message is fully shown', async () => {
+      const channelData = unreadLastMessageChannelData();
+      const {
+        channels: [channel],
+        client,
+      } = await initClientWithChannels({
+        channelsData: [channelData],
+        customUser: channelData.read[0].user,
+      });
+
+      await render({
+        channel,
+        client,
+        params: {
+          ...shouldMarkReadParams,
+          isAtTrueBottom: true,
+        },
+      });
+
+      expect(channel.messagePaginator.isViewingLive).toBe(true);
+    });
+
+    // Scrolling the last few pixels moves isAtTrueBottom without moving the thresholded
+    // at-bottom flag, so the catch-up has to re-run the mark-read check on that change alone.
+    it('marks read when the last message finally becomes fully shown', async () => {
+      const channelData = unreadLastMessageChannelData();
+      const {
+        channels: [channel],
+        client,
+      } = await initClientWithChannels({
+        channelsData: [channelData],
+        customUser: channelData.read[0].user,
+      });
+
+      const markRead = vi
+        .spyOn(client.messageDeliveryReporter, 'throttledMarkRead')
+        .mockImplementation(() => undefined);
+      const wrapper = ({ children }: React.PropsWithChildren) => (
+        <Chat client={client}>
+          <ChannelComponent channel={channel}>{children}</ChannelComponent>
+        </Chat>
+      );
+
+      let view: ReturnType<typeof renderHook>;
+      // eslint-disable-next-line require-await
+      await act(async () => {
+        view = renderHook(
+          ({ isAtTrueBottom }: { isAtTrueBottom: boolean }) =>
+            useMarkRead({ ...shouldMarkReadParams, isAtTrueBottom }),
+          { initialProps: { isAtTrueBottom: false }, wrapper },
+        );
+      });
+
+      expect(channel.messagePaginator.isViewingLive).toBe(false);
+      const callsWhileClipped = markRead.mock.calls.length;
+
+      // eslint-disable-next-line require-await
+      await act(async () => {
+        view.rerender({ isAtTrueBottom: true });
+      });
+
+      expect(channel.messagePaginator.isViewingLive).toBe(true);
+      expect(markRead.mock.calls.length).toBeGreaterThan(callsWhileClipped);
+    });
   });
 
   describe('on message.new', () => {
