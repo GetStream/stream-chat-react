@@ -457,7 +457,7 @@ Follow `.github/pull_request_template.md` (Goal / Implementation details / UI Ch
 - [ ] Screenshots (before/after) for UI changes
 - [ ] Public API changes documented
 
-**CI** (`.github/workflows/ci.yml`, on every PR): lint (`yarn lint`, `yarn types`, `yarn types:scripts`) · build + `validate-cjs` + `validate-esm` + `validate-entry-isolation` + `keys.ts` drift check + `examples/ai-chatbot` build · `yarn coverage` → Codecov · deploy `examples/vite` to Vercel. `pr-check.yml` lints the PR title; `size.yml` reports bundle size.
+**CI** (`.github/workflows/ci.yml`, on every PR): lint (`yarn lint`, `yarn types`, `yarn types:scripts`) · build + `validate-cjs` + `validate-esm` + `validate-entry-isolation` + `keys.ts` drift check + `yarn examples:build` · `yarn coverage` → Codecov · deploy `examples/vite` to Vercel. `pr-check.yml` lints the PR title; `size.yml` reports bundle size.
 
 **Release:** automated via semantic-release (`.releaserc.json`) from commit messages.
 
