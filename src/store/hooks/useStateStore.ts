@@ -59,7 +59,11 @@ export function useStateStore<
     };
   }, [store, selector]);
 
-  const state = useSyncExternalStore(wrappedSubscription, wrappedSnapshot);
+  const state = useSyncExternalStore(
+    wrappedSubscription,
+    wrappedSnapshot,
+    wrappedSnapshot,
+  );
 
   return state;
 }

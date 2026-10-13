@@ -1,0 +1,6 @@
+@use './attachment-preview.scss';
+@use './streaming-message.scss';
+@use './ai-message-composer.scss';
+@use './ai-state-indicator.scss';
+
+// Intentionally declares no `--str-chat__ai-*` custom properties; see _tokens.scss.

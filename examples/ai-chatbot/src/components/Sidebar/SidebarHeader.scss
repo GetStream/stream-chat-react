@@ -1,0 +1,38 @@
+.ai-demo-sidebar-header {
+  padding: 1rem;
+  border-bottom: 1px solid var(--ai-demo-border);
+
+  &__new-chat-btn {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border: 1px solid var(--ai-demo-border);
+    border-radius: 8px;
+    background-color: transparent;
+    color: var(--ai-demo-text-primary);
+    font-family: var(--ai-demo-font-family);
+    font-size: 0.875rem;
+    font-weight: 500;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: background-color 0.2s ease;
+
+    &:hover {
+      background-color: var(--ai-demo-bg-tertiary);
+    }
+
+    &:active {
+      background-color: var(--ai-demo-border);
+    }
+
+    .material-symbols-rounded {
+      font-size: 1.25rem;
+      font-variation-settings:
+        'FILL' 0,
+        'wght' 400,
+        'GRAD' 0,
+        'opsz' 24;
+    }
+  }
+}

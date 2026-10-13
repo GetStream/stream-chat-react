@@ -1,0 +1,46 @@
+/* Stream Chat React CSS Variable Overrides for AI Demo */
+
+:root {
+  /* Override Stream Chat React variables */
+  --str-chat__primary-color: var(--ai-demo-accent);
+  --str-chat__background-color: var(--ai-demo-bg-primary);
+  --str-chat__secondary-background-color: var(--ai-demo-bg-secondary);
+  --str-chat__border-color: var(--ai-demo-border);
+  --str-chat__text-color: var(--ai-demo-text-primary);
+  --str-chat__text-low-emphasis-color: var(--ai-demo-text-secondary);
+
+  /* Channel overrides */
+  --str-chat__channel-background-color: var(--ai-demo-bg-primary);
+  --str-chat__channel-preview-hover-background: var(--ai-demo-bg-tertiary);
+  --str-chat__channel-preview-active-background: var(--ai-demo-bg-tertiary);
+
+  /* Message overrides */
+  --str-chat__message-bubble-color: var(--ai-demo-user-bg);
+  --str-chat__font-family: var(--ai-demo-font-family);
+}
+
+/* Additional Stream Chat component overrides */
+.str-chat {
+  background-color: var(--ai-demo-bg-primary);
+
+  &__channel-list {
+    background-color: var(--ai-demo-bg-secondary);
+    border-right: 1px solid var(--ai-demo-border);
+  }
+
+  &__empty-channel {
+    background-color: var(--ai-demo-bg-primary);
+  }
+
+  &__channel {
+    background-color: var(--ai-demo-bg-primary);
+  }
+
+  &__message-list {
+    background-color: var(--ai-demo-bg-primary);
+  }
+
+  &__input {
+    background-color: var(--ai-demo-bg-primary);
+  }
+}

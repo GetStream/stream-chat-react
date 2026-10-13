@@ -1,0 +1,36 @@
+.ai-demo-channel-preview {
+  padding: 0.75rem 1rem;
+  cursor: pointer;
+  border-radius: 8px;
+  margin: 0.25rem 0.5rem;
+  transition: background-color 0.2s ease;
+  position: relative;
+
+  &:hover {
+    background-color: var(--ai-demo-bg-tertiary);
+  }
+
+  &--active {
+    background-color: var(--ai-demo-bg-tertiary);
+
+    &::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 8px;
+      bottom: 8px;
+      width: 3px;
+      background-color: var(--ai-demo-accent);
+      border-radius: 0 2px 2px 0;
+    }
+  }
+
+  &__text {
+    color: var(--ai-demo-text-primary);
+    font-size: 0.875rem;
+    line-height: 1.4;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}

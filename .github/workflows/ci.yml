@@ -55,12 +55,23 @@ jobs:
       - name: Validate ESM bundle with Node ${{ env.NODE_VERSION }}
         run: yarn validate-esm
 
+      - name: Validate main entry does not pull in ai-components
+        run: yarn validate-entry-isolation
+
       - name: Validate translations are in sync with source
         # `yarn build` above already ran build-translations, which regenerates keys.ts from the
         # t() call sites and runtimeDefaults.ts. A diff here means the author changed a call site
         # without regenerating. Scoped to the one generated file so unrelated edits under
         # src/i18n (tests, Streami18n, runtimeDefaults) do not trip it.
         run: git diff --exit-code -- src/i18n/keys.ts
+
+      - name: Build the example apps
+        # Type-checks and bundles every `examples/*` workspace (vite, tutorial, ai-chatbot) against
+        # the `dist` built above, so an SDK change that breaks an example (or a stream-chat API one
+        # relies on) fails here. None of the builds need Stream credentials.
+        env:
+          NEXT_TELEMETRY_DISABLED: '1'
+        run: yarn examples:build
 
       - name: Cache Build Output
         uses: actions/cache@v5

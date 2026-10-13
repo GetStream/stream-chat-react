@@ -30,7 +30,7 @@ imported and copied into `Streami18n` at construction, so they shipped even if y
 
 ## Renaming your keys
 
-Every old key maps to exactly one new key. The full table (603 rows) is
+Every old key maps to exactly one new key. The full table (621 rows, including the 18 `aiComponents.*` keys of `stream-chat-react/ai-components`) is
 [`i18n-v15-key-map.json`](./i18n-v15-key-map.json):
 
 ```json

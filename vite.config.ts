@@ -24,6 +24,7 @@ export default defineConfig({
         'mp3-encoder': resolve(__dirname, './src/plugins/encoders/mp3.ts'),
         'slot-geometry': resolve(__dirname, './src/plugins/SlotGeometry/index.ts'),
         'slot-layout': resolve(__dirname, './src/plugins/SlotLayout/index.tsx'),
+        'ai-components': resolve(__dirname, './src/plugins/AIComponents/index.ts'),
       },
     },
     // `yarn build` already wipes dist up front via `yarn clean`

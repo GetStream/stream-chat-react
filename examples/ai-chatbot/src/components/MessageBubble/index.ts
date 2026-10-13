@@ -1,0 +1,1 @@
+export { MessageBubble } from './MessageBubble';

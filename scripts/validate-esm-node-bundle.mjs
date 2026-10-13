@@ -9,3 +9,4 @@
 // that class of breakage before it ships.
 
 import '../dist/es/index.mjs';
+import '../dist/es/ai-components.mjs';

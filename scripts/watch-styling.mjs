@@ -23,6 +23,10 @@ const STYLE_ENTRYPOINTS = [
     entryFile: path.join(SRC_DIR, 'plugins/ChannelDetail/styling/index.scss'),
     outputFile: path.resolve('dist/css/channel-detail.css'),
   },
+  {
+    entryFile: path.join(SRC_DIR, 'plugins/AIComponents/styling/index.scss'),
+    outputFile: path.resolve('dist/css/ai-components.css'),
+  },
 ];
 const SCSS_EXTENSION = '.scss';
 const BUILD_DELAY_MS = 150;
