@@ -77,7 +77,7 @@ export const createServerSideClient = async ({
   const token = await createServerToken(secret);
 
   // Not `getInstance` — that would hand back (and mutate) the app's user-authenticated singleton.
-  const client = new StreamChat(apiKey, { allowServerSideConnect: true });
+  const client = new StreamChat(apiKey, { client: { allowServerSideConnect: true } });
 
   client.tokenManager.token = token;
   client.tokenManager.type = 'static';

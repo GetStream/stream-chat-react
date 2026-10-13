@@ -2,21 +2,30 @@ import { useEffect, useState } from 'react';
 
 import { StreamChat } from 'stream-chat';
 
-import type { ClientUser, StreamChatOptions, TokenOrProvider } from 'stream-chat';
+import type {
+  ClientUser,
+  DeepPartial,
+  InstanceConfigTree,
+  TokenOrProvider,
+} from 'stream-chat';
 
 /**
  * React hook to create, connect and return `StreamChat` client.
+ *
+ * `config` is the declarative configuration the client is constructed with — the same tree
+ * `client.config.set()` takes, e.g. `{ client: { baseURL, axiosRequestConfig } }`. It is read once, on
+ * the first render.
  */
 export const useCreateChatClient = ({
   apiKey,
-  options,
+  config,
   tokenOrProvider,
   userData,
 }: {
   apiKey: string;
   tokenOrProvider: TokenOrProvider;
   userData: ClientUser;
-  options?: StreamChatOptions;
+  config?: DeepPartial<InstanceConfigTree>;
 }) => {
   const [chatClient, setChatClient] = useState<StreamChat | null>(null);
   const [cachedUserData, setCachedUserData] = useState(userData);
@@ -25,10 +34,10 @@ export const useCreateChatClient = ({
     setCachedUserData(userData);
   }
 
-  const [cachedOptions] = useState(options);
+  const [cachedConfig] = useState(config);
 
   useEffect(() => {
-    const client = new StreamChat(apiKey, cachedOptions);
+    const client = new StreamChat(apiKey, cachedConfig);
     let didUserConnectInterrupt = false;
 
     const connectionPromise = client
@@ -46,7 +55,7 @@ export const useCreateChatClient = ({
           console.log(`Connection for user "${cachedUserData.id}" has been closed`);
         });
     };
-  }, [apiKey, cachedUserData, cachedOptions, tokenOrProvider]);
+  }, [apiKey, cachedUserData, cachedConfig, tokenOrProvider]);
 
   return chatClient;
 };
