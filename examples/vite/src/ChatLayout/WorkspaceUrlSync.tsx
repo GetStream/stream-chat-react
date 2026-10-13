@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef } from 'react';
-import { getChannel, useChatContext, useStateStore } from 'stream-chat-react';
+import { useChatContext, useStateStore } from 'stream-chat-react';
 import {
   type ChatView,
   type ChatViewEntityBinding,
@@ -10,7 +10,7 @@ import {
   useChatViewContext,
   useChatViewNavigation,
 } from 'stream-chat-react/slot-layout';
-import { formatMessage, Thread as StreamThread } from 'stream-chat';
+import { formatMessage } from 'stream-chat';
 import type {
   Channel,
   ChannelManager,
@@ -183,18 +183,16 @@ const writeWorkspaceToUrl = (encoded: string, mode: 'push' | 'replace') => {
 
 // ---- resolve: token → live binding (async) ------------------------------------------------------
 
-// `client.channel(type, id)` returns the client's cached instance for that cid (the same one the
-// channel-list query watches). When the caller has already waited for the list to settle (see
-// `waitForChannelList`), that instance is `initialized`, so the bound `<Channel>` skips its own watch
-// — no duplicate `/query`. A channel absent from every loaded page is returned unwatched and
-// `<Channel>` watches it (the necessary, non-redundant fetch).
+// `client.channelManager.ensure()` returns the stored instance for that cid (the same one the
+// channel-list query watches), or builds one when none is stored. When the caller has already
+// waited for the list to settle (see `waitForChannelList`), that instance is `initialized`, so the
+// bound `<Channel>` skips its own watch — no duplicate `/query`. A channel absent from every loaded
+// page is returned unwatched and `<Channel>` watches it (the necessary, non-redundant fetch).
 const resolveChannel = (client: StreamChat, cid: string): Channel | undefined => {
-  const existing = Object.values(client.activeChannels).find((c) => c.cid === cid);
-  if (existing) return existing;
   const colon = cid.indexOf(':');
   const type = cid.slice(0, colon);
   const id = cid.slice(colon + 1);
-  return type && id ? client.channel(type, id) : undefined;
+  return type && id ? client.channelManager.ensure({ id, type }) : undefined;
 };
 
 /**
@@ -229,16 +227,16 @@ const resolveBinding = async (
       // the channel is classified into its real owning list. Already-initialized channels
       // (paginator-first / warm Back-Forward) skip this — and this is the same single watch
       // `<Channel>` would otherwise issue, just moved earlier, so it stays a single `/query`.
-      // Through `getChannel`, so a `?focus=` entry naming this same channel shares this one watch
-      // instead of racing a second one.
+      // Through `ensureWatched()`, so a `?focus=` entry naming this same channel shares this one
+      // watch instead of racing a second one.
       if (!channel.initialized) {
-        await getChannel({ channel, client }).catch(() => undefined);
+        await channel.ensureWatched().catch(() => undefined);
       }
       return { binding: { key: channel.cid, kind: 'channel', source: channel }, channel };
     }
     case 'thread': {
       // Paginator-first: a thread the thread-list already holds is reused as-is — no round-trip.
-      const listed = client.threads.threadsById[token.key];
+      const listed = client.threads.get(token.key);
       if (listed) {
         return {
           binding: { key: listed.id ?? undefined, kind: 'thread', source: listed },
@@ -263,11 +261,13 @@ const resolveBinding = async (
       // thread's channel config, members and read state are loaded when the panel renders.
       if (!channel.initialized) await channel.watch().catch(() => undefined);
 
+      // Through `ensure()`, so the thread is registered with the `ThreadManager` and receives
+      // events. It starts stale only when the parent has replies, and `<Thread>` loads it then.
       return {
         binding: {
           key: token.key,
           kind: 'thread',
-          source: new StreamThread({ channel, client, parentMessage }),
+          source: client.threads.ensure({ channel, parentMessage }),
         },
         channel,
       };
@@ -288,7 +288,7 @@ const resolveBinding = async (
 // OWN `/query` watch and each thread need a `getThread` — duplicating what the list queries
 // (`/channels`, `/threads`) fetch a moment later. Waiting for the relevant list to settle first means
 // a listed channel is already `initialized` (so `<Channel>` skips its watch) and a listed thread is
-// already in `threadsById` (so no `getThread`). Entities genuinely absent from the loaded pages still
+// already in `client.threads` (so no `getThread`). Entities genuinely absent from the loaded pages still
 // fall back to an explicit query. Warm Back/Forward keeps the paginators populated, so these waits
 // resolve on the first (immediate) subscribe callback — no added latency.
 
@@ -335,9 +335,9 @@ const waitForChannelList = async (orchestrator: ChannelManager) => {
   await waitForState(paginator.state, (s) => s.items !== undefined);
 };
 
-/** Wait for the thread-list paginator to be ready (so listed threads are in `threadsById`). */
+/** Wait for the thread-list paginator to load its first page (so listed threads are in `client.threads`). */
 const waitForThreadList = (client: StreamChat) =>
-  waitForState(client.threads.state, (s) => s.ready);
+  waitForState(client.threads.paginator.state, (s) => s.items !== undefined);
 
 // ---- the sync component -------------------------------------------------------------------------
 
@@ -372,8 +372,8 @@ export const WorkspaceUrlSync = () => {
 
   // Resolve a parsed workspace by entity id and apply it to the controller in ONE atomic write.
   //
-  // Resolution is paginator-first (see `resolveBinding`): channels come from `client.activeChannels`
-  // and threads from `client.threads.threadsById`, both populated by the list paginators. Entities
+  // Resolution is paginator-first (see `resolveBinding`): channels come from `client.channelManager.ensure()`
+  // and threads from `client.threads.get()`, both populated by the list paginators. Entities
   // already paginated are reused with NO network round-trip — so navigating Back/Forward between
   // already-visited workspaces (which keeps those paginators warm, unlike a reload) fetches nothing.
   //
@@ -384,17 +384,15 @@ export const WorkspaceUrlSync = () => {
     async (target: ParsedWorkspace) => {
       // Cold-load de-duplication: before binding, wait for the list paginators whose entities will
       // actually mount (only the *active* view's slots render). Then a listed channel is already
-      // watched and a listed thread already in `threadsById`, so resolution reuses them instead of
+      // watched and a listed thread already in `client.threads`, so resolution reuses them instead of
       // issuing a duplicate per-entity query. Warm Back/Forward resolves these waits immediately.
       //
       // The thread-list wait applies ONLY in the threads view: that is the only view whose
       // `ThreadList` mounts and activates `client.threads`, so it is the only case where waiting
       // de-duplicates against a list that is actually loading. A thread slot in the channels view is
       // a channel reply-thread that the thread list does NOT back — waiting there would just stall
-      // to the `waitForThreadList` timeout and then resolve anyway (and, if the list did load, reuse
-      // a manager instance whose replies aren't loaded, forcing a redundant `/replies`). So a
-      // channels-view thread skips the wait and resolves immediately via `getThreadAndHydrate`
-      // (fully hydrated, replies embedded → a single `/threads/<id>` request).
+      // to the `waitForThreadList` timeout and then resolve anyway. So a channels-view thread skips
+      // the wait and resolves immediately from its parent message (see `resolveBinding`).
       const activeKinds = new Set(
         target.slots
           .filter((s) => s.view === target.activeView)

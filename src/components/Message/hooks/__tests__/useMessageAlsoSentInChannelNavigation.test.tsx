@@ -4,6 +4,9 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 // Shared spies + mutable per-test state. `vi.hoisted` runs before the `vi.mock` factories below, so
 // they can close over these.
 const mocks = vi.hoisted(() => ({
+  addError: vi.fn(),
+  getRegisteredThread: vi.fn(),
+  getThreadAndHydrate: vi.fn(),
   ingestChannel: vi.fn(),
   jumpToMessage: vi.fn(() => Promise.resolve(true)),
   openChannel: vi.fn(),
@@ -29,9 +32,9 @@ vi.mock('../../../../context', () => ({
   useChatContext: () => ({
     channelManager: { ingestChannel: mocks.ingestChannel },
     client: {
-      getThread: vi.fn(),
-      notifications: { addError: vi.fn() },
-      threads: { threadsById: {} },
+      getThreadAndHydrate: mocks.getThreadAndHydrate,
+      notifications: { addError: mocks.addError },
+      threads: { get: mocks.getRegisteredThread },
     },
   }),
   useMessageContext: () => ({ message: mocks.state.message }),
@@ -135,6 +138,73 @@ describe('useMessageAlsoSentInChannelNavigation', () => {
       const result = renderNavigation();
       await result.current.viewReplyInChannel();
       expect(mocks.jumpToMessage).toHaveBeenCalledWith('reply-1');
+    });
+  });
+
+  describe('viewReplyInThread', () => {
+    const makeThread = (id = 'parent-1') => ({
+      id,
+      messagePaginator: { jumpToMessage: vi.fn(() => Promise.resolve(true)) },
+    });
+
+    it('opens the registered thread without fetching it', async () => {
+      const registered = makeThread();
+      mocks.getRegisteredThread.mockReturnValue(registered);
+
+      const result = renderNavigation();
+      await result.current.viewReplyInThread('reply-1', 'parent-1');
+
+      expect(mocks.getRegisteredThread).toHaveBeenCalledWith('parent-1');
+      expect(mocks.getThreadAndHydrate).not.toHaveBeenCalled();
+      expect(mocks.openThread).toHaveBeenCalledWith(registered);
+      expect(registered.messagePaginator.jumpToMessage).toHaveBeenCalledWith('reply-1');
+    });
+
+    it('fetches a thread that is not registered', async () => {
+      const fetched = makeThread();
+      mocks.getRegisteredThread.mockReturnValue(undefined);
+      mocks.getThreadAndHydrate.mockResolvedValue(fetched);
+
+      const result = renderNavigation();
+      await result.current.viewReplyInThread('reply-1', 'parent-1');
+
+      expect(mocks.getThreadAndHydrate).toHaveBeenCalledWith('parent-1', { watch: true });
+      expect(mocks.openThread).toHaveBeenCalledWith(fetched);
+      expect(fetched.messagePaginator.jumpToMessage).toHaveBeenCalledWith('reply-1');
+    });
+
+    it('reuses an instance registered while the fetch was in flight', async () => {
+      // E.g. a thread list query landing during the request: opening the fetched copy would leave
+      // two instances of one thread, and the second one gets no events.
+      const registeredMeanwhile = makeThread();
+      const fetched = makeThread();
+      mocks.getRegisteredThread.mockReturnValue(undefined);
+      mocks.getThreadAndHydrate.mockImplementation(() => {
+        mocks.getRegisteredThread.mockReturnValue(registeredMeanwhile);
+        return Promise.resolve(fetched);
+      });
+
+      const result = renderNavigation();
+      await result.current.viewReplyInThread('reply-1', 'parent-1');
+
+      expect(mocks.openThread).toHaveBeenCalledWith(registeredMeanwhile);
+      expect(registeredMeanwhile.messagePaginator.jumpToMessage).toHaveBeenCalledWith(
+        'reply-1',
+      );
+      expect(fetched.messagePaginator.jumpToMessage).not.toHaveBeenCalled();
+    });
+
+    it('reports a thread that cannot be fetched', async () => {
+      mocks.getRegisteredThread.mockReturnValue(undefined);
+      mocks.getThreadAndHydrate.mockRejectedValue(new Error('not found'));
+
+      const result = renderNavigation();
+      await result.current.viewReplyInThread('reply-1', 'parent-1');
+
+      expect(mocks.addError).toHaveBeenCalledWith(
+        expect.objectContaining({ message: 'Thread has not been found' }),
+      );
+      expect(mocks.openThread).not.toHaveBeenCalled();
     });
   });
 });

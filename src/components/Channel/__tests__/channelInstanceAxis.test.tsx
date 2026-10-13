@@ -17,6 +17,7 @@ import { Chat } from '../../Chat';
 import { MessageList } from '../../MessageList';
 import { initClientWithChannels } from '../../../mock-builders';
 
+import { Channel as StreamChannel } from 'stream-chat';
 import type { Channel as ChannelType, StreamChat } from 'stream-chat';
 
 const renderChannel = (client: StreamChat, channel: ChannelType) => (
@@ -39,10 +40,9 @@ describe('a replacement Channel instance for the same cid', () => {
       channelsData: [{ channel: { id: 'channel-a', type: 'messaging' } }],
     });
 
-    // Dropping the cache entry is how a genuinely new object for the same cid appears -- the same
-    // thing `disconnectUser` does to every channel.
-    delete client.activeChannels[first.cid];
-    const second = client.channel('messaging', 'channel-a');
+    // A second object for the same cid. The client creates one after it drops the first (a deletion,
+    // `disconnectUser`), which also tears the first down; built directly here, the first stays usable.
+    const second = new StreamChannel(client, 'messaging', 'channel-a', {});
 
     return { client, first, second };
   };
@@ -70,14 +70,13 @@ describe('a replacement Channel instance for the same cid', () => {
 
   it('is activated, and the previous instance released', async () => {
     const { client, first, second } = await setup();
-    const activateSecond = vi.spyOn(second, 'activate');
-    const deactivateFirst = vi.spyOn(first, 'deactivate');
 
     const { rerender } = render(renderChannel(client, first));
+    await waitFor(() => expect(first.active).toBe(true));
     rerender(renderChannel(client, second));
 
-    await waitFor(() => expect(activateSecond).toHaveBeenCalled());
-    expect(deactivateFirst).toHaveBeenCalled();
+    await waitFor(() => expect(second.active).toBe(true));
+    expect(first.active).toBe(false);
   });
 });
 
@@ -90,7 +89,6 @@ describe('the same Channel instance re-rendered', () => {
       channelsData: [{ channel: { id: 'channel-a', type: 'messaging' } }],
     });
     const activate = vi.spyOn(channel, 'activate');
-    const deactivate = vi.spyOn(channel, 'deactivate');
 
     const { rerender } = render(renderChannel(client, channel));
     await waitFor(() => expect(activate).toHaveBeenCalledTimes(1));
@@ -98,7 +96,7 @@ describe('the same Channel instance re-rendered', () => {
     rerender(renderChannel(client, channel));
 
     // A remount would release the channel and claim it again; the same instance keeps the same key.
-    expect(deactivate).not.toHaveBeenCalled();
     expect(activate).toHaveBeenCalledTimes(1);
+    expect(channel.active).toBe(true);
   });
 });

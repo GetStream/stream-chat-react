@@ -4,7 +4,6 @@ import {
   Channel,
   ChannelHeader,
   Chat,
-  getChannel,
   MessageComposer,
   useCreateChatClient,
   VirtualizedMessageList,
@@ -42,19 +41,23 @@ const App = () => {
     if (!chatClient) return;
 
     const initChannel = async () => {
-      const spaceChannel = chatClient.channel('livestream', 'spacex', {
-        // custom channel fields live under `custom` since v10
-        custom: {
-          image: 'https://goo.gl/Zefkbx',
-          name: 'SpaceX launch discussion',
+      const spaceChannel = chatClient.channelManager.ensure({
+        data: {
+          // custom channel fields live under `custom` since v10
+          custom: {
+            image: 'https://goo.gl/Zefkbx',
+            name: 'SpaceX launch discussion',
+          },
         },
+        id: 'spacex',
+        type: 'livestream',
       });
 
       // `Channel` binds a channel to its subtree; it does not query one, so initializing is the
       // caller's job. The cached instance may already be loaded, so query only when it is not --
-      // and when a query is needed, `getChannel` de-duplicates calls that overlap in time.
+      // and when a query is needed, `channel.ensureWatched()` de-duplicates calls that overlap in time.
       if (!spaceChannel.initialized) {
-        await getChannel({ channel: spaceChannel, client: chatClient });
+        await spaceChannel.ensureWatched();
       }
       setChannel(spaceChannel);
     };

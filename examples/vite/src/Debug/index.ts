@@ -1,4 +1,9 @@
 export {
+  ChannelStoreDialog,
+  channelStoreDialogId,
+  useChannelStoreDialog,
+} from './ChannelStoreDialog';
+export {
   ComposerStateDialog,
   composerStateDialogId,
   useComposerStateDialog,

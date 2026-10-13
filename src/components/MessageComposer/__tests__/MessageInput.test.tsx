@@ -379,7 +379,6 @@ const setup = async ({ channelData }: { channelData?: GenerateChannelOptions } =
     }),
   );
   customChannel.initialized = true;
-  customClient.activeChannels[customChannel.cid] = customChannel;
   return { customChannel, customClient, uploadFileSpy, uploadImageSpy };
 };
 
@@ -397,7 +396,6 @@ const setupUploadRejected = async (error: unknown) => {
   const uploadFileSpy = vi
     .spyOn(customChannel, 'uploadFile')
     .mockRejectedValueOnce(error);
-  customClient.activeChannels[customChannel.cid] = customChannel;
   return { customChannel, customClient, uploadFileSpy, uploadImageSpy };
 };
 
@@ -1097,7 +1095,7 @@ describe(`MessageInputFlat`, () => {
     it('sends through a custom request handler, replacing the default send (successor to the removed overrideSubmitHandler prop)', async () => {
       // `overrideSubmitHandler` was removed; overriding the send is now done through `Channel`'s
       // `doSendMessageRequest`, which registers a `send` handler on `channel.messageOperations`
-      // (`configState.requestHandlers.sendMessageRequest`). `sendMessageWithLocalUpdate` uses that
+      // (`configState.requestHandlers.sendMessageRequest`). `messageOperations.send` uses that
       // handler instead of the default `channel.sendMessage`, and — because the handler resolves a
       // response — the default request is never made.
       const { customChannel, customClient } = await setup();
@@ -2082,10 +2080,10 @@ describe(`MessageInputFlat`, () => {
     ])('saves the edit when submitted with %s', async (_, submit) => {
       const { channel } = await renderComponent();
       const sendMessage = vi
-        .spyOn(channel, 'sendMessageWithLocalUpdate')
+        .spyOn(channel.messageOperations, 'send')
         .mockResolvedValue(undefined);
       const updateMessage = vi
-        .spyOn(channel, 'updateMessageWithLocalUpdate')
+        .spyOn(channel.messageOperations, 'update')
         .mockResolvedValue(undefined);
       const input = await screen.findByPlaceholderText(inputPlaceholder);
       await enterEditMode();

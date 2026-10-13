@@ -86,7 +86,10 @@ async function createChannel(empty = false) {
   });
   const client = await getTestClientWithUser({ id: 'id' });
   useMockedApis(client, [getOrCreateChannelApi(mockedChannel)]); // eslint-disable-line react-hooks/rules-of-hooks
-  const channel = client.channel('messaging', mockedChannel.channel.id);
+  const channel = client.channelManager.ensure({
+    id: mockedChannel.channel.id,
+    type: 'messaging',
+  });
   await channel.watch();
 
   return { channel, client };

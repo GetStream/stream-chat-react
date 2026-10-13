@@ -90,6 +90,10 @@ export const ConnectionDevPanel = () => {
           if (!nextHealthy) {
             parkedConnectionId.current = client.connectionIdManager.connectionId;
             client.connectionIdManager.invalidate();
+            // The server drops watches with the socket. A real drop marks them interrupted in
+            // `_setHealth(false)`, which this panel bypasses, so recovery would see nothing to
+            // restore and the channel store would treat dropped watches as live.
+            client.channelManager.markChannelsWatchInterrupted();
           } else if (parkedConnectionId.current) {
             client.connectionIdManager.resolveConnectionId(parkedConnectionId.current);
             parkedConnectionId.current = undefined;

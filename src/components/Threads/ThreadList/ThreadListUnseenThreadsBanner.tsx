@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import clsx from 'clsx';
 
 import type { ThreadManagerState } from 'stream-chat';
@@ -12,7 +12,6 @@ import { useStateStore } from '../../../store';
 import { LoadingIndicator } from '../../Loading';
 
 const selector = (nextValue: ThreadManagerState) => ({
-  isLoading: nextValue.pagination.isLoading,
   unseenThreadIds: nextValue.unseenThreadIds,
 });
 
@@ -20,7 +19,26 @@ export const ThreadListUnseenThreadsBanner = () => {
   const { IconRefresh } = useComponentContextIcons();
   const { client } = useChatContext();
   const { t } = useTranslationContext();
-  const { isLoading, unseenThreadIds } = useStateStore(client.threads.state, selector);
+  const { unseenThreadIds } = useStateStore(client.threads.state, selector);
+  // A reload of a loaded list publishes no loading state, so the pending reload is tracked here.
+  const [isLoading, setIsLoading] = useState(false);
+  const isMounted = useRef(true);
+
+  useEffect(() => {
+    isMounted.current = true;
+    return () => {
+      isMounted.current = false;
+    };
+  }, []);
+
+  const reload = useCallback(async () => {
+    setIsLoading(true);
+    try {
+      await client.threads.reload();
+    } finally {
+      if (isMounted.current) setIsLoading(false);
+    }
+  }, [client]);
 
   if (!unseenThreadIds.length) return null;
 
@@ -30,7 +48,7 @@ export const ThreadListUnseenThreadsBanner = () => {
         'str-chat__unseen-threads-banner--loading': isLoading,
       })}
       disabled={isLoading}
-      onClick={() => client.threads.reload()}
+      onClick={reload}
     >
       {!isLoading && (
         <>

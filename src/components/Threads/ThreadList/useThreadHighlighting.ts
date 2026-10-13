@@ -10,8 +10,9 @@ import type { ThreadManager } from 'stream-chat';
  * each page while scrolling, neither of which is an arrival.
  *
  * The ids have to be remembered as they are reported, because `reload()` clears `unseenThreadIds`
- * in the same update that puts those threads into the list: by the time they are on screen the
- * manager no longer calls them unseen.
+ * once it has put those threads into the list: by the time they are on screen the manager no longer
+ * calls them unseen. The list (`paginator.state`) and `unseenThreadIds` (`state`) live in different
+ * stores, and remembering the ids makes the order their updates land in irrelevant.
  */
 export const useThreadHighlighting = (threadManager: ThreadManager) => {
   const [threadsToHighlight, setThreadsToHighlight] = useState<
@@ -27,8 +28,8 @@ export const useThreadHighlighting = (threadManager: ThreadManager) => {
       },
     );
 
-    const unsubscribeThreads = threadManager.state.subscribeWithSelector(
-      (state) => ({ threads: state.threads }),
+    const unsubscribeThreads = threadManager.paginator.state.subscribeWithSelector(
+      (state) => ({ threads: state.items ?? [] }),
       ({ threads }) => {
         if (!awaitingArrival.current.size) return;
 

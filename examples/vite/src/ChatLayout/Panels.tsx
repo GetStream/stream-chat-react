@@ -19,7 +19,6 @@ import {
   ChannelHeader,
   ChannelListItem,
   MessageComposerUI as DefaultMessageComposerUI,
-  EmptyStateIndicator,
   MessageComposer,
   MessageList,
   type MessageListProps,
@@ -36,6 +35,7 @@ import {
 } from 'stream-chat-react';
 import {
   ChatView,
+  ChatViewEmptyPlaceholder,
   type ChatViewSelectorEntry,
   ThreadSlot,
   useActiveThread,
@@ -50,6 +50,7 @@ import {
 } from 'stream-chat-react/channel-detail';
 
 import { useAppSettingsSelector } from '../AppSettings/state';
+import { ChannelListItemUIWithPresence } from './ChannelListItemPresence';
 import { ConfiguredAvatarWithChannelDetail } from './ConfiguredChannelDetail.tsx';
 import {
   resolveRevealAction,
@@ -485,6 +486,11 @@ const ResponsiveChannelPanels = ({ mainChannel }: { mainChannel?: StreamChannel 
       {/* The resize handle belongs to the SLOT, not its contents: it's rendered once here and
           driven by whether the slot is open (base binding OR a layer such as the member profile),
           so a layer that covers the base — or is the only occupant — stays resizable. */}
+      {!mainChannel && !isSideOpen && (
+        <div className='app-chat-view__channel-main'>
+          <ChatViewEmptyPlaceholder />
+        </div>
+      )}
       <ThreadResizeHandle isOpen={isSideOpen} />
       {/* The base of the secondary slot (2nd channel or reply thread) is ALWAYS rendered at a
           stable position so it stays mounted — a member-profile layer covers it (below) rather
@@ -554,6 +560,7 @@ export const ChannelsPanels = ({
         <WithComponents
           overrides={{
             Avatar: ChannelAvatar,
+            ChannelListItemUI: ChannelListItemUIWithPresence,
             ListItem: CustomChannelListItem,
           }}
         >
@@ -679,9 +686,7 @@ export const ThreadsPanels = ({
           })}
         >
           {!hasThread ? (
-            <div className='str-chat__thread-container str-chat__thread'>
-              <EmptyStateIndicator listType='message' />
-            </div>
+            <ChatViewEmptyPlaceholder />
           ) : (
             <>
               {mainThread && <ThreadPanel thread={mainThread} />}

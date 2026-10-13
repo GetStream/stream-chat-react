@@ -11,7 +11,6 @@ import type {
   StreamChat,
   UserResponse,
 } from 'stream-chat';
-import { localMessageToNewMessagePayload } from 'stream-chat';
 import { act, render, screen, waitFor } from '@testing-library/react';
 import type { RenderResult } from '@testing-library/react';
 
@@ -53,7 +52,7 @@ vi.mock('../../Loading', () => ({
 // Runs `callback` in an effect once the Channel subtree has mounted — used by tests that need to
 // dispatch events or trigger channel actions after the channel is ready. It intentionally exposes
 // no context: tests read state/actions straight off the stream-chat `channel` instance
-// (channel.state, channel.messagePaginator, channel.*WithLocalUpdate).
+// (channel.state, channel.messagePaginator, channel.messageOperations).
 const OnChannelReady = ({ callback }: { callback: () => void }) => {
   useEffect(() => {
     callback();
@@ -126,7 +125,10 @@ const initClient = async ({
   const chatClient = await getTestClientWithUser(user);
   // eslint-disable-next-line react-hooks/rules-of-hooks
   useMockedApis(chatClient, [getOrCreateChannelApi(mockedChannel)]);
-  const channel = chatClient.channel('messaging', mockedChannel.channel.id);
+  const channel = chatClient.channelManager.ensure({
+    id: mockedChannel.channel.id,
+    type: 'messaging',
+  });
   // `Channel` does not query any more -- whoever supplies the channel initializes it.
   await channel.watch();
 
@@ -216,7 +218,10 @@ describe('Channel', () => {
     // to it, but it does not fetch. A channel that arrives unqueried stays that way, and its
     // children render whatever an empty channel renders.
     const { chatClient } = await setup();
-    const unqueried = chatClient.channel('messaging', 'never-queried');
+    const unqueried = chatClient.channelManager.ensure({
+      id: 'never-queried',
+      type: 'messaging',
+    });
     const watchSpy = vi.spyOn(unqueried, 'watch');
 
     await renderComponent({ channel: unqueried, chatClient });
@@ -355,7 +360,7 @@ describe('Channel', () => {
 
       // the channel is initialized; the shared client then disconnects, leaving the channel
       // pending disposal
-      channel.pendingDisposal = true;
+      channel.state.partialNext({ pendingDisposal: true });
 
       // a re-render that reads channel state must not throw
       // (channel.lastRead() throws once the client is disconnected)
@@ -380,7 +385,7 @@ describe('Channel', () => {
 
       const querySpy = vi.spyOn(channel, 'query');
       const prevSpy = vi.spyOn(channel.messagePaginator, 'prev');
-      channel.pendingDisposal = true;
+      channel.state.partialNext({ pendingDisposal: true });
 
       await act(async () => {
         setWSConnectionStatus(chatClient, false);
@@ -406,7 +411,7 @@ describe('Channel', () => {
 
         // The optimistic local update writes the preview to the paginator synchronously, before the
         // mocked send response is applied.
-        const sendPromise = channel.sendMessageWithLocalUpdate({
+        const sendPromise = channel.messageOperations.send({
           localMessage: fromPartial({ ...m, status: 'sending' }),
           message: toMessage(m),
         });
@@ -444,8 +449,8 @@ describe('Channel', () => {
           text: messageText,
         });
         await act(async () => {
-          await channel
-            .sendMessageWithLocalUpdate({
+          await channel.messageOperations
+            .send({
               localMessage: fromPartial<LocalMessage>({ ...m, status: 'sending' }),
               message: toMessage(m),
             })
@@ -470,8 +475,8 @@ describe('Channel', () => {
         await renderComponent({ channel, chatClient });
 
         await act(async () => {
-          await channel
-            .sendMessageWithLocalUpdate({
+          await channel.messageOperations
+            .send({
               localMessage: fromPartial({ ...message, status: 'sending' }),
               message: toMessage(message),
             })
@@ -480,6 +485,7 @@ describe('Channel', () => {
 
         expect(sendMessageRequest).toHaveBeenCalledWith(
           expect.objectContaining({ message: expect.objectContaining(message) }),
+          expect.any(Function),
         );
       });
 
@@ -493,19 +499,19 @@ describe('Channel', () => {
             .mockResolvedValue(fromPartial({ message: toMessageResponse(message) }));
           await renderComponent({ channel, chatClient });
           await act(async () => {
-            await channel
-              .deleteMessageWithLocalUpdate({
+            await channel.messageOperations
+              .delete({
                 localMessage: fromPartial(message),
                 options: deleteMessageOptions,
               })
               .catch(() => {});
           });
           await waitFor(() =>
-            // v10: single request object - `client.deleteMessage({ id, ...options })`.
-            expect(clientDeleteMessageSpy).toHaveBeenCalledWith({
-              id: message.id,
-              ...deleteMessageOptions,
-            }),
+            // v10: the message id is a path parameter - `client.deleteMessage({ id }, options)`.
+            expect(clientDeleteMessageSpy).toHaveBeenCalledWith(
+              { id: message.id },
+              deleteMessageOptions,
+            ),
           );
         });
 
@@ -526,8 +532,8 @@ describe('Channel', () => {
           await renderComponent({ channel, chatClient });
 
           await act(async () => {
-            await channel
-              .deleteMessageWithLocalUpdate({
+            await channel.messageOperations
+              .delete({
                 localMessage: fromPartial(message),
                 options: deleteMessageOptions,
               })
@@ -538,6 +544,7 @@ describe('Channel', () => {
             expect(clientDeleteMessageSpy).not.toHaveBeenCalled();
             expect(deleteMessageRequest).toHaveBeenCalledWith(
               expect.objectContaining({ options: deleteMessageOptions }),
+              expect.any(Function),
             );
           });
         });
@@ -552,18 +559,40 @@ describe('Channel', () => {
           .mockResolvedValue(fromPartial({ message: toMessageResponse(updatedMessage) }));
         await renderComponent({ channel, chatClient });
         await act(async () => {
-          await channel
-            .updateMessageWithLocalUpdate({ localMessage: fromPartial(updatedMessage) })
+          await channel.messageOperations
+            .update({ localMessage: fromPartial(updatedMessage) })
             .catch(() => {});
         });
         await waitFor(() =>
-          // v10: single request object - `client.updateMessage({ id, message })`, where `message` is
-          // the LocalMessage projected onto the API payload shape.
-          expect(clientUpdateMessageSpy).toHaveBeenCalledWith({
-            id: updatedMessage.id,
-            message: localMessageToNewMessagePayload(fromPartial(updatedMessage)),
-          }),
+          // `client.updateMessage({ id }, { message })`: the id is a path parameter, and `message` is
+          // the edited message projected onto the update payload: the edited content plus its pin state.
+          expect(clientUpdateMessageSpy).toHaveBeenCalledWith(
+            { id: updatedMessage.id },
+            {
+              message: expect.objectContaining({
+                attachments: updatedMessage.attachments,
+                cid: updatedMessage.cid,
+                id: updatedMessage.id,
+                mentioned_users: [],
+                pinned: false,
+                pinned_at: null,
+                text: newText,
+              }),
+            },
+          ),
         );
+        // Server-owned fields are left out; sending them makes the update fail.
+        const [, { message: payload }] = clientUpdateMessageSpy.mock.calls[0];
+        for (const serverOwnedField of [
+          '__html',
+          'created_at',
+          'html',
+          'type',
+          'updated_at',
+          'user',
+        ]) {
+          expect(payload).not.toHaveProperty(serverOwnedField);
+        }
       });
 
       it('uses a registered updateMessageRequest for the edit path', async () => {
@@ -576,8 +605,8 @@ describe('Channel', () => {
         await renderComponent({ channel, chatClient });
 
         await act(async () => {
-          await channel
-            .updateMessageWithLocalUpdate({ localMessage: fromPartial(messages[0]) })
+          await channel.messageOperations
+            .update({ localMessage: fromPartial(messages[0]) })
             .catch(() => {});
         });
 
@@ -586,6 +615,7 @@ describe('Channel', () => {
             expect.objectContaining({
               localMessage: expect.objectContaining({ id: messages[0].id }),
             }),
+            expect.any(Function),
           ),
         );
       });
@@ -602,8 +632,8 @@ describe('Channel', () => {
         // First send fails.
         useMockedApis(chatClient, [erroredPostApi()]);
         await act(async () => {
-          await channel
-            .sendMessageWithLocalUpdate({
+          await channel.messageOperations
+            .send({
               localMessage: fromPartial({ ...messageObject, status: 'sending' }),
               message: toMessage(messageObject),
             })
@@ -615,8 +645,8 @@ describe('Channel', () => {
         // Retry succeeds.
         useMockedApis(chatClient, [sendMessageApi(messageObject)]);
         await act(async () => {
-          await channel
-            .retrySendMessageWithLocalUpdate({
+          await channel.messageOperations
+            .retry({
               localMessage: fromPartial({ ...messageObject, status: 'failed' }),
             })
             .catch(() => {});

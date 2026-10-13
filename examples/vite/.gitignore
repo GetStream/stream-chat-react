@@ -23,3 +23,6 @@ dist-ssr
 *.sln
 *.sw?
 .vercel
+
+# files stored by the mock CDN (mockCdnPlugin.ts)
+.mock-cdn

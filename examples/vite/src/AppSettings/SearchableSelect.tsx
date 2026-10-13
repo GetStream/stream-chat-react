@@ -61,6 +61,8 @@ const SearchableSelectOptionItem = <T extends string>({
 
 const SearchableSelectDropdownItems = <T extends string>({
   allowCustomValue,
+  emptyOptionsLabel,
+  filterOptions,
   onSearchChange,
   onSelect,
   options,
@@ -69,6 +71,8 @@ const SearchableSelectDropdownItems = <T extends string>({
   selectedValue,
 }: {
   allowCustomValue: boolean;
+  emptyOptionsLabel: string;
+  filterOptions: boolean;
   onSearchChange: (value: string) => void;
   onSelect: (value: T) => void;
   options: SearchableSelectOption<T>[];
@@ -78,9 +82,9 @@ const SearchableSelectDropdownItems = <T extends string>({
 }) => {
   const trimmedQuery = searchQuery.trim();
   const normalizedQuery = trimmedQuery.toLowerCase();
-  const filteredOptions = options.filter((option) =>
-    option.label.toLowerCase().includes(normalizedQuery),
-  );
+  const filteredOptions = filterOptions
+    ? options.filter((option) => option.label.toLowerCase().includes(normalizedQuery))
+    : options;
   // Lets the caller target something the option list does not know about. Offered only when the
   // query cannot be satisfied from the list, or already looks fully qualified (`type:id`), so it
   // does not clutter ordinary searches that do match.
@@ -124,7 +128,7 @@ const SearchableSelectDropdownItems = <T extends string>({
         />
       ))}
       {filteredOptions.length === 0 && !customOption && (
-        <div className='app__searchable-select__dropdown-empty'>No matching options</div>
+        <div className='app__searchable-select__dropdown-empty'>{emptyOptionsLabel}</div>
       )}
     </>
   );
@@ -133,7 +137,10 @@ const SearchableSelectDropdownItems = <T extends string>({
 export const SearchableSelect = <T extends string>({
   allowCustomValue = false,
   emptyLabel,
+  emptyOptionsLabel = 'No matching options',
+  filterOptions = true,
   onChange,
+  onSearchChange,
   options,
   searchPlaceholder,
   value,
@@ -142,12 +149,25 @@ export const SearchableSelect = <T extends string>({
   allowCustomValue?: boolean;
   /** Trigger text when `value` matches no option. Defaults to the existing first-option fallback. */
   emptyLabel?: string;
+  /** Shown in the dropdown when no option is listed. */
+  emptyOptionsLabel?: string;
+  /**
+   * Filters `options` by the search text (the default). Turn it off when the options already are the
+   * search's results, e.g. from a server query run in `onSearchChange`.
+   */
+  filterOptions?: boolean;
   onChange: (value: T) => void;
+  /** Called with the search text as it changes, and with `''` when the dropdown opens or closes. */
+  onSearchChange?: (query: string) => void;
   options: SearchableSelectOption<T>[];
   searchPlaceholder: string;
   value: T;
 }) => {
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQueryState] = useState('');
+  const setSearchQuery = (query: string) => {
+    setSearchQueryState(query);
+    onSearchChange?.(query);
+  };
   const selectedOption = options.find((option) => option.value === value) ?? null;
   // With a free-text value the trigger must show what was typed even though it is not an option.
   // Falls back to the first option only when neither new prop is in play, preserving the previous
@@ -196,6 +216,8 @@ export const SearchableSelect = <T extends string>({
     >
       <SearchableSelectDropdownItems
         allowCustomValue={allowCustomValue}
+        emptyOptionsLabel={emptyOptionsLabel}
+        filterOptions={filterOptions}
         onSearchChange={setSearchQuery}
         onSelect={onChange}
         options={options}

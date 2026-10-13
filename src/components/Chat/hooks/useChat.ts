@@ -38,12 +38,14 @@ export const useChat = ({ client }: UseChatParams) => {
       client.setUserAgent(`stream-chat-react-${version}-${userAgent}`);
     }
 
+    const releaseChannelManager = client.channelManager.registerSubscriptions();
     client.threads.registerSubscriptions();
     client.polls.registerSubscriptions();
     client.reminders.registerSubscriptions();
     client.reminders.initTimers();
 
     return () => {
+      releaseChannelManager();
       client.threads.unregisterSubscriptions();
       client.polls.unregisterSubscriptions();
       client.reminders.unregisterSubscriptions();

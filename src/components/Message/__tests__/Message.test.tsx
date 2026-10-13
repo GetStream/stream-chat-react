@@ -32,9 +32,10 @@ import type { MessageProps } from '../types';
 // MERGE-RECONCILE (test migration): the deleted ChannelStateContext/ChannelActionContext are
 // replaced by the real <Chat>/<Channel> providers. Channel/client methods that formerly lived on
 // ChannelActionContext are now called directly on the channel/client:
-//   - sendReaction / deleteReaction / sendAction  -> channel methods (spied below)
+//   - sendReaction / deleteReaction               -> client methods (spied below)
+//   - sendAction                                  -> channel method (spied below)
 //   - reaction/action optimistic updates          -> channel.messagePaginator.ingestItem / removeItem
-//   - retrySendMessage                             -> channel.retrySendMessageWithLocalUpdate
+//   - retrySendMessage                             -> channel.messageOperations.retry
 //   - openThread / onMentionsClick / onMentionsHover -> <Message> props
 //   - capabilities/roles                           -> channel own_capabilities + membership role
 vi.mock('../../ChatView', async (importOriginal) => {
@@ -117,7 +118,7 @@ async function renderComponent({
     });
     // eslint-disable-next-line react-hooks/rules-of-hooks
     useMockedApis(client, [getOrCreateChannelApi(channelData)]);
-    channel = client.channel(type, channelData.channel.id);
+    channel = client.channelManager.ensure({ id: channelData.channel.id, type });
     await channel.watch();
     client.channelServerConfigsStore.partialNext({
       configs: { ...client.channelServerConfigs, [channel.cid]: config as never },
@@ -149,9 +150,9 @@ async function renderComponent({
     client.mutedUsers = mutes;
   }
 
-  // Reaction/action mutations now go through the channel directly.
-  vi.spyOn(channel, 'sendReaction').mockImplementation(sendReaction as any);
-  vi.spyOn(channel, 'deleteReaction').mockImplementation(deleteReaction as any);
+  // Reactions go through the client, actions through the channel.
+  vi.spyOn(client, 'sendReaction').mockImplementation(sendReaction as any);
+  vi.spyOn(client, 'deleteReaction').mockImplementation(deleteReaction as any);
   vi.spyOn(channel, 'sendAction').mockImplementation(sendAction as any);
 
   lastChannel = channel;
@@ -261,13 +262,15 @@ describe('<Message /> component', () => {
     });
 
     await context.handleReaction(reaction.type);
-    expect(sendReaction).toHaveBeenCalledWith({
-      id: message.id,
-      reaction: {
-        emoji_code: '❤️',
-        type: reaction.type,
+    expect(sendReaction).toHaveBeenCalledWith(
+      { id: message.id },
+      {
+        reaction: {
+          emoji_code: '❤️',
+          type: reaction.type,
+        },
       },
-    });
+    );
   });
 
   // MERGE-RECONCILE (test migration): the reaction handler no longer gates on the
@@ -358,7 +361,7 @@ describe('<Message /> component', () => {
     });
 
     const retrySpy = vi
-      .spyOn(lastChannel, 'retrySendMessageWithLocalUpdate')
+      .spyOn(lastChannel.messageOperations, 'retry')
       .mockResolvedValue(undefined as any);
 
     await context.handleRetry(message);
@@ -586,7 +589,7 @@ describe('<Message /> component', () => {
     });
 
     const retrySpy = vi
-      .spyOn(lastChannel, 'retrySendMessageWithLocalUpdate')
+      .spyOn(lastChannel.messageOperations, 'retry')
       .mockResolvedValue(undefined as any);
 
     context.handleRetry(message);

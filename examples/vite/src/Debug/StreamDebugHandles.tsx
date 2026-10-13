@@ -12,7 +12,7 @@ import { listComposers } from './composerRegistry';
  * a snapshot taken when the component last rendered.
  *
  *   streamDebug.client            // StreamChat
- *   streamDebug.channels          // client.activeChannels, keyed by cid
+ *   streamDebug.channels          // loaded channels (client.channelManager.values()), keyed by cid
  *   streamDebug.composers         // [{ tag, label, composer }] incl. thread/edit composers
  *   streamDebug.uploads           // client.uploadManager.uploads, keyed by localMetadata.id
  *
@@ -34,7 +34,12 @@ export const StreamDebugHandles = () => {
 
     const handles = {
       get channels() {
-        return client?.activeChannels;
+        return Object.fromEntries(
+          (client?.channelManager.values() ?? []).map((channel) => [
+            channel.cid,
+            channel,
+          ]),
+        );
       },
       get client() {
         return client;

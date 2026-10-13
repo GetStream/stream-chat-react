@@ -36,7 +36,7 @@ describe('ChannelPreview utils', () => {
     // eslint-disable-next-line react-hooks/rules-of-hooks
     useMockedApis(chatClient, [getOrCreateChannelApi(c)]);
 
-    const channel = chatClient.channel('messaging');
+    const channel = chatClient.channelManager.ensure({ type: 'messaging' });
 
     await channel.watch();
 

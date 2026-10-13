@@ -42,7 +42,9 @@ import {
   LayoutController as LayoutControllerClass,
 } from './layoutController/LayoutController';
 import { createChatViewSlotBinding, getChatViewEntityBinding } from './slotBinding';
+import { SupersededChannelSwap } from './SupersededChannelSwap';
 import {
+  hasSlotContent,
   renderSlotFromRegistry,
   resolveSlotKindRegistry,
   SlotRegistryContext,
@@ -119,7 +121,12 @@ export type ChatViewProps = PropsWithChildren<{
   layoutController?: LayoutController;
   layouts?: LayoutDescriptor[];
   resolveDuplicateEntity?: ResolveDuplicateEntity;
+  /**
+   * Rendered by the built-in workspace layout in a slot with nothing bound. Without one, such a slot
+   * is blank, and a layout whose slots are all blank shows {@link ChatViewEmptyPlaceholder}.
+   */
   SlotFallback?: ComponentType<ChatViewSlotFallbackProps>;
+  /** Per-slot {@link ChatViewProps.SlotFallback}. */
   slotFallbackComponents?: Partial<
     Record<string, ComponentType<ChatViewSlotFallbackProps>>
   >;
@@ -185,12 +192,6 @@ const workspaceLayoutStateSelector = (state: ChatViewLayoutState) => ({
   viewState: getLayoutViewState(state),
 });
 
-const DefaultSlotFallback = () => (
-  <div className='str-chat__chat-view__workspace-layout-slot-fallback'>
-    Select a channel to start messaging
-  </div>
-);
-
 const resolveSlotFallbackComponent = ({
   slot,
   SlotFallback,
@@ -201,7 +202,7 @@ const resolveSlotFallbackComponent = ({
   slotFallbackComponents?: Partial<
     Record<string, ComponentType<ChatViewSlotFallbackProps>>
   >;
-}) => slotFallbackComponents?.[slot] ?? SlotFallback ?? DefaultSlotFallback;
+}) => slotFallbackComponents?.[slot] ?? SlotFallback;
 
 const BUILTIN_WORKSPACE_LAYOUT: ChatViewBuiltinLayout = 'nav-rail-entity-list-workspace';
 const DEFAULT_LIST_BINDING_KEY = 'list';
@@ -414,22 +415,20 @@ export const ChatView = ({
     </>
   ) : layout === BUILTIN_WORKSPACE_LAYOUT ? (
     (() => {
+      // an unbound slot with no fallback has no content; the layout decides what that shows
       const slots = viewState.availableSlots.map((slot) => {
         const content = renderSlotFromRegistry(
           getChatViewEntityBinding(viewState.slotBindings[slot]),
           slot,
           slotKindRegistry,
         );
+        if (hasSlotContent(content)) return { content, slot };
         const Fallback = resolveSlotFallbackComponent({
           slot,
           SlotFallback,
           slotFallbackComponents,
         });
-
-        return {
-          content: content ?? <Fallback slot={slot} />,
-          slot,
-        };
+        return { content: Fallback ? <Fallback slot={slot} /> : null, slot };
       });
 
       return <WorkspaceLayout navRail={<ChatViewSelector />} slots={slots} />;
@@ -437,6 +436,14 @@ export const ChatView = ({
   ) : (
     children
   );
+
+  // every slot showing a channel, so one that gets superseded moves to the instance replacing it
+  const channelSlots = viewState.availableSlots.flatMap((slot) => {
+    const entity = getChatViewEntityBinding(viewState.slotBindings[slot]);
+    return entity?.kind === 'channel'
+      ? [{ bindingKey: entity.key, channel: entity.source, slot }]
+      : [];
+  });
 
   return (
     <ChatViewA11yContext.Provider value={a11yValue}>
@@ -456,6 +463,15 @@ export const ChatView = ({
                 <DialogManagerProvider id={dialogManagerId}>
                   {content}
                 </DialogManagerProvider>
+                {channelSlots.map(({ bindingKey, channel, slot }) => (
+                  <SupersededChannelSwap
+                    bindingKey={bindingKey}
+                    channel={channel}
+                    key={slot}
+                    layoutController={effectiveLayoutController}
+                    slot={slot}
+                  />
+                ))}
               </div>
             </WorkspaceNavigationAdapter>
           </ChatViewNavigationProvider>
@@ -470,12 +486,14 @@ export const useActiveThread = ({ activeThread }: { activeThread?: Thread }) => 
   useEffect(() => {
     if (!activeThread) return;
 
+    // one activation at a time: a repeated focus event must not stack another one
+    let release: (() => void) | undefined;
     const handleVisibilityChange = () => {
       if (document.visibilityState === 'visible' && document.hasFocus()) {
-        activeThread.activate();
-      }
-      if (document.visibilityState === 'hidden' || !document.hasFocus()) {
-        activeThread.deactivate();
+        release ??= activeThread.activate();
+      } else {
+        release?.();
+        release = undefined;
       }
     };
 
@@ -484,7 +502,7 @@ export const useActiveThread = ({ activeThread }: { activeThread?: Thread }) => 
     window.addEventListener('focus', handleVisibilityChange);
     window.addEventListener('blur', handleVisibilityChange);
     return () => {
-      activeThread.deactivate();
+      release?.();
       window.removeEventListener('blur', handleVisibilityChange);
       window.removeEventListener('focus', handleVisibilityChange);
     };

@@ -54,10 +54,10 @@ export const RemindMeSubmenu = () => {
           key={`reminder-offset-option--${offsetMs}`}
           onClick={async () => {
             try {
-              await client.reminders.upsertReminder({
-                message_id: message.id,
-                remind_at: new Date(new Date().getTime() + offsetMs),
-              });
+              await client.reminders.upsertReminder(
+                { message_id: message.id },
+                { remind_at: new Date(new Date().getTime() + offsetMs) },
+              );
               addNotification({
                 context: {
                   message,

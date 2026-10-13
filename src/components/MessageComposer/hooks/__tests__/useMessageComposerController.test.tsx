@@ -65,7 +65,10 @@ describe('useMessageComposerController', () => {
     client = await getTestClientWithUser({ id: 'test-user' });
     const mockedChannelData = generateChannel();
     useMockedApis(client, [getOrCreateChannelApi(mockedChannelData)]);
-    channel = client.channel('messaging', mockedChannelData.channel.id);
+    channel = client.channelManager.ensure({
+      id: mockedChannelData.channel.id,
+      type: 'messaging',
+    });
     await channel.watch();
   });
 

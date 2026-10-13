@@ -52,13 +52,15 @@ describe('useReactionsFetcher', () => {
     });
 
     expect(queryReactions).toHaveBeenCalledTimes(2);
-    // v10: `client.queryReactions` takes a single request object.
-    expect(queryReactions.mock.calls[0]?.[0]).toEqual(
-      expect.objectContaining({ id: message.id, limit: 25, next: undefined }),
-    );
-    expect(queryReactions.mock.calls[1]?.[0]).toEqual(
-      expect.objectContaining({ id: message.id, limit: 25, next: 'page-2' }),
-    );
+    // v10: the message id is a path parameter, separate from the request.
+    expect(queryReactions.mock.calls[0]?.slice(0, 2)).toEqual([
+      { id: message.id },
+      expect.objectContaining({ limit: 25, next: undefined }),
+    ]);
+    expect(queryReactions.mock.calls[1]?.slice(0, 2)).toEqual([
+      { id: message.id },
+      expect.objectContaining({ limit: 25, next: 'page-2' }),
+    ]);
     expect(reactions!).toHaveLength(2);
   });
 });

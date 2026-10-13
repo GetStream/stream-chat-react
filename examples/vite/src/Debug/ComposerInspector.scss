@@ -120,3 +120,37 @@
 .app__composer-inspector__copy {
   align-self: flex-start;
 }
+
+/* Channel store dialog: wider than the composer inspector, for the table. */
+.app__channel-store-dialog__shell {
+  display: flex;
+  flex-direction: column;
+  width: min(720px, calc(100vw - 32px));
+  max-height: min(70vh, 720px);
+}
+
+.app__channel-store__toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.app__channel-store__table {
+  width: 100%;
+  border-collapse: collapse;
+
+  th,
+  td {
+    padding: 4px 6px;
+    border-bottom: 1px solid var(--str-chat__border-core-default, rgb(0 0 0 / 15%));
+    text-align: left;
+    vertical-align: top;
+  }
+}
+
+.app__channel-store__key {
+  opacity: 0.6;
+  font-family: ui-monospace, monospace;
+  word-break: break-all;
+}

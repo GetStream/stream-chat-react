@@ -45,7 +45,7 @@ export const App = () => (
 ```
 
 **Not in an effect.** Some configuration is read once when an instance is constructed, and channels
-are constructed by `client.channel()` / `client.queryChannels()` — which an app typically calls before
+are constructed by `client.channelManager.ensure()` / `client.queryChannels()` — which an app typically calls before
 or during the same commit that mounts `<Chat>`. Registering from `useEffect` runs after that, so those
 values would arrive too late for instances that already exist.
 
@@ -198,7 +198,7 @@ this cannot. If behaviour has to differ between channels, branch inside a single
 
 ```ts
 sendMessageRequest: async ({ localMessage, message, options }) => {
-  const channel = chatClient.channel(...);
+  const channel = chatClient.channelManager.ensure({ ... });
   return isSupportChannel(localMessage.cid)
     ? { message: await sendViaProxy(message, options) }
     : { message: await sendNormally(message, options) };

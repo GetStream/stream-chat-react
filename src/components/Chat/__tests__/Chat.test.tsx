@@ -2,7 +2,7 @@ import React, { useContext } from 'react';
 import { act, cleanup, render, screen, waitFor } from '@testing-library/react';
 import { fromPartial } from '@total-typescript/shoehorn';
 import type { OwnUserResponse, StreamChat } from 'stream-chat';
-import { ChannelPaginator } from 'stream-chat';
+import { ChannelPaginator, SearchController } from 'stream-chat';
 
 import { Chat } from '..';
 
@@ -223,6 +223,64 @@ describe('Chat', () => {
     });
   });
 
+  describe('search controller', () => {
+    it('disposes the controller it created when it unmounts', async () => {
+      let controller: ChatContextValue['searchController'] | undefined;
+      const { unmount } = render(
+        <Chat client={chatClient}>
+          <ChatContextConsumer
+            fn={(ctx: ChatContextValue) => {
+              controller = ctx.searchController;
+            }}
+          />
+        </Chat>,
+      );
+      await waitFor(() => expect(controller).toBeDefined());
+      const dispose = vi.spyOn(controller as SearchController, 'dispose');
+
+      unmount();
+
+      expect(dispose).toHaveBeenCalledTimes(1);
+    });
+
+    it('leaves a controller passed in to the app', () => {
+      const controller = new SearchController({ client: chatClient });
+      const dispose = vi.spyOn(controller, 'dispose');
+      const registerSubscriptions = vi.spyOn(controller, 'registerSubscriptions');
+      const { unmount } = render(
+        <Chat client={chatClient} searchController={controller}>
+          <div />
+        </Chat>,
+      );
+
+      unmount();
+
+      expect(registerSubscriptions).not.toHaveBeenCalled();
+      expect(dispose).not.toHaveBeenCalled();
+    });
+
+    it('takes back what it released when StrictMode mounts it a second time', async () => {
+      let controller: ChatContextValue['searchController'] | undefined;
+      render(
+        <React.StrictMode>
+          <Chat client={chatClient}>
+            <ChatContextConsumer
+              fn={(ctx: ChatContextValue) => {
+                controller = ctx.searchController;
+              }}
+            />
+          </Chat>
+        </React.StrictMode>,
+      );
+      await waitFor(() => expect(controller).toBeDefined());
+
+      // a disposed controller would stop hearing client.config
+      chatClient.config.set({ searchController: { keepSingleActiveSource: false } });
+      expect(controller?.config.keepSingleActiveSource).toBe(false);
+      chatClient.config.reset('searchController');
+    });
+  });
+
   describe('channel manager', () => {
     it('exposes the client channel manager on the context', async () => {
       const client = getTestClient();
@@ -282,6 +340,42 @@ describe('Chat', () => {
 
       // the app owns its lists — unmounting Chat must not drop them
       expect(client.channelManager.paginators).toStrictEqual([paginator]);
+    });
+
+    it('routes events to the channel lists while mounted, with no ChannelList on screen', async () => {
+      // The search results and the threads view replace the channel list, and the lists must keep
+      // up with events meanwhile.
+      const client = await getTestClientWithUser({ id: 'user_x' });
+      const channel = client.channelManager.ensure({ id: 'routed', type: 'messaging' });
+      const ingestChannel = vi.spyOn(client.channelManager, 'ingestChannel');
+      const channelUpdated = () =>
+        client.dispatchEvent({
+          channel: { ...channel.data, cid: channel.cid, id: 'routed', type: 'messaging' },
+          channel_id: 'routed',
+          channel_type: 'messaging',
+          cid: channel.cid,
+          type: 'channel.updated',
+        } as never);
+
+      let unmount: () => void;
+      await act(() => {
+        ({ unmount } = render(
+          <Chat client={client}>
+            <div />
+          </Chat>,
+        ));
+      });
+      channelUpdated();
+      await waitFor(() => expect(ingestChannel).toHaveBeenCalledWith(channel));
+
+      await act(() => {
+        unmount();
+      });
+      ingestChannel.mockClear();
+      channelUpdated();
+      await new Promise((resolve) => setTimeout(resolve, 50));
+
+      expect(ingestChannel).not.toHaveBeenCalled();
     });
 
     it('keeps exposing the same manager when the client changes', async () => {

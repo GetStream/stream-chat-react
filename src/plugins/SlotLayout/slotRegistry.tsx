@@ -91,6 +91,14 @@ export const resolveSlotKindRegistry = (
 };
 
 /**
+ * Whether a slot's content renders anything. React renders nothing for `null`, `undefined` and
+ * booleans, so a slot renderer returning `false` (as `condition && <View />` does) leaves the slot
+ * empty.
+ */
+export const hasSlotContent = (content: ReactNode) =>
+  content != null && typeof content !== 'boolean';
+
+/**
  * State-aware dispatch for a slot's current binding. Looks up the bound kind in
  * the registry and renders its pure `Component`; unknown/unregistered kinds and
  * empty slots render nothing (the caller supplies a fallback).

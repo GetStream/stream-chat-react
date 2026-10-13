@@ -48,10 +48,10 @@ async function initSession(
   if (createChannel) {
     await page.evaluate(`(async () => {
       var client = window.client;
-      var ch = client.channel('messaging', ${JSON.stringify(CHANNEL_ID)}, {
+      var ch = client.channelManager.ensure({ type: 'messaging', id: ${JSON.stringify(CHANNEL_ID)}, data: {
         name: 'Voice Recording Demo',
         members: [${JSON.stringify(USER_A)}, ${JSON.stringify(USER_B)}],
-      });
+      } });
       await ch.create();
     })()`);
     console.log(`  📦 Channel "${CHANNEL_ID}" created`);

@@ -53,13 +53,9 @@ export const Channel = (props: PropsWithChildren<ChannelProps>) => {
 
   // Claim the channel while mounted (refcounted, so several consumers are fine). The client skips
   // re-seeding an active channel's message list on hydration, leaving the larger loaded window to
-  // `channel.reload()`.
-  useEffect(() => {
-    channel.activate();
-    return () => {
-      channel.deactivate();
-    };
-  }, [channel]);
+  // `channel.reload()`. Activating also keeps the channel in the client's channel store for the
+  // session; the returned function only ends this mount's claim.
+  useEffect(() => channel.activate(), [channel]);
 
   // Keyed on the instance, not the cid: children subscribe to *this* channel's stores.
   const channelInstanceContextValue = useMemo(() => ({ channel }), [channel]);

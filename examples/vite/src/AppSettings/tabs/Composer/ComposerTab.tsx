@@ -1,11 +1,20 @@
 import { useState } from 'react';
-import { Button, NumericInput, SwitchField } from 'stream-chat-react';
-import { FAILING_FILE_NAME_PREFIX } from '../../../SendWhilePendingUploads';
+import { Button, NumericInput, SwitchField, TextInput } from 'stream-chat-react';
+import {
+  FAILING_FILE_NAME_PREFIX,
+  type UploadDestination,
+} from '../../../SendWhilePendingUploads';
 import { appSettingsStore, useAppSettingsState } from '../../state';
 import {
   SettingsTabBody,
   SettingsTabLayoutHeader,
 } from '../SettingsTabLayoutComponents.tsx';
+
+const uploadDestinations: { label: string; value: UploadDestination }[] = [
+  { label: 'Stream', value: 'stream' },
+  { label: 'Mock CDN', value: 'mock-cdn' },
+  { label: 'CDN at a URL', value: 'custom-url' },
+];
 
 type ComposerTabProps = {
   close: () => void;
@@ -14,7 +23,14 @@ type ComposerTabProps = {
 export const ComposerTab = ({ close }: ComposerTabProps) => {
   const {
     composer,
-    composer: { failUploads, sendMessagesWithPendingUploads, slowUploadMs, slowUploads },
+    composer: {
+      customCdnUrl,
+      failUploads,
+      sendMessagesWithPendingUploads,
+      slowUploadMs,
+      slowUploads,
+      uploadDestination,
+    },
   } = useAppSettingsState();
   // NumericInput is a text input that also accepts '', which has no numeric equivalent, so the
   // typed value is held locally and only committed to the store once it parses.
@@ -49,6 +65,52 @@ export const ComposerTab = ({ close }: ComposerTabProps) => {
             in flight; the message is added to the list immediately with a live progress
             bar and the request is made once the upload settles. Applies to already-open
             composers — no reload needed — and to both the channel and thread composers.
+          </div>
+        </div>
+
+        <div className='app__settings-modal__field'>
+          <div className='app__settings-modal__field-label'>Upload destination</div>
+          <div className='app__settings-modal__options-row'>
+            {uploadDestinations.map(({ label, value }) => (
+              <Button
+                aria-pressed={uploadDestination === value}
+                className='app__settings-modal__option-button str-chat__button--outline str-chat__button--secondary str-chat__button--size-sm'
+                key={value}
+                onClick={() =>
+                  appSettingsStore.partialNext({
+                    composer: { ...composer, uploadDestination: value },
+                  })
+                }
+              >
+                {label}
+              </Button>
+            ))}
+          </div>
+          {uploadDestination === 'custom-url' && (
+            <TextInput
+              id='custom-cdn-url-input'
+              label='CDN upload URL'
+              onChange={(event) =>
+                appSettingsStore.partialNext({
+                  composer: { ...composer, customCdnUrl: event.target.value.trim() },
+                })
+              }
+              placeholder='https://cdn.example.com/upload'
+              type='url'
+              value={customCdnUrl}
+            />
+          )}
+          <div className='app__settings-modal__field-comment'>
+            Where attachments are uploaded. <strong>Mock CDN</strong> stores files on disk
+            in <code>examples/vite/.mock-cdn</code> and serves them back from this dev
+            server, so only browsers that reach it can display them; it exists only under{' '}
+            <code>yarn start:vite</code> and <code>vite preview</code>, not in the
+            deployed app. <strong>CDN at a URL</strong> posts each file as{' '}
+            <code>multipart/form-data</code> in the <code>file</code> field and expects
+            JSON <code>{'{ file, thumb_url? }'}</code> back; the CDN has to allow this
+            origin (CORS). Either CDN sets <code>customCdn</code>, so Stream&apos;s upload
+            permission no longer applies. Combines with the slow and failing switches
+            below; applies to the next upload.
           </div>
         </div>
 

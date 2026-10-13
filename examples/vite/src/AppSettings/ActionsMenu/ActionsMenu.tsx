@@ -72,13 +72,19 @@ const ActionsMenuButton = ({
   </div>
 );
 
-import { ComposerStateDialog, useComposerStateDialog } from '../../Debug';
+import {
+  ChannelStoreDialog,
+  ComposerStateDialog,
+  useChannelStoreDialog,
+  useComposerStateDialog,
+} from '../../Debug';
 import { usePersistentDialog } from './usePersistentDialog';
 
 export const ActionsMenu = ({ iconOnly = true }: { iconOnly?: boolean }) => {
   // Shared hook so the dialog is registered with closeOnClickOutside disabled regardless of
   // which of the two call sites reaches getOrCreate first.
   const { dialog: composerStateDialog } = useComposerStateDialog();
+  const { dialog: channelStoreDialog } = useChannelStoreDialog();
   const [menuButtonElement, setMenuButtonElement] = useState<HTMLButtonElement | null>(
     null,
   );
@@ -118,6 +124,7 @@ export const ActionsMenu = ({ iconOnly = true }: { iconOnly?: boolean }) => {
         <TriggerAttachmentAction onTrigger={attachmentDialog.open} />
         <TriggerWebSocketEventAction onTrigger={webSocketEventDialog.open} />
         <TriggerComposerStateInspectorAction onTrigger={composerStateDialog.open} />
+        <TriggerChannelStoreAction onTrigger={channelStoreDialog.open} />
         {serverSideClientEnabled && (
           <TriggerServerSideClientAction onTrigger={serverSideClientDialog.open} />
         )}
@@ -126,6 +133,7 @@ export const ActionsMenu = ({ iconOnly = true }: { iconOnly?: boolean }) => {
       <AttachmentPromptDialog referenceElement={menuButtonElement} />
       <WebSocketEventPromptDialog referenceElement={menuButtonElement} />
       <ComposerStateDialog referenceElement={menuButtonElement} />
+      <ChannelStoreDialog referenceElement={menuButtonElement} />
       {serverSideClientEnabled && (
         <ServerSideClientPromptDialog referenceElement={menuButtonElement} />
       )}
@@ -195,6 +203,20 @@ function TriggerComposerStateInspectorAction({ onTrigger }: { onTrigger: () => v
   return (
     <ContextMenuButton
       label='Composer State'
+      onClick={() => {
+        closeMenu();
+        onTrigger();
+      }}
+    />
+  );
+}
+
+function TriggerChannelStoreAction({ onTrigger }: { onTrigger: () => void }) {
+  const { closeMenu } = useContextMenuContext();
+
+  return (
+    <ContextMenuButton
+      label='Channel Store'
       onClick={() => {
         closeMenu();
         onTrigger();

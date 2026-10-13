@@ -11,9 +11,9 @@ import { Chat } from '../../../Chat';
 
 // MERGE-RECONCILE (test migration): PR #2909 rewrote useRetryHandler. It no longer accepts a
 // custom retry callback nor reads `retrySendMessage` from the removed ChannelActionContext.
-// The hook now retries through the channel's own `retrySendMessageWithLocalUpdate` (or the
+// The hook now retries through the channel's own `messageOperations.retry` (or the
 // active thread's). The wrapper uses the real <Chat>/<Channel> providers and assertions spy on
-// `channel.retrySendMessageWithLocalUpdate`. The obsolete "custom retry handler" and "do
+// `channel.messageOperations.retry`. The obsolete "custom retry handler" and "do
 // nothing if message is not defined" cases were dropped (the hook has neither an override
 // argument nor an undefined-message guard now).
 
@@ -55,7 +55,7 @@ describe('useRetryHandler custom hook', () => {
 
   it('should retry send message via the channel local-update path when called', async () => {
     const retrySpy = vi
-      .spyOn(channel, 'retrySendMessageWithLocalUpdate')
+      .spyOn(channel.messageOperations, 'retry')
       .mockResolvedValue(undefined);
     const handleRetry = await renderUseRetryHandlerHook();
     const params = {

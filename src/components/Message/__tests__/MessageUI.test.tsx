@@ -65,7 +65,7 @@ vi.mock('../../../context/WorkspaceNavigationContext', async (importOriginal) =>
 }));
 
 // MERGE-RECONCILE (test migration): the bounce retry action moved from ChannelActionContext
-// `retrySendMessage` to the `useRetryHandler` hook (channel.retrySendMessageWithLocalUpdate).
+// `retrySendMessage` to the `useRetryHandler` hook (channel.messageOperations.retry).
 // Mocking this leaf hook doubles as a spy for the retry action AND sidesteps a source-level
 // circular-import fragility: MessageBounceContext imports useRetryHandler through the top
 // `../components` barrel, whose re-export resolves to `undefined` under the test module graph
@@ -721,8 +721,8 @@ describe('<MessageSimple />', () => {
 
   // MERGE-RECONCILE (test migration): the also-sent-in-channel "View" navigation moved from the
   // ChannelActionContext `openThread` handler to useMessageAlsoSentInChannelNavigation, which
-  // resolves the parent thread via `client.getThreadAndHydrate` (v10 rename of `getThread`) and
-  // then navigates through ChatView `open`.
+  // resolves the parent thread through `client.threads.get()`, fetching it with
+  // `client.getThreadAndHydrate` when it is not registered, and then navigates through ChatView `open`.
   it('should open thread when View button is clicked and parent thread is resolved', async () => {
     const parentMessage = generateMessage({ id: 'x' });
     const message = generateAliceMessage({

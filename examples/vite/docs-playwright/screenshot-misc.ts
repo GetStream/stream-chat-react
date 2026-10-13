@@ -46,10 +46,10 @@ async function createChannel(
 
   await page.evaluate(`(async () => {
     var client = window.client;
-    var ch = client.channel('messaging', ${JSON.stringify(channelId)}, {
+    var ch = client.channelManager.ensure({ type: 'messaging', id: ${JSON.stringify(channelId)}, data: {
       name: 'Demo',
       members: [${JSON.stringify(USER_A)}, ${JSON.stringify(USER_B)}],
-    });
+    } });
     await ch.create();
   })()`);
 

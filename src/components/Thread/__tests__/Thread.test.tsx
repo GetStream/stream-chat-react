@@ -2,9 +2,11 @@ import { act, cleanup, render } from '@testing-library/react';
 import React from 'react';
 import { fromPartial } from '@total-typescript/shoehorn';
 import { StateStore } from '@stream-io/state-store';
+import { ChannelWatchStatus } from 'stream-chat';
 import type {
   ChannelConfig,
   LocalMessage,
+  Channel as StreamChannel,
   StreamChat,
   Thread as StreamThread,
   ThreadState,
@@ -26,12 +28,13 @@ import type { ComponentContextValue } from '../../../context';
 
 // MERGE-RECONCILE (test migration): PR #2909 / v14 rewrote Thread to read from a Thread instance
 // (not the deleted ChannelStateContext/ChannelActionContext). The parent message, reply pagination
-// and loading live on `thread.state` / `thread.messagePaginator`, and the thread-manager list on
-// `client.threads.state`. Obsolete assertions that referenced the removed MessageList props
+// and loading live on `thread.state` / `thread.messagePaginator`, and opened threads resolve through
+// `client.threads.get()`. Obsolete assertions that referenced the removed MessageList props
 // (`hasMore`/`loadMore`/`messages`/`threadList`) and the ChannelActionContext
 // `loadMoreThread`/`closeThread` handlers are updated to the current contract.
 
 let chatClient: StreamChat;
+let channel: StreamChannel;
 const alice = generateUser({ id: 'alice', name: 'alice' });
 const bob = generateUser({ id: 'bob', name: 'bob' });
 const parentMessage = generateMessage({ reply_count: 2, user: alice });
@@ -102,7 +105,10 @@ const renderComponent = ({
 
 describe('Thread', () => {
   beforeAll(async () => {
-    ({ client: chatClient } = await initClientWithChannels());
+    ({
+      channels: [channel],
+      client: chatClient,
+    } = await initClientWithChannels());
   });
 
   afterEach(() => {
@@ -140,20 +146,85 @@ describe('Thread', () => {
     expect(getByTestId('probe')).toHaveAttribute('data-thread-id', thread.id);
   });
 
-  it('should reload the thread on mount when replies have not been fetched yet', () => {
-    // Use a unique parent id so the thread is not already tracked in the shared
-    // client.threads manager state (which would short-circuit the reload effect).
-    const { reload, thread } = makeThread({
-      items: undefined,
-      parentMessage: generateMessage({
-        id: 'reload-parent',
+  /** A thread opened the way the SDK opens one, with its fetch stubbed to succeed. */
+  const ensureThread = (parent: LocalMessage) => {
+    const thread = chatClient.threads.ensure({ channel, parentMessage: parent });
+    const reload = vi.spyOn(thread, 'reload').mockImplementation(() => {
+      thread.state.partialNext({ isStateStale: false });
+      return Promise.resolve();
+    });
+    return { reload, thread };
+  };
+
+  it('should load a thread built by `client.threads.ensure()` exactly once when opened', () => {
+    const { reload, thread } = ensureThread(
+      generateMessage({
+        cid: channel.cid,
+        id: 'ensure-parent',
         reply_count: 2,
         user: alice,
       }),
+    );
+    const { rerender } = renderComponent({ threadInstance: thread });
+    rerender(
+      <ChatProvider value={mockChatContext({ client: chatClient })}>
+        <ComponentProvider value={mockComponentContext()}>
+          <Thread thread={thread}>
+            <div data-testid='thread-content' />
+          </Thread>
+        </ComponentProvider>
+      </ChatProvider>,
+    );
+
+    expect(reload).toHaveBeenCalledTimes(1);
+  });
+
+  it('should not fetch when reopening a thread that is still registered', () => {
+    const { reload, thread } = ensureThread(
+      generateMessage({
+        cid: channel.cid,
+        id: 'reopen-parent',
+        reply_count: 2,
+        user: alice,
+      }),
+    );
+    const { unmount } = renderComponent({ threadInstance: thread });
+    unmount();
+
+    const reopened = chatClient.threads.ensure({
+      channel,
+      parentMessage: thread.state.getLatestValue().parentMessage,
+    });
+    renderComponent({ threadInstance: reopened });
+
+    expect(reopened).toBe(thread);
+    expect(reload).toHaveBeenCalledTimes(1);
+  });
+
+  it('should leave the opened thread out of the thread list', () => {
+    // An opened thread stays live through the manager's store; `Thread` does not add it to the list.
+    const { thread } = ensureThread(
+      generateMessage({
+        cid: channel.cid,
+        id: 'unlisted-parent',
+        reply_count: 2,
+        user: alice,
+      }),
+    );
+    renderComponent({ threadInstance: thread });
+
+    expect(chatClient.threads.get(thread.id)).toBe(thread);
+    expect(chatClient.threads.paginator.getItem(thread.id)).toBeUndefined();
+  });
+
+  it('should not reload a non-stale thread', () => {
+    // Listed threads and `getThreadAndHydrate()` instances arrive loaded, so opening one is free.
+    const { reload, thread } = makeThread({
+      parentMessage: generateMessage({ id: 'fresh-parent', reply_count: 2, user: alice }),
     });
     renderComponent({ threadInstance: thread });
 
-    expect(reload).toHaveBeenCalledTimes(1);
+    expect(reload).not.toHaveBeenCalled();
   });
 
   it('should not reload a thread whose parent message has no replies yet', () => {
@@ -172,36 +243,55 @@ describe('Thread', () => {
     expect(reload).not.toHaveBeenCalled();
   });
 
-  it('should reload once the parent message reports its first reply', () => {
-    // The skip is self-healing: `replyCount` follows the parent message, so the thread loads as
-    // soon as it exists server-side — without remounting the component.
-    const { reload, thread } = makeThread({
-      items: undefined,
-      parentMessage: generateMessage({
+  it('should not load a thread built by `ensure()` for a parent without replies in a watched channel', () => {
+    // There is no server-side thread to load yet (`getThread` would answer 404), so `ensure()` builds
+    // it up to date. It is registered, so its first reply reaches it as an event, not through a load.
+    channel.watchStatus = ChannelWatchStatus.Watching;
+    const { reload, thread } = ensureThread(
+      generateMessage({
+        cid: channel.cid,
         id: 'first-reply-parent',
         reply_count: 0,
         user: alice,
       }),
-    });
+    );
     renderComponent({ threadInstance: thread });
+    expect(thread.state.getLatestValue().isStateStale).toBe(false);
     expect(reload).not.toHaveBeenCalled();
 
     act(() => {
       thread.state.partialNext({ replyCount: 1 });
     });
 
-    expect(reload).toHaveBeenCalledTimes(1);
+    expect(reload).not.toHaveBeenCalled();
   });
 
-  it('should defer a stale reload until the thread reports a reply', () => {
-    // Reopening a closed thread reuses the cached instance, which `unregisterSubscriptions` left
-    // stale — for a thread that was never created that reload can only 404. The guard defers it:
-    // `isStateStale` stays true until a reload succeeds, so the catch-up runs as soon as the
-    // parent message reports a reply.
+  it('should load a thread built by `ensure()` in a channel that is not watched, whatever its reply count', () => {
+    // The parent's reply count misses the replies sent since an unwatched channel was loaded.
+    channel.watchStatus = ChannelWatchStatus.NotWatching;
+    try {
+      const { reload, thread } = ensureThread(
+        generateMessage({
+          cid: channel.cid,
+          id: 'unwatched-parent',
+          reply_count: 0,
+          user: alice,
+        }),
+      );
+      renderComponent({ threadInstance: thread });
+
+      expect(reload).toHaveBeenCalledTimes(1);
+    } finally {
+      channel.watchStatus = ChannelWatchStatus.Watching;
+    }
+  });
+
+  it('should load a stale thread whose parent reports no replies, and again once it reports one', () => {
+    // A thread never created server-side answers not-found, which leaves it stale (the stub resolves
+    // without clearing it), so it loads again once its parent reports a reply.
     const { reload, thread } = makeThread({
       isStateStale: true,
-      // `[]`, not `undefined`: reopening runs on a disposed paginator, which is what makes the
-      // stale effect the only one that can still load this thread.
+      // `[]`: a reopened thread has replies loaded, so only its staleness can trigger the load.
       items: [],
       parentMessage: generateMessage({
         id: 'stale-never-created-parent',
@@ -210,10 +300,77 @@ describe('Thread', () => {
       }),
     });
     renderComponent({ threadInstance: thread });
-    expect(reload).not.toHaveBeenCalled();
+    expect(reload).toHaveBeenCalledTimes(1);
 
     act(() => {
       thread.state.partialNext({ replyCount: 3 });
+    });
+
+    expect(reload).toHaveBeenCalledTimes(2);
+  });
+
+  it('should load again once a load settles if the parent reported a reply during it', async () => {
+    const { reload, thread } = makeThread({
+      isStateStale: true,
+      items: [],
+      parentMessage: generateMessage({
+        id: 'reply-during-load-parent',
+        reply_count: 0,
+        user: alice,
+      }),
+    });
+    // the first load stays in flight until settled below, then answers not-found (stays stale)
+    let settle = () => {};
+    reload.mockImplementationOnce(() => {
+      thread.state.partialNext({ isLoading: true });
+      return new Promise<void>((resolve) => {
+        settle = () => {
+          thread.state.partialNext({ isLoading: false });
+          resolve();
+        };
+      });
+    });
+    renderComponent({ threadInstance: thread });
+    expect(reload).toHaveBeenCalledTimes(1);
+
+    act(() => {
+      thread.state.partialNext({ replyCount: 1 });
+    });
+    expect(reload).toHaveBeenCalledTimes(1);
+
+    await act(async () => {
+      settle();
+      await Promise.resolve();
+    });
+
+    expect(reload).toHaveBeenCalledTimes(2);
+  });
+
+  it('should not load again when a load settles and nothing changed during it', async () => {
+    const { reload, thread } = makeThread({
+      isStateStale: true,
+      items: [],
+      parentMessage: generateMessage({
+        id: 'unchanged-during-load-parent',
+        reply_count: 0,
+        user: alice,
+      }),
+    });
+    let settle = () => {};
+    reload.mockImplementationOnce(() => {
+      thread.state.partialNext({ isLoading: true });
+      return new Promise<void>((resolve) => {
+        settle = () => {
+          thread.state.partialNext({ isLoading: false });
+          resolve();
+        };
+      });
+    });
+    renderComponent({ threadInstance: thread });
+
+    await act(async () => {
+      settle();
+      await Promise.resolve();
     });
 
     expect(reload).toHaveBeenCalledTimes(1);

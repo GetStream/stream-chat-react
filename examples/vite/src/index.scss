@@ -16,6 +16,8 @@ layer(stream-app-overrides);
 @import url('./SingleChannel/SingleChannel.scss') layer(stream-app-overrides);
 @import url('./AppSettings/ActionsMenu/DraggableDialog.scss') layer(stream-app-overrides);
 @import url('./Debug/ComposerInspector.scss') layer(stream-app-overrides);
+@import url('./UserProfile/UserProfile.scss') layer(stream-app-overrides);
+@import url('./NewConversation/NewConversation.scss') layer(stream-app-overrides);
 @import url('stream-chat-react/dist/css/emoji-picker.css') layer(stream-new-plugins);
 @import url('stream-chat-react/dist/css/channel-detail.css') layer(stream-new-plugins);
 
