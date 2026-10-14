@@ -809,6 +809,36 @@ describe('MessageList', () => {
       ).not.toBeInTheDocument();
     });
 
+    it('should render thread messages from the thread unread snapshot, not the channel one', async () => {
+      const thread = chatClient.threads.ensure({ channel, parentMessage: message1 });
+      const renderMessages = vi.fn(() => []);
+
+      await act(() => {
+        renderComponent({
+          channelProps: { channel },
+          chatClient,
+          msgListProps: fromPartial<MessageListProps>({ renderMessages }),
+          thread,
+        });
+      });
+
+      act(() => {
+        thread.messagePaginator.unreadStateSnapshot.partialNext({ unreadCount: 3 });
+      });
+      expect(renderMessages).toHaveBeenLastCalledWith(
+        expect.objectContaining({
+          channelUnreadUiState: expect.objectContaining({ unreadCount: 3 }),
+        }),
+      );
+
+      // the channel's snapshot belongs to the channel list: changing it must not re-render the thread
+      const renderCountBeforeChannelChange = renderMessages.mock.calls.length;
+      act(() => {
+        channel.messagePaginator.unreadStateSnapshot.partialNext({ unreadCount: 7 });
+      });
+      expect(renderMessages).toHaveBeenCalledTimes(renderCountBeforeChannelChange);
+    });
+
     it('should display custom unread messages separator when channel is marked unread', async () => {
       const customUnreadMessagesSeparatorText = 'CustomUnreadMessagesSeparator';
       const UnreadMessagesSeparator = () => (
