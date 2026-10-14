@@ -218,6 +218,37 @@ describe('attachment', () => {
         expect(imageElement.style.getPropertyValue('--original-width')).toBe('200');
       });
     });
+
+    it('should render multiple giphy attachments without duplicate keys', async () => {
+      const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => null);
+      const giphies = Array.from({ length: 3 }, generateGiphyAttachment);
+
+      renderComponent({ attachments: giphies });
+
+      await waitFor(() => {
+        expect(screen.getAllByTestId('giphy-attachment')).toHaveLength(giphies.length);
+      });
+      const duplicateKeyWarnings = consoleErrorSpy.mock.calls.filter(([message]) =>
+        String(message).includes('Encountered two children with the same key'),
+      );
+      expect(duplicateKeyWarnings).toHaveLength(0);
+      consoleErrorSpy.mockRestore();
+    });
+
+    it('should render giphy attachments in the giphy group, before cards', async () => {
+      const { container } = renderComponent({
+        attachments: [ATTACHMENTS.scraped.image, ATTACHMENTS.scraped.giphy],
+      });
+
+      await waitFor(() => {
+        const renderedTestIds = Array.from(
+          container.querySelectorAll(
+            '[data-testid="giphy-attachment"], [data-testid="card-attachment"]',
+          ),
+        ).map((element) => element.getAttribute('data-testid'));
+        expect(renderedTestIds).toEqual(['giphy-attachment', 'card-attachment']);
+      });
+    });
   });
 
   describe('combines scraped & uploaded content', () => {
