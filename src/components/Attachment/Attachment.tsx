@@ -132,7 +132,7 @@ const renderGroupedAttachments = ({
           />,
         );
       } else if (attachment.type === 'giphy') {
-        typeMap.card.push(
+        typeMap.giphy.push(
           <GiphyContainer
             key={`giphy-${typeMap.giphy.length}`}
             {...rest}
