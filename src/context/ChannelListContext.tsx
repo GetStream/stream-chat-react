@@ -7,7 +7,7 @@ export type ChannelListContextValue = {
   /**
    * The primary channel paginator held by the `ChannelManager` on `ChatContext`.
    * Read the loaded channels reactively with `useStateStore(paginator.state, …)`, load the next
-   * page with `paginator.next()`, and mutate the loaded list (e.g. prepend a just-opened channel)
+   * page with `paginator.toTail()`, and mutate the loaded list (e.g. prepend a just-opened channel)
    * via `paginator.setItems({ valueOrFactory })`. Undefined when rendered outside a channel list.
    */
   paginator?: ChannelPaginator;

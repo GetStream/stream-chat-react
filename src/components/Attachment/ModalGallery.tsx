@@ -71,9 +71,10 @@ export const ModalGallery = ({
       items.map((item) => ({
         ...item,
         createdAt: item.createdAt ?? convertTimestampToDate(message?.created_at),
+        message: item.message ?? message,
         user: item.user ?? message?.user ?? undefined,
       })),
-    [items, message?.created_at, message?.user],
+    [items, message],
   );
   const usesDefaultBaseImage = BaseImage === DefaultBaseImage;
 

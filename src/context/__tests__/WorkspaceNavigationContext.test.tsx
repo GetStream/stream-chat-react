@@ -35,6 +35,60 @@ describe('WorkspaceNavigationContext', () => {
       ).not.toThrow();
       expect(() => result.current.closeThread('thread-1')).not.toThrow();
     });
+
+    it('warns once per operation that nothing happened', () => {
+      const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+      const { result } = renderHook(() => useWorkspaceNavigation());
+
+      result.current.closeChannel('messaging:x');
+      result.current.closeChannel('messaging:y');
+      result.current.goBack('messaging:x');
+
+      const closeChannelWarnings = warn.mock.calls.filter(([message]) =>
+        String(message).includes('WorkspaceNavigation.closeChannel()'),
+      );
+      expect(closeChannelWarnings).toHaveLength(1);
+      expect(String(closeChannelWarnings[0][0])).toContain('ChatView');
+      expect(
+        warn.mock.calls.some(([message]) =>
+          String(message).includes('WorkspaceNavigation.goBack()'),
+        ),
+      ).toBe(true);
+
+      warn.mockRestore();
+    });
+
+    it('does not warn from reads or from the exported default', () => {
+      const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+      const { result } = renderHook(() => useWorkspaceNavigation());
+
+      result.current.isChannelActive('messaging:x');
+      result.current.canGoBack('messaging:x');
+      defaultWorkspaceNavigation.openChannel(
+        fromPartial<Channel>({ cid: 'messaging:x' }),
+      );
+      defaultWorkspaceNavigation.closeThread('thread-1');
+
+      expect(warn).not.toHaveBeenCalled();
+      warn.mockRestore();
+    });
+  });
+
+  describe('with a provider', () => {
+    it('does not warn when the provider leaves an operation at the default', () => {
+      const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+      const wrapper = ({ children }: { children: React.ReactNode }) => (
+        <WorkspaceNavigationProvider value={defaultWorkspaceNavigation}>
+          {children}
+        </WorkspaceNavigationProvider>
+      );
+      const { result } = renderHook(() => useWorkspaceNavigation(), { wrapper });
+
+      result.current.openThread(fromPartial<Thread>({ id: 'thread-1' }));
+
+      expect(warn).not.toHaveBeenCalled();
+      warn.mockRestore();
+    });
   });
 
   describe('with a provider', () => {

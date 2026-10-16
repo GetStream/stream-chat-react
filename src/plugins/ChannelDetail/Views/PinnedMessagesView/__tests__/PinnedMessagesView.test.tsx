@@ -19,6 +19,7 @@ import {
   useComponentContextIcons,
   useModalContext,
   useTranslationContext,
+  useWorkspaceNavigation,
 } from '../../../../../context';
 import * as DEFAULT_ICONS from '../../../../../components/Icons/icons';
 import { mockT } from '../../../../../mock-builders/translator';
@@ -253,7 +254,31 @@ describe('PinnedMessagesView', () => {
       close: vi.fn(),
     } as ReturnType<typeof useModalContext>);
 
+    vi.mocked(useWorkspaceNavigation).mockReturnValue(
+      fromPartial({ openChannel: vi.fn() }),
+    );
+
     mockSearchSourceState();
+  });
+
+  it('opens the channel through workspace navigation and jumps to the selected message', () => {
+    // Workspace navigation, not ChatView's slot API, so a custom WorkspaceNavigationProvider
+    // outside ChatView receives the selection too.
+    const openChannel = vi.fn();
+    const close = vi.fn();
+    vi.mocked(useWorkspaceNavigation).mockReturnValue(fromPartial({ openChannel }));
+    vi.mocked(useModalContext).mockReturnValue({
+      close,
+    } as unknown as ReturnType<typeof useModalContext>);
+    mockSearchSourceState({ messages: pinnedMessages });
+    const channel = createChannel();
+
+    renderWithChannel(<PinnedMessagesView layout='tabs' />, channel);
+    fireEvent.click(screen.getByText('Release timeline: Code freeze March 18'));
+
+    expect(openChannel).toHaveBeenCalledWith(channel);
+    expect(channel.messagePaginator.jumpToMessage).toHaveBeenCalledWith('message-1');
+    expect(close).toHaveBeenCalled();
   });
 
   it('configures MessageSearchSource for pinned messages in the current channel', () => {

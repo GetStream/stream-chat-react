@@ -7,7 +7,11 @@ import {
   ChatProvider,
   ModalContextProvider,
   TranslationProvider,
+  WithComponents,
 } from '../../../context';
+import { MessageTimestamp as DefaultMessageTimestamp } from '../../Message/MessageTimestamp';
+import type { MessageTimestampProps } from '../../Message/MessageTimestamp';
+import { generateMessage } from '../../../mock-builders';
 import {
   mockChatContext,
   mockTranslationContextValue,
@@ -49,10 +53,12 @@ const getSlideContainer = (container: HTMLElement) => {
 const renderGalleryUI = (
   items: GalleryItem[],
   {
+    components,
     galleryProps,
     initialIndex = 0,
     modalContext,
   }: {
+    components?: React.ComponentProps<typeof WithComponents>['overrides'];
     galleryProps?: Partial<GalleryProps>;
     initialIndex?: number;
     modalContext?: ModalContextValue;
@@ -71,6 +77,10 @@ const renderGalleryUI = (
     children = (
       <ModalContextProvider value={modalContext}>{children}</ModalContextProvider>
     );
+  }
+
+  if (components) {
+    children = <WithComponents overrides={components}>{children}</WithComponents>;
   }
 
   return render(
@@ -268,6 +278,57 @@ describe('GalleryUI', () => {
 
       expect(screen.getByText('Jenny')).toBeInTheDocument();
       expect(screen.queryByText('You')).not.toBeInTheDocument();
+    });
+
+    it('should render the MessageTimestamp override for the item message', () => {
+      const message = generateMessage({ user: { id: 'jenny', name: 'Jenny' } });
+      const CustomMessageTimestamp = (props: MessageTimestampProps) => (
+        <span className={props.customClass} data-testid='custom-message-timestamp'>
+          {props.message?.id}
+        </span>
+      );
+      const items = [
+        makeImageItem({
+          createdAt: new Date('2025-01-01T12:34:56.000Z'),
+          message,
+          user: { id: 'jenny', name: 'Jenny' },
+        }),
+      ];
+
+      renderGalleryUI(items, {
+        components: { MessageTimestamp: CustomMessageTimestamp },
+      });
+
+      const timestamp = screen.getByTestId('custom-message-timestamp');
+      expect(timestamp).toHaveTextContent(message.id);
+      expect(timestamp).toHaveClass('str-chat__gallery__timestamp');
+    });
+
+    it('should render the default MessageTimestamp from the item message outside a message', () => {
+      // The gallery renders outside any MessageProvider; the timestamp reads the item's message.
+      const message = generateMessage({ user: { id: 'jenny', name: 'Jenny' } });
+      const items = [makeImageItem({ message, user: { id: 'jenny', name: 'Jenny' } })];
+
+      const { container } = renderGalleryUI(items, {
+        components: { MessageTimestamp: DefaultMessageTimestamp },
+      });
+
+      expect(
+        container.querySelector('.str-chat__gallery__timestamp'),
+      ).toBeInTheDocument();
+    });
+
+    it('should render its own timestamp when MessageTimestamp is not overridden', () => {
+      const message = generateMessage();
+      const items = [
+        makeImageItem({ createdAt: new Date('2025-01-01T12:34:56.000Z'), message }),
+      ];
+
+      const { container } = renderGalleryUI(items);
+
+      expect(
+        container.querySelector('time.str-chat__gallery__timestamp'),
+      ).toHaveAttribute('datetime', '2025-01-01T12:34:56.000Z');
     });
 
     it('should fall back to the item title and omit the timestamp when the item has no sender', () => {

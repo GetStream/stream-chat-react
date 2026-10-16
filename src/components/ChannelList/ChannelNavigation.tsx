@@ -1,3 +1,4 @@
+import clsx from 'clsx';
 import React from 'react';
 import type { SearchControllerState } from 'stream-chat';
 
@@ -6,6 +7,7 @@ import { ChannelLists } from './ChannelLists';
 import { NotificationList as DefaultNotificationList } from '../Notifications';
 import { Search as DefaultSearch } from '../Search';
 import { useChatContext, useComponentContext } from '../../context';
+import { useImageFlagEmojisOnWindowsClass } from '../Channel/hooks/useChannelContainerClasses';
 import { useStateStore } from '../../store';
 
 const searchControllerStateSelector = (state: SearchControllerState) => ({
@@ -18,6 +20,10 @@ const searchControllerStateSelector = (state: SearchControllerState) => ({
  * always; results while active), then the paginator-driven `ChannelLists` only while
  * search is inactive. Mapped to the channel-navigation slot; `Search` is customizable
  * via the `ComponentContext` `Search` slot.
+ *
+ * Its root carries the `str-chat` theme scope itself (like `Channel`), so the design tokens apply
+ * when it is rendered outside `ChatView`. `customClasses.chat` / `customClasses.channelList`
+ * replace the `str-chat` / `str-chat__channel-list` classes.
  */
 export const ChannelNavigation = () => {
   const {
@@ -25,14 +31,22 @@ export const ChannelNavigation = () => {
     NotificationList = DefaultNotificationList,
     Search = DefaultSearch,
   } = useComponentContext();
-  const { searchController } = useChatContext();
+  const { customClasses, searchController, theme } = useChatContext();
+  const windowsEmojiClass = useImageFlagEmojisOnWindowsClass();
   const { isActive } = useStateStore(
     searchController.state,
     searchControllerStateSelector,
   );
 
   return (
-    <div className='str-chat__channel-list'>
+    <div
+      className={clsx(
+        customClasses?.chat ?? 'str-chat',
+        theme,
+        customClasses?.channelList ?? 'str-chat__channel-list',
+        windowsEmojiClass,
+      )}
+    >
       <ChannelListHeader />
       <Search />
       {!isActive && <ChannelLists />}

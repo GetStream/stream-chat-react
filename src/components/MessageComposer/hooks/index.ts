@@ -2,6 +2,7 @@ export * from './useAttachmentManagerState';
 export * from './useAttachmentsForPreview';
 export * from './useCanCreatePoll';
 export * from './useCooldownRemaining';
+export * from './useIsCooldownActive';
 export * from './useMessageComposerBindings';
 export * from './useMessageComposerCommands';
 export * from './useMessageComposerController';

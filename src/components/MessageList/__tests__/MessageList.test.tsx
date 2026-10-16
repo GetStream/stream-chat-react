@@ -266,6 +266,87 @@ describe('MessageList', () => {
     // expect(results).toHaveNoViolations();
   });
 
+  describe('older-page loading indicator', () => {
+    // Scrolls the list to its top (jsdom has no layout, so `offsetParent` is stubbed) and holds
+    // `toTail` open, so the list stays in the "loading an older page" state.
+    const startLoadingOlder = async (msgListProps?: Partial<MessageListProps>) => {
+      const pageDeferred = createDeferred();
+      const toTail = vi
+        .spyOn(channel.messagePaginator, 'toTail')
+        .mockImplementation(async () => {
+          channel.messagePaginator.state.partialNext({ isLoading: true });
+          await pageDeferred.promise;
+          channel.messagePaginator.state.partialNext({ isLoading: false });
+        });
+      const { container } = renderComponent({
+        channelProps: { channel },
+        chatClient,
+        msgListProps: {
+          ...msgListProps,
+          internalInfiniteScrollProps: { loadNextDebounceMs: 0 },
+        },
+      });
+      const scroller = await screen.findByTestId('reverse-infinite-scroll');
+      Object.defineProperty(scroller, 'offsetParent', {
+        configurable: true,
+        get: () => document.body,
+      });
+      fireEvent.scroll(scroller);
+      await waitFor(() => expect(toTail).toHaveBeenCalled());
+      return { container, pageDeferred };
+    };
+
+    it('shows the loading indicator while an older page loads', async () => {
+      const { container, pageDeferred } = await startLoadingOlder();
+
+      await waitFor(() => {
+        expect(
+          container.querySelector(
+            '.str-chat__list__loading .str-chat__loading-indicator',
+          ),
+        ).toBeInTheDocument();
+      });
+
+      await act(() => {
+        pageDeferred.resolve();
+      });
+      await waitFor(() => {
+        expect(
+          container.querySelector('.str-chat__list__loading'),
+        ).not.toBeInTheDocument();
+      });
+    });
+
+    it('hides the loading indicator when loadingMore is false', async () => {
+      const { container, pageDeferred } = await startLoadingOlder({ loadingMore: false });
+
+      await waitFor(() => {
+        expect(container.querySelector('.str-chat__list__loading')).toBeInTheDocument();
+      });
+      expect(
+        container.querySelector('.str-chat__list__loading .str-chat__loading-indicator'),
+      ).not.toBeInTheDocument();
+
+      await act(() => {
+        pageDeferred.resolve();
+      });
+    });
+
+    it('does not show the loading indicator while a newer page loads', async () => {
+      const { container } = renderComponent({ channelProps: { channel }, chatClient });
+      await screen.findByTestId('reverse-infinite-scroll');
+
+      await act(() => {
+        channel.messagePaginator.state.partialNext({ isLoading: true });
+      });
+
+      expect(container.querySelector('.str-chat__list__loading')).toBeInTheDocument();
+      expect(
+        container.querySelector('.str-chat__list__loading .str-chat__loading-indicator'),
+      ).not.toBeInTheDocument();
+    });
+  });
+
   it('should render a ThreadHead override above the replies', async () => {
     const CustomThreadHead = (props: { message: Pick<typeof message1, 'text'> }) => (
       <div>{props.message.text}</div>
@@ -607,7 +688,7 @@ describe('MessageList', () => {
           <Chat client={client}>
             <Channel channel={channel}>
               <MarkReadButton />
-              <MessageList messages={messages} />
+              <MessageList />
             </Channel>
           </Chat>,
         );
@@ -1689,7 +1770,7 @@ describe('MessageList', () => {
                     hasMoreNewer={canLoadNewer}
                     messages={renderedMessages}
                   >
-                    <MessageList messages={renderedMessages} />
+                    <MessageList />
                   </SyncPaginator>
                 </Channel>
               </Chat>

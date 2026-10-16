@@ -146,11 +146,6 @@ export type VirtuosoContext = Required<
 
 type VirtualizedMessageListWithContextProps = VirtualizedMessageListProps & {
   channel: Channel;
-  // hasMore: boolean;
-  // hasMoreNewer: boolean;
-  // jumpToLatestMessage: () => Promise<void>;
-  // loadingMore: boolean;
-  // loadingMoreNewer: boolean;
   read?: StreamChannelState['read'];
 };
 
@@ -218,23 +213,15 @@ const VirtualizedMessageListWithContext = (
     additionalMessageComposerProps,
     additionalVirtuosoProps = {},
     channel,
-    // channelUnreadUiState,
     closeReactionSelectorOnClick,
     customMessageRenderer,
     defaultItemHeight,
     formatDate,
     groupStyles,
     hideDeletedMessages = false,
-    // hasMoreNewer,
     hideNewMessageSeparator = false,
     maxTimeBetweenGroupedMessages,
-    // jumpToLatestMessage,
-    // loadingMore,
-    // loadMore,
-    // loadMoreNewer,
     overscan = 0,
-    // messageLimit = DEFAULT_NEXT_CHANNEL_PAGE_SIZE,
-    // messages,
     // TODO: refactor to scrollSeekPlaceHolderConfiguration and components.ScrollSeekPlaceholder, like the Virtuoso Component
     reactionDetailsSort,
     renderText,
@@ -489,8 +476,6 @@ const VirtualizedMessageListWithContext = (
     setNewMessagesNotification,
     // processedMessages were incorrectly rebuilt with a new object identity at some point, hence the .length usage
     // processedMessages.length,
-    // hasMoreNewer,
-    // jumpToLatestMessage,
   ]);
 
   useScrollToBottomOnNewMessage({
@@ -550,7 +535,6 @@ const VirtualizedMessageListWithContext = (
       // An empty thread is at both ends at once, so Virtuoso reports both on mount — see
       // `useCanPaginateReplies` for why that must not become a request.
       if (canPaginateReplies) messagePaginator.toHead();
-      // loadMoreNewer?.(messageLimit);
       setNewMessagesNotification?.(false);
     }
   };
@@ -733,28 +717,12 @@ export type VirtualizedMessageListProps = Partial<
     noGroupByUser: boolean,
     maxTimeBetweenGroupedMessages?: number,
   ) => GroupStyle;
-  // /** Whether or not the list has more items to load */
-  // hasMore?: boolean;
-  // /** Whether or not the list has newer items to load */
-  // hasMoreNewer?: boolean;
   /** Hides the `MessageDeleted` components from the list, defaults to `false` */
   hideDeletedMessages?: boolean;
   /** Hides the `DateSeparator` component when new messages are received in a channel that's watched but not active, defaults to false */
   hideNewMessageSeparator?: boolean;
-  // /** Whether or not the list is currently loading more items */
-  // loadingMore?: boolean;
-  // /** Whether or not the list is currently loading newer items */
-  // loadingMoreNewer?: boolean;
-  /** Function called when more messages are to be loaded. */
-  // loadMore?: () => Promise<void>;
-  /** Function called when new messages are to be loaded. */
-  // loadMoreNewer?: () => Promise<void>;
   /** Maximum time in milliseconds that should occur between messages to still consider them grouped together */
   maxTimeBetweenGroupedMessages?: number;
-  // /** The limit to use when paginating messages */
-  // messageLimit?: number;
-  /** Optional prop to override the messages available from the active message paginator. */
-  messages?: LocalMessage[];
   /**
    * @deprecated Use additionalVirtuosoProps.overscan instead. Will be removed with next major release - `v11.0.0`.
    * The amount of extra content the list should render in addition to what's necessary to fill in the viewport
@@ -818,8 +786,6 @@ export function VirtualizedMessageList(props: VirtualizedMessageListProps) {
 
   const { read } = useStateStore(channel?.state, channelReadSelector) ?? {};
 
-  const messages = props.messages; // || contextMessages;
-
   // See the note in `MessageList`: the panel and the notification area sit above the key, so a
   // notification keeps its element, its countdown and its box across a switch. Here it also puts
   // them above `VirtualizedMessageListWithContext`'s `if (!processedMessages) return null`, which
@@ -832,15 +798,6 @@ export function VirtualizedMessageList(props: VirtualizedMessageListProps) {
         // See the note in MessageList: this list's local state -- Virtuoso's scroll offset above all
         // -- is scoped to whatever it is showing, a thread's replies or a channel's messages.
         key={getMessageSourceKey({ channel, thread })}
-        // channelUnreadUiState={props.channelUnreadUiState ?? channelUnreadUiState}
-        // hasMore={!!hasMore}
-        // hasMoreNewer={!!hasMoreNewer}
-        // jumpToLatestMessage={jumpToLatestMessage}
-        // loadingMore={!!loadingMore}
-        // loadingMoreNewer={!!loadingMoreNewer}
-        // loadMore={loadMore}
-        // loadMoreNewer={loadMoreNewer}
-        messages={messages}
         read={read}
         {...props}
       />
