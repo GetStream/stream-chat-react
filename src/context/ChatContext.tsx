@@ -12,7 +12,6 @@ import { requireContext } from './requireContext';
 
 type CSSClasses =
   | 'chat'
-  | 'chatContainer'
   | 'channel'
   | 'channelList'
   | 'message'

@@ -1,5 +1,5 @@
 import { createContext, useContext } from 'react';
-import type { UserResponse } from 'stream-chat';
+import type { LocalMessage, UserResponse } from 'stream-chat';
 
 import { requireContext } from '../../context/requireContext';
 import { toBaseImageDescriptors } from '../BaseImage';
@@ -11,6 +11,11 @@ export type GalleryItem = Omit<BaseImageProps, 'src'> & {
   createdAt?: string | Date;
   dimensions?: Dimensions;
   imageUrl?: string;
+  /**
+   * The message the media was shared in. Lets the gallery header render a `MessageTimestamp`
+   * override from `ComponentContext` for it.
+   */
+  message?: LocalMessage;
   /** User who shared the media; drives the gallery header title. */
   user?: UserResponse;
   videoThumbnailUrl?: string;

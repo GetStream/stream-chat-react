@@ -5,8 +5,8 @@ import {
   useComponentContext,
   useModalContext,
   useTranslationContext,
+  useWorkspaceNavigation,
 } from '../../../../context';
-import { useChatViewNavigation } from '../../../SlotLayout';
 import { getDateString } from '../../../../i18n/utils';
 import { Avatar as DefaultAvatar } from '../../../../components/Avatar';
 import { extractDisplayInfo as defaultExtractDisplayInfo } from '../../../../components/Avatar/utils';
@@ -140,7 +140,7 @@ export type PinnedMessagesViewProps = SectionNavigatorSectionContentProps & {
 export const PinnedMessagesView: React.ComponentType<PinnedMessagesViewProps> = ({
   searchSource,
 }) => {
-  const { open } = useChatViewNavigation();
+  const { openChannel } = useWorkspaceNavigation();
   const { t } = useTranslationContext();
   const { close } = useModalContext();
   const { channel } = useChannelDetailContext();
@@ -154,14 +154,14 @@ export const PinnedMessagesView: React.ComponentType<PinnedMessagesViewProps> = 
 
   const handleSelectMessage = useCallback(
     (message: PinnedMessage) => {
-      // Selection is one navigation model: open the channel into a layout slot.
-      open({ key: channel.cid ?? undefined, kind: 'channel', source: channel });
+      // Selection is one navigation model: open the channel in the workspace.
+      openChannel(channel);
       // MERGE-RECONCILE: the deleted ChannelActionContext.jumpToMessage was replaced by the
       // channel's messagePaginator (PR #2909 / stream-chat message-paginator API).
       void channel.messagePaginator.jumpToMessage(message.id);
       close();
     },
-    [channel, close, open],
+    [channel, close, openChannel],
   );
 
   const renderItem = useCallback(

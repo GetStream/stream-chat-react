@@ -1,6 +1,6 @@
 import { convertTimestampToDate } from 'stream-chat';
-import React from 'react';
-import { useMessageContext } from '../../context/MessageContext';
+import React, { useContext } from 'react';
+import { MessageContext } from '../../context/MessageContext';
 import { Timestamp as DefaultTimestamp } from './Timestamp';
 import { useComponentContext } from '../../context';
 
@@ -16,9 +16,11 @@ export type MessageTimestampProps = TimestampFormatterOptions & {
 
 const UnMemoizedMessageTimestamp = (props: MessageTimestampProps) => {
   const { message: propMessage, ...timestampProps } = props;
-  const { message: contextMessage } = useMessageContext();
+  // with a `message` prop it also renders outside a message (e.g. the gallery header)
+  const { message: contextMessage } = useContext(MessageContext) ?? {};
   const { Timestamp = DefaultTimestamp } = useComponentContext();
   const message = propMessage || contextMessage;
+  if (!message) return null;
   return (
     <Timestamp
       timestamp={convertTimestampToDate(message.created_at)}

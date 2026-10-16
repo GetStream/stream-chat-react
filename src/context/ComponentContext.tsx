@@ -20,7 +20,6 @@ import {
   type GalleryProps,
   type GiphyPreviewMessageProps,
   type ImagePlaceholderProps,
-  type LoadingErrorIndicatorProps,
   type LoadingIndicatorProps,
   type MessageBouncePromptProps,
   type MessageComposerProps,
@@ -177,8 +176,6 @@ export type ComponentContextValue = {
   MessageComposerUI?: React.ComponentType<MessageComposerProps>;
   /** Custom component to render link previews in message composer **/
   LinkPreviewList?: React.ComponentType;
-  /** Custom UI component to be shown if the channel query fails, defaults to and accepts same props as: [LoadingErrorIndicator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Loading/LoadingErrorIndicator.tsx) */
-  LoadingErrorIndicator?: React.ComponentType<LoadingErrorIndicatorProps>;
   /** Custom UI component to render while the `MessageList` is loading new messages, defaults to and accepts same props as: [LoadingIndicator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Loading/LoadingIndicator.tsx) */
   LoadingIndicator?: React.ComponentType<LoadingIndicatorProps>;
   /** Custom UI component for determinate progress (0–100), defaults to and accepts same props as: [ProgressIndicator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Loading/progress-indicators.tsx) */
