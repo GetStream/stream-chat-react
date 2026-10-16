@@ -11,6 +11,7 @@ import { useComponentContext } from '../../../../context/ComponentContext';
 import type { LocalMessage, UnreadSnapshotState } from 'stream-chat';
 import type { MessageRenderer, SharedMessageProps } from '../../renderMessages';
 import { useChannel } from '../../../../context';
+import { useMessagePaginator } from '../../../../hooks';
 import { useLastDeliveredData } from '../useLastDeliveredData';
 import { useStateStore } from '../../../../store';
 
@@ -41,9 +42,11 @@ export const useMessageListElements = (props: UseMessageListElementsProps) => {
 
   const { customClasses } = useChatContext();
   const channel = useChannel();
+  const messagePaginator = useMessagePaginator();
   const components = useComponentContext();
+  // The rendered list's own snapshot: in a thread that is the thread's, as for the rest of the list.
   const channelUnreadUiState = useStateStore(
-    channel.messagePaginator.unreadStateSnapshot,
+    messagePaginator.unreadStateSnapshot,
     unreadStateSnapshotSelector,
   );
   // get the readData, but only for messages submitted by the user themselves
