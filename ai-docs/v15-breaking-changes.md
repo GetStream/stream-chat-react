@@ -53,7 +53,7 @@ yarn api-surface diff --base v14.json --head v15.json --out diff.json --md diff.
 yarn api-surface check --doc ai-docs/v15-breaking-changes.md --diff diff.json
 ```
 
-`check` fails when a removed export, a removed or newly required prop or member, a changed hook or function signature, a changed default, or a changed constant value is not mentioned in this file. Non-gated type-text changes (mostly `stream-chat` v10 type shifts) are reported by `diff` for triage only.
+`check` fails when a removed export, a removed or newly required prop or member, a changed hook or function signature, a changed default, or a changed constant value is not mentioned in this file. It also fails when an export that moved to another entry point is not named in the same section as its new import path (for example `stream-chat-react/slot-layout`), when a removed dependency or entry point is not named as a whole word, and when a changed dependency or peer range is not stated with its new value in the same section as the package name. Non-gated type-text changes (mostly `stream-chat` v10 type shifts) are reported by `diff` for triage only.
 
 ## Status Legend
 
