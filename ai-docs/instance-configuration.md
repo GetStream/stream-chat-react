@@ -118,18 +118,21 @@ The top-level `messagePaginator` key exists because one `MessagePaginator` class
 list and thread replies, and settings like throttling have no reason to differ between them. `pageSize`
 does differ, so the per-parent slices override the shared one field by field.
 
-### `pageSize` is not `channelQueryOptions.messages.limit`
+### `pageSize` is not the initial query's `messages.limit`
 
-`<Channel channelQueryOptions={{ messages: { limit: 30 } }}>` sizes the **initial** channel query
-(`Channel.tsx`). The paginator's `pageSize` sizes **every subsequent page** — what a scroll-up fetches.
-They are different numbers and you usually want both:
+`channel.ensureWatched({ messages: { limit: 30 } })` sizes the **initial** channel query, which the code
+that opens the channel now sends (`<Channel>` no longer queries, and its `channelQueryOptions` prop is
+removed). The paginator's `pageSize` sizes **every subsequent page** — what a scroll-up fetches. They
+are different numbers and you usually want both:
 
 ```tsx
 chatClient.config.set({ channel: { messagePaginator: { pageSize: 50 } } });
 
-<Channel channel={channel} channelQueryOptions={{ messages: { limit: 30 } }}>
-  …
-</Channel>;
+const channel = await chatClient.channelManager
+  .ensure({ id: 'general', type: 'messaging' })
+  .ensureWatched({ messages: { limit: 30 } });
+
+<Channel channel={channel}>…</Channel>;
 ```
 
 ## Setup functions, for behaviour
@@ -173,7 +176,7 @@ reset re-derives configuration and re-runs setup functions, but it discards impe
 ## Request handlers
 
 Register them through `client.config`. The `doSendMessageRequest`, `doUpdateMessageRequest`,
-`doDeleteMessageRequest` and `doMarkReadRequest` props on `<Channel>` and `<Thread>` are **removed** —
+`doDeleteMessageRequest` and `doMarkReadRequest` props on `<Channel>` are **removed** —
 see the v14 → v15 migration guide.
 
 ```ts
@@ -190,15 +193,30 @@ chatClient.config.set({
 });
 ```
 
-Thread-scoped requests go under the `thread` key with the same shape.
+Thread replies use these same channel handlers: sending, editing, deleting and retrying a reply goes
+through `thread.messageOperations`, which reads the parent channel's `requestHandlers`. The `thread` key
+takes only `markReadRequest`, for marking a thread read:
+
+```ts
+chatClient.config.set({
+  thread: {
+    requestHandlers: {
+      markReadRequest: ({ thread, options }) =>
+        markThreadReadViaProxy(thread.id, options),
+    },
+  },
+});
+```
+
+A `sendMessageRequest` (or any other message handler) under `thread` does not type-check and is never
+called.
 
 Registration is per **client**, not per mounted subtree, which is the one thing the props could do that
 this cannot. If behaviour has to differ between channels, branch inside a single handler on the
-`channel` or `cid` it receives:
+message's `localMessage.cid`:
 
 ```ts
 sendMessageRequest: async ({ localMessage, message, options }) => {
-  const channel = chatClient.channelManager.ensure({ ... });
   return isSupportChannel(localMessage.cid)
     ? { message: await sendViaProxy(message, options) }
     : { message: await sendNormally(message, options) };

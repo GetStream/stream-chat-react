@@ -6,9 +6,10 @@ Three breaking changes, all in v15:
    `pt`, `ru` and `tr` dictionaries are gone, along with their `dayjs` locale data.
 2. **Translation keys are namespaced identifiers**, not the English text. `t('Send Message')`
    became `t('messageComposer.sendButton.send.ariaLabel', 'Send')`.
-3. **The translation runtime moved into `stream-chat`**, shared with the React Native SDK. The class
-   keeps its name, two of its methods changed shape, and two timestamp edge cases render differently
-   — see [The shared runtime](#the-shared-runtime).
+3. **The translation runtime moved into `@stream-io/i18n`**, a package shared with the React Native
+   SDK. The class keeps its name and you still import it from `stream-chat-react`, but several of its
+   members were removed or changed shape, and two timestamp edge cases render differently — see
+   [The shared runtime](#the-shared-runtime).
 
 Together these cut ~112 KB gzip (27%) from the bundle: the 11 dictionaries were statically
 imported and copied into `Streami18n` at construction, so they shipped even if you never set
@@ -16,17 +17,20 @@ imported and copied into `Streami18n` at construction, so they shipped even if y
 
 ## Do I need to do anything?
 
-| If you…                                          | Action                                         |
-| ------------------------------------------------ | ---------------------------------------------- |
-| use the SDK in English and never touched i18n    | **Nothing.**                                   |
-| passed `translationsForLanguage`                 | Rename your keys — see below                   |
-| called `registerTranslation()`                   | Rename your keys — see below                   |
-| used a built-in non-English language             | Supply the dictionary yourself — see below     |
-| relied on non-English date formats               | Import the `dayjs` locale yourself — see below |
-| imported `deTranslations` … `trTranslations`     | Those exports are removed                      |
-| construct `new Streami18n(...)`                  | **Nothing** — same name, same options object   |
-| assign `i18n.t` or read `setLanguage()`'s return | Both changed — see below                       |
-| declared `i18next` or `dayjs` yourself           | You can drop them; `stream-chat` supplies both |
+| If you…                                             | Action                                             |
+| --------------------------------------------------- | -------------------------------------------------- |
+| use the SDK in English and never touched i18n       | **Nothing.**                                       |
+| passed `translationsForLanguage`                    | Rename your keys — see below                       |
+| called `registerTranslation()`                      | Rename your keys — see below                       |
+| used a built-in non-English language                | Supply the dictionary yourself — see below         |
+| relied on non-English date formats                  | Import the `dayjs` locale yourself — see below     |
+| imported `deTranslations` … `trTranslations`        | Those exports are removed                          |
+| called `isLanguageSupported()`                      | Use `i18n.registeredLanguages.has(lang)`           |
+| call `t('Some English')` or `t(variable)`           | `t` is typed — see below                           |
+| construct `new Streami18n(...)`                     | **Nothing** — same name, same options object       |
+| assign `i18n.t` or read `setLanguage()`'s return    | Both changed — see below                           |
+| call other `Streami18n` members or write formatters | See [The shared runtime](#the-shared-runtime)      |
+| declared `i18next` or `dayjs` yourself              | You can drop them; `@stream-io/i18n` supplies both |
 
 ## Renaming your keys
 
@@ -140,6 +144,39 @@ Keys are namespaced after the source tree, so they are predictable from the comp
 `common.*`. The last segment is the modality: `.label`, `.ariaLabel`, `.placeholder`, `.title`,
 `.description`, `.text`.
 
+## Calling `t` in your own components
+
+`t` from `useTranslationContext()` is typed `StreamTFunction`, so a call has to name a key the SDK
+knows. `t('Some English')` and `t(someString)` no longer compile (`TS2769 No overload matches this
+call`); at runtime an unknown key still renders its default, or the key itself. The four accepted
+shapes:
+
+```ts
+t('common.close.ariaLabel', 'Close'); // an SDK key with its inline English default
+t('channelDetail.channelMembersView.members.title', { count }); // a plural key: `count` is required
+t('timestamp.MessageTimestamp', { timestamp }); // a formatter key, no default
+t(asDynamicKey(runtimeKey), 'Default copy'); // a key known only at runtime
+```
+
+App-owned copy goes through `asDynamicKey` with a key of your own, and the dictionary that supplies it
+is typed `LooseTranslationDictionary`:
+
+```tsx
+// v14
+<button aria-label={t('Remove channel members')}>{t(label)}</button>
+
+// v15
+<button aria-label={t(asDynamicKey('myApp.removeMembers.ariaLabel'), 'Remove channel members')}>
+  {t(asDynamicKey(label))}
+</button>
+```
+
+`asDynamicKey`, `StreamTFunction`, `TranslationKey`, `DynamicTranslationKey` and `TranslationCatalog`
+are exported from `stream-chat-react`. The brand is required, so every escape from the checked set is
+deliberate and greppable. The same `StreamTFunction` reaches the label-data callbacks
+(`ChannelListItemLabelData.t`, `ThreadListItemLabelData.t`, `WithT.t`), and
+`TranslationContextValue.userLanguage` is now a plain `string`.
+
 ### Plurals
 
 The SDK's own copy only needs `<key>_one` / `<key>_other`. Supply whichever categories your language
@@ -245,9 +282,10 @@ _old_ natural-language keys, so it needs the same rename as your own overrides.
 
 ## The shared runtime
 
-`Streami18n` used to live in this package. It now lives in `stream-chat` and is shared with
-`stream-chat-react-native`, so both SDKs behave identically and a fix reaches both at once. You still
-import it from here, and it still carries this SDK's own key catalog and copy.
+`Streami18n` used to live in this package. It now lives in `@stream-io/i18n`, a regular dependency of
+this package that `stream-chat-react-native` shares, so both SDKs behave identically and a fix reaches
+both at once. You still import it from `stream-chat-react`, and it still carries this SDK's own key
+catalog and copy. Do not import `@stream-io/i18n` directly: it is not part of this SDK's public API.
 
 ### `getTranslators()` is now `init()`
 
@@ -320,7 +358,54 @@ with no dictionary behind it.
 
 Also now internal, none of them documented before: `translations`, `dayjsLocales`,
 `isCustomDateTimeParser`, `localeExists()`, `addOrUpdateLocale()`, `validateCurrentLanguage()`. To
-register a dayjs locale directly, `@stream-io/i18n` exports `addOrUpdateDayjsLocale()`.
+configure a dayjs locale, which is what `addOrUpdateLocale()` did, pass its config to
+`registerTranslation(language, dictionary, dayjsLocaleConfig)` or `dayjsLocaleConfigForLanguage` to the
+constructor (see [Date and time](#date-and-time)). `stream-chat-react` does not re-export a standalone
+locale helper.
+
+### Other removed and changed members
+
+| v14                                                       | v15                                                                                                                        |
+| --------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------- |
+| `registerSetLanguageCallback(cb)` / `setLanguageCallback` | `i18n.state.subscribeWithSelector(({ t }) => ({ t }), handler)`; `<Chat>` already subscribes                               |
+| `geti18Instance()`                                        | `i18n.i18nInstance` (a read-only field)                                                                                    |
+| `isLanguageSupported(lang)`, `SupportedTranslations`      | `i18n.registeredLanguages.has(lang)`; there is no fixed set of supported languages                                         |
+| `Dayjs`, `i18nextConfig`                                  | None (internal)                                                                                                            |
+| `DateFormatterOptions`                                    | None                                                                                                                       |
+| `init()` resolving `{ t, tDateTimeParser }`               | `init()` resolves the full `Streami18nState` (`{ initialized, language, t, tDateTimeParser }`); destructuring is unchanged |
+
+```ts
+// v14
+i18n.registerSetLanguageCallback((nextT) => setT(() => nextT));
+
+// v15 — returns an unsubscribe function
+const unsubscribe = i18n.state.subscribeWithSelector(
+  ({ t }) => ({ t }),
+  ({ t: nextT }) => setT(() => nextT),
+);
+```
+
+### Custom formatters receive a `FormatterContext`
+
+A `FormatterFactory<V>` used to receive the `Streami18n` instance. It now receives a structural
+context with only `currentLanguage`, `logger`, `dateTimeParser`, `tDateTimeParser`, `translate` and
+`timezone`:
+
+```ts
+// v14
+const myFormatter: FormatterFactory<string> = (streamI18n) => (value) =>
+  streamI18n.t('...') + streamI18n.DateTimeParser(value).format('LL');
+
+// v15
+const myFormatter: FormatterFactory<string> = (context) => (value) =>
+  context.translate('...') + context.dateTimeParser(value).format('LL');
+```
+
+`TDateTimeParserOutput` is now `string | number | Date | DateTimeLike`, where `DateTimeLike` is a
+structural type exposing only `format`, `calendar?`, `fromNow?`, `diff`, `startOf` and `valueOf`. Cast
+to your date library's type if you call anything else. `isDate(value: TDateTimeParserOutput)` is now a
+type guard. `moment` is still accepted as a `DateTimeParser`. `defaultTranslatorFunction` is typed
+`StreamTFunction`.
 
 ### `useChat` no longer returns `translators`
 
@@ -367,8 +452,9 @@ that is not a `Streami18n` warns and falls back to a default instance rather tha
 
 ### You no longer need `i18next` or `dayjs` in your own dependencies
 
-`stream-chat` depends on both, so they arrive transitively. If you declared them only for this SDK,
-remove them — and if you keep them, **match `stream-chat`'s ranges**. Two copies of `dayjs` means
+`@stream-io/i18n` depends on both (`dayjs ^1.11.23`, `i18next ^26`), so they arrive transitively.
+`stream-chat` v10 depends on neither. If you declared them only for this SDK, remove them — and if you
+keep them, **match `@stream-io/i18n`'s ranges**. Two copies of `dayjs` means
 your `import 'dayjs/locale/de'` registers the locale on a different instance than the one formatting
 dates, and dates silently stay English:
 
@@ -467,14 +553,14 @@ expressions) and the postProcessor directive. Those are bundled in `runtimeDefau
 the working defaults without listing them. You only need to supply one if you want a different date
 format.
 
-Two more sets are still overridable but now come from `stream-chat`, because it owns the code that
-renders them:
+Two more sets are still overridable but are no longer defined by this package:
 
 - **`language.*`** — the 57 language names used to say "Translated from German" on an auto-translated
-  message. They are derived from the same language union the API uses, so the set can no longer drift
-  out of sync with it.
+  message. They come from `stream-chat` and are derived from the same language union the API uses, so
+  the set can no longer drift out of sync with it.
 - **`relativeTime.*`** — `Today`, `Yesterday`, `{{ count }}d ago`, `{{ count }}w ago`, used by
-  `timestampFormatter(relativeCompact: true)`.
+  `timestampFormatter(relativeCompact: true)`. They come from `@stream-io/i18n`, which owns that
+  formatter.
 
 Both are part of your catalog's types, so you override them exactly as before — `t('language.de')` is
 a checked key, and a typo in either is still a compile error.
