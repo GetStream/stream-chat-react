@@ -158,8 +158,41 @@ export const defaultWorkspaceNavigation: WorkspaceNavigation = {
   openThreads: NOOP_OPEN_THREADS,
 };
 
+type WorkspaceNavigationAction =
+  | 'closeChannel'
+  | 'closeThread'
+  | 'goBack'
+  | 'openChannel'
+  | 'openThread';
+
+const warnedUnprovidedActions = new Set<WorkspaceNavigationAction>();
+
+const warnUnprovided = (action: WorkspaceNavigationAction) => {
+  if (warnedUnprovidedActions.has(action)) return;
+  warnedUnprovidedActions.add(action);
+  console.warn(
+    `stream-chat-react: WorkspaceNavigation.${action}() did nothing because no workspace navigation is provided. ` +
+      'Render the component inside ChatView (stream-chat-react/slot-layout), or provide your own navigation with WorkspaceNavigationProvider.',
+  );
+};
+
+/**
+ * What `useWorkspaceNavigation()` returns with no provider: {@link defaultWorkspaceNavigation}, but
+ * its operations warn (once each) that nothing happened, since a click that silently does nothing
+ * is hard to trace back to a missing `ChatView`. `defaultWorkspaceNavigation` itself stays silent,
+ * as it is the base an integrator spreads into their own provider value.
+ */
+const unprovidedWorkspaceNavigation: WorkspaceNavigation = {
+  ...defaultWorkspaceNavigation,
+  closeChannel: () => warnUnprovided('closeChannel'),
+  closeThread: () => warnUnprovided('closeThread'),
+  goBack: () => warnUnprovided('goBack'),
+  openChannel: () => warnUnprovided('openChannel'),
+  openThread: () => warnUnprovided('openThread'),
+};
+
 const WorkspaceNavigationContext = createContext<WorkspaceNavigation>(
-  defaultWorkspaceNavigation,
+  unprovidedWorkspaceNavigation,
 );
 
 export const WorkspaceNavigationProvider = ({
@@ -174,6 +207,7 @@ export const WorkspaceNavigationProvider = ({
 /**
  * Access the workspace navigation abstraction. Returns the inert no-op default outside a
  * `slot-layout` provider, so callers can navigate unconditionally without guarding for a provider.
+ * Without a provider, each operation logs a one-time console warning when called.
  */
 export const useWorkspaceNavigation = (): WorkspaceNavigation =>
   useContext(WorkspaceNavigationContext);

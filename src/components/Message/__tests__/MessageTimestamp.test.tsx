@@ -243,6 +243,33 @@ describe('<MessageTimestamp />', () => {
     expect(container.children).toHaveLength(0);
   });
 
+  it('should render from the message prop outside a MessageProvider', async () => {
+    let result: RenderResult;
+    await act(() => {
+      result = render(
+        <Chat client={getTestClient()}>
+          <MessageTimestamp customClass='outside-message' message={messageMock} />
+        </Chat>,
+      );
+    });
+    expect(result.container.querySelector('time.outside-message')).toHaveAttribute(
+      'datetime',
+      '2019-04-03T14:42:47.087Z',
+    );
+  });
+
+  it('should throw outside a MessageProvider without a message prop', () => {
+    vi.spyOn(console, 'error').mockImplementation(() => undefined);
+    expect(() =>
+      render(
+        <Chat client={getTestClient()}>
+          <MessageTimestamp />
+        </Chat>,
+      ),
+    ).toThrow(/MessageTimestamp was called outside of MessageProvider/);
+    vi.mocked(console.error).mockRestore();
+  });
+
   it('should render message with a custom css class when one is set', async () => {
     const customClass = 'custom-css-class';
     const { container } = await renderComponent({ props: { customClass } });

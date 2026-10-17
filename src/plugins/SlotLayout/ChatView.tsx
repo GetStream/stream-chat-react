@@ -69,6 +69,7 @@ import type {
 } from './slotBinding';
 import { getLayoutViewState } from './hooks';
 import { requireContext } from '../../context/requireContext';
+import { ThemeScopeProvider } from '../../context/ThemeScopeContext';
 
 // Re-export the binding primitives + renderer types from their leaf modules so
 // existing `stream-chat-react` imports keep resolving through ChatView.
@@ -460,9 +461,11 @@ export const ChatView = ({
                     view content (context menus, member actions, …) portal here and inherit the
                     `.str-chat`-scoped dialog CSS. Nested managers (e.g. MessageList's) still win
                     where present. */}
-                <DialogManagerProvider id={dialogManagerId}>
-                  {content}
-                </DialogManagerProvider>
+                <ThemeScopeProvider>
+                  <DialogManagerProvider id={dialogManagerId}>
+                    {content}
+                  </DialogManagerProvider>
+                </ThemeScopeProvider>
                 {channelSlots.map(({ bindingKey, channel, slot }) => (
                   <SupersededChannelSwap
                     bindingKey={bindingKey}

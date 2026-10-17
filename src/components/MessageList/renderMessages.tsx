@@ -14,7 +14,6 @@ import type {
   UserResponse,
 } from 'stream-chat';
 import type { ComponentContextValue, CustomClasses } from '../../context';
-// import type { ChannelUnreadUiState } from '../../types';
 
 export interface RenderMessagesOptions {
   channel: Channel;

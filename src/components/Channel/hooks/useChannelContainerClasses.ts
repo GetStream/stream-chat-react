@@ -8,9 +8,6 @@ export const useImageFlagEmojisOnWindowsClass = () => {
     : '';
 };
 
-export const getChatContainerClass = (customClass?: string) =>
-  customClass ?? 'str-chat__container';
-
 export const useChannelContainerClasses = ({
   customClasses,
 }: Pick<ChatContextValue, 'customClasses'>) => {
@@ -18,7 +15,6 @@ export const useChannelContainerClasses = ({
   return {
     channelClass: customClasses?.channel ?? 'str-chat__channel',
     chatClass: customClasses?.chat ?? 'str-chat',
-    chatContainerClass: getChatContainerClass(customClasses?.chatContainer),
     windowsEmojiClass,
   };
 };

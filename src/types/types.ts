@@ -31,8 +31,6 @@ export interface IconProps {
 
 export type Dimensions = { height?: string; width?: string };
 
-// export type ChannelUnreadUiState = Omit<ValuesType<StreamChannelState['read']>, 'user'>;
-
 export type Readable<T> = {
   [key in keyof T]: T[key];
 } & {};

@@ -38,7 +38,7 @@ function UnMemoizedMessageRepliesCountButton(props: MessageRepliesCountButtonPro
     thread_participants: threadParticipantsFromProps = [],
   } = props;
   // reply counts also render outside a message, from props alone
-  const { message: contextMessage } = useContext(MessageContext) ?? {};
+  const { handleOpenThread, message: contextMessage } = useContext(MessageContext) ?? {};
   const channel = useChannel();
   const { openThread } = useWorkspaceNavigation();
   const replyMetadataSelector = useMemo(
@@ -75,9 +75,15 @@ function UnMemoizedMessageRepliesCountButton(props: MessageRepliesCountButtonPro
       }
 
       if (!contextMessage) return;
+      // The message's own handler honors a `Message.openThread` override before falling back to
+      // workspace navigation.
+      if (handleOpenThread) {
+        handleOpenThread(event);
+        return;
+      }
       void openThread({ channel, message: contextMessage });
     },
-    [channel, contextMessage, onClick, openThread],
+    [channel, contextMessage, handleOpenThread, onClick, openThread],
   );
 
   if (!replyCount) return null;

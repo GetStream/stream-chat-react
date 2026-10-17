@@ -16,8 +16,8 @@ import {
   useComponentContextIcons,
   useModalContext,
   useTranslationContext,
+  useWorkspaceNavigation,
 } from '../../../../context';
-import { useChatViewNavigation } from '../../../SlotLayout';
 import { useStableCallback } from '../../../../utils';
 import { useStateStore } from '../../../../store';
 import { Alert } from '../../../../components/Dialog';
@@ -219,7 +219,7 @@ export const useBaseChannelMemberActionSetFilter = (
 
 const SendDirectMessageAction = () => {
   const { channelManager, client } = useChatContext();
-  const { open } = useChatViewNavigation();
+  const { openChannel } = useWorkspaceNavigation();
   const { close } = useModalContext();
   const { channel } = useChannelDetailContext();
   const { addNotification } = useNotificationApi();
@@ -240,13 +240,10 @@ const SendDirectMessageAction = () => {
       });
       // the stored instance, if another one took the DM's cid while the watch was in flight
       const dm = await directMessageChannel.ensureWatched();
-      // Selection is one navigation model: open the DM into a layout slot, then route it into
+      // Selection is one navigation model: open the DM in the workspace (a layout slot inside
+      // `ChatView`, or whatever a custom `WorkspaceNavigationProvider` does), then route it into
       // the channel list(s) that should own it so it appears without a full re-query.
-      open({
-        key: dm.cid ?? undefined,
-        kind: 'channel',
-        source: dm,
-      });
+      openChannel(dm);
       channelManager.ingestChannel(dm);
       close();
     } catch (error) {
@@ -271,7 +268,7 @@ const SendDirectMessageAction = () => {
     close,
     channelManager,
     isSending,
-    open,
+    openChannel,
     t,
     targetUserId,
   ]);

@@ -1,6 +1,7 @@
 import {
   type Attachment,
   convertTimestampToDate,
+  formatMessage,
   isImageAttachment,
   isVideoAttachment,
   type LocalMessage,
@@ -47,6 +48,8 @@ export const toChannelMediaItems = (
   const items: ChannelMediaItem[] = [];
 
   messages.forEach((message) => {
+    // the gallery header hands it to a `MessageTimestamp` override, which takes a `LocalMessage`
+    let localMessage: LocalMessage | undefined;
     message.attachments?.forEach((attachment, index) => {
       const type = getMediaAttachmentType(attachment);
       if (!type) return;
@@ -70,6 +73,7 @@ export const toChannelMediaItems = (
           ...descriptor,
           // the gallery header reads sender and timestamp off the item
           createdAt: convertTimestampToDate(message.created_at),
+          message: (localMessage ??= formatMessage(message)),
           user: message.user ?? undefined,
         },
         id: `${message.id}-${index}`,
