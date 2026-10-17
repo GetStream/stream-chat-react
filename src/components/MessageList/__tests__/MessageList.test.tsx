@@ -286,6 +286,9 @@ describe('MessageList', () => {
           internalInfiniteScrollProps: { loadNextDebounceMs: 0 },
         },
       });
+      act(() => {
+        channel.messagePaginator.state.partialNext({ hasMoreTail: true });
+      });
       const scroller = await screen.findByTestId('reverse-infinite-scroll');
       Object.defineProperty(scroller, 'offsetParent', {
         configurable: true,
@@ -330,6 +333,35 @@ describe('MessageList', () => {
       await act(() => {
         pageDeferred.resolve();
       });
+    });
+
+    it('does not request an older page while another load is in flight', async () => {
+      const toTail = vi.spyOn(channel.messagePaginator, 'toTail');
+      const { container } = renderComponent({
+        channelProps: { channel },
+        chatClient,
+        msgListProps: { internalInfiniteScrollProps: { loadNextDebounceMs: 0 } },
+      });
+      const scroller = await screen.findByTestId('reverse-infinite-scroll');
+      Object.defineProperty(scroller, 'offsetParent', {
+        configurable: true,
+        get: () => document.body,
+      });
+      act(() => {
+        // e.g. a jump to a message, or the newer page `scrollToBottom` asked for
+        channel.messagePaginator.state.partialNext({
+          hasMoreTail: true,
+          isLoading: true,
+        });
+      });
+
+      fireEvent.scroll(scroller);
+      await new Promise((resolve) => setTimeout(resolve, 10));
+
+      expect(toTail).not.toHaveBeenCalled();
+      expect(
+        container.querySelector('.str-chat__list__loading .str-chat__loading-indicator'),
+      ).not.toBeInTheDocument();
     });
 
     it('does not show the loading indicator while a newer page loads', async () => {

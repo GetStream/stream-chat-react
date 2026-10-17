@@ -6,6 +6,7 @@ import { ChannelPaginator } from 'stream-chat';
 
 import { Chat } from '../../Chat';
 import { ChannelList } from '../ChannelList';
+import { ThemeScopeProvider } from '../../../context/ThemeScopeContext';
 import { getTestClientWithUser } from '../../../mock-builders';
 
 const setupClient = async () => {
@@ -27,6 +28,34 @@ const renderList = (client: StreamChat, paginator: ChannelPaginator) => {
 
 describe('ChannelList', () => {
   afterEach(cleanup);
+
+  it('brings a layout-neutral theme scope when rendered on its own', async () => {
+    const { client } = await setupClient();
+    const paginator = new ChannelPaginator({ client, id: 'channels:a' });
+    paginator.setItems({ isLastPage: true, valueOrFactory: [] });
+
+    const { container } = renderList(client, paginator);
+
+    const scope = container.firstElementChild;
+    expect(scope).toHaveClass('str-chat', 'messaging', 'light', 'str-chat__theme-scope');
+  });
+
+  it('adds no theme scope inside an existing one', async () => {
+    const { client } = await setupClient();
+    const paginator = new ChannelPaginator({ client, id: 'channels:a' });
+    paginator.setItems({ isLastPage: true, valueOrFactory: [] });
+    client.channelManager.insertPaginator({ paginator });
+
+    const { container } = render(
+      <Chat client={client}>
+        <ThemeScopeProvider>
+          <ChannelList paginator={paginator} />
+        </ThemeScopeProvider>
+      </Chat>,
+    );
+
+    expect(container.querySelector('.str-chat')).not.toBeInTheDocument();
+  });
 
   it('queries the first page of a list that has never been queried', async () => {
     const { client, queryChannels } = await setupClient();
