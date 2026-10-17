@@ -1061,6 +1061,11 @@ const diffMarkdown = (result: Diff, base: Dump) => {
 
 const escapeRe = (text: string) => text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
+// Whole-word match for package and entry-point names, which contain `-`, `/`, `@` and `.`:
+// `stream-chat` must not match inside `stream-chat-react`, but `stream-chat@10` still counts.
+const packageMention = (name: string) =>
+  new RegExp(`(^|[^A-Za-z0-9_@/.-])${escapeRe(name)}([^A-Za-z0-9_/-]|$)`);
+
 const check = (doc: string, result: Diff) => {
   const sections = doc.split(/^#{2,4} /m);
   const mentions = (name: string) =>
@@ -1084,9 +1089,34 @@ const check = (doc: string, result: Diff) => {
       missing.push(`${c.change} ${c.symbol}.${c.member}`);
     }
   }
+  // A moved export breaks imports from its old entry point: the doc must name it next to the
+  // entry point it moved to.
+  for (const m of result.moved) {
+    const nameRe = mentions(m.name);
+    // the doc writes the entry point as an import specifier: `stream-chat-react/slot-layout`
+    const target =
+      m.to === '.'
+        ? undefined
+        : packageMention(`stream-chat-react/${m.to.replace(/^\.\//, '')}`);
+    if (
+      !sections.some(
+        (section) => nameRe.test(section) && (!target || target.test(section)),
+      )
+    ) {
+      missing.push(`moved export ${m.name}: ${m.from} -> ${m.to}`);
+    }
+  }
   for (const p of result.package.filter((pkg) => pkg.change !== 'added')) {
-    const key = p.key.split(':').slice(1).join(':');
-    if (!doc.includes(key)) missing.push(`package ${p.change} ${p.key}`);
+    const nameRe = packageMention(p.key.split(':').slice(1).join(':'));
+    // package names such as `react` or `stream-chat` appear all over a migration doc, so a
+    // changed range must be stated next to the name, not just the name somewhere
+    const covered =
+      p.change === 'changed' && typeof p.new === 'string'
+        ? sections.some(
+            (section) => nameRe.test(section) && section.includes(p.new as string),
+          )
+        : nameRe.test(doc);
+    if (!covered) missing.push(`package ${p.change} ${p.key}`);
   }
   return missing;
 };
