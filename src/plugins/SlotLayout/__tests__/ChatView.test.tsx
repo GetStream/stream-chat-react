@@ -11,6 +11,7 @@ import {
 import { ChatView } from '../ChatView';
 import { LayoutController } from '../layoutController/LayoutController';
 import { createChatViewSlotBinding } from '../slotBinding';
+import { useIsInThemeScope } from '../../../context/ThemeScopeContext';
 
 const renderSelector = async (selectorProps?: any) => {
   const client = await getTestClientWithUser();
@@ -62,6 +63,40 @@ const renderSelectorWithPanels = async (selectorProps?: any) => {
     </ChatProvider>,
   );
 };
+
+describe('ChatView theme scope', () => {
+  afterEach(cleanup);
+
+  it('tells its content it already renders inside the str-chat theme scope', async () => {
+    const client = await getTestClientWithUser();
+    const ThemeScopeProbe = () => (
+      <div data-in-theme-scope={String(useIsInThemeScope())} data-testid='probe' />
+    );
+
+    render(
+      <ChatProvider
+        value={{
+          client,
+          getAppSettings: vi.fn(),
+          mutes: [],
+          searchController: fromPartial({}),
+          theme: 'messaging light',
+          useImageFlagEmojisOnWindows: false,
+        }}
+      >
+        <TranslationProvider value={mockTranslationContextValue()}>
+          <ChatView>
+            <ThemeScopeProbe />
+          </ChatView>
+        </TranslationProvider>
+      </ChatProvider>,
+    );
+
+    const probe = screen.getByTestId('probe');
+    expect(probe).toHaveAttribute('data-in-theme-scope', 'true');
+    expect(probe.closest('.str-chat')).toHaveClass('str-chat__chat-view');
+  });
+});
 
 describe('ChatView.Selector', () => {
   afterEach(() => {

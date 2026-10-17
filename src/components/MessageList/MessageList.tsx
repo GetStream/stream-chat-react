@@ -231,7 +231,16 @@ const MessageListWithContext = (props: MessageListWithContextProps) => {
   const canPaginateReplies = useCanPaginateReplies();
 
   const loadOlderMessages = React.useCallback(async () => {
-    if (loadingOlderRef.current) return;
+    // The paginator's own gate for a tailward page. Checked here too so that `isLoadingOlder`, which
+    // shows the older-page indicator, is never raised while another load (a jump, a newer page)
+    // holds `isLoading` and `toTail()` would not query.
+    if (
+      loadingOlderRef.current ||
+      messagePaginator.isLoading ||
+      !messagePaginator.hasMoreTail
+    ) {
+      return;
+    }
     loadingOlderRef.current = true;
     setIsLoadingOlder(true);
     try {

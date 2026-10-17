@@ -9,6 +9,7 @@ import { LoadingChannels, LoadingIndicator } from '../Loading';
 import { useChatContext } from '../../context/ChatContext';
 import { useComponentContext } from '../../context/ComponentContext';
 import { useTranslationContext } from '../../context/TranslationContext';
+import { ThemeScope } from '../../context/ThemeScopeContext';
 import { useChannelListKeyboardNavigation } from './hooks/useChannelListKeyboardNavigation';
 import { useStateStore } from '../../store';
 
@@ -82,24 +83,28 @@ export const ChannelList = ({
     });
   }, [client, lastQueryError]);
 
+  // Rendered on its own (no `ChannelNavigation` or `ChatView` above it), the list brings the theme
+  // scope with it.
   return (
-    <InfiniteScrollWithComponents<Channel>
-      aria-label={t('channelList.channelList.ariaLabel', 'Channel list')}
-      contentProps={{ role: 'presentation' }}
-      EmptyListIndicator={EmptyListIndicator}
-      EndReachedIndicator={EndReachedIndicator}
-      FirstPageLoadingIndicator={FirstPageLoadingIndicator}
-      ListItem={ListItem as ComponentType<{ item: Channel }>}
-      LoadingNextPageIndicator={LoadingNextPageIndicator}
-      loadNextDebounceMs={loadMoreDebounceMs}
-      loadNextOnScrollToBottom={paginator.toTail}
-      onClickCapture={onClickCapture}
-      onKeyDown={onKeyDown}
-      paginator={paginator}
-      ref={listboxRef}
-      role='listbox'
-      threshold={loadMoreThresholdPx}
-    />
+    <ThemeScope>
+      <InfiniteScrollWithComponents<Channel>
+        aria-label={t('channelList.channelList.ariaLabel', 'Channel list')}
+        contentProps={{ role: 'presentation' }}
+        EmptyListIndicator={EmptyListIndicator}
+        EndReachedIndicator={EndReachedIndicator}
+        FirstPageLoadingIndicator={FirstPageLoadingIndicator}
+        ListItem={ListItem as ComponentType<{ item: Channel }>}
+        LoadingNextPageIndicator={LoadingNextPageIndicator}
+        loadNextDebounceMs={loadMoreDebounceMs}
+        loadNextOnScrollToBottom={paginator.toTail}
+        onClickCapture={onClickCapture}
+        onKeyDown={onKeyDown}
+        paginator={paginator}
+        ref={listboxRef}
+        role='listbox'
+        threshold={loadMoreThresholdPx}
+      />
+    </ThemeScope>
   );
 };
 

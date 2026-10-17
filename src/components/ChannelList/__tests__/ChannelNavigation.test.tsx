@@ -6,6 +6,7 @@ import type { StreamChat } from 'stream-chat';
 import { Chat } from '../../Chat';
 import type { ChatProps } from '../../Chat';
 import { ChannelNavigation } from '../ChannelNavigation';
+import { ThemeScopeProvider } from '../../../context/ThemeScopeContext';
 import { getTestClientWithUser } from '../../../mock-builders';
 import { axe } from '../../../../axe-helper';
 
@@ -55,6 +56,25 @@ describe('ChannelNavigation', () => {
     expect(root).toHaveClass('custom-chat', 'custom-channel-list');
     expect(root).not.toHaveClass('str-chat');
     expect(root).not.toHaveClass('str-chat__channel-list');
+  });
+
+  it('inherits an enclosing theme scope (e.g. ChatView) instead of nesting one', async () => {
+    // `.str-chat` declares the whole token set: a nested one would reset tokens an app overrides
+    // on the ChatView root, and pick up app CSS written for `.str-chat` roots.
+    const client = await setupClient();
+
+    const { container } = render(
+      <Chat client={client} customClasses={{ channelList: 'custom-channel-list' }}>
+        <ThemeScopeProvider>
+          <ChannelNavigation />
+        </ThemeScopeProvider>
+      </Chat>,
+    );
+
+    const root = container.firstElementChild;
+    expect(root).toHaveClass('custom-channel-list');
+    expect(root).not.toHaveClass('str-chat');
+    expect(container.querySelector('.str-chat')).not.toBeInTheDocument();
   });
 
   it('has no axe violations', async () => {
