@@ -11,6 +11,8 @@ Three breaking changes, all in v15:
    members were removed or changed shape, and two timestamp edge cases render differently — see
    [The shared runtime](#the-shared-runtime).
 
+Links to this repository point at `master` (`ai-docs/` is not in the npm package); re-pin them to the release tag at the stable v15 release.
+
 Together these cut ~112 KB gzip (27%) from the bundle: the 11 dictionaries were statically
 imported and copied into `Streami18n` at construction, so they shipped even if you never set
 `language`.
@@ -35,7 +37,7 @@ imported and copied into `Streami18n` at construction, so they shipped even if y
 ## Renaming your keys
 
 Every old key maps to exactly one new key. The full table (621 rows, including the 18 `aiComponents.*` keys of `stream-chat-react/ai-components`) is
-[`i18n-v15-key-map.json`](./i18n-v15-key-map.json):
+[`i18n-v15-key-map.json`](https://github.com/GetStream/stream-chat-react/blob/master/ai-docs/i18n-v15-key-map.json):
 
 ```json
 {
@@ -137,7 +139,7 @@ nothing catches a stale one there. The extra plural categories some languages us
   outright. Four of them do carry English day words; those are handled by overriding the key, see
   [Date and time](#date-and-time). Pass `--all` for the complete 633-key catalog.
 
-  `ai-docs/i18n-v15-key-map.json` also lists every key, alongside the v14 string it replaced.
+  [`ai-docs/i18n-v15-key-map.json`](https://github.com/GetStream/stream-chat-react/blob/master/ai-docs/i18n-v15-key-map.json) also lists every key, alongside the v14 string it replaced.
 
 Keys are namespaced after the source tree, so they are predictable from the component:
 `message.*`, `messageComposer.*`, `poll.*`, `channelList.*`, with genuinely shared copy under
@@ -469,7 +471,7 @@ find . -maxdepth 4 -name dayjs -type d -path '*node_modules*'   # expect exactly
 > interpolation bag is untyped, so a raw wire number compiles and renders the literal text
 > `Invalid Date`. `getDateString`'s `messageCreatedAt` _is_ typed (`string | Date`). If a timestamp is
 > rendering wrong or blank, check the conversion first; see
-> [Dates on response types are unix-nanosecond numbers](./ai-migration-v14-v15.md#dates-on-response-types-are-unix-nanosecond-numbers).
+> [Dates on response types are unix-nanosecond numbers](https://github.com/GetStream/stream-chat-react/blob/master/ai-docs/ai-migration-v14-v15.md#16-dates-on-response-types-are-unix-nanosecond-numbers).
 
 Only the `en` dayjs locale is bundled, and the per-language `calendar` formats the SDK used to ship
 are gone. For any other language, import the locale and supply the calendar config:
