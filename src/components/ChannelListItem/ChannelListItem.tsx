@@ -45,7 +45,7 @@ export type ChannelListItemUIProps = ChannelListItemProps & {
 };
 
 export type ChannelListItemProps = {
-  /** Comes from either the `channelRenderFilterFn` or `usePaginatedChannels` call from [ChannelList](https://github.com/GetStream/stream-chat-react/blob/master/src/components/ChannelList/ChannelList.tsx) */
+  /** The channel to preview: one of the items of the `ChannelPaginator` that [ChannelList](https://github.com/GetStream/stream-chat-react/blob/master/src/components/ChannelList/ChannelList.tsx) renders, or any channel when used on its own (e.g. in search results) */
   channel: Channel;
   /** If the component's channel is the active (selected) Channel */
   active?: boolean;
