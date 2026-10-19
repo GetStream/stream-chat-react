@@ -657,6 +657,9 @@ type Diff = {
   }[];
 };
 
+// default values that leave a feature off, so removing the prop changes nothing at runtime
+const OFF_DEFAULTS = new Set(['false', 'undefined', 'null', '0', "''", '""', '[]', '{}']);
+
 const kindOf = (record: ExportRecord) =>
   [record.valueSide?.kind, record.typeSide?.kind].filter(Boolean).join('+');
 
@@ -850,6 +853,21 @@ const diff = (base: Dump, head: Dump): Diff => {
       }
       for (const [prop, value] of Object.entries(baseValue.defaults ?? {})) {
         const nextValue = headValue.defaults?.[prop];
+        const wasPublic = (baseValue.members ?? []).some((m) => m.name === prop);
+        const isGone = !(headValue.members ?? []).some((m) => m.name === prop);
+        // A removed prop that defaulted to "on" takes its behavior with it, even for apps that
+        // never passed it (v14 `ChannelList.setActiveChannelOnMount = true`), and nothing fails
+        // to compile. Gate it so the doc has to say what happens now.
+        if (wasPublic && isGone && !OFF_DEFAULTS.has(value)) {
+          result.changes.push({
+            change: 'removed-default-behavior',
+            detail: `v14 default ${value}`,
+            gated: true,
+            member: prop,
+            symbol,
+          });
+          continue;
+        }
         if (
           nextValue !== value &&
           (headValue.members ?? []).some((m) => m.name === prop)
@@ -1081,6 +1099,19 @@ const check = (doc: string, result: Diff) => {
       continue;
     }
     const memberRe = mentions(c.member as string);
+    if (c.change === 'removed-default-behavior') {
+      // naming the removed prop is not enough: the same bullet or table row has to say that its
+      // default behavior is gone, inside a section about the component
+      const explained = sections.some(
+        (section) =>
+          symbolRe.test(section) &&
+          section
+            .split('\n')
+            .some((line) => memberRe.test(line) && /\bdefault/i.test(line)),
+      );
+      if (!explained) missing.push(`${c.change} ${c.symbol}.${c.member} (${c.detail})`);
+      continue;
+    }
     const dotted = doc.includes(`${c.symbol}.${c.member}`);
     if (
       !dotted &&
