@@ -1,3 +1,37 @@
+## [15.0.0-rc.2](https://github.com/GetStream/stream-chat-react/compare/v15.0.0-rc.1...v15.0.0-rc.2) (2026-10-19)
+
+### ⚠ BREAKING CHANGES
+
+* the `options` prop of `useCreateChatClient` is renamed to
+`config`, and its type changes from `StreamChatOptions` to the `stream-chat`
+configuration tree (`DeepPartial<InstanceConfigTree>`). Options that were
+passed at the top level now go under the `client` key, for example
+`options={{ baseURL, axiosRequestConfig }}` becomes
+`config={{ client: { baseURL, axiosRequestConfig } }}`. Requires a
+* requires stream-chat 10.0.0-rc.20 or later; client.activeChannels, client.getChannelById() and client.getChannelByMembers() are gone, use client.channelManager.get(cid), values() and client.channel() / client.channelManager.ensure({ type, id, data }); the thread list is client.threads.paginator, and threads come from client.threads.ensure() / get().
+* getChannel() is removed; get the channel from client.channelManager.ensure() and call channel.ensureWatched(options).
+* channel search results, and the channels message search fetches for its results, are no longer watched; a custom search result component watches the channel when it is opened (channel.ensureWatched(), or jumpToMessage(id, { watchChannel: true }) for a message).
+
+### Bug Fixes
+
+* **Attachment:** render giphy attachments in their own group with uni… ([#3322](https://github.com/GetStream/stream-chat-react/issues/3322)) ([08b8c0e](https://github.com/GetStream/stream-chat-react/commit/08b8c0ea75a20d19b0d66042bb521e3b6f463567)), closes [#2934](https://github.com/GetStream/stream-chat-react/issues/2934)
+* **Attachment:** render giphy attachments in their own group with unique keys ([8967e37](https://github.com/GetStream/stream-chat-react/commit/8967e37bc8ef1224ffa4d31239de4e6bf02d9803))
+* **MessageList:** restore the older-page anchor on iOS WebKit ([#3316](https://github.com/GetStream/stream-chat-react/issues/3316)) ([e3247e1](https://github.com/GetStream/stream-chat-react/commit/e3247e10ac97a49c509c41da0af23b5b21acff22))
+* **Poll:** port the poll vote debounce removal ([#3308](https://github.com/GetStream/stream-chat-react/issues/3308)) to v15 ([#3309](https://github.com/GetStream/stream-chat-react/issues/3309)) ([1af035e](https://github.com/GetStream/stream-chat-react/commit/1af035eaf14f1579a3179ed551baff576f6bc3f7)), closes [#1904](https://github.com/GetStream/stream-chat-react/issues/1904)
+* **store:** provide getServerSnapshot to useStateStore so server rendering works ([0ccf60d](https://github.com/GetStream/stream-chat-react/commit/0ccf60db7011866068a5ae2ab025f529a1ec2581))
+* **VirtualizedMessageList:** keep the last message fully visible in short lists ([#3318](https://github.com/GetStream/stream-chat-react/issues/3318)) ([ef5c384](https://github.com/GetStream/stream-chat-react/commit/ef5c384dd2d3fa0641744fb4168e4459a79bc3f9))
+
+### Features
+
+* **ai-components:** add stream-chat-react/ai-components entry point ([50fe88e](https://github.com/GetStream/stream-chat-react/commit/50fe88e27a80a9db805fe747d6d0a9e1b776afe6))
+* **ai-components:** port the ai-components entry point ([#3314](https://github.com/GetStream/stream-chat-react/issues/3314)) to v15 ([#3315](https://github.com/GetStream/stream-chat-react/issues/3315)) ([9d1eacb](https://github.com/GetStream/stream-chat-react/commit/9d1eacbd288865898647ef92c24052608b1444a2))
+* pass the stream-chat configuration tree through useCreateChatClient ([#3321](https://github.com/GetStream/stream-chat-react/issues/3321)) ([557ffcb](https://github.com/GetStream/stream-chat-react/commit/557ffcb3cface45aa152474238c85aefbd0eff53)), closes [GetStream/stream-chat-js#1911](https://github.com/GetStream/stream-chat-js/issues/1911)
+* replace StreamChat.activeChannels with entity item index for loaded channels ([#3310](https://github.com/GetStream/stream-chat-react/issues/3310)) ([a41eed5](https://github.com/GetStream/stream-chat-react/commit/a41eed56fb5d471474768a3e989e50bbd9ba62c0))
+
+### Refactors
+
+* **MessageList:** render thread messages from the thread unread snapshot ([#3324](https://github.com/GetStream/stream-chat-react/issues/3324)) ([ec6ce33](https://github.com/GetStream/stream-chat-react/commit/ec6ce3397b1e9af006ade622e138bc3cb4e4c007))
+
 ## [15.0.0-rc.1](https://github.com/GetStream/stream-chat-react/compare/v14.12.0...v15.0.0-rc.1) (2026-09-29)
 
 ### ⚠ BREAKING CHANGES
