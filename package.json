@@ -272,6 +272,7 @@
   },
   "packageManager": "yarn@4.15.0",
   "workspaces": [
-    "examples/*"
+    "examples/*",
+    "perf/*"
   ]
 }

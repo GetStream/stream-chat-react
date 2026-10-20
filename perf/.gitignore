@@ -1,0 +1,2 @@
+# Build output of the host's profiling mode (dist/ is ignored at the repo root).
+dist-profiling/
