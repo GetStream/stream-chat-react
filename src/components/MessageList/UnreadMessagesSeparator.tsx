@@ -11,13 +11,9 @@ import { useMessagePaginator } from '../../hooks';
 export const UNREAD_MESSAGE_SEPARATOR_CLASS = 'str-chat__unread-messages-separator';
 
 export type UnreadMessagesSeparatorProps = {
-  /**
-   * Configuration parameter to determine, whether the unread count is to be shown on the component. Enabled by default.
-   */
+  /** Whether to show the unread count. Defaults to `true`. */
   showCount?: boolean;
-  /**
-   * The count of unread messages to be displayed if enabled.
-   */
+  /** Unread count shown when `showCount` is enabled. */
   unreadCount?: number;
 };
 

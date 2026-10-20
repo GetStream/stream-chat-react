@@ -18,7 +18,7 @@ describe('AvatarWithChannelDetail', () => {
 
   beforeEach(async () => {
     client = await getTestClientWithUser({ id: 'alice' });
-    // created locally, e.g. by a "new conversation" flow: the server doesn't have it yet
+    // Created locally (e.g. a "new conversation" flow), so the server does not have it yet.
     channel = client.channelManager.ensure({ id: 'local', type: 'messaging' });
   });
 

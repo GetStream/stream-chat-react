@@ -37,10 +37,8 @@ export const useReactionHandler = (message?: LocalMessage) => {
 
   const createMessagePreview = useCallback(
     (add: boolean, reaction: ReactionResponse, message: LocalMessage): LocalMessage => {
-      // Copied, not aliased. The assignments and `delete` below used to write straight into the
-      // message's own `reaction_groups`, so the optimistic message and the one it was derived from
-      // shared that object — and no comparator, identity or deep, could see a reaction-group
-      // change. `areMessagesEqual` compares it by reference.
+      // Copy the groups before the writes below: mutating the original's object would hide the
+      // change from `areMessagesEqual`, which compares `reaction_groups` by reference.
       const newReactionGroups = { ...(message?.reaction_groups ?? {}) };
       const reactionType = reaction.type;
       const hasReaction = !!newReactionGroups[reactionType];
@@ -103,8 +101,7 @@ export const useReactionHandler = (message?: LocalMessage) => {
   const toggleReaction = throttle(async (id: string, type: string, add: boolean) => {
     if (!message) return;
 
-    // Native emoji (e.g. "👍") for this reaction type, sent as `emoji_code` so
-    // push notifications in mobile SDKs can render the emoji.
+    // The native emoji, sent as `emoji_code` so push notifications in mobile SDKs can render it.
     const emojiCode = getEmojiCodeByReactionType(reactionOptions, type);
     const newReaction = createReactionPreview(type, emojiCode) as ReactionResponse;
     const tempMessage = createMessagePreview(add, newReaction, message);
@@ -123,10 +120,10 @@ export const useReactionHandler = (message?: LocalMessage) => {
           )
         : await client.deleteReaction({ id, type });
 
-      // seems useless as we're expecting WS event to come in and replace this anyway
+      // A WebSocket event is expected to replace this message anyway.
       updateMessage(messageResponse.message);
     } catch (error) {
-      // revert to the original message if the API call fails
+      // Roll back the optimistic update.
       updateMessage(message);
     }
   }, 1000);
@@ -144,8 +141,8 @@ export const useReactionHandler = (message?: LocalMessage) => {
 
     if (message.own_reactions) {
       message.own_reactions.forEach((reaction) => {
-        // own user should only ever contain the current user id
-        // just in case we check to prevent bugs with message updates from breaking reactions
+        // `own_reactions` should only hold the current user's reactions; the check guards
+        // against a bad message update breaking reactions.
         if (
           reaction.user &&
           client.userID === reaction.user.id &&

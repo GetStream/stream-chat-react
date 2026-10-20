@@ -73,9 +73,7 @@ describe('NotificationTranslationTopic', () => {
       }),
     });
 
-    // An identifier no translator claims renders `notification.message` verbatim. It used to be run
-    // through a hand-maintained table of English sentences mapped onto keys; identifiers are the seam
-    // now, so prose matching would only mask a missing translator entry.
+    // A type no translator claims renders `notification.message` verbatim.
     expect(output).toBe('File is required for upload attachment');
     expect(i18next.t).not.toHaveBeenCalled();
   });
@@ -95,15 +93,11 @@ describe('NotificationTranslationTopic', () => {
       }),
     });
 
-    // Rendered verbatim, placeholder included. Interpolating into prose would require treating the
-    // sentence as a key, which is exactly what the identifier seam replaced.
+    // Rendered verbatim, placeholder included: the message is never treated as a key.
     expect(output).toBe('Attachment upload failed due to {{reason}}');
     expect(i18next.t).not.toHaveBeenCalled();
   });
 
-  // `api:reply:search:failed` and `channel:jumpToFirstUnread:failed` were removed from the registry:
-  // both were copied between the two UI SDKs and neither is emitted by this one. The registry is now
-  // exhaustiveness-checked against `CoreNotificationType`, so a core identifier cannot go missing.
   it.each([
     [
       'api:location:create:failed',
@@ -157,7 +151,7 @@ describe('NotificationTranslationTopic', () => {
     });
 
     expect(output).toBe(`translated:${key}`);
-    // The English copy travels with the call as i18next's inline defaultValue.
+    // The English copy is passed as i18next's inline defaultValue.
     expect(i18next.t).toHaveBeenCalledWith(key, copy);
   });
 

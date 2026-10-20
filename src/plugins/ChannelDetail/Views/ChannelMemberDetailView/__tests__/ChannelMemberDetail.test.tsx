@@ -73,8 +73,8 @@ const otherMember = fromPartial<ChannelMemberResponse>({
 
 describe('ChannelMemberDetail', () => {
   beforeEach(() => {
-    // The context module is auto-mocked, so the icon hook would return undefined; hand back
-    // the real icons rather than stubs, so assertions still describe what users see.
+    // The context module is auto-mocked, so the icon hook would return undefined; hand back the
+    // real icons so assertions still describe what users see.
     vi.mocked(useComponentContextIcons).mockReturnValue(DEFAULT_ICONS);
     vi.clearAllMocks();
 

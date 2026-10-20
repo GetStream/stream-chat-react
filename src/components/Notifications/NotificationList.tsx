@@ -13,69 +13,55 @@ export type NotificationListFilter = (notification: Notification) => boolean;
 export type NotificationListEnterFrom = 'bottom' | 'left' | 'right' | 'top';
 export type NotificationListVerticalAlignment = 'bottom' | 'top';
 /**
- * Selects the candidate notification to display. Receives the current store contents and
- * the currently displayed notification (or `null` when nothing is mounted). Returning
- * `displayed` (or any notification with the same id) means "no swap"; returning a
- * different notification triggers a swap (immediate or after `minDisplayMs`, see the
- * scheduling effect); returning `null` triggers the empty-slot exit.
- *
- * Default: `createDefaultPickNext(pickOldest)` — applies persistent-wins,
- * same-type-refresh and FIFO queue rules from the design spec. Pass
- * `pickNext={createDefaultPickNext(pickNewest)}` to swap FIFO for LIFO without
- * reimplementing those rules, or your own `pickNext` to opt out entirely.
+ * Selects the notification to display, given the store contents and the displayed notification
+ * (`null` when nothing is mounted). Returning `displayed` or a notification with the same ID keeps
+ * the current one, a different notification triggers a swap (immediate or after `minDisplayMs`),
+ * and `null` triggers the empty-slot exit.
  */
 export type PickNextNotification = (
   notifications: Notification[],
   displayed: Notification | null,
 ) => Notification | null;
 
-/**
- * Picks the next queued notification when no higher-priority rule applies (persistent
- * wins, same-type refresh). Used by `createDefaultPickNext`.
- */
+/** Queue fallback of `createDefaultPickNext`, used when none of its other rules applies. */
 export type PickFromQueue = (
   notifications: Notification[],
   displayed: Notification | null,
 ) => Notification | null;
 
 export type NotificationListProps = {
-  /** Optional class name for the list container */
+  /** Class applied to the list container. */
   className?: string;
   /**
-   * Direction from which the replacement notification enters the single visible slot.
-   * Travel distance is configured in `ENTER_TRANSLATION` below.
+   * Direction from which a replacement enters the visible slot. Defaults to `bottom`. An
+   * `entryDirection` in the notification's `metadata` or `origin.context` takes precedence.
    */
   enterFrom?: NotificationListEnterFrom;
   /**
-   * When provided, this list only shows notifications that pass the filter.
-   * Use to declare which notifications this list consumes (e.g. by origin.emitter, origin.context.channelId, or metadata).
+   * Limits the list to notifications that pass the filter, e.g. by `origin.emitter`,
+   * `origin.context` or `metadata`. System banners are always excluded.
    */
   filter?: NotificationListFilter;
   /**
-   * Minimum time in milliseconds the active notification stays visible before a queued one
-   * can replace it. Replacements scheduled while the dwell window is open wait until it has
-   * elapsed; arrivals after that window replace the active notification immediately.
-   * Same-type repeated triggers and external dismissals bypass this dwell.
-   * Defaults to 1000ms.
+   * Minimum time (ms) the active notification stays visible before a queued one replaces it.
+   * Same-type repeats and external dismissals bypass it. Defaults to 1000.
    */
   minDisplayMs?: number;
   /**
-   * Override the candidate-selection policy. The function decides which notification
-   * should be displayed given the store and the currently displayed one. Defaults to
-   * `createDefaultPickNext(pickOldest)`. Pass `createDefaultPickNext(pickNewest)` for LIFO.
+   * Overrides which notification is displayed, given the store and the displayed one. Defaults to
+   * `createDefaultPickNext(pickOldest)`; pass `createDefaultPickNext(pickNewest)` for LIFO.
    */
   pickNext?: PickNextNotification;
   /** Panel target consumed by this list. */
   panel?: NotificationTargetPanel;
-  /** Fallback panel when emitted notifications do not include origin.context.panel. */
+  /** Panel assumed for notifications that name none. Defaults to `channel`. */
   fallbackPanel?: NotificationTargetPanel;
   /** Vertical alignment of the single notification slot within its parent. Defaults to `bottom`. */
   verticalAlignment?: NotificationListVerticalAlignment;
 };
 
-// Entry motion is controlled through CSS variables so the keyframe can stay shared in SCSS.
-// Use full-size percentages on the active axis to make a replacement notification slide in
-// from outside its slot. If future tuning needs more travel, prefer `calc(100% + gap)` here.
+// Entry motion goes through CSS variables so one keyframe is shared in SCSS. Full-size percentages
+// on the active axis slide a replacement in from outside its slot.
 const ENTER_TRANSLATION: Record<NotificationListEnterFrom, { x: string; y: string }> = {
   bottom: { x: '0%', y: '100%' },
   left: { x: '-100%', y: '0%' },
@@ -109,7 +95,7 @@ const isPersistent = (notification: Notification) => !notification.duration;
 const haveSameType = (a: Notification | null, b: Notification | null) =>
   !!a?.type && !!b?.type && a.type === b.type;
 
-/** FIFO queue selector — oldest `createdAt` other than `displayed` wins. */
+/** FIFO queue selector: the oldest notification (by `createdAt`) other than `displayed`. */
 export const pickOldest: PickFromQueue = (notifications, displayed) => {
   const excludeId = displayed?.id ?? null;
   let oldest: Notification | null = null;
@@ -122,7 +108,7 @@ export const pickOldest: PickFromQueue = (notifications, displayed) => {
   return oldest;
 };
 
-/** LIFO queue selector — newest `createdAt` other than `displayed` wins. */
+/** LIFO queue selector: the newest notification (by `createdAt`) other than `displayed`. */
 export const pickNewest: PickFromQueue = (notifications, displayed) => {
   const excludeId = displayed?.id ?? null;
   let newest: Notification | null = null;
@@ -168,24 +154,18 @@ const pickNewestOfType = (
 };
 
 /**
- * Builds the default `PickNextNotification` selector with a configurable queue fallback.
- * Encodes the snackbar concurrency rules from the design spec — the scheduling effect
- * only decides *when* to swap, the returned function decides *what* to swap to.
+ * Builds the default `PickNextNotification` selector with a configurable queue fallback. The
+ * scheduling effect in `NotificationList` decides when to swap, the selector what to swap to. It
+ * returns `null` for an empty store, otherwise:
  *
- * Rules, in order of precedence:
- *   1. **Persistent wins.** Persistent variants (no `duration`) jump ahead of any
- *      queued transient because they carry an action the user must acknowledge.
- *   2. **Persistent ↛ replaced by transient.** While a persistent is displayed it stays
- *      put until dismissed externally or a *newer* persistent arrives.
- *   3. **Same-type refresh.** While a transient is displayed, a repeated trigger of the
- *      same `type` collapses to its latest occurrence. (The scheduling effect detects
- *      this via `haveSameType` and bypasses the dwell window so the refresh feels
- *      instant; this function just makes sure the latest same-type is returned.)
- *   4. **Queue fallback.** Otherwise, `pickFromQueue` selects the next notification
- *      (default: `pickOldest` / FIFO).
+ * - Nothing displayed, or the displayed one left the store: the newest persistent notification (no
+ *   `duration`), else `pickFromQueue`.
+ * - A persistent is displayed: it stays until a newer persistent arrives or it is dismissed.
+ * - A transient is displayed: the newest other notification of the same `type`, else the newest
+ *   persistent, else `pickFromQueue`, else the displayed one.
  *
- * Exported so callers that want to layer behavior on top of the design rules can wrap
- * the result instead of rewriting it.
+ * @param pickFromQueue - Queue fallback. Defaults to `pickOldest`.
+ * @returns The selector.
  */
 export const createDefaultPickNext =
   (pickFromQueue: PickFromQueue = pickOldest): PickNextNotification =>
@@ -204,8 +184,8 @@ export const createDefaultPickNext =
     }
 
     if (isPersistent(displayed)) {
-      // Currently showing a persistent: only a newer persistent can replace it. Reuse the
-      // earlier lookup when it already points at a different persistent.
+      // Only a newer persistent can replace it. Reuse the earlier lookup when it already points at
+      // a different persistent.
       const newerPersistent =
         newestPersistent && newestPersistent.id !== displayed.id
           ? newestPersistent
@@ -216,20 +196,17 @@ export const createDefaultPickNext =
       return displayed;
     }
 
-    // Currently showing a transient.
-    // 1. Same-type "refresh of current" wins immediately — a repeated trigger of the
-    //    displayed snackbar collapses to the latest occurrence of that type.
+    // A transient is displayed. A repeat of its type collapses to the latest occurrence.
     const sameTypeNewest = pickNewestOfType(notifications, displayed.type, displayed.id);
     if (sameTypeNewest) return sameTypeNewest;
 
-    // 2. Any queued persistent jumps ahead of the queue.
+    // A queued persistent jumps ahead of the queue.
     if (newestPersistent) return newestPersistent;
 
-    // 3. Queue fallback.
     return pickFromQueue(notifications, displayed) ?? displayed;
   };
 
-/** Default selector — design-spec rules with FIFO queue fallback (`pickOldest`). */
+/** Default selector: the rules of `createDefaultPickNext` with a FIFO queue fallback. */
 const defaultPickNext = createDefaultPickNext(pickOldest);
 
 export const NotificationList = ({
@@ -246,15 +223,12 @@ export const NotificationList = ({
     useComponentContext();
   const { t } = useTranslationContext();
   const { ensureNotificationTimeout, removeNotification } = useNotificationApi();
-  // Holds the timer that runs the exit animation. Set when we flip `transitionState` to
-  // `'exit'`; when it fires, the previously displayed notification is removed and either the
-  // next candidate is mounted (entering) or the list collapses to empty. Only one exit
-  // animation can be in flight at a time.
+  // Timer of the exit animation, set when `transitionState` flips to `'exit'`. When it fires, the
+  // next candidate mounts or the slot empties. At most one exit animation is in flight.
   const exitTimeoutRef = useRef<number | null>(null);
-  // Holds the dwell timer that defers a swap until `minDisplayMs` has elapsed since the
-  // active notification became visible. It only exists while we're waiting out the dwell
-  // window; same-type triggers, external dismissals and arrivals after the dwell window
-  // bypass it and trigger the exit animation directly.
+  // Dwell timer that defers a swap until `minDisplayMs` has passed since the active notification
+  // became visible. It exists only while waiting; same-type repeats, external dismissals and
+  // arrivals after the dwell window start the exit directly.
   const replacementTimeoutRef = useRef<number | null>(null);
   const candidateRef = useRef<Notification | null>(null);
   const displayedAtRef = useRef<number | null>(null);
@@ -293,7 +267,6 @@ export const NotificationList = ({
     }
   }, []);
 
-  // Cleanup pending timers on unmount.
   useEffect(
     () => () => {
       clearReplacementTimeout();
@@ -305,45 +278,20 @@ export const NotificationList = ({
     [clearReplacementTimeout],
   );
 
-  // Keep the freshest candidate around so swap completion can read the latest value, even
-  // when a new notification arrives mid-exit-animation.
+  // Tracks the freshest candidate so swap completion reads the latest one, even when a
+  // notification arrives mid-exit.
   useEffect(() => {
     candidateRef.current = pickNext(notifications, displayedNotification);
   }, [displayedNotification, notifications, pickNext]);
 
-  // Main scheduling effect — owns *when* swaps happen. The *what* is delegated entirely
-  // to `pickNext` (default: `createDefaultPickNext(pickOldest)`).
-  //
-  // Runs on every change to `displayedNotification`, `notifications`, `pickNext`, or
-  // `transitionState`, and decides one of four outcomes:
-  //   1. Do nothing (the right notification is already on screen, or an exit animation
-  //      is mid-flight and will re-trigger this effect when it finishes).
-  //   2. Mount the first notification (no `displayedNotification` yet).
-  //   3. Unmount the current one (`pickNext` returned `null`, the store became empty).
-  //   4. Swap the displayed one for the new candidate — either immediately or after the
-  //      `minDisplayMs` dwell window has elapsed.
-  //
-  // Timing rules applied here (independent of selection policy):
-  //   - **Dwell window.** When `pickNext` returns a different candidate, hold the active
-  //     notification on screen until at least `minDisplayMs` has passed since it became
-  //     visible. Replacements that arrive after that window swap immediately.
-  //   - **Same-type bypass.** If the candidate has the same `type` as the displayed
-  //     notification, swap immediately (no dwell) — this is the "repeated trigger
-  //     refreshes the snackbar and resets the auto-dismiss timer" behavior. The timer
-  //     reset is achieved by removing the previously displayed notification on swap
-  //     (which clears its `NotificationManager` timer) so the new one starts its own
-  //     when it next intersects the slot.
-  //   - **External-dismiss bypass.** If the displayed notification is no longer in the
-  //     store (user clicked the close button, `NotificationManager` auto-removed it,
-  //     etc.), swap immediately — we should not stall an empty slot for the dwell.
+  // Scheduling effect: decides when to swap, while `pickNext` decides what to swap to. A swap waits
+  // until the active notification has been visible for `minDisplayMs`, except for a same-type
+  // repeat and for a displayed notification that already left the store.
   useEffect(() => {
-    // An exit animation is already in flight. Once its timer fires it sets new state
-    // (either the next notification or `null`), which will re-run this effect from a
-    // clean baseline.
+    // An exit is in flight; its timer sets new state, which re-runs this effect.
     if (transitionState === 'exit') return;
 
-    // No notification is mounted yet — pick whatever the candidate logic prefers and
-    // mount it directly with an enter animation. No swap required.
+    // Nothing is mounted yet: mount the candidate directly.
     if (!displayedNotification) {
       const candidate = pickNext(notifications, null);
       if (candidate) {
@@ -356,8 +304,7 @@ export const NotificationList = ({
 
     const candidate = pickNext(notifications, displayedNotification);
 
-    // The store has been drained while a notification was visible. Play the exit
-    // animation, then unmount.
+    // No candidate (e.g. the store was drained): play the exit animation, then unmount.
     if (!candidate) {
       clearReplacementTimeout();
       setTransitionState('exit');
@@ -370,8 +317,7 @@ export const NotificationList = ({
       return;
     }
 
-    // The candidate is the displayed notification itself — nothing to do. Cancel any
-    // dwell timer that may have been queued by an earlier run that has since become
+    // The candidate is already displayed. Cancel a dwell timer queued by an earlier run that became
     // moot (e.g. the incoming notification was removed before its dwell expired).
     if (candidate.id === displayedNotification.id) {
       clearReplacementTimeout();
@@ -382,9 +328,8 @@ export const NotificationList = ({
       ({ id }) => id === displayedNotification.id,
     );
 
-    // Swap routine shared by the immediate and dwell-deferred branches below. Captures
-    // `previousId` / `wasInStore` from the effect's closure so the exit timer can run
-    // the right cleanup even if state has moved on by the time it fires.
+    // Shared by the immediate and dwell-deferred branches below. `previousId` and `wasInStore` are
+    // captured so the exit timer cleans up correctly even if state has moved on by then.
     const startSwap = () => {
       replacementTimeoutRef.current = null;
       setTransitionState('exit');
@@ -393,13 +338,11 @@ export const NotificationList = ({
       exitTimeoutRef.current = window.setTimeout(() => {
         exitTimeoutRef.current = null;
         if (wasInStore) {
-          // Remove the previously displayed notification from the store so it does not
-          // re-appear, and so its NotificationManager auto-dismiss timer is cleared.
+          // Removing it keeps it from re-appearing and clears its auto-dismiss timer.
           removeNotification(previousId);
         }
-        // Read the latest candidate at the moment the exit animation actually completes —
-        // it may differ from the one decided when `startSwap` was queued because new
-        // notifications could have arrived during the 340ms exit window.
+        // Reads the latest candidate when the exit completes; it may differ from the one chosen
+        // when the swap was queued, as notifications can arrive during the exit window.
         const next = candidateRef.current;
         if (next && next.id !== previousId) {
           displayedAtRef.current = Date.now();
@@ -413,39 +356,33 @@ export const NotificationList = ({
       }, EXIT_ANIMATION_MS);
     };
 
-    // External dismissal or auto-dismiss removed the displayed notification: swap right
-    // away (no dwell wait — the slot would otherwise stall empty for `minDisplayMs`).
+    // The displayed notification was dismissed or auto-dismissed: swap right away rather than
+    // stall the empty slot for `minDisplayMs`.
     if (!displayedInStore) {
       clearReplacementTimeout();
       startSwap();
       return;
     }
 
-    // Repeated triggers of the same snackbar replace the active one and reset the
-    // auto-dismiss timer immediately — feedback for the same condition should feel like
-    // a single, persistent thing being refreshed.
+    // A repeat of the same type replaces the active notification immediately, and the new one
+    // starts its own auto-dismiss countdown.
     if (haveSameType(displayedNotification, candidate)) {
       clearReplacementTimeout();
       startSwap();
       return;
     }
 
-    // Default branch: enforce the dwell window. `displayedAtRef` is stamped synchronously
-    // every time we set `displayedNotification` (initial mount and swap completion), so it
-    // is in sync with what is on screen by the time this effect runs.
+    // Default branch: enforce the dwell window. `displayedAtRef` is stamped whenever
+    // `displayedNotification` is set, so it matches what is on screen.
     const elapsed = displayedAtRef.current ? Date.now() - displayedAtRef.current : 0;
     const remaining = Math.max(0, minDisplayMs - elapsed);
 
     if (remaining === 0) {
-      // Dwell already elapsed; swap right now.
       clearReplacementTimeout();
       startSwap();
     } else if (replacementTimeoutRef.current === null) {
-      // A swap is pending but the dwell hasn't elapsed yet. Schedule the swap once —
-      // subsequent re-runs of this effect (e.g. as even newer notifications arrive)
-      // intentionally do NOT reschedule. `candidateRef` keeps tracking the freshest
-      // candidate, so when the timer fires `startSwap` → exit completes → the latest
-      // candidate is picked up automatically.
+      // Scheduled once: re-runs (e.g. even newer arrivals) do not reschedule, since `candidateRef`
+      // keeps tracking the freshest candidate for when the exit completes.
       replacementTimeoutRef.current = window.setTimeout(startSwap, remaining);
     }
   }, [
@@ -465,9 +402,8 @@ export const NotificationList = ({
     const element = observedElementRef.current;
     if (!element || !notification || transitionState === 'exit') return;
 
-    // `ensureTimeout` leaves a running countdown alone, so this can be called whenever the
-    // notification becomes visible without tracking which ones have been started already -- and
-    // without a second view of the same notification pushing its deadline out.
+    // `ensureTimeout` leaves a running countdown alone, so this can run whenever the notification
+    // becomes visible without tracking which ones were started.
     const startTimeout = () => {
       ensureNotificationTimeout(notification.id);
     };

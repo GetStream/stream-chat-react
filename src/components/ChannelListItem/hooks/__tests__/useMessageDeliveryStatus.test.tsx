@@ -205,11 +205,8 @@ describe('Message delivery status', () => {
     });
 
     it('is "sent" if the last message does not have creation date', async () => {
-      // MERGE-RECONCILE: PR #2909 rewrote the hook to derive status purely from
-      // channel.messageReceiptsTracker (keyed by message timestamp) and dropped the previous
-      // `!lastMessage.created_at` guard. An own message without a creation date cannot be located
-      // in the tracker, so it has no readers/delivered receipts and resolves to "sent" rather than
-      // the previous `undefined`.
+      // The hook compares the message's `created_at` with the tracker's read and delivered
+      // cursors. An own message without one reaches no cursor, so it resolves to "sent".
       const messages = [generateMessage({ created_at: undefined, user: ownUser })];
       const lastMessage = messages[0];
       const read = [
@@ -295,10 +292,9 @@ describe('Message delivery status', () => {
     });
 
     it('is "sent" when a new own message becomes the last message', async () => {
-      // MERGE-RECONCILE: PR #2909 removed the internal `message.new` handler; status is now a pure
-      // function of the `lastMessage` prop + tracker snapshot. The parent supplies the freshly
-      // received own message as `lastMessage`; with a creation date later than every read/delivered
-      // cursor it has no receipts yet and resolves to "sent".
+      // Status is a pure function of the `lastMessage` prop and the tracker snapshot. The parent
+      // supplies the freshly received own message as `lastMessage`; with a creation date later than
+      // every read and delivered cursor it has no receipts yet and resolves to "sent".
       const { messages } = ownLastMessage();
       const read = lastMessageRead(messages);
       const { channel, client } = await getClientAndChannel({ messages, read });
@@ -392,9 +388,9 @@ describe('Message delivery status', () => {
         });
       });
       rerender();
-      // The cursor is a timestamp, not an identity check. It sits a second after our last message
-      // - which is what a member delivering a message we have not loaded looks like - so ours has
-      // been delivered. Requiring the ids to match reported `SENT` for a message the member
+      // The cursor is a timestamp, not an identity check. It sits a second after our last message,
+      // which is what a member delivering a message we have not loaded looks like, so ours has been
+      // delivered. Requiring the IDs to match would report `SENT` for a message the member
       // demonstrably already had.
       expect(result.current.messageDeliveryStatus).toBe(MessageDeliveryStatus.DELIVERED);
     });
@@ -408,9 +404,8 @@ describe('Message delivery status', () => {
       const { rerender, result } = renderComponent({ channel, client, lastMessage });
 
       await act(() => {
-        // MERGE-RECONCILE: delivery status is now derived from channel.messageReceiptsTracker,
-        // which records readers per message id — the read event must reference lastMessage.id
-        // for the channel to count as "read up to the last (own) message" by otherUser.
+        // The tracker records readers per message ID, so the read event must reference
+        // `lastMessage.id` for `otherUser` to count as having read up to the last own message.
         dispatchMessageReadEvent(client, otherUser, channel, lastMessage.id);
       });
       rerender();

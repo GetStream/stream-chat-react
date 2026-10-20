@@ -16,7 +16,7 @@ const isAnnounceableIncomingMessage = (
     return false;
   }
 
-  // `status` only exists on LocalMessage; the message from a `message.new` event is a MessageResponse.
+  // `status` only exists on LocalMessage, while a `message.new` event carries a MessageResponse.
   const status = (message as LocalMessage).status;
 
   return (

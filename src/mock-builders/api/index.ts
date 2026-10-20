@@ -14,17 +14,13 @@ const originalRequests = new WeakMap<StreamChat, AxiosRequest>();
 const axiosErrorPrototypes = new WeakMap<StreamChat, object>();
 
 /**
- * Resolves the `AxiosError.prototype` belonging to the axios module instance that
- * `stream-chat`'s `ApiClient` uses.
+ * Resolves the `AxiosError.prototype` of the axios copy that `stream-chat`'s `ApiClient` uses.
  *
- * We cannot `import { AxiosError } from 'axios'` here: vitest resolves axios through a
- * different export condition for inlined test code than for `stream-chat`'s bundled dist,
- * so the two are distinct classes. `ApiClient._doRequest` only converts a failure into a
- * `StreamAPIError` when `error instanceof AxiosError` (its own copy), so an error built from
- * our copy would escape unwrapped and lose `code`/`status`.
- *
- * An already-aborted signal makes axios reject synchronously (no network) with a
- * `CanceledError`, which extends `AxiosError` — so its grandparent prototype is the one we need.
+ * Importing `AxiosError` from 'axios' yields a different class: vitest resolves axios through
+ * another export condition for inlined test code than for `stream-chat`'s dist, and
+ * `ApiClient._doRequest` only wraps errors that are `instanceof` its own copy. An already-aborted
+ * signal makes axios reject without network with a `CanceledError`, which extends `AxiosError`, so
+ * two prototype hops from it reach the prototype needed.
  */
 const resolveAxiosErrorPrototype = async (request: AxiosRequest, client: StreamChat) => {
   const cached = axiosErrorPrototypes.get(client);
@@ -43,16 +39,16 @@ const resolveAxiosErrorPrototype = async (request: AxiosRequest, client: StreamC
 };
 
 /**
- * Hook to mock the calls made through axios module.
- * You should provide the responses of Apis in order that they will be called.
- * You should use api functions from current directory to build these responses.
- * e.g., queryChannelsApi, sendMessageApi
+ * Mocks the client's HTTP requests with responses built by the API helpers of this directory (e.g.
+ * `queryChannelsApi`, `sendMessageApi`). Responses are keyed by HTTP method, so a later response
+ * for a method replaces the earlier one, and they accumulate across calls.
+ *
+ * @param client - Client whose `axiosInstance.request` is mocked.
+ * @param apiResponses - Responses to serve.
  */
 export const useMockedApis = (client: StreamChat, apiResponses: MockedApiResponse[]) => {
-  // stream-chat v10 routes EVERY request through `axiosInstance.request(config)`; the per-verb
-  // `axiosInstance.get/post/put/delete` helpers are never called, so spying on them intercepts
-  // nothing and requests escape to the network. Keep the per-verb keying by dispatching on
-  // `config.method`, and accumulate across calls so successive `useMockedApis` calls compose.
+  // Every request goes through `axiosInstance.request(config)`, not the per-verb helpers, so
+  // responses are dispatched on `config.method`.
   let store = mockedResponses.get(client);
   if (!store) {
     store = new Map();
@@ -60,8 +56,8 @@ export const useMockedApis = (client: StreamChat, apiResponses: MockedApiRespons
   }
   apiResponses.forEach(({ response, type }) => store?.set(type, response));
 
-  // Capture the pristine `request` BEFORE installing a spy — it is needed to harvest the
-  // AxiosError prototype above (callers such as `initClientWithChannels` already spy).
+  // Captured before the spy is installed: the AxiosError prototype lookup above needs the real
+  // `request`.
   if (!originalRequests.has(client)) {
     const { request } = client.axiosInstance as unknown as { request: AxiosRequest };
     originalRequests.set(client, request.bind(client.axiosInstance) as AxiosRequest);
@@ -88,8 +84,8 @@ export const useMockedApis = (client: StreamChat, apiResponses: MockedApiRespons
     };
 
     if (mocked.status >= 400) {
-      // Real axios rejects on non-2xx; `erroredGetApi`/`erroredPostApi` (see ./error) rely on
-      // it, and `ApiClient._doRequest` only maps a rejection to `StreamAPIError`.
+      // Real axios rejects on non-2xx and `ApiClient._doRequest` only maps a rejection to
+      // `StreamAPIError`; the errored helpers in ./error rely on both.
       const prototype = await resolveAxiosErrorPrototype(originalRequest, client);
       const error = new Error(`Request failed with status code ${mocked.status}`);
       Object.setPrototypeOf(error, prototype);

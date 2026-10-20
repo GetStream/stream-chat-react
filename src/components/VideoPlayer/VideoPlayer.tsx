@@ -3,16 +3,15 @@ import React from 'react';
 import { useComponentContext } from '../../context';
 import { LoadingIndicator as DefaultLoadingIndicator } from '../Loading/LoadingIndicator';
 
-// `react-player` (~2 MB) is loaded lazily so it stays out of the SDK's eager
-// import graph; the consumer's bundler emits it as a separate chunk that is
-// fetched only when a default video player renders. Consumers who override
-// `VideoPlayer` via `ComponentContext` never load it at all.
+// `react-player` (~2 MB) is loaded lazily, so it stays out of the eager import graph and is
+// fetched only when a default video player renders. A `VideoPlayer` override from
+// `ComponentContext` never loads it.
 const ReactPlayer = React.lazy(() => import('./ReactPlayerWrapper'));
 
 export type VideoPlayerProps = {
   /**
-   * Whether the native playback controls are rendered. Set to `false` for a video that cannot
-   * be played yet — e.g. one whose upload is still in flight.
+   * Whether the native playback controls render. Set to `false` for a video that cannot be played
+   * yet, such as one whose upload is in flight.
    * @default true
    */
   controls?: boolean;

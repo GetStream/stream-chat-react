@@ -58,8 +58,7 @@ async function renderQuotedMessage({
     client,
   } = await initClientWithChannels({ customUser: alice });
   const activeChannel = customChannel ?? channel;
-  // MERGE-RECONCILE (test migration): jumpToMessage moved from ChannelActionContext to the
-  // channel's messagePaginator. QuotedMessage now calls channel.messagePaginator.jumpToMessage.
+  // QuotedMessage jumps through `channel.messagePaginator.jumpToMessage`.
   vi.spyOn(activeChannel.messagePaginator, 'jumpToMessage').mockImplementation(
     jumpToMessageMock,
   );
@@ -206,7 +205,7 @@ describe('QuotedMessage', () => {
     const { container, queryByTestId } = await renderQuotedMessage({
       customProps: { message },
     });
-    // The new QuotedMessagePreviewUI renders an icon for file attachments
+    // QuotedMessagePreviewUI renders an icon for file attachments.
     expect(queryByTestId(quotedMessagePreviewTestId)).toBeInTheDocument();
     const results = await axe(container);
     expect(results).toHaveNoViolations();
@@ -311,7 +310,7 @@ describe('QuotedMessage', () => {
       const { container, queryByTestId } = await renderQuotedMessage({
         customProps: { message },
       });
-      // The new QuotedMessagePreviewUI does not handle deleted state separately
+      // QuotedMessagePreviewUI does not handle the deleted state separately.
       expect(queryByTestId(quotedMessagePreviewTestId)).toBeInTheDocument();
       const results = await axe(container);
       expect(results).toHaveNoViolations();

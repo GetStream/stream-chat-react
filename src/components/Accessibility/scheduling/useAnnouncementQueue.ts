@@ -13,21 +13,16 @@ export type UseAnnouncementQueueOptions = {
 };
 
 export type UseAnnouncementQueueResult = {
-  /** Enqueue an announcement. The first drains immediately; the rest are paced by `gapMs`. */
+  /** Enqueues an announcement. The first drains immediately; the rest are paced by `gapMs`. */
   enqueue: (announcement: QueuedAnnouncement) => void;
 };
 
 const DEFAULT_GAP_MS = 150;
 
 /**
- * L2 scheduling policy: announce queued messages one at a time, spaced by `gapMs`, through the
- * provided `announce` (from `useAriaLiveAnnouncer`). Replaces per-consumer queue/timer
- * bookkeeping (e.g. the old `NotificationAnnouncer` state machine). The unified announcer already
- * appends a fresh node per call, so no "clear region first" trick is needed — the gap simply
- * prevents successive messages from clobbering each other in the screen-reader buffer.
- *
- * React 17/18/19 compatible — `useCallback`/`useRef`/`useEffect` only. Pending timers and the
- * queue are cleared on unmount.
+ * Announces queued messages one at a time through `announce`, spaced by `gapMs` so successive
+ * messages do not clobber each other in the screen-reader buffer. Pending timers and the queue are
+ * cleared on unmount.
  */
 export const useAnnouncementQueue = (
   announce: AriaLiveAnnounce,
@@ -36,12 +31,12 @@ export const useAnnouncementQueue = (
   const queueRef = useRef<QueuedAnnouncement[]>([]);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // Keep the latest `announce` without forcing `enqueue`/`drain` identity to change.
+  // Latest `announce` without changing the identity of `enqueue` and `drain`.
   const announceRef = useRef(announce);
   announceRef.current = announce;
 
   const drain = useCallback(() => {
-    if (timerRef.current) return; // already pacing — the running timer will drain the next item
+    if (timerRef.current) return; // The running timer drains the next item.
 
     const next = queueRef.current.shift();
     if (!next) return;

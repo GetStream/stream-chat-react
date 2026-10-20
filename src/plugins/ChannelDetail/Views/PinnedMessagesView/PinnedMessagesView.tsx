@@ -31,8 +31,8 @@ type PinnedMessage = MessageResponse | LocalMessage;
 const computeItemKey = (_: number, message: PinnedMessage) => message.id;
 
 /**
- * A wire timestamp as an ISO string, for `getDateString` and the `dateTime` attribute. `convertTimestampToDate`
- * rather than `new Date`: a nanosecond value is out of Date's range.
+ * A wire timestamp as an ISO string, for `getDateString` and the `dateTime` attribute. A
+ * nanosecond value is out of `Date`'s range, so it goes through `convertTimestampToDate`.
  */
 const normalizeTimestamp = (timestamp: PinnedMessage['created_at']) =>
   timestamp == null ? undefined : convertTimestampToDate(timestamp)?.toISOString();
@@ -154,10 +154,7 @@ export const PinnedMessagesView: React.ComponentType<PinnedMessagesViewProps> = 
 
   const handleSelectMessage = useCallback(
     (message: PinnedMessage) => {
-      // Selection is one navigation model: open the channel in the workspace.
       openChannel(channel);
-      // MERGE-RECONCILE: the deleted ChannelActionContext.jumpToMessage was replaced by the
-      // channel's messagePaginator (PR #2909 / stream-chat message-paginator API).
       void channel.messagePaginator.jumpToMessage(message.id);
       close();
     },

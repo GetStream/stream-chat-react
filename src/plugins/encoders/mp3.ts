@@ -3,16 +3,15 @@ import {
   toAudioBuffer,
 } from '../../components/MediaRecorder/transcode/audioProcessing';
 
-const ENCODING_BIT_RATE = 128; // kbps;
+const ENCODING_BIT_RATE = 128; // kbps
 const COUNT_SAMPLES_PER_ENCODED_BLOCK = 1152;
 
 const float32ArrayToInt16Array = (float32Arr: Float32Array) => {
   const int16Arr = new Int16Array(float32Arr.length);
   for (let i = 0; i < float32Arr.length; i++) {
     const float32Value = float32Arr[i];
-    // Clamp the float value between -1 and 1
+    // Clamp to [-1, 1], then scale to the signed 16-bit range.
     const clampedValue = Math.max(-1, Math.min(1, float32Value));
-    // Convert the float value to a signed 16-bit integer
     int16Arr[i] = Math.round(clampedValue * 32767);
   }
   return int16Arr;

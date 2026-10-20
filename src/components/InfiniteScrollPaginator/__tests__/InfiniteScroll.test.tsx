@@ -7,12 +7,11 @@ import type { InfiniteScrollProps } from '../InfiniteScroll';
 
 const loadPreviousPage = vi.fn().mockImplementation(() => Promise.resolve());
 
-// Note: testing actual infinite scroll behavior is very tricky / pointless because Jest does not
-// really implement offsetHeight / offsetTop / offsetParent etc. This means we'd have to mock basically everything,
-// which just tests implementation rather than actual user experience.
+// jsdom does not implement offsetHeight / offsetTop / offsetParent, so testing real scroll behavior
+// would mean mocking nearly everything and only testing the implementation.
 
 describe('InfiniteScroll', () => {
-  // not sure if there is a more 'narrow' way of capturing event listeners being added
+  // Spying on the prototype captures listeners added to any element.
   const divAddEventListenerSpy = vi.spyOn(EventTarget.prototype, 'addEventListener');
 
   const divRemoveEventListenerSpy = vi.spyOn(

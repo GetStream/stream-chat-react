@@ -51,12 +51,8 @@ const Harness = ({
 );
 
 describe('useStreami18n', () => {
-  /**
-   * `userLanguage` is the language the API auto-translates *messages* into, so it comes from
-   * `client.user.language` and from nothing else. It is deliberately not influenced by the instance's
-   * registered dictionaries or by the platform locale: having German UI copy says nothing about
-   * whether the API produces `message.i18n.de_text`.
-   */
+  // `userLanguage` is the language the API auto-translates messages into, so it comes only from
+  // `client.user.language`, never from registered dictionaries or the platform locale.
   describe('userLanguage', () => {
     it("takes the connected user's language", async () => {
       const { client } = mockClient('de');
@@ -74,7 +70,7 @@ describe('useStreami18n', () => {
       await waitFor(() => expect(getByTestId('lang')).toHaveTextContent('en'));
     });
 
-    /** `client.user` is a plain field, so without a subscription this never updated. */
+    // `client.user` is a plain field, so this needs a `user.updated` subscription.
     it('follows a language changed after connect', async () => {
       const { client, emitUserUpdated } = mockClient('de');
       const { getByTestId } = render(<Harness client={client} />);
@@ -100,9 +96,9 @@ describe('useStreami18n', () => {
     });
   });
 
-  /** The hook is what stands between a rejected `init()` and an unhandled rejection. */
+  // The hook keeps a rejected `init()` from becoming an unhandled rejection.
   describe('a failed init()', () => {
-    /** `init()` is mocked, not the i18next instance under it: core's suite owns *why* it rejects. */
+    // `init()` is mocked instead of the i18next instance: core's suite covers why it rejects.
     const failing = () => {
       const i18nInstance = new Streami18n({ logger: () => null });
       vi.spyOn(i18nInstance, 'init').mockRejectedValue(new Error('i18next exploded'));

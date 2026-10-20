@@ -34,8 +34,8 @@ const mockOpenChannel = vi.fn();
 let mockIngestChannel: MockInstance<StreamChat['channelManager']['ingestChannel']>;
 const directMessagingChannelType = 'X';
 
-// Selection opens the channel in the workspace (one navigation model); the item's
-// "active" highlight comes from isChannelActive (stubbed inactive here).
+// Selection opens the channel in the workspace; the item's "active" highlight comes from
+// isChannelActive (stubbed inactive here).
 vi.mock('../../../context', async (importOriginal) => ({
   ...((await importOriginal()) as object),
   useWorkspaceNavigation: () => ({
@@ -251,8 +251,7 @@ describe('SearchResultItem Components', () => {
         fireEvent.click(screen.getByTestId(CHANNEL_PREVIEW_BUTTON_TEST_ID));
       });
 
-      // Selecting a result jumps its channel's own paginator — no separate focus state to keep in
-      // step with the highlight the jump leaves behind — and watches the channel if it isn't yet.
+      // Selecting a result jumps its channel's paginator and watches the channel if it is not yet.
       expect(jumpToMessage).toHaveBeenCalledWith(message.id, { watchChannel: true });
       expect(mockOpenChannel.mock.calls[0][0].id).toBe(messageResponseData.channel.id);
       expect(mockIngestChannel).toHaveBeenCalledTimes(1);
@@ -391,7 +390,7 @@ describe('SearchResultItem Components', () => {
       await renderComponent({ SearchResultItemComponent, userData: user });
 
       expect(screen.getByTestId('avatar')).toBeInTheDocument();
-      // `generateUser` always sets a name, but `UserResponse.name` is optional in v10 types
+      // `generateUser` always sets a name, but `UserResponse.name` is optional
       expect(screen.getByText(String(user.name))).toBeInTheDocument();
     });
 

@@ -3,7 +3,6 @@ import { visit } from 'unist-util-visit';
 import type { Node, Parent as UnistParent } from 'unist';
 import type { Root, RootContent, ThematicBreak } from 'mdast';
 
-/** Type guard: does the node have mdast children? */
 function isParentWithChildren(
   node: Node,
 ): node is UnistParent & { children: RootContent[] } {
@@ -11,17 +10,14 @@ function isParentWithChildren(
   return Array.isArray(maybe.children);
 }
 
-/** Build a single <br> by mapping a standard mdast node via data.hName */
+/** A `thematicBreak` that `mdast-util-to-hast` renders as `<br>` through `data.hName`. */
 function brNode(): ThematicBreak {
   return { data: { hName: 'br' }, type: 'thematicBreak' };
 }
 
 /**
- * Inserts runs of <br> between sibling block nodes to preserve the exact
- * number of *blank source lines* between them. No paragraph wrappers are added.
- *
- * Works because `mdast-util-to-hast` respects `data.hName`, turning our
- * `thematicBreak` into `<br>`. Multiple blank lines -> multiple `<br>` siblings.
+ * Preserves the number of blank source lines between sibling block nodes by inserting a `<br>`
+ * for each blank line beyond the single gap Markdown already renders.
  */
 export const keepLineBreaksPlugin: Plugin<[], Root> = () => (tree) => {
   visit(
@@ -50,8 +46,7 @@ export const keepLineBreaksPlugin: Plugin<[], Root> = () => (tree) => {
           continue;
         }
 
-        // Markdown already separates blocks by at least one visual gap.
-        // We add back only the *extra* blank lines from the source.
+        // Markdown already renders one gap between blocks; only the extra blank lines are added.
         const extraBlankLines = Math.max(0, nextStartLine - currEndLine - 1);
         if (extraBlankLines > 0) {
           for (let k = 0; k < extraBlankLines; k++) {

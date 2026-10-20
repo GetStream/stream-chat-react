@@ -101,9 +101,9 @@ describe('Chat', () => {
       typeof useNotificationConfigurationContext
     >['displayFilter'];
 
-    // No modal open: mirrors a dialog that closed optimistically before emitting its confirmation
-    // (e.g. "Poll sent"). The notification is still tagged `target:modal` from when the dialog was
-    // open, but its modal list is gone — it must fall back to its channel panel, not vanish.
+    // No modal open: mirrors a dialog that closed before emitting its confirmation. The
+    // notification keeps its `target:modal` tag but its modal list is gone, so it must fall back to
+    // its channel panel.
     await act(() => {
       render(
         <Chat client={chatClient}>
@@ -274,7 +274,7 @@ describe('Chat', () => {
       );
       await waitFor(() => expect(controller).toBeDefined());
 
-      // a disposed controller would stop hearing client.config
+      // A disposed controller would stop hearing `client.config`.
       chatClient.config.set({ searchController: { keepSingleActiveSource: false } });
       expect(controller?.config.keepSingleActiveSource).toBe(false);
       chatClient.config.reset('searchController');
@@ -338,13 +338,13 @@ describe('Chat', () => {
         unmount();
       });
 
-      // the app owns its lists — unmounting Chat must not drop them
+      // The app owns its lists, so unmounting Chat must not drop them.
       expect(client.channelManager.paginators).toStrictEqual([paginator]);
     });
 
     it('routes events to the channel lists while mounted, with no ChannelList on screen', async () => {
       // The search results and the threads view replace the channel list, and the lists must keep
-      // up with events meanwhile.
+      // receiving events meanwhile.
       const client = await getTestClientWithUser({ id: 'user_x' });
       const channel = client.channelManager.ensure({ id: 'routed', type: 'messaging' });
       const ingestChannel = vi.spyOn(client.channelManager, 'ingestChannel');
@@ -414,7 +414,7 @@ describe('Chat', () => {
   describe('mutes', () => {
     it('init the mute state with client data', async () => {
       const chatClientWithUser = await getTestClientWithUser({ id: 'user_x' });
-      // First load, mutes are initialized empty
+      // First load: mutes are initialized empty.
       (chatClientWithUser.user as OwnUserResponse).mutes = [];
       let context: ChatContextValue;
       const { rerender } = render(
@@ -426,7 +426,7 @@ describe('Chat', () => {
           />
         </Chat>,
       );
-      // Chat client loads mutes information
+      // The client then loads its mutes.
       const mutes = ['user_y', 'user_z'];
       (chatClientWithUser.user as OwnUserResponse).mutes = mutes;
       await act(() => {
@@ -470,17 +470,14 @@ describe('Chat', () => {
   });
 
   describe('connection notifications', () => {
-    /**
-     * Takes the socket down and waits out the window the banner holds a drop for.
-     *
-     * The client publishes every transition as it happens; deciding a drop has lasted long enough to
-     * be worth telling a person about is the banner's job, so a test that wants the banner has to
-     * let that window pass.
-     */
-    /** How long the banner sits on a drop, which is configuration rather than a fixed number. */
+    /** How long the banner holds a drop. Read from the client configuration. */
     const holdWindow = (client: StreamChat) =>
       client.wsConnection.config.offlineNotificationDisplayDelayMs;
 
+    /**
+     * Takes the socket down and waits out the hold window. The client publishes every transition,
+     * so a test that expects the banner has to let the window pass.
+     */
     const dropSocket = (client: StreamChat) => {
       vi.useFakeTimers();
       try {
@@ -494,10 +491,9 @@ describe('Chat', () => {
     };
 
     it('keeps the notification when the socket drops before i18n has initialized', async () => {
-      // `Streami18n.init()` is asynchronous and replaces `t`, which re-runs the subscription effect.
-      // Dismissal must therefore be scoped to the mount, not to that effect's cleanup, or a drop
-      // inside the init window leaves no banner exactly when one is most wanted: an offline app
-      // launch, a captive portal, an expired token.
+      // `Streami18n.init()` is asynchronous and replaces `t`, which re-runs the subscription
+      // effect. Dismissal is scoped to the mount, so a drop inside the init window keeps its
+      // banner.
       const client = await getTestClientWithUser();
       render(
         <Chat client={client}>
@@ -509,7 +505,7 @@ describe('Chat', () => {
           (notification) => notification.origin.emitter === 'Chat',
         );
 
-      // Deliberately not awaiting anything first — the drop lands inside the init window.
+      // Nothing is awaited first, so the drop lands inside the init window.
       dropSocket(client);
       expect(chatNotifications()).toHaveLength(1);
 
@@ -521,18 +517,14 @@ describe('Chat', () => {
       expect(chatNotifications()).toHaveLength(1);
     });
 
-    /**
-     * The device losing its network and the socket dying are different facts, so they get different
-     * copy. Publishing "Waiting for network…" off the socket alone — which is what this did — told
-     * users their network was down when the server had closed the socket, the token had expired or a
-     * health check had timed out on working Wi-Fi.
-     */
     const chatNotificationsOf = (client: StreamChat) =>
       client.notifications.notifications.filter(
         (notification) => notification.origin.emitter === 'Chat',
       );
 
     it('says reconnecting, not offline, when the socket dies on a working network', async () => {
+      // The device network and the socket are different facts with different copy: a socket the
+      // server closed must not be reported as a network outage.
       const client = await getTestClientWithUser();
       render(
         <Chat client={client}>
@@ -578,7 +570,7 @@ describe('Chat', () => {
 
       act(() => client.networkConnection.setStatus(false));
 
-      // One banner throughout, with the more specific message replacing the general one.
+      // One banner throughout: the more specific message replaces the general one.
       await waitFor(() =>
         expect(chatNotificationsOf(client)[0].message).toBe('Waiting for network…'),
       );
@@ -586,8 +578,7 @@ describe('Chat', () => {
     });
 
     it('publishes immediately when the client is already offline at mount', async () => {
-      // The status is read on mount rather than waited for, so a client that is already offline when
-      // the banner mounts says so.
+      // The status is read on mount, not awaited, so an already-offline client shows the banner.
       const client = await getTestClientWithUser();
       client.networkConnection.setStatus(false);
 
@@ -618,9 +609,8 @@ describe('Chat', () => {
     });
 
     it('respects a configured hold window', async () => {
-      // The wait is configuration rather than a fixed number, so an integrator can shorten it, or
-      // switch the wait off with zero, without replacing the hook. Zero still defers to the next
-      // task, which is why this advances timers rather than asserting synchronously.
+      // Zero switches the wait off, but it still defers to the next task, so this advances timers
+      // instead of asserting synchronously.
       const client = await getTestClientWithUser();
       client.config.set({
         client: { wsConnection: { offlineNotificationDisplayDelayMs: 0 } },
@@ -646,8 +636,8 @@ describe('Chat', () => {
     });
 
     it('shows nothing for a drop the socket recovers from inside the window', async () => {
-      // The reason the banner holds a drop at all. The socket retries on its own and most drops
-      // resolve in well under a second; announcing those makes a working application look broken.
+      // The socket retries on its own and most drops resolve quickly; showing those would make a
+      // working app look broken.
       const client = await getTestClientWithUser();
       render(
         <Chat client={client}>
@@ -661,8 +651,7 @@ describe('Chat', () => {
         act(() => {
           vi.advanceTimersByTime(holdWindow(client) - 1);
         });
-        // Nothing yet, and nothing later either: coming back cancels the held drop rather than
-        // showing it and then removing it.
+        // Coming back cancels the held drop instead of showing it and then removing it.
         expect(chatNotificationsOf(client)).toHaveLength(0);
 
         act(() => setWSConnectionStatus(client, true));
@@ -723,8 +712,8 @@ describe('Chat', () => {
     it('should use i18n provided in props', async () => {
       const i18nInstance = new Streami18n();
       await i18nInstance.init();
-      // `t` is a state-backed getter now, so it cannot be assigned. Swapping the translator is what
-      // `overrideTFunction` is for -- it publishes to the store, which is what `<Chat>` subscribes to.
+      // `t` is a state-backed getter, so it cannot be assigned; `overrideTFunction` publishes to
+      // the store that `<Chat>` subscribes to.
       const overridden = (() => 'overridden') as never;
       i18nInstance.overrideTFunction(overridden);
 

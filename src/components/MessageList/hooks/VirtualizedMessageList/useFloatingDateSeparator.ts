@@ -16,11 +16,7 @@ export type UseFloatingDateSeparatorResult = {
   showFloatingDate: boolean;
 };
 
-/**
- * Returns the date to show in the floating date separator based on currently visible messages.
- * When the first visible item is a message (not a date separator), we've scrolled past its
- * date separator — find that separator's date.
- */
+// Date of the closest separator above `firstMessage`, else its `created_at`. Null for the intro.
 function getFloatingDateForFirstMessage(
   firstMessage: RenderedMessage,
   processedMessages: RenderedMessage[],
@@ -28,7 +24,6 @@ function getFloatingDateForFirstMessage(
 ): Date | null {
   if (isIntroMessage(firstMessage)) return null;
 
-  // Walk backwards to find the last date separator before this message
   for (let i = firstMessageIndex - 1; i >= 0; i -= 1) {
     const item = processedMessages[i];
     if (isDateSeparatorMessage(item)) {
@@ -36,7 +31,6 @@ function getFloatingDateForFirstMessage(
     }
   }
 
-  // No preceding date separator; use message's created_at
   const msg = firstMessage as LocalMessage;
   const created = msg.created_at;
   if (created != null) {
@@ -56,12 +50,9 @@ function getFloatingDateForFirstItem(
   return getFloatingDateForFirstMessage(firstItem, processedMessages, firstItemIndex);
 }
 
-/**
- * Controls the floating date separator as a sticky "current section" label.
- * It follows the date separator represented by the first visible item.
- */
 const HIDDEN_STATE = { date: null, visible: false } as const;
 
+/** State of the floating date separator, a sticky label showing the first visible item's date. */
 export const useFloatingDateSeparator = ({
   processedMessages,
   withDateSeparator,

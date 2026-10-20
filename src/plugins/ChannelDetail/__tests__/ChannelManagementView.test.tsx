@@ -9,7 +9,7 @@ const mocks = vi.hoisted(() => ({
   addNotification: vi.fn(),
   channel: {
     data: {
-      // v10: custom channel data (name, image, …) nests under `data.custom`.
+      // Custom channel data (name, image) nests under `data.custom`.
       custom: { name: 'Test channel' },
       member_count: 2,
       own_capabilities: ['update-channel'],
@@ -158,8 +158,8 @@ vi.mock('../../../components/Dialog', () => ({
   },
 }));
 
-// Mocks the icon module, not the barrel: icons now reach components through
-// `useComponentContextIcons`, which reads `components/Icons/icons` directly.
+// Mocks the icon module, not the barrel: icons reach components through `useComponentContextIcons`,
+// which reads `components/Icons/icons` directly.
 vi.mock('../../../components/Icons/icons', async (importOriginal) => {
   const actual = await importOriginal<typeof import('../../../components/Icons/icons')>();
 
@@ -360,7 +360,6 @@ describe('ChannelManagementView', () => {
       save();
 
       await waitFor(() => expect(mocks.channel.uploadImage).toHaveBeenCalledTimes(1));
-      // v10 takes the file in a request object rather than as a positional argument.
       expect(mocks.channel.uploadImage).toHaveBeenCalledWith({ file: expect.any(File) });
       expect(mocks.channel.updatePartial).toHaveBeenCalledWith({
         set: { 'custom.image': 'https://stream-upload.example' },

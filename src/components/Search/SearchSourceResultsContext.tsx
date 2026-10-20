@@ -11,9 +11,7 @@ export const SearchSourceResultsContext = createContext<
   SearchSourceResultsContextValue | undefined
 >(undefined);
 
-/**
- * Context provider for components rendered within the `SearchSourceResults`
- */
+/** Provides the search source to the components rendered inside `SearchSourceResults`. */
 export const SearchSourceResultsContextProvider = ({
   children,
   value,

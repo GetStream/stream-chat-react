@@ -17,12 +17,11 @@ import type { WorkspaceNavigation } from '../../context/WorkspaceNavigationConte
 import type { ChatViewEntityBinding } from './ChatView';
 
 /**
- * Optional transform an app supplies (via `ChatView`) to customize the derived
- * {@link WorkspaceNavigation} — e.g. make `openChannel`/`openThread` open *beside* the current
- * content on ⌘/ctrl-click. Receives the fully-derived navigation and returns only the members to
- * override; they are merged over it, so every member left out keeps the SDK's behaviour. `base` is
- * there to delegate to (e.g. call `base.openChannel` with adjusted options). Must be referentially
- * stable (wrap in `useCallback`) — it participates in the adapter's `useMemo`.
+ * Overrides members of the {@link WorkspaceNavigation} that ChatView derives, e.g. to open channels
+ * beside the current content on cmd/ctrl-click. Receives the derived navigation as `base`, to
+ * delegate to, and returns the members to replace; members left out or `undefined` keep the
+ * default. Must be referentially stable (wrap in `useCallback`): it is a dependency of the
+ * adapter's `useMemo`.
  */
 export type DeriveWorkspaceNavigation = (
   base: WorkspaceNavigation,
@@ -33,14 +32,10 @@ export type WorkspaceNavigationAdapterProps = {
 };
 
 /**
- * Implements the core-owned {@link WorkspaceNavigation} abstraction (D1) over the ChatView slot
- * system and provides it to the subtree. Rendered inside `ChatViewNavigationProvider` (so it can
- * drive `open`/`close`) and the ChatView context (so it can read the active view's slot state).
- *
- * Every read/operation is derived from the same slot primitives the ChatView hooks use, so core
- * consumers routed through the adapter behave exactly as they did calling the slot API directly.
- * An app may pass `deriveWorkspaceNavigation` to override individual operations (e.g. additive
- * open on ⌘/ctrl-click); whatever it leaves out stays as derived here.
+ * Implements {@link WorkspaceNavigation} over the ChatView slot state and provides it to the
+ * subtree. Must render inside `ChatViewNavigationProvider` (it drives `open`, `close` and
+ * `release`) and the ChatView context. `deriveWorkspaceNavigation` overrides members; the rest
+ * stay as derived here.
  */
 export const WorkspaceNavigationAdapter = ({
   children,
@@ -54,12 +49,12 @@ export const WorkspaceNavigationAdapter = ({
 
   const value = useMemo<WorkspaceNavigation>(() => {
     const bindingOf = (slot: string) => getChatViewEntityBinding(slotBindings[slot]);
-    // The slot (in the active view) whose base binding carries entity `key` — mirrors `useSlotForKey`.
+    // The slot whose base binding has entity `key`, found as `useSlotForKey` does.
     const slotOfKey = (key?: string) =>
       key === undefined
         ? undefined
         : availableSlots.find((slot) => bindingOf(slot)?.key === key);
-    // First slot holding a thread — mirrors `useSlotForKind('thread')`.
+    // The first slot holding a thread, found as `useSlotForKind('thread')` does.
     const activeThreadSlot = availableSlots.find(
       (slot) => bindingOf(slot)?.kind === 'thread',
     );
@@ -70,8 +65,8 @@ export const WorkspaceNavigationAdapter = ({
         ? getChatViewEntityBinding(layers[layers.length - 1])
         : bindingOf(slot);
     };
-    // A thread or channel opened into an occupied slot is stacked as a layer, so finding the panel
-    // showing an entity has to look at each slot's top layer, not only at its base binding.
+    // An entity opened into an occupied slot is stacked as a layer, so look at each slot's top
+    // layer, not only its base binding.
     const slotShowingKey = (key: string) =>
       availableSlots.find((slot) => visibleBindingOf(slot)?.key === key);
     const slotShowingThread = availableSlots.find(
@@ -125,7 +120,8 @@ export const WorkspaceNavigationAdapter = ({
         if (slot) dismissSlot(slot);
       },
       closeThread: (threadId, options) => {
-        // Mirror `closableThreadSlot = threadSlot ?? activeThreadSlot` from the previous Thread wiring.
+        // The slot showing `threadId`; falls back to the first thread slot when it is unset or
+        // not found.
         const slot =
           (threadId === undefined
             ? undefined
@@ -138,7 +134,7 @@ export const WorkspaceNavigationAdapter = ({
       },
       goBack: (key, options) => {
         const slot = slotShowing(key, options?.panel);
-        // `close` pops the top layer - the entity shown - revealing what it is stacked over.
+        // `close` pops the top layer (the entity shown), revealing what it is stacked over.
         if (hasContentBeneath(slot)) close(slot as string);
       },
       // Active = shown: a channel covered by another panel stacked in its slot is not.

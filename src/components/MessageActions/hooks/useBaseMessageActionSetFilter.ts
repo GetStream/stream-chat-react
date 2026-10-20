@@ -26,10 +26,13 @@ const userMessageRemindersStateSelector = ({ userMessageReminders }: ChannelConf
 });
 
 /**
- * Base filter hook which covers actions of type `delete`, `edit`,
- * `flag`, `markUnread`, `mute`, `quote`, `react` and `reply`, whether
- * the rendered message is a reply (replies are limited to certain actions) and
- * whether the message has appropriate type and status (including soft-deleted).
+ * Filters a message action set by the user's capabilities, whether the message is a thread reply,
+ * and the message type and status (including soft-deleted and failed messages).
+ *
+ * @param messageActionSet - Actions to filter.
+ * @param disable - Returns `messageActionSet` unfiltered when true. Defaults to false.
+ * @returns The actions that apply to the message, none for bounced, initial, system, ephemeral,
+ * sending or typeless messages.
  */
 export const useBaseMessageActionSetFilter = (
   messageActionSet: MessageActionSetItem[],
@@ -62,10 +65,10 @@ export const useBaseMessageActionSetFilter = (
   return useMemo(() => {
     if (disable) return messageActionSet;
 
-    // filter out all actions if any of these are true
+    // These messages get no actions.
     if (
       isBounced ||
-      isInitialMessage || // not sure whether this thing even works anymore
+      isInitialMessage || // the thread parent that `ThreadHead` renders above the replies
       !message.type ||
       message.type === 'system' ||
       message.type === 'ephemeral' ||
@@ -78,11 +81,11 @@ export const useBaseMessageActionSetFilter = (
 
       const type = action.type;
 
-      // filter out actions with types that do not work in thread
+      // Thread replies do not support some actions.
       if (ACTIONS_NOT_WORKING_IN_THREAD.includes(type) && isMessageThreadReply)
         return false;
 
-      // failed message menu has special treatment
+      // A failed message keeps only the resend, edit and delete actions that apply to it.
       if (message.error) {
         return (
           (type === 'resendMessage' && canSendMessage && (allowRetry || isBounced)) ||

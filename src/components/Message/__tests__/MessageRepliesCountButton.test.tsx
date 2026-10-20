@@ -168,9 +168,6 @@ describe('MessageRepliesCountButton', () => {
     });
   });
 
-  // MERGE-RECONCILE (test migration): the reply-count button no longer gates on the
-  // 'send-reply' channel capability (permission gating was removed from this component in
-  // the slot-layout refactor). The button now always renders enabled.
   it('should not be disabled regardless of channel capabilities', () => {
     const { getByText } = renderComponent({ reply_count: 1 });
 

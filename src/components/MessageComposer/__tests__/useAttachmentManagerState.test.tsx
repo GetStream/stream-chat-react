@@ -1,4 +1,4 @@
-// Import the package barrel first so it evaluates in its natural order — see AttachmentSelector.test.tsx.
+// Import the package barrel first so it evaluates in order (see AttachmentSelector.test.tsx).
 import '../../..';
 import React from 'react';
 import { act, render, screen } from '@testing-library/react';
@@ -7,16 +7,9 @@ import { Channel } from '../../Channel';
 import { initClientWithChannels } from '../../../mock-builders';
 import { useAttachmentManagerState } from '../hooks/useAttachmentManagerState';
 
-/**
- * A consumer that reads nothing but this hook.
- *
- * The isolation is the point. `isUploadEnabled` is a getter on the attachment manager, so nothing
- * re-renders when its configuration moves; the hook subscribes on the consumer's behalf. Asserting that
- * through `AttachmentSelector` would prove less than it appears to — that component holds several other
- * subscriptions that could mask a missing one. A component with nothing else subscribed is what actually
- * holds the hook to its contract, and it is the real situation too: `WithDragAndDropUpload` consumes
- * exactly this and nothing else.
- */
+// Reads nothing but the hook. `isUploadEnabled` is a getter on the attachment manager, so only the
+// hook's own subscriptions re-render the consumer; `AttachmentSelector` holds other subscriptions
+// that could mask a missing one.
 const UploadProbe = () => {
   const { customCdn, isUploadEnabled, locationEnabled, pollsEnabled } =
     useAttachmentManagerState();
@@ -74,8 +67,8 @@ describe('useAttachmentManagerState', () => {
   });
 
   it('exposes the composer-resolved location and poll gates, and the customCdn flag', async () => {
-    // These have no getter on the attachment manager — they exist only on the resolved configuration,
-    // which is why the hook selects them rather than reading them off the instance.
+    // These have no getter on the attachment manager, so the hook selects them from the resolved
+    // configuration.
     const { client } = await setup();
     expect(screen.getByTestId('flags')).toHaveTextContent(
       JSON.stringify({ customCdn: false, locationEnabled: true, pollsEnabled: true }),

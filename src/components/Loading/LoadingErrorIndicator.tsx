@@ -3,13 +3,10 @@ import React from 'react';
 import { useTranslationContext } from '../../context/TranslationContext';
 
 export type LoadingErrorIndicatorProps = {
-  /** Error object */
   error?: Error | null;
 };
 
-/**
- * UI component for error indicator in a Channel
- */
+/** Renders the error message, or nothing when there is no error. */
 const UnMemoizedLoadingErrorIndicator = ({ error }: LoadingErrorIndicatorProps) => {
   const { t } = useTranslationContext();
 

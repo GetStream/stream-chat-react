@@ -15,8 +15,8 @@ type MessageDeliveredEvent = {
   channel_member_count: number;
   channel_type: string;
   cid: string;
-  // `created_at` is unix nanoseconds like every other wire timestamp, but `last_delivered_at` is
-  // the one field the spec still declares as a bare string, so it really does arrive as RFC3339.
+  // `created_at` is unix nanoseconds like other wire timestamps, but the spec declares
+  // `last_delivered_at` as a plain string, so it arrives as RFC3339.
   created_at: TimestampNS;
   custom: CustomEventData;
   last_delivered_at: string;

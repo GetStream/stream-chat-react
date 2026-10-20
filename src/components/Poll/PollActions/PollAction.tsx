@@ -10,10 +10,7 @@ export type PollActionProps = {
   closeModal: () => void;
   modalIsOpen: boolean;
   openModal: () => void;
-  /**
-   * Additional actions are shown based on the poll settings defined by the creator.
-   * Examples are "Suggest an option", "Add a comment", "View N comment(s)".
-   */
+  /** Applies the additional-action modifier class to a secondary action, e.g. suggest an option. */
   isAdditionalAction?: boolean;
   modalClassName?: string;
 };

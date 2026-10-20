@@ -70,7 +70,7 @@ describe('ChannelList', () => {
   it('does not query a list that already has a loaded page', async () => {
     const { client, queryChannels } = await setupClient();
     const paginator = new ChannelPaginator({ client, id: 'channels:a' });
-    // a loaded but empty page — e.g. a catch-all list seeded so it never auto-queries
+    // A loaded but empty page, e.g. a catch-all list seeded so it never auto-queries.
     paginator.setItems({ isLastPage: true, valueOrFactory: [] });
 
     renderList(client, paginator);
@@ -86,9 +86,8 @@ describe('ChannelList', () => {
     renderList(client, paginator);
     await waitFor(() => expect(queryChannels).toHaveBeenCalledTimes(1));
 
-    // what `client.disconnectUser()` does to every registered list: the loaded channels belong to
-    // the user that is going away. The paginator outlives the component, so a mount-only query
-    // would leave the list empty forever.
+    // Mirrors `client.disconnectUser()`, which resets every registered list. The paginator outlives
+    // the component, so a mount-only query would leave the list empty forever.
     act(() => {
       client.channelManager.resetPaginatorStates();
     });

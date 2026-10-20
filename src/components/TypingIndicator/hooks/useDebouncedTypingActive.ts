@@ -5,17 +5,8 @@ const DEFAULT_HIDE_DELAY_MS = 2000;
 
 export type TypingEntry = EventPayload<'typing.start' | 'typing.stop'>;
 
-/**
- * Derive a stable key from typing users so that the effect only runs when the
- * actual set of users (by id) changes, not on every render due to new array
- * references.
- *
- * Important: callers must pass entries where `user` is an object with an `id`
- * field (not a plain string). If `user?.id` is undefined for every entry the
- * key degenerates to an empty string, the memo returns a new array each time
- * it is "invalidated" by React, and `setDisplayUsers` in the effect below will
- * loop infinitely because it always receives a fresh reference.
- */
+// Memoizes the typing users by ID, so a new array with the same users keeps its reference. Entries
+// without `user.id` are not told apart, and a single one has the same key as an empty list.
 const useStableTypingUsers = (typingUsers: readonly TypingEntry[]) => {
   const key = typingUsers
     .map((entry) => entry.user?.id ?? '')
@@ -27,10 +18,9 @@ const useStableTypingUsers = (typingUsers: readonly TypingEntry[]) => {
 };
 
 /**
- * Debounces hiding the typing indicator: when typing users go to zero, keep showing for delayMs
- * to avoid flicker when typing stops and starts again quickly. Returns the list to display
- * (current typers or last non-empty list during the debounce period). Show the indicator
- * when displayUsers.length > 0.
+ * Keeps the last non-empty list of typing users for `delayMs` after the users drop to zero, so a
+ * short pause in typing does not flicker the indicator. `delayMs` defaults to 2000. Returns the
+ * list to display; show the indicator while it is non-empty.
  */
 export function useDebouncedTypingActive(
   typingUsers: readonly TypingEntry[],

@@ -24,9 +24,8 @@ import { useSpeechToText, type UseSpeechToTextOptions } from './hooks/useSpeechT
 
 const nanoId = customAlphabet('abcdefghijklmnopqrstuvwxyz0123456789', 15);
 
-// Visually hidden but still focusable: the native file input is the keyboard
-// target (Enter/Space open the picker, it is announced with its aria-label),
-// while the label is the visual/pointer target.
+// Visually hidden but still focusable: the native file input is the keyboard target and the
+// label is the pointer target.
 const visuallyHiddenInputStyle: CSSProperties = {
   border: 0,
   clip: 'rect(0, 0, 0, 0)',
@@ -82,7 +81,7 @@ const WithStableId = ({
 }: {
   children?: ReactNode | (({ id }: { id: string }) => ReactNode);
 }) => {
-  // SSR/hydration-safe on React 18+ (React.useId), client-only id on React 17
+  // SSR/hydration-safe on React 18+ (React.useId), client-only ID on React 17
   const id = `file-input-${useStableId()}`;
 
   return <>{typeof children === 'function' ? children({ id }) : children}</>;
@@ -243,8 +242,8 @@ export const useIsDisabled = () => {
 
 type AIMessageComposerProps = ComponentPropsWithoutRef<'form'> & {
   /**
-   * Resets a value of an input with name `attachments` and of type `file` when user selects files so that
-   * they can select the same file again if needed.
+   * Clears the file input named `attachments` (see `nameMapping`) after each selection, so the same
+   * file can be selected again.
    *
    * @default true
    */
@@ -254,9 +253,7 @@ type AIMessageComposerProps = ComponentPropsWithoutRef<'form'> & {
     attachments?: string;
   };
 
-  /**
-   * Disables the composer.
-   */
+  /** Disables the composer. */
   disabled?: boolean;
 };
 
@@ -374,9 +371,8 @@ const TextInput = (props: ComponentPropsWithoutRef<'input'>) => {
       autoComplete='off'
       className='str-chat__ai-message-composer__text-input'
       name='message'
-      // React requires onChange when value is set, defaultValue stops working
-      // when input gets "dirty"
-      // actual on-change is handled at the form level
+      // A controlled input needs an onChange (`defaultValue` stops working once the input is
+      // dirty); changes are handled at the form level.
       onChange={noop}
       placeholder={t(
         'aiComponents.messageComposer.textInput.placeholder',

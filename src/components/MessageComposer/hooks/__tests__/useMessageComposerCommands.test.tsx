@@ -49,8 +49,8 @@ describe('useMessageComposerCommands', () => {
       fromPartial<ChannelConfig>({ availableCommands: commands }),
     );
     messageComposer = {
-      // The hook subscribes to `configState`, so a config change re-renders it — reading the
-      // non-reactive `channel.config` getter would not.
+      // The hook subscribes to `configState`, so a config change re-renders it; the non-reactive
+      // `channel.config` getter would not.
       channel: { configState },
       getCommandDisabledReason: vi.fn((command: Command) => {
         const latestState = state.getLatestValue();

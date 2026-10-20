@@ -1,8 +1,8 @@
 import { Streami18n } from '../Streami18n';
 
 /**
- * The two bundled `relativeCompact` keys must render the labels this SDK rendered before its
- * formatter moved into `stream-chat`, whose default rounding differs.
+ * The two bundled `relativeCompact` keys round weeks up (`relativeCompactWeekRounding: ceil`),
+ * unlike the formatter's default rounding.
  */
 describe('relativeCompact week labels', () => {
   const NOW = new Date('2026-04-30T12:00:00.000Z');

@@ -2,8 +2,7 @@ import { act, renderHook } from '@testing-library/react';
 
 import { useScrollerViewport } from '../useScrollerViewport';
 
-// The thresholds and the true-bottom check are only meaningful once something has been measured.
-// Before that the hook deliberately reports the slack a full-height list always had.
+// Until something is measured, the hook reports the threshold of a full-height list.
 const UNMEASURED_THRESHOLD = 100;
 
 describe('useScrollerViewport', () => {
@@ -29,9 +28,8 @@ describe('useScrollerViewport', () => {
     document.body.removeChild(scroller);
   });
 
-  // The gate that gurads mark-read has to agree with the threshold that decides whether a
-  // jump-to-latest control is shown. If it were stricter there would be a band where the UI
-  // claims the list is at the bottom while the channel silently refuses to go read.
+  // The mark-read gate must agree with the threshold that shows the jump-to-latest control, or the
+  // UI could claim the list is at the bottom while the channel refuses to mark it read.
   describe.each([
     [300, 30],
     [200, 20],
@@ -64,9 +62,8 @@ describe('useScrollerViewport', () => {
     });
   });
 
-  // With `useWindowScroll` Virtuoso hands back the window rather than an element. Discarding it
-  // would leave the list unmeasured, the thresholds at their full-height defaults, and the
-  // true-bottom check answering "yes" forever.
+  // With `useWindowScroll` Virtuoso hands back the window; ignoring it would leave the list
+  // unmeasured and `isAtTrueBottom` always true.
   it('measures the document when the list scrolls the window', () => {
     const measured = (document.scrollingElement ??
       document.documentElement) as HTMLElement;

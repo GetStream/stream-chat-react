@@ -29,7 +29,8 @@ export function useDialogAnchor<T extends HTMLElement>({
   updatePositionOnContentResize = false,
 }: DialogAnchorOptions) {
   const [popperElement, setPopperElement] = useState<T | null>(null);
-  // keeps track of the first "chosen" placement (after popperElement is set) to avoid popper "jumping" to a different placement when it updates and finds a better fit; resets when popperElement is unset (!open)
+  // The first placement chosen once `popperElement` is set, so the popover does not jump to a
+  // better-fitting placement on update. Reset when `popperElement` is unset (!open).
   const [stabilisedChosenPlacement, setStabilisedChosenPlacement] =
     useState<Placement | null>(null);
 
@@ -53,7 +54,8 @@ export function useDialogAnchor<T extends HTMLElement>({
     setStabilisedChosenPlacement(null);
   }
 
-  // Freeze reference when dialog opens so submenus (e.g. ContextMenu level 2+) stay aligned to the original anchor
+  // The reference is frozen while open so nested popovers (e.g. submenus) stay aligned to the
+  // original anchor.
   const frozenReferenceRef = useRef<HTMLElement | null>(null);
   if (open && referenceElement && !frozenReferenceRef.current) {
     frozenReferenceRef.current = referenceElement;
@@ -73,10 +75,8 @@ export function useDialogAnchor<T extends HTMLElement>({
 
   useEffect(() => {
     if (open && popperElement && effectiveReference) {
-      // Re-run when reference becomes available (e.g. after ref is set) or when updateKey changes (e.g. submenu open)
-      // Since the popper's reference element might not be (and usually is not) visible
-      // all the time, it's safer to force popper update before showing it.
-      // update is non-null only if popperElement is non-null
+      // Re-runs when the reference becomes available or `updateKey` changes (e.g. a submenu opens).
+      // The reference is often not visible, so the position is forced to update before showing.
       update?.();
     }
   }, [open, placement, popperElement, update, updateKey, effectiveReference]);
@@ -110,23 +110,18 @@ export function useDialogAnchor<T extends HTMLElement>({
 
 export type DialogAnchorProps = PropsWithChildren<Partial<DialogAnchorOptions>> & {
   /**
-   * Optional per-dialog override for outside-click dismissal.
-   * If undefined, manager-level `DialogManager.closeOnClickOutside` is used.
+   * Per-dialog override for outside-click dismissal. Defaults to the manager's
+   * `closeOnClickOutside`.
    */
   closeOnClickOutside?: boolean;
   /**
-   * Whether pressing Escape closes the dialog. Symmetric with `closeOnClickOutside`; set to
-   * `false` for a dialog that should only be dismissed through its own close control (e.g. a
-   * long-lived inspector panel kept open while the user works elsewhere).
+   * Whether pressing Escape closes the dialog. Set to `false` for a dialog that only its own close
+   * control should dismiss.
    * @default true
    */
   closeOnEscape?: boolean;
   id: string;
-  /**
-   * Delay (ms) before unmounting after dialog closes.
-   * Use this to keep the dialog in DOM long enough for CSS exit animations.
-   * `0` means immediate unmount (no exit-animation window).
-   */
+  /** Delay (ms) before unmounting a closed dialog, for CSS exit animations. Defaults to 0. */
   closeTransitionMs?: number;
   dialogManagerId?: string;
   focus?: boolean;
@@ -152,23 +147,9 @@ export const DialogAnchor = ({
   updatePositionOnContentResize,
   ...restDivProps
 }: DialogAnchorProps) => {
-  /**
-   * Rendering lifecycle notes:
-   * - `open=true` renders dialog contents immediately.
-   * - `open=false` can keep contents mounted for `closeTransitionMs` to allow CSS exit
-   *   animations before unmount.
-   *
-   * State exposed to CSS:
-   * - `data-str-chat-dialog-state="open"` while actively open.
-   * - `data-str-chat-dialog-state="closing"` during delayed unmount window.
-   *
-   * Consumers like `ContextMenu` combine:
-   * - `data-str-chat-dialog-state` from this component, and
-   * - `data-str-chat-placement` (e.g. `top-start`, `right-end`)
-   * to select the correct closing keyframe in CSS (horizontal vs vertical roll direction).
-   * In practice, JS only toggles state and timing (`closeTransitionMs`); CSS owns the
-   * visual motion details (transform/easing), so animation behavior stays declarative.
-   */
+  // During the `closeTransitionMs` delay the contents stay mounted with
+  // `data-str-chat-dialog-state="closing"` (otherwise `"open"`). CSS combines it with
+  // `data-str-chat-placement` to pick the closing keyframe; JS only owns the timing.
   const dialog = useDialog({ closeOnClickOutside, dialogManagerId, id });
   const open = useDialogIsOpen(id, dialogManagerId);
   const [shouldRender, setShouldRender] = useState(open);
@@ -232,7 +213,6 @@ export const DialogAnchor = ({
     };
   }, [closeOnEscape, dialog, open]);
 
-  // prevent rendering the dialog contents if the dialog should not be open / shown
   if (!shouldRender) {
     return null;
   }
@@ -268,9 +248,8 @@ export const DialogAnchor = ({
           tabIndex={typeof tabIndex !== 'undefined' ? tabIndex : 0}
         >
           {children}
-          {/* Render the live-region outlet inside the dialog subtree only when it
-              is an `aria-modal` dialog, so announcements are not suppressed by
-              assistive technologies. Non-modal popovers/menus skip it. */}
+          {/* Only an `aria-modal` dialog gets its own live-region outlet, because assistive
+              technologies can suppress live regions outside a modal. */}
           {resolvedAriaModal && <AriaLiveOutlet layer={1} />}
         </div>
       </FocusScope>

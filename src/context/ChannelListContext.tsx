@@ -5,10 +5,8 @@ import type { ChannelPaginator } from 'stream-chat';
 
 export type ChannelListContextValue = {
   /**
-   * The primary channel paginator held by the `ChannelManager` on `ChatContext`.
-   * Read the loaded channels reactively with `useStateStore(paginator.state, …)`, load the next
-   * page with `paginator.toTail()`, and mutate the loaded list (e.g. prepend a just-opened channel)
-   * via `paginator.setItems({ valueOrFactory })`. Undefined when rendered outside a channel list.
+   * The primary (first) channel paginator of the `ChannelManager` on `ChatContext`. Undefined
+   * outside `ChannelLists`.
    */
   paginator?: ChannelPaginator;
 };
@@ -17,10 +15,7 @@ export const ChannelListContext = createContext<ChannelListContextValue | undefi
   undefined,
 );
 
-/**
- * Context provider exposing the primary channel paginator to components rendered within the
- * channel list (e.g. search results, member actions, notification targeting).
- */
+/** Provides the primary channel paginator to the channel lists rendered by `ChannelLists`. */
 export const ChannelListContextProvider = ({
   children,
   value,

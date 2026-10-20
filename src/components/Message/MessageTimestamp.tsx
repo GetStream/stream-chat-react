@@ -9,16 +9,16 @@ import type { LocalMessage } from 'stream-chat';
 import type { TimestampFormatterOptions } from '../../i18n/types';
 
 export type MessageTimestampProps = TimestampFormatterOptions & {
-  /* Adds a CSS class name to the component's outer `time` container. */
+  /** Class name for the outer `time` element. */
   customClass?: string;
-  /* The `StreamChat` message object, which provides necessary data to the underlying UI components (overrides the value from `MessageContext`) */
+  /** Message to render; overrides the one from `MessageContext`. */
   message?: LocalMessage;
 };
 
 const UnMemoizedMessageTimestamp = (props: MessageTimestampProps) => {
   const { message: propMessage, ...timestampProps } = props;
-  // With a `message` prop it also renders outside a message (e.g. the gallery header). Without one
-  // it needs the surrounding message, and says so like `useMessageContext()` does.
+  // Renders outside a message when given a `message` prop (e.g. the gallery header); otherwise it
+  // requires a `MessageProvider`.
   const messageContext = useContext(MessageContext);
   const { Timestamp = DefaultTimestamp } = useComponentContext();
   const message =

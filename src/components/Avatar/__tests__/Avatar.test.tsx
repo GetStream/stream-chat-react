@@ -21,7 +21,7 @@ describe('Avatar', () => {
       'str-chat__avatar--no-letters',
       'str-chat__avatar--size-md',
     );
-    // No image and no name → renders people icon fallback
+    // No image and no name: the fallback icon renders.
     expect(queryByTestId('avatar-img')).not.toBeInTheDocument();
     expect(queryByTestId('avatar-fallback')).not.toBeInTheDocument();
     expect(root.querySelector('svg')).toBeInTheDocument();

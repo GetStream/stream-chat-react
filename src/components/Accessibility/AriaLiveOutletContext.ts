@@ -12,16 +12,16 @@ export type AnnouncementsByPriority = {
 };
 
 /**
- * Internal coordination context between {@link AriaLiveAnnouncerProvider} (which owns the
- * announcement state and the outlet stack) and the {@link AriaLiveOutlet}s that render the
- * live regions. Not part of the public API — consumers announce via `useAriaLiveAnnouncer`.
+ * Coordination between {@link AriaLiveAnnouncerProvider}, which owns the announcements and the
+ * outlet stack, and the {@link AriaLiveOutlet}s that render them. Internal: consumers announce
+ * through `useAriaLiveAnnouncer`.
  */
 export type AriaLiveOutletContextValue = {
-  /** The id of the single outlet that should currently render the live regions. */
+  /** ID of the outlet that currently renders the live regions. */
   activeOutletId: symbol | null;
-  /** Current announcements grouped by aria-live priority. */
+  /** Current announcements by aria-live priority. */
   announcementsByPriority: AnnouncementsByPriority;
-  /** Register an outlet. Higher `layer` wins; ties resolve to the most recently registered. */
+  /** Registers an outlet. The higher `layer` wins; ties go to the most recently registered. */
   registerOutlet: (id: symbol, layer: number) => void;
   unregisterOutlet: (id: symbol) => void;
 };

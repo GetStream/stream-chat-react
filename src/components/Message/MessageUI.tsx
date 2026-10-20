@@ -283,9 +283,7 @@ const MemoizedMessageUI = React.memo(
   areMessageUIPropsEqual,
 ) as typeof MessageUIWithContext;
 
-/**
- * The default UI component that renders a message and receives functionality and logic from the MessageContext.
- */
+/** Default message UI; reads its data and handlers from `MessageContext`. */
 export const MessageUI = (props: MessageUIComponentProps) => {
   const messageContext = useMessageContext();
 

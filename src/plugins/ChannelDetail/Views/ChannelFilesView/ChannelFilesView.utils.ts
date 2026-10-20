@@ -8,7 +8,7 @@ import {
 
 import { convertTimestampToDate } from 'stream-chat';
 
-/** Attachment types listed by the files view (everything that is not an image/video). */
+/** Attachment types listed by the files view. */
 export const FILE_ATTACHMENT_TYPES = ['file', 'audio'] as const;
 
 export type ChannelFileAttachmentType = (typeof FILE_ATTACHMENT_TYPES)[number];
@@ -16,37 +16,34 @@ export type ChannelFileAttachmentType = (typeof FILE_ATTACHMENT_TYPES)[number];
 const FILE_ATTACHMENT_TYPE_SET = new Set<string>(FILE_ATTACHMENT_TYPES);
 
 export type ChannelFileItem = {
-  /** Raw attachment to render (no transformation applied). */
+  /** Attachment as received, untransformed. */
   attachment: Attachment;
-  /** Stable identity (messageId + attachment index). */
+  /** Stable identity: message ID and attachment index. */
   id: string;
-  /** ISO timestamp of the carrying message, used for the month sections. */
+  /** ISO timestamp of the carrying message, used to pick the month section. */
   createdAt?: string;
 };
 
 export type ChannelFileSection = {
   /** Stable grouping key (`YYYY-MM` or `unknown`). */
   key: string;
-  /** Representative timestamp used to render the section header. */
+  /** Timestamp of the section's newest item, rendered in the section header. */
   timestamp?: string;
 };
 
 export type ChannelFileSections = {
-  /**
-   * Item counts per section, aligned 1:1 with `sections`. Maps directly onto
-   * GroupedVirtuoso's `groupCounts`; `sum(groupCounts) === items.length`.
-   */
+  /** Item count per section, aligned with `sections`; the sum equals `items.length`. */
   groupCounts: number[];
   /** Flat list of items in display order, grouped contiguously by section. */
   items: ChannelFileItem[];
-  /** Section headers (month/year), aligned 1:1 with `groupCounts`. */
+  /** Month sections, aligned with `groupCounts`. */
   sections: ChannelFileSection[];
 };
 
 /**
- * A wire timestamp as an ISO string — what `getDateString` accepts, what the month key slices, and
- * what `byCreatedAtDesc` compares. `convertTimestampToDate` rather than `new Date`: a nanosecond value is out of
- * Date's range, so constructing one directly yields an Invalid Date.
+ * A wire timestamp as an ISO string, which `getDateString` accepts, the month key slices and
+ * `byCreatedAtDesc` compares. A nanosecond value is out of `Date`'s range, so it goes through
+ * `convertTimestampToDate` instead of `new Date`.
  */
 const normalizeTimestamp = (timestamp?: TimestampNS) =>
   timestamp == null ? undefined : convertTimestampToDate(timestamp)?.toISOString();
@@ -60,13 +57,10 @@ const byCreatedAtDesc = (a: ChannelFileItem, b: ChannelFileItem) =>
   (b.createdAt ?? '').localeCompare(a.createdAt ?? '');
 
 /**
- * Flattens messages into file/audio attachment items organized into descending
- * month/year sections (newest first), in a single pass over the attachments.
+ * Flattens messages into file and audio attachment items in month sections, newest first.
  *
- * The result is shaped for GroupedVirtuoso: a single flat `items` array (items
- * grouped contiguously by section) plus `groupCounts`/`sections` aligned with
- * it, so the view never has to re-flatten. The raw attachment is kept
- * untransformed; only the carrying message timestamp is captured for headers.
+ * The result is shaped for GroupedVirtuoso: a flat `items` array grouped contiguously by section,
+ * with `groupCounts` and `sections` aligned to it.
  */
 export const toChannelFileSections = (
   messages: Array<MessageResponse | LocalMessage>,

@@ -10,9 +10,7 @@ export type EventComponentProps = TimestampFormatterOptions & {
   unsafeHTML?: boolean;
 };
 
-/**
- * Component to display system and channel event messages
- */
+/** Displays a system message; renders nothing for other message types. */
 const UnMemoizedEventComponent = (props: EventComponentProps) => {
   const { message, unsafeHTML = false } = props;
   const { type } = message;

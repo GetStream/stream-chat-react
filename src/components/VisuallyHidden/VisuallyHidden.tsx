@@ -14,9 +14,7 @@ const visuallyHiddenStyle: CSSProperties = {
   width: '1px',
 };
 
-/**
- * Hides content visually while preserving it for assistive technologies.
- */
+/** Hides content visually while keeping it available to assistive technologies. */
 export const VisuallyHidden = ({ children, style, ...rest }: VisuallyHiddenProps) => (
   <span {...rest} style={{ ...visuallyHiddenStyle, ...style }}>
     {children}

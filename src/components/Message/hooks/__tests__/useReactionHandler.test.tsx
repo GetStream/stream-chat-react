@@ -19,14 +19,6 @@ import {
 import { Channel } from '../../../Channel';
 import { Chat } from '../../../Chat';
 
-// MERGE-RECONCILE (test migration): PR #2909 rewrote useReactionHandler to send/delete
-// reactions through the client (`client.sendReaction`/`client.deleteReaction`)
-// and to apply optimistic updates via `messagePaginator.ingestItem` — replacing the removed
-// ChannelActionContext `updateMessage` and the ChannelStateContext capability check. The
-// wrapper now uses the real <Chat>/<Channel> providers and assertions spy on the channel /
-// its messagePaginator. The `send-reaction` capability test was dropped (the hook no longer
-// gates on capabilities; permission gating lives in the UI layer).
-
 const alice = generateUser({ name: 'alice' });
 const bob = generateUser({ name: 'bob' });
 

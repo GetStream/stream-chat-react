@@ -20,6 +20,10 @@ export type AudioPlayerDescriptor = {
   /** Audio duration in seconds. */
   durationSeconds?: number;
   fileSize?: number | string;
+  /**
+   * MIME type checked with `canPlayType` when the player is created. When unsupported,
+   * `canPlayRecord` is false and `play` registers a `'not-playable'` error.
+   */
   mimeType?: string;
   title?: string;
   waveformData?: number[];
@@ -33,17 +37,17 @@ export type AudioPlayerPlayAudioParams = {
 export type AudioPlayerState = {
   /** Signals whether the browser can play the record. */
   canPlayRecord: boolean;
-  /** Current playback speed. Initiated with the first item of the playbackRates array. */
+  /** Current playback speed. Starts as the first item of `playbackRates`. */
   currentPlaybackRate: number;
   /** Audio duration in seconds, from descriptor or loaded metadata. */
   durationSeconds?: number;
-  /** The audio element ref */
+  /** Audio element held by the player, `null` while it holds none. */
   elementRef: HTMLAudioElement | null;
   /** Signals whether the playback is in progress. */
   isPlaying: boolean;
   /** Keeps the latest playback error reference. */
   playbackError: Error | null;
-  /** An array of fractional numeric values of playback speed to override the defaults (1.0, 1.5, 2.0) */
+  /** Available playback speeds. Defaults to 1.0, 1.5 and 2.0. */
   playbackRates: number[];
   /** Playback progress expressed in percent. */
   progressPercent: number;
@@ -52,7 +56,7 @@ export type AudioPlayerState = {
 };
 
 export type AudioPlayerOptions = AudioPlayerDescriptor & {
-  /** An array of fractional numeric values of playback speed to override the defaults (1.0, 1.5, 2.0) */
+  /** Playback speeds that replace the defaults (1.0, 1.5, 2.0). */
   playbackRates?: number[];
   plugins?: AudioPlayerPlugin[];
   pool: AudioPlayerPool;
@@ -80,7 +84,6 @@ export type SeekFn = (params: {
 
 export class AudioPlayer {
   state: StateStore<AudioPlayerState>;
-  /** The audio MIME type that is checked before the audio is played. If the type is not supported the controller registers error in playbackError. */
   private _data: AudioPlayerDescriptor;
   private _plugins = new Map<string, AudioPlayerPlugin>();
   private playTimeout: ReturnType<typeof setTimeout> | undefined = undefined;
@@ -122,7 +125,7 @@ export class AudioPlayer {
       ? customPlaybackRates
       : DEFAULT_PLAYBACK_RATES;
 
-    // do not create element here; only evaluate canPlayRecord cheaply
+    // The shared element is acquired lazily; a temporary `Audio` probes the MIME type instead.
     const canPlayRecord = mimeType ? !!new Audio().canPlayType(mimeType) : true;
 
     this.state = new StateStore<AudioPlayerState>({
@@ -348,7 +351,7 @@ export class AudioPlayer {
         // ignore
       }
     };
-    // No information is available about the media resource.
+    // readyState below 1 (HAVE_NOTHING): nothing is known about the media resource yet.
     if (elementRef.readyState < 1) {
       this.clearPendingLoadedMeta();
       this._restoringPosition = true;
@@ -442,7 +445,6 @@ export class AudioPlayer {
     this._restoringPosition = false;
     this._elementIsReadyPromise = undefined;
     this.state.partialNext({ elementRef });
-    // When a new element is attached, make sure listeners are wired to it
     if (elementRef) {
       this.registerSubscriptions();
     }
@@ -491,7 +493,6 @@ export class AudioPlayer {
       return;
     }
 
-    // Restore last known position for this player before attempting to play
     this.restoreSavedPosition(elementRef);
 
     elementRef.playbackRate = currentPlaybackRate ?? this.currentPlaybackRate;
@@ -579,8 +580,8 @@ export class AudioPlayer {
   };
 
   /**
-   * Removes the audio element reference, event listeners and audio player from the player pool.
-   * Helpful when only a single AudioPlayer instance is to be removed from the AudioPlayerPool.
+   * Disposes the player: releases its element and listeners, runs plugins' `onRemove`, and
+   * deregisters it from the pool.
    */
   requestRemoval = () => {
     this._disposed = true;
@@ -609,8 +610,8 @@ export class AudioPlayer {
   };
 
   /**
-   * Releases only the underlying element back to the pool without disposing the player instance.
-   * Used by the pool to hand off the shared element in single-playback mode.
+   * Releases the element and its listeners without disposing the player. Used by
+   * `AudioPlaybackArbiter` to hand the shared element to another player.
    */
   releaseElementForHandoff = () => {
     if (!this.elementRef) return;
@@ -633,12 +634,9 @@ export class AudioPlayer {
     };
 
     const handleError = (e: HTMLMediaElementEventMap['error']) => {
-      // if fired probably is one of these (e.srcElement.error.code)
-      // 1 = MEDIA_ERR_ABORTED         (fetch aborted by user/JS)
-      // 2 = MEDIA_ERR_NETWORK         (network failed while fetching)
-      // 3 = MEDIA_ERR_DECODE          (data fetched but couldn’t decode)
-      // 4 = MEDIA_ERR_SRC_NOT_SUPPORTED (no resource supported / bad type)
-      // reported during the mount so only logging to the console
+      // `audio.error.code` is 1 MEDIA_ERR_ABORTED, 2 MEDIA_ERR_NETWORK, 3 MEDIA_ERR_DECODE or
+      // 4 MEDIA_ERR_SRC_NOT_SUPPORTED. The error is only logged; code 4 also marks the record
+      // as not playable.
       const audio = e.currentTarget as HTMLAudioElement | null;
       const state: Partial<AudioPlayerState> = { isPlaying: false };
 

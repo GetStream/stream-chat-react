@@ -16,15 +16,15 @@ import { WithAudioPlayback } from '../AudioPlayback';
 
 export type ChannelProps = {
   /**
-   * The channel to bind this subtree to. Required -- render `<ChannelPlaceholder />` (or nothing)
-   * while none is selected. Initialize it before passing it in; `Channel` does not query.
+   * Channel to bind to this subtree, initialized beforehand: `Channel` does not query. Render
+   * `<ChannelPlaceholder />` while none is selected.
    */
   channel: StreamChannel;
 };
 
 /**
- * The channel's content column (`.str-chat__channel`) with no channel bound, for filling the same
- * layout slot while none is selected.
+ * The channel content column (`.str-chat__channel`) with no channel bound, to fill the layout slot
+ * while none is selected. `Channel` renders it as its container.
  */
 export const ChannelPlaceholder = ({
   children,
@@ -43,40 +43,37 @@ export const ChannelPlaceholder = ({
   );
 };
 
-// One component: `channel` is required and nothing is keyed, so there is no early return needing a
-// wrapper to sit in front of the hooks.
+/** Binds `channel` to its subtree and keeps it active while mounted, without querying it. */
 export const Channel = (props: PropsWithChildren<ChannelProps>) => {
   const { channel, children } = props;
 
   const { client } = useChatContext();
   const windowsEmojiClass = useImageFlagEmojisOnWindowsClass();
 
-  // Claim the channel while mounted (refcounted, so several consumers are fine). The client skips
-  // re-seeding an active channel's message list on hydration, leaving the larger loaded window to
-  // `channel.reload()`. Activating also keeps the channel in the client's channel store for the
-  // session; the returned function only ends this mount's claim.
+  // An active channel stays in the client's channel store, and channel-list hydration does not
+  // re-seed its message list (`channel.reload()` owns that window). Claims are refcounted; the
+  // returned function ends only this mount's claim.
   useEffect(() => channel.activate(), [channel]);
 
-  // Keyed on the instance, not the cid: children subscribe to *this* channel's stores.
+  // Depends on the instance, not the `cid`: children subscribe to this channel's stores.
   const channelInstanceContextValue = useMemo(() => ({ channel }), [channel]);
 
   useEffect(() => {
-    // Re-seed the unread boundary the separator and "N new" banner render from: a cached channel
-    // is not re-queried on reopen, so the LLC's auto-seed never runs and the boundary would be
-    // stale. Skipped when the channel is deliberately flagged unread, since seeding clears that
-    // flag. Marking read is `useMarkRead`'s job, not this one's.
+    // Re-seeds the unread boundary behind the separator and "N new" banner: a cached channel is not
+    // re-queried on reopen, so the LLC's auto-seed does not run. Skipped when the channel is marked
+    // unread, because seeding clears that mark. Marking read is left to `useMarkRead`.
     if (
       !channel.messagePaginator.unreadStateSnapshot.getLatestValue().firstUnreadMessageId
     ) {
       channel.messagePaginator.seedUnreadSnapshot();
     }
 
-    // One subscription per event, each released by its own handle, so subscribing and
-    // unsubscribing cannot drift apart and nothing has to filter events it never asked for.
+    // Each subscription is released by its own handle, so subscribing and unsubscribing stay
+    // paired.
     const subscriptions = [
-      // Channel state is not normalized, so rather than hunting this user's references through it
-      // we re-query. Note what that does and does not do: it refreshes members, read state and
-      // watchers, but not the loaded messages -- the page it asks for is older than the window.
+      // Channel state is not normalized, so references to the deleted user are refreshed by a
+      // re-query. It updates members, read state and watchers, but not the loaded messages: the
+      // requested page is older than the loaded window.
       // todo: remove with REACT-1175 (single source of truth for user references)
       client.on('user.deleted', async () => {
         const oldestID = channel.messagePaginator.items?.[0]?.id;

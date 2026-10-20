@@ -115,7 +115,5 @@ const UnMemoizedCard = (props: CardProps) => {
   );
 };
 
-/**
- * Simple Card Layout for displaying links
- */
+/** Layout for a link preview card. */
 export const Card = React.memo(UnMemoizedCard) as typeof UnMemoizedCard;

@@ -5,10 +5,7 @@ export type GetDialogParams = {
   id: DialogId;
 };
 export type GetOrCreateDialogParams = GetDialogParams & {
-  /**
-   * Optional per-dialog override.
-   * If undefined, manager-level `closeOnClickOutside` is used.
-   */
+  /** Per-dialog override. Defaults to the manager's `closeOnClickOutside`. */
   closeOnClickOutside?: boolean;
 };
 
@@ -26,7 +23,7 @@ export type Dialog = {
 };
 
 export type DialogManagerOptions = {
-  /** Enables closing all dialogs in this manager when clicking overlay/outside area. */
+  /** Closes open dialogs on a click on the overlay or outside it. Defaults to true. */
   closeOnClickOutside?: boolean;
   id?: string;
 };
@@ -39,17 +36,11 @@ export type DialogManagerState = {
 };
 
 /**
- * Keeps a map of Dialog objects.
- * Dialog can be controlled via `Dialog` object retrieved using `useDialog()` hook.
- * The hook returns an object with the following API:
- *
- * - `dialog.open()` - opens the dialog
- * - `dialog.close()` - closes the dialog
- * - `dialog.toggle()` - toggles the dialog open state. Accepts boolean argument closeAll. If enabled closes any other dialog that would be open.
- * - `dialog.remove()` - removes the dialog object reference from the state (primarily for cleanup purposes)
+ * Keeps the dialogs by ID and which of them are open, in opening order. A dialog is controlled
+ * through the `Dialog` object that `useDialog()` returns.
  */
 export class DialogManager {
-  /** Manager-level outside click policy used by DialogPortal dismiss handlers. */
+  /** Outside-click policy of dialogs that do not set their own. */
   closeOnClickOutside: boolean;
   id: string;
   state = new StateStore<DialogManagerState>({
@@ -181,9 +172,8 @@ export class DialogManager {
   };
 
   /**
-   * Marks the dialog state as unused. If the dialog id is referenced again quickly,
-   * the state will not be removed. Otherwise, the state will be removed after
-   * a short timeout.
+   * Marks the dialog as unused: it leaves the opened dialogs now and is removed after 16 ms unless
+   * it is referenced again first.
    */
   markForRemoval(id: DialogId) {
     const dialog = this.get(id);

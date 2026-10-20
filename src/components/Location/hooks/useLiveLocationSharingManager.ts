@@ -3,25 +3,19 @@ import { useEffect, useMemo } from 'react';
 import type { LiveLocationManagerConstructorParameters, StreamChat } from 'stream-chat';
 
 const isMobile = () => /Mobi/i.test(navigator.userAgent);
-/**
- * Checks whether the current browser is Safari.
- */
+/** Whether the user agent matches Safari. False without `navigator`. */
 export const isSafari = () => {
   if (typeof navigator === 'undefined') return false;
   return /^((?!chrome|android).)*safari/i.test(navigator.userAgent || '');
 };
 
-/**
- * Checks whether the current browser is Firefox.
- */
+/** Whether the user agent matches Firefox. False without `navigator`. */
 export const isFirefox = () => {
   if (typeof navigator === 'undefined') return false;
   return navigator.userAgent?.includes('Firefox');
 };
 
-/**
- * Checks whether the current browser is Google Chrome.
- */
+/** Whether the user agent matches Chrome. False without `navigator`. */
 export const isChrome = () => {
   if (typeof navigator === 'undefined') return false;
   return navigator.userAgent?.includes('Chrome');
@@ -60,15 +54,10 @@ export const useLiveLocationSharingManager = ({
     manager.init();
 
     return () => {
-      // Two teardowns, because the manager has two lifetimes. `unregisterSubscriptions` is ref-counted
-      // and releases the WS subscriptions; `dispose` releases the configuration subscription, which the
-      // client's configuration registry holds a handle to — without it a manager per memo generation
-      // accumulates for the life of the client.
-      //
-      // Safe to call here even though StrictMode runs cleanup between two mounts of the same instance:
-      // `registerSubscriptions` (via `init`) re-subscribes configuration if it was disposed. That
-      // recovery is a microtask late, because `init` awaits its state fetch first — nothing is lost,
-      // since subscribing applies whatever is registered at that moment.
+      // `unregisterSubscriptions` is ref-counted and releases the WebSocket subscriptions;
+      // `dispose` releases the configuration subscription, without which the client's
+      // configuration registry keeps every memoized manager alive. StrictMode's cleanup between
+      // two mounts of one instance is safe: `init` re-subscribes the configuration if disposed.
       manager.unregisterSubscriptions();
       manager.dispose();
     };

@@ -13,10 +13,9 @@ import type {
 } from '../context';
 import type { TDateTimeParser } from '../i18n/types';
 
-// Note: overrides use Record<string, unknown> instead of Partial<ContextValue> because
-// mock `t` functions cannot satisfy i18next's TFunction.$TFunctionBrand symbol, and
-// mock components cannot satisfy React.ComponentType under strict function types.
-// fromPartial handles the runtime casting to the correct context type.
+// Overrides are `Record<string, unknown>`, not `Partial<ContextValue>`: mock `t` functions cannot
+// satisfy i18next's `TFunction.$TFunctionBrand` symbol, and mock components cannot satisfy
+// `React.ComponentType` under strict function types. `fromPartial` casts to the context type.
 
 export const mockChatContext = (overrides: Record<string, unknown> = {}) =>
   fromPartial<ChatContextValue>({

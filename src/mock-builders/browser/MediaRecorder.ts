@@ -23,8 +23,8 @@ export class MediaRecorderMock extends EventEmitterMock {
     });
     this.stop = vi.fn(() => {
       this.state = 'inactive';
-      // When enabled, simulate the browser behavior where stop triggers dataavailable.
-      // Off by default to not break unit tests that manually control the data flow.
+      // Simulates the browser emitting `dataavailable` on stop. Off by default so tests that drive
+      // the data flow by hand keep working.
       if (MediaRecorderMock.autoEmitDataOnStop) {
         const dataEvent = {
           data: new Blob([new Uint8Array([0x48])], { type: 'audio/webm' }),

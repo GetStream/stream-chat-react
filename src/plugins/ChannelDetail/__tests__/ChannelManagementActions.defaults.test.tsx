@@ -314,8 +314,8 @@ describe('DefaultChannelManagementActions', () => {
 
     expect(mocks.unmute).toHaveBeenCalledTimes(1);
     expect(mocks.mute).not.toHaveBeenCalled();
-    // The channel was never muted; reconciling to channelMuted (not a hard-coded
-    // `true`) keeps the optimistic state correct after the failure.
+    // The channel was never muted; reconciling to `channelMuted` (not a hard-coded `true`) keeps
+    // the optimistic state correct after the failure.
     expect(screen.getByRole('button', { name: 'Mute chat' })).toHaveAttribute(
       'aria-pressed',
       'false',
@@ -495,8 +495,8 @@ describe('DefaultChannelManagementActions', () => {
 
   it('hides DM user actions when the other member is not yet loaded', () => {
     mocks.channel.data.own_capabilities = ['ban-channel-members', 'mute-channel'];
-    // Still a DM (member_count 2 + own user present), but the other member has
-    // not loaded yet, so muteUser/blockUser must not be enabled.
+    // Still a DM (member_count 2 + own user present), but the other member has not loaded yet, so
+    // muteUser/blockUser must not be enabled.
     mocks.channel.data.members = [{ user: { id: 'own-user' } }];
     mocks.channel.state.members = {
       'own-user': { user: { id: 'own-user' } },

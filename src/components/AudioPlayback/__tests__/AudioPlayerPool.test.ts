@@ -122,9 +122,8 @@ describe('AudioPlayerPool', () => {
   });
 
   it('two pools sharing an arbiter cannot play at once', () => {
-    // The reason the arbiter exists: `Channel` and `Thread` mount a pool each, so exclusivity
-    // cannot live in the pool. Starting the second player hands the shared element over and
-    // pauses the first.
+    // `Channel` and `Thread` mount a pool each, so exclusivity cannot live in the pool. Starting
+    // the second player hands the shared element over and pauses the first.
     const arbiter = new AudioPlaybackArbiter();
     const channelPool = new AudioPlayerPool({ arbiter });
     const threadPool = new AudioPlayerPool({ arbiter });

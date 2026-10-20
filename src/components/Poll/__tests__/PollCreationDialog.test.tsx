@@ -1,7 +1,5 @@
-// Import the package barrel first so it evaluates in its natural order (components then context).
-// MessageComposer's send hooks (rendered by PollCreationDialog's controls) import `useChannel` from
-// this root barrel; importing a deep component path first triggers a partial circular re-entry that
-// leaves `useChannel` undefined under Vitest.
+// Import the package barrel first: a deep component import first causes a partial circular
+// re-entry that leaves `useChannel` undefined under Vitest.
 import '../../..';
 import React from 'react';
 import {
@@ -56,9 +54,7 @@ const getSubmitPollButton = () => screen.getByRole('button', { name: /send poll/
 const close = vi.fn();
 const user = generateUser();
 
-// The poll message is sent through `useSendMessageFn`, i.e. `channel.messageOperations.send`.
-// (`MessageComposerContextValue.handleSubmit` no longer exists - the composer context only carries
-// `onPaste` / `recordingController` / `textareaRef`.)
+// The composer's `send()` delivers the poll message through `channel.messageOperations.send`.
 const spyOnSendMessage = (channel: ChannelType) =>
   vi.spyOn(channel.messageOperations, 'send').mockResolvedValue(undefined);
 
@@ -116,7 +112,7 @@ describe('PollCreationDialog', () => {
 
   it('describes the reorder/remove affordance on each option field once a second option exists', async () => {
     await renderComponent();
-    // Single option: no reorder/remove controls yet, so the field carries no such description.
+    // A single option has no reorder/remove controls, so the field has no such description.
     expect(getOptionInput()).toHaveAccessibleDescription('');
 
     // Typing into the only option auto-adds a second one, making the controls available.
@@ -129,8 +125,8 @@ describe('PollCreationDialog', () => {
       ).toBeGreaterThan(1),
     );
 
-    // The affordance is attached to every option field's accessible description (aria-describedby),
-    // so it is read in sequence as part of the field read-out rather than via a swallowed live region.
+    // The affordance is each option field's accessible description (aria-describedby), not a live
+    // region message.
     screen.getAllByPlaceholderText(OPTION_FIELD_PLACEHOLDER).forEach((input) => {
       expect(input).toHaveAccessibleDescription(
         'This option can be reordered and removed.',
@@ -148,7 +144,6 @@ describe('PollCreationDialog', () => {
       expect(screen.getAllByRole('button', { name: /^remove /i }).length).toBe(2),
     );
 
-    // Removing back to a single option removes the controls, so the description goes away too.
     await act(async () => {
       await fireEvent.click(screen.getAllByRole('button', { name: /^remove /i })[0]);
     });
@@ -162,13 +157,12 @@ describe('PollCreationDialog', () => {
     await renderComponent();
     const politeRegion = screen.getByTestId('str-chat__aria-live-region--polite');
 
-    // Adding a second option makes the reorder/remove controls available.
     await act(async () => {
       await fireEvent.change(getOptionInput(), { target: { value: 'First' } });
     });
 
-    // Announced via a polite live region, debounced until the option list has been idle for a beat
-    // (so it lands after the SR's typing echo / field re-read instead of being superseded by it).
+    // Polite and deferred until the option list is idle, so the screen reader's typing echo does
+    // not supersede it.
     await waitFor(
       () =>
         expect(getLatestLiveAnnouncement(politeRegion)).toBe(
@@ -233,10 +227,9 @@ describe('PollCreationDialog', () => {
     expect(screen.getByRole('button', { name: 'Close' })).toHaveAccessibleName('Close');
   });
 
-  // The dialog description is exposed via aria-describedby, which SRs treat as a (often-skipped)
-  // hint. On open we announce — assertively, so it is not dropped around the dialog's focus-entry
-  // announcement — an open confirmation + the description + the Enter affordance to step into the
-  // Question field (via the `poll.dialogOpened` interaction).
+  // Screen readers often skip the aria-describedby hint, so `poll.dialogOpened` announces the open
+  // confirmation, the description and the Enter affordance, assertively so the dialog's focus-entry
+  // announcement does not drop it.
   it('announces the dialog open confirmation, description, and Enter hint via the live region', async () => {
     await renderComponent();
     const assertiveRegion = screen.getByTestId('str-chat__aria-live-region--assertive');
@@ -396,10 +389,7 @@ describe('PollCreationDialog', () => {
     const optionFields = screen.getAllByPlaceholderText(OPTION_FIELD_PLACEHOLDER);
     expect(optionFields[0]).toHaveValue('');
     expect(optionFields[1]).toHaveValue('First option');
-    // Focus follows the moved option to its new row, and the active handle's
-    // aria-label embeds the option text + new position so VoiceOver's native
-    // focus announcement carries the move information without duplicating a
-    // live-region "moved to position" message.
+    // Focus follows the moved option, and the handle's aria-label carries its text and position.
     await waitFor(() => {
       expect(document.activeElement).toHaveAttribute(
         'aria-label',
@@ -407,9 +397,8 @@ describe('PollCreationDialog', () => {
       );
       expect(document.activeElement).toHaveAttribute('aria-pressed', 'true');
     });
-    // The move itself emits no polite "moved to position" message (that info rides on the handle's
-    // aria-label). The only polite message present is the one-time controls-available announcement
-    // from when the second option appeared during setup — it must not mention a position.
+    // The move emits no polite message; the only one present is the earlier controls-available
+    // announcement, which must not mention a position.
     expect(getLatestLiveAnnouncement(politeLiveRegion)).not.toMatch(/position/i);
 
     await act(async () => {
@@ -622,7 +611,7 @@ describe('PollCreationDialog', () => {
       await fireEvent.blur(maxVoteCountInput);
     });
 
-    // SDK clamps max_votes_allowed to valid range [2, 10]
+    // The composer clamps max_votes_allowed to [2, 10]
     expect(getMaxVoteCountInput()?.value).toBe('10');
     expect(screen.queryByText(MAX_VOTE_COUNT_FIELD_ERROR_TEXT)).not.toBeInTheDocument();
     expect(screen.getByText(CANCEL_BUTTON_TEXT)).toBeEnabled();
@@ -673,9 +662,8 @@ describe('PollCreationDialog', () => {
       options: [{ text: 'Option 1' }, { text: 'Option 2' }],
       voting_visibility: 'anonymous',
     };
-    // v10 `createPoll(request)` derives the author from the connected user - `user_id` is no longer
-    // part of the request payload. The composer generates the poll `id`, which `objectContaining`
-    // below tolerates.
+    // `createPoll` derives the author from the connected user, so the payload has no `user_id`. The
+    // composer generates the poll `id`, which `objectContaining` below tolerates.
     const expectedPollPayload = { ...formState, max_votes_allowed: 10 };
 
     const poll = { id: 'pollId' };
@@ -777,10 +765,8 @@ describe('PollCreationDialog', () => {
       client,
     } = await initClientWithChannels({ customUser: user });
     await renderComponent({ channel, client });
-    // createPoll() in stream-chat-js already publishes an
-    // `api:poll:create:failed` notification on failure, so the React side must
-    // not add its own error notification (avoids a duplicate). It also must
-    // not emit the success notification.
+    // `createPoll()` already emits `api:poll:create:failed`, so the dialog must add neither its own
+    // error notification nor the success one.
     vi.spyOn(client, 'createPoll').mockRejectedValueOnce(new Error('create failed'));
     const sendMessageSpy = spyOnSendMessage(channel);
     const addNotificationSpy = vi.spyOn(client.notifications, 'add');
@@ -820,9 +806,8 @@ describe('PollCreationDialog', () => {
       client,
     } = await initClientWithChannels({ customUser: user });
     await renderComponent({ channel, client });
-    // Poll creation succeeds, but sending the message rejects. createPoll's own
-    // self-notification does not cover this, so the React side must surface it
-    // (and must NOT emit the success notification).
+    // Poll creation succeeds but sending rejects: `send()` reports `api:message:send:failed`, and
+    // the success notification must not be emitted.
     vi.spyOn(client, 'createPoll').mockResolvedValueOnce(
       fromPartial({ poll: { id: 'pid' } }),
     );

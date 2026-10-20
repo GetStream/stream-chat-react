@@ -14,14 +14,11 @@ import {
 type AttachmentPreviewRootProps = Omit<ComponentProps<'div'>, 'onClick' | 'onKeyDown'> & {
   attachment: LocalUploadAttachment;
   /**
-   * Called when the attachment preview is pressed and can be previewed.
-   * The parent is responsible for opening the gallery at the correct index.
+   * Called when the preview is pressed and the attachment can be previewed. The parent opens the
+   * gallery at the correct index.
    */
   openPreview?: () => void;
-  /**
-   * Returns boolean value to signal whether the event handling should be terminated immediately (return false)
-   *  or default logic can be executed next (return true)
-   */
+  /** Runs before the default press handling. Return false to skip it. */
   onPressed?: (e: MouseEvent<Element> | KeyboardEvent<Element>) => boolean;
 };
 

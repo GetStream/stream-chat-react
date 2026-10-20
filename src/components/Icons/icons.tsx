@@ -2,7 +2,6 @@ import React from 'react';
 
 import { createIcon } from './createIcon';
 
-// was: IconArrowBoxLeft
 export const IconLeave = createIcon(
   'IconLeave',
   <path
@@ -52,7 +51,6 @@ export const IconArrowLeft = createIcon(
   { 'data-rtl-mirror': '' },
 );
 
-// was: IconArrowRightUp
 export const IconArrowUpRight = createIcon(
   'IconArrowUpRight',
   <path
@@ -66,7 +64,6 @@ export const IconArrowUpRight = createIcon(
   { 'data-rtl-mirror': '' },
 );
 
-// was: IconArrowRotateClockwise
 export const IconRetry = createIcon(
   'IconRetry',
   <path
@@ -79,7 +76,6 @@ export const IconRetry = createIcon(
   />,
 );
 
-// was: IconArrowRotateRightLeftRepeatRefresh
 export const IconRefresh = createIcon(
   'IconRefresh',
   <path
@@ -92,7 +88,6 @@ export const IconRefresh = createIcon(
   />,
 );
 
-// was: IconArrowShareLeft
 export const IconReply = createIcon(
   'IconReply',
   <path
@@ -118,7 +113,6 @@ export const IconArrowUp = createIcon(
   />,
 );
 
-// was: IconBellNotification
 export const IconBell = createIcon(
   'IconBell',
   <path
@@ -167,7 +161,6 @@ export const IconBookmarkRemove = createIcon(
   />,
 );
 
-// was: IconBubbles
 export const IconMessageBubbles = createIcon(
   'IconMessageBubbles',
   <path
@@ -180,7 +173,6 @@ export const IconMessageBubbles = createIcon(
   />,
 );
 
-// was: IconBubble2ChatMessage
 export const IconMessageBubble = createIcon(
   'IconMessageBubble',
   <path
@@ -193,13 +185,11 @@ export const IconMessageBubble = createIcon(
   />,
 );
 
-// was: IconBubble2Solid
 export const IconMessageBubbleFill = createIcon(
   'IconMessageBubbleFill',
   <path d='M18.125 10.0001C18.1253 11.4028 17.7624 12.7818 17.0717 14.0027C16.381 15.2236 15.3859 16.2449 14.1834 16.9671C12.9808 17.6894 11.6118 18.088 10.2095 18.1242C8.80719 18.1603 7.41942 17.8328 6.18125 17.1735L3.52109 18.0602C3.30085 18.1337 3.0645 18.1444 2.83854 18.091C2.61257 18.0377 2.40593 17.9225 2.24176 17.7583C2.07759 17.5942 1.96239 17.3875 1.90906 17.1615C1.85573 16.9356 1.86639 16.6992 1.93984 16.479L2.82656 13.8188C2.24699 12.7292 1.92328 11.5218 1.88 10.2883C1.83672 9.0549 2.075 7.8278 2.57677 6.70019C3.07854 5.57258 3.8306 4.57411 4.77587 3.78055C5.72114 2.98699 6.83478 2.41921 8.03224 2.1203C9.22971 1.82139 10.4795 1.79922 11.6868 2.05545C12.8942 2.31169 14.0272 2.8396 15.0001 3.59912C15.9729 4.35865 16.7599 5.32981 17.3014 6.43891C17.8428 7.548 18.1245 8.76588 18.125 10.0001Z' />,
 );
 
-// was: IconBubbleText6ChatMessage
 export const IconThread = createIcon(
   'IconThread',
   <path
@@ -212,13 +202,11 @@ export const IconThread = createIcon(
   />,
 );
 
-// was: IconBubbleText6Solid
 export const IconThreadFill = createIcon(
   'IconThreadFill',
   <path d='M10.3125 1.875C8.24119 1.87727 6.25538 2.70111 4.79074 4.16574C3.32611 5.63038 2.50227 7.61619 2.5 9.6875V16.25C2.5 16.5815 2.6317 16.8995 2.86612 17.1339C3.10054 17.3683 3.41848 17.5 3.75 17.5H10.3125C12.3845 17.5 14.3716 16.6769 15.8368 15.2118C17.3019 13.7466 18.125 11.7595 18.125 9.6875C18.125 7.6155 17.3019 5.62836 15.8368 4.16323C14.3716 2.6981 12.3845 1.875 10.3125 1.875ZM12.8125 11.875H7.5C7.33424 11.875 7.17527 11.8092 7.05806 11.6919C6.94085 11.5747 6.875 11.4158 6.875 11.25C6.875 11.0842 6.94085 10.9253 7.05806 10.8081C7.17527 10.6908 7.33424 10.625 7.5 10.625H12.8125C12.9783 10.625 13.1372 10.6908 13.2544 10.8081C13.3717 10.9253 13.4375 11.0842 13.4375 11.25C13.4375 11.4158 13.3717 11.5747 13.2544 11.6919C13.1372 11.8092 12.9783 11.875 12.8125 11.875ZM12.8125 9.375H7.5C7.33424 9.375 7.17527 9.30915 7.05806 9.19194C6.94085 9.07473 6.875 8.91576 6.875 8.75C6.875 8.58424 6.94085 8.42527 7.05806 8.30806C7.17527 8.19085 7.33424 8.125 7.5 8.125H12.8125C12.9783 8.125 13.1372 8.19085 13.2544 8.30806C13.3717 8.42527 13.4375 8.58424 13.4375 8.75C13.4375 8.91576 13.3717 9.07473 13.2544 9.19194C13.1372 9.30915 12.9783 9.375 12.8125 9.375Z' />,
 );
 
-// was: IconBubbleWideNotificationChatMessage
 export const IconNotification = createIcon(
   'IconNotification',
   <path
@@ -231,7 +219,6 @@ export const IconNotification = createIcon(
   />,
 );
 
-// was: IconCamera1
 export const IconCamera = createIcon(
   'IconCamera',
   <>
@@ -254,7 +241,6 @@ export const IconCamera = createIcon(
   </>,
 );
 
-// was: IconChainLink
 export const IconLink = createIcon(
   'IconLink',
   <path
@@ -267,7 +253,6 @@ export const IconLink = createIcon(
   />,
 );
 
-// was: IconChart5
 export const IconPoll = createIcon(
   'IconPoll',
   <path
@@ -292,7 +277,6 @@ export const IconCheckmark1Small = createIcon(
   />,
 );
 
-// was: IconCheckmark2
 export const IconCheckmark = createIcon(
   'IconCheckmark',
   <path
@@ -343,7 +327,6 @@ export const IconChevronRight = createIcon(
   { 'data-rtl-mirror': '' },
 );
 
-// was: IconCircleBanSign
 export const IconNoSign = createIcon(
   'IconNoSign',
   <path
@@ -376,7 +359,6 @@ export const IconMinus = createIcon(
   />,
 );
 
-// was: IconCircleX
 export const IconXCircle = createIcon(
   'IconXCircle',
   <path
@@ -401,7 +383,6 @@ export const IconClock = createIcon(
   />,
 );
 
-// was: IconCloseQuote2
 export const IconQuote = createIcon(
   'IconQuote',
   <path
@@ -414,7 +395,6 @@ export const IconQuote = createIcon(
   />,
 );
 
-// was: IconCrossMedium
 export const IconXmark = createIcon(
   'IconXmark',
   <path
@@ -427,7 +407,6 @@ export const IconXmark = createIcon(
   />,
 );
 
-// was: IconCrossSmall
 export const IconXmarkSmall = createIcon(
   'IconXmarkSmall',
   <path
@@ -440,7 +419,6 @@ export const IconXmarkSmall = createIcon(
   />,
 );
 
-// was: IconDotGrid1x3Horizontal
 export const IconMore = createIcon(
   'IconMore',
   <>
@@ -462,13 +440,11 @@ export const IconMenu = createIcon(
   />,
 );
 
-// was: IconDotGrid2x3
 export const IconReorder = createIcon(
   'IconReorder',
   <path d='M8.875 15.3125C8.875 16.2445 8.11948 17 7.1875 17C6.25552 17 5.5 16.2445 5.5 15.3125C5.5 14.3805 6.25552 13.625 7.1875 13.625C8.11948 13.625 8.875 14.3805 8.875 15.3125ZM14.5 15.3125C14.5 16.2445 13.7445 17 12.8125 17C11.8805 17 11.125 16.2445 11.125 15.3125C11.125 14.3805 11.8805 13.625 12.8125 13.625C13.7445 13.625 14.5 14.3805 14.5 15.3125ZM8.875 10C8.875 10.932 8.11948 11.6875 7.1875 11.6875C6.25552 11.6875 5.5 10.932 5.5 10C5.5 9.06802 6.25552 8.3125 7.1875 8.3125C8.11948 8.3125 8.875 9.06802 8.875 10ZM14.5 10C14.5 10.932 13.7445 11.6875 12.8125 11.6875C11.8805 11.6875 11.125 10.932 11.125 10C11.125 9.06802 11.8805 8.3125 12.8125 8.3125C13.7445 8.3125 14.5 9.06802 14.5 10ZM8.875 4.6875C8.875 5.61948 8.11948 6.375 7.1875 6.375C6.25552 6.375 5.5 5.61948 5.5 4.6875C5.5 3.75552 6.25552 3 7.1875 3C8.11948 3 8.875 3.75552 8.875 4.6875ZM14.5 4.6875C14.5 5.61948 13.7445 6.375 12.8125 6.375C11.8805 6.375 11.125 5.61948 11.125 4.6875C11.125 3.75552 11.8805 3 12.8125 3C13.7445 3 14.5 3.75552 14.5 4.6875Z' />,
 );
 
-// was: IconDoubleCheckmark1Small
 export const IconChecks = createIcon(
   'IconChecks',
   <path
@@ -489,7 +465,6 @@ export const IconDownload = createIcon(
   />,
 );
 
-// was: IconEditBig
 export const IconEdit = createIcon(
   'IconEdit',
   <path
@@ -502,7 +477,6 @@ export const IconEdit = createIcon(
   />,
 );
 
-// was: IconEmojiSmile
 export const IconEmoji = createIcon(
   'IconEmoji',
   <>
@@ -539,7 +513,6 @@ export const IconEmojiAdd = createIcon(
   </>,
 );
 
-// was: IconExclamation
 export const IconExclamationMarkFill = createIcon(
   'IconExclamationMarkFill',
   <>
@@ -548,13 +521,11 @@ export const IconExclamationMarkFill = createIcon(
   </>,
 );
 
-// was: IconExclamationCircle1
 export const IconExclamationCircleFill = createIcon(
   'IconExclamationCircleFill',
   <path d='M10 1.875C8.39303 1.875 6.82214 2.35152 5.486 3.24431C4.14985 4.1371 3.10844 5.40605 2.49348 6.8907C1.87852 8.37535 1.71762 10.009 2.03112 11.5851C2.34463 13.1612 3.11846 14.6089 4.25476 15.7452C5.39106 16.8815 6.8388 17.6554 8.41489 17.9689C9.99099 18.2824 11.6247 18.1215 13.1093 17.5065C14.594 16.8916 15.8629 15.8502 16.7557 14.514C17.6485 13.1779 18.125 11.607 18.125 10C18.1227 7.84581 17.266 5.78051 15.7427 4.25727C14.2195 2.73403 12.1542 1.87727 10 1.875ZM9.375 6.25C9.375 6.08424 9.44085 5.92527 9.55806 5.80806C9.67527 5.69085 9.83424 5.625 10 5.625C10.1658 5.625 10.3247 5.69085 10.4419 5.80806C10.5592 5.92527 10.625 6.08424 10.625 6.25V10.625C10.625 10.7908 10.5592 10.9497 10.4419 11.0669C10.3247 11.1842 10.1658 11.25 10 11.25C9.83424 11.25 9.67527 11.1842 9.55806 11.0669C9.44085 10.9497 9.375 10.7908 9.375 10.625V6.25ZM10 14.375C9.81458 14.375 9.63333 14.32 9.47916 14.217C9.32499 14.114 9.20482 13.9676 9.13387 13.7963C9.06291 13.625 9.04434 13.4365 9.08052 13.2546C9.11669 13.0727 9.20598 12.9057 9.33709 12.7746C9.4682 12.6435 9.63525 12.5542 9.81711 12.518C9.99896 12.4818 10.1875 12.5004 10.3588 12.5714C10.5301 12.6423 10.6765 12.7625 10.7795 12.9167C10.8825 13.0708 10.9375 13.2521 10.9375 13.4375C10.9375 13.6861 10.8387 13.9246 10.6629 14.1004C10.4871 14.2762 10.2486 14.375 10 14.375Z' />,
 );
 
-// was: IconExclamationCircle
 export const IconExclamationMark = createIcon(
   'IconExclamationMark',
   <>
@@ -564,13 +535,11 @@ export const IconExclamationMark = createIcon(
   </>,
 );
 
-// was: IconExclamationTriangle
 export const IconExclamationTriangleFill = createIcon(
   'IconExclamationTriangleFill',
   <path d='M18.4999 14.6946L11.6678 2.82974C11.4971 2.53906 11.2534 2.29803 10.9608 2.13057C10.6682 1.9631 10.337 1.875 9.99986 1.875C9.66275 1.875 9.33149 1.9631 9.03892 2.13057C8.74635 2.29803 8.50262 2.53906 8.33189 2.82974L1.49986 14.6946C1.33559 14.9757 1.24902 15.2955 1.24902 15.6211C1.24902 15.9468 1.33559 16.2665 1.49986 16.5477C1.6684 16.8401 1.91171 17.0825 2.20483 17.2498C2.49795 17.4172 2.83032 17.5036 3.16783 17.5001H16.8319C17.1691 17.5033 17.5012 17.4168 17.794 17.2494C18.0868 17.0821 18.3299 16.8399 18.4983 16.5477C18.6628 16.2667 18.7496 15.947 18.7499 15.6214C18.7502 15.2957 18.6639 14.9759 18.4999 14.6946ZM9.37486 8.12505C9.37486 7.95929 9.44071 7.80032 9.55792 7.68311C9.67513 7.5659 9.8341 7.50005 9.99986 7.50005C10.1656 7.50005 10.3246 7.5659 10.4418 7.68311C10.559 7.80032 10.6249 7.95929 10.6249 8.12505V11.2501C10.6249 11.4158 10.559 11.5748 10.4418 11.692C10.3246 11.8092 10.1656 11.8751 9.99986 11.8751C9.8341 11.8751 9.67513 11.8092 9.55792 11.692C9.44071 11.5748 9.37486 11.4158 9.37486 11.2501V8.12505ZM9.99986 15.0001C9.81444 15.0001 9.63319 14.9451 9.47901 14.8421C9.32484 14.739 9.20468 14.5926 9.13372 14.4213C9.06277 14.25 9.0442 14.0615 9.08038 13.8797C9.11655 13.6978 9.20584 13.5308 9.33695 13.3996C9.46806 13.2685 9.63511 13.1792 9.81696 13.1431C9.99882 13.1069 10.1873 13.1255 10.3586 13.1964C10.5299 13.2674 10.6764 13.3875 10.7794 13.5417C10.8824 13.6959 10.9374 13.8771 10.9374 14.0626C10.9374 14.3112 10.8386 14.5496 10.6628 14.7255C10.487 14.9013 10.2485 15.0001 9.99986 15.0001Z' />,
 );
 
-// was: IconEyeOpen
 export const IconEyeFill = createIcon(
   'IconEyeFill',
   <path d='M19.3211 9.74688C19.2937 9.68516 18.632 8.21719 17.1609 6.74609C15.2008 4.78594 12.725 3.75 9.99999 3.75C7.27499 3.75 4.79921 4.78594 2.83905 6.74609C1.36796 8.21719 0.703118 9.6875 0.678899 9.74688C0.643362 9.82681 0.625 9.91331 0.625 10.0008C0.625 10.0883 0.643362 10.1748 0.678899 10.2547C0.706243 10.3164 1.36796 11.7836 2.83905 13.2547C4.79921 15.2141 7.27499 16.25 9.99999 16.25C12.725 16.25 15.2008 15.2141 17.1609 13.2547C18.632 11.7836 19.2937 10.3164 19.3211 10.2547C19.3566 10.1748 19.375 10.0883 19.375 10.0008C19.375 9.91331 19.3566 9.82681 19.3211 9.74688ZM9.99999 13.125C9.38193 13.125 8.77774 12.9417 8.26384 12.5983C7.74993 12.255 7.34939 11.7669 7.11287 11.1959C6.87634 10.6249 6.81446 9.99653 6.93504 9.39034C7.05562 8.78415 7.35324 8.22733 7.79028 7.79029C8.22732 7.35325 8.78414 7.05562 9.39033 6.93505C9.99652 6.81447 10.6249 6.87635 11.1959 7.11288C11.7669 7.3494 12.255 7.74994 12.5983 8.26384C12.9417 8.77775 13.125 9.38193 13.125 10C13.125 10.8288 12.7958 11.6237 12.2097 12.2097C11.6236 12.7958 10.8288 13.125 9.99999 13.125Z' />,
@@ -584,7 +553,6 @@ export const IconUnsupportedAttachment = createIcon(
   />,
 );
 
-// was: IconFileArrowLeftIn
 export const IconUpload = createIcon(
   'IconUpload',
   <path
@@ -597,7 +565,6 @@ export const IconUpload = createIcon(
   />,
 );
 
-// was: IconFileBend
 export const IconFile = createIcon(
   'IconFile',
   <path
@@ -610,7 +577,6 @@ export const IconFile = createIcon(
   />,
 );
 
-// was: IconFlag2
 export const IconFlag = createIcon(
   'IconFlag',
   <path
@@ -661,7 +627,6 @@ export const IconInfo = createIcon(
   </>,
 );
 
-// was: IconMagnifyingGlassSearch
 export const IconSearch = createIcon(
   'IconSearch',
   <path
@@ -675,7 +640,6 @@ export const IconSearch = createIcon(
   { 'data-rtl-mirror': '' },
 );
 
-// was: IconMapPin
 export const IconLocation = createIcon(
   'IconLocation',
   <>
@@ -698,7 +662,6 @@ export const IconLocation = createIcon(
   </>,
 );
 
-// was: IconMicrophone
 export const IconVoice = createIcon(
   'IconVoice',
   <path
@@ -740,7 +703,6 @@ export const IconMegaphone = createIcon(
   />,
 );
 
-// was: IconPaperPlane
 export const IconSend = createIcon(
   'IconSend',
   <path
@@ -762,7 +724,6 @@ export const IconShield = createIcon(
   />,
 );
 
-// was: IconPaperclip
 export const IconAttachment = createIcon(
   'IconAttachment',
   <path
@@ -775,13 +736,11 @@ export const IconAttachment = createIcon(
   />,
 );
 
-// was: IconPause
 export const IconPauseFill = createIcon(
   'IconPauseFill',
   <path d='M16.875 3.75V16.25C16.875 16.5815 16.7433 16.8995 16.5089 17.1339C16.2745 17.3683 15.9565 17.5 15.625 17.5H12.5C12.1685 17.5 11.8505 17.3683 11.6161 17.1339C11.3817 16.8995 11.25 16.5815 11.25 16.25V3.75C11.25 3.41848 11.3817 3.10054 11.6161 2.86612C11.8505 2.6317 12.1685 2.5 12.5 2.5H15.625C15.9565 2.5 16.2745 2.6317 16.5089 2.86612C16.7433 3.10054 16.875 3.41848 16.875 3.75ZM7.5 2.5H4.375C4.04348 2.5 3.72554 2.6317 3.49112 2.86612C3.2567 3.10054 3.125 3.41848 3.125 3.75V16.25C3.125 16.5815 3.2567 16.8995 3.49112 17.1339C3.72554 17.3683 4.04348 17.5 4.375 17.5H7.5C7.83152 17.5 8.14946 17.3683 8.38388 17.1339C8.6183 16.8995 8.75 16.5815 8.75 16.25V3.75C8.75 3.41848 8.6183 3.10054 8.38388 2.86612C8.14946 2.6317 7.83152 2.5 7.5 2.5Z' />,
 );
 
-// was: IconPeople
 export const IconUser = createIcon(
   'IconUser',
   <path
@@ -802,7 +761,6 @@ export const IconUsers = createIcon(
   />,
 );
 
-// was: IconPeopleAdd
 export const IconUserAdd = createIcon(
   'IconUserAdd',
   <>
@@ -824,7 +782,6 @@ export const IconUserAdd = createIcon(
   </>,
 );
 
-// was: IconPeopleAdded
 export const IconUserCheck = createIcon(
   'IconUserCheck',
   <>
@@ -846,7 +803,6 @@ export const IconUserCheck = createIcon(
   </>,
 );
 
-// was: IconPeopleRemove
 export const IconUserRemove = createIcon(
   'IconUserRemove',
   <>
@@ -880,13 +836,11 @@ export const IconPin = createIcon(
   />,
 );
 
-// was: IconPlaySolid
 export const IconPlayFill = createIcon(
   'IconPlayFill',
   <path d='M18.75 10C18.7505 10.2122 18.6961 10.4209 18.5921 10.6059C18.488 10.7908 18.3379 10.9457 18.1562 11.0555L6.9 17.9414C6.71022 18.0576 6.49287 18.1211 6.27037 18.1252C6.04788 18.1293 5.82832 18.0739 5.63438 17.9648C5.44227 17.8574 5.28225 17.7008 5.17075 17.511C5.05926 17.3213 5.00032 17.1052 5 16.8852V3.11484C5.00032 2.89475 5.05926 2.67872 5.17075 2.48896C5.28225 2.2992 5.44227 2.14257 5.63438 2.03516C5.82832 1.92605 6.04788 1.87071 6.27037 1.87483C6.49287 1.87895 6.71022 1.94239 6.9 2.05859L18.1562 8.94453C18.3379 9.05428 18.488 9.20916 18.5921 9.39411C18.6961 9.57906 18.7505 9.78779 18.75 10Z' />,
 );
 
-// was: IconPlusLarge
 export const IconPlus = createIcon(
   'IconPlus',
   <path
@@ -911,7 +865,6 @@ export const IconPlusSmall = createIcon(
   />,
 );
 
-// was: IconRunShortcut
 export const IconCommand = createIcon(
   'IconCommand',
   <path
@@ -924,7 +877,6 @@ export const IconCommand = createIcon(
   />,
 );
 
-// was: IconSquareBehindSquare2_Copy
 export const IconCopy = createIcon(
   'IconCopy',
   <path
@@ -937,7 +889,6 @@ export const IconCopy = createIcon(
   />,
 );
 
-// was: IconThunder
 export const IconBolt = createIcon(
   'IconBolt',
   <path d='M16.7071 9.80157L7.95711 19.1766C7.86438 19.2755 7.74198 19.3416 7.60839 19.3649C7.47479 19.3882 7.33724 19.3674 7.2165 19.3057C7.09576 19.244 6.99837 19.1446 6.93904 19.0227C6.8797 18.9007 6.86164 18.7628 6.88757 18.6297L8.03289 12.9008L3.53054 11.2102C3.43385 11.174 3.34762 11.1144 3.27956 11.0368C3.2115 10.9592 3.16373 10.8659 3.14052 10.7653C3.1173 10.6647 3.11937 10.5599 3.14653 10.4603C3.17369 10.3607 3.2251 10.2694 3.29617 10.1945L12.0462 0.819538C12.1389 0.720581 12.2613 0.654468 12.3949 0.631176C12.5285 0.607884 12.666 0.628675 12.7868 0.690414C12.9075 0.752152 13.0049 0.851488 13.0642 0.97343C13.1236 1.09537 13.1416 1.2333 13.1157 1.36641L11.9673 7.10157L16.4696 8.78985C16.5656 8.82626 16.6511 8.88576 16.7187 8.96307C16.7862 9.04039 16.8336 9.13315 16.8568 9.23316C16.88 9.33317 16.8781 9.43734 16.8515 9.53648C16.8248 9.63562 16.7742 9.72666 16.704 9.80157H16.7071Z' />,
@@ -955,7 +906,6 @@ export const IconTranslate = createIcon(
   />,
 );
 
-// was: IconTrashBin
 export const IconDelete = createIcon(
   'IconDelete',
   <path
@@ -1014,7 +964,6 @@ export const IconVideo = createIcon(
   { 'data-rtl-mirror': '' },
 );
 
-// was: IconVideoSolid
 export const IconVideoFill = createIcon(
   'IconVideoFill',
   <>
@@ -1030,7 +979,6 @@ export const IconVideoFill = createIcon(
   { 'data-rtl-mirror': '' },
 );
 
-// was: IconVolumeFull
 export const IconAudio = createIcon(
   'IconAudio',
   <path
@@ -1056,7 +1004,6 @@ export const IconArchive = createIcon(
   />,
 );
 
-// was: IconLoadingCircle
 export const IconLoading = createIcon(
   'IconLoading',
   <>

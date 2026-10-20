@@ -7,10 +7,8 @@ import { ChannelInstanceProvider, ChatProvider } from '../../context';
 import { generateChannelState, mockChatContext } from '../../mock-builders';
 import { useIsDmChannel } from '../useIsDmChannel';
 
-// useIsDmChannel subscribes to the unified channel.state for reactivity and delegates the
-// actual check to the pure `isDmChannel` util (covered by its own test). These tests focus on
-// the hook wiring: it returns the isDmChannel result for the context channel and recomputes when
-// the members slice emits.
+// The `isDmChannel` util has its own tests. These cover the hook wiring: it returns that result
+// for the context channel and recomputes when the members state emits.
 
 const makeChannel = (memberCount: number, members: ChannelState['members'] = {}) => {
   const state = generateChannelState({ memberCount, members });
@@ -74,7 +72,7 @@ describe('useIsDmChannel', () => {
     const { result } = renderForChannel(channel);
     expect(result.current).toBe(false);
 
-    // The channel becomes a DM; the store emission triggers the recompute.
+    // The channel becomes a DM and the store emission triggers the recompute.
     if (channel.data) channel.data.member_count = 1;
     act(() => state.partialNext({ memberCount: 1, members: {} }));
 

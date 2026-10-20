@@ -23,10 +23,9 @@ vi.mock('../../Notifications', () => ({
   useNotificationTarget: () => 'channel',
 }));
 
-// Capture interaction announcements (the tree here has no AriaLiveAnnouncerProvider).
-// Mock the module the announcement hook imports from directly — useAudioPlaybackChangeAnnouncements
-// pulls useInteractionAnnouncements via its relative path, not the Accessibility barrel, so mocking
-// the barrel would leave the real (no-op without a provider) hook in place.
+// Capture interaction announcements (the tree has no AriaLiveAnnouncerProvider). The mock targets
+// the module `useAudioPlaybackChangeAnnouncements` imports directly: mocking the Accessibility
+// barrel would leave the real hook, a no-op without a provider, in place.
 const { announceInteractionMock } = vi.hoisted(() => ({
   announceInteractionMock: vi.fn(),
 }));
@@ -48,8 +47,7 @@ const QUOTED_AUDIO_RECORDING_TEST_ID = 'quoted-voice-recording-widget';
 
 const attachment = generateVoiceRecordingAttachment();
 
-// v10: duration / file_size / mime_type / waveform_data are not top-level Attachment
-// fields anymore, they live under `attachment.custom`.
+// `duration`, `file_size`, `mime_type` and `waveform_data` live under `attachment.custom`.
 const withCustom = (overrides: Record<string, unknown>) => ({
   ...attachment,
   custom: { ...attachment.custom, ...overrides },
@@ -103,11 +101,9 @@ describe('VoiceRecording', () => {
       return el;
     });
     const message = generateMessage();
-    // In v14 the audio-player requester namespace differentiates a channel player from a
-    // thread player by the presence of a Thread instance (useThreadContext), not by the
-    // message-context `threadList` flag. Wrapping the second widget in a ThreadProvider gives
-    // it a distinct requester, so two separate AudioPlayer instances (hence two `new Audio()`
-    // canPlayType probes) are created.
+    // A thread player is told apart from a channel player by a Thread instance (useThreadContext),
+    // not the message-context `threadList` flag. The ThreadProvider around the second widget gives
+    // it a distinct requester, so two AudioPlayer instances (two `new Audio()`) are created.
     render(
       <ChatProvider value={mockChatContext()}>
         <WithAudioPlayback>
@@ -240,7 +236,7 @@ describe('VoiceRecordingPlayer', () => {
       VoiceRecordingPlayer,
     );
     const playbackRateButton = queryByTestId('playback-rate-button');
-    // Initial render must not announce.
+    // The initial render does not announce.
     expect(announceInteractionMock).not.toHaveBeenCalled();
 
     act(() => {

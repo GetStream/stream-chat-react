@@ -125,7 +125,7 @@ describe('AriaLiveAnnouncerProvider + AriaLiveOutlet', () => {
       ).toBeInTheDocument(),
     );
 
-    // Close the modal: the dialog's announcement must NOT migrate down and re-announce in root.
+    // Close the modal: the dialog's announcement must not migrate down and re-announce in root.
     rerender(<Harness modalOpen={false} />);
     await waitFor(() =>
       expect(
@@ -244,7 +244,7 @@ describe('AriaLiveAnnouncerProvider + AriaLiveOutlet', () => {
     await waitFor(() => expect(politeRegions()).toHaveLength(1));
 
     fireEvent.click(screen.getByRole('button', { name: 'announce' }));
-    // Not announced synchronously — it waits for the delay.
+    // Not announced synchronously; it waits for the delay.
     expect(within(politeRegions()[0]).queryByText('Later')).not.toBeInTheDocument();
 
     await waitFor(() =>

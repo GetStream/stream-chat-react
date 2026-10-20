@@ -13,13 +13,9 @@ import type { UnreadSnapshotState } from 'stream-chat';
 import { useStateStore } from '../../store';
 
 export type UnreadMessagesNotificationProps = {
-  /**
-   * Configuration parameter to determine the message page size, when jumping to the first unread message.
-   */
+  /** Page size used when jumping to the first unread message. */
   queryMessageLimit?: number;
-  /**
-   * Configuration parameter to determine, whether the unread count is to be shown on the component. Enabled by default.
-   */
+  /** Whether to show the unread count. Defaults to `true`. */
   showCount?: boolean;
   // todo: maybe remove?
   unreadCount?: number;

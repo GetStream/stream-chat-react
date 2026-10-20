@@ -5,9 +5,8 @@ import { ComponentProvider } from '../../../context';
 import { mockComponentContext } from '../../../mock-builders';
 import { VideoPlayer } from '../VideoPlayer';
 
-// Stub react-player so the test exercises the lazy/Suspense wiring (not the real
-// player internals). The wrapper unwraps the CJS `default`, so exposing the
-// component on `default` mirrors the real module shape.
+// Stub react-player so the test covers the lazy/Suspense wiring, not the player internals. The
+// wrapper unwraps the CJS `default`, so the stub exposes the component there like the real module.
 vi.mock('react-player', () => ({
   default: ({ url }: { url?: string }) => (
     <div className='react-player' data-testid='react-player'>

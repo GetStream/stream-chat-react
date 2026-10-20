@@ -87,9 +87,8 @@ const PromptHeader = ({
           {close && (
             <Button
               appearance='ghost'
-              // Concise "Close": the dialog itself is named by its title (aria-labelledby) and
-              // described by its description (aria-describedby on the dialog surface), so the close
-              // button carries neither — repeating them here is redundant noise on focus.
+              // Short label: the dialog is already named by its title and described by its
+              // description, so repeating them on the close button is noise on focus.
               aria-label={t('common.close.ariaLabel', 'Close')}
               circular
               className='str-chat__prompt__header__close-button'

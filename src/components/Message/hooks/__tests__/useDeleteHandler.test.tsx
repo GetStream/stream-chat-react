@@ -15,15 +15,9 @@ import { Channel } from '../../../Channel';
 import { Chat } from '../../../Chat';
 import { act } from '@testing-library/react';
 
-// MERGE-RECONCILE (test migration): PR #2909 rewrote useDeleteHandler to delete via the
-// channel's own `messageOperations.delete` (with a `client.deleteMessage` +
-// messagePaginator.ingestItem fallback) instead of the removed ChannelActionContext
-// `deleteMessage`/`updateMessage`/`removeMessage` handlers. The wrapper now uses the real
-// <Chat>/<Channel> providers (ChannelInstanceProvider + messagePaginator) and assertions spy
-// on `channel.messageOperations.delete`. Tests for the removed ChannelActionContext
-// behaviors (context updateMessage after delete; removeMessage special-case for
-// network-failed messages; promise rejection on server failure — the hook now swallows and
-// notifies) were dropped as obsolete.
+// `useDeleteHandler` deletes through `messageOperations.delete` of the thread or channel, falling
+// back to `client.deleteMessage` plus `messagePaginator.ingestItem`. The wrapper uses real
+// <Chat>/<Channel> providers and assertions spy on `channel.messageOperations.delete`.
 
 let channel: ChannelType;
 let client: StreamChat;

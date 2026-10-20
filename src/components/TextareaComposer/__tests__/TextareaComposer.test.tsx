@@ -2,9 +2,9 @@ import React, { useRef } from 'react';
 import { act, render, screen } from '@testing-library/react';
 import { fromPartial } from '@total-typescript/shoehorn';
 
-// `../../../context` must be evaluated before the component: they form an import cycle
-// (TextareaComposer -> composer hooks -> context), and the other order leaves `useChannel`
-// undefined at call time.
+// `../../../context` must be imported before the component: they form an import cycle
+// (TextareaComposer -> composer hooks -> context) and the other order leaves `useChannel`
+// undefined.
 import { ChannelInstanceProvider, ChatProvider } from '../../../context';
 import { MessageComposerContextProvider } from '../../../context/MessageComposerContext';
 import { TextareaComposer } from '../TextareaComposer';
@@ -13,15 +13,6 @@ import { initClientWithChannels, mockChatContext } from '../../../mock-builders'
 
 import type { Channel, StreamChat, Thread } from 'stream-chat';
 
-/**
- * Opening a different thread focuses its composer.
- *
- * Since `Thread` stopped keying its subtree on the thread, a thread switch swaps the composer in
- * place instead of remounting the textarea, so this no longer rides on a fresh mount. It holds
- * because the focus effect depends on `attachments`, and each composer carries its own array --
- * incidental enough to be worth pinning: make empty attachments a shared constant and focus breaks
- * silently, with nothing else to catch it.
- */
 const Harness = ({
   channel,
   client,
@@ -31,7 +22,6 @@ const Harness = ({
   client: StreamChat;
   thread: Thread;
 }) => {
-  // The real provider owns this ref; the textarea attaches itself to it.
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   return (
@@ -66,7 +56,7 @@ const setup = async () => {
     ],
   });
 
-  // Two threads of the same channel, each with its own composer -- what a thread switch changes.
+  // Two threads, each with its own composer.
   const threadA = fromPartial<Thread>({
     id: 'parent-a',
     messageComposer: channel.messageComposer,
@@ -81,6 +71,9 @@ const setup = async () => {
 
 describe('TextareaComposer', () => {
   describe('autofocus', () => {
+    // A thread switch swaps the composer without remounting the textarea. Focus holds because the
+    // focus effect depends on `attachments` and each composer has its own array; a shared
+    // constant for empty attachments would break it silently.
     it('focuses the textarea when the composer is swapped in place', async () => {
       const { channel, client, threadA, threadB } = await setup();
 
@@ -88,7 +81,6 @@ describe('TextareaComposer', () => {
       const textarea = screen.getByTestId('message-input');
       expect(document.activeElement).toBe(textarea);
 
-      // Move focus away, as clicking elsewhere in the app would.
       act(() => (document.activeElement as HTMLElement)?.blur());
       expect(document.activeElement).not.toBe(textarea);
 

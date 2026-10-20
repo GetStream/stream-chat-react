@@ -31,16 +31,9 @@ import type { GroupStyle, RenderedMessage } from '../utils';
 import type { Channel, StreamChat, Thread } from 'stream-chat';
 import { convertDateToTimestamp } from '../../../mock-builders';
 
-// EmptyPlaceholder derives thread-ness from useThreadContext() rather than context.threadList,
-// so a truthy thread must be provided to exercise the thread branch.
+// `EmptyPlaceholder` reads thread-ness from `useThreadContext()`, so provide a truthy thread to
+// exercise the thread branch.
 const threadStub = {} as unknown as Thread;
-
-// MERGE-RECONCILE (test migration): the removed ChannelStateContext / ChannelActionContext
-// providers and the removed ChatViewContext are gone. Item / Header / EmptyPlaceholder only consume
-// ComponentContext + ThreadContext (and TranslationContext via their default sub-components), so
-// they use a lightweight provider wrapper that renders no DOM chrome, keeping the original
-// snapshots intact. Tests that render an actual Message use the real <Chat>/<Channel> providers
-// (renderWithChannel), which supply the full context stack the Message component requires.
 
 const prependOffset = 0;
 const user1 = generateUser();
@@ -50,6 +43,10 @@ let channel: Channel;
 
 const PREPEND_OFFSET = 10 ** 7;
 
+// Item, Header and EmptyPlaceholder only consume `ComponentContext`, `ThreadContext` and
+// `TranslationContext` (through their default sub-components), so this wrapper provides just those
+// and renders no DOM chrome. Tests that render a `Message` use `renderWithChannel` instead, which
+// supplies the full context stack.
 const Wrapper = ({
   children,
   componentContext = {},
@@ -480,8 +477,7 @@ describe('VirtualizedMessageComponents', () => {
             channels: [markUnreadChannel],
             client: markUnreadClient,
           } = await initClientWithChannels();
-          // messageRenderer's getIsFirstUnreadMessage now requires a channel on the context
-          // (returns false without one), so inject the created channel into the context.
+          // `getIsFirstUnreadMessage` returns false without a channel on the context, so add one.
           const ctx = {
             ...virtuosoContext,
             channel: markUnreadChannel,
@@ -549,10 +545,8 @@ describe('VirtualizedMessageComponents', () => {
           expect(container.querySelector('.message-component')).toBeInTheDocument();
         });
 
-        // MERGE-RECONCILE (behavior change): getIsFirstUnreadMessage now short-circuits on
-        // `!unreadCount` before considering `firstUnreadMessageId` (unread separator is
-        // snapshot-driven per the source comment). A known first-unread id no longer forces the
-        // separator when the unread count is 0, so this now asserts the separator is NOT rendered.
+        // `getIsFirstUnreadMessage` returns false on a falsy `unreadCount` before considering
+        // `firstUnreadMessageId`: the unread separator is snapshot-driven.
         it('should not be rendered if unread count is falsy even when the first unread message is known', async () => {
           const { container } = await renderMarkUnread({
             virtuosoContext: {
@@ -618,10 +612,9 @@ describe('VirtualizedMessageComponents', () => {
         });
       });
 
-      // In v14, grouping CSS classes (groupedByUser, firstOfGroup, endOfGroup) are no longer
-      // derived inside messageRenderer. The messageGroupStyles map determines groupStyles prop
-      // passed to Message, but the --group/--first/--end CSS classes are only applied when
-      // the Message component receives groupedByUser/firstOfGroup/endOfGroup props directly.
+      // `messageRenderer` does not derive the grouping CSS classes: `messageGroupStyles` only sets
+      // the `groupStyles` prop of `Message`, and the --group/--first/--end classes need the
+      // `groupedByUser`, `firstOfGroup` and `endOfGroup` props passed directly.
       it.each([
         ['not ', 'by default', 'not ', false],
         ['not ', '(grouping CSS classes are now set externally)', 'not ', true],
@@ -641,18 +634,15 @@ describe('VirtualizedMessageComponents', () => {
             generateMessage({ user: user2 }),
           ];
 
-          // In v14, grouping is pre-computed and passed via messageGroupStyles
-          // rather than being computed inside messageRenderer via shouldGroupByUser
+          // Grouping is pre-computed and passed via `messageGroupStyles`, not computed in
+          // `messageRenderer` from `shouldGroupByUser`.
           const messageGroupStyles = {};
           if (shouldGroupByUser) {
-            // user2 message (single)
             messageGroupStyles[processedMessages[0].id] = 'single';
-            // user1 group: top, middle, middle, bottom
             messageGroupStyles[processedMessages[1].id] = 'top';
             messageGroupStyles[processedMessages[2].id] = 'middle';
             messageGroupStyles[processedMessages[3].id] = 'middle';
             messageGroupStyles[processedMessages[4].id] = 'bottom';
-            // user2 message (single)
             messageGroupStyles[processedMessages[5].id] = 'single';
           }
 
@@ -684,10 +674,8 @@ describe('VirtualizedMessageComponents', () => {
           );
           const messageElements = container.querySelectorAll('.str-chat__message');
 
-          // Grouping CSS classes (--group, --first, --end) are no longer applied via
-          // messageRenderer in v14; they require explicit groupedByUser/firstOfGroup/endOfGroup
-          // props to be passed to the Message component from higher up the tree.
-          // Here we verify that messages render without grouping classes.
+          // `messageRenderer` does not apply the grouping classes (--group, --first, --end), so
+          // verify that messages render without them.
           const firstGroupItemClass = 'str-chat__virtual-message__wrapper--first';
           const lastGroupItemClass = 'str-chat__virtual-message__wrapper--end';
           expect(
@@ -697,7 +685,6 @@ describe('VirtualizedMessageComponents', () => {
           expect(container.getElementsByClassName(firstGroupItemClass)).toHaveLength(0);
           expect(container.getElementsByClassName(lastGroupItemClass)).toHaveLength(0);
 
-          // Verify that messages are rendered
           expect(messageElements.length).toBe(processedMessages.length);
         },
       );

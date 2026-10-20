@@ -49,10 +49,8 @@ vi.mock('../../Loading', () => ({
   LoadingIndicator: vi.fn(() => <div>loading</div>),
 }));
 
-// Runs `callback` in an effect once the Channel subtree has mounted — used by tests that need to
-// dispatch events or trigger channel actions after the channel is ready. It intentionally exposes
-// no context: tests read state/actions straight off the stream-chat `channel` instance
-// (channel.state, channel.messagePaginator, channel.messageOperations).
+// Runs `callback` in an effect once the `Channel` subtree has mounted. Child effects run before the
+// parent's, so this runs before `Channel` activates the channel and subscribes to `user.deleted`.
 const OnChannelReady = ({ callback }: { callback: () => void }) => {
   useEffect(() => {
     callback();
@@ -61,9 +59,8 @@ const OnChannelReady = ({ callback }: { callback: () => void }) => {
   return null;
 };
 
-// The mock-builder generators produce LocalMessage objects, while the stream-chat write APIs and
-// mocked API responses are typed against MessageRequest / MessageResponse. The shapes are runtime-identical
-// for these tests, so bridge them explicitly rather than weakening assertions.
+// The mock-builder generators produce `LocalMessage`, while the write APIs and mocked responses are
+// typed as `MessageRequest` / `MessageResponse`. The shapes are runtime-identical here, so cast.
 const toMessage = (m: LocalMessage) => m as unknown as MessageRequest;
 const toMessageResponse = (m: LocalMessage) => m as unknown as MessageResponse;
 
@@ -129,7 +126,7 @@ const initClient = async ({
     id: mockedChannel.channel.id,
     type: 'messaging',
   });
-  // `Channel` does not query any more -- whoever supplies the channel initializes it.
+  // `Channel` does not query: the caller initializes the channel.
   await channel.watch();
 
   chatClient.channelServerConfigsStore.partialNext({
@@ -158,8 +155,7 @@ describe('Channel', () => {
   const user = generateUser(fromPartial<UserResponse>({ id: 'id', name: 'name' }));
   const channelType = 'messaging';
 
-  // Instantiate a fresh client + channel per test. Callers may override the seeded messages /
-  // pinned messages; otherwise a full 25-message state is created so `loadMore` can be exercised.
+  // Fresh client and channel per test. Seeds 25 messages and one pinned message unless overridden.
   const setup = async ({
     messages: messagesOverride,
     pinnedMessages: pinnedMessagesOverride,
@@ -201,8 +197,8 @@ describe('Channel', () => {
   });
 
   it('renders the channel column with no channel bound, for the slot to fill while none is selected', async () => {
-    // `Channel` used to accept no channel and render an `EmptyPlaceholder` in its place. A channel
-    // is required now; an application that needs the column while nothing is selected renders this.
+    // `Channel` requires a channel, so an application that needs the column while nothing is
+    // selected renders `ChannelPlaceholder`.
     const { asFragment } = render(
       <ChatProvider value={fromPartial<ChatContextValue>({})}>
         <ChannelPlaceholder>empty</ChannelPlaceholder>
@@ -214,9 +210,8 @@ describe('Channel', () => {
   });
 
   it('never queries the channel', async () => {
-    // Initializing is the caller's job now: `Channel` binds a channel to its subtree and subscribes
-    // to it, but it does not fetch. A channel that arrives unqueried stays that way, and its
-    // children render whatever an empty channel renders.
+    // `Channel` binds and subscribes to the channel but does not fetch: an unqueried channel stays
+    // unqueried and its children render what an empty channel renders.
     const { chatClient } = await setup();
     const unqueried = chatClient.channelManager.ensure({
       id: 'never-queried',
@@ -242,10 +237,8 @@ describe('Channel', () => {
   });
 
   it('releases every subscription it opened when the channel goes away', async () => {
-    // The invariant, rather than the wiring: whatever this component subscribes to, it
-    // unsubscribes from. Before the subscriptions were collected and released by their own handles,
-    // the effect subscribed to five client events and released three, leaking a pair on every
-    // channel change. This fails if a subscription is ever added without being released.
+    // Checks the invariant rather than the wiring: every subscription the component opens is
+    // released. Fails if a subscription is added without a release.
     const { channel, chatClient } = await setup();
     const unsubscribes: ReturnType<typeof vi.fn>[] = [];
     const subscribe = chatClient.on.bind(chatClient);
@@ -273,23 +266,20 @@ describe('Channel', () => {
     const clientOnSpy = vi.spyOn(chatClient, 'on');
     const markReadSpy = vi.spyOn(channel, 'markRead');
 
-    // <Channel> renders no message list here, so nothing marks read on open; marking read is
-    // triggered by useMarkRead (see useMarkRead tests), not by Channel mounting.
+    // `Channel` renders no message list here, so nothing marks read on open: marking read is
+    // `useMarkRead`'s job, not `Channel`'s.
     await renderComponent({ channel, chatClient });
-    // Wait for the mount effect to finish (it registers the event subscriptions)...
+    // Wait for the mount effect, which registers the event subscriptions.
     await waitFor(() =>
       expect(clientOnSpy).toHaveBeenCalledWith('user.deleted', expect.any(Function)),
     );
-    // ...then confirm it did not mark read.
     expect(markReadSpy).not.toHaveBeenCalled();
   });
 
   describe('connection recovery', () => {
-    // `ConnectionRecoveryManager` reloads every active channel and *then* dispatches
-    // `connection.recovered`. `Channel` marks its channel active while mounted, so handling that
-    // event here as well would reload every open channel twice per reconnect — two full `watch()`
-    // requests. `Channel.reload()`'s `_reloading` flag would not collapse the pair: it is a
-    // re-entrancy guard and has already reset by the time the event is dispatched.
+    // `ConnectionRecoveryManager` reloads every active channel, then dispatches
+    // `connection.recovered`. A `Channel` handler for that event would reload each open channel
+    // twice per reconnect: `reload()`'s `_reloading` guard has reset before the event arrives.
     it('reloads an open channel exactly once per reconnect', async () => {
       const { channel, chatClient } = await setup();
       await renderComponent({ channel, chatClient });
@@ -298,9 +288,8 @@ describe('Channel', () => {
       const reloadSpy = vi.spyOn(channel, 'reload').mockResolvedValue(undefined);
       chatClient.connectionRecovery.registerSubscriptions();
 
-      // A whole reconnect, driven from the socket's status store rather than by dispatching the
-      // recovery event directly — that is what exercises both would-be reloaders. Down first,
-      // because recovery ignores a first connect: nothing was loaded to fall behind.
+      // A full reconnect driven from the socket's status store, which exercises both would-be
+      // reloaders. Down first, because recovery ignores a first connect.
       await act(async () => {
         setWSConnectionStatus(chatClient, false);
         setWSConnectionStatus(chatClient, true);
@@ -311,9 +300,8 @@ describe('Channel', () => {
     });
 
     it('leaves the reload to the client, so it happens even without this component', async () => {
-      // The reconciliation React's own reload existed for — a hard delete that happened offline
-      // arrives via no event, so only a re-query surfaces it — still happens, because the client
-      // reloads active channels itself. This pins that it is the client doing it.
+      // A hard delete that happened offline arrives via no event, so only a re-query surfaces it.
+      // The client reloads active channels itself, without `Channel`.
       const { channel, chatClient } = await setup();
       await renderComponent({ channel, chatClient });
       await waitFor(() => expect(channel.active).toBe(true));
@@ -330,9 +318,8 @@ describe('Channel', () => {
     });
 
     it('keeps rendering when the reload fails during a reconnect', async () => {
-      // The guarantee the old React-side error handling provided, now held somewhere better: the
-      // client reloads active channels with `Promise.allSettled`, so a socket that flaps back down
-      // mid-reload cannot throw into this component at all.
+      // The client reloads active channels with `Promise.allSettled`, so a socket that drops again
+      // mid-reload cannot throw into this component.
       const { channel, chatClient } = await setup();
       const { container } = await renderComponent({ channel, chatClient });
       await waitFor(() => expect(channel.active).toBe(true));
@@ -358,19 +345,16 @@ describe('Channel', () => {
       const { channel, chatClient } = await setup();
       const { container } = await renderComponent({ channel, chatClient });
 
-      // the channel is initialized; the shared client then disconnects, leaving the channel
-      // pending disposal
+      // A disconnecting shared client leaves the channel pending disposal.
       channel.state.partialNext({ pendingDisposal: true });
 
-      // a re-render that reads channel state must not throw
-      // (channel.lastRead() throws once the client is disconnected)
+      // A re-render that reads channel state must not throw: `channel.lastRead()` throws once the
+      // client is disconnected.
       await act(async () => {
         setWSConnectionStatus(chatClient, false);
         await Promise.resolve();
       });
 
-      // the tree re-rendered without throwing and the channel's paginator state stays
-      // readable while offline
       expect(container.querySelector('.str-chat__channel')).toBeInTheDocument();
       expect(() => channel.messagePaginator.state.getLatestValue()).not.toThrow();
     });
@@ -392,8 +376,6 @@ describe('Channel', () => {
         await Promise.resolve();
       });
 
-      // while the client is offline the mounted Channel must not issue a
-      // pagination query/prev against the disconnected channel
       expect(prevSpy).not.toHaveBeenCalled();
       expect(querySpy).not.toHaveBeenCalled();
     });
@@ -463,8 +445,6 @@ describe('Channel', () => {
       });
 
       it('sends through a request handler registered on client.config', async () => {
-        // Successor to the removed `doSendMessageRequest` prop. Registration is declarative now, so
-        // there is one place to install a handler and no mount-order arbitration between components.
         const { channel, chatClient } = await setup();
         const message = generateMessage();
         const sendMessageRequest = vi.fn(({ message: sentMessage }) =>
@@ -507,7 +487,7 @@ describe('Channel', () => {
               .catch(() => {});
           });
           await waitFor(() =>
-            // v10: the message id is a path parameter - `client.deleteMessage({ id }, options)`.
+            // The message ID is a path parameter: `client.deleteMessage({ id }, options)`.
             expect(clientDeleteMessageSpy).toHaveBeenCalledWith(
               { id: message.id },
               deleteMessageOptions,
@@ -564,8 +544,8 @@ describe('Channel', () => {
             .catch(() => {});
         });
         await waitFor(() =>
-          // `client.updateMessage({ id }, { message })`: the id is a path parameter, and `message` is
-          // the edited message projected onto the update payload: the edited content plus its pin state.
+          // `client.updateMessage({ id }, { message })`: the ID is a path parameter, and `message`
+          // is the edited content plus its pin state.
           expect(clientUpdateMessageSpy).toHaveBeenCalledWith(
             { id: updatedMessage.id },
             {
@@ -629,7 +609,6 @@ describe('Channel', () => {
 
         await renderComponent({ channel, chatClient });
 
-        // First send fails.
         useMockedApis(chatClient, [erroredPostApi()]);
         await act(async () => {
           await channel.messageOperations
@@ -642,7 +621,6 @@ describe('Channel', () => {
 
         expect(channel.messagePaginator.getItem(messageObject.id)?.status).toBe('failed');
 
-        // Retry succeeds.
         useMockedApis(chatClient, [sendMessageApi(messageObject)]);
         await act(async () => {
           await channel.messageOperations
@@ -675,7 +653,7 @@ describe('Channel', () => {
     });
 
     describe('Channel events', () => {
-      // note: these tests rely on Client.dispatchEvent, which eventually propagates to the channel component.
+      // These tests rely on `client.dispatchEvent` propagating to the channel.
       const createOneTimeEventDispatcher = (
         event: Record<string, unknown>,
         client: StreamChat,
@@ -723,17 +701,16 @@ describe('Channel', () => {
             children: <MockMessageList />,
           },
           () => {
-            // dispatch event in effect because it happens after active channel is set
+            // Dispatched from a child effect: after the list mounts, before `Channel` activates the
+            // channel.
             dispatchMessageEvent();
           },
         );
 
-        // Message state now lives on the stream-chat channel's messagePaginator (the React reducer
-        // and legacy channel.state message list were removed), so the message.new event is
-        // reflected there.
+        // Message state lives in the channel's `messagePaginator`, which reflects `message.new`.
         await waitFor(() => {
           expect(channel.messagePaginator.getItem(message.id)?.id).toBe(message.id);
-          // The index alone does not mean the list shows it - assert the rendered window too.
+          // The index alone does not mean the list shows it, so assert the rendered window too.
           expect(
             channel.messagePaginator.state
               .getLatestValue()
@@ -779,9 +756,8 @@ describe('Channel', () => {
       });
 
       it('leaves document.title alone when a new message arrives', async () => {
-        // The SDK no longer writes the tab title at all: what belongs there depends on what the
-        // application is showing, which no SDK component can know. `examples/vite` shows an
-        // application doing it for itself.
+        // The SDK does not write the tab title: what belongs there depends on what the application
+        // shows. `examples/vite` shows an application doing it itself.
         const { channel, chatClient } = await setup();
         const titleBefore = document.title;
         Object.defineProperty(document, 'hidden', {
@@ -828,9 +804,9 @@ describe('Channel', () => {
           dispatchUserUpdatedEvent();
         });
 
-        // User references are now updated on the stream-chat channel's messagePaginator (via
-        // client._updateUserMessageReferences -> reflectUserUpdate), which the MessageList reads
-        // from (the removed React reducer used to own this mapping).
+        // User references are updated in the channel's `messagePaginator` (via
+        // `client._updateUserMessageReferences` and `reflectUserUpdate`), which `MessageList`
+        // reads.
         await waitFor(() => {
           expect(channel.messagePaginator.headItems[0]?.user?.name).toBe(
             updatedAttribute.name,
@@ -878,9 +854,8 @@ describe('Channel', () => {
             customUser: user,
           });
 
-          // The channel unread UI state moved from ChannelStateContext.channelUnreadUiState to
-          // channel.messagePaginator.unreadStateSnapshot. It is populated by a paginator query in
-          // the app; seed it directly here since this harness does not run that query.
+          // The unread state lives in `channel.messagePaginator.unreadStateSnapshot`, which a
+          // paginator query populates in the app; seeded directly because this harness runs none.
           activeChannel.messagePaginator.setUnreadSnapshot({
             unreadCount: unread_messages,
           });

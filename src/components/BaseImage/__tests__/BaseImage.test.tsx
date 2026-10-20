@@ -54,7 +54,6 @@ describe('BaseImage', () => {
 
     fireEvent.error(img);
 
-    // After error, image is replaced by ImagePlaceholder
     expect(getImage()).not.toBeInTheDocument();
     const placeholder = screen.getByTestId(PLACEHOLDER_TEST_ID);
     expect(placeholder).toBeInTheDocument();
@@ -67,7 +66,6 @@ describe('BaseImage', () => {
 
     fireEvent.error(getImage());
 
-    // showDownloadButtonOnError defaults to false
     expect(screen.queryByRole('link')).not.toBeInTheDocument();
   });
 
@@ -86,7 +84,6 @@ describe('BaseImage', () => {
 
     fireEvent.error(getImage());
 
-    // After error, placeholder is shown
     expect(getImage()).not.toBeInTheDocument();
     expect(screen.getByTestId(PLACEHOLDER_TEST_ID)).toBeInTheDocument();
 
@@ -98,7 +95,6 @@ describe('BaseImage', () => {
       </TranslationProvider>,
     );
 
-    // After src change, image is shown again
     const img = getImage();
     expect(img).toBeInTheDocument();
     expect(img).toHaveAttribute('src', 'new-src');

@@ -165,8 +165,8 @@ type PreviewType =
 const getAttachmentIconWithType = (
   quotedMessage: LocalMessage | MessageResponse | null,
   giphyVersionName: GiphyVersions,
-  // Icons arrive as an argument rather than from the hook: this is a plain helper, called from a
-  // `useMemo` inside the component, so it is not a place a hook may run.
+  // Passed in rather than read from the hook: this plain helper runs inside a `useMemo`, where
+  // hooks cannot be called.
   icons: Required<IconSlots>,
 ): {
   groupedAttachments: GroupedAttachments;
@@ -343,8 +343,6 @@ export const QuotedMessagePreviewUI = ({
 }: QuotedMessagePreviewUIProps) => {
   const { client } = useChatContext();
   const { t, userLanguage } = useTranslationContext();
-  // MERGE-RECONCILE: `giphyVersion` was read from the deleted ChannelStateContext;
-  // migrated to the PR's source (useAttachmentContext().giphyVersion — same as Giphy.tsx).
   const { giphyVersion: giphyVersionName = 'fixed_height' } = useAttachmentContext();
   const icons = useComponentContextIcons();
 

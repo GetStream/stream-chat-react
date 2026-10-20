@@ -29,15 +29,6 @@ import type {
 import type { ComponentContextValue } from '../../../context';
 import type { MessageProps } from '../types';
 
-// MERGE-RECONCILE (test migration): the deleted ChannelStateContext/ChannelActionContext are
-// replaced by the real <Chat>/<Channel> providers. Channel/client methods that formerly lived on
-// ChannelActionContext are now called directly on the channel/client:
-//   - sendReaction / deleteReaction               -> client methods (spied below)
-//   - sendAction                                  -> channel method (spied below)
-//   - reaction/action optimistic updates          -> channel.messagePaginator.ingestItem / removeItem
-//   - retrySendMessage                             -> channel.messageOperations.retry
-//   - openThread / onMentionsClick / onMentionsHover -> <Message> props
-//   - capabilities/roles                           -> channel own_capabilities + membership role
 vi.mock('../../ChatView', async (importOriginal) => {
   const actual = await importOriginal<typeof import('../../ChatView')>();
   return {
@@ -75,6 +66,8 @@ let lastChannel: ChannelType;
 const capabilitiesObjectToArray = (capabilities: Record<string, boolean> = {}) =>
   Object.keys(capabilities).filter((key) => capabilities[key]);
 
+// Renders under real <Chat>/<Channel> providers. Capabilities come from the channel's
+// `own_capabilities` and the membership role.
 async function renderComponent({
   channelActionOpts = {},
   channelConfig = { replies: true },
@@ -133,7 +126,7 @@ async function renderComponent({
     }));
   }
 
-  // Apply membership/members/watchers overrides (formerly ChannelStateContext state).
+  // Applies membership, members and watchers overrides to the channel state.
   if (stateOverrides) {
     if (stateOverrides.membership) {
       channel.state.membership = {
@@ -273,9 +266,6 @@ describe('<Message /> component', () => {
     );
   });
 
-  // MERGE-RECONCILE (test migration): the reaction handler no longer gates on the
-  // 'send-reaction' capability (gating moved to the reaction UI / useUserRole.canReact). The
-  // handler sends unconditionally, so we assert canReact reflects the missing capability instead.
   it('should rollback reaction if channel update fails', async () => {
     const reaction = generateReaction({ user: bob });
     const message = generateMessage({ own_reactions: [] });
@@ -639,9 +629,8 @@ describe('<Message /> component', () => {
     });
 
     const updatedMessage = generateMessage({ text: 'Hello*', user: alice });
-    // Not a count: mount renders more than once by design, because the translator arrives through
-    // `Streami18n`'s store and the context updates when `init()` settles. What this test measures is
-    // the re-render below, so assert it mounted at all and then count from a clean slate.
+    // Mount renders more than once (the translator arrives through `Streami18n`'s store when
+    // `init()` settles), so only assert it mounted, then count from a clean slate.
     expect(UIMock).toHaveBeenCalled();
     UIMock.mockClear();
 
@@ -663,9 +652,8 @@ describe('<Message /> component', () => {
       message,
     });
 
-    // Not a count: mount renders more than once by design, because the translator arrives through
-    // `Streami18n`'s store and the context updates when `init()` settles. What this test measures is
-    // the re-render below, so assert it mounted at all and then count from a clean slate.
+    // Mount renders more than once (the translator arrives through `Streami18n`'s store when
+    // `init()` settles), so only assert it mounted, then count from a clean slate.
     expect(UIMock).toHaveBeenCalled();
     UIMock.mockClear();
 
@@ -689,9 +677,8 @@ describe('<Message /> component', () => {
       props: { groupStyles: ['bottom'] },
     });
 
-    // Not a count: mount renders more than once by design, because the translator arrives through
-    // `Streami18n`'s store and the context updates when `init()` settles. What this test measures is
-    // the re-render below, so assert it mounted at all and then count from a clean slate.
+    // Mount renders more than once (the translator arrives through `Streami18n`'s store when
+    // `init()` settles), so only assert it mounted, then count from a clean slate.
     expect(UIMock).toHaveBeenCalled();
     UIMock.mockClear();
 
@@ -715,9 +702,8 @@ describe('<Message /> component', () => {
       props: { lastReceivedId: 'last-received-id-1' },
     });
 
-    // Not a count: mount renders more than once by design, because the translator arrives through
-    // `Streami18n`'s store and the context updates when `init()` settles. What this test measures is
-    // the re-render below, so assert it mounted at all and then count from a clean slate.
+    // Mount renders more than once (the translator arrives through `Streami18n`'s store when
+    // `init()` settles), so only assert it mounted, then count from a clean slate.
     expect(UIMock).toHaveBeenCalled();
     UIMock.mockClear();
 
@@ -748,9 +734,8 @@ describe('<Message /> component', () => {
       },
     });
 
-    // Not a count: mount renders more than once by design, because the translator arrives through
-    // `Streami18n`'s store and the context updates when `init()` settles. What this test measures is
-    // the re-render below, so assert it mounted at all and then count from a clean slate.
+    // Mount renders more than once (the translator arrives through `Streami18n`'s store when
+    // `init()` settles), so only assert it mounted, then count from a clean slate.
     expect(UIMock).toHaveBeenCalled();
     UIMock.mockClear();
 

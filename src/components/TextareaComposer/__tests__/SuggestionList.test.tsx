@@ -16,9 +16,8 @@ const renderSuggestionList = () =>
 
 const announceInteractionMock = vi.fn();
 
-// F1: useInteractionAnnouncements already debounces + dedups `suggestions.count`
-// internally, so the test asserts the CALL to announceInteraction (not the
-// underlying live-region text).
+// `useInteractionAnnouncements` debounces and dedups `suggestions.count` itself, so the tests
+// assert the call to `announceInteraction`, not the live-region text.
 vi.mock('../../Accessibility', () => ({
   useInteractionAnnouncements: () => ({
     announceInteraction: announceInteractionMock,
@@ -84,9 +83,8 @@ vi.mock('../../MessageComposer/hooks/useMessageComposerController', () => ({
   useMessageComposerController: () => composerController,
 }));
 
-// Drive the composer state the component reads via useStateStore. Both selectors
-// (textComposerStateSelector -> { selection, suggestions } and
-// searchSourceStateSelector -> { items }) read from a single shared fake state.
+// Both composer state selectors (`{ selection, suggestions }` and `{ items }`) read from this
+// single fake state.
 let fakeComposerState: {
   items: Array<{
     id: string;
@@ -100,10 +98,8 @@ let fakeComposerState: {
   };
 };
 
-// Only intercept the composer's state stores (textComposer.state /
-// searchSource.state — both `{}` in this harness). Any real StateStore (e.g. the
-// DialogManager's, which exposes getLatestValue/subscribe) is delegated to the
-// original implementation so dialog plumbing keeps working.
+// Only the composer's state stores (`{}` in this harness) are faked. Real stores, such as the
+// DialogManager's, go to the original `useStateStore` so dialog plumbing keeps working.
 vi.mock('../../../store', async (importOriginal) => {
   const actual = await importOriginal<typeof import('../../../store')>();
   return {
@@ -140,9 +136,8 @@ vi.mock('../../Dialog/hooks/usePopoverPosition', () => ({
 const buildState = (count: number, type = 'mentions') => {
   const items = Array.from({ length: count }, (_, i) => ({
     id: `id-${i}`,
-    // MentionItem dispatches on `mentionType` (user/role/user_group/channel/here) to its
-    // subcomponent; a user mention renders the option row. Without it the item falls through to
-    // SpecialMentionItem and no `[role="option"]` is emitted.
+    // Without `mentionType: 'user'`, MentionItem falls through to SpecialMentionItem and no
+    // `[role="option"]` is rendered.
     mentionType: 'user',
     name: `name-${i}`,
     tokenizedDisplayName: { parts: [`name-${i}`], token: 'name' },
@@ -170,7 +165,7 @@ describe('SuggestionList', () => {
 
     expect(announceInteractionMock).toHaveBeenCalledWith('suggestions.count', {
       count: 3,
-      suggestionsLabel: 'Mention Suggestions', // mentions → localized type label (t mock returns the key)
+      suggestionsLabel: 'Mention Suggestions',
     });
   });
 
@@ -195,13 +190,11 @@ describe('SuggestionList', () => {
     });
   });
 
-  // The SDK's EmojiSearchSource uses the singular `emoji` type (not `emojis`); the label
-  // switch must match it exactly or emoji suggestions fall back to the generic label.
   it('re-announces on a re-filter even when the count is unchanged', () => {
     const { rerender } = renderSuggestionList();
     expect(announceInteractionMock).toHaveBeenCalledTimes(1);
 
-    // New results array, same count (3) — e.g. a capped result set as the query narrows.
+    // A new results array with the same count, as when a capped result set narrows.
     fakeComposerState = buildState(3);
     rerender(
       <DialogManagerProvider>
@@ -209,7 +202,6 @@ describe('SuggestionList', () => {
       </DialogManagerProvider>,
     );
 
-    // The count is re-announced so the user gets feedback the query was applied.
     expect(announceInteractionMock).toHaveBeenCalledTimes(2);
     expect(announceInteractionMock).toHaveBeenLastCalledWith('suggestions.count', {
       count: 3,
@@ -217,6 +209,7 @@ describe('SuggestionList', () => {
     });
   });
 
+  // The SDK's EmojiSearchSource type is the singular `emoji`; `emojis` would get the generic label.
   it('passes the localized type for an emoji source', () => {
     fakeComposerState = buildState(2, 'emoji');
     renderSuggestionList();
@@ -248,19 +241,17 @@ describe('SuggestionList', () => {
 
     const listbox = container.querySelector('[role="listbox"]');
     expect(listbox).toBeInTheDocument();
-    // The listbox carries the localized type label as its accessible name.
     expect(listbox).toHaveAttribute('aria-label', 'Mention Suggestions');
 
     const options = container.querySelectorAll('[role="option"]');
     expect(options.length).toBe(3);
 
-    // Every option id is derived from the listbox id as `{listboxId}-option-{index}`
-    // so the controlling combobox can target them via aria-activedescendant.
+    // Option IDs are `{listboxId}-option-{index}` so the combobox can target them with
+    // `aria-activedescendant`.
     const listboxId = listbox?.getAttribute('id');
     expect(listboxId).toBeTruthy();
     options.forEach((option, index) => {
       expect(option).toHaveAttribute('id', `${listboxId}-option-${index}`);
-      // No item is active in this harness (focusedItemIndex defaults to undefined).
       expect(option).toHaveAttribute('aria-selected', 'false');
     });
 

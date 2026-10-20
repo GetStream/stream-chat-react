@@ -7,9 +7,9 @@ import { useNotificationTarget } from '../useNotificationTarget';
 import { useThreadContext } from '../../../Threads/ThreadContext';
 import { useLegacyThreadContext } from '../../../Thread';
 
-// MERGE-RECONCILE (test migration): the hook reads channel scope from
-// `useChannelInstanceContext().channel`, channel-list scope from `useChannelListContext().paginator`,
-// and the active view from the core workspace-navigation adapter (`useWorkspaceNavigation().isThreadsView`).
+// The hook reads channel scope from `useChannelInstanceContext().channel`, channel-list scope from
+// `useChannelListContext().paginator` and the active view from
+// `useWorkspaceNavigation().isThreadsView`.
 vi.mock('../../../../context', () => ({
   useChannelListContext: vi.fn(),
   useWorkspaceNavigation: vi.fn(),

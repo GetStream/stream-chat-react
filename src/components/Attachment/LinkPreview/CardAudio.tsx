@@ -51,16 +51,8 @@ const audioPlayerStateSelector = (state: AudioPlayerState) => ({
 });
 
 const AudioWidget = ({ mimeType, src }: { src: string; mimeType?: string }) => {
-  /**
-   * Introducing message context. This could be breaking change, therefore the fallback to {} is provided.
-   * If this component is used outside the message context, then there will be no audio player namespacing
-   * => scrolling away from the message in virtualized ML would create a new AudioPlayer instance.
-   *
-   * Edge case: the requester (message) has multiple attachments with the same assetURL - does not happen
-   * with the default SDK components, but can be done with custom API calls.In this case all the Audio
-   * widgets will share the state.
-   */
-  // also rendered from link previews, where there is no message
+  // Players are namespaced by message (and thread) through `requester`. Outside a message, widgets
+  // for the same URL share a player.
   const { message } = useContext(MessageContext) ?? {};
   const threadInstance = useThreadContext();
 

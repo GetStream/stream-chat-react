@@ -25,7 +25,6 @@ describe('useInertWhenHidden', () => {
     it('removes the element from the accessibility tree', () => {
       render(<TestButton hidden />);
 
-      // `hidden` / `aria-hidden` keep the button out of the a11y tree.
       expect(screen.queryByRole('button')).toBeNull();
     });
 

@@ -472,19 +472,16 @@ describe('GalleryUI', () => {
 
       const { container } = renderGalleryUI(items);
 
-      // Start video
       act(() => {
         fireEvent.click(screen.getByLabelText('Play video'));
       });
 
       expect(container.querySelector('video')).toBeInTheDocument();
 
-      // Navigate to next item
       act(() => {
         fireEvent.click(screen.getByLabelText('Next image'));
       });
 
-      // Video should be gone, image should be shown
       expect(container.querySelector('video')).not.toBeInTheDocument();
     });
   });

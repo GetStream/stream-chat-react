@@ -13,8 +13,8 @@ import { mockT } from '../../../mock-builders/translator';
 vi.mock('../SearchContext');
 vi.mock('../../../context');
 vi.mock('../../../store');
-// The announcement / keyboard-nav hooks are exercised by their own tests; stub them here so this
-// suite stays focused on render logic (and avoids needing an announcer provider).
+// The announcement and keyboard-nav hooks have their own tests; stubbed here to keep this suite on
+// render logic and to avoid needing an announcer provider.
 vi.mock('../hooks', () => ({
   useAnnounceSearchResultCount: vi.fn(),
   useSearchResultsKeyboardNavigation: () => ({ onKeyDown: vi.fn() }),

@@ -35,8 +35,8 @@ export interface EmojiSearchIndex {
 
 export type MessageComposerProps = {
   /**
-   * Additional props to be passed to the underlying `AutoCompleteTextarea` component.
-   * Default value is handled via MessageComposer.
+   * Additional props for the underlying textarea. `defaultValue`, `value`, `style` and `disabled`
+   * are excluded because the composer controls them.
    * [Available props](https://www.npmjs.com/package/react-textarea-autosize)
    */
   additionalTextareaProps?: Omit<
@@ -44,34 +44,37 @@ export type MessageComposerProps = {
     'defaultValue' | 'style' | 'disabled' | 'value'
   >;
   /**
-   * When enabled, recorded messages won’t be sent immediately.
-   * Instead, they will “stack up” with other attachments in the message composer allowing the user to send multiple attachments as part of the same message.
+   * When enabled, recorded messages are not sent immediately. They stack up with other attachments
+   * in the composer, so the user can send several attachments in the same message.
    */
   asyncMessagesMultiSendEnabled?: boolean;
-  /** Allows to configure the audio recording parameters for voice messages. */
+  /** Audio recording parameters for voice messages. */
   audioRecordingConfig?: CustomAudioRecordingConfig;
-  /** Controls whether the users will be provided with the UI to record voice messages. */
+  /** Whether the UI to record voice messages is shown. */
   audioRecordingEnabled?: boolean;
-  /** Mechanism to be used with autocomplete and text replace features of the `MessageComposer` component, see [emoji-mart `SearchIndex`](https://github.com/missive/emoji-mart#%EF%B8%8F%EF%B8%8F-headless-search) */
+  /**
+   * Search mechanism for the autocomplete and text replace features.
+   * See [emoji-mart `SearchIndex`](https://github.com/missive/emoji-mart#%EF%B8%8F%EF%B8%8F-headless-search).
+   */
   emojiSearchIndex?: ComponentContextValue['emojiSearchIndex'];
-  /** If true, focuses the text input on component mount */
+  /** If true, focuses the text input on mount. */
   focus?: boolean;
   // todo: what sense does hideSendButton prop make, when we have message composer actions (recording, send msg). Can we remove it?
   // /** Allows to hide MessageComposer's send button. */
   hideSendButton?: boolean;
-  /** Max number of rows the underlying `textarea` component is allowed to grow */
+  /** Max number of rows the textarea can grow to. Defaults to 10. */
   maxRows?: number;
-  /** Min number of rows the underlying `textarea` will start with. The `grow` on MessageComposer prop has to be enabled for `minRows` to take effect. */
+  /** Min number of rows of the textarea. While empty, it has a single row unless this is set. */
   minRows?: number;
-  /** When replying in a thread, the parent message object */
+  /** Parent message when composing a thread reply. */
   parent?: LocalMessage;
   /**
-   * Currently, `Enter` is the default submission key and  `Shift`+`Enter` is the default combination for the new line.
-   * If specified, this function overrides the default behavior specified previously.
+   * Decides whether a keydown submits the message. By default `Enter` submits unless an IME
+   * composition is active, and `Shift`+`Enter` inserts a new line.
    *
-   * Example of default behavior:
    * ```tsx
-   * const defaultShouldSubmit = (event) => event.key === "Enter" && !event.shiftKey;
+   * const defaultShouldSubmit = (event) =>
+   *   event.key === 'Enter' && !event.shiftKey && !event.nativeEvent.isComposing;
    * ```
    */
   shouldSubmit?: (event: React.KeyboardEvent<HTMLTextAreaElement>) => boolean;
@@ -94,9 +97,10 @@ const MessageComposerProvider = (props: PropsWithChildren<MessageComposerProps>)
     () => () => {
       // `createDraft` already skips edits and composers with drafts disabled.
       const draftSaved = messageComposer.createDraft().catch(console.error);
-      // Only the thread's or channel's own composer is emptied here. One supplied through
-      // `MessageComposerControllerProvider` belongs to whoever supplied it, and so does deciding
-      // when to clear it - clearing it on unmount would discard an edit the owner still holds (visible in Strict Mode).
+      // Only the thread's or channel's own composer is cleared here. One supplied through
+      // `MessageComposerControllerProvider` belongs to its supplier, who decides when to clear
+      // it: clearing on unmount would discard an edit the supplier still holds (visible in Strict
+      // Mode).
       if (messageComposer === suppliedComposer) return;
       draftSaved.finally(() => messageComposer.clear());
     },
@@ -112,7 +116,7 @@ const MessageComposerProvider = (props: PropsWithChildren<MessageComposerProps>)
       !messageComposer.config.drafts.enabled
     )
       return;
-    // get draft data for legacy thead composer
+    // Restores the thread draft into a composer that is still empty.
     messageComposer.channel
       .getDraft({ parent_id: threadId })
       .then(({ draft }) => {
@@ -151,7 +155,7 @@ const UnMemoizedMessageComposer = (props: MessageComposerProps) => {
 };
 
 /**
- * A high level component that has provides all functionality to the Input it renders.
+ * Provides the composer context and dialog manager to the `MessageComposerUI` it renders.
  */
 export const MessageComposer = React.memo(
   UnMemoizedMessageComposer,

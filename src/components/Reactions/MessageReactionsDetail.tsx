@@ -256,7 +256,7 @@ export const MessageReactionsDetail: MessageReactionsDetailInterface = ({
 
                             await contextHandleReaction(type, e);
 
-                            // was 1, should be 0 after removal, display all reactions
+                            // Removing the last reaction of the selected type shows all reactions.
                             if (
                               selectedReactionType !== null &&
                               reactionCountBeforeRemoval <= 1

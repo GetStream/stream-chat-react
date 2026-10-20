@@ -25,16 +25,10 @@ export type AttachmentUploadProgressIndicatorProps = {
 };
 
 /**
- * Upload progress for an attachment carried by a message whose send is already under way.
- *
- * Renders exactly what the composer's attachment previews render — the shared
- * {@link UploadProgressIndicator} (a progress ring, or a spinner when the transfer length is
- * not computable) followed by {@link AttachmentUploadedSizeIndicator}'s uploaded/total bytes —
- * so an attachment looks the same either side of pressing send.
- *
- * Renders `null` for any attachment that is not mid-upload, which is every attachment that came
- * back from the API. Placing it in the default widgets therefore changes nothing for messages
- * that are already sent.
+ * Upload progress of an attachment whose message is being sent. Renders the same
+ * {@link UploadProgressIndicator} and {@link AttachmentUploadedSizeIndicator} as the composer's
+ * attachment previews, and `null` for an attachment that is not mid-upload, such as any attachment
+ * returned by the API.
  */
 export const AttachmentUploadProgressIndicator = ({
   attachment,
@@ -65,9 +59,8 @@ export const AttachmentUploadProgressIndicator = ({
         uploadProgress={progress}
       />
       {/*
-        The byte readout keeps the real value, so it settles on "4.3 MB / 4.3 MB" rather than
-        vanishing while the spinner runs — all the bytes genuinely have been sent.
-        Byte counts only make sense for a single attachment; a gallery shows just the ring.
+        The byte readout keeps the real value, so it settles on "4.3 MB / 4.3 MB" while the
+        spinner runs. Byte counts only make sense for one attachment; a gallery shows the ring.
       */}
       {attachment && (
         <AttachmentUploadedSizeIndicator

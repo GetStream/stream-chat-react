@@ -7,10 +7,8 @@ import { LoadingIndicator } from '../../components/Loading/LoadingIndicator';
 import { CloseButtonOnModalOverlay } from '../../components/Modal/CloseButtonOnModalOverlay';
 import { ChannelDetailEmptyList } from '../../plugins/ChannelDetail/ChannelDetailEmptyList';
 
-/**
- * R1 proves the hook merges correctly. This proves the other half: that converted call sites
- * actually read through it, rather than still importing an icon directly.
- */
+// `useComponentContextIcons` has its own tests. These check that call sites read icons through it
+// instead of importing an icon directly.
 describe('icon slots reach converted call sites', () => {
   const Custom = () => <svg data-testid='custom-icon' />;
 
@@ -25,7 +23,7 @@ describe('icon slots reach converted call sites', () => {
     ['LoadingIndicator', 'IconLoading', <LoadingIndicator key='l' />],
     ['ErrorBadge', 'IconExclamationMarkFill', <ErrorBadge key='e' />],
     ['CloseButtonOnModalOverlay', 'IconXmark', <CloseButtonOnModalOverlay key='c' />],
-    // a v15-only plugin component, converted in R3
+    // a plugin component
     ['ChannelDetailEmptyList', 'IconSearch', <ChannelDetailEmptyList key='d' />],
   ])('%s honours an %s override', (_name, slot, element) => {
     render(

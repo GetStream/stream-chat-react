@@ -21,10 +21,7 @@ const pinnedMessagesSearchSourceItemsStateSelector = (
 });
 
 export type UsePinnedMessagesSearchParams = {
-  /**
-   * Custom message search source for pinned messages. When provided it is used
-   * as-is — its filters and sort are respected, never overridden.
-   */
+  /** Search source to use instead of the default one, as-is with its own filters and sort. */
   searchSource?: MessageSearchSource;
 };
 
@@ -61,8 +58,7 @@ export const usePinnedMessagesSearch = ({
         },
       );
 
-    // Only configure a source we own; a provided source keeps its own filters
-    // and sort.
+    // Only a source created here is configured; a provided one keeps its own filters and sort.
     if (!searchSource) {
       source.messageSearchChannelFilters = { cid: channel.cid };
       source.messageSearchFilters = { pinned: true };
@@ -84,17 +80,13 @@ export const usePinnedMessagesSearch = ({
     };
   }, [pinnedMessagesSearchSource]);
 
-  // Query-independent flag, reactive to pin/unpin. The search source is the sole
-  // source of the displayed list, but it does not know whether the channel has
-  // pinned messages until a query resolves; this gates the search input, the
-  // initial load and the empty-state choice (the channel can have pinned messages
-  // that the current query matches none of).
+  // Query-independent and reactive to pin/unpin. The search source does not know whether the
+  // channel has pinned messages until a query resolves, so this gates the search input, the
+  // initial load and the empty-state choice (a query can match none of the channel's pins).
   const hasPinnedMessages = usePinnedMessagesCount(channel) > 0;
 
-  // The list is loaded and paginated entirely by the search source. Load the
-  // first page once the channel is known to have pinned messages — gating on
-  // hasPinnedMessages also loads page one when the channel gains its first pin
-  // during the session.
+  // Loads the first page once the channel has pinned messages; gating on `hasPinnedMessages` also
+  // loads it when the channel gains its first pin during the session.
   useEffect(() => {
     if (!hasPinnedMessages) return;
     void pinnedMessagesSearchSource.search('');

@@ -9,16 +9,13 @@ export function WithComponents({
   overrides,
 }: PropsWithChildren<{ overrides: Partial<ComponentContextValue> }>) {
   const parentOverrides = useContext(ComponentContext);
-  // Memoized because this provider sits on render paths hot enough for the identity of the
-  // merged value to matter: a new object on every render re-renders every
-  // `useComponentContext()` consumer below it, which would defeat the per-message
-  // memoization in `areMessagePropsEqual`.
+  // Memoized: a new value on every render re-renders every `useComponentContext()` consumer below,
+  // which defeats the per-message memoization in `areMessagePropsEqual`.
   const actualOverrides: ComponentContextValue = useMemo(
     () => ({
       ...parentOverrides,
       ...overrides,
-      // `icons` merges per slot rather than being replaced wholesale: a nested provider that
-      // rebrands one icon must not clear the ones an ancestor supplied.
+      // Merged per slot so a nested provider overriding one icon keeps the ancestor's others.
       icons: { ...parentOverrides?.icons, ...overrides?.icons },
     }),
     [parentOverrides, overrides],

@@ -427,7 +427,8 @@ describe('ChannelPreview utils', () => {
       });
 
       expect(label).toContain('Last message from Alice: look at these');
-      // mock t does not pluralize, so it yields the base "{{ count }} attachment" → "2 attachment"
+      // The mock `t` does not pluralize, so it yields the base "{{ count }} attachment", i.e.
+      // "2 attachment".
       expect(label).toContain('2 attachment');
     });
 
@@ -526,7 +527,7 @@ describe('ChannelPreview utils', () => {
         tDateTimeParser,
       });
 
-      // The message text AND the link are both announced (link as its own segment after it).
+      // The message text and the link are both announced (link as its own segment after it).
       expect(label).toContain('Last message from Alice: https://example.com');
       expect(label).toContain('Shared a link with title: Example Domain');
     });

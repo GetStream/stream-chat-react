@@ -17,13 +17,10 @@ export const RemoveAttachmentPreviewButton = ({
   const { IconXmarkSmall } = useComponentContextIcons();
   const { t } = useTranslationContext();
 
-  // Deliberately still actionable mid-upload: `removeAttachments` forwards to
-  // `UploadManager.deleteUploadRecord`, which aborts the request through its `AbortController`,
-  // and the `uploadState: 'failed'` update that lands afterwards is a no-op because
-  // `updateAttachment` ignores an id that is no longer in state.
-  //
-  // The button was disabled in this state from 2024 (#2339) until abortable uploads existed;
-  // no comment ever recorded the original reason.
+  // The button stays actionable mid-upload: `removeAttachments` forwards to
+  // `UploadManager.deleteUploadRecord`, which aborts the request through its `AbortController`.
+  // The `uploadState: 'failed'` update that follows is a no-op because `updateAttachment` ignores
+  // an ID that is no longer in state.
   const isInFlight = !!uploadState && IN_FLIGHT_UPLOAD_STATES.includes(uploadState);
 
   return (

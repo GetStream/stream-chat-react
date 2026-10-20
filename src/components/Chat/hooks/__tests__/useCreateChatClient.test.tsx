@@ -3,8 +3,8 @@ import { describe, expect, it, vi } from 'vitest';
 
 import { useCreateChatClient } from '../useCreateChatClient';
 
-// `connectUser` and `disconnectUser` are instance properties, so they cannot be spied on through the
-// prototype; the real client is subclassed to keep the network out of the test.
+// `connectUser` and `disconnectUser` are instance properties, so they cannot be spied on through
+// the prototype; the real client is subclassed to keep the network out of the test.
 vi.mock('stream-chat', async (importOriginal) => {
   const actual = await importOriginal<typeof import('stream-chat')>();
   class OfflineStreamChat extends actual.StreamChat {

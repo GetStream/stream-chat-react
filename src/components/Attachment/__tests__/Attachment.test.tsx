@@ -57,10 +57,8 @@ const ATTACHMENTS = {
   },
 };
 
-// MERGE-RECONCILE (test migration): media config (giphyVersion, imageAttachmentSizeHandler,
-// etc.) is no longer read from the removed ChannelStateContext — it is passed to <Attachment>
-// directly as props (surfaced via AttachmentContext). The former `channelStateValue` argument
-// is therefore spread onto the component as props.
+// Media config (`giphyVersion`, `imageAttachmentSizeHandler`, ...) is passed to <Attachment> as
+// props, which surface it through AttachmentContext.
 const renderComponent = (
   props,
   attachmentConfig = {},
@@ -137,10 +135,8 @@ describe('attachment', () => {
       'should render Media component for video of %s mime-type attachment',
       async (mime_type) => {
         const attachment = generateVideoAttachment({ mime_type });
-        // The generated attachment carries a `thumb_url`; with the default
-        // `shouldGenerateVideoThumbnail` VideoAttachment renders a thumbnail first and only
-        // mounts the Media (VideoPlayer) on play. Disable thumbnail generation so the Media
-        // component (the assertion target) renders directly.
+        // The generated attachment has a `thumb_url`, so VideoAttachment would render a thumbnail
+        // and mount Media only on play; disabling thumbnails renders Media directly.
         renderComponent(
           { attachments: [attachment] },
           { shouldGenerateVideoThumbnail: false },

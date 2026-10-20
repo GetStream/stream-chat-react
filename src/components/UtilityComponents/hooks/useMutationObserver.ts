@@ -7,25 +7,26 @@ const DEFAULT_INIT: MutationObserverInit = { childList: true, subtree: true };
 const NOOP = () => undefined;
 
 export type UseMutationObserverOptions = {
-  /** When `false`, the observer is not connected (and `onDisconnect` runs if it was). Default `true`. */
+  /** Whether to observe; `false` disconnects and runs `onDisconnect`. Defaults to `true`. */
   enabled?: boolean;
-  /** `MutationObserver` init, read when (re)connecting. Default `{ childList: true, subtree: true }`. */
+  /** `MutationObserver` init, read on connect. Defaults to `{ childList: true, subtree: true }`. */
   init?: MutationObserverInit;
-  /** Runs when observation stops — target/`enabled` change or unmount. Use to clean up side effects
-   * started in `onMutation` (e.g. cancel a pending announcement). */
+  /**
+   * Runs whenever observation stops, including on unmount, to clean up side effects of
+   * `onMutation`.
+   */
   onDisconnect?: () => void;
-  /** Also invoke `onMutation` once right after connecting, to react to the current DOM. Default `true`. */
+  /** Also calls `onMutation` once right after connecting. Defaults to `true`. */
   runOnConnect?: boolean;
 };
 
 /**
- * Runs `onMutation` whenever the observed subtree of `ref` changes (and, by default, once on
- * connect). A thin, generic wrapper around `MutationObserver`: toggle with `enabled`, react to the
- * initial state with `runOnConnect`, and clean up side effects via `onDisconnect`. The latest
- * `onMutation`/`onDisconnect` are always used without reconnecting the observer.
+ * Runs `onMutation` when the observed subtree of `ref` changes, and once on connect unless
+ * `runOnConnect` is `false`. The latest `onMutation` and `onDisconnect` are used without
+ * reconnecting the observer.
  *
- * Note: like any `useEffect`-based hook, it (re)connects on `enabled` change or remount — not on a
- * silent `ref.current` swap. Drive remounts with a `key` or toggle `enabled` if the target changes.
+ * It reconnects on an `enabled` change or a remount, not when `ref.current` is swapped silently;
+ * use a `key` or toggle `enabled` when the target changes.
  */
 export const useMutationObserver = (
   ref: RefObject<HTMLElement | null>,
@@ -52,10 +53,8 @@ export const useMutationObserver = (
 
     if (runOnConnect) handleMutation();
 
-    // `MutationObserver` is available in every browser the SDK targets (and this runs only in an
-    // effect, never during SSR), but degrade gracefully if it is missing — e.g. a non-DOM test
-    // environment: react to the initial state and still run the disconnect cleanup, just without
-    // observing further changes.
+    // Without `MutationObserver` (e.g. a non-DOM test environment) only the initial call and the
+    // disconnect cleanup run.
     if (typeof MutationObserver === 'undefined') return handleDisconnect;
 
     const observer = new MutationObserver(() => handleMutation());

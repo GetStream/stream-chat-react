@@ -90,7 +90,7 @@ export const AttachmentPreviewList = ({
     >
       {attachments.map((attachment) => {
         if (isScrapedContent(attachment)) return null;
-        // Voice recordings are rendered in the dedicated slot above (VoiceRecordingPreviewSlot)
+        // Voice recordings render in `VoiceRecordingPreviewSlot` instead.
         if (isLocalVoiceRecordingAttachment(attachment)) return null;
         if (isLocalAudioAttachment(attachment)) {
           return (

@@ -19,27 +19,17 @@ import {
   useMockedApis,
 } from '../../../mock-builders';
 
-// MERGE-RECONCILE (test migration): PR #2909 rewrote TypingIndicator as a no-props component that
-// reads typing users from `channel.messageComposer.textComposer.typing`, the channel from
-// ChannelInstanceContext (via useChannel), the thread from ThreadContext, and the typing_events
-// config from `client.channelServerConfigsStore`. The former TypingContext/ChannelStateContext providers and
-// scrollToBottom/threadList props are gone. The visible text is now a visually-hidden
-// `typing-indicator-status` live region whose content comes from `getTypingStatusMessage`
-// ('jessica is typing' / 'jessica and joris are typing' / '3 people are typing'), so
-// assertions match those keys plus the AvatarStack (capped at 3, with a "+N" overflow badge).
-// (This replaces the stale TypingIndicator.test.js, whose JSX-in-.js content could not be parsed.)
-
 const me = generateUser();
 
-// Minimal StateStore stub compatible with useStateStore (getLatestValue + subscribeWithSelector).
+// Minimal StateStore stub for useStateStore (`getLatestValue` and `subscribeWithSelector`).
 const makeStore = (value: unknown) => ({
   getLatestValue: () => value,
   subscribeWithSelector: () => () => null,
 });
 
-// In thread mode the source reads typing users from the THREAD's own messageComposer.textComposer
-// state and the parent message from thread.state, and resolves the channel config via
-// messageComposer.channel.cid — so the thread stub carries a composer referencing the real channel.
+// In thread mode the typing users come from the thread's own `messageComposer.textComposer` state,
+// the parent message from `thread.state`, and the channel config from `messageComposer.channel`,
+// so the thread stub carries a composer that references the real channel.
 const makeThread = (
   parentMessageId?: string,
   typing: Record<string, unknown> = {},
@@ -94,9 +84,8 @@ describe('TypingIndicator', () => {
   afterEach(cleanup);
 
   it('should throw without proper context values', () => {
-    // MERGE-RECONCILE: without a channel/client in context the component now throws while resolving
-    // the message composer (useMessageComposerController) rather than from useChannel directly, so
-    // we only assert that rendering throws.
+    // Without a channel or client in context the component throws while resolving the message
+    // composer, so the test only asserts that rendering throws.
     expect(() =>
       render(
         <ChatProvider value={{} as any}>
@@ -186,7 +175,7 @@ describe('TypingIndicator', () => {
     expect(screen.getByTestId('typing-indicator-status')).toHaveTextContent(
       '3 people are typing',
     );
-    // 3 foreign typers == AvatarStack cap, so all avatars render without an overflow badge.
+    // 3 foreign typers equal the AvatarStack cap, so all avatars render without an overflow badge.
     expect(screen.getAllByTestId('avatar')).toHaveLength(3);
     expect(screen.queryByTestId('avatar-stack-count-badge')).not.toBeInTheDocument();
     const results = await axe(container);
@@ -204,7 +193,7 @@ describe('TypingIndicator', () => {
     expect(screen.getByTestId('typing-indicator-status')).toHaveTextContent(
       '4 people are typing',
     );
-    // 4 foreign typers exceed the AvatarStack cap of 3 -> overflow badge for the remainder.
+    // 4 foreign typers exceed the AvatarStack cap of 3, so the remainder is an overflow badge.
     expect(screen.getAllByTestId('avatar')).toHaveLength(3);
     expect(screen.getByTestId('avatar-stack-count-badge')).toHaveTextContent('+1');
     const results = await axe(container);
@@ -212,9 +201,8 @@ describe('TypingIndicator', () => {
   });
 
   it('should render null if typing_events is disabled', async () => {
-    // A foreign user IS typing (same setup that renders the indicator above), so a null render can
-    // only be attributed to the disabled `typing_events` config — otherwise the test would pass
-    // regardless of the config (e.g. simply because nobody is typing).
+    // A foreign user is typing (same setup that renders the indicator above), so a null render can
+    // only come from the disabled `typing_events` config.
     const { container } = await renderComponent(
       { jessica: { user: { id: 'jessica', image: 'jessica.jpg' } } },
       { channelConfig: fromPartial<ChannelConfigWithInfo>({ typing_events: false }) },

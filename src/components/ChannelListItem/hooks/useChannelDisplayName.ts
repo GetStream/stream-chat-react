@@ -10,14 +10,17 @@ import {
 } from '../channelDisplayState';
 
 /**
- * Channel display name with translation context.
+ * Channel display name, resolved in order:
  * 1. channel.data.custom.name
- * 2. DM (exactly 2 members): other member's name, then translated "Direct message"
+ * 2. DM (exactly 2 members): other member's name, then the translated "Direct message"
  * 3. Group (3+ members): comma-separated list of 2 other members' names (no ellipsis)
  * 4. undefined otherwise
  *
  * Re-derived from the channel's `data` and `members`, so it changes only when this channel does:
  * an updated user reaches it through the member the client replaces.
+ *
+ * @param channel - Channel to name. Returns undefined without one.
+ * @returns The display name, or undefined.
  */
 export const useChannelDisplayName = (
   channel: Channel | undefined,

@@ -1,49 +1,12 @@
-/**
- * Message translation view context: user-specific state for whether each message
- * shows original text or a translation.
- *
- * ## Spec
- *
- * - **State**: Per message list (channel vs thread), we store a map
- *   `messageId → 'original' | 'translated'`. Default for messages with `message.i18n`
- *   is `'translated'`; otherwise `'original'`.
- *
- * - **Provider placement**: The provider is tied to the **message list**, not the channel.
- *   It is rendered inside `MessageList` and `VirtualizedMessageList`. That way the
- *   main channel list and the thread list each have their own translation view state
- *   (e.g. Thread.tsx gets correct behavior without sharing channel state).
- *
- * - **Multiple translations**: `message.i18n` can contain multiple languages, e.g.:
- *   `{ en_text: "Good morning", fr_text: "Bonjour", it_text: "Buongiorno", language: "en" }`.
- *   Which translation is shown is determined by the app’s **user language**
- *   (`useTranslationContext().userLanguage`). We use `message.i18n[userLanguage + '_text']`;
- *   if missing, we fall back to `message.text`. Only one translation is shown at a time.
- *
- * - **Source language**: When present, `message.i18n.language` is the original/source
- *   language of `message.text`. It can be used for the indicator label, e.g.
- *   "Translated from English · View original".
- *
- * - **Invariants**: The original message content, layout, grouping, and order stay
- *   unchanged. Removing or toggling translation only changes the annotation and which
- *   text is displayed. "View original" / "View translation" switch the displayed
- *   text and update the annotation (e.g. "Original · View translation" when showing
- *   original).
- *
- * - **Translation indicator visibility**: The translation indicator (e.g. "Translated ·
- *   View original") is **not** shown when the currently viewed text already corresponds
- *   to `userLanguage` — for example when viewing original and the original text is the
- *   user-language version (i.e. `getTranslatedMessageText({ language: userLanguage, message })`
- *   equals `message.text`). In that case there is no meaningful original/translated choice,
- *   so the indicator is hidden.
- */
+// Whether each message shows its original or translated text. State is per message ID and the
+// provider sits in each message list, so a channel and its threads do not share it. Messages with
+// `message.i18n` default to 'translated'. The translation shown is the `${userLanguage}_text`
+// entry of `message.i18n`, falling back to `message.text`.
 
 import React, { createContext, useCallback, useContext, useState } from 'react';
 import type { LocalMessage, TranslationLanguage } from 'stream-chat';
 
-/**
- * Returns the translated message text for a given language from `message.i18n`, or
- * undefined if not present. Used to resolve which of the multiple translations to show.
- */
+/** Returns the text of `message.i18n` for the language, or undefined when there is none. */
 export const getTranslatedMessageText = ({
   language,
   message,
@@ -54,11 +17,8 @@ export const getTranslatedMessageText = ({
   message?.i18n?.[`${language}_text` as `${TranslationLanguage}_text`];
 
 /**
- * Which message text to show.
- * - `'original'`: `message.text` (source language).
- * - `'translated'`: translation for the **current user language** (TranslationContext’s
- *   `userLanguage`), i.e. `getTranslatedMessageText({ language: userLanguage, message })`
- *   or fallback to `message.text`.
+ * Which message text to show: `'original'` is `message.text`, `'translated'` is the translation
+ * for `userLanguage`, falling back to `message.text`.
  */
 export type TranslationView = 'original' | 'translated';
 
@@ -107,6 +67,6 @@ export const MessageTranslationViewProvider = ({
   );
 };
 
-// created with a default value, so there is no missing-provider case
+// The context has a default value, so there is no missing-provider case.
 export const useMessageTranslationViewContext = () =>
   useContext(MessageTranslationViewContext);

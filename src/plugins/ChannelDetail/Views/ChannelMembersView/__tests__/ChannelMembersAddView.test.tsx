@@ -34,9 +34,8 @@ vi.mock('../../../../../components/Notifications', () => ({
   }),
 }));
 
-// Render react-virtuoso synchronously: jsdom has no layout, so the real
-// component would window down to zero items. The stub renders every item plus
-// the empty/footer slots so behavior assertions still hold.
+// Renders react-virtuoso synchronously: jsdom has no layout, so the real component would window
+// down to zero items. The stub renders every item plus the empty/footer slots.
 vi.mock('react-virtuoso', () => ({
   Virtuoso: ({
     components = {},
@@ -87,8 +86,8 @@ describe('ChannelMembersAddView', () => {
   const setMode = vi.fn();
 
   beforeEach(() => {
-    // The context module is auto-mocked, so the icon hook would return undefined; hand back
-    // the real icons rather than stubs, so assertions still describe what users see.
+    // The context module is auto-mocked, so the icon hook would return undefined; hand back the
+    // real icons so assertions still describe what users see.
     vi.mocked(useComponentContextIcons).mockReturnValue(DEFAULT_ICONS);
     vi.clearAllMocks();
     mocks.virtuosoRenderCount = 0;
@@ -127,9 +126,7 @@ describe('ChannelMembersAddView', () => {
       }),
     );
 
-    // Non-members remain selectable.
     expect(getSelectableMemberButton('Carol')).toBeInTheDocument();
-    // Existing members are shown, flagged, and not selectable.
     expect(screen.getByText('Bob')).toBeInTheDocument();
     expect(screen.getByText('Already a member')).toBeInTheDocument();
     expect(querySelectableMemberButton('Bob')).toBeNull();
@@ -147,7 +144,6 @@ describe('ChannelMembersAddView', () => {
       channel,
     );
 
-    // Non-members are not flagged as members.
     expect(screen.queryByText('Already a member')).not.toBeInTheDocument();
 
     fireEvent.click(getSelectableMemberButton('Bob'));
@@ -179,11 +175,10 @@ describe('ChannelMembersAddView', () => {
       channel,
     );
 
-    // Bob starts selectable and is not flagged as a member.
     expect(getSelectableMemberButton('Bob')).toBeInTheDocument();
     expect(screen.queryByText('Already a member')).not.toBeInTheDocument();
 
-    // Bob joins the channel; the view reflects it without a remount.
+    // Bob joins the channel; the view updates without a remount.
     channel.state.members['user-2'] = {
       user: { id: 'user-2', name: 'Bob' },
       user_id: 'user-2',

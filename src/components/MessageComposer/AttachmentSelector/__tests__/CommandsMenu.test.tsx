@@ -17,7 +17,8 @@ const { commandsMock } = vi.hoisted(() => ({ commandsMock: { value: [] as unknow
 
 const t = mockT;
 
-// Keep the real Dialog primitives (ContextMenuBackButton/Button/Header) — only stub the context hook.
+// Keeps the real Dialog primitives (ContextMenuBackButton, Button, Header) and stubs only the
+// context hook.
 vi.mock('../../../Dialog', async (importOriginal) => ({
   ...(await importOriginal<typeof import('../../../Dialog')>()),
   useContextMenuContext: () => ({ closeMenu, returnToParentMenu }),

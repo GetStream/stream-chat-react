@@ -26,10 +26,8 @@ export const useDialog = ({
     dialogManager.cancelPendingRemoval(id);
 
     return () => {
-      // Since this cleanup can run even if the component is still mounted
-      // and dialog id is unchanged (e.g. in <StrictMode />), it's safer to
-      // mark state as unused and only remove it after a timeout, rather than
-      // to remove it immediately.
+      // This cleanup can run while the component is still mounted with the same dialog ID (e.g. in
+      // <StrictMode />), so removal is deferred instead of immediate.
       dialogManager.markForRemoval(id);
     };
   }, [dialogManager, id]);

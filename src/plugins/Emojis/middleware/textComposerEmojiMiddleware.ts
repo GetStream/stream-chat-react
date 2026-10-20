@@ -78,21 +78,20 @@ export type EmojiMiddleware<T extends EmojiSearchIndexResult = EmojiSearchIndexR
   >;
 
 /**
- * TextComposer middleware for mentions
- * Usage:
+ * Creates the text composer middleware that suggests emojis for a typed `:query` and replaces a
+ * completed emoticon with its emoji.
  *
- *  const textComposer = new TextComposer(options);
+ * ```ts
+ * composer.textComposer.middlewareExecutor.insert({
+ *   middleware: [createTextComposerEmojiMiddleware(SearchIndex) as TextComposerMiddleware],
+ *   position: { before: 'stream-io/text-composer/mentions-middleware' },
+ *   unique: true,
+ * });
+ * ```
  *
- *  textComposer.use(new createTextComposerEmojiMiddleware(emojiSearchIndex, {
- *   minChars: 2
- *  }));
- *
- * @param emojiSearchIndex
- * @param {{
- *     minChars: number;
- *     trigger: string;
- *   }} options
- * @returns
+ * @param emojiSearchIndex - Index searched for matching emojis.
+ * @param options - `trigger` (defaults to `':'`) and `minChars` (defaults to 1).
+ * @returns The middleware to register on a text composer's middleware executor.
  */
 export const createTextComposerEmojiMiddleware = (
   emojiSearchIndex: EmojiSearchIndex,
@@ -157,7 +156,7 @@ export const createTextComposerEmojiMiddleware = (
         if (textWithReplacedWord !== state.text) {
           return complete({
             ...state,
-            suggestions: undefined, // to prevent the TextComposerMiddlewareExecutor to run the first page query
+            suggestions: undefined, // prevents the executor from running the first page query
             text: textWithReplacedWord,
           });
         }
@@ -185,7 +184,7 @@ export const createTextComposerEmojiMiddleware = (
             text: state.text,
             trigger: finalOptions.trigger,
           }),
-          suggestions: undefined, // Clear suggestions after selection
+          suggestions: undefined,
         });
       },
     },

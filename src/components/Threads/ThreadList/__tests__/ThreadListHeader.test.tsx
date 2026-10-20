@@ -12,8 +12,8 @@ const HeaderEndContent = () => <div data-testid='sidebar-toggle' />;
 
 afterEach(cleanup);
 
-// The header derives "a thread is active" from the workspace navigation adapter
-// (openThreads). Drive it through the real provider.
+// The header derives "a thread is active" from the workspace navigation's `openThreads`, so the
+// tests drive it through the real provider.
 const renderHeader = ({
   openThreads,
   withHeaderEndContent,

@@ -54,8 +54,8 @@ interface SpeechRecognitionAlternative {
 
 type SpeechRecognitionConstructor = new () => SpeechRecognition;
 
-// Kept module-local on purpose: augmenting the global `Window` interface would
-// leak into every consumer's type environment through the shipped .d.ts files.
+// Module-local: augmenting the global `Window` interface would leak into every consumer's type
+// environment through the shipped .d.ts files.
 type WindowWithSpeechRecognition = Window & {
   SpeechRecognition?: SpeechRecognitionConstructor;
   webkitSpeechRecognition?: SpeechRecognitionConstructor;
@@ -69,32 +69,28 @@ const getSpeechRecognition = (): SpeechRecognitionConstructor | undefined => {
 
 export type UseSpeechToTextOptions = {
   /**
-   * Language for speech recognition (e.g., 'en-US', 'es-ES')
+   * Recognition language, e.g. 'en-US' or 'es-ES'.
    * @default 'en-US'
    */
   lang?: string;
   /**
-   * Whether to return interim (partial) results
+   * Whether to return interim (partial) results.
    * @default true
    */
   interimResults?: boolean;
   /**
-   * Maximum number of alternative transcriptions
+   * Maximum number of alternative transcriptions.
    * @default 1
    */
   maxAlternatives?: number;
   /**
-   * Whether recognition should continue after user stops speaking
+   * Whether recognition continues after the user stops speaking.
    * @default false
    */
   continuous?: boolean;
-  /**
-   * Callback when transcription text changes
-   */
+  /** Called with the current transcript on every recognition result. */
   onTranscript?: (text: string) => void;
-  /**
-   * Callback when an error occurs
-   */
+  /** Called with a readable message when recognition fails or cannot start. */
   onError?: (error: string) => void;
 };
 
@@ -114,10 +110,8 @@ export const useSpeechToText = (options: UseSpeechToTextOptions = {}) => {
   const emitError = useStableCallback((error: string) => onError?.(error));
   const recognitionRef = useRef<SpeechRecognition | null>(null);
 
-  // Check if Web Speech API is supported
   const isSupported = !!getSpeechRecognition();
 
-  // Initialize speech recognition
   useEffect(() => {
     const SpeechRecognition = getSpeechRecognition();
     if (!SpeechRecognition) {

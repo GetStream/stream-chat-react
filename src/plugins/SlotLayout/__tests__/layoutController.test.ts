@@ -6,16 +6,10 @@ import {
 
 import type { Channel as StreamChannel } from 'stream-chat';
 
-// MERGE-RECONCILE (test migration): the LayoutController became a pure slot-mechanism controller.
-// - `clear(slot)` is now `release(slot)`.
-// - `openInLayout` no longer auto-resolves a target slot; the caller passes an explicit
-//   `{ targetSlot }` (an occupied target is a replace, an unknown target is rejected). The default
-//   kind-based slot resolution (formerly `resolveTargetSlotChannelDefault` from `../layoutSlotResolvers`)
-//   moved into the navigation layer (`resolveDefaultTargetSlot` in ChatViewNavigationContext, not
-//   exported) and is covered by ChatViewNavigation.test.tsx — the standalone resolver tests and the
-//   "prefers replacing same-kind slot" open() test were dropped as obsolete for this layer.
-// - Runtime slot state (bindings/history/meta/…) is now stored per-view under `layouts[activeView]`
-//   instead of at the top level; reads go through the `viewState` helper below.
+// `openInLayout` takes an explicit `{ targetSlot }`: an occupied target is replaced and an unknown
+// one is rejected. Kind-based default slot resolution lives in the navigation layer
+// (`resolveDefaultTargetSlot`, covered by ChatViewNavigation.test.tsx). Runtime slot state is
+// stored per view under `layouts[activeView]`; tests read it through `viewState`.
 
 const makeChannel = (cid: string) => ({ cid }) as unknown as StreamChannel;
 const makeBinding = (kind: string, source: unknown, key?: string) => ({

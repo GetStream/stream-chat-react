@@ -18,8 +18,7 @@ const DEFAULT_LAYOUT_STATE: ChatViewLayoutState = {
   layouts: {},
 };
 
-/** Build a full per-layout runtime state, defaulting any field left unset.
- * Handy for `initialState` callers that only want to seed a couple of fields. */
+/** Builds a full per-layout runtime state, giving every unset field an empty default. */
 export const createLayoutRuntimeState = (
   partial: Partial<LayoutRuntimeState> = {},
 ): LayoutRuntimeState => ({
@@ -35,20 +34,6 @@ export const createLayoutRuntimeState = (
 
 const DEFAULT_DUPLICATE_ENTITY_POLICY: DuplicateEntityPolicy = 'allow';
 
-/**
- * Slot binding means:
- *
- * - `slot name` -> `what should be shown in that slot`.
- *
- * Example:
- * - `main` -> `{ kind: 'channel', source: channelA }`
- * - `main-thread` -> `{ kind: 'thread', source: threadX }`
- *
- * In LayoutController:
- * - `payload` is the thing to render in the slot.
- * - `key` (optional) is used to identify duplicates.
- * - changing a binding means \"show different data in this slot now\".
- */
 const resolveBindingKey = (binding: LayoutSlotBinding) => binding.key;
 
 const toViewState = (
@@ -94,8 +79,7 @@ const buildInitialState = (
 ): ChatViewLayoutState => {
   const activeView = partialState?.activeView ?? DEFAULT_LAYOUT_STATE.activeView;
 
-  // Flat single-view shorthand: fold top-level runtime fields into the active view's
-  // layout when it isn't provided explicitly via `layouts`.
+  // Flat single-view shorthand: top-level runtime fields seed the active view's layout.
   const {
     availableSlots,
     hiddenSlots,
@@ -361,9 +345,8 @@ const clearSlotBinding = (
   };
 };
 
-// step 2 — the single slot resolver lives in the navigation layer (ChatViewNavigationContext).
-// openInLayout is pure mechanism: it accepts an already-resolved, available target slot (an
-// occupied slot is allowed — that is a replace) and otherwise rejects. Callers own resolution.
+// Accepts only an already-resolved, available `targetSlot` (an occupied one is replaced). Choosing
+// the slot is up to the caller, e.g. the navigation layer.
 const resolveOpenTargetSlot = (
   activeViewState: ChatViewLayoutViewState,
   options: OpenOptions | undefined,
@@ -448,9 +431,8 @@ export class LayoutController implements LayoutControllerApi {
     });
   };
 
-  // step 4 — bind/release are the mechanism primitives. `bind` places a binding into a slot
-  // (an occupied slot is replaced); `release` frees a slot. Higher-level open/close in the
-  // navigation layer are built on these; history navigation is goBack/goForward, kept separate.
+  // Unlike `openInLayout`, `bind` does not push the replaced binding onto the slot's history. It
+  // does clear the slot's forward history.
   bind: LayoutControllerApi['bind'] = (slot, binding) => {
     this.state.next((current) => {
       const activeViewState = toViewState(current);
@@ -470,9 +452,8 @@ export class LayoutController implements LayoutControllerApi {
     });
   };
 
-  // Layers stack *above* a slot's base binding (see `slotLayers`). Push/pop keep every layer
-  // (and the base beneath) mounted; only the topmost is shown by the renderer, so popping a
-  // layer reveals what's underneath at its exact preserved state.
+  // Layers stack above a slot's base binding (see `slotLayers`) without touching the base or the
+  // slot's history.
   pushLayer: LayoutControllerApi['pushLayer'] = (slot, binding) => {
     this.state.next((current) => {
       const activeViewState = toViewState(current);
