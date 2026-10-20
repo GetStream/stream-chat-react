@@ -245,6 +245,7 @@
     "validate-cjs": "concurrently 'node scripts/validate-cjs-node-bundle.cjs' 'node scripts/validate-cjs-browser-bundle.cjs'",
     "validate-esm": "node scripts/validate-esm-node-bundle.mjs",
     "validate-entry-isolation": "node scripts/validate-entry-isolation.mts",
+    "api-surface": "node scripts/api-surface.mts",
     "semantic-release": "semantic-release",
     "prepack": "yarn build",
     "examples:build": "yarn workspaces foreach -A --include '@stream-io/stream-chat-react-*' run build",
