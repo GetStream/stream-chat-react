@@ -9,6 +9,7 @@ import {
 
 import {
   getGroupStyles,
+  getLastReceived,
   insertIntro,
   isDateSeparatorMessage,
   makeDateMessageId,
@@ -938,5 +939,26 @@ describe('insertIntro', () => {
         isIntro(m) ? 'intro' : m.id,
       ),
     ).toEqual(['older', 'intro', 'newer']);
+  });
+});
+
+describe('getLastReceived', () => {
+  const received = (id: string) =>
+    fromPartial<LocalMessage>({ ...generateMessage({ id }), status: 'received' });
+  const sending = (id: string) =>
+    fromPartial<LocalMessage>({ ...generateMessage({ id }), status: 'sending' });
+
+  it('returns the ID of the last received message', () => {
+    expect(getLastReceived([received('a'), received('b'), sending('c')])).toBe('b');
+  });
+
+  it('checks the first message', () => {
+    expect(getLastReceived([received('only')])).toBe('only');
+    expect(getLastReceived([received('first'), sending('second')])).toBe('first');
+  });
+
+  it('returns null without a received message', () => {
+    expect(getLastReceived([])).toBeNull();
+    expect(getLastReceived([sending('a')])).toBeNull();
   });
 });

@@ -124,9 +124,9 @@ export const InfiniteScroll = (props: PropsWithChildren<InfiniteScrollProps>) =>
     scrollElement.addEventListener('wheel', mousewheelListener, { passive: false });
 
     return () => {
-      scrollElement.removeEventListener('wheel', mousewheelListener, useCapture);
+      scrollElement.removeEventListener('wheel', mousewheelListener);
     };
-  }, [scrollComponent, useCapture]);
+  }, [scrollComponent]);
 
   return (
     <Component {...elementProps} ref={setScrollComponent}>

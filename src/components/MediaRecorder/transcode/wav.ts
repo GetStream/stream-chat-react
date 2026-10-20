@@ -117,7 +117,7 @@ const writeWavAudioData = ({ arrayBuffer, dataByChannel }: WriteAudioDataParams)
   const channelCount = dataByChannel.length;
 
   dataByChannel.forEach((channelData, channelIndex) => {
-    let writeOffset = WAV_HEADER_LENGTH_BYTES + channelCount * channelIndex;
+    let writeOffset = WAV_HEADER_LENGTH_BYTES + BYTES_PER_SAMPLE * channelIndex;
 
     channelData.forEach((float32Value) => {
       dataView.setInt16(
@@ -132,7 +132,7 @@ const writeWavAudioData = ({ arrayBuffer, dataByChannel }: WriteAudioDataParams)
   });
 };
 
-export const encodeToWaw = async (file: File, sampleRate: number) => {
+export const encodeToWav = async (file: File, sampleRate: number) => {
   const audioBuffer = await renderAudio(await toAudioBuffer(file), sampleRate);
   const numberOfSamples = audioBuffer.duration * sampleRate;
   const fileSizeBytes =

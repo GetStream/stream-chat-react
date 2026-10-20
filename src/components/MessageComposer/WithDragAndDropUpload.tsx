@@ -128,7 +128,11 @@ export const WithDragAndDropUpload = ({
   // A nested WithDragAndDropUpload, e.g. the one `MessageComposerUI` always renders, is a plain
   // wrapper: the outermost one handles the drop.
   if (dragAndDropUploadContext.subscribeToDrop !== null) {
-    return <Component className={className}>{children}</Component>;
+    return (
+      <Component className={className} style={style}>
+        {children}
+      </Component>
+    );
   }
 
   const rootClassName = clsx('str-chat__dropzone-root', className);

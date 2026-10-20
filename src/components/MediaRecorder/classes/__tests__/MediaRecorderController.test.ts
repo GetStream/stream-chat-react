@@ -33,7 +33,7 @@ vi.mock('nanoid', () => ({
   nanoid: () => nanoidMockValue,
 }));
 
-vi.spyOn(wavTranscoder, 'encodeToWaw').mockImplementation((file) =>
+vi.spyOn(wavTranscoder, 'encodeToWav').mockImplementation((file) =>
   Promise.resolve(new Blob([file], { type: 'audio/wav' })),
 );
 

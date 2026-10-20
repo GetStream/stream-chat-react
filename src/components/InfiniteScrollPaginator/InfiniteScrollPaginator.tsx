@@ -140,10 +140,10 @@ export const InfiniteScrollPaginator = forwardRef(function InfiniteScrollPaginat
     }
     return () => {
       if (root) {
-        root.removeEventListener('wheel', mousewheelListener, useCapture);
+        root.removeEventListener('wheel', mousewheelListener);
       }
     };
-  }, [useCapture]);
+  }, []);
 
   return renderPolymorphic(
     Component as E,

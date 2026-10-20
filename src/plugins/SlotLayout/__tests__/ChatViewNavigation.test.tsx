@@ -1624,6 +1624,74 @@ describe('stacked panels', () => {
     );
   });
 
+  // A thread of another channel bound as a slot's base also stays when the primary channel is
+  // replaced; only the replaced channel's own threads are released.
+  it.each([
+    ['keeps', 'messaging:other', true],
+    ['releases', 'messaging:primary', false],
+  ])(
+    '%s a thread slot base of %s when the primary channel is replaced',
+    (_, threadCid, kept) => {
+      const primaryChannel = makeChannel('messaging:primary');
+      const nextChannel = makeChannel('messaging:next');
+      const thread = {
+        channel:
+          threadCid === primaryChannel.cid ? primaryChannel : makeChannel(threadCid),
+        id: 'thread',
+      } as unknown as StreamThread;
+      let capturedController: LayoutController | undefined;
+
+      const Harness = () => {
+        const navigation = useChatViewNavigation();
+        const { layoutController } = useChatViewContext();
+        capturedController = layoutController;
+
+        return (
+          <>
+            <button
+              onClick={() => navigation.open(channelBinding(primaryChannel))}
+              type='button'
+            >
+              open-primary
+            </button>
+            <button onClick={() => navigation.open(threadBinding(thread))} type='button'>
+              open-thread
+            </button>
+            <button
+              onClick={() => navigation.open(channelBinding(nextChannel))}
+              type='button'
+            >
+              open-next
+            </button>
+          </>
+        );
+      };
+
+      renderWithProviders(
+        <ChatView layouts={twoSlotLayouts}>
+          <Harness />
+        </ChatView>,
+      );
+
+      fireEvent.click(screen.getByText('open-primary'));
+      fireEvent.click(screen.getByText('open-thread'));
+      expect(
+        getChatViewEntityBinding(viewState(capturedController)?.slotBindings.slot2)
+          ?.source,
+      ).toBe(thread);
+
+      fireEvent.click(screen.getByText('open-next'));
+
+      const state = viewState(capturedController);
+      expect(getChatViewEntityBinding(state?.slotBindings.slot1)?.source).toBe(
+        nextChannel,
+      );
+      expect(getChatViewEntityBinding(state?.slotBindings.slot2)?.source).toBe(
+        kept ? thread : undefined,
+      );
+    },
+  );
+
   // The same channel can be open in both slots (the default duplicate policy allows it). The panel
   // a header renders in then decides which slot its back and close buttons act on.
   it('resolves a channel open in both slots by the panel asking', () => {

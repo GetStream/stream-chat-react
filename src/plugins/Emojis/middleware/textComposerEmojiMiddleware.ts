@@ -97,7 +97,7 @@ export const createTextComposerEmojiMiddleware = (
   emojiSearchIndex: EmojiSearchIndex,
   options?: Partial<TextComposerMiddlewareOptions>,
 ): EmojiMiddleware => {
-  const finalOptions = mergeWith(DEFAULT_OPTIONS, options ?? {});
+  const finalOptions = mergeWith({}, DEFAULT_OPTIONS, options ?? {});
   const emojiSearchSource = new EmojiSearchSource(emojiSearchIndex);
   emojiSearchSource.activate();
 

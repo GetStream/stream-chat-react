@@ -1,4 +1,4 @@
-import { encodeToWaw } from './wav';
+import { encodeToWav } from './wav';
 import { createFileFromBlobs, getExtensionFromMimeType } from '../../ReactFileUtilities';
 
 export type TranscoderConfig = {
@@ -14,7 +14,7 @@ export type TranscodeParams = TranscoderConfig & {
 
 export const transcode = ({
   blob,
-  encoder = encodeToWaw,
+  encoder = encodeToWav,
   sampleRate,
 }: TranscodeParams): Promise<Blob> =>
   encoder(

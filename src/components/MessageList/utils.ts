@@ -209,7 +209,7 @@ export const makeDateMessageId = (date?: string | Date) => {
  * @returns The message ID, or `null` when none is found.
  */
 export const getLastReceived = (messages: RenderedMessage[]) => {
-  for (let i = messages.length - 1; i > 0; i -= 1) {
+  for (let i = messages.length - 1; i >= 0; i -= 1) {
     if ((messages[i] as LocalMessage).status === 'received') {
       return messages[i].id;
     }

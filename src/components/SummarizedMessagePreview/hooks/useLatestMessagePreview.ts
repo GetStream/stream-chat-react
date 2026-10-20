@@ -167,7 +167,10 @@ export const useLatestMessagePreview = ({
 
     let deliveryStatus: ChannelPreviewDeliveryStatus | undefined;
     if (isOwnMessage) {
-      deliveryStatus = messageDeliveryStatus ?? (latestMessage.status as 'sending');
+      // Of the message's own statuses only `sending` is a delivery status.
+      deliveryStatus =
+        messageDeliveryStatus ??
+        (latestMessage.status === 'sending' ? 'sending' : undefined);
     }
 
     let senderName: string | undefined;

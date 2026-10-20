@@ -103,6 +103,12 @@ describe('useLatestMessagePreview', () => {
       expect(result.current.deliveryStatus).toBe('sending');
     });
 
+    it('sets no delivery status for a message status that is not a delivery status', () => {
+      const message = generateMessage({ status: 'received', user: ownUser });
+      const { result } = renderPreviewHook({ latestMessage: message });
+      expect(result.current.deliveryStatus).toBeUndefined();
+    });
+
     it('does not set delivery status for other users messages', () => {
       const message = generateMessage({ user: otherUser });
       const { result } = renderPreviewHook({

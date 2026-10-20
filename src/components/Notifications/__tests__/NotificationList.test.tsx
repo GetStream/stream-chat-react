@@ -403,6 +403,28 @@ describe('NotificationList', () => {
     expect(screen.getByTestId('notification-n-2')).toBeInTheDocument();
   });
 
+  it('keeps the dwell window when the queued same-type notification is older', () => {
+    currentNotifications = [
+      transientFixture({ createdAt: 1, id: 'n-1', message: 'Older', type: 'same' }),
+      transientFixture({ createdAt: 2, id: 'n-2', message: 'Newer', type: 'same' }),
+    ];
+
+    const pickNextLifo = createDefaultPickNext(pickNewest);
+    const { rerender } = render(
+      <NotificationList minDisplayMs={5000} pickNext={pickNextLifo} />,
+    );
+    // LIFO shows the newest first; the older one of the same type is still queued.
+    expect(screen.getByTestId('notification-n-2')).toBeInTheDocument();
+
+    act(() => {
+      vi.advanceTimersByTime(EXIT_ANIMATION_MS + 100);
+    });
+    rerender(<NotificationList minDisplayMs={5000} pickNext={pickNextLifo} />);
+
+    expect(remove).not.toHaveBeenCalled();
+    expect(screen.getByTestId('notification-n-2')).toBeInTheDocument();
+  });
+
   it('does not replace a persistent notification with a transient one', () => {
     currentNotifications = [
       transientFixture({

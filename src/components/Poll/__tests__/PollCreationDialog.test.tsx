@@ -800,6 +800,38 @@ describe('PollCreationDialog', () => {
     expect(close).toHaveBeenCalledTimes(1);
   });
 
+  it('does not send when no poll was created', async () => {
+    const {
+      channels: [channel],
+      client,
+    } = await initClientWithChannels({ customUser: user });
+    await renderComponent({ channel, client });
+    // `createPoll()` resolves without a poll for an empty composition. The composer still holds
+    // drafted text, which must not be sent in place of the poll.
+    vi.spyOn(channel.messageComposer, 'createPoll').mockResolvedValueOnce(undefined);
+    channel.messageComposer.textComposer.setText('drafted text');
+    const sendMessageSpy = spyOnSendMessage(channel);
+    const addNotificationSpy = vi.spyOn(client.notifications, 'add');
+
+    await act(async () => {
+      await fireEvent.change(getNameInput(), { target: { value: 'Q' } });
+    });
+    await act(async () => {
+      await fireEvent.change(getOptionInput(), { target: { value: 'Opt' } });
+    });
+    await act(async () => {
+      await fireEvent.click(getSubmitPollButton());
+    });
+
+    await waitFor(() => expect(close).toHaveBeenCalledTimes(1));
+    expect(sendMessageSpy).not.toHaveBeenCalled();
+    expect(
+      addNotificationSpy.mock.calls.filter(
+        ([payload]) => payload?.message === 'Poll sent',
+      ),
+    ).toHaveLength(0);
+  });
+
   it('surfaces a send failure when the poll is created but the message fails to send', async () => {
     const {
       channels: [channel],
