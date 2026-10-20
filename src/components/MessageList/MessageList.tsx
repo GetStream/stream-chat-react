@@ -36,7 +36,6 @@ import { useThreadContext } from '../Threads';
 import { useThreadHead } from './hooks/useThreadHead';
 
 import type {
-  LocalMessage,
   MessageFocusSignalState,
   MessagePaginatorState,
   TimestampNS,
@@ -57,7 +56,6 @@ import { useCanPaginateReplies } from './hooks/useCanPaginateReplies';
 type MessageListWithContextProps = MessageListProps;
 
 const messagePaginatorStateSelector = (state: MessagePaginatorState) => ({
-  // hasMore: state.hasMoreTail,
   hasMoreNewer: state.hasMoreHead,
   isLoading: state.isLoading,
   messages: state.items ?? [],
@@ -94,7 +92,6 @@ const MessageListWithContext = (props: MessageListWithContextProps) => {
     } = {},
     maxTimeBetweenGroupedMessages,
     noGroupByUser = false,
-    // messageLimit = DEFAULT_NEXT_CHANNEL_PAGE_SIZE,
     reactionDetailsSort,
     renderMessages = defaultRenderMessages,
     returnAllReadData = false,
@@ -107,10 +104,8 @@ const MessageListWithContext = (props: MessageListWithContextProps) => {
   } = props;
   const thread = useThreadContext();
   const isThreadList = !!thread;
-  const [suppressAutoscrollWhileLoadingOlder, setSuppressAutoscrollWhileLoadingOlder] =
-    React.useState(false);
-  const suppressAutoscroll =
-    suppressAutoscrollFromProps || suppressAutoscrollWhileLoadingOlder;
+  const [isLoadingOlder, setIsLoadingOlder] = React.useState(false);
+  const suppressAutoscroll = suppressAutoscrollFromProps || isLoadingOlder;
   const loadingOlderRef = React.useRef(false);
 
   const [listElement, setListElement] = React.useState<HTMLDivElement | null>(null);
@@ -236,14 +231,23 @@ const MessageListWithContext = (props: MessageListWithContextProps) => {
   const canPaginateReplies = useCanPaginateReplies();
 
   const loadOlderMessages = React.useCallback(async () => {
-    if (loadingOlderRef.current) return;
+    // The paginator's own gate for a tailward page. Checked here too so that `isLoadingOlder`, which
+    // shows the older-page indicator, is never raised while another load (a jump, a newer page)
+    // holds `isLoading` and `toTail()` would not query.
+    if (
+      loadingOlderRef.current ||
+      messagePaginator.isLoading ||
+      !messagePaginator.hasMoreTail
+    ) {
+      return;
+    }
     loadingOlderRef.current = true;
-    setSuppressAutoscrollWhileLoadingOlder(true);
+    setIsLoadingOlder(true);
     try {
       await messagePaginator.toTail();
     } finally {
       loadingOlderRef.current = false;
-      setSuppressAutoscrollWhileLoadingOlder(false);
+      setIsLoadingOlder(false);
     }
   }, [messagePaginator]);
 
@@ -396,7 +400,7 @@ const MessageListWithContext = (props: MessageListWithContextProps) => {
                 {threadHead}
                 {isLoading && (
                   <div className='str-chat__list__loading' key='loading-indicator'>
-                    {props.loadingMore && <LoadingIndicator />}
+                    {(props.loadingMore ?? isLoadingOlder) && <LoadingIndicator />}
                   </div>
                 )}
                 <MessageListWrapper className='str-chat__ul'>
@@ -465,8 +469,6 @@ export type MessageListProps = Partial<Pick<MessageProps, PropsDrilledToMessage>
     noGroupByUser: boolean,
     maxTimeBetweenGroupedMessages?: number,
   ) => GroupStyle;
-  /** Whether the list has more items to load */
-  hasMore?: boolean;
   /**
    * Position to render HeaderComponent, as a timestamp in the same unit as `message.created_at` —
    * i.e. unix nanoseconds. Was milliseconds while `created_at` was a `Date`.
@@ -480,22 +482,13 @@ export type MessageListProps = Partial<Pick<MessageProps, PropsDrilledToMessage>
   hideNewMessageSeparator?: boolean;
   /** Overrides the default props passed to [InfiniteScrollPaginator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/InfiniteScrollPaginator/InfiniteScrollPaginator.tsx) */
   internalInfiniteScrollProps?: InternalPaginatorProps;
-  /** Function called when latest messages should be loaded, after the list has jumped at an earlier message set */
-  jumpToLatestMessage?: () => Promise<void>;
-  /** Whether or not the list is currently loading more items */
+  /**
+   * Whether to show the `LoadingIndicator` in the row above the messages while the message
+   * paginator is loading. Defaults to showing it while an older page loads.
+   */
   loadingMore?: boolean;
-  /** Whether or not the list is currently loading newer items */
-  loadingMoreNewer?: boolean;
-  /** Function called when more messages are to be loaded. */
-  // loadMore?: () => Promise<void>;
-  /** Function called when newer messages are to be loaded. */
-  // loadMoreNewer?: () => Promise<void>;
   /** Maximum time in milliseconds that should occur between messages to still consider them grouped together */
   maxTimeBetweenGroupedMessages?: number;
-  /** The limit to use when paginating messages */
-  messageLimit?: number;
-  /** The messages to render in the list; defaults to the active message-paginator items. */
-  messages?: LocalMessage[];
   /** If true, turns off message UI grouping by user */
   noGroupByUser?: boolean;
   /** Overrides the way MessageList renders messages */

@@ -9,6 +9,7 @@ import {
   useComponentContextIcons,
   useModalContext,
   useTranslationContext,
+  useWorkspaceNavigation,
 } from '../../../../../context';
 import * as DEFAULT_ICONS from '../../../../../components/Icons/icons';
 import { ChannelDetailProvider } from '../../../ChannelDetailContext';
@@ -20,10 +21,7 @@ import { mockT } from '../../../../../mock-builders/translator';
 
 vi.mock('../../../../../context');
 
-const mockOpen = vi.fn();
-vi.mock('../../../../SlotLayout', () => ({
-  useChatViewNavigation: () => ({ open: mockOpen }),
-}));
+const mockOpenChannel = vi.fn();
 
 vi.mock('../../../../../components/Notifications', () => ({
   useNotificationApi: () => ({ addNotification: vi.fn() }),
@@ -65,6 +63,11 @@ describe('SendDirectMessage action', () => {
     vi.mocked(useComponentContext).mockReturnValue(
       {} as ReturnType<typeof useComponentContext>,
     );
+    // Workspace navigation, not ChatView's slot API, so a custom WorkspaceNavigationProvider
+    // outside ChatView receives the direct message too.
+    vi.mocked(useWorkspaceNavigation).mockReturnValue(
+      fromPartial({ openChannel: mockOpenChannel }),
+    );
   });
 
   it('opens and lists the direct message once it is watched', async () => {
@@ -78,9 +81,7 @@ describe('SendDirectMessage action', () => {
       await Promise.resolve();
     });
 
-    expect(mockOpen).toHaveBeenCalledWith(
-      expect.objectContaining({ key: 'messaging:dm', source: created }),
-    );
+    expect(mockOpenChannel).toHaveBeenCalledWith(created);
     expect(ingestChannel).toHaveBeenCalledWith(created);
   });
 
@@ -97,9 +98,7 @@ describe('SendDirectMessage action', () => {
       await Promise.resolve();
     });
 
-    expect(mockOpen).toHaveBeenCalledWith(
-      expect.objectContaining({ key: 'messaging:dm', source: stored }),
-    );
+    expect(mockOpenChannel).toHaveBeenCalledWith(stored);
     expect(ingestChannel).toHaveBeenCalledWith(stored);
   });
 });
