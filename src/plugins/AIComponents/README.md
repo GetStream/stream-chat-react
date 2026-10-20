@@ -29,9 +29,9 @@ Load `ai-components.css` in addition to `stream-chat-react/css/index.css`.
 
 From `stream-chat-react/ai-components`:
 
-- Components: `AIMarkdown`, `AIMessageComposer` (with the static sub-components `FileInput`, `TextInput`, `SpeechToTextButton`, `SubmitButton`, `ModelSelect`, `AttachmentPreview`, `AttachmentPreview.Item`), `StreamingMessage`, `AIStateIndicator`
-- Hooks: `useAttachments`, `useText`, `useIsDisabled`, `useAIMessageComposerContext`, `useSpeechToText`
-- Types: `AIMessageComposerStore`, `StreamingMessageRef`, `UseMessageTextStreamingProps`, `ToolComponentProps`, `UseSpeechToTextOptions`
+- Components: `AIMarkdown`, `AIMessageComposer` (with the static sub-components `FileInput`, `TextInput`, `SpeechToTextButton`, `SubmitButton`, `ModelSelect`, `AttachmentPreview`, `AttachmentPreview.Item`), `StreamingMessage`, `AIStateIndicator`, `VoiceWave`, `VoiceGlow`
+- Hooks: `useAttachments`, `useText`, `useIsDisabled`, `useAIMessageComposerContext`, `useSpeechToText`, `useAudioLevel`
+- Types: `AIMessageComposerStore`, `StreamingMessageRef`, `UseMessageTextStreamingProps`, `ToolComponentProps`, `UseSpeechToTextOptions`, `VoiceAgentState`, `VoiceGlowRendering`, `VoiceVisualizationProps`, `VoiceWaveProps`, `VoiceGlowProps`
 
 `useMessageTextStreaming` is not exported from here; import it from the main entry point (`stream-chat-react`).
 
@@ -190,6 +190,8 @@ Precedence for every token except the code palette is: your `--str-chat__ai-*` o
 | `table-text`               | table cell text                                         | `text-secondary`                  | `#495057`        |
 | `scrollbar-track`          | attachment list scrollbar track                         | `background-core-surface-subtle`  | `#f1f1f1`        |
 | `scrollbar-thumb`          | attachment list scrollbar thumb                         | `border-core-default`             | `#ddd`           |
+| `voice-color`              | `VoiceWave` / `VoiceGlow` color when `colors` is unset  | `accent-primary`                  | `#005fff`        |
+| `voice-backdrop`           | what `VoiceWave` / `VoiceGlow` sit on (light or dark)   | `background-core-elevation-0`     | `#ffffff`        |
 | `syntax-*`                 | code palette (see below)                                | none                              | built-in palette |
 
 The code palette tokens are `--str-chat__ai-syntax-text`, `-selection-bg`, `-comment`, `-punctuation`, `-number`, `-keyword`, `-tag`, `-string`, `-function`, `-cyan`, `-error` and `-whitespace`.
@@ -296,6 +298,67 @@ import { AIMarkdown } from 'stream-chat-react/ai-components';
 function MessageContent({ content }) {
   return <AIMarkdown>{content}</AIMarkdown>;
 }
+```
+
+### `VoiceWave` and `VoiceGlow`
+
+Two animated visualizations of a voice agent, the web counterparts of `AIVoiceWave` and `AIVoiceGlow` in the Android and iOS AI components, with the same motion. `VoiceWave` is a single string carrying a wave packet that erupts with speech; `VoiceGlow` is a soft globe whose color masses orbit inside it and swell with speech.
+
+Both draw on a `<canvas>` inside a `div` with `role="img"` and an accessible name such as "Voice agent: Speaking". They have no size of their own and draw in the middle of the box they are given (`VoiceWave` about 80% as wide as the shorter side, `VoiceGlow` about half), so size them with CSS. The defaults are `width: 100%; height: 8rem` for the wave and `12rem` square for the glow.
+
+#### Props
+
+| Name           | Type                                                                | Required | Description                                                                                                                                                                                         |
+| -------------- | ------------------------------------------------------------------- | -------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `state`        | `'idle' \| 'connecting' \| 'listening' \| 'thinking' \| 'speaking'` | yes      | What the agent is doing. The states differ only in motion, never in color, and a change eases from one motion into the next.                                                                        |
+| `colors`       | `string[]`                                                          | no       | One to five CSS colors, flowing through the shape. Past five are ignored. When omitted or empty, `--str-chat__ai-voice-color` is used, which follows the SDK accent color.                          |
+| `expressivity` | `number`                                                            | no       | From 0 to 2: how far and how fast it moves. Defaults to 1.                                                                                                                                          |
+| `audioLevel`   | `() => number \| null \| undefined`                                 | no       | The level of whoever is talking, from 0 to 1, read once a frame, so a level changing many times a second re-renders nothing. Returning `null` (or omitting it) animates speech on its own.          |
+| `rendering`    | `'auto' \| 'webgl' \| 'canvas'`                                     | no       | `VoiceGlow` only. `auto` (default) and `webgl` draw with a WebGL shader and fall back to a 2D canvas when WebGL is unavailable or its context is lost; `canvas` always uses the cheaper 2D drawing. |
+
+Any other `div` prop (`className`, `style`, event handlers, ...) is passed to the root. Pointer events are watched, never stopped: a tap inside the shape bounces it and a hovering mouse or pen ripples it, while your own `onClick` still fires.
+
+Behavior:
+
+- The animation runs only while the element is on screen and the tab is visible.
+- With `prefers-reduced-motion: reduce`, the motion slows to a crawl and taps and hover are ignored.
+- The palette and the light or dark look follow the theme (`--str-chat__ai-voice-color` and `--str-chat__ai-voice-backdrop`), re-read about once a second, so a theme switch needs no prop.
+- Under SSR the markup is rendered and drawing starts after hydration.
+
+#### Example
+
+```tsx
+import { useEffect, useState } from 'react';
+import {
+  useAudioLevel,
+  type VoiceAgentState,
+  VoiceGlow,
+  VoiceWave,
+} from 'stream-chat-react/ai-components';
+
+const VoiceAgent = ({ state }: { state: VoiceAgentState }) => {
+  const [mic, setMic] = useState<MediaStream | null>(null);
+  const micLevel = useAudioLevel(mic);
+
+  useEffect(() => {
+    let stream: MediaStream | undefined;
+    navigator.mediaDevices.getUserMedia({ audio: true }).then((granted) => {
+      stream = granted;
+      setMic(granted);
+    });
+    return () => stream?.getTracks().forEach((track) => track.stop());
+  }, []);
+
+  return (
+    <>
+      <VoiceGlow colors={['#005fff', '#7c3aed']} state={state} />
+      <VoiceWave
+        audioLevel={state === 'listening' ? micLevel : undefined}
+        state={state}
+      />
+    </>
+  );
+};
 ```
 
 ### `StreamingMessage`
@@ -506,6 +569,16 @@ function VoiceInput() {
   );
 }
 ```
+
+### `useAudioLevel`
+
+Reads the live level of a `MediaStream`'s audio (a microphone from `getUserMedia({ audio: true })`, or a remote track) for the `audioLevel` prop of `VoiceWave` and `VoiceGlow`.
+
+```ts
+const useAudioLevel: (stream: MediaStream | null | undefined) => () => number | null;
+```
+
+It returns a stable getter that measures the level when called, from 0 to 1, so nothing re-renders as the level changes. The getter returns `null` while there is no stream or no Web Audio support. The audio graph is torn down when the stream changes and on unmount; the stream's tracks are left running, since they belong to you.
 
 ## Examples
 

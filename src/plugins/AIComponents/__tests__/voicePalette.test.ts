@@ -1,0 +1,83 @@
+import { audioLevelInput, expressivityInput } from '../VoiceVisualization/math';
+import {
+  luminance,
+  parseColor,
+  rgbToHsv,
+  toHsvPalette,
+} from '../VoiceVisualization/palette';
+
+describe('voice visualization palette', () => {
+  it('keeps a color’s full hue, saturation and value', () => {
+    const hsv = rgbToHsv([0, 95 / 255, 1]);
+
+    expect(hsv.hue * 360).toBeCloseTo(217.6, 1);
+    expect(hsv.saturation).toBeCloseTo(1, 4);
+    expect(hsv.value).toBeCloseTo(1, 4);
+  });
+
+  it('keeps a muted color muted', () => {
+    // hsv(108°, 25%, 60%)
+    const hsv = rgbToHsv([0.48, 0.6, 0.45]);
+
+    expect(hsv.hue).toBeCloseTo(0.3, 2);
+    expect(hsv.saturation).toBeCloseTo(0.25, 2);
+    expect(hsv.value).toBeCloseTo(0.6, 4);
+  });
+
+  it('gives a gray no saturation', () => {
+    const hsv = rgbToHsv([0.5, 0.5, 0.5]);
+
+    expect(hsv.saturation).toBe(0);
+    expect(hsv.value).toBe(0.5);
+  });
+
+  it.each([
+    ['#005fff', [0, 95 / 255, 1]],
+    ['#0af', [0, 170 / 255, 1]],
+    ['#005fff80', [0, 95 / 255, 1]],
+    ['rgb(0, 95, 255)', [0, 95 / 255, 1]],
+    ['rgba(0 95 255 / 0.5)', [0, 95 / 255, 1]],
+    ['rgb(0%, 50%, 100%)', [0, 0.5, 1]],
+  ])('reads %s', (color, expected) => {
+    const rgb = parseColor(color);
+    expect(rgb).not.toBeNull();
+    rgb?.forEach((channel, i) => expect(channel).toBeCloseTo(expected[i], 4));
+  });
+
+  it('skips colors it cannot read', () => {
+    expect(parseColor('not-a-color')).toBeNull();
+    expect(parseColor('#12345')).toBeNull();
+    expect(toHsvPalette(['nope', '#ff0000'])).toHaveLength(1);
+  });
+
+  it('keeps only the first five colors', () => {
+    expect(toHsvPalette(Array.from({ length: 7 }, () => '#ff0000'))).toHaveLength(5);
+  });
+
+  it('measures luminance for the light or dark look', () => {
+    expect(luminance('#ffffff')).toBeCloseTo(1, 4);
+    expect(luminance('#000000')).toBe(0);
+    expect(luminance('#1c1e22')).toBeLessThan(0.5);
+    expect(luminance('')).toBeNull();
+  });
+});
+
+describe('voice visualization inputs', () => {
+  it('clamps expressivity to 0-2 and replaces one that is not a number', () => {
+    expect(expressivityInput(3)).toBe(2);
+    expect(expressivityInput(-1)).toBe(0);
+    expect(expressivityInput(0.5)).toBe(0.5);
+    expect(expressivityInput(Number.NaN)).toBe(1);
+    expect(expressivityInput(Number.POSITIVE_INFINITY)).toBe(1);
+    expect(expressivityInput(undefined)).toBe(1);
+  });
+
+  it('clamps the audio level to 0-1 and treats one that is not a number as no audio', () => {
+    expect(audioLevelInput(2)).toBe(1);
+    expect(audioLevelInput(-1)).toBe(0);
+    expect(audioLevelInput(0.4)).toBe(0.4);
+    expect(audioLevelInput(Number.NaN)).toBeNull();
+    expect(audioLevelInput(null)).toBeNull();
+    expect(audioLevelInput(undefined)).toBeNull();
+  });
+});

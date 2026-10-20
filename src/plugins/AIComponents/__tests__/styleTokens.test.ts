@@ -26,6 +26,12 @@ describe('AI components stylesheet token contract', () => {
     expect(css).toContain(
       'var(--str-chat__ai-table-header-bg, var(--str-chat__background-core-surface-subtle, #f8f9fa))',
     );
+    expect(css).toContain(
+      'var(--str-chat__ai-voice-color, var(--str-chat__accent-primary, #005fff))',
+    );
+    expect(css).toContain(
+      'var(--str-chat__ai-voice-backdrop, var(--str-chat__background-core-elevation-0, #ffffff))',
+    );
   });
 
   it('uses no colour literal outside a var() fallback (so SCR dark mode applies)', () => {
@@ -100,6 +106,12 @@ describe('AI components stylesheet accessibility', () => {
   it('shows focus on the text input container while typing', () => {
     expect(css).toMatch(
       /\.str-chat__ai-message-composer__form:focus-within[^{]*\{[^}]*border-color/,
+    );
+  });
+
+  it('restores a visible focus indicator on a focusable voice visualization', () => {
+    expect(css).toMatch(
+      /\.str-chat__ai-voice-visualization:focus-visible[^{]*\{[^}]*outline:\s*2px solid var\(--str-chat__border-utility-focused/,
     );
   });
 

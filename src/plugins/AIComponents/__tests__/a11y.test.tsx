@@ -1,7 +1,7 @@
 import React, { type ReactNode } from 'react';
 import { render, screen } from '@testing-library/react';
 
-import { AIMessageComposer, AIStateIndicator } from '..';
+import { AIMessageComposer, AIStateIndicator, VoiceGlow, VoiceWave } from '..';
 import { Item } from '../AIMessageComposer/AttachmentPreview';
 import { TranslationProvider } from '../../../context';
 import en from '../../../i18n/en.json';
@@ -88,6 +88,33 @@ describe('AI components accessibility', () => {
       </WithEnglish>,
     );
     expect(screen.getByRole('button', { name: 'Retry upload' })).toBeInTheDocument();
+  });
+
+  it('voice visualizations have no axe violations and are named with their state', async () => {
+    const interpolatingT = ((key: string, options?: Record<string, string>) =>
+      ((en as Record<string, string>)[key] || key).replace(
+        /\{\{\s*(\w+)\s*\}\}/g,
+        (_, name) => options?.[name] ?? '',
+      )) as never;
+    const { container } = render(
+      <TranslationProvider
+        value={{
+          t: interpolatingT,
+          tDateTimeParser: (() => null) as never,
+          userLanguage: 'en',
+        }}
+      >
+        <VoiceWave state='listening' />
+        <VoiceGlow state='thinking' />
+      </TranslationProvider>,
+    );
+    expect(await axe(container)).toHaveNoViolations();
+    expect(
+      screen.getByRole('img', { name: 'Voice agent: Listening' }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('img', { name: 'Voice agent: Thinking' }),
+    ).toBeInTheDocument();
   });
 
   it('announces the AI state politely', () => {
