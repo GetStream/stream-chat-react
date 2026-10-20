@@ -18,7 +18,7 @@ export type Streami18nOptions = CoreStreami18nOptions<TranslationCatalog>;
  *
  * Adds this SDK's bundled data and notification translation topic to the `@stream-io/i18n`
  * implementation. A partial dictionary is safe: missing keys render the English copy passed inline
- * at each call site. Type a dictionary as {@link TranslationDictionary} so unknown keys fail to
+ * at each call site. Type a dictionary as `TranslationDictionary` so unknown keys fail to
  * compile. `setLanguage()` publishes the new `t` to `i18n.state`, which `<Chat>` subscribes to.
  *
  * Override some English copy:

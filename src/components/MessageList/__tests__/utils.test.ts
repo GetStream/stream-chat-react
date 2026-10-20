@@ -804,7 +804,7 @@ describe('getGroupStyles', () => {
   });
 
   // deleted_at on the message itself does not force 'single'.
-  it('marks message as middle even when deleted (deleted_at no longer affects grouping)', () => {
+  it('marks message as middle even when deleted (deleted_at does not affect grouping)', () => {
     message = { ...message, deleted_at: convertDateToTimestamp(new Date()) };
     expect(getGroupStyles(message, previousMessage, nextMessage, noGroupByUser)).toBe(
       'middle',
@@ -918,7 +918,7 @@ describe('insertIntro', () => {
     ]);
   });
 
-  it('is in nanoseconds, not milliseconds — the unit the migration changed', () => {
+  it('takes the header position in nanoseconds, not milliseconds', () => {
     const messages = [
       msg('2026-01-01T00:00:00Z', 'older'),
       msg('2026-01-03T00:00:00Z', 'newer'),

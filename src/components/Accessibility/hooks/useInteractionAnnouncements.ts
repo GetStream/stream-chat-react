@@ -222,7 +222,7 @@ const INTERACTION_PRIORITIES: Partial<
 };
 
 /**
- * Per-interaction dedupe window (ms), see {@link AriaLiveAnnounceOptions.dedupeMs}. List an
+ * Per-interaction dedupe window (ms), see `AriaLiveAnnounceOptions.dedupeMs`. List an
  * interaction only when one event can fire it more than once in quick succession, e.g. an effect
  * double-invoked by React StrictMode.
  */
@@ -251,7 +251,7 @@ const INTERACTION_DEBOUNCE_MS: Partial<Record<InteractionAnnouncementType, numbe
 
 /**
  * Default per-interaction delay (ms) for the immediate path: a single deferred emit scheduled in
- * the announcer provider (see {@link AriaLiveAnnounceOptions.delayMs}), so it survives the caller
+ * the announcer provider (see `AriaLiveAnnounceOptions.delayMs`), so it survives the caller
  * unmounting, unlike a debounce.
  *
  * Opening a channel or thread focuses the composer, and a live-region message emitted alongside the

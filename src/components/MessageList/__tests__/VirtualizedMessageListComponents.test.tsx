@@ -617,7 +617,7 @@ describe('VirtualizedMessageComponents', () => {
       // `groupedByUser`, `firstOfGroup` and `endOfGroup` props passed directly.
       it.each([
         ['not ', 'by default', 'not ', false],
-        ['not ', '(grouping CSS classes are now set externally)', 'not ', true],
+        ['not ', '(grouping CSS classes are set by the caller)', 'not ', true],
       ])(
         'should %sgroup messages %s and mark the first and the last group message',
         (_, __, ___, shouldGroupByUser) => {

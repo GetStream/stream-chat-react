@@ -20,7 +20,7 @@ import {
 import { nowNs } from 'stream-chat';
 
 export const reactionHandlerWarning = `Reaction handler was called, but it is missing one of its required arguments.
-Make sure the ChannelAction and ChannelState contexts are properly set and the hook is initialized with a valid message.`;
+Make sure the hook is initialized with a valid message.`;
 
 export const useReactionHandler = (message?: LocalMessage) => {
   const messagePaginator = useMessagePaginator();

@@ -47,7 +47,7 @@ vi.mock('../../../Accessibility', () => ({
   }),
 }));
 
-describe('CommandsSubmenuHeader (RW22 — commands submenu back affordance, #76)', () => {
+describe('CommandsSubmenuHeader (commands submenu back affordance)', () => {
   beforeEach(() => vi.clearAllMocks());
 
   it('exposes the header as an activatable menuitem back button', () => {

@@ -1082,7 +1082,7 @@ describe(`MessageInputFlat`, () => {
       await axeNoViolations(container);
     });
 
-    it('sends through a custom request handler, replacing the default send (successor to the removed overrideSubmitHandler prop)', async () => {
+    it('sends through a custom request handler, replacing the default send', async () => {
       // `channel.messageOperations.send` uses the `sendMessageRequest` handler registered in
       // `registerSendInterceptor` instead of the default `channel.sendMessage`. The handler
       // resolves a response, so the default request is never made.
