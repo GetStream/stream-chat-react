@@ -1921,7 +1921,7 @@
       "prose": true
     },
     "Send message request failed": {
-      "key": "messageComposer.sendMessageFn.sendMessageRequestFailed.text",
+      "key": "notification.messageSendFailed",
       "prose": true
     },
     "aria/Stop AI Generation": {
@@ -1929,7 +1929,7 @@
       "prose": true
     },
     "Edit message request failed": {
-      "key": "messageComposer.updateMessageFn.editMessageRequestFailed.text",
+      "key": "notification.messageUpdateFailed",
       "prose": true
     },
     "New Messages!": {
