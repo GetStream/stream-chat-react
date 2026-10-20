@@ -147,16 +147,14 @@ export const useIncomingMessageAnnouncements = ({
         return;
       }
 
-      if (announcedMessageIdsRef.current.has(message.id || '')) {
+      if (announcedMessageIdsRef.current.has(message.id)) {
         return;
       }
 
-      if (message.id) {
-        if (announcedMessageIdsRef.current.size > 500) {
-          announcedMessageIdsRef.current.clear();
-        }
-        announcedMessageIdsRef.current.add(message.id);
+      if (announcedMessageIdsRef.current.size > 500) {
+        announcedMessageIdsRef.current.clear();
       }
+      announcedMessageIdsRef.current.add(message.id);
 
       pendingAnnouncementBatchRef.current.count += 1;
       if (!pendingAnnouncementBatchRef.current.firstSender) {

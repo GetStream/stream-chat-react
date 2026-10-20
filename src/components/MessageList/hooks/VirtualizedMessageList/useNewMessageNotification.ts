@@ -5,7 +5,7 @@ import { useMessagePaginator } from '../../../../hooks';
 import { useStateStore } from '../../../../store';
 
 const messagePaginatorStateSelector = (state: MessagePaginatorState) => ({
-  hasMoreNewer: state.hasMoreHead ?? [],
+  hasMoreNewer: state.hasMoreHead,
 });
 
 export function useNewMessageNotification(

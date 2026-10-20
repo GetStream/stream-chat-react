@@ -551,8 +551,6 @@ const VirtualizedMessageListWithContext = (
 
   const id = useStableId();
 
-  if (!processedMessages) return null;
-
   const dialogManagerId = isThreadList
     ? `virtualized-message-list-dialog-manager-thread-${id}`
     : `virtualized-message-list-dialog-manager-${id}`;
@@ -776,7 +774,7 @@ export function VirtualizedMessageList(props: VirtualizedMessageListProps) {
   const { read } = useStateStore(channel?.state, channelReadSelector) ?? {};
 
   // The panel and the notification list sit outside the keyed list so a notification survives a
-  // switch. That also keeps them out of `VirtualizedMessageListWithContext`, which can return null.
+  // switch.
   // todo: finalize the props shape for VirtualizedMessageList
   return (
     <MessageListMainPanel>

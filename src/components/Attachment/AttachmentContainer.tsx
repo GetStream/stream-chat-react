@@ -49,6 +49,10 @@ import { VisibilityDisclaimer } from './VisibilityDisclaimer';
 import { VideoAttachment } from './VideoAttachment';
 import type { AttachmentProps } from './Attachment';
 import { useComponentContext } from '../../context/ComponentContext';
+import {
+  type ImageAttachmentConfiguration,
+  useAttachmentContext,
+} from '../../context/AttachmentContext';
 import { AttachmentUploadProgressIndicator as DefaultAttachmentUploadProgressIndicator } from './components';
 
 /**
@@ -60,11 +64,6 @@ import { AttachmentUploadProgressIndicator as DefaultAttachmentUploadProgressInd
 const hasRenderableSource = (attachment: Attachment | LocalAttachment) =>
   isPendingUpload(attachment) ||
   !!getAttachmentPreviewUrl(attachment, attachment.asset_url);
-
-import {
-  type ImageAttachmentConfiguration,
-  useAttachmentContext,
-} from '../../context/AttachmentContext';
 
 export type AttachmentContainerProps = {
   attachment: Attachment | GalleryAttachment | SharedLocationResponseData;

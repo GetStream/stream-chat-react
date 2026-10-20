@@ -1731,9 +1731,9 @@ describe('MessageList', () => {
         }
       });
 
-      // PENDING: the spec for snap-back prevention (not auto-scrolling to bottom when a
-      // loadMoreNewer page merges in while the user is scrolled up), kept skipped.
-      it.skip('does not auto-scroll to bottom when reaching the latest merged page via loadMoreNewer', async () => {
+      // Snap-back prevention: a loadMoreNewer page that merges into the latest one while the user
+      // is scrolled up does not auto-scroll to the bottom.
+      it('does not auto-scroll to bottom when reaching the latest merged page via loadMoreNewer', async () => {
         const olderMessages = Array.from({ length: 2 }, (_, index) =>
           generateMessage({
             id: `older-${index + 1}`,
