@@ -456,6 +456,21 @@ scrolled up. Being in an older window is signalled by `ScrollToLatestMessageButt
   state should read `channel.messagePaginator.hasMoreHead` instead (via `useStateStore` on
   `messagePaginator.state`).
 
+### `ScrollToLatestMessageButton` shows the channel's unread count
+
+In a channel, the number on `ScrollToLatestMessageButton` is now the current user's unread count for
+the channel, `channel.state.read[userId].unread_messages` (what `channel.countUnread()` returns),
+rather than a count of `message.new` events received while scrolled up.
+
+- **It includes more messages:** those that were already unread when the channel opened, and those a
+  reconnect brought in. It clears once the channel is marked read, and it also shows at the bottom of
+  an older message set.
+- **It follows the read state's counting rules:** no number for muted channels, messages from muted
+  users, silent or shadowed messages, or channels without read events (unless
+  `readEvents.localUnreadCountEnabled` is set). The old event counter counted these.
+- **In a thread** the number still counts the replies other users posted while scrolled up; it no
+  longer starts from the channel's unread count.
+
 ### `ChannelListItem` `getLatestMessagePreview` prop → removed; customize via `SummarizedMessagePreview`
 
 `ChannelListItem`'s `getLatestMessagePreview` prop and the `getLatestMessagePreview` util (previously re-exported from the package root) are **removed**, along with the `latestMessagePreview` prop on `ChannelListItemUIProps`. The default `ChannelListItemUI` renders the last-message preview via the `SummarizedMessagePreview` component, which is now overridable through `ComponentContext`.
