@@ -412,7 +412,7 @@ The field is **removed** from `ChatContextValue`, along with the `message.new` s
 Despite the name it never held the channel's latest message date: the write was filtered to the _current user's_ own messages, because it existed to compute how much slow-mode cooldown was left since you last posted. That job now belongs to `channel.cooldownTimer`, a `CooldownTimer` in `stream-chat` with its own `StateStore`, so the map had no reader left.
 
 - **Slow-mode cooldown** → `useStateStore(channel.cooldownTimer.state, …)`, or the `useCooldownRemaining` / `useIsCooldownActive` hooks.
-- **The channel's latest message** → `channel.messagePaginator.aggregateState.lastMessage`.
+- **The channel's latest message** → `channel.messagePaginator.aggregateState.latestMessage`.
 - **When the current user last posted in a channel** → no longer available from the React SDK. Nothing in the SDK consumed it, but if you did, track it yourself from `message.new`.
 
 ### `Channel` no longer jumps to a searched message; jump through the message paginator
@@ -450,7 +450,7 @@ already gives one focus per list.
 `ChannelListItem`'s `getLatestMessagePreview` prop and the `getLatestMessagePreview` util (previously re-exported from the package root) are **removed**, along with the `latestMessagePreview` prop on `ChannelListItemUIProps`. The default `ChannelListItemUI` renders the last-message preview via the `SummarizedMessagePreview` component, which is now overridable through `ComponentContext`.
 
 - **Customize how the preview renders** → provide a `SummarizedMessagePreview` component override (via `ComponentProvider`, or the `<Chat>` / `<Channel>` component props). It receives `SummarizedMessagePreviewProps` (`{ latestMessage, messageDeliveryStatus, participantCount }`).
-- **Preview a specific message** rather than the channel's latest (e.g. a search result previewing the matched message) → pass the new `previewedMessage?: LocalMessage` prop to `ChannelListItem`. It defaults to the channel's reactive latest, `channel.messagePaginator.aggregateState.lastMessage`.
+- **Preview a specific message** rather than the channel's latest (e.g. a search result previewing the matched message) → pass the new `previewedMessage?: LocalMessage` prop to `ChannelListItem`. It defaults to the channel's reactive latest, `channel.messagePaginator.aggregateState.latestMessage`.
 - **Behavior note:** the preview now honors the channel's `skip_last_msg_update_for_system_msgs` config (a system message no longer becomes the previewed / last message), so the preview and the channel's sort position agree.
 
 ### `Thread` renders children; its composition props are removed

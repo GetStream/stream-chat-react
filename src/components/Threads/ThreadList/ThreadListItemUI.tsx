@@ -79,7 +79,7 @@ export const ThreadListItemUI = ({
   // pagination store would not emit. `aggregateState` is written directly on each advance, so this
   // subscription stays reactive.
   const latestReplySelector = useCallback(
-    (state: MessagePaginatorAggregateState) => ({ latestReply: state.lastMessage }),
+    (state: MessagePaginatorAggregateState) => ({ latestReply: state.latestMessage }),
     [],
   );
 

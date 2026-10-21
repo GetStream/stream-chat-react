@@ -55,7 +55,7 @@ export type ChannelListItemProps = {
   className?: string;
   /**
    * The message previewed by this item. Defaults to the channel's reactive latest message
-   * (`channel.messagePaginator.aggregateState.lastMessage`); pass a specific message to preview it
+   * (`channel.messagePaginator.aggregateState.latestMessage`); pass a specific message to preview it
    * instead — e.g. a search result previewing the matched message, where the channel's latest message
    * would be misleading.
    */
@@ -75,8 +75,8 @@ export const useChannelListItemContext = () =>
     'ChannelListItemUI',
   );
 
-const lastMessageSelector = ({ lastMessage }: MessagePaginatorAggregateState) => ({
-  lastMessage: lastMessage ?? undefined,
+const latestMessageSelector = ({ latestMessage }: MessagePaginatorAggregateState) => ({
+  latestMessage: latestMessage ?? undefined,
 });
 
 export const ChannelListItem = (props: ChannelListItemProps) => {
@@ -93,13 +93,13 @@ export const ChannelListItem = (props: ChannelListItemProps) => {
   });
   const membership = useChannelMembershipState(channel);
 
-  const { lastMessage: trackedLastMessage } = useStateStore(
+  const { latestMessage: trackedLatestMessage } = useStateStore(
     channel.messagePaginator.aggregateState,
-    lastMessageSelector,
+    latestMessageSelector,
   );
   // A caller may override the previewed message per instance (e.g. a search result previewing the
   // matched message); otherwise use the channel's reactive tracked latest.
-  const previewedMessage = props.previewedMessage ?? trackedLastMessage;
+  const previewedMessage = props.previewedMessage ?? trackedLatestMessage;
 
   const { messageDeliveryStatus } = useMessageDeliveryStatus({
     channel,

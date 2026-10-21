@@ -103,7 +103,7 @@ const getLatestMessagePreviewParts = (
   // time a caller derives from the same message; fall back to the channel's latest.
   const latestMessage =
     latestMessageArg ??
-    channel.messagePaginator.aggregateState.getLatestValue().lastMessage ??
+    channel.messagePaginator.aggregateState.getLatestValue().latestMessage ??
     undefined;
 
   const previewTextToRender =

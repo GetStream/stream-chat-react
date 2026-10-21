@@ -384,7 +384,7 @@ describe('Channel', () => {
       });
 
       const querySpy = vi.spyOn(channel, 'query');
-      const prevSpy = vi.spyOn(channel.messagePaginator, 'prev');
+      const toHeadSpy = vi.spyOn(channel.messagePaginator, 'toHead');
       channel.state.partialNext({ pendingDisposal: true });
 
       await act(async () => {
@@ -393,8 +393,8 @@ describe('Channel', () => {
       });
 
       // while the client is offline the mounted Channel must not issue a
-      // pagination query/prev against the disconnected channel
-      expect(prevSpy).not.toHaveBeenCalled();
+      // pagination query/toHead against the disconnected channel
+      expect(toHeadSpy).not.toHaveBeenCalled();
       expect(querySpy).not.toHaveBeenCalled();
     });
   });
@@ -821,7 +821,7 @@ describe('Channel', () => {
         await renderComponent({ channel, chatClient });
 
         await waitFor(() => {
-          expect(channel.messagePaginator.headItems[0]?.user?.name).toBe(user.name);
+          expect(channel.messagePaginator.items?.[0]?.user?.name).toBe(user.name);
         });
 
         await act(() => {
@@ -832,7 +832,7 @@ describe('Channel', () => {
         // client._updateUserMessageReferences -> reflectUserUpdate), which the MessageList reads
         // from (the removed React reducer used to own this mapping).
         await waitFor(() => {
-          expect(channel.messagePaginator.headItems[0]?.user?.name).toBe(
+          expect(channel.messagePaginator.items?.[0]?.user?.name).toBe(
             updatedAttribute.name,
           );
         });
