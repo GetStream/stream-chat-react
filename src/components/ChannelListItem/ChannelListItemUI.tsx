@@ -48,8 +48,8 @@ const UnMemoizedChannelListItemUI = (props: ChannelListItemUIProps) => {
 
   const channelPreviewButton = useRef<HTMLButtonElement | null>(null);
 
-  // Composed accessible name for the row. Built here (the overridable presentation component) so a
-  // `ComponentContext`-supplied `ChannelListItemUI` can configure it via `accessibleLabelConfig`.
+  // Built here, in the overridable component, so a custom `ChannelListItemUI` can configure it via
+  // `accessibleLabelConfig`.
   const accessibleLabel = useMemo(
     () =>
       composeChannelListItemAccessibleLabel(
@@ -68,9 +68,8 @@ const UnMemoizedChannelListItemUI = (props: ChannelListItemUIProps) => {
         },
         accessibleLabelConfig,
       ),
-    // `muted`/`pinned` are intentional recompute triggers: the parts read
-    // `channel.state` / channel mute & membership state (which ESLint can't see and which do not
-    // themselves trigger a re-render), so we key on the state ChannelListItem already tracks.
+    // `muted` and `pinned` are recompute triggers: the label parts read channel mute and membership
+    // state, which ESLint cannot see and which do not re-render this component by themselves.
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [
       accessibleLabelConfig,
@@ -96,13 +95,11 @@ const UnMemoizedChannelListItemUI = (props: ChannelListItemUIProps) => {
     if (customOnSelectChannel) {
       customOnSelectChannel(e);
     } else {
-      // Selection is one navigation model: open the channel in the workspace. Forward the event so a
-      // consumer overriding `openChannel` (e.g. via ChatView's `deriveWorkspaceNavigation`) can honor
-      // ⌘/ctrl-click.
+      // Forwards the event so an overridden `openChannel` (e.g. via `deriveWorkspaceNavigation`)
+      // can honor ⌘/ctrl-click.
       openChannel(channel, { event: e });
-      // Confirm the opened channel to assistive tech. Only when actually switching (not re-selecting
-      // the open one) and only via the default selection path — a custom `onSelect` owns its own
-      // feedback. Debounced in the registry so it lands after the composer's focus announcement.
+      // Announced only when switching channels via the default path; a custom `onSelect` owns its
+      // own feedback. Debounced so it lands after the composer's focus announcement.
       if (!active && displayTitle) {
         announceInteraction('channel.opened', { name: displayTitle });
       }
@@ -116,8 +113,8 @@ const UnMemoizedChannelListItemUI = (props: ChannelListItemUIProps) => {
     <div className='str-chat__channel-list-item-container'>
       <button
         aria-label={accessibleLabel}
-        // Single-select list: set aria-selected only on the active row. Setting it (false) on every
-        // other row makes screen readers announce "not selected" on each one — noise.
+        // Set only on the active row: `false` on every other row makes screen readers announce "not
+        // selected" on each one.
         aria-selected={active || undefined}
         className={clsx(
           'str-chat__channel-list-item',
@@ -169,10 +166,7 @@ const UnMemoizedChannelListItemUI = (props: ChannelListItemUIProps) => {
   );
 };
 
-/**
- * Used as preview component for channel item in [ChannelList](#channellist) component.
- * Its best suited for messenger type chat.
- */
+/** Default row UI of `ChannelListItem`: avatar, title, timestamp, unread badge and preview. */
 export const ChannelListItemUI = React.memo(
   UnMemoizedChannelListItemUI,
 ) as typeof UnMemoizedChannelListItemUI;

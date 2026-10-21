@@ -3,15 +3,15 @@ import clsx from 'clsx';
 import { formatTime } from './formatTime';
 
 type DurationDisplayProps = {
-  /** Whether audio is currently playing */
+  /** Whether audio is currently playing. */
   isPlaying: boolean;
-  /** Optional className for styling */
+  /** Class name added to the root element. */
   className?: string;
-  /** Total duration in seconds */
+  /** Total duration in seconds. */
   duration?: number;
-  /** Elapsed time in seconds */
+  /** Elapsed time in seconds. */
   secondsElapsed?: number;
-  /** Show remaining time instead of elapsed when possible */
+  /** Shows remaining instead of elapsed time when both are known. Defaults to false. */
   showRemaining?: boolean;
 };
 

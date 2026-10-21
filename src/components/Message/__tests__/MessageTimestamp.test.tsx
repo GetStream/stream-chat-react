@@ -79,8 +79,8 @@ describe('<MessageTimestamp />', () => {
   });
 
   it('interprets a numeric timestamp as the wire value rather than echoing it', async () => {
-    // 28 nanoseconds is sub-millisecond, so it resolves to the epoch — the point being that a bare
-    // number is now read as a wire timestamp instead of passed through as opaque text.
+    // A bare number is read as a wire timestamp (nanoseconds) rather than echoed as text; 28 ns is
+    // sub-millisecond, so it resolves to the epoch.
     const { container } = await renderComponent({
       messageCtx: { message: { ...messageMock, created_at: 28 } },
     });
@@ -119,8 +119,7 @@ describe('<MessageTimestamp />', () => {
   });
 
   it('should not render if message created_at is not a valid date', () => {
-    // An unusable wire timestamp is `NaN`, not a string — that is what `convertTimestampToDate`
-    // guards against and what a malformed payload actually produces.
+    // An unusable wire timestamp is `NaN`, not a string; `convertTimestampToDate` guards it.
     const message = generateMessage({ created_at: NaN });
     const { container } = render(
       <MessageProvider value={mockMessageContext()}>
@@ -130,12 +129,9 @@ describe('<MessageTimestamp />', () => {
     expect(container.children).toHaveLength(0);
   });
 
-  // These two assert the *unformatted* fallback, which is the only place the shared i18n layer's
-  // timezone handling is visible. The web SDK used to call `.tz()` on every parse even with no
-  // timezone configured, which marks the dayjs instance as zoned and renders `…Z`; the shared
-  // implementation applies `.tz()` only when a timezone is actually set, so plain dayjs formatting
-  // (`…+00:00`) comes through. Every key the SDK ships specifies a format, so this is not reachable
-  // outside a key that deliberately disables formatting.
+  // These two assert the unformatted fallback, where timezone handling is visible: `.tz()` is
+  // applied only when a timezone is set, so plain dayjs output (`…+00:00`, not `…Z`) comes
+  // through. Every SDK key specifies a format, so only a key that disables formatting reaches it.
   it('should render with no format if provided i18n config disables formatting', async () => {
     const { container } = await renderComponent({
       chatProps: {

@@ -85,8 +85,6 @@ describe('ChannelListItemActionButtons defaults', () => {
     });
   };
 
-  // ---------- Mute / Unmute ----------
-
   describe('mute action', () => {
     it('mutes channel from quick action with success notification', async () => {
       const { channel, client } = await setupTwoMemberGroupChannel();
@@ -147,9 +145,8 @@ describe('ChannelListItemActionButtons defaults', () => {
 
     it('unmutes a muted channel from quick action with success notification', async () => {
       const { channel, client } = await setupTwoMemberGroupChannel();
-      // Simulate muted state on the reactive `muteStatus` slice the mute hook reads (the client
-      // keeps it in sync with its own `mutedChannels`); the imperative `channel.muteStatus()` is
-      // no longer consulted.
+      // Mute state lives in the reactive `muteStatus` slice, which the client keeps in sync with
+      // its own `mutedChannels`.
       act(() => setMuted(channel));
       vi.spyOn(channel, 'unmute').mockResolvedValue(fromPartial({}));
       const addSpy = vi.spyOn(client.notifications, 'add');
@@ -231,7 +228,7 @@ describe('ChannelListItemActionButtons defaults', () => {
         expect(muteButton).toHaveAttribute('aria-disabled', 'true');
         expect(muteButton).toHaveAttribute('aria-busy', 'true');
       });
-      // Crucially NOT the native `disabled` attribute — that would blur the button.
+      // Not the native `disabled` attribute, which would blur the button.
       expect(muteButton).not.toBeDisabled();
 
       act(() => {
@@ -320,8 +317,8 @@ describe('ChannelListItemActionButtons defaults', () => {
       });
 
       const muteButton = screen.getByTestId('quick-action-mute');
-      // Two clicks in the SAME tick, before the busy state commits — the ref latch must still
-      // collapse them into one toggle (the aria-disabled state guard commits too late).
+      // Two clicks in the same tick, before the busy state commits: the ref latch must still
+      // collapse them into one toggle.
       act(() => {
         fireEvent.click(muteButton);
         fireEvent.click(muteButton);
@@ -334,8 +331,6 @@ describe('ChannelListItemActionButtons defaults', () => {
       await waitFor(() => expect(muteButton).not.toHaveAttribute('aria-busy'));
     });
   });
-
-  // ---------- Block / Unblock ----------
 
   describe('block user action', () => {
     it('blocks the other member from dropdown', async () => {
@@ -437,8 +432,6 @@ describe('ChannelListItemActionButtons defaults', () => {
     });
   });
 
-  // ---------- Leave channel ----------
-
   describe('leave channel action', () => {
     it('leaves channel from dropdown', async () => {
       const { channel, client } = await setupTwoMemberGroupChannel();
@@ -502,8 +495,6 @@ describe('ChannelListItemActionButtons defaults', () => {
     });
   });
 
-  // ---------- Archive / Unarchive ----------
-
   describe('archive action', () => {
     it('archives channel from dropdown', async () => {
       const { channel, client } = await setupTwoMemberGroupChannel();
@@ -557,9 +548,8 @@ describe('ChannelListItemActionButtons defaults', () => {
         fireEvent.click(screen.getByTestId('dropdown-action-archive'));
       });
 
-      // Unlike the quick action (which stays focused via aria-disabled), a dropdown item closes the
-      // menu on activation — the action still runs in the background (deferred a frame), so wait for
-      // both the menu to close and the action to fire.
+      // A dropdown item closes the menu on activation while the action runs in the background,
+      // deferred a frame, so wait for both the menu to close and the action to fire.
       await waitFor(() => {
         expect(document.querySelector('.str-chat__context-menu')).not.toBeInTheDocument();
       });
@@ -570,7 +560,6 @@ describe('ChannelListItemActionButtons defaults', () => {
 
     it('unarchives an archived channel from dropdown', async () => {
       const { channel, client } = await setupTwoMemberGroupChannel();
-      // Simulate archived state
       channel.state.membership = fromPartial({
         ...channel.state.membership,
         archived_at: convertDateToTimestamp('2024-01-01T00:00:00Z'),
@@ -637,8 +626,6 @@ describe('ChannelListItemActionButtons defaults', () => {
     });
   });
 
-  // ---------- Pin / Unpin ----------
-
   describe('pin action', () => {
     it('pins channel from dropdown', async () => {
       const { channel, client } = await setupTwoMemberGroupChannel();
@@ -675,7 +662,6 @@ describe('ChannelListItemActionButtons defaults', () => {
 
     it('unpins a pinned channel from dropdown', async () => {
       const { channel, client } = await setupTwoMemberGroupChannel();
-      // Simulate pinned state
       channel.state.membership = fromPartial({
         ...channel.state.membership,
         pinned_at: convertDateToTimestamp('2024-01-01T00:00:00Z'),
@@ -741,8 +727,6 @@ describe('ChannelListItemActionButtons defaults', () => {
       });
     });
   });
-
-  // ---------- Action filtering ----------
 
   describe('action set filtering', () => {
     it('hides ban action when channel has more than 2 members', async () => {
@@ -897,8 +881,6 @@ describe('ChannelListItemActionButtons defaults', () => {
       expect(screen.queryByTestId('dropdown-action-ban')).not.toBeInTheDocument();
     });
   });
-
-  // ---------- Dropdown toggle ----------
 
   describe('dropdown toggle', () => {
     it('renders action buttons wrapper', async () => {

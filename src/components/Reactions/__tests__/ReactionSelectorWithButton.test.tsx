@@ -4,12 +4,10 @@ import { cleanup, render } from '@testing-library/react';
 import { ReactionSelectorWithButton } from '../ReactionSelectorWithButton';
 import { ReactionSelector } from '../ReactionSelector';
 
-// Regression guard (#3): the reaction dialog id used by ReactionSelectorWithButton MUST
-// equal the id MessageActions derives via `ReactionSelector.getDialogId`. MessageActions
-// uses that id to keep `.str-chat__message-options--active` applied while the reaction
-// dialog is open; if the ids diverge, the options (and the trigger button) hide when
-// focus moves into the portaled dialog, the reference collapses, and the popover falls
-// back to the 8,8 corner. This test fails if the two derivations drift apart again.
+// The dialog ID used by ReactionSelectorWithButton must equal the ID MessageActions derives from
+// `ReactionSelector.getDialogId`: MessageActions uses it to keep
+// `.str-chat__message-options--active` applied while the dialog is open. A mismatch hides the
+// button when focus moves into the portal, collapsing the popover's reference element.
 
 const capturedDialogIds: string[] = [];
 
@@ -17,8 +15,7 @@ vi.mock('../../../context', async (importOriginal) => {
   const actual = await importOriginal<typeof import('../../../context')>();
   return {
     useComponentContext: () => ({}),
-    // The real hook: with no provider it returns the SDK icons, which is what these
-    // assertions are written against.
+    // The real hook returns the SDK icons without a provider, which the assertions expect.
     useComponentContextIcons: actual.useComponentContextIcons,
     useMessageContext: () => ({
       isMyMessage: () => false,

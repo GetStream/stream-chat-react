@@ -14,17 +14,10 @@ import {
   mockChatContext,
 } from '../../../../mock-builders';
 
-// MERGE-RECONCILE (test migration): PR #2909 / v14 moved useUserRole off the deleted
-// ChannelStateContext. It now reads the channel via `useChannel()` and capabilities via
-// `useChannelCapabilities({ cid })`, which subscribes to the unified `channel.state`
-// (`ownCapabilities`, a string[] of enabled capabilities). The wrapper uses real ChatProvider/ChannelInstanceProvider
-// and seeds capabilities from the same `{ 'cap': boolean }` object the cases already pass, so the
-// test cases are unchanged. `onlySenderCanEdit` was removed in v14 (BC-061) and is not tested.
-
 const alice = generateUser({ name: 'alice' });
 const bob = generateUser({ name: 'bob' });
 
-// Convert the legacy `{ 'capability': boolean }` shape into the v14 ownCapabilities string[].
+// Converts a `{ capability: boolean }` map into the `ownCapabilities` string[] of enabled ones.
 const toOwnCapabilities = (capabilities: Record<string, boolean> = {}) =>
   Object.entries(capabilities)
     .filter(([, enabled]) => enabled)

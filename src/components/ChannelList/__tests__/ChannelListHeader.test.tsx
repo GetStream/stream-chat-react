@@ -12,8 +12,8 @@ const HeaderEndContent = () => <div data-testid='sidebar-toggle' />;
 
 afterEach(cleanup);
 
-// The header derives "a channel is active" from the workspace navigation adapter
-// (openChannels). Drive it through the real provider.
+// The header reads `openChannels` from the workspace navigation; drive it through the real
+// provider.
 const renderHeader = ({
   openChannels,
   withHeaderEndContent,

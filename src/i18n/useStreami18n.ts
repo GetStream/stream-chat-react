@@ -13,13 +13,9 @@ export type UseStreami18nParams = {
 };
 
 /**
- * Resolves the translation context value. Two independent languages come out of here, and keeping
- * them apart is the point:
- *
- * - **UI copy** — from the `Streami18n` instance via `useStreami18nState` (shared with the React
- *   Native SDK; it owns `init()` and the store subscription).
- * - **`userLanguage`** — `client.user.language`, the language the API auto-translates *messages*
- *   into, used to read ``message.i18n[`${userLanguage}_text`]``. Chat-client state, so it stays here.
+ * Resolves the translation context value. The UI copy comes from the `Streami18n` instance, while
+ * `userLanguage` is separate: `client.user.language`, the language the API auto-translates messages
+ * into (read as ``message.i18n[`${userLanguage}_text`]``).
  */
 export const useStreami18n = ({
   client,

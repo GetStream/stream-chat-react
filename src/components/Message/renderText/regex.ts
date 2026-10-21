@@ -4,10 +4,8 @@ export function escapeRegExp(text: string) {
 
 export const detectHttp = /(http(s?):\/\/)?(www\.)?/i;
 
-// Regexes are hoisted to module scope so they are compiled once rather than on
-// every call. `codeRegex`/`regexMdLinks` are only used with `String#match`
-// (which resets `lastIndex`) and `singleMatch` is non-global (`.exec` ignores
-// `lastIndex`), so sharing the instances is safe.
+// Module-level so they compile once. The global `codeRegex` and `regexMdLinks` are only used with
+// `String#match`, which resets `lastIndex`; `singleMatch` is non-global, so `.exec` ignores it.
 const codeRegex = /```[a-z]*\n[\s\S]*?\n```|`[a-z]*[\s\S]*?`/gm;
 const regexMdLinks = /\[([^[]+)\](\(.*\))/gm;
 const singleMatch = /\[([^[]+)\]\((.*)\)/;

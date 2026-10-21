@@ -34,14 +34,15 @@ export function useStateStore<
 
       if (!currentValue) return undefined;
 
-      // store value hasn't changed, no need to compare individual values
+      // The store value is unchanged, so reuse the cached selection.
       if (cachedTuple && cachedTuple[0] === currentValue) {
         return cachedTuple[1];
       }
 
       const newlySelected = selector(currentValue);
 
-      // store value changed but selected values wouldn't have to, double-check selected
+      // The store value changed but the selection may not have: keep the cached one when every
+      // cached key holds the same value.
       if (cachedTuple) {
         let selectededAreEqualToCached = true;
 

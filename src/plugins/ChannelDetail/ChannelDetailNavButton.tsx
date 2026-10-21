@@ -5,16 +5,15 @@ import { ListItemLayout } from '../../components/ListItemLayout';
 import clsx from 'clsx';
 
 export type ChannelDetailNavButtonProps = SectionNavigatorNavButtonProps & {
-  /** Icon rendered as the leading element of the nav button. */
+  /** Icon at the start of the button. */
   LeadingIcon: ComponentType;
-  /** Label displayed for the section. */
+  /** Section label. */
   title: string;
 };
 
 /**
- * Underlying button shared by all ChannelDetail section nav buttons. Renders a
- * `ListItemLayout` as a `<button>` and wires the SectionNavigator selection
- * state into `aria-current` and the click handler.
+ * Button shared by the ChannelDetail section nav buttons: a `ListItemLayout` rendered as a
+ * `<button>` whose `aria-current` and click handler follow the `SectionNavigator` selection.
  */
 export const ChannelDetailNavButton = ({
   className,

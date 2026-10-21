@@ -41,10 +41,9 @@ const mockedChannel = generateChannel(
   }),
 );
 
-// MERGE-RECONCILE (test migration): Card now reads only AttachmentContext (giphyVersion),
-// which has a default; the removed ChannelState/ChannelAction providers are no longer needed.
-// The remaining providers (Chat/Translation/Component) are DOM-neutral and only satisfy the
-// TranslationContext used by UnableToRenderCard and the ComponentContext used by BaseImage.
+// Card reads only AttachmentContext (giphyVersion), which has a default. The Chat, Translation
+// and Component providers are DOM-neutral and only satisfy the TranslationContext used by
+// UnableToRenderCard and the ComponentContext used by BaseImage.
 const renderCard = ({ cardProps, chatContext, theRenderer = render }: any) =>
   theRenderer(
     <ChatProvider value={mockChatContext(chatContext)}>

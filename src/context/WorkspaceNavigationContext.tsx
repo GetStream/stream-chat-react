@@ -8,18 +8,16 @@ import type {
 } from 'stream-chat';
 
 /**
- * Target for {@link WorkspaceNavigation.openThread}: an existing thread instance, or the channel +
- * parent message from which one is derived.
+ * Target for {@link WorkspaceNavigation.openThread}: a thread instance, or the channel and parent
+ * message the thread is derived from.
  */
 export type OpenThreadTarget =
   | StreamThread
   | { channel: StreamChannel; message: LocalMessage };
 
 /**
- * A DOM event that may have triggered a workspace navigation. Restricted to the React event types
- * that expose modifier keys (`metaKey`/`ctrlKey`/…) — the reason the event is forwarded at all — so
- * overrides can read them without narrowing. `PointerEvent`, `DragEvent`, and `WheelEvent` extend
- * `MouseEvent` and are accepted through it; `TouchEvent` and `KeyboardEvent` are the other carriers.
+ * A DOM event that may have triggered a workspace navigation. Limited to the React event types that
+ * expose modifier keys (`metaKey`, `ctrlKey`, ...), so overrides can read them without narrowing.
  */
 export type WorkspaceNavigationTriggerEvent =
   | React.MouseEvent
@@ -32,9 +30,8 @@ export type WorkspacePanelId = string;
 const WorkspacePanelContext = createContext<WorkspacePanelId | undefined>(undefined);
 
 /**
- * Declares the panel its subtree renders in. The layout provides it around each panel's content,
- * so controls inside (e.g. a header's back and close buttons) act on their own panel even when the
- * same channel or thread is open in more than one.
+ * Declares the panel its subtree renders in, so controls inside (e.g. a header's back and close
+ * buttons) act on their own panel even when the same channel or thread is open in more than one.
  */
 export const WorkspacePanelProvider = ({
   children,
@@ -52,58 +49,53 @@ export const useWorkspacePanel = (): WorkspacePanelId | undefined =>
 /** Options shared by the workspace navigation operations. */
 export type WorkspaceNavigationOptions = {
   /**
-   * Open *beside* the current content (e.g. ctrl/⌘-click) instead of replacing it, when the active
-   * workspace layout has room for a secondary panel. Ignored in single-panel layouts.
+   * Open beside the current content (e.g. on ctrl/⌘-click) instead of replacing it, when the layout
+   * has room for a secondary panel. Ignored in single-panel layouts.
    */
   additive?: boolean;
   /**
-   * The DOM event that triggered the navigation, when there is one. Forwarded by the SDK components
-   * that initiate navigation from a user gesture (channel-list / search-result selection, …) so a
-   * consumer overriding these operations (e.g. via `ChatView`'s `deriveWorkspaceNavigation`) can read
-   * modifier keys — deciding `additive` from ⌘/ctrl-click — without tracking key state globally.
+   * The DOM event that triggered the navigation, if any. SDK components forward it from user
+   * gestures (e.g. channel list and search result selection) so an override, e.g. through
+   * `ChatView`'s `deriveWorkspaceNavigation`, can read modifier keys to decide `additive`.
    */
   event?: WorkspaceNavigationTriggerEvent;
   /**
-   * Open *over* the current content as a transient layer instead of replacing it; dismissing the
+   * Open over the current content as a transient layer instead of replacing it; dismissing the
    * entity restores what was beneath. Ignored by layouts that do not support layering.
    */
   layer?: boolean;
   /**
-   * The panel the operation is triggered from (see {@link WorkspacePanelProvider}). Resolves which
-   * panel an entity is in when the same channel or thread is open in more than one; without it, the
-   * first panel showing the entity is used.
+   * The panel the operation is triggered from (see {@link WorkspacePanelProvider}). Picks the panel
+   * when the same channel or thread is open in more than one; without it, the first panel showing
+   * the entity is used.
    */
   panel?: WorkspacePanelId;
 };
 
 /**
- * Slot-agnostic, intent-level navigation abstraction that core components depend on instead of the
- * ChatView slot system (D1). The `slot-layout` plugin implements it over its layout controller; with
- * no plugin installed the default is an inert no-op (D2) — core renders, navigation does nothing.
+ * Slot-agnostic, intent-level navigation that core components use instead of the ChatView slot
+ * system. The `slot-layout` plugin implements it; without a provider, navigation does nothing.
  */
 export type WorkspaceNavigation = {
   /**
-   * Whether the panel showing the channel or thread with `key` (a channel's `cid`, a thread's id)
+   * Whether the panel showing the channel or thread with `key` (a channel's `cid`, a thread's ID)
    * is stacked over other content that {@link WorkspaceNavigation.goBack} would reveal.
    */
   canGoBack: (key?: string, panel?: WorkspacePanelId) => boolean;
   /**
-   * Dismiss the channel with `cid` from the workspace: close the panel showing it, together with
-   * anything stacked beneath it. Accepts the triggering event (see
-   * {@link WorkspaceNavigationOptions.event}).
+   * Dismiss the channel with `cid` from the workspace. A panel opened beside the main one closes
+   * whole, with anything stacked in it; the main panel only steps back one layer.
    */
   closeChannel: (cid?: string, options?: WorkspaceNavigationOptions) => void;
   /**
-   * Dismiss a thread from the workspace. With `threadId`, dismiss that thread's panel — together
-   * with anything stacked beneath it — otherwise the active thread panel. Does not deactivate the
-   * thread instance — the caller owns that. Accepts the triggering event (see
-   * {@link WorkspaceNavigationOptions.event}).
+   * Dismiss a thread from the workspace: the panel of `threadId`, or the active thread panel when
+   * omitted. Panels close as in {@link WorkspaceNavigation.closeChannel}. Does not deactivate the
+   * thread instance; the caller owns that.
    */
   closeThread: (threadId?: string, options?: WorkspaceNavigationOptions) => void;
   /**
-   * Step back from the channel or thread with `key`: remove it from the panel, revealing what it is
-   * stacked over. No-op when {@link WorkspaceNavigation.canGoBack} is false. Accepts the triggering
-   * event (see {@link WorkspaceNavigationOptions.event}).
+   * Step back from the channel or thread with `key`, revealing what it is stacked over. Does
+   * nothing when {@link WorkspaceNavigation.canGoBack} is false.
    */
   goBack: (key?: string, options?: WorkspaceNavigationOptions) => void;
   /**
@@ -112,36 +104,36 @@ export type WorkspaceNavigation = {
    */
   isChannelActive: (cid?: string) => boolean;
   /**
-   * Whether the channel panel for `cid` can be dismissed by the user — i.e. it is a secondary
-   * panel opened beside another channel, rather than the primary channel surface.
+   * Whether the channel panel for `cid` can be dismissed by the user: it is a secondary panel
+   * opened beside another channel, not the primary channel surface.
    */
   isChannelDismissable: (cid?: string, panel?: WorkspacePanelId) => boolean;
   /**
-   * Whether the thread with `threadId` is shown in the workspace: open in a panel and not covered by
-   * something stacked over it there.
+   * Whether the thread with `threadId` is shown in the workspace: open in a panel and not covered
+   * by something stacked over it there.
    */
   isThreadActive: (threadId?: string) => boolean;
   /**
-   * Whether the thread panel for `threadId` (or the active thread) can be dismissed by the user —
-   * i.e. it is a closable side/secondary panel rather than the primary thread surface.
+   * Whether the thread panel for `threadId` (or the active thread) can be dismissed by the user:
+   * it is a side or secondary panel, not the primary thread surface.
    */
   isThreadDismissable: (threadId?: string, panel?: WorkspacePanelId) => boolean;
-  /** Whether the thread-list ("threads") workspace view is the active one. */
+  /** Whether the threads view is the active workspace view. */
   isThreadsView: boolean;
   /** Open `channel` in the workspace. */
   openChannel: (channel: StreamChannel, options?: WorkspaceNavigationOptions) => void;
-  /** Channels currently open in the workspace (empty when none / no plugin). */
+  /** Channels open in the workspace. */
   openChannels: StreamChannel[];
-  /** Open a thread — by instance, or derived from `{ channel, message }`. */
+  /** Open a thread, given as an instance or as `{ channel, message }`. */
   openThread: (target: OpenThreadTarget, options?: WorkspaceNavigationOptions) => void;
-  /** Threads currently open in the workspace (empty when none / no plugin). */
+  /** Threads open in the workspace. */
   openThreads: StreamThread[];
 };
 
 const NOOP_OPEN_CHANNELS: WorkspaceNavigation['openChannels'] = [];
 const NOOP_OPEN_THREADS: WorkspaceNavigation['openThreads'] = [];
 
-/** Inert no-op default (D2): used when no `slot-layout` plugin provides an implementation. */
+/** Inert navigation: every operation does nothing and no channels or threads are open. */
 export const defaultWorkspaceNavigation: WorkspaceNavigation = {
   canGoBack: () => false,
   closeChannel: () => undefined,
@@ -176,12 +168,9 @@ const warnUnprovided = (action: WorkspaceNavigationAction) => {
   );
 };
 
-/**
- * What `useWorkspaceNavigation()` returns with no provider: {@link defaultWorkspaceNavigation}, but
- * its operations warn (once each) that nothing happened, since a click that silently does nothing
- * is hard to trace back to a missing `ChatView`. `defaultWorkspaceNavigation` itself stays silent,
- * as it is the base an integrator spreads into their own provider value.
- */
+// The context default: `defaultWorkspaceNavigation` with operations that warn once each, since a
+// click that silently does nothing is hard to trace to a missing `ChatView`. The exported default
+// stays silent because integrators spread it into their own provider value.
 const unprovidedWorkspaceNavigation: WorkspaceNavigation = {
   ...defaultWorkspaceNavigation,
   closeChannel: () => warnUnprovided('closeChannel'),
@@ -205,9 +194,8 @@ export const WorkspaceNavigationProvider = ({
 );
 
 /**
- * Access the workspace navigation abstraction. Returns the inert no-op default outside a
- * `slot-layout` provider, so callers can navigate unconditionally without guarding for a provider.
- * Without a provider, each operation logs a one-time console warning when called.
+ * Returns the workspace navigation. Outside a provider the navigation actions do nothing and each
+ * logs a console warning once, so callers can navigate without guarding for a provider.
  */
 export const useWorkspaceNavigation = (): WorkspaceNavigation =>
   useContext(WorkspaceNavigationContext);

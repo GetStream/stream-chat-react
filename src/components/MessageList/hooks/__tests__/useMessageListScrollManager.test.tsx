@@ -159,14 +159,13 @@ describe('useMessageListScrollManager', () => {
       </ChatProvider>,
     );
 
-    // simulate scrolled up
+    // Scrolled up.
     rerender(
       <ChatProvider value={mockChatContext({ client })}>
         <Comp messages={messages} offsetHeight={100} scrollHeight={400} scrollTop={200} />
       </ChatProvider>,
     );
 
-    // add new messages
     rerender(
       <ChatProvider value={mockChatContext({ client })}>
         <Comp
@@ -208,14 +207,13 @@ describe('useMessageListScrollManager', () => {
       </ChatProvider>,
     );
 
-    // simulate scrolled up
+    // Scrolled up.
     rerender(
       <ChatProvider value={mockChatContext({ client })}>
         <Comp messages={messages} offsetHeight={100} scrollHeight={400} scrollTop={200} />
       </ChatProvider>,
     );
 
-    // add new messages
     rerender(
       <ChatProvider value={mockChatContext({ client })}>
         <Comp

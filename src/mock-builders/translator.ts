@@ -12,13 +12,10 @@ const interpolate = (template: string, params: Record<string, unknown>) =>
   });
 
 /**
- * Stand-in for `t` that mirrors the parts of i18next's resolution the SDK relies on: the
- * positional `defaultValue`, the `defaultValue_one` / `defaultValue_other` plural forms, and
- * `{{ variable }}` interpolation.
- *
- * Components pass their English copy as an inline default, so this returns real copy without
- * any test needing to know the key. Falling back to the key (i18next's behaviour for a key with
- * no default) is the last resort.
+ * Stand-in for `t` that mirrors the parts of i18next's resolution the SDK relies on: the positional
+ * `defaultValue`, the `defaultValue_one` / `defaultValue_other` plural forms and `{{ variable }}`
+ * interpolation. Components pass their English copy inline, so it resolves to real copy and falls
+ * back to the key only when there is no default.
  */
 export const mockT = (
   key: string,
@@ -28,9 +25,9 @@ export const mockT = (
   const defaultValue = typeof second === 'string' ? second : undefined;
   const options: TOptions = (typeof second === 'object' ? second : third) ?? {};
 
-  // This key is resolved by an i18next postProcessor rather than a plain lookup: its value is
-  // `{{value, notification}}`, and the notification topic renders the notification's message.
-  // Model that here so components using it are testable without a real i18next instance.
+  // A real instance resolves this key with an i18next postProcessor (value
+  // `{{value, notification}}`) that renders the notification's message. Modeled here so no real
+  // i18next instance is needed.
   if (key === 'translationBuilderTopic.notification') {
     return (options.value as string | undefined) ?? '';
   }

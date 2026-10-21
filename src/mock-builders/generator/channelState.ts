@@ -17,16 +17,10 @@ type ChannelStateGetters = Pick<
 export type MockChannelState = StateStore<ChannelStateData> & ChannelStateGetters;
 
 /**
- * Builds a stand-in for `channel.state` to hand to a partially-mocked (`fromPartial`) channel.
- *
- * `channel.state` IS a `StateStore<ChannelStateData>` now, so hooks reading it go through
- * `useStateStore` and call `getLatestValue()` / `subscribeWithSelector()` on it — a plain-object
- * mock crashes with `getLatestValue is not a function`. This returns a real store, plus the
- * non-reactive convenience getters (`members`, `read`, `typing`, …) the real `ChannelState`
- * exposes, so code reading a slice directly rather than through a selector sees the same value.
- *
- * Only pass the slices a test cares about; the rest get the defaults `ChannelState` seeds. Drive
- * reactivity with `partialNext()`.
+ * Builds a stand-in for `channel.state` for a partially-mocked (`fromPartial`) channel. It is a
+ * real `StateStore<ChannelStateData>`, which hooks read through `useStateStore`, plus the
+ * non-reactive getters (`members`, `read`, `typing`, ...) of the real `ChannelState`. Pass only the
+ * slices a test needs, and drive reactivity with `partialNext()`.
  */
 export const generateChannelState = (
   overrides: Partial<ChannelStateData> = {},

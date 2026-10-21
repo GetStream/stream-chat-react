@@ -7,9 +7,8 @@ const selector = (state: PaginatorState<LocalMessage>) => ({
 });
 
 /**
- * Reactive count of the channel's loaded pinned messages, sourced from
- * `channel.pinnedMessagesPaginator`. The paginator is kept current by the SDK's channel event
- * handlers (pin/unpin/delete/truncate); `useStateStore` re-renders on every change.
+ * Reactive count of the loaded pinned messages in `channel.pinnedMessagesPaginator`, which the
+ * SDK's channel event handlers keep current.
  */
 export const usePinnedMessagesCount = (channel: Channel) => {
   const { count } = useStateStore(channel.pinnedMessagesPaginator.state, selector);

@@ -12,16 +12,9 @@ import { useAudioPlaybackChangeAnnouncements } from '../Accessibility/hooks/useA
 export type WithAudioPlaybackProps = {
   children?: React.ReactNode;
   /**
-   * What the playback belongs to. When it changes, everything this provider started is stopped and
-   * discarded.
-   *
-   * Unmounting already does that, but a provider is not always unmounted when its subject changes:
-   * `Channel` keeps one mounted across a channel switch (since v15 the subtree is re-rendered, not
-   * rebuilt), so without this a voice message from the channel you just left would keep playing.
-   *
-   * `Thread` passes its thread even though a key on `ThreadInner` happens to remount it today --
-   * stating the dependency here is what keeps the cleanup correct if that wrapper is ever removed,
-   * which the code already contemplates.
+   * What the playback belongs to. When it changes, every player this provider started is stopped
+   * and discarded. Needed because a provider is not always unmounted when its subject changes
+   * (`Channel` stays mounted across a channel switch).
    */
   playbackScope?: unknown;
 };
@@ -58,8 +51,8 @@ export const WithAudioPlayback = ({
     () => new AudioPlayerPool({ arbiter: arbiter ?? undefined }),
   );
 
-  // Cleanup runs on unmount *and* whenever the scope changes, which is the point: the players
-  // belong to the scope, not to this provider's lifetime.
+  // Runs on unmount and whenever the scope changes: the players belong to the scope, not to this
+  // provider's lifetime.
   useEffect(
     () => () => {
       audioPlayers.clear();
@@ -76,16 +69,9 @@ export const WithAudioPlayback = ({
 
 export type UseAudioPlayerProps = {
   /**
-   * Identifier of the entity that requested the audio playback, e.g. message ID.
-   * Asset to specific audio player is a many-to-many relationship
-   * - one URL can be associated with multiple UI elements,
-   * - one UI element can display multiple audio sources.
-   * Therefore, the AudioPlayer ID is a combination of request:src.
-   *
-   * The requester string can take into consideration whether there are multiple instances of
-   * the same URL requested by the same requester (message has multiple attachments with the same asset URL).
-   * In reality the fact that one message has multiple attachments with the same asset URL
-   * could be considered a bad practice or a bug.
+   * Entity that requested the playback, e.g. a message ID. The player ID is `requester:src`,
+   * because a URL can back several UI elements and an element can show several sources. Requests
+   * with the same requester and URL (a message with duplicate attachments) share one player.
    */
   requester?: string;
 } & Partial<Omit<AudioPlayerOptions, 'id' | 'pool'>>;
@@ -128,10 +114,8 @@ export const useAudioPlayer = ({
 
   useEffect(() => {
     if (!audioPlayer) return;
-    /**
-     * Avoid having to pass client and translation function to AudioPlayer instances
-     * and instead provide plugin that takes care of translated notifications.
-     */
+    // A plugin produces the translated notifications, so AudioPlayer needs neither the client nor
+    // the translation function.
     const notificationsPlugin = audioPlayerNotificationsPluginFactory({
       addNotification,
       panel,

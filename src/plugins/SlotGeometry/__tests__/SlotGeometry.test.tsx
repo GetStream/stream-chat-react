@@ -50,9 +50,9 @@ describe('measureObscured', () => {
 
   it('respects the coverage threshold (0.6)', () => {
     const target = elementAt(rect(0, 0, 100, 100));
-    // Covers 50% → below threshold → not obscured.
+    // 50% overlap is below the threshold.
     expect(measureObscured(target, [elementAt(rect(50, 0, 100, 100))])).toBe(false);
-    // Covers 70% → above threshold → obscured.
+    // 70% overlap is above it.
     expect(measureObscured(target, [elementAt(rect(30, 0, 100, 100))])).toBe(true);
   });
 });
@@ -64,8 +64,8 @@ describe('resolveRevealAction', () => {
   });
 
   it('waits until the target slot has been measured', () => {
-    // The target's view may have only just become active; its element isn't measured yet, so we
-    // must not act (or clear) prematurely — this is the cross-view (threads → channels) gate.
+    // The target's view may have only just become active, so its element is not measured yet;
+    // acting or clearing now would be premature.
     expect(resolveRevealAction('main', { obscured: {} })).toBe('wait');
     expect(resolveRevealAction('main', { obscured: { other: true } })).toBe('wait');
   });
@@ -75,8 +75,7 @@ describe('resolveRevealAction', () => {
   });
 
   it('clears when the measured target is already visible', () => {
-    // Wide / side-by-side layout: the channel isn't covered, so we leave the thread and just
-    // settle the one-shot intent.
+    // Side-by-side layout: the target is not covered, so the intent is cleared without acting.
     expect(resolveRevealAction('main', { obscured: { main: false } })).toBe('clear');
   });
 });

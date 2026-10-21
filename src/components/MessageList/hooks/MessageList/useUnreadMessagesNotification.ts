@@ -24,7 +24,7 @@ const targetScrolledBelowVisibleContainerArea = (
 };
 
 export type UseUnreadMessagesNotificationParams = {
-  /** Scroll container (the element with overflow that actually scrolls). When provided, used as IntersectionObserver root and for initial visibility. */
+  /** Scroll container, used as the IntersectionObserver root and for the initial visibility. */
   listElement: HTMLDivElement | null;
   isMessageListScrolledToBottom: boolean;
   showAlways: boolean;
@@ -134,12 +134,8 @@ export const useUnreadMessagesNotification = ({
   ]);
 
   useEffect(() => {
-    /**
-     * Handle situation when scrollToBottom is called from another component when the msg list is scrolled above the observed target (unread separator).
-     * The intersection observer is not triggered when Element.scrollTo() is called. So we end up in a situation when we are scrolled to the bottom
-     * and at the same time scrolled above the observed target.
-     */
-
+    // `Element.scrollTo()` does not trigger the IntersectionObserver, so a list scrolled to the
+    // bottom by another component can still be recorded as scrolled above the unread separator.
     if (
       unreadCount &&
       isMessageListScrolledToBottom &&

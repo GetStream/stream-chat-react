@@ -232,9 +232,8 @@ const ChannelMuteAction = () => {
             }),
           )
           .catch((error) => {
-            // Reconcile to the truth source rather than a hard-coded value: with
-            // the debounced request, optimistic state may have flipped multiple
-            // times, so a fixed boolean can land on the wrong state.
+            // Resync with the source of truth: the debounced request may follow several optimistic
+            // flips, so a fixed boolean could be wrong.
             setOptimisticChannelMuted(channelMuted);
 
             return addNotification({
@@ -368,9 +367,8 @@ const UserMuteAction = () => {
             }),
           )
           .catch((error) => {
-            // Reconcile to the truth source rather than a hard-coded value: with
-            // the debounced request, optimistic state may have flipped multiple
-            // times, so a fixed boolean can land on the wrong state.
+            // Resync with the source of truth: the debounced request may follow several optimistic
+            // flips, so a fixed boolean could be wrong.
             setOptimisticUserMuted(userMuted);
 
             return addNotification({

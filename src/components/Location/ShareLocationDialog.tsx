@@ -19,7 +19,7 @@ import type { Coords } from 'stream-chat';
 import { Button } from '../Button';
 import clsx from 'clsx';
 
-const MIN_LIVE_LOCATION_SHARE_DURATION = 60 * 1000; // 1 minute;
+const MIN_LIVE_LOCATION_SHARE_DURATION = 60 * 1000; // 1 minute
 
 const DEFAULT_SHARE_LOCATION_DURATIONS = [
   15 * 60 * 1000, // 15 minutes

@@ -29,10 +29,8 @@ import type { ChannelMediaItem } from './ChannelMediaView.utils';
 import { useChannelMediaSearch } from './useChannelMediaSearch';
 import { Button } from '../../../../components';
 
-// Default items rendered per grid page (5 columns x 6 rows). Overridable via the
-// `itemsPerPage` prop. Intentionally decoupled from the search source's message
-// page size: a message carries a variable number of attachments, so message
-// pages and attachment pages don't align.
+// Default items per grid page (5 columns x 6 rows). Not tied to the search source's message page
+// size: a message carries a variable number of attachments, so the two page sizes do not align.
 const DEFAULT_CHANNEL_MEDIA_ITEMS_PER_PAGE = 30;
 
 type ChannelMediaGridItemProps = {
@@ -181,9 +179,8 @@ export const ChannelMediaView: React.ComponentType<ChannelMediaViewProps> = ({
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [page, setPage] = useState(0);
   const gridRef = useRef<HTMLDivElement>(null);
-  // Set when "Next" reached a page that isn't loaded yet; the fill effect below
-  // advances to it once the fetched attachments land, keeping fetches triggered
-  // only by the button (or the initial mount load).
+  // Set when "Next" targets a page that is not loaded yet; the fill effect below advances to it
+  // once the fetched attachments arrive.
   const pendingNextRef = useRef(false);
 
   const galleryItems = useMemo(
@@ -219,23 +216,20 @@ export const ChannelMediaView: React.ComponentType<ChannelMediaViewProps> = ({
   const goToNextPage = useCallback(() => {
     const nextPageStart = (page + 1) * itemsPerPage;
     if (mediaItems.length > nextPageStart) {
-      // The next page is already backed by loaded attachments — advance now.
+      // The next page is already backed by loaded attachments.
       setPage(page + 1);
     } else if (hasNext) {
-      // The next page isn't loaded yet. Request more and let the fill effect
-      // advance once enough attachments arrive. Only a ref changes here (no
-      // re-render), so the fetch fires exactly once per click.
+      // The next page is not loaded yet: fetch more and let the fill effect advance once enough
+      // attachments arrive. A ref, not state, so the click causes no re-render that would re-run
+      // the fill effect and fetch again.
       pendingNextRef.current = true;
       void channelMediaSearchSource.search();
     }
   }, [channelMediaSearchSource, hasNext, itemsPerPage, mediaItems.length, page]);
 
-  // Forward-fill loop. Because a message yields a variable number of
-  // attachments, one fetch may not fill a grid page (and the very first page
-  // can arrive short). Keep pulling message pages until the visible page is
-  // full or the channel is exhausted; nothing is ever discarded, so paging to
-  // the end always reveals every attachment. Also resolves a pending "Next" by
-  // advancing once its target page has data.
+  // Fill loop: a message yields a variable number of attachments, so one fetch may not fill a grid
+  // page (the first page can arrive short). Keeps fetching message pages until the visible page is
+  // full or the channel is exhausted, and resolves a pending "Next" once its target page has data.
   useEffect(() => {
     if (isLoading) return;
 

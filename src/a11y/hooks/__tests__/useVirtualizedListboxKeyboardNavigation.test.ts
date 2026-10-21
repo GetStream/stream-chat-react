@@ -9,7 +9,7 @@ const makeEvent = (key: string) => ({
 });
 
 describe('useVirtualizedListboxKeyboardNavigation', () => {
-  // The full (unvirtualized) list. The DOM only ever holds a subset (the "rendered window").
+  // The full list; the DOM only ever holds a subset of it (the rendered window).
   const ITEMS = ['a', 'b', 'c', 'd', 'e'].map((id) => ({ id }));
   let scroller: HTMLDivElement;
 

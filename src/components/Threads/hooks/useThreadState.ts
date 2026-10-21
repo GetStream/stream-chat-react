@@ -4,7 +4,7 @@ import { useThreadContext } from '../ThreadContext';
 import { useStateStore } from '../../../store/';
 
 /**
- * @description returns thread state, prioritizes `ThreadListItemContext` falls back to `ThreadContext` if not former is not present
+ * @description Returns thread state from `ThreadListItemContext`, falling back to `ThreadContext`.
  */
 export const useThreadState = <T extends readonly unknown[]>(
   selector: (nextValue: ThreadState) => T,

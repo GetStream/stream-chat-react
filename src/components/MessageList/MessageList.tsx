@@ -66,10 +66,10 @@ const messageFocusSignalSelector = (state: MessageFocusSignalState) => ({
   messageFocusSignal: state.signal,
 });
 
-// Smooth scrolling for user-initiated scrolls (scroll-to-latest, jump-to-message), honoring the OS
-// "reduce motion" preference (WCAG 2.3.3 — `auto` = instant). Read imperatively at scroll time and
-// deliberately NOT via a reactive hook: it must add no render churn to MessageList, which would
-// perturb the paginator's scroll-position handling (initial/streaming autoscroll stays instant).
+// For user-initiated scrolls (scroll-to-latest, jump-to-message); autoscroll stays instant. Smooth
+// unless the OS prefers reduced motion (WCAG 2.3.3, `auto` scrolls instantly). Read at scroll time
+// instead of through a reactive hook, which would re-render the list and perturb the paginator's
+// scroll-position handling.
 const getScrollBehavior = (): ScrollBehavior =>
   typeof window !== 'undefined' &&
   typeof window.matchMedia === 'function' &&
@@ -172,11 +172,6 @@ const MessageListWithContext = (props: MessageListWithContextProps) => {
     threadList: isThreadList,
   });
 
-  // MERGE-RECONCILE: master's useReducedMotionPreference()/scrollBehavior was NOT
-  // re-grafted here — it fed master's scroll logic, which PR #2909 replaced with
-  // messagePaginator-driven scrolling (useScrollLocationLogic). Reconcile if
-  // prefers-reduced-motion scroll behavior is required.
-
   const { messageGroupStyles, messages: enrichedMessages } = useEnrichedMessages({
     channel,
     groupStyles,
@@ -199,9 +194,6 @@ const MessageListWithContext = (props: MessageListWithContextProps) => {
     enrichedMessages,
     focusedMessageId,
     internalMessageProps: {
-      // MERGE-RECONCILE: additionalMessageInputProps → additionalMessageComposerProps
-      // (master's MessageInput→MessageComposer rename). Per-action get*Notification props
-      // were removed by master's notification redesign and are no longer drilled here.
       additionalMessageComposerProps: props.additionalMessageComposerProps,
       closeReactionSelectorOnClick: props.closeReactionSelectorOnClick,
       disableQuotedMessages: props.disableQuotedMessages,
@@ -227,13 +219,12 @@ const MessageListWithContext = (props: MessageListWithContextProps) => {
 
   const messageListClass = customClasses?.messageList || 'str-chat__message-list';
 
-  // An empty thread would otherwise ask for a page at both ends the moment the scroller mounts.
+  // Stops a short thread from paging at both ends as soon as the scroller mounts.
   const canPaginateReplies = useCanPaginateReplies();
 
   const loadOlderMessages = React.useCallback(async () => {
-    // The paginator's own gate for a tailward page. Checked here too so that `isLoadingOlder`, which
-    // shows the older-page indicator, is never raised while another load (a jump, a newer page)
-    // holds `isLoading` and `toTail()` would not query.
+    // Mirrors the paginator's gate for a tailward page, so `isLoadingOlder` (the older-page
+    // indicator) is not raised while another load holds `isLoading` and `toTail()` would not query.
     if (
       loadingOlderRef.current ||
       messagePaginator.isLoading ||
@@ -253,27 +244,20 @@ const MessageListWithContext = (props: MessageListWithContextProps) => {
 
   const scrollToBottomFromNotification = React.useCallback(() => {
     if (messagePaginator.hasMoreHead) {
-      // Latest page not loaded — load it; the message-focus signal then drives the smooth scroll
-      // to the latest message via the effect below.
+      // The latest page is not loaded: load it, and the message-focus signal then drives the
+      // smooth scroll to the latest message via the effect below.
       messagePaginator.jumpToTheLatestMessage();
     } else {
       scrollToBottom({ behavior: getScrollBehavior() });
     }
   }, [messagePaginator, scrollToBottom]);
 
-  // Bring a focused message (deep-link / quoted-reply jump, or jump-to-latest) into view and start
-  // its highlight's dismissal only once it is actually viewed.
-  //
-  // The list renders whatever the paginator holds in state, so the target is in the DOM as soon as
-  // the jump resolves — there is nothing to wait for on the data side. What can lag is *visibility*:
-  // the list may be collapsed to zero width (e.g. a thread panel covering the channel when a "view
-  // in channel" jump fires), in which case the initial scroll is computed against stale geometry and
-  // the emit-time TTL would burn the highlight before the user ever sees it. So we:
-  //   - re-center on relayout (the reveal resizes the list 0 → full width; a resize is the precise
-  //     signal for "geometry changed" and never fires from scrolling, so it can't fight the smooth
-  //     animation below), and
-  //   - measure the dismissal TTL from the moment the message is genuinely on screen (viewed),
-  //     reported by an IntersectionObserver rather than from when the jump resolved.
+  // Scrolls a focused message (deep-link or quoted-reply jump, or jump-to-latest) into view and
+  // starts its highlight's dismissal countdown once it has been viewed. The list can be collapsed
+  // to zero width when the jump fires (e.g. a thread panel covers the channel), so the initial
+  // scroll uses stale geometry and a countdown started at the jump would expire before the user
+  // sees the message. Hence the relayout re-center (a resize never fires from scrolling, so it
+  // cannot fight the smooth scroll) and the IntersectionObserver below.
   React.useLayoutEffect(() => {
     if (!messageFocusSignal || !listElement) return;
     const { messageId, token } = messageFocusSignal;
@@ -283,7 +267,7 @@ const MessageListWithContext = (props: MessageListWithContextProps) => {
     const centerTarget = (behavior: ScrollBehavior) =>
       findTarget()?.scrollIntoView({ behavior, block: 'center' });
 
-    // Initial attempt — smooth (or reduced-motion 'auto') for the common case of a visible list.
+    // Smooth (or `auto` under reduced motion) for the common case of a visible list.
     centerTarget(getScrollBehavior());
 
     const target = findTarget();
@@ -292,17 +276,14 @@ const MessageListWithContext = (props: MessageListWithContextProps) => {
       typeof IntersectionObserver === 'undefined' ||
       typeof ResizeObserver === 'undefined'
     ) {
-      // Can't observe "viewed" — start the countdown now so the highlight still clears.
+      // "Viewed" cannot be observed, so start the countdown now to let the highlight clear.
       messagePaginator.scheduleMessageFocusSignalClear({ token });
       return;
     }
 
-    // Re-center on relayout while the jump is active, keyed off an actual change in the list's
-    // measured size rather than "the observer's Nth callback". That distinction matters: the reveal
-    // (0 → full width) often coincides with the observer's initial callback, so a "skip the first
-    // callback" heuristic would swallow the very resize we need to react to. Comparing sizes also
-    // leaves the common visible-list case untouched — the baseline callback reports no change, so
-    // the initial smooth scroll above is never interrupted by an instant re-center.
+    // Re-center when the measured size changes, not on the observer's Nth callback: the reveal
+    // (0 to full width) can coincide with the initial callback, and for a visible list that
+    // callback reports no change, so the smooth scroll above is not interrupted.
     let lastWidth = listElement.clientWidth;
     let lastHeight = listElement.clientHeight;
     const relayoutObserver = new ResizeObserver(() => {
@@ -318,8 +299,7 @@ const MessageListWithContext = (props: MessageListWithContextProps) => {
       (entries) => {
         const entry = entries[entries.length - 1];
         const rootHeight = listElement.clientHeight || 1;
-        // Viewed = at least half the message is on screen, or (for a message taller than the
-        // viewport) the visible slice fills at least half the viewport.
+        // Viewed: half the message is visible, or the visible slice fills half the viewport.
         const viewed =
           entry.isIntersecting &&
           (entry.intersectionRatio >= 0.5 ||
@@ -420,8 +400,7 @@ const MessageListWithContext = (props: MessageListWithContextProps) => {
                 (hasNewMessages || hasMoreNewer) && !isMessageListScrolledToBottom
               }
             />
-            {/* An empty list has nothing to jump to — see the matching gate in
-                  VirtualizedMessageList. */}
+            {/* An empty list has nothing to jump to. */}
             {messages.length > 0 && (
               <ScrollToLatestMessageButton
                 isMessageListScrolledToBottom={isMessageListScrolledToBottom}
@@ -452,7 +431,7 @@ type PropsDrilledToMessage =
   | 'sortReactions'
   | 'unsafeHTML';
 
-// Allow intrinsic element override while keeping div-prop compatibility
+// Allows any intrinsic element while keeping the div props.
 type InternalPaginatorProps = Partial<
   Omit<InfiniteScrollPaginatorProps<'div'>, 'element'>
 > & {
@@ -461,7 +440,7 @@ type InternalPaginatorProps = Partial<
 
 export type MessageListProps = Partial<Pick<MessageProps, PropsDrilledToMessage>> & {
   // todo: data manipulation - should live in the paginator
-  /** Callback function to set group styles for each message */
+  /** Computes the group style of a message from its neighbors. */
   groupStyles?: (
     message: RenderedMessage,
     previousMessage: RenderedMessage,
@@ -470,63 +449,54 @@ export type MessageListProps = Partial<Pick<MessageProps, PropsDrilledToMessage>
     maxTimeBetweenGroupedMessages?: number,
   ) => GroupStyle;
   /**
-   * Position to render HeaderComponent, as a timestamp in the same unit as `message.created_at` —
-   * i.e. unix nanoseconds. Was milliseconds while `created_at` was a `Date`.
+   * Unix-nanosecond timestamp (the unit of `message.created_at`): `HeaderComponent` renders after
+   * the last message created before it. Defaults to the top of the list.
    */
   headerPosition?: TimestampNS;
   // todo: data manipulation - should live in MessagePaginator
-  /** Hides the MessageDeleted components from the list, defaults to `false` */
+  /** Hides deleted messages from the list. Defaults to `false`. */
   hideDeletedMessages?: boolean;
   // todo: data manipulation - should live in MessagePaginator
-  /** Hides the DateSeparator component when new messages are received in a channel that's watched but not active, defaults to false */
+  /** Hides the date separator before the first unread incoming message. Defaults to `false`. */
   hideNewMessageSeparator?: boolean;
   /** Overrides the default props passed to [InfiniteScrollPaginator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/InfiniteScrollPaginator/InfiniteScrollPaginator.tsx) */
   internalInfiniteScrollProps?: InternalPaginatorProps;
   /**
-   * Whether to show the `LoadingIndicator` in the row above the messages while the message
-   * paginator is loading. Defaults to showing it while an older page loads.
+   * Whether to show the `LoadingIndicator` above the messages while the paginator is loading.
+   * Defaults to showing it while an older page loads.
    */
   loadingMore?: boolean;
-  /** Maximum time in milliseconds that should occur between messages to still consider them grouped together */
+  /** Maximum time (ms) between two messages for them to stay in the same group. */
   maxTimeBetweenGroupedMessages?: number;
-  /** If true, turns off message UI grouping by user */
+  /** Turns off grouping of messages by user. */
   noGroupByUser?: boolean;
-  /** Overrides the way MessageList renders messages */
+  /** Overrides how messages are rendered into list elements. */
   renderMessages?: MessageRenderer;
-  /** If true, `readBy` data supplied to the `Message` components will include all user read states per sent message */
+  /** Computes read and delivery data for every own message, not only the last one. */
   returnAllReadData?: boolean;
   /**
-   * Allows to review changes introduced to messages array on per message basis (e.g. date separator injection before a message).
-   * The array returned from the function is appended to the array of messages that are later rendered into React elements in the `MessageList`.
+   * Reviews the changes made around each message (e.g. a date separator injected before it). The
+   * returned array is appended to the rendered messages in place of `changes`.
    */
   // todo: have state.pipe() API to allow modifying the state output / emission
   reviewProcessedMessage?: ProcessMessagesParams['reviewProcessedMessage'];
   /**
-   * The pixel threshold under which the message list is considered to be so near to the bottom,
-   * so that if a new message is delivered, the list will be scrolled to the absolute bottom.
-   * Defaults to 200px
+   * Distance (px) from the bottom within which the list counts as scrolled to the bottom, so a new
+   * message scrolls it all the way down. Defaults to 200.
    */
   scrolledUpThreshold?: number;
   /**
-   * The floating notification informing about unread messages will be shown when the
-   * UnreadMessagesSeparator is not visible. The default is false, that means the notification
-   * is shown only when viewing unread messages.
+   * Shows the unread notification whenever the `UnreadMessagesSeparator` is out of view. Defaults
+   * to `false`: it shows only when the separator is scrolled above the viewport.
    */
   showUnreadNotificationAlways?: boolean;
-  /** If true, prevents autoscroll-to-bottom behavior on new messages. */
+  /** Prevents autoscrolling to the bottom on new messages. */
   suppressAutoscroll?: boolean;
-  /** Injects date separator components into the list, defaults to `true` */
+  /** Injects date separators into the list. Defaults to `true`. */
   withDateSeparator?: boolean;
 };
 
-/**
- * The MessageList component renders a list of Messages.
- * It is a consumer of the following contexts:
- * - `ChannelInstanceContext`
- * - `ChatContext`
- * - `ComponentContext`
- * - `ThreadContext`
- */
+/** Renders the messages of the active channel or thread, plus the notification list. */
 export const MessageList = (props: MessageListProps) => {
   const channel = useChannel();
   const thread = useThreadContext();
@@ -536,14 +506,9 @@ export const MessageList = (props: MessageListProps) => {
     NotificationList = DefaultNotificationList,
   } = useComponentContext();
 
-  // The panel and the notification area sit *above* the key on purpose.
-  //
-  // Scroll position and the rest of the list's local state belong to whatever it is showing -- a
-  // thread's replies or a channel's messages -- so a different one starts from scratch. A
-  // notification does not: it reports something the user just did, and its countdown and entry
-  // animation have to outlive the switch. Rendering it here keeps the element, its timer and the
-  // panel box it is positioned against whole, without anything having to move.
-  // See specs/notification-list-stable-host/spec.md.
+  // The panel and the notification list sit outside the keyed list: the list's state (scroll
+  // position, etc.) belongs to one thread or channel and resets on a switch, but a notification's
+  // countdown and entry animation have to outlive it.
   return (
     <MessageListMainPanel>
       <MessageListWithContext {...props} key={getMessageSourceKey({ channel, thread })} />

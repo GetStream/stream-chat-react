@@ -14,14 +14,13 @@ export const useMessageComposerController = () => {
   const threadInstance = useThreadContext();
   const suppliedComposer = useMessageComposerControllerContext();
 
-  // composer hierarchy: supplied by the integrator -> thread instance (own) -> channel (own)
+  // Resolution order: the supplied composer, then the thread's own, then the channel's own.
   const messageComposer = useMemo(
     () => suppliedComposer ?? threadInstance?.messageComposer ?? channel.messageComposer,
     [channel, suppliedComposer, threadInstance],
   );
 
-  // Only a supplied composer can carry a message context (an edit); the thread's and channel's own
-  // never do.
+  // Caches a composer with a message context (an edit), which only a supplied composer can have.
   if (
     (['message'] as MessageComposerController['contextType'][]).includes(
       messageComposer.contextType,

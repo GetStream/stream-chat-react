@@ -49,10 +49,8 @@ const AudioAttachmentUI = ({ attachment, audioPlayer }: AudioAttachmentUIProps) 
         </div>
         <div className='str-chat__message-attachment-audio-widget--text-second-row'>
           {/*
-            While uploading, the upload progress takes this slot — ahead of both the duration and
-            the file size. It has to outrank the duration: an audio attachment can carry one
-            (`attachment.duration`, or the player reading it off the local blob), and showing it
-            would leave an uploading attachment with no upload indication at all.
+            While uploading, the upload progress takes this slot, ahead of the duration and file
+            size: an audio attachment can already carry a duration, which would hide the upload.
           */}
           {isUploading ? (
             <AttachmentUploadProgressIndicator attachment={attachment} />
@@ -90,25 +88,15 @@ const audioPlayerStateSelector = (state: AudioPlayerState) => ({
   secondsElapsed: state.secondsElapsed,
 });
 
-/**
- * Audio attachment with play/pause button and progress bar
- */
+/** Audio attachment with a play/pause button and a progress bar. */
 export const Audio = (props: AudioProps) => {
   const { attachment } = props;
   const { asset_url, title } = attachment;
   const { duration, file_size, mime_type, waveform_data } =
     (attachment as VoiceRecordingAttachment).custom ?? {};
 
-  /**
-   * Introducing message context. This could be breaking change, therefore the fallback to {} is provided.
-   * If this component is used outside the message context, then there will be no audio player namespacing
-   * => scrolling away from the message in virtualized ML would create a new AudioPlayer instance.
-   *
-   * Edge case: the requester (message) has multiple attachments with the same assetURL - does not happen
-   * with the default SDK components, but can be done with custom API calls.In this case all the Audio
-   * widgets will share the state.
-   */
-  // also rendered from composer previews, where there is no message
+  // Players are namespaced by message (and thread) through `requester`. Outside a message, or when
+  // several attachments of one message share an asset URL, widgets for the same URL share a player.
   const { message } = useContext(MessageContext) ?? {};
   const threadInstance = useThreadContext();
 

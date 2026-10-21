@@ -2,11 +2,7 @@ import type { ChannelAPIResponse } from 'stream-chat';
 
 import { mockedApiResponse } from './utils';
 
-/**
- * Returns the api response for queryChannels api
- *
- * api - /channels
- */
+/** Returns the mocked API response for the `/channels` endpoint. */
 export const queryChannelsApi = (channels: ChannelAPIResponse[] = []) => {
   const result = {
     channels,

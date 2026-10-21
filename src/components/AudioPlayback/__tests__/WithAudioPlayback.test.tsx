@@ -1,4 +1,3 @@
-// WithAudioPlayback.test.js
 import React, { useEffect } from 'react';
 import { act, cleanup, render } from '@testing-library/react';
 
@@ -9,7 +8,6 @@ const { mockAddNotification } = vi.hoisted(() => ({
   mockAddNotification: vi.fn(),
 }));
 
-// mock context used by WithAudioPlayback
 vi.mock('../../../context', () => {
   const t = (key: string, second?: unknown, third?: unknown) => {
     const defaultValue = typeof second === 'string' ? second : undefined;
@@ -36,7 +34,7 @@ vi.mock('../../../context', () => {
   };
 });
 
-// mock useNotificationTarget (called by useAudioPlayer)
+// Notification hooks used by useAudioPlayer.
 vi.mock('../../Notifications', async (importOriginal: any) => ({
   ...(await importOriginal()),
   useNotificationApi: () => ({
@@ -51,8 +49,6 @@ vi.mock('lodash.throttle', () => ({ default: (fn: any) => fn }));
 
 // silence console.error in tests but capture calls for assertions
 const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
-
-// ------------------ window.Audio + media stubs ------------------
 
 const createdAudios = [];
 
@@ -87,8 +83,6 @@ afterEach(() => {
   // defaultRegisterSpy.mockClear();
 });
 
-// ------------------ helpers ------------------
-
 function RegisterPlayer({ onReady, params }) {
   const player = useAudioPlayer(params);
   useEffect(() => {
@@ -101,8 +95,6 @@ function RegisterPlayer({ onReady, params }) {
 
 const renderWithProvider = ({ ui }) =>
   render(<WithAudioPlayback>{ui}</WithAudioPlayback>);
-
-// ------------------ tests ------------------
 
 describe('WithAudioPlayback + useAudioPlayer', () => {
   it('useAudioPlayer returns undefined when src is missing', () => {
@@ -126,7 +118,7 @@ describe('WithAudioPlayback + useAudioPlayer', () => {
 
     expect(player).toBeTruthy();
     expect(player.elementRef).toBeNull();
-    // the first (temporary) Audio is created in AudioPlayer constructor to test whether audio type can be played
+    // The constructor creates a temporary Audio to probe whether the type can be played.
     expect(createdAudios.length).toBe(1);
     expect(createdAudios[0].src).toBe('');
 
@@ -348,7 +340,7 @@ describe('WithAudioPlayback + useAudioPlayer', () => {
 
     unmount();
 
-    // cannot do "expect(player.elementRef.src).toBe('');" as player.elementRef.src in JSDOM normalizes to "http://localhost/"
+    // `src` is not asserted as '': JSDOM normalizes an empty `elementRef.src` to "http://localhost/".
     expect(player.elementRef).toBeNull();
     expect(loadSpy).toHaveBeenCalled();
   });
@@ -396,7 +388,6 @@ describe('WithAudioPlayback + useAudioPlayer', () => {
 
     unmount();
 
-    // After unmount, player was cleaned
     expect(firstPlayer.elementRef).toBeNull();
 
     // New provider -> new pool -> new player + new <audio>
@@ -434,7 +425,7 @@ describe('WithAudioPlayback + useAudioPlayer', () => {
     p1.play();
     const shared = p1.elementRef;
     expect(createdAudios.length).toBe(3);
-    // timeupdate with 0 should not regress progress on the paused player (anti-flicker)
+    // timeupdate updates the progress of the playing player
     const sharedCurrentTimeSpy = vi
       .spyOn(shared, 'currentTime', 'get')
       .mockReturnValue(40);
@@ -444,7 +435,7 @@ describe('WithAudioPlayback + useAudioPlayer', () => {
     expect(p1.state.getLatestValue().secondsElapsed).toBe(40);
 
     p2.play();
-    // still only one <audio> handed over to p2 (other two are temporary for canPlayType() check on new AudioPlayer())
+    // Still one shared <audio>, handed over to p2 (the other two are canPlayType() probes)
     expect(createdAudios.length).toBe(3);
     expect(p1.elementRef).toBeNull();
     expect(p2.elementRef).toBe(shared);
@@ -452,7 +443,7 @@ describe('WithAudioPlayback + useAudioPlayer', () => {
     // p1 should preserve last known progress after element handoff
     expect(p1.state.getLatestValue().secondsElapsed).toBe(40);
 
-    // timeupdate with 20 should not regress progress on the paused player (anti-flicker)
+    // timeupdate with 20 updates p2 without regressing the paused p1 (anti-flicker)
     sharedCurrentTimeSpy.mockReturnValue(20);
     act(() => {
       shared.dispatchEvent(new Event('timeupdate'));

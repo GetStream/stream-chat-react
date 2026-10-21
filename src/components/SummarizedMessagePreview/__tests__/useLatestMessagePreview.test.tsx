@@ -341,7 +341,7 @@ describe('useLatestMessagePreview', () => {
       expect(result.current.text).toBe('2 files');
     });
 
-    // v10: attachment-specific fields such as `duration` live under `attachment.custom`.
+    // attachment-specific fields such as `duration` live under `attachment.custom`.
     it('appends duration for single audio/video attachment', () => {
       const message = generateMessage({
         attachments: [

@@ -5,10 +5,8 @@ import { forwardRef } from 'react';
 import React, { useEffect, useMemo, useRef } from 'react';
 import { DEFAULT_LOAD_PAGE_SCROLL_THRESHOLD } from '../../constants/limits';
 
-/**
- * Prevents Chrome hangups
- * See: https://stackoverflow.com/questions/47524205/random-high-content-download-time-in-chrome/47684257#47684257
- */
+// Prevents Chrome hangups, see:
+// https://stackoverflow.com/questions/47524205/random-high-content-download-time-in-chrome/47684257#47684257
 const mousewheelListener = (event: Event) => {
   if (event instanceof WheelEvent && event.deltaY === 1) {
     event.preventDefault();
@@ -18,10 +16,9 @@ const mousewheelListener = (event: Event) => {
 type InfiniteScrollPaginatorOwnProps = {
   element?: React.ElementType;
   /**
-   * Props spread onto the inner content wrapper (the element that directly wraps
-   * `children`). Use this to e.g. mark the wrapper `role="presentation"` so it stays
-   * transparent in the accessibility tree and does not break the ownership between an
-   * ancestor (`listbox`/`menu`) and its `option`/`menuitem` children.
+   * Props for the inner element that wraps `children`, e.g. `role="presentation"` to keep it out of
+   * the accessibility tree so a `listbox` or `menu` ancestor still owns its `option` or `menuitem`
+   * children.
    */
   contentProps?: React.ComponentProps<'div'>;
   listenToScroll?: (
@@ -32,15 +29,13 @@ type InfiniteScrollPaginatorOwnProps = {
   loadNextDebounceMs?: number;
   loadNextOnScrollToBottom?: () => void;
   loadNextOnScrollToTop?: () => void;
-  /** Offset from when to start the loadNextPage call */
+  /** Distance (px) from the top or bottom within which the `loadNextOnScroll*` callbacks fire. */
   threshold?: number;
   useCapture?: boolean;
 };
 
-// polymorphic props, defaulting to 'div'. `ref` is carried by `ComponentPropsWithRef<C>`
-// (it is not omitted below), so the props type already exposes the correct ref — no separate
-// `ref?` signature is needed (and the react-compat lint rule forbids a literal one; the
-// component is a real `forwardRef` below).
+// Polymorphic props, defaulting to 'div'. `ref` comes from `ComponentPropsWithRef<C>`, so no
+// separate `ref?` member is declared (the react-compat lint rule forbids one in a prop type).
 export type InfiniteScrollPaginatorProps<C extends React.ElementType = 'div'> =
   PropsWithChildren<
     InfiniteScrollPaginatorOwnProps & {

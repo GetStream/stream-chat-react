@@ -71,9 +71,7 @@ function generateAliceMessage(messageOptions) {
 }
 
 async function renderMessageText({ customProps = {} } = {}) {
-  // MERGE-RECONCILE (test migration): render under the real <Chat>/<Channel> providers
-  // instead of the removed ChannelStateContext/ChannelActionContext. Mention handlers moved
-  // from ChannelActionContext to <Message> props (useMentionsHandler reads them from props).
+  // Renders under real <Chat>/<Channel> providers. Mention handlers are <Message> props.
   const {
     channels: [channel],
     client,

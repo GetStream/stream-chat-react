@@ -21,13 +21,13 @@ const typingEventsStateSelector = ({ typingEvents }: ChannelConfig) => ({
 const textComposerTypingSelector = ({ typing }: TextComposerState) => ({ typing });
 
 export type TypingIndicatorHeaderProps = {
-  /** When true, show typing in the current thread only; when false, show typing in the channel. */
+  /** Whether to show typing in the current thread instead of the channel. Defaults to `false`. */
   threadList?: boolean;
 };
 
 /**
- * Inline typing indicator for ChannelHeader or ThreadHeader: text (1/2/3+ people) followed by animated dots.
- * Only shows other participants; respects the channel's resolved `typingEvents.enabled`.
+ * Inline typing text followed by animated dots, for channel and thread headers. Shows only other
+ * users and renders nothing when the channel's `typingEvents.enabled` is false.
  */
 export const TypingIndicatorHeader = (props: TypingIndicatorHeaderProps) => {
   const { threadList = false } = props;

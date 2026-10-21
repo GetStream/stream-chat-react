@@ -1,11 +1,8 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 
-/**
- * Virtuoso's at-bottom and at-top thresholds are absolute pixels, so a value tuned for a
- * full-height list means something very different in a short floating panel. These bounds keep the
- * derived threshold proportional to the viewport while staying within what Virtuoso behaves well
- * with: its own default is 4px, and 100px is what a full-height list effectively used.
- */
+// Virtuoso's at-bottom and at-top thresholds are absolute pixels, so the threshold is a fraction of
+// the viewport height, clamped between Virtuoso's own default (4px) and the value for a
+// full-height list (100px).
 const THRESHOLD_RATIO = 0.1;
 const MIN_THRESHOLD = 4;
 const MAX_THRESHOLD = 100;
@@ -19,32 +16,27 @@ export type ScrollerViewport = {
   /** Callback for Virtuoso's `scrollerRef` prop. */
   handleScrollerRef: (element: HTMLElement | Window | null) => void;
   /**
-   * Schedules a fresh measurement. Content can grow without the scroller resizing or scrolling --
-   * a message bubble whose avatar or image lands late -- which changes how far the list is from
-   * its true bottom without firing either event we observe.
+   * Schedules a measurement on the next animation frame. Content can grow (e.g. an image landing
+   * late) without a resize or scroll event, which moves the list away from its true bottom.
    */
   remeasure: () => void;
   /**
-   * Whether the list is at its bottom, measured against the same `threshold` Virtuoso uses. It
-   * deliberately shares that definition: the threshold is what decides whether the user is shown
-   * a jump-to-latest control, so gating mark-read on anything stricter would leave a band where
-   * the UI claims the list is at the bottom while the channel silently refuses to go read.
-   *
-   * It is still worth having separately from Virtuoso's own flag, which only updates when the
-   * at-bottom state flips -- this is re-measured whenever the content or the viewport changes.
+   * Whether the list is within `threshold` of its bottom. It shares Virtuoso's threshold so that
+   * gating mark-read on it never disagrees with the jump-to-latest control. Unlike Virtuoso's own
+   * flag, which updates only when the at-bottom state flips, it is re-measured on every content or
+   * viewport change.
    */
   isAtTrueBottom: boolean;
 };
 
 /**
- * Tracks the scroll container's height and whether it sits at its true bottom, so thresholds can
- * scale with the rendered list rather than assuming a full-height one.
+ * Tracks the scroll container's height and whether it sits at its true bottom, deriving a
+ * threshold proportional to the viewport.
  */
 export const useScrollerViewport = (): ScrollerViewport => {
-  // State rather than a ref: the scroller arrives from Virtuoso's scrollerRef callback after
-  // mount, and the observers below have to attach at that point.
+  // State, not a ref: the scroller arrives after mount and the effect below must re-run then.
   const [scrollTarget, setScrollTarget] = useState<HTMLElement | Window | null>(null);
-  // Until the scroller is measured, keep the behaviour a full-height list already had.
+  // Until measured, assumes a full-height list.
   const [viewportHeight, setViewportHeight] = useState(MAX_THRESHOLD / THRESHOLD_RATIO);
   const [isAtTrueBottom, setIsAtTrueBottom] = useState(true);
   const frameRef = useRef<number | null>(null);
@@ -66,10 +58,8 @@ export const useScrollerViewport = (): ScrollerViewport => {
   useEffect(() => {
     if (!scrollTarget) return;
 
-    // With `useWindowScroll` Virtuoso hands back the window rather than an element. The scroll
-    // events still arrive on the window, but the measurements have to come from the document's
-    // scrolling element -- without this the list is never measured, the thresholds stay at their
-    // full-height defaults, and the true-bottom check silently answers "yes" forever.
+    // With `useWindowScroll` Virtuoso hands back the window: scroll events arrive on it, but the
+    // sizes come from the document's scrolling element.
     const isWindow = !(scrollTarget instanceof HTMLElement);
     const measured = isWindow
       ? ((document.scrollingElement ?? document.documentElement) as HTMLElement | null)
@@ -79,8 +69,7 @@ export const useScrollerViewport = (): ScrollerViewport => {
     const measure = () => {
       const height = measured.clientHeight;
       setViewportHeight(height);
-      // Derived from the height just measured rather than from state, so the bottom check can
-      // never disagree with the threshold reported alongside it.
+      // Uses the height just measured, not state, so it agrees with the reported threshold.
       const threshold = clamp(height * THRESHOLD_RATIO, MIN_THRESHOLD, MAX_THRESHOLD);
       setIsAtTrueBottom(
         measured.scrollHeight - measured.scrollTop - measured.clientHeight <= threshold,
@@ -92,8 +81,7 @@ export const useScrollerViewport = (): ScrollerViewport => {
 
     scrollTarget.addEventListener('scroll', scheduleMeasure, { passive: true });
 
-    // Matches useScrollLocationLogic: the panel can be resized without the list scrolling, but
-    // environments without ResizeObserver (jsdom) still get the scroll-driven measurements.
+    // The panel can resize without a scroll; without ResizeObserver (jsdom) only scrolls measure.
     let resizeObserver: ResizeObserver | undefined;
     if (typeof ResizeObserver !== 'undefined') {
       resizeObserver = new ResizeObserver(scheduleMeasure);

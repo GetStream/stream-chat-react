@@ -110,8 +110,7 @@ export const MultipleAnswersField = () => {
                   const nativeFieldValidation =
                     raw !== '' && !/^\d+$/.test(raw)
                       ? {
-                          // Injected field errors take the same shape core produces, so the render
-                          // path is identical whether the error came from here or from the composer.
+                          // Same shape as a composer error, so it renders identically.
                           max_votes_allowed: pollComposerValidationError(
                             POLL_COMPOSER_VALIDATION_CODE.maxVotesNotNumeric,
                           ),

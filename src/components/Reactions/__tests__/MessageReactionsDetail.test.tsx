@@ -40,10 +40,7 @@ const generateReactionsFromReactionGroups = (
     })),
   );
 
-/**
- * Helper component that uses useProcessReactions to generate the
- * reactions summary needed by MessageReactionsDetail.
- */
+/** Renders MessageReactionsDetail with the reactions summary from `useProcessReactions`. */
 const MessageReactionsDetailWrapper = ({
   handleFetchReactions,
   reaction_groups,
@@ -395,13 +392,10 @@ describe('MessageReactionsDetail', () => {
 
     fireEvent.click(getByTestId('add-reaction-button'));
 
-    // Extended list should be visible
     expect(getByTestId('reaction-selector-extended-list')).toBeInTheDocument();
 
-    // The detail panel should still be present
     expect(getByTestId('message-reactions-detail')).toBeInTheDocument();
 
-    // The reaction type list should NOT be visible
     expect(queryByTestId('reaction-type-list')).not.toBeInTheDocument();
   });
 

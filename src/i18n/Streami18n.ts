@@ -7,23 +7,21 @@ import { runtimeDefaults } from './runtimeDefaults';
 import type { BundledKey, TranslationCatalog } from './types';
 
 /**
- * Options for {@link Streami18n}.
- *
- * `runtimeDefaults` and `translationBuilderTopics` are both accepted and both *merged* over the SDK's
- * own, so supplying either adds to rather than replaces what the SDK ships.
+ * Options for {@link Streami18n}. `runtimeDefaults` and `translationBuilderTopics` are merged over
+ * the SDK's own, so supplying either adds to what the SDK ships.
  */
 export type Streami18nOptions = CoreStreami18nOptions<TranslationCatalog>;
 
 /**
  * Wrapper around [i18next](https://www.i18next.com/) for this SDK's translations. Pass an instance to
- * `<Chat i18nInstance={…}>` to control language and copy.
+ * `<Chat i18nInstance={...}>` to control language and copy.
  *
- * The implementation lives in `@stream-io/i18n`, shared with the React Native SDK. What is added here
- * is the two things that are this SDK's own: its bundled translation data, and its notification
- * translation topic. Core cannot import either — the key catalog is generated from *this* package's
- * `t()` call sites.
+ * Adds this SDK's bundled data and notification translation topic to the `@stream-io/i18n`
+ * implementation. A partial dictionary is safe: missing keys render the English copy passed inline
+ * at each call site. Type a dictionary as {@link TranslationDictionary} so unknown keys fail to
+ * compile. `setLanguage()` publishes the new `t` to `i18n.state`, which `<Chat>` subscribes to.
  *
- * ## Overriding some of the English copy
+ * Override some English copy:
  *
  * ```ts
  * const i18n = new Streami18n({
@@ -33,38 +31,28 @@ export type Streami18nOptions = CoreStreami18nOptions<TranslationCatalog>;
  * });
  * ```
  *
- * ## Adding a language
+ * Add a language:
  *
  * ```ts
  * import 'dayjs/locale/nl';
  *
  * const i18n = new Streami18n({ language: 'nl' });
- * i18n.registerTranslation('nl', {
- *   'typing.singleUser': '{{ typing }} is aan het typen',
- * });
+ * i18n.registerTranslation('nl', { 'typing.singleUser': '{{ typing }} is aan het typen' });
  * ```
- *
- * Type your dictionary as {@link TranslationDictionary} to turn a typo or a leftover v14 key into a
- * compile error. A partial dictionary is safe: unsupplied keys render the English copy that ships inline
- * with each component, never a raw dotted path.
- *
- * Reactivity goes through `i18n.state`, a `StateStore`. `setLanguage()` returns nothing — the new `t` is
- * published to that store, which `<Chat>` subscribes to.
  */
 export class Streami18n extends CoreStreami18n<TranslationCatalog, BundledKey> {
   constructor(options: Streami18nOptions = {}) {
     super({
       ...options,
-      // Core owns the `language.*` names, since it owns the `TranslationLanguage` union they describe.
-      // Merged under this SDK's own data so an integrator can still override an individual name.
+      // The `language.*` names from `stream-chat` go first, so this SDK's data and the integrator's
+      // can override an individual name.
       runtimeDefaults: {
         ...languageNameDefaults,
         ...runtimeDefaults,
         ...options.runtimeDefaults,
       },
-      // Merged, not replaced. Spreading `options` over a literal would let an integrator adding one
-      // topic silently drop the SDK's own `notification` topic, and notifications would then render
-      // untranslated with no error.
+      // Merged so an integrator adding a topic does not drop the `notification` topic, which would
+      // leave notifications untranslated without an error.
       translationBuilderTopics: {
         notification: NotificationTranslationTopic,
         ...options.translationBuilderTopics,

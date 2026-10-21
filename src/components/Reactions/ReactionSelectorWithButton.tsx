@@ -13,14 +13,11 @@ import type { IconProps } from '../../types/types';
 import { QuickMessageActionsButton } from '../MessageActions';
 
 type ReactionSelectorWithButtonProps = {
-  /* Custom component rendering the icon used in a button invoking reactions selector for a given message. Defaults to the `icons.IconEmoji` slot on `ComponentContext`. */
+  /** Icon of the button that opens the selector. Defaults to the `icons.IconEmoji` slot. */
   ReactionIcon?: React.ComponentType<IconProps>;
 };
 
-/**
- * Internal convenience component - not to be exported. It just groups the button and the dialog anchor and thus prevents
- * cluttering the parent component.
- */
+/** Button that toggles the reaction selector dialog, with its anchor. Not a package export. */
 export const ReactionSelectorWithButton = ({
   ReactionIcon,
 }: ReactionSelectorWithButtonProps) => {
@@ -28,14 +25,12 @@ export const ReactionSelectorWithButton = ({
   const { isMyMessage, message, threadList } = useMessageContext();
   const { ReactionSelector = DefaultReactionSelector } = useComponentContext();
   const { IconEmoji } = useComponentContextIcons();
-  // The prop still wins: it targets one message's reaction button, the slot rebrands all of them.
+  // The prop wins: it targets one message's button, while the icon slot applies to all of them.
   const ResolvedReactionIcon = ReactionIcon ?? IconEmoji;
   const buttonRef = useRef<ComponentRef<'button'>>(null);
-  // MUST match the id `MessageActions` derives via `ReactionSelector.getDialogId` — it
-  // uses that to keep `.str-chat__message-options--active` applied while the reaction
-  // dialog is open. If the ids diverge, the options (and this trigger button) hide when
-  // focus moves into the portaled dialog, the reference collapses to a 0-size rect, and
-  // the popover falls back to the 8,8 corner. Derive from the same shared helper.
+  // Must equal the ID `MessageActions` derives from `ReactionSelector.getDialogId`: it keeps
+  // `.str-chat__message-options--active` applied while the dialog is open. A mismatch hides the
+  // button when focus moves into the portal, collapsing the popover's reference element.
   const dialogId = DefaultReactionSelector.getDialogId({
     messageId: message.id,
     threadList,

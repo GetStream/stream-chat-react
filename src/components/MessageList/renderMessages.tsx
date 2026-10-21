@@ -18,9 +18,8 @@ import type { ComponentContextValue, CustomClasses } from '../../context';
 export interface RenderMessagesOptions {
   channel: Channel;
   /**
-   * Current user's channel read state used to render components reflecting unread state.
-   * It does not reflect the back-end state if a channel is marked read on mount.
-   * This is in order to keep the unread UI when an unread channel is open.
+   * Unread snapshot the unread UI renders from. It is not updated when the channel is marked read
+   * on mount, so an unread channel keeps its unread UI while it is open.
    */
   channelUnreadUiState: UnreadSnapshotState;
   components: ComponentContextValue;
@@ -28,17 +27,13 @@ export interface RenderMessagesOptions {
   messageGroupStyles: Record<string, GroupStyle>;
   messages: Array<RenderedMessage>;
   ownMessagesDeliveredToOthers: Record<string, UserResponse[]>;
-  /** The message id currently signaled for focus by the paginator. */
+  /** ID of the message the paginator currently signals for focus. */
   focusedMessageId?: string | null;
-  /**
-   * Object mapping message IDs of own messages to the users who read those messages.
-   */
+  /** Message IDs mapped to the users who read each message. */
   readData: Record<string, Array<UserResponse>>;
-  /**
-   * Props forwarded to the Message component.
-   */
+  /** Props forwarded to the `Message` component. */
   sharedMessageProps: SharedMessageProps;
-  /** Latest own message in currently displayed message set. */
+  /** Latest own message in the displayed message set. */
   lastOwnMessage?: LocalMessage;
   customClasses?: CustomClasses;
 }

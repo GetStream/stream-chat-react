@@ -48,29 +48,26 @@ const ChannelHeaderSubtitle = () => {
 };
 
 export type ChannelHeaderProps = {
-  /** UI component to display an avatar, defaults to [Avatar](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Avatar/Avatar.tsx) component and accepts the same props as: [ChannelAvatar](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Avatar/ChannelAvatar.tsx) */
+  /** Avatar component. Defaults to `ChannelAvatar`. */
   Avatar?: React.ComponentType<ChannelAvatarProps>;
   /**
    * Rendered at the end of the header, after the avatar. Defaults to
-   * `WorkspaceNavigationCloseButton`, the close button of a panel that can be dismissed; a component
-   * passed here replaces it, and can render the button itself to keep it.
+   * `WorkspaceNavigationCloseButton`; a component passed here replaces it and can render that
+   * button to keep it.
    */
   EndContent?: React.ComponentType;
   /**
-   * Rendered at the start of the header. Defaults to `WorkspaceNavigationBackButton`, the back
-   * button of a panel stacked over other content; a component passed here replaces it, and can
-   * render the button itself to keep it.
+   * Rendered at the start of the header. Defaults to `WorkspaceNavigationBackButton`; a component
+   * passed here replaces it and can render that button to keep it.
    */
   StartContent?: React.ComponentType;
-  /** Manually set the image to render, defaults to the Channel image */
+  /** Overrides the channel image. */
   image?: string;
-  /** Set title manually */
+  /** Overrides the channel title. */
   title?: string;
 };
 
-/**
- * The ChannelHeader component renders some basic information about a Channel.
- */
+/** Header of the bound channel: avatar, title, and online status or typing indicator. */
 export const ChannelHeader = (props: ChannelHeaderProps) => {
   const {
     Avatar = DefaultAvatar,

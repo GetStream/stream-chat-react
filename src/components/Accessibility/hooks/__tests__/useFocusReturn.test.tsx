@@ -17,8 +17,8 @@ describe('useFocusReturn', () => {
     document.body.append(stealer);
 
     const { result } = renderHook(() => useFocusReturn());
-    result.current.reserve(); // capture origin
-    stealer.focus(); // steal
+    result.current.reserve();
+    stealer.focus();
     expect(document.activeElement).toBe(stealer);
 
     result.current.restore();

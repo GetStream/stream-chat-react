@@ -14,10 +14,7 @@ import { MessageDeliveryStatus } from './hooks/useMessageDeliveryStatus';
 import { getLatestMessagePreviewText } from './utils';
 import { convertTimestampToDate } from 'stream-chat';
 
-/**
- * Everything a label part needs. Gathered by `ChannelListItemUI` from its props + contexts and
- * handed to each {@link ChannelListItemLabelPart}.
- */
+/** Data `ChannelListItemUI` gathers from its props and contexts for each label part. */
 export type ChannelListItemLabelData = {
   /** Whether the row is the active (currently open) channel. */
   active?: boolean;
@@ -29,9 +26,9 @@ export type ChannelListItemLabelData = {
   displayTitle?: string;
   isMessageAIGenerated?: ChatContextValue['isMessageAIGenerated'];
   /**
-   * The channel's latest message. {@link composeChannelListItemAccessibleLabel} resolves this once
-   * (to the last entry of `channel.state.latestMessages` when omitted) and passes the SAME message
-   * to every part, so all segments (sender, preview, attachments, time) describe one message.
+   * The channel's latest message. When omitted, {@link composeChannelListItemAccessibleLabel} uses
+   * the `lastMessage` of `channel.messagePaginator.aggregateState`, so every part describes the
+   * same message.
    */
   latestMessage?: LocalMessage;
   /** Delivery/read status of the latest message when it is the current user's own. */
@@ -47,16 +44,14 @@ export type ChannelListItemLabelData = {
 export type ChannelListItemLabelPart = AccessibleLabelPart<ChannelListItemLabelData>;
 
 /**
- * The default, named label parts. Each is independently overridable via
- * {@link ChannelListItemLabelConfig.parts}. The active (currently open) state is announced here (not
- * left to the row's `aria-selected` alone, which is not reliably spoken across screen readers for an
- * option with a custom name); `aria-selected` is kept on the active row for listbox semantics.
+ * The default label parts, each overridable via {@link ChannelListItemLabelConfig.parts}. The
+ * active state is announced by a part because `aria-selected` alone is not reliably spoken for an
+ * option with a custom name.
  */
 export const defaultChannelListItemLabelParts = {
   active: activeLabelPart,
-  // Announced alongside the last message text: the number of attachments. Link previews are
-  // excluded (the linkPreview part announces those). A single attachment with no text is skipped
-  // here because the lastMessage part already conveys it as "Attachment <type>".
+  // Link previews are excluded (the `linkPreview` part announces those). A single attachment with
+  // no text is skipped because the `lastMessage` part already announces its type.
   attachments: ({ latestMessage, t }) => {
     const count =
       latestMessage?.attachments?.filter((attachment) => !attachment.og_scrape_url)
@@ -99,15 +94,13 @@ export const defaultChannelListItemLabelParts = {
       t,
       userLanguage,
       isMessageAIGenerated,
-      // `latestMessage` is pre-resolved by the composer, so the announced preview describes the same
-      // message as the sender/status/time segments.
+      // Pre-resolved by the composer, so the preview describes the same message as the other parts.
       latestMessage,
     );
-    // Empty channel: announce there are no messages ("Nothing yet...").
+    // Empty channel: there is no sender to name.
     if (!latestMessage) return preview;
     const isOwn = !!client.userID && latestMessage.user?.id === client.userID;
-    // Use the sender's name (or "You" for the current user). When the name is unknown we omit the
-    // sender rather than reading out a raw user id.
+    // "You" for the current user; an unknown name is omitted rather than reading out a user ID.
     const sender = isOwn ? t('common.you.label', 'You') : latestMessage.user?.name;
     return sender
       ? t(
@@ -147,8 +140,7 @@ export const defaultChannelListItemLabelParts = {
       tDateTimeParser,
       timestampTranslationKey: 'timestamp.ChannelPreviewTimestamp',
     });
-    // Prefix the time so it is clearly its own segment (not read as part of the preceding
-    // delivery-status segment).
+    // The prefix keeps the time from being read as part of the delivery status.
     return when
       ? t('common.lastActivity.ariaLabel', 'Last activity: {{ time }}', {
           time: String(when),
@@ -158,7 +150,7 @@ export const defaultChannelListItemLabelParts = {
   unreadCount: unreadCountLabelPart,
 } satisfies Record<string, ChannelListItemLabelPart>;
 
-/** Default order the parts are assembled in (reading order). */
+/** Default order of the parts in the composed label. */
 export const DEFAULT_CHANNEL_LIST_ITEM_LABEL_ORDER = [
   'name',
   'active',
@@ -173,38 +165,20 @@ export const DEFAULT_CHANNEL_LIST_ITEM_LABEL_ORDER = [
 export type ChannelListItemLabelConfig = AccessibleLabelConfig<ChannelListItemLabelData>;
 
 /**
- * Composes a single, coherent accessible name for a channel list row from named parts. The default
- * reading order is name → unread → last message (sender + preview) → delivery status → time.
+ * Composes a channel list row's accessible name from named parts, by default in the order of
+ * {@link DEFAULT_CHANNEL_LIST_ITEM_LABEL_ORDER}.
  *
- * ## Customizing the label
+ * `ChannelListItemUI` calls this with its `accessibleLabelConfig` prop. To customize the label,
+ * supply your own `ChannelListItemUI` through `ComponentContext` and forward the config:
+ * {@link ChannelListItemLabelConfig.parts} is merged over {@link defaultChannelListItemLabelParts}
+ * (a new key is added, a same-named key replaces the default), and
+ * {@link ChannelListItemLabelConfig.order} decides which parts render and in what sequence, so a
+ * part missing from it is never rendered. A part returns its segment, or `undefined`/`''` to omit
+ * it. Set {@link ChannelListItemLabelConfig.build} to return the whole string instead.
  *
- * The label is generated by `ChannelListItemUI`, which accepts an `accessibleLabelConfig` prop. To
- * customize it, supply your own `ChannelListItemUI` through `ComponentContext` (the same way the
- * component is overridden) and forward the config — no new plumbing:
- *
- * ```tsx
- * const MyChannelPreview = (props) => (
- *   <DefaultChannelListItemUI {...props} accessibleLabelConfig={accessibleLabelConfig} />
- * );
- * // <ComponentProvider value={{ ChannelListItemUI: MyChannelPreview }}> … </ComponentProvider>
- * ```
- *
- * ### Adding custom parts (e.g. Pinned, Muted, Frozen)
- *
- * - {@link ChannelListItemLabelConfig.parts} is merged over {@link defaultChannelListItemLabelParts},
- *   so a new key is *added* and a same-named key *overrides* the default.
- * - A part returns its segment string, or `undefined`/`''` to be omitted (so e.g. "Pinned" is only
- *   spoken when actually pinned).
- * - {@link ChannelListItemLabelConfig.order} decides which parts are included AND their sequence —
- *   **a part not listed in `order` is never rendered**, even if defined. Spread
- *   {@link DEFAULT_CHANNEL_LIST_ITEM_LABEL_ORDER} to keep the defaults and insert your own.
- * - Each part receives {@link ChannelListItemLabelData}. `active`/`unreadCount`/
- *   `messageDeliveryStatus` are passed directly and `latestMessage` is pre-resolved by the composer
- *   (see its doc); everything else (mute/pin state, `frozen`, member count, custom `channel.data`) is
- *   read off `channel`. The SDK does not ship `Pinned`/`Muted`/`Frozen` strings, so return plain
- *   strings or your own keys. `t` only accepts keys in {@link TranslationKey}; wrap your own in
- *   {@link asDynamicKey} (exported from `stream-chat-react`) and pass the English copy as the
- *   second argument, exactly as SDK call sites do.
+ * Parts receive {@link ChannelListItemLabelData}; anything else (mute or pin state, `frozen`,
+ * custom `channel.data`) is read off `channel`. `t` accepts only {@link TranslationKey}s, so wrap
+ * your own keys in {@link asDynamicKey} and pass the English copy as the second argument.
  *
  * ```tsx
  * const accessibleLabelConfig: ChannelListItemLabelConfig = {
@@ -213,30 +187,22 @@ export type ChannelListItemLabelConfig = AccessibleLabelConfig<ChannelListItemLa
  *       channel.state.membership?.pinned_at
  *         ? t(asDynamicKey('myApp.channelList.pinned'), 'Pinned')
  *         : undefined,
- *     muted: ({ channel, t }) =>
- *       channel.muteStatus().muted
- *         ? t(asDynamicKey('myApp.channelList.muted'), 'Muted')
- *         : undefined,
- *     frozen: ({ channel, t }) =>
- *       channel.data?.frozen ? t(asDynamicKey('myApp.channelList.frozen'), 'Frozen') : undefined,
  *   },
- *   order: ['name', 'pinned', 'muted', 'frozen', ...DEFAULT_CHANNEL_LIST_ITEM_LABEL_ORDER.slice(1)],
+ *   order: ['name', 'pinned', ...DEFAULT_CHANNEL_LIST_ITEM_LABEL_ORDER.slice(1)],
  * };
- * // → "General. Pinned. Muted. 3 unread messages. Last message from Alice: hi. 2 days ago"
+ * // "General. Pinned. 3 unread messages. Last message from Alice: hi. 2 days ago"
  * ```
  *
- * For full control, set {@link ChannelListItemLabelConfig.build} (return the entire string), or
- * write a custom `ChannelListItemUI` that calls this function directly — importing
- * {@link defaultChannelListItemLabelParts} to reuse the built-ins.
+ * @param data - Data for the label parts.
+ * @param config - Overrides for the parts, their order, the separator, or the whole label.
+ * @returns The non-empty segments joined by the separator, or the result of `config.build`.
  */
 export const composeChannelListItemAccessibleLabel = (
   data: ChannelListItemLabelData,
   config: ChannelListItemLabelConfig = {},
 ): string =>
   composeAccessibleLabel(
-    // Resolve the latest message ONCE here so every part is handed the same message (sender,
-    // preview, attachments, link, time all stay in sync) instead of each re-deriving the channel's
-    // latest — which only stayed consistent as long as the duplicated fallbacks matched.
+    // Resolved once so every part describes the same message.
     {
       ...data,
       latestMessage:

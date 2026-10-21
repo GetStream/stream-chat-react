@@ -15,13 +15,7 @@ import { TranslationProvider } from '../../../context/TranslationContext';
 import type { TranslationContextValue } from '../../../context/TranslationContext';
 import { ThreadHeader } from '../ThreadHeader';
 
-// MERGE-RECONCILE (test migration): ThreadHeader moved off the deleted ChannelStateContext.
-// It now resolves the channel via useChannel() (ChannelInstanceContext), the reply count from
-// the (optional) thread instance in ThreadContext, and the channel title from
-// useChannelPreviewInfo. The subtitle fallback is the parent message author's name. We seed a
-// ChannelInstanceProvider channel and mock the composer controller / store so the header renders
-// without a fully initialized <Channel>. Assertions are unchanged.
-
+// The channel preview and composer mocks let the header render without an initialized `<Channel>`.
 vi.mock('../../ChannelListItem/hooks/useChannelPreviewInfo', () => ({
   useChannelPreviewInfo: vi.fn(() => ({ displayTitle: undefined })),
 }));
@@ -39,7 +33,7 @@ vi.mock('../../Threads', () => ({
   useCloseThread: vi.fn(() => closeThreadInContext),
   useThreadContext: vi.fn(() => undefined),
 }));
-// The header's back and close buttons read the same hooks from their own modules.
+// The back and close buttons read these hooks from their own modules.
 vi.mock('../../Threads/ThreadContext', async (importOriginal) => ({
   ...(await importOriginal<typeof import('../../Threads/ThreadContext')>()),
   useThreadContext: (await import('../../Threads')).useThreadContext,
@@ -60,8 +54,7 @@ import { mockT } from '../../../mock-builders/translator';
 
 const alice = { id: 'alice', name: 'Alice' };
 
-// The header reads the parent message and the reply count off the thread instance, so the
-// fixture is a thread whose state carries both.
+// The header reads the parent message and reply count from the thread state.
 const createThreadInstance = (user?: { id: string; name?: string }) =>
   fromPartial<Thread>({
     id: `${user?.id ?? 'thread'}-message`,
@@ -171,8 +164,7 @@ describe('ThreadHeader', () => {
   });
 
   it('closes the thread in context when the close button is pressed', () => {
-    // No prop carries the handler any more -- the header closes through the workspace navigation
-    // the app configures centrally.
+    // The header closes through the workspace navigation, which the app configures centrally.
     renderComponent({ dismissable: true });
 
     fireEvent.click(screen.getByTestId('close-thread-button'));
@@ -196,8 +188,8 @@ describe('ThreadHeader', () => {
     expect(goBack).toHaveBeenCalledWith(threadContext.id, expect.anything());
   });
 
-  // The back and close buttons are only the defaults, in every view: start/end content passed to
-  // the header takes their place.
+  // The back and close buttons are defaults in every view: `StartContent` and `EndContent` replace
+  // them.
   it('gives way to the StartContent and EndContent passed to it', () => {
     renderComponent({
       dismissable: true,

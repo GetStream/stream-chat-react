@@ -241,8 +241,7 @@ describe('ContextMenu keyboard navigation', () => {
     expect(screen.getByRole('menu')).toHaveAttribute('aria-label', 'Submenu');
 
     const submenuItems = screen.getAllByRole('menuitem') as HTMLButtonElement[];
-    // The back button (rendered by default ContextMenuBackButton) should be
-    // included alongside the submenu item.
+    // The default `ContextMenuBackButton` is rendered alongside the submenu item.
     const backButton = submenuItems.find((item) =>
       item.classList.contains('str-chat__context-menu__back-button'),
     );
@@ -266,7 +265,7 @@ describe('ContextMenu keyboard navigation', () => {
     await openMenu();
     fireEvent.click(screen.getByRole('menuitem', { name: 'Open submenu' }));
 
-    // Forward navigation focuses the first NON-header item (the back-button header is skipped).
+    // Forward navigation skips the back-button header.
     await waitFor(() =>
       expect(screen.getByRole('menuitem', { name: 'Back from submenu' })).toHaveFocus(),
     );
@@ -304,8 +303,8 @@ describe('ContextMenu keyboard navigation', () => {
     await openMenu();
     fireEvent.click(screen.getByRole('menuitem', { name: 'Open submenu' }));
 
-    // The submenu renders, but our forward-focus is opted out — focus falls to <body> (the parent
-    // trigger unmounted) rather than being placed on an item.
+    // The submenu renders but `initialFocus='none'` opts out of forward focus, so focus falls to
+    // <body> (the parent trigger unmounted) instead of an item.
     await screen.findByRole('menuitem', { name: 'Back from submenu' });
     await new Promise((resolve) => setTimeout(resolve, 50));
     expect(screen.getByRole('menuitem', { name: 'Back from submenu' })).not.toHaveFocus();

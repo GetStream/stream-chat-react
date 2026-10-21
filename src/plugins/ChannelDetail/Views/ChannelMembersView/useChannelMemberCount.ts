@@ -1,17 +1,15 @@
 import { useEffect, useState } from 'react';
 import type { Channel } from 'stream-chat';
 
-// Channel events that change (or may change) the member count. `channel.data` is
-// refreshed by the SDK on member add/remove and channel updates, so re-reading
-// `member_count` on these events keeps the value in sync with real state — no
-// imperative count bookkeeping from the views that mutate membership.
+// Channel events that may change `member_count`, which the SDK refreshes in `channel.data`.
+// Re-reading it on these events needs no count bookkeeping in the views that change membership.
 const MEMBER_COUNT_EVENTS = [
   'member.added',
   'member.removed',
   'channel.updated',
 ] as const;
 
-/** Reactive channel member count derived from real channel state. */
+/** Reactive channel member count. */
 export const useChannelMemberCount = (channel: Channel) => {
   const [memberCount, setMemberCount] = useState(channel.data?.member_count ?? 0);
 

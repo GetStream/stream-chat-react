@@ -14,13 +14,6 @@ import {
   generateMessage,
 } from '../../../mock-builders';
 
-// MERGE-RECONCILE (test migration): ScrollToLatestMessageButton no longer reads the thread from
-// the removed ChannelStateContext, nor accepts a `threadList` prop. It resolves the client via
-// useChatContext, the channel via useChannel, and the thread via useThreadContext
-// (Threads/ThreadContext) reading `thread.state.parentMessage`. The test now renders inside the
-// real <Chat>/<Channel> providers and provides a thread via <ThreadProvider>. The thread stub
-// exposes a real StateStore holding the parent message so useStateStore resolves it.
-
 const BUTTON_TEST_ID = 'scroll-to-latest-message-button';
 const NEW_MESSAGE_COUNTER_TEST_ID = 'unread-message-notification-counter';
 
@@ -37,15 +30,15 @@ let thread: Thread | undefined;
 
 const onClick = vi.fn();
 
+// The stub holds the parent message in a real `StateStore` so `useStateStore` resolves it.
 const makeThread = (parentMessage) =>
   ({
     state: new StateStore({ parentMessage }),
   }) as unknown as Thread;
 
-// The button under test defaults to the main-list button (no thread context), which observes
-// `message.new`. Original tests rendered it without the (now removed) `threadList` prop even in
-// the "a thread" variant; a thread being open only mattered for the dedicated thread-list button
-// exercised by the last test, which wraps its button in <ThreadProvider>.
+// Without thread context the button is the main-list one, which observes `message.new`, even in
+// the "a thread" variant. Only the last test wraps its button in `ThreadProvider` to get the thread
+// one.
 const renderButton = (ui: React.ReactNode) =>
   render(
     <Chat client={client}>

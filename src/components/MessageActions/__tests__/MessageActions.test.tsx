@@ -247,12 +247,10 @@ describe('<MessageActions />', () => {
       });
       await toggleOpenMessageActions();
 
-      // Click "Delete message" in the dropdown to open confirmation modal
       await act(async () => {
         await fireEvent.click(screen.getByText('Delete message'));
       });
 
-      // Click "Delete message" in the confirmation modal
       await act(async () => {
         const confirmBtn = screen.getByTestId('delete-message-alert-delete-button');
         await fireEvent.click(confirmBtn);
@@ -345,7 +343,6 @@ describe('<MessageActions />', () => {
         customMessageContext: { message },
       });
 
-      // Verify the actions component renders (Edit action is included in the set)
       expect(container.querySelector('.str-chat__message-options')).toBeInTheDocument();
       expect(screen.getByTestId(TOGGLE_ACTIONS_BUTTON_TEST_ID)).toBeInTheDocument();
     });
@@ -1212,7 +1209,7 @@ describe('<MessageActions />', () => {
     it('should render custom dropdown action components', async () => {
       const CustomAction = () => <button data-testid='custom-action'>Custom</button>;
       const customMessageActionSet = [
-        // include default toggle
+        // Keeps the default toggle.
         defaultMessageActionSet.find(
           ({ placement }) => placement === 'quick-dropdown-toggle',
         ),
@@ -1290,7 +1287,6 @@ describe('<MessageActions />', () => {
         },
       });
 
-      // Should render even for failed messages when filter is disabled
       expect(container.querySelector('.str-chat__message-options')).toBeInTheDocument();
     });
   });
@@ -1315,7 +1311,7 @@ describe('<MessageActions />', () => {
 
       expect(button).toHaveAttribute('aria-expanded', 'false');
       expect(button).toHaveAttribute('aria-haspopup', 'true');
-      // translations load asynchronously through the real <Chat> i18n instance
+      // Translations load asynchronously through the real <Chat> i18n instance.
       await waitFor(() =>
         expect(button).toHaveAttribute('aria-label', 'Open Message Actions Menu'),
       );

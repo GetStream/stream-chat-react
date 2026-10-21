@@ -78,13 +78,9 @@ export const initChannelFromData = async ({
     type: mockedChannelData.channel.type,
   });
   await channel.watch();
-  // Written into the client's store rather than stubbed onto the channel: `getConfig()` is gone, and
-  // its replacement `serverConfig` is a getter reading this store. Going through the store also drives
-  // the channel's own derivation, so `channel.config` — where six of these flags are reconciled with
-  // the integrator's configuration — is correct too. Stubbing an accessor would leave it stale.
-  //
-  // Keyed by cid: a channel's own `config_overrides` narrow its type's settings for that channel alone,
-  // so the LLC caches one entry per channel.
+  // Written to the client's store, which `channel.serverConfig` reads and `channel.config` is
+  // derived from; stubbing an accessor would leave `channel.config` stale. Keyed by cid: a
+  // channel's own `config_overrides` narrow its type's settings for that channel alone.
   client.channelServerConfigsStore.partialNext({
     configs: {
       ...client.channelServerConfigs,
@@ -109,13 +105,9 @@ export const initClientWithChannels = async ({
   const defaultGenerateChannelOptions = {
     members: [generateMember({ user: user as UserResponse })],
   };
-  // Set up channels sequentially, not via Promise.all: initChannelFromData mocks the shared
-  // client.axiosInstance query endpoint per channel (useMockedApis uses mockResolvedValue, which
-  // REPLACES the previous mock). Running concurrently lets the last channel's mock win, so every
-  // channel's watch() resolves with the same (last) response — cross-seeding each channel's message
-  // paginator with another channel's messages (the paginator then correctly rejects the foreign-cid
-  // messages, unlike the cid-agnostic legacy channel.state). Sequential setup keeps each watch()
-  // paired with its own mocked response.
+  // Sequential, not Promise.all: `useMockedApis` keeps one response per HTTP method, so concurrent
+  // setups let the last channel's response win for every `watch()`, which seeds each paginator with
+  // another channel's messages (it then rejects them by cid).
   const channels: Awaited<ReturnType<typeof initChannelFromData>>[] = [];
   for (const channelData of channelsData ?? [defaultGenerateChannelOptions]) {
     channels.push(

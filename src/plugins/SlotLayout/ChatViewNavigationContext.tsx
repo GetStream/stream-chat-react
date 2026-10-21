@@ -41,13 +41,10 @@ type ViewSlotRuntime = {
   slotLayers: Record<SlotName, LayoutSlotBinding[] | undefined>;
 };
 
-// D6 — the resolver is kind-driven and persistent-aware (via the registry), not
-// keyed on a fixed set of actions or a hardcoded list-kind set. Precedence:
-// reuse a same-kind slot -> first free non-persistent -> first free -> first
-// non-persistent. Persistent (list) slots are never an implicit target and there
-// is deliberately no "last slot" fallback, so when only persistent slots remain
-// the resolver returns undefined and `openInLayout` rejects rather than
-// destroying a list.
+// Picks the slot for a binding: the requested slot when available, one already holding the same
+// kind, the first free non-persistent slot, the first free slot, then the last non-persistent slot.
+// That last fallback skips persistent (list) slots, so when only persistent slots remain it returns
+// undefined and `open` rejects instead of evicting a list.
 const resolveDefaultTargetSlot = ({
   additive,
   isPersistentSlot,
@@ -67,8 +64,8 @@ const resolveDefaultTargetSlot = ({
 
   const readSlotKind = (slot: SlotName) =>
     getChatViewEntityBinding(runtime.slotBindings[slot])?.kind;
-  // A slot is "free" only when it has neither a base binding NOR a covering layer stack — binding
-  // into the base beneath a layer would render invisibly, so a layered slot counts as occupied.
+  // A slot is free only with neither a base binding nor a covering layer stack: binding into the
+  // base beneath a layer would render invisibly.
   const isFree = (slot: SlotName) =>
     !runtime.slotBindings[slot] && !runtime.slotLayers[slot]?.length;
   const sameKind = runtime.availableSlots.find((slot) => readSlotKind(slot) === kind);
@@ -76,18 +73,16 @@ const resolveDefaultTargetSlot = ({
     (slot) => isFree(slot) && !isPersistentSlot(slot),
   );
   const firstFree = runtime.availableSlots.find((slot) => isFree(slot));
-  // When every slot is occupied, evict the LAST non-persistent slot rather than the first.
-  // Slots run primary -> secondary, so the first slot holds the anchor content (e.g. the main
-  // channel); a newly-opened panel — a reply thread opened while a 2nd channel occupies the
-  // secondary slot, say — should replace the most-recent secondary panel, never make the
-  // primary disappear.
+  // When every slot is occupied, target the last non-persistent slot rather than the first. Slots
+  // run primary to secondary and the first holds the anchor content (e.g. the main channel), so a
+  // new panel lands on the latest secondary panel rather than on the primary.
   const lastNonPersistent = [...runtime.availableSlots]
     .reverse()
     .find((slot) => !isPersistentSlot(slot));
 
-  // `additive` opens *beside* existing content (ctrl/⌘-click): skip the same-kind slot, which
-  // would replace the current primary, and prefer a free/secondary slot instead. In a
-  // single-slot layout it falls through to that slot, so it degrades to a normal open.
+  // `additive` opens beside existing content (ctrl/⌘-click): skip the same-kind slot, which would
+  // replace what it shows, and prefer a free or secondary slot. A single-slot layout falls
+  // through to that slot, so it opens normally.
   if (additive) {
     return firstFreeNonPersistent ?? firstFree ?? lastNonPersistent;
   }
@@ -100,10 +95,11 @@ export type OpenThreadTarget =
   | { channel: StreamChannel; message: LocalMessage };
 
 /**
- * Binding builder for the `thread` kind (D6). The `{ channel, message }` ->
- * `Thread` resolution (through `client.threads.ensure()`) lives here so
- * callers can drive the generic `open` with a ready binding instead of a
- * thread-specific navigation method.
+ * Builds the `thread` binding for a reply thread via `client.threads.ensure()`, ready for `open`.
+ *
+ * @param client - Client whose thread manager resolves the thread.
+ * @param target - Channel and parent message of the thread.
+ * @returns The thread entity binding, keyed by the thread ID.
  */
 export const createThreadEntityBinding = (
   client: StreamChat,
@@ -121,86 +117,79 @@ export const createThreadEntityBinding = (
 /** Options for {@link ChatViewNavigation.open}. */
 export type ChatViewOpenOptions = {
   /**
-   * Open *beside* existing content instead of replacing it.
-   *
-   * By default `open` reuses the slot that already holds the binding's `kind` (so selecting a
-   * channel replaces the current channel). With `additive: true` the resolver skips that
-   * same-kind slot and instead targets the first free non-persistent slot — falling back to the
-   * last non-persistent slot when every slot is occupied. The effect is that the entity opens in
-   * a *secondary* slot next to the current one (e.g. ctrl/⌘-click a channel to open a 2nd channel
-   * side-by-side, or a search result beside the open channel).
-   *
-   * In a single-slot layout there is no secondary slot to open into, so it falls back to that
-   * one slot and behaves like a normal open. Ignored when an explicit `slot` is provided.
+   * Opens beside existing content instead of replacing it, e.g. ctrl/⌘-click a channel to open a
+   * second one side by side. The resolver skips the slot already holding the same kind and targets
+   * the first free non-persistent slot, then any free slot, then the last non-persistent slot. A
+   * single-slot layout has no secondary slot, so it opens normally. Does not affect slot choice
+   * when `slot` is set.
    *
    * @default false
    */
   additive?: boolean;
   /**
-   * Open non-destructively: push the binding as a **layer** on top of the resolved target slot's
-   * current content instead of replacing it, and skip dependent-slot invalidation (nothing is
-   * being replaced). `close`/`popLayer` on that slot later restores what was underneath, at its
-   * exact state. Compose with `additive` to target the *secondary* slot — e.g.
-   * `open(channel, { additive: true, layer: true })` stacks a channel over an open reply thread
-   * without closing it. Orthogonal to slot resolution: `layer` chooses stack-vs-replace, while
-   * `slot`/`additive` choose *which* slot.
+   * Pushes the binding as a layer over the target slot's current content instead of replacing it,
+   * without closing dependent slots; `close`/`popLayer` later reveals what was underneath. Combine
+   * with `additive` to stack onto the secondary slot, e.g. a channel over an open reply thread.
+   * `layer` chooses stack versus replace; `slot` and `additive` choose which slot.
    *
    * @default false
    */
   layer?: boolean;
   /**
-   * Bind into this specific slot, when it exists in the target view's layout. Takes precedence
-   * over `additive` and over the default kind-based slot resolution. Ignored (falls back to the
-   * default resolution) when the named slot is not part of the active layout.
+   * Slot to bind into. Takes precedence over `additive` and the default kind-based resolution, and
+   * is ignored when the slot is not part of the target view's layout.
    */
   slot?: SlotName;
 };
 
 export type ChatViewNavigation = {
   /**
-   * Dismiss the top of `slot`. If the slot has layers (see {@link pushLayer}), pop the topmost
-   * layer, revealing what's beneath at its preserved state. Only when no layers remain does this
-   * release the base binding. No-op for empty or persistent slots.
+   * Dismisses the top of `slot`: the topmost layer if there is one, otherwise the base binding.
+   * A persistent base binding is never released.
    */
   close: (slot: SlotName) => void;
   /**
-   * Close `slot` entirely: its base binding and every layer stacked on it. Where {@link close}
-   * steps back one layer, this dismisses the whole panel. No-op for empty or persistent slots.
+   * Closes `slot` entirely: its base binding and every layer stacked on it. Unlike {@link close}
+   * it does not step back one layer. No-op for empty or persistent slots.
    */
   release: (slot: SlotName) => void;
-  /** Hide `slot` without releasing its binding (subtree stays mounted). */
+  /** Hides `slot` without releasing its binding; the subtree stays mounted. */
   hide: (slot: SlotName) => void;
   /**
-   * Push `binding` as a **layer** on top of `slot`'s current content. The content beneath stays
-   * mounted (state/scroll preserved) and hidden; the layer covers it. Use for transient overlays
-   * that should return to the underlying view — e.g. a member profile opened over a thread, where
-   * `close`/`popLayer` restores the thread exactly where it was. Ephemeral (not serialized).
+   * Pushes `binding` as a layer over `slot`'s current content, which stays mounted but hidden. Use
+   * it for transient overlays, e.g. a member profile over a thread. A covered layer keeps its
+   * state, but the base content remounts on the first push and the last pop. Layers are not
+   * serialized.
    */
   pushLayer: (slot: SlotName, binding: ChatViewEntityBinding) => void;
-  /** Pop `slot`'s top layer, revealing the layer/base beneath. No-op when there are no layers. */
+  /** Pops `slot`'s top layer, revealing what is beneath. No-op when there are no layers. */
   popLayer: (slot: SlotName) => void;
   /**
-   * Resolve a target slot for `binding` and bind it there, switching to the binding kind's view
-   * first if needed (e.g. a `channel` binding activates the channels view).
-   *
-   * Slot resolution, in order:
-   * 1. `options.slot`, if that slot exists in the target view's layout;
-   * 2. otherwise, unless `options.additive` is set, the slot already holding this `kind`
-   *    (replacing its content);
+   * Binds `binding` into a resolved target slot, switching to the binding kind's view first (a
+   * `channel` binding activates the channels view). For channel and thread opens without
+   * `options.additive`, a matching `viewActionSlotResolvers` entry picks the slot first; otherwise
+   * slot resolution is, in order:
+   * 1. `options.slot`, if it exists in the target view's layout;
+   * 2. unless `options.additive` is set, the slot already holding this `kind` (replacing it);
    * 3. the first free non-persistent slot;
    * 4. the first free slot;
-   * 5. the last non-persistent slot (evicting a secondary panel — never the primary).
+   * 5. the last non-persistent slot, so a secondary panel is targeted before the primary one.
    *
-   * See {@link ChatViewOpenOptions.additive} for opening *beside* current content instead of
-   * replacing.
+   * On an occupied secondary slot the binding is pushed as a layer over the current content, unless
+   * the slot's base already holds this kind; a channel opened with `additive` is layered even then.
    *
-   * Returns an {@link OpenResult}; if no slot can be resolved the call is a rejected no-op — no
-   * view switch and no dependent-slot teardown, so a rejected open never leaves a partial state.
+   * @param binding - Entity to open.
+   * @param options - See {@link ChatViewOpenOptions}.
+   * @returns An {@link OpenResult}. When no slot resolves, the call is a rejected no-op: no view
+   * switch and no dependent-slot teardown.
    */
   open: (binding: ChatViewEntityBinding, options?: ChatViewOpenOptions) => OpenResult;
-  /** Switch the active view (channels/threads); optionally focus a specific `slot`. */
+  /**
+   * Switches the active view, passing `options.slot` to `layoutController.openView`; the default
+   * `LayoutController` ignores it.
+   */
   openView: (view: ChatView, options?: { slot?: SlotName }) => void;
-  /** Reveal a previously hidden `slot`. */
+  /** Reveals a previously hidden `slot`. */
   unhide: (slot: SlotName) => void;
 };
 
@@ -307,10 +296,9 @@ export const ChatViewNavigationProvider = ({ children }: PropsWithChildren) => {
       runtime: ViewSlotRuntime;
       view: ChatView;
     }) => {
-      // Preserve the public per-view resolver extension point (keyed on the
-      // channel/thread actions) for the kinds that have one. `additive` (open beside) skips it
-      // and uses the default resolver, which is where the "prefer a free/secondary slot" logic
-      // lives.
+      // Per-view action resolvers (`viewActionSlotResolvers`) run first for channel and thread
+      // opens. `additive` skips them: the default resolver holds the "prefer a free or secondary
+      // slot" logic.
       const action =
         !additive && kind === 'channel'
           ? 'openChannel'
@@ -377,9 +365,8 @@ export const ChatViewNavigationProvider = ({ children }: PropsWithChildren) => {
     };
 
     const open: ChatViewNavigation['open'] = (binding, options) => {
-      // Resolve the target slot BEFORE any mutation: a rejected open is a no-op
-      // (no view switch, no dependent-slot teardown), never a destructive
-      // partial navigation.
+      // Resolve the target slot before any mutation, so a rejected open is a no-op: no view switch
+      // and no dependent-slot teardown.
       const kindView = resolveSlotKindView(registry, binding.kind);
       const targetView = kindView ?? activeView;
       const runtime = buildRuntimeForView(targetView);
@@ -399,26 +386,20 @@ export const ChatViewNavigationProvider = ({ children }: PropsWithChildren) => {
       // channels); view-agnostic kinds (thread) open in the active view.
       if (kindView) openView(targetView, options);
 
-      // Base policy — "open in the secondary slot; if it's occupied, stack a layer" for both
-      // channels (⌘/ctrl-click) and threads (reply-in-thread). Push a LAYER when:
-      //  - `options.layer` explicitly asks for it, OR
-      //  - the target is a SECONDARY slot (not the primary/anchor slot) that is already occupied
-      //    (a base binding or a covering layer) and this is NOT an in-place same-kind replace.
-      // The primary/anchor slot (first non-persistent slot) always base-binds — selecting a channel
-      // there replaces it, and single-slot layouts keep replacing rather than layering. A same-kind
-      // base (thread over thread in its own slot) is an intentional replace and stays a base bind -
-      // except a channel opened beside another one (`additive`), which stacks too, so that stepping
-      // back returns to the previous channel. Everything else landing on an occupied secondary
-      // slot stacks on top instead of evicting/hiding it — `close`/`popLayer` restores what's
-      // beneath.
+      // Push a layer when `options.layer` asks for it, or when the target is an occupied secondary
+      // slot (a base binding or a covering layer) and this is not a same-kind replace. Otherwise
+      // the primary slot (first non-persistent) base-binds, so selecting a channel replaces it and
+      // single-slot layouts do not layer. A same-kind base (thread over thread in its own slot)
+      // replaces too, except a channel opened beside another (`additive`), which stacks so that
+      // stepping back returns to the previous channel.
       const isPersistentSlot = makeIsPersistentSlot(runtime);
       const anchorSlot = runtime.availableSlots.find((slot) => !isPersistentSlot(slot));
       const targetBase = runtime.slotBindings[targetSlot];
       const targetBaseKind = getChatViewEntityBinding(targetBase)?.kind;
       const targetOccupied = !!targetBase || !!runtime.slotLayers[targetSlot]?.length;
       const isSecondaryTarget = targetSlot !== anchorSlot;
-      // Opening beside what the target slot already shows on top changes nothing. Anything else -
-      // a channel lower in its stack, or open in another slot - is stacked on top, so it is shown.
+      // Opening beside what the target slot already shows on top changes nothing. Anything else (a
+      // channel lower in its stack, or open in another slot) is stacked on top so it is shown.
       const shownInTarget = getChatViewEntityBinding(
         runtime.slotLayers[targetSlot]?.at(-1) ?? targetBase,
       );
@@ -442,9 +423,8 @@ export const ChatViewNavigationProvider = ({ children }: PropsWithChildren) => {
         return { slot: targetSlot, status: 'layered' };
       }
 
-      // Dependent-slot invalidation: replacing a channel closes threads bound to
-      // the previous channel. (Interim kind check; a later step may express this
-      // as registry policy.) Only on a real base replace — layered opens above skip it.
+      // Replacing a channel closes the threads bound to the previous one. Layered opens returned
+      // above and skip this.
       if (binding.kind === 'channel') {
         const replaced = getChatViewEntityBinding(targetBase);
         closeReplyThreads(replaced?.kind === 'channel' ? replaced.source : undefined);

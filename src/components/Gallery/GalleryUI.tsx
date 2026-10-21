@@ -35,7 +35,6 @@ export const GalleryUI = () => {
 
   const [showVideo, setShowVideo] = useState(false);
 
-  // Slide transition state
   const isTransitioningRef = useRef(false);
   const [slideOffset, setSlideOffset] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
@@ -43,20 +42,16 @@ export const GalleryUI = () => {
     null,
   );
 
-  // Touch tracking refs
-  // Some touch interactions on the slide container are followed by a click; suppress
-  // that one-shot click so swipe navigation doesn't immediately trigger background close.
+  // A swipe or drag can be followed by a click; skip that one so it does not close the gallery.
   const ignoreNextClickRef = useRef(false);
   const touchStartRef = useRef<{ x: number; y: number } | null>(null);
   const isVerticalSwipeRef = useRef(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
-  // Reset video play state when navigating to a new item
   useEffect(() => {
     setShowVideo(false);
   }, [currentIndex]);
 
-  // Slide animation on index change
   const prevIndexRef = useRef(currentIndex);
   useEffect(() => {
     if (prevIndexRef.current === currentIndex) return;
@@ -75,7 +70,7 @@ export const GalleryUI = () => {
     return () => clearTimeout(timer);
   }, [currentIndex]);
 
-  // Wrapped navigation functions that respect transition lock
+  // Navigation is ignored while a slide transition is running.
   const handleGoToNext = useCallback(() => {
     if (isTransitioningRef.current) return;
     goToNext();
@@ -86,7 +81,6 @@ export const GalleryUI = () => {
     goToPrevious();
   }, [goToPrevious]);
 
-  // Keyboard navigation
   const handleKeyDown = useCallback(
     (event: KeyboardEvent) => {
       if (event.key === 'ArrowLeft') {
@@ -105,7 +99,6 @@ export const GalleryUI = () => {
     return () => document.removeEventListener('keydown', handleKeyDown);
   }, [handleKeyDown]);
 
-  // Touch event handlers
   const handleTouchStart = useCallback((event: React.TouchEvent) => {
     if (isTransitioningRef.current) return;
     const touch = event.touches[0];
@@ -122,7 +115,7 @@ export const GalleryUI = () => {
       const deltaX = touch.clientX - touchStartRef.current.x;
       const deltaY = touch.clientY - touchStartRef.current.y;
 
-      // Determine swipe direction on first significant movement
+      // The first movement past 10px decides between a vertical swipe (ignored) and a drag.
       if (!isDragging && !isVerticalSwipeRef.current) {
         if (Math.abs(deltaY) > Math.abs(deltaX) && Math.abs(deltaY) > 10) {
           ignoreNextClickRef.current = true;
@@ -137,9 +130,9 @@ export const GalleryUI = () => {
 
       if (isVerticalSwipeRef.current) return;
 
-      // Constrain drag when at boundaries
+      // Dragging past the first or last item is damped to 30% (rubber band).
       if ((!hasNext && deltaX < 0) || (!hasPrevious && deltaX > 0)) {
-        setSlideOffset(deltaX * 0.3); // Rubber-band effect
+        setSlideOffset(deltaX * 0.3);
       } else {
         setSlideOffset(deltaX);
       }
@@ -166,11 +159,11 @@ export const GalleryUI = () => {
       } else if (offset > 0 && hasPrevious) {
         goToPrevious();
       } else {
-        // Snap back — at boundary
+        // Snap back: there is no item in that direction.
         setSlideOffset(0);
       }
     } else {
-      // Snap back — below threshold
+      // Snap back: the swipe is below the threshold.
       setSlideOffset(0);
     }
 

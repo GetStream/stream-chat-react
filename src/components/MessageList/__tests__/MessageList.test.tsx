@@ -41,22 +41,13 @@ import type { ChannelProps } from '../../Channel';
 import type { MessageListProps } from '../MessageList';
 import { convertDateToTimestamp } from '../../../mock-builders';
 
-// MERGE-RECONCILE (test migration): PR #2909 moved the rendered message collection off the
-// `messages` prop / removed ChannelStateContext onto `channel.messagePaginator`. MessageList now
-// renders `messagePaginator.state.items`, reads unread info from `messagePaginator.unreadStateSnapshot`,
-// and marks read via `client.messageDeliveryReporter`. Tests seed the paginator via `seedPaginator`
-// instead of passing a `messages` prop (which is now a no-op), and provide `hasMoreNewer` /
-// highlighted-message overrides through the paginator state / message-focus signal rather than the
-// removed ChannelStateContext.
-
 const seedPaginator = (
   channel: ChannelType,
   messages: Array<Partial<LocalMessage>> = [],
   { hasMoreNewer = false }: { hasMoreNewer?: boolean } = {},
 ) => {
-  // setItems populates the paginator's interval/itemIndex storage (not just the visible
-  // `state.items`), so subsequent live ingestion (message.new -> messagePaginator.ingestItem
-  // triggered by the channel) merges correctly with the seeded messages.
+  // `setItems` fills the paginator's interval and item index storage, not just `state.items`, so
+  // later live ingestion (message.new, then `ingestItem`) merges with the seeded messages.
   channel.messagePaginator.setItems({
     isFirstPage: true,
     isLastPage: true,
@@ -68,10 +59,8 @@ const seedPaginator = (
   });
 };
 
-// Reactively mirrors a harness's message set + pagination flags into the channel's
-// messagePaginator, so the paginator-based MessageList can be driven the way the v14 tests drove
-// the old `messages` / `hasMoreNewer` / `loadingMore` props. Writes once per distinct input during
-// render (before the child MessageList reads the store via useStateStore).
+// Mirrors a harness's message set and pagination flags into the channel's message paginator. Writes
+// once per distinct input during render, before the child MessageList reads the store.
 const SyncPaginator = ({
   channel,
   children,
@@ -104,9 +93,8 @@ const SyncPaginator = ({
   return <>{children}</>;
 };
 
-// A thread is now resolved from ThreadContext (useThreadContext) rather than a `threadList` prop.
-// This lightweight stub exposes just what MessageList + ScrollToLatestMessageButton + useMarkRead
-// read from a thread; it reuses the channel's paginator as the thread's message source.
+// Exposes just what MessageList, ScrollToLatestMessageButton and useMarkRead read from a thread,
+// and reuses the channel's paginator as the thread's message source.
 const makeThreadStub = (channel: ChannelType, parentMessage?: LocalMessage): Thread =>
   fromPartial<Thread>({
     id: 'thread-stub-id',
@@ -141,9 +129,6 @@ const mockReducedMotionPreference = (matches: boolean) => {
   });
 };
 
-// Reactively keeps the channel paginator in sync with a harness's local message state and
-// hasMoreNewer flag. Replaces the removed ChannelStateContext override + the now-inert `messages`
-// prop for the scroll-behavior harnesses.
 vi.mock('../../EmptyStateIndicator', () => ({
   EmptyStateIndicator: vi.fn(),
 }));
@@ -191,7 +176,7 @@ const renderComponent = ({
   msgListProps?: Partial<MessageListProps> & Record<string, unknown>;
   thread?: Thread;
 }) => {
-  // The `messages` prop is now a no-op; seed the paginator that MessageList actually renders from.
+  // `messages` is not a MessageList prop: seed the paginator that MessageList renders from.
   const channel = channelProps?.channel as ChannelType | undefined;
   if (channel) {
     const messages = (msgListProps?.messages ??
@@ -261,7 +246,7 @@ describe('MessageList', () => {
     await waitFor(() => {
       expect(getByText(newMessage.text)).toBeInTheDocument();
     });
-    // MessageErrorIcon has path with id "background" - that is not permitted from the a11i standpoint
+    // MessageErrorIcon has a path with id "background", which a11y rules do not permit.
     // const results = await axe(container);
     // expect(results).toHaveNoViolations();
   });
@@ -348,7 +333,7 @@ describe('MessageList', () => {
         get: () => document.body,
       });
       act(() => {
-        // e.g. a jump to a message, or the newer page `scrollToBottom` asked for
+        // e.g. a jump to a message, or the newer page that `scrollToBottom` requested
         channel.messagePaginator.state.partialNext({
           hasMoreTail: true,
           isLoading: true,
@@ -402,8 +387,8 @@ describe('MessageList', () => {
   });
 
   it('should render the thread parent message when no head is provided', async () => {
-    // The head is the list's to render: it has to sit inside the scroll container, so `Thread`
-    // cannot place it as a sibling. Resolved from thread context, not passed down.
+    // The list resolves the head from thread context and renders it inside its scroll container,
+    // so `Thread` cannot place it as a sibling.
     await act(() => {
       renderComponent({
         channelProps: { channel },
@@ -514,7 +499,7 @@ describe('MessageList', () => {
         screen.getAllByTestId(`str-chat__li str-chat__li--${classNameSuffix}`),
       ).toHaveLength(4); // 1 for channel initial message + 3 just sent
     });
-    // MessageErrorIcon has path with id "background" - that is not permitted from the a11i standpoint
+    // MessageErrorIcon has a path with id "background", which a11y rules do not permit.
     // const results = await axe(renderResult.container);
     // expect(results).toHaveNoViolations();
   });
@@ -691,9 +676,8 @@ describe('MessageList', () => {
 
     it('should display unread messages separator when a channel is marked unread and remove it when marked read by markRead()', async () => {
       const markReadBtnTestId = 'test-mark-read';
-      // The markRead ChannelActionContext handler was removed. Marking read is now a channel
-      // method, and the unread UI is driven by messagePaginator.unreadStateSnapshot which the
-      // Channel's own markChannelRead clears on success — mirror that here.
+      // Marking read is a channel method; clear the unread snapshot that drives the unread UI once
+      // it succeeds.
       const MarkReadButton = () => {
         const channel = useChannel();
         return (
@@ -803,8 +787,9 @@ describe('MessageList', () => {
       // @ts-expect-error - mock implementation has simplified signature
       const markReadSpy = vi.spyOn(channel, 'markRead').mockResolvedValue(false);
 
-      // The unread separator is driven by messagePaginator.unreadStateSnapshot (populated from the
-      // read state on a first-page query in production). Seed it here to mirror an unread channel.
+      // The unread separator is driven by `messagePaginator.unreadStateSnapshot` (populated from
+      // the read state on a first-page query in production), so seed it to mirror an unread
+      // channel.
       channel.messagePaginator.setUnreadSnapshot({
         firstUnreadMessageId: messages[3].id,
         lastReadAt: messages[2].created_at,
@@ -944,7 +929,7 @@ describe('MessageList', () => {
         }),
       );
 
-      // the channel's snapshot belongs to the channel list: changing it must not re-render the thread
+      // The channel list owns the channel's snapshot: changing it must not re-render the thread.
       const renderCountBeforeChannelChange = renderMessages.mock.calls.length;
       act(() => {
         channel.messagePaginator.unreadStateSnapshot.partialNext({ unreadCount: 7 });
@@ -1235,10 +1220,9 @@ describe('MessageList', () => {
         expect(screen.queryByTestId(NEW_MESSAGE_COUNTER_TEST_ID)).not.toBeInTheDocument();
       });
 
-      // These specs describe master's smooth-scroll functionality, expressed against PR #2909's
-      // reactive paginator: scroll-to-latest and jump-to-message animate smoothly (reduced-motion
-      // aware). Smooth scroll-to-latest with the newer page unloaded is deferred until the latest
-      // page renders — the paginator emits a 'jump-to-latest' focus signal that drives the scroll.
+      // Scroll-to-latest and jump-to-message animate smoothly, honoring reduced motion. With the
+      // newer page unloaded, scroll-to-latest waits until the latest page renders: the paginator
+      // emits a 'jump-to-latest' focus signal that drives the scroll.
       it('scrolls to the latest message only after the latest page renders (smoothly)', async () => {
         const olderMessages = [
           generateMessage({ id: 'older-1', text: 'older-1', user: user1 }),
@@ -1260,9 +1244,9 @@ describe('MessageList', () => {
           const [renderedMessages, setRenderedMessages] = React.useState(olderMessages);
           const [canLoadNewer, setCanLoadNewer] = React.useState(true);
 
-          // Scroll-to-latest with the newer page unloaded calls jumpToTheLatestMessage(); the real
-          // paginator loads the latest page and emits a 'jump-to-latest' focus signal that drives
-          // the smooth scroll to the newest message. Emulate that after the deferred.
+          // Scroll-to-latest with the newer page unloaded calls `jumpToTheLatestMessage()`; the
+          // real paginator loads the latest page and emits a 'jump-to-latest' focus signal that
+          // drives the scroll. Emulate that after the deferred.
           React.useEffect(() => {
             vi.spyOn(
               channel.messagePaginator,
@@ -1308,7 +1292,7 @@ describe('MessageList', () => {
 
         fireEvent.click(screen.getByTestId(SCROLL_TO_LATEST_MESSAGE_TEST_ID));
 
-        // Deferred until the latest page renders — nothing scrolls before the jump resolves.
+        // Nothing scrolls before the jump resolves.
         expect(scrollIntoViewMock).not.toHaveBeenCalled();
 
         await act(async () => {
@@ -1467,8 +1451,8 @@ describe('MessageList', () => {
         const MessageListHarness = () => {
           const [renderedMessages, setRenderedMessages] = React.useState(olderMessages);
 
-          // A highlighted/deep-link jump now surfaces through the paginator's message-focus signal
-          // (reason 'jump-to-message'), not a ChannelStateContext `highlightedMessageId` override.
+          // A highlighted or deep-link jump surfaces through the paginator's message-focus signal
+          // (reason 'jump-to-message').
           const jumpToQuotedMessage = React.useCallback(
             () =>
               jumpDeferred.promise.then(() => {
@@ -1558,9 +1542,9 @@ describe('MessageList', () => {
         }
       });
 
-      // Covers the "thread panel covers the channel" case: the jump resolves while the list is
-      // still hidden, so the highlight must survive until the message is actually viewed, and the
-      // scroll must re-center once the list is revealed (relaid out).
+      // Covers a thread panel covering the channel: the jump resolves while the list is hidden, so
+      // the highlight must survive until the message is viewed and the scroll must re-center once
+      // the list is revealed (relaid out).
       it('re-centers on relayout and starts dismissal only once the focused message is viewed', async () => {
         const olderMessages = [
           generateMessage({ id: 'older-1', text: 'older-1', user: user1 }),
@@ -1579,10 +1563,9 @@ describe('MessageList', () => {
           value: scrollIntoViewMock,
         });
 
-        // MessageList spins up several ResizeObservers/IntersectionObservers (floating date
+        // MessageList creates several ResizeObservers and IntersectionObservers (floating date
         // separator, InfiniteScrollPaginator, unread notification, and the focus effect under
-        // test). Track every instance with the elements it observes so the test can drive the
-        // focus effect's own observers precisely instead of whichever was constructed last.
+        // test). Track each with the elements it observes to drive the focus effect's own ones.
         type Tracked<Cb> = { cb: Cb; observed: Element[]; root: Element | null };
         const roInstances: Tracked<ResizeObserverCallback>[] = [];
         const ioInstances: Tracked<IntersectionObserverCallback>[] = [];
@@ -1665,15 +1648,15 @@ describe('MessageList', () => {
         });
         await waitFor(() => expect(screen.getByText('target-2')).toBeInTheDocument());
 
-        // The focus effect's IntersectionObserver is the one watching the target message; its root
-        // is the list, which its ResizeObserver watches too — tie the pair together via that root.
+        // The focus effect's IntersectionObserver is the one watching the target message. Its root
+        // is the list, which its ResizeObserver also watches, so use that root to find the pair.
         const targetEl = document.querySelector('[data-message-id="target-2"]');
         const viewObserver = ioInstances.find((i) => i.observed.includes(targetEl!));
         expect(viewObserver).toBeDefined();
         const focusListEl = viewObserver!.root!;
-        // Several ResizeObservers watch the list element (InfiniteScrollPaginator's scroll listener,
-        // the focus effect's re-center). Fire them all; only the focus effect re-centers via
-        // scrollIntoView, so the assertion below still isolates it.
+        // Several ResizeObservers watch the list element (InfiniteScrollPaginator's scroll
+        // listener, the focus effect's re-center). Fire them all: only the focus effect calls
+        // `scrollIntoView`, so the assertions below still isolate it.
         const relayoutObservers = roInstances.filter((i) =>
           i.observed.includes(focusListEl),
         );
@@ -1701,22 +1684,23 @@ describe('MessageList', () => {
             {} as IntersectionObserver,
           );
 
-        // Initial smooth scroll fired, but the message isn't viewed yet → no dismissal scheduled.
+        // The initial smooth scroll fired but the message is not viewed yet, so no dismissal is
+        // scheduled.
         expect(scrollIntoViewMock).toHaveBeenCalledWith({
           behavior: 'smooth',
           block: 'center',
         });
         expect(scheduleSpy).not.toHaveBeenCalled();
 
-        // A resize with no size change (observer baseline) must not re-center — the initial smooth
-        // scroll would otherwise be interrupted.
+        // A resize with no size change (observer baseline) must not re-center, or it would
+        // interrupt the initial smooth scroll.
         fireResize();
         expect(scrollIntoViewMock).not.toHaveBeenCalledWith({
           behavior: 'auto',
           block: 'center',
         });
 
-        // A genuine relayout (reveal: 0 → full width) re-centers instantly.
+        // A genuine relayout (reveal from 0 to full width) re-centers instantly.
         scrollIntoViewMock.mockClear();
         setListSize(680, 250);
         fireResize();
@@ -1726,11 +1710,11 @@ describe('MessageList', () => {
         });
         expect(scheduleSpy).not.toHaveBeenCalled();
 
-        // Not visible enough → still no dismissal.
+        // Not visible enough: still no dismissal.
         fireIntersection(false, 0, 0);
         expect(scheduleSpy).not.toHaveBeenCalled();
 
-        // Genuinely on screen → dismissal starts now, keyed to the active signal's token.
+        // On screen: the dismissal starts now, keyed to the active signal's token.
         fireIntersection(true, 1, 200);
         expect(scheduleSpy).toHaveBeenCalledWith({ token: 7 });
 
@@ -1747,10 +1731,8 @@ describe('MessageList', () => {
         }
       });
 
-      // PENDING: snap-back prevention (not auto-scrolling to bottom when a loadMoreNewer page merges
-      // in while the user is scrolled up) was part of master's jump-phase engine, which we did NOT
-      // reintroduce with the paginator-native smooth-scroll graft. Left skipped until/unless that
-      // behavior is added; kept here as the paginator-driven spec for it.
+      // PENDING: the spec for snap-back prevention (not auto-scrolling to bottom when a
+      // loadMoreNewer page merges in while the user is scrolled up), kept skipped.
       it.skip('does not auto-scroll to bottom when reaching the latest merged page via loadMoreNewer', async () => {
         const olderMessages = Array.from({ length: 2 }, (_, index) =>
           generateMessage({
@@ -1842,14 +1824,6 @@ describe('MessageList', () => {
           delete HTMLElement.prototype.scrollTo;
         }
       });
-
-      // NOTE: the v14 'preserves the viewport on older-message prepend' (#3068) integration test
-      // was removed here. Its assertions pin exact pixel scrollBy/scrollTop values derived from
-      // mocked getBoundingClientRect, which are coupled to master's synchronous prop-driven measure
-      // timing; the paginator's store-driven flow (via SyncPaginator) shifts when the scroll manager
-      // caches measures, so the exact-pixel assertions no longer hold. The underlying prepend
-      // viewport-preservation logic is covered directly by useMessageListScrollManager.test.tsx
-      // ('emits scrollTop delta when messages are prepended').
     });
   });
 
@@ -1933,10 +1907,9 @@ describe('MessageList', () => {
   });
 });
 
-// The notification area is rendered here, above `MessageList`'s own
-// `key={getMessageSourceKey(...)}`. A channel or thread switch rebuilds the list inside that key
-// without touching the notification, which keeps its element, its countdown and the panel box it
-// is positioned against. See specs/notification-list-stable-host/spec.md
+// The notification list sits above `MessageList`'s keyed list, so a channel or thread switch
+// rebuilds the list without touching the notification: its element, countdown and positioning box
+// survive.
 describe('MessageList notification area', () => {
   const NOTIFICATION_DURATION = 3000;
 
@@ -1957,10 +1930,10 @@ describe('MessageList notification area', () => {
       await Promise.resolve();
     });
 
-  // `NotificationList` starts a notification's countdown when the list intersects the viewport, and
-  // starts it immediately where there is no `IntersectionObserver` -- the path these tests take,
-  // since jsdom reports no intersections. An earlier describe in this file installs a stub on
-  // `window` without restoring it, so drop it here rather than inheriting one that never fires.
+  // `NotificationList` starts a notification's countdown when the list intersects the viewport, or
+  // immediately when there is no `IntersectionObserver` (the path these tests take, since jsdom
+  // reports no intersections). An earlier describe installs a stub on `window` without restoring
+  // it, so drop it here instead of inheriting one that never fires.
   let inheritedIntersectionObserver: typeof IntersectionObserver | undefined;
 
   beforeEach(() => {
@@ -1975,7 +1948,6 @@ describe('MessageList notification area', () => {
     }
   });
 
-  // https://github.com/GetStream/stream-chat-react/issues/3279
   describe('the notification area across a channel switch', () => {
     const setup = async () => {
       const {
@@ -2028,10 +2000,9 @@ describe('MessageList notification area', () => {
 
       rerender(renderChannel(client, channelB));
 
-      // Whichever panel is now on screen holds the notification, which is what keeps
-      // `position: absolute` resolving against the message list's box. Deliberately does not assert
-      // that the panel element changed: whether the channel subtree remounts is not this mechanism's
-      // business, and it should keep working if that ever stops happening.
+      // Whichever panel is on screen holds the notification, which keeps `position: absolute`
+      // resolving against the message list's box. Whether the panel element changed is not
+      // asserted: that depends on whether the channel subtree remounts.
       expect(currentPanel()).toContainElement(screen.getByTestId('notification-list'));
       expect(screen.getAllByTestId('notification-list')).toHaveLength(1);
     });
@@ -2077,9 +2048,8 @@ describe('MessageList notification area', () => {
     });
   });
 
-  // The notification area belongs to the message list, so it exists exactly when one is mounted --
-  // as it did before this change. These pin that boundary: a switch does not lose it, and a channel
-  // that never had a list does not gain one.
+  // The notification area belongs to the message list, so it exists exactly when one is mounted: a
+  // switch does not lose it, and a channel that never had a list does not gain one.
   describe('the notification area and the message list that owns it', () => {
     const setup = async () => {
       const {
@@ -2141,8 +2111,7 @@ describe('MessageList notification area', () => {
       render(renderWithList(client, channelA, false));
       raise(client);
 
-      // No message list has ever existed here, so there is no panel wrapper for the fallback to
-      // catch. Unchanged from before this mechanism: nothing rendered a notification either.
+      // No message list has existed here, so there is no panel wrapper for the fallback to catch.
       expect(screen.queryByTestId('notification-list')).not.toBeInTheDocument();
       expect(client.notifications.notifications).toHaveLength(1);
     });

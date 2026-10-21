@@ -179,8 +179,8 @@ const useChannelMemberActionFilterState = () => {
   const isCurrentUser = targetUserId === client.user?.id;
 
   return {
-    // Blocking is a personal, per-user action (client.blockUser/unBlockUser),
-    // independent of channel moderation capabilities like 'ban-channel-members'.
+    // Blocking is a personal, per-user action (`client.blockUser`), independent of channel
+    // moderation capabilities like 'ban-channel-members'.
     canBlockUser: !isCurrentUser && !!targetUserId,
     canMuteUser: !isCurrentUser && !!targetUserId,
     canRemoveUser:
@@ -238,11 +238,12 @@ const SendDirectMessageAction = () => {
         },
         type: channel.type,
       });
-      // the stored instance, if another one took the DM's cid while the watch was in flight
+      // The stored instance, which differs from `directMessageChannel` if another instance took the
+      // DM's `cid` while the watch was in flight.
       const dm = await directMessageChannel.ensureWatched();
-      // Selection is one navigation model: open the DM in the workspace (a layout slot inside
-      // `ChatView`, or whatever a custom `WorkspaceNavigationProvider` does), then route it into
-      // the channel list(s) that should own it so it appears without a full re-query.
+      // Open the DM in the workspace (a `ChatView` slot, or whatever a custom
+      // `WorkspaceNavigationProvider` does), then ingest it into the channel list(s) that should
+      // own it so it appears without a re-query.
       openChannel(dm);
       channelManager.ingestChannel(dm);
       close();
@@ -329,9 +330,8 @@ const UserMuteAction = () => {
             }),
           )
           .catch((error) => {
-            // Reconcile to the truth source rather than a hard-coded value: with
-            // the debounced request, optimistic state may have flipped multiple
-            // times, so a fixed boolean can land on the wrong state.
+            // Resync with the source of truth: the debounced request may follow several optimistic
+            // flips, so a fixed boolean could be wrong.
             setOptimisticUserMuted(userMuted);
             return addNotification({
               context: { channel },

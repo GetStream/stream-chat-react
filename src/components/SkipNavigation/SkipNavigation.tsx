@@ -1,39 +1,10 @@
 import type { ComponentPropsWithoutRef, ReactNode } from 'react';
 import React, { useEffect, useRef } from 'react';
 
-/**
- * `SkipNavigation` is an opt-in skip links helper for integrators and is not rendered by `Chat`.
- *
- * Intended integration:
- * - Render as the first keyboard-focusable element in your chat layout.
- * - Pass `targetIds` ordered by keyboard priority (for example message composer first).
- * - Each value must be a DOM id (without `#`) so links keep native hash navigation semantics.
- *
- * Activation behavior:
- * - Renders one link per target id.
- * - Keeps native hash-link behavior via `href="#{targetId}"`.
- * - Programmatically moves focus to each target element for reliable keyboard navigation.
- * - If the target is not naturally focusable, temporarily applies `tabindex="-1"` and
- *   removes it on blur.
- *
- * The caller can intercept activation by passing `onClick` and calling `event.preventDefault()`.
- *
- * @example
- * ```tsx
- * <SkipNavigation
- *   getLinkLabel={(targetId) =>
- *     targetId === 'my-message-composer-textarea'
- *       ? 'Skip to message composer'
- *       : 'Skip to channel messages'
- *   }
- *   targetIds={['my-message-composer-textarea', 'my-channel-root']}
- * />
- * ```
- */
 export type SkipNavigationProps = Omit<ComponentPropsWithoutRef<'a'>, 'href'> & {
-  /** Optional per-link label generator. Defaults to `Skip to {targetId}`. */
+  /** Label of each link, given the target ID without `#`. Defaults to `Skip to {targetId}`. */
   getLinkLabel?: (targetId: string, index: number) => ReactNode;
-  /** Ordered DOM ids of elements that should receive focus when links are activated. */
+  /** IDs of the elements that receive focus, by keyboard priority. A leading `#` is ignored. */
   targetIds: string[];
 };
 
@@ -81,6 +52,25 @@ const focusTargetElement = (
   }
 };
 
+/**
+ * Skip links that move focus to the elements with the given IDs. Not rendered by `Chat`; render it
+ * as the first focusable element of the layout.
+ *
+ * A target without a `tabindex` attribute gets a temporary `tabindex="-1"` until it blurs. An
+ * `onClick` or `onKeyDown` that calls `event.preventDefault()` skips the focus move.
+ *
+ * @example
+ * ```tsx
+ * <SkipNavigation
+ *   getLinkLabel={(targetId) =>
+ *     targetId === 'my-message-composer-textarea'
+ *       ? 'Skip to message composer'
+ *       : 'Skip to channel messages'
+ *   }
+ *   targetIds={['my-message-composer-textarea', 'my-channel-root']}
+ * />
+ * ```
+ */
 export const SkipNavigation = ({
   className,
   getLinkLabel,

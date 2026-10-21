@@ -6,12 +6,10 @@ import { useLiveLocationSharingManager } from '../useLiveLocationSharingManager'
 
 import type { StreamChat } from 'stream-chat';
 
-/**
- * The manager has two teardowns with different lifetimes: `unregisterSubscriptions` is ref-counted and
- * releases the WS subscriptions, `dispose` releases the configuration subscription that the client's
- * configuration registry holds a handle to. The cleanup here has to run both, and has to stay correct
- * under StrictMode, which runs mount -> cleanup -> mount against one memoized instance.
- */
+// The cleanup has to run both teardowns (`unregisterSubscriptions` for the WebSocket subscriptions,
+// `dispose` for the configuration subscription) and stay correct under StrictMode, which runs
+// mount -> cleanup -> mount against one memoized instance.
+
 describe('useLiveLocationSharingManager', () => {
   let client: StreamChat;
 
@@ -47,9 +45,8 @@ describe('useLiveLocationSharingManager', () => {
     );
     const manager = result.current!;
 
-    // StrictMode has already run mount -> cleanup -> mount, so the cleanup's `dispose` has fired once
-    // against the instance still in use. `init` restores the subscription, but it awaits
-    // `assureStateInit` first, so the recovery lands a microtask later than the render.
+    // The cleanup's `dispose` already fired once against the instance still in use. `init`
+    // restores the subscription after awaiting `assureStateInit`, a microtask after the render.
     await waitFor(() => expect(manager.hasSubscriptions).toBe(true));
 
     client.config.set({ liveLocationManager: { minUpdateThrottleMs: 7000 } });

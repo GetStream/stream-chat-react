@@ -10,31 +10,20 @@ import type { NotificationTargetPanel } from '../notificationTarget';
 export type UseNotificationsFilter = (notification: Notification) => boolean;
 
 export type UseNotificationsOptions = {
-  /**
-   * When true, the configured Chat-level notificationDisplayFilter is applied after
-   * panel routing and before the local filter.
-   */
+  /** Applies the Chat-level display filter after panel routing and before `filter`. */
   applyDisplayFilter?: boolean;
-  /**
-   * When provided, only notifications that pass this filter are returned.
-   * Use to have a given NotificationList consume only a subset of client.notifications
-   * (e.g. by origin.emitter, origin.context, or metadata).
-   */
+  /** Keeps only the notifications that pass it, e.g. by `origin.emitter` or `metadata`. */
   filter?: UseNotificationsFilter;
-  /**
-   * Panel target consumed by a specific notification list.
-   */
+  /** Keeps only notifications targeted at this panel. */
   panel?: NotificationTargetPanel;
-  /**
-   * Fallback panel used when origin.context.panel is absent.
-   * Defaults to `channel`.
-   */
+  /** Panel assumed for notifications that name none. Defaults to `channel`. */
   fallbackPanel?: NotificationTargetPanel;
 };
 
 /**
- * Subscribes to client.notifications.store and returns the list of notifications.
- * Optionally pass a filter so only notifications that match are returned (e.g. for a specific NotificationList).
+ * Subscribes to `client.notifications.store` and returns the notifications that pass the options.
+ *
+ * @param options - Panel routing and filters. Returns every notification when omitted.
  */
 export const useNotifications = (options?: UseNotificationsOptions): Notification[] => {
   const { client } = useChatContext();

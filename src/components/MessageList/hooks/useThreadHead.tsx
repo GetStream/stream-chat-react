@@ -12,9 +12,8 @@ const parentMessageSelector = ({ parentMessage }: ThreadState) => ({ parentMessa
 /**
  * The parent message a thread list renders above its replies, or `null` outside a thread.
  *
- * The head belongs to the list rather than to `Thread` because it has to sit inside the scroll
- * container -- a sibling of the list could not be placed there. Style choices stay with the
- * caller; only this structural one is resolved from context.
+ * The head belongs to the list, not to `Thread`, because it has to sit inside the scroll
+ * container.
  */
 export const useThreadHead = () => {
   const thread = useThreadContext();

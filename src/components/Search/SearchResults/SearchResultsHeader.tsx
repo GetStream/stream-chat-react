@@ -76,7 +76,7 @@ const SearchSourceFilterButton = ({ source }: SearchSourceFilterButtonProps) => 
 export const SearchResultsHeader = () => {
   const { filterButtonsContainerRef, searchController } = useSearchContext();
 
-  // render nothing if there's only one source (can't change filters)
+  // A single source has nothing to filter.
   if (searchController.sources.length < 2) return null;
 
   return (

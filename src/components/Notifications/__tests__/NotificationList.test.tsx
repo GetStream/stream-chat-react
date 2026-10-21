@@ -173,9 +173,8 @@ describe('NotificationList', () => {
     triggerLatestIntersection();
     triggerLatestIntersection();
 
-    // Asked once per intersection, deliberately: `ensureTimeout` leaves a countdown that is
-    // already running alone, so the list does not track which ids it has started. Keeping that
-    // record here is what let a remounted list restart a notification's countdown.
+    // Asked once per intersection: `ensureTimeout` leaves a running countdown alone, so the list
+    // does not track which IDs it has started.
     expect(ensureTimeout).toHaveBeenCalledTimes(2);
     expect(ensureTimeout).toHaveBeenCalledWith('n-1');
   });

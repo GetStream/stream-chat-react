@@ -162,10 +162,8 @@ describe('SearchSourceResults', () => {
   it('handles state updates correctly', () => {
     const { rerender } = render(<SearchSourceResults searchSource={mockSearchSource} />);
 
-    // Initial empty state
     expect(screen.getByTestId('default-empty-state')).toBeInTheDocument();
 
-    // Update to loading state
     vi.mocked(useStateStore).mockReturnValue({
       isLoading: true,
       items: undefined,
@@ -173,7 +171,6 @@ describe('SearchSourceResults', () => {
     rerender(<SearchSourceResults searchSource={mockSearchSource} />);
     expect(screen.queryByTestId('default-result-list')).toBeInTheDocument();
 
-    // Update to having items
     vi.mocked(useStateStore).mockReturnValue({
       isLoading: false,
       items: [{ id: 1 }],

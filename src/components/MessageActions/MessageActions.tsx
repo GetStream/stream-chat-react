@@ -18,8 +18,8 @@ import { ReactionSelector } from '../Reactions';
 import { useSplitActionSet } from '../Chat/hooks/useSplitActionSet';
 
 /**
- * The action types {@link defaultMessageActionSet} ships. Listed for autocomplete only -- a custom
- * action names itself, so any string is accepted.
+ * The action types {@link defaultMessageActionSet} ships, listed for autocomplete. Any string is
+ * accepted, so custom actions name themselves.
  */
 export type DefaultMessageActionType =
   | 'blockUser'
@@ -74,9 +74,8 @@ interface MessageActionsInterface {
 }
 
 /**
- * A new actions component to replace current `MessageOptions` component.
- * Exports from `stream-chat-react/experimental` __MIGHT__ change - use with caution
- * and follow release notes in case you notice unexpected behavior.
+ * Renders a message's quick actions and its actions dropdown menu, or nothing when there are no
+ * actions.
  */
 export const MessageActions: MessageActionsInterface = ({
   disableBaseMessageActionSetFilter = false,
@@ -118,7 +117,6 @@ export const MessageActions: MessageActionsInterface = ({
     dialogManager?.id,
   );
 
-  // do not render anything if total action count is zero
   if (dropdownActionSet.length + quickActionSet.length === 0) {
     return null;
   }

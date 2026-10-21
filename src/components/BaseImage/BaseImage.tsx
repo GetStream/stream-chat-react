@@ -20,10 +20,8 @@ export const BaseImage = forwardRef<HTMLImageElement, BaseImageProps>(function B
     showDownloadButtonOnError = false,
     ...imgProps
   } = props;
-  // Store the failed URL rather than a boolean so that when src changes (e.g. retry
-  // with a cache-busting param), the error state clears synchronously via the derived
-  // `error` check below. A boolean would require a useEffect to reset, causing a
-  // 1-frame flash of the error placeholder before the loading state kicks in.
+  // Stores the failed URL rather than a boolean, so a new `src` clears the error during render
+  // without a one-frame flash of the error placeholder.
   const [failedSrc, setFailedSrc] = useState<string | null>(null);
   const { ImagePlaceholder: ImagePlaceholderComponent = DefaultImagePlaceholder } =
     useComponentContext();

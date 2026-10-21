@@ -25,19 +25,20 @@ import { DialogAnchor, useDialogIsOpen, useDialogOnNearestManager } from '../Dia
 export type MessageReactionsProps = Partial<
   Pick<MessageContextValue, 'handleFetchReactions' | 'reactionDetailsSort'>
 > & {
-  /** An array of the own reaction objects to distinguish own reactions visually */
+  /** Own reactions, used to mark reaction types as own. Defaults to the message's own reactions. */
   own_reactions?: ReactionResponse[];
-  /** An object containing summary for each reaction type on a message */
+  /** Summary per reaction type. Defaults to the message's `reaction_groups`. */
   reaction_groups?: Record<string, ReactionGroupResponse>;
-  /** An array of the reaction objects to display in the list */
+  /** Latest reactions, used for the reacting user names. Defaults to the message's latest ones. */
   reactions?: ReactionResponse[];
-  /** Display the reactions in the list in reverse order, defaults to false */
+  /** Not read by the component: the list order comes from `sortReactions`. */
   reverse?: boolean;
-  /** Comparator function to sort reactions, defaults to chronological order */
-  sortReactions?: ReactionsComparator;
   /**
-   * Positioning of the reactions list relative to the message. Position is flipped by default for the messages of other users.
+   * Comparator that orders the reaction types. Defaults to `sortReactions` from `MessageContext`,
+   * then to ascending time of the first reaction.
    */
+  sortReactions?: ReactionsComparator;
+  /** Aligns the list to the opposite side of the message. Defaults to false. */
   flipHorizontalPosition?: boolean;
   verticalPosition?: 'top' | 'bottom' | null;
   visualStyle?: 'clustered' | 'segmented' | null;
@@ -46,9 +47,7 @@ export type MessageReactionsProps = Partial<
   };
 };
 
-/**
- * Renders a button if `buttonIf` is true, otherwise renders a fragment. No props but children are passed to fragment, but all props are passed to button if it's rendered.
- */
+// Renders a button when `buttonIf` is true, otherwise a fragment that drops all props but children.
 const FragmentOrButton = ({
   buttonIf: renderButton = false,
   children,
@@ -109,14 +108,8 @@ const UnMemoizedMessageReactions = (props: MessageReactionsProps) => {
     dialog.open();
   };
 
-  /**
-   * In segmented style with top position we show max 4 reactions and a
-   * count of the rest, so we need to cap the existing reactions to display
-   * at 4 and calculate the count of the rest. For clustered(top/bottom) we cap
-   * the existing reactions to 5 but we don't calculate the count of the rest
-   * because we show the total count instead. For segmented style with bottom
-   * position we don't cap the existing reactions and we show all of them.
-   */
+  // Segmented at the top caps the list and shows a count of the rest. Clustered caps it and shows
+  // the total count instead. Segmented elsewhere is uncapped, so this is null.
   const cappedExistingReactions = useMemo(() => {
     if (visualStyle === 'segmented' && verticalPosition !== 'top') return null;
 
@@ -125,10 +118,7 @@ const UnMemoizedMessageReactions = (props: MessageReactionsProps) => {
     const sliced = existingReactions.slice(0, capLimit);
 
     return {
-      /**
-       * Accumulated reaction count of capped reaction types, first four in case of
-       * segmented(top) and first five in case of clustered(top/bottom) variations.
-       */
+      // Sum of the capped types' counts; the overflow count is the total minus this.
       reactionCountToDisplay: sliced.reduce(
         (accumulatedCount, { reactionCount }) => accumulatedCount + reactionCount,
         0,
@@ -269,9 +259,7 @@ const UnMemoizedMessageReactions = (props: MessageReactionsProps) => {
   );
 };
 
-/**
- * Component that displays a list of reactions on a message.
- */
+/** Displays the list of reactions on a message. */
 export const MessageReactions = React.memo(
   UnMemoizedMessageReactions,
 ) as typeof UnMemoizedMessageReactions;

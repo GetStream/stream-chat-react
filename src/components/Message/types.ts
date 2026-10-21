@@ -12,66 +12,80 @@ import type { RenderTextFunction } from './renderText';
 export type ReactEventHandler = (event: React.BaseSyntheticEvent) => Promise<void> | void;
 
 export type MessageProps = {
-  /** The message object */
+  /** The message object. */
   message: LocalMessage;
-  /** Additional props for underlying MessageComposer component, [available props](https://getstream.io/chat/docs/sdk/react/message-input-components/message_composer/#props) */
+  /**
+   * Additional props for the underlying MessageComposer component.
+   * See the [available props](https://getstream.io/chat/docs/sdk/react/message-input-components/message_composer/#props).
+   */
   additionalMessageComposerProps?: MessageComposerProps;
-  /** Call this function to keep message list scrolled to the bottom when the scroll height increases, e.g. an element appears below the last message (only used in the `VirtualizedMessageList`) */
+  /**
+   * Keeps the message list scrolled to the bottom when the scroll height grows, e.g. when an
+   * element appears below the last message. Only used in the `VirtualizedMessageList`.
+   */
   autoscrollToBottom?: () => void;
-  /** If true, picking a reaction from the `ReactionSelector` component will close the selector */
+  /** If true, picking a reaction in the `ReactionSelector` closes the selector. */
   closeReactionSelectorOnClick?: boolean;
-  /** An array of user IDs that have confirmed the message delivery to their device */
+  /** Users that have confirmed the message delivery to their device. */
   deliveredTo?: UserResponse[];
-  /** If true, disables the ability for users to quote messages, defaults to false */
+  /** If true, users cannot quote messages. Defaults to false. */
   disableQuotedMessages?: boolean;
   // todo: remove
-  /** Override the default formatting of the date. This is a function that has access to the original date object, returns a string  */
+  /** Overrides the date formatting. Receives the original date and returns a string. */
   formatDate?: (date: Date) => string;
-  /** A list of styles to apply to this message, i.e. top, bottom, single */
+  /** Styles to apply to this message, e.g. top, bottom, single. */
   groupStyles?: GroupStyle[];
-  /** Whether to highlight and focus the message on load */
+  /** Whether to highlight the message. The message lists set it on the focused message. */
   highlighted?: boolean;
-  /** Whether the threaded message is the first in the thread list */
+  /** Whether the message is the thread's parent shown at the top of the thread. */
   initialMessage?: boolean;
   // todo: move to LLC Channel state
-  /** Latest own message in currently displayed message set. */
+  /** Latest own message in the currently displayed message set. */
   lastOwnMessage?: LocalMessage;
   // todo: could be moved to the Channel instance reactive state as lastReceivedMessage keeping the the receipt status as well (useful for channel preview)
-  /** Latest message id on current channel */
+  /** ID of the last rendered message with status `received`. */
   lastReceivedId?: string | null;
-  /** DOMRect object for parent MessageList component */
+  /** DOMRect of the parent MessageList wrapper. */
   messageListRect?: DOMRect;
-  /** Custom mention click handler for mentions rendered in message text. */
+  /** Custom click handler for mentions rendered in the message text. */
   onMentionsClick?: CustomMentionHandler;
-  /** Custom mention hover handler for mentions rendered in message text. */
+  /** Custom hover handler for mentions rendered in the message text. */
   onMentionsHover?: CustomMentionHandler;
-  /** Custom function to run on user avatar click */
+  /** Custom function to run on user avatar click. */
   onUserClick?: UserEventHandler;
-  /** Custom function to run on user avatar hover */
+  /** Custom function to run on user avatar hover. */
   onUserHover?: UserEventHandler;
-  /** Custom open-thread handler; overrides the default ChatView-navigation thread opening */
+  /** Custom open-thread handler. Replaces the default ChatView navigation. */
   openThread?: (message: LocalMessage, event: BaseSyntheticEvent) => void;
-  /** Sort options to provide to a reactions query */
+  /** Sort options for the reactions query. */
   reactionDetailsSort?: SortParamRequest[];
-  /** A list of users that have read this Message if the message is the last one and was posted by my user */
+  /**
+   * Users that have read this message. Only filled for the last own message unless
+   * `returnAllReadData` is set.
+   */
   readBy?: UserResponse[];
   /**
-   * When set, the message uses the grid layout with an avatar column and shows the sender avatar.
-   * - `true`: show for incoming and outgoing messages
-   * - `'incoming'`: show only for incoming (other users') messages
-   * - `'outgoing'`: show only for own (outgoing) messages
-   * - `false` or omitted: no avatar column
+   * Which messages use the grid layout with an avatar column. Defaults to `'incoming'`.
+   * - `true`: incoming and outgoing messages
+   * - `'incoming'`: only messages from other users
+   * - `'outgoing'`: only own messages
+   * - `false`: none
    */
   showAvatar?: boolean | 'incoming' | 'outgoing';
-  /** Custom function to render message text content, defaults to the renderText function: [utils](https://github.com/GetStream/stream-chat-react/blob/master/src/utils.ts) */
+  /** Custom function to render the message text. Defaults to `renderText`. */
   renderText?: RenderTextFunction;
-  /** Keep track of read receipts for each message sent by the user. When disabled, only the last own message delivery / read status is rendered. */
+  /**
+   * If true, delivery and read receipts are tracked for every own message, otherwise only for the
+   * last one.
+   */
   returnAllReadData?: boolean;
-  /** Comparator function to sort reactions, defaults to chronological order */
+  /** Comparator to sort reactions. Defaults to first reaction time, else reaction type. */
   sortReactions?: ReactionsComparator;
-  /** If true, the Message is rendered inside a thread's reply list */
+  /** If true, the message is rendered inside a thread's reply list. */
   threadList?: boolean;
-  /** render HTML instead of markdown. Posting HTML is only allowed server-side */
+  /**
+   * Renders `message.html` instead of the Markdown text. Posting HTML is only allowed server-side.
+   */
   unsafeHTML?: boolean;
 };
 

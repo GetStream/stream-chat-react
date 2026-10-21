@@ -15,19 +15,19 @@ type BaseProps = {
 export type FloatingDateSeparatorProps = BaseProps &
   (
     | {
-        /** For VirtualizedMessageList: ref the parent calls with visible items */
+        /** For `VirtualizedMessageList`: ref the parent calls with the rendered items. */
         itemsRenderedRef: RefObject<((rendered: RenderedMessage[]) => void) | null>;
       }
     | {
-        /** For MessageList: scroll container to query DOM for date separators */
+        /** For `MessageList`: scroll container queried for the in-flow date separators. */
         listElement: HTMLDivElement | null;
       }
   );
 
 /**
- * Renders a floating date separator when the user has scrolled past the in-flow date.
- * State is internal so MessageList/VirtualizedMessageList do not re-render when it changes.
- * Use itemsRenderedRef for Virtuoso, listElement for non-virtualized MessageList.
+ * Renders a floating date separator once the in-flow date has scrolled past. Its state is internal
+ * so the parent list does not re-render when it changes. Pass `itemsRenderedRef` for
+ * `VirtualizedMessageList` and `listElement` for `MessageList`.
  */
 export const FloatingDateSeparator = (props: FloatingDateSeparatorProps) => {
   const { DateSeparator = DefaultDateSeparator } = useComponentContext();

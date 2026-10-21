@@ -22,8 +22,6 @@ export const SearchSourceResultListFooter = () => {
     searchSourceStateSelector,
   );
 
-  // The "all results loaded" end-of-list status is announced (combined with the result count) by
-  // `useAnnounceSearchResultCount`; here it is visual only.
   return (
     <div
       className='str-chat__search-source-result-list__footer'
@@ -32,8 +30,8 @@ export const SearchSourceResultListFooter = () => {
       {isLoading ? (
         <SearchSourceResultsLoadingIndicator />
       ) : !hasNext ? (
-        // Hidden from assistive tech: the end-of-list status is announced (combined with the result
-        // count) by `useAnnounceSearchResultCount`, so the text is not read as a navigable result.
+        // Hidden from assistive tech: `useAnnounceSearchResultCount` announces the end of the list
+        // together with the result count.
         <div aria-hidden='true' className='str-chat__search-source-results---empty'>
           {t('common.resultsLoaded.label', 'All results loaded')}
         </div>

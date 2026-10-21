@@ -11,13 +11,13 @@ export type NumericInputProps = Omit<
 > & {
   value: string;
   onChange: (e: ChangeEvent<HTMLInputElement>) => void;
-  /** Optional label above the input */
+  /** Label above the input. */
   label?: string;
-  /** Minimum value (stepper) */
+  /** Lower bound that the steppers and arrow keys clamp to. */
   min?: number;
-  /** Maximum value (stepper) */
+  /** Upper bound that the steppers and arrow keys clamp to. */
   max?: number;
-  /** Step for increment/decrement (default 1) */
+  /** Amount the steppers and arrow keys change the value by. Defaults to 1. */
   step?: number;
   className?: string;
 };

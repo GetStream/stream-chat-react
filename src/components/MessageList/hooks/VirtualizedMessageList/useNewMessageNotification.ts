@@ -21,9 +21,7 @@ export function useNewMessageNotification(
     messagePaginator.state,
     messagePaginatorStateSelector,
   );
-  /**
-   * use the flag to avoid the initial "new messages" quick blink
-   */
+  // Avoids a brief "new messages" flash for the initial messages.
   const didMount = useRef(false);
 
   const lastMessageId = useRef('');
@@ -34,22 +32,20 @@ export function useNewMessageNotification(
       setNewMessagesNotification(true);
       return;
     }
-    /* handle scrolling behavior for new messages */
     if (!messages?.length) return;
 
     const lastMessage = messages[messages.length - 1];
     const prevMessageId = lastMessageId.current;
-    lastMessageId.current = lastMessage.id || ''; // update last message id
+    lastMessageId.current = lastMessage.id || '';
 
-    /* do nothing if new messages are loaded from top(loadMore)  */
+    // Unchanged last message: older messages were loaded at the top.
     if (lastMessage.id === prevMessageId) return;
 
-    /* if list is already at the bottom return, followOutput will do the job */
+    // At the bottom, `followOutput` scrolls the list.
     if (atBottom.current) return;
 
-    /* if the new message belongs to current user scroll to bottom */
+    // Only messages from other users notify.
     if ((lastMessage as LocalMessage).user?.id !== currentUserId && didMount.current) {
-      /* otherwise just show newMessage notification  */
       setNewMessagesNotification(true);
     }
     didMount.current = true;

@@ -154,7 +154,7 @@ describe('AttachmentPreviewList', () => {
       expect(screen.getByTitle(`file-upload-${state}`)).toBeInTheDocument();
       expect(screen.getByTitle(`image-upload-${state}`)).toBeInTheDocument();
       expect(screen.getByTitle(`audio-attachment-${state}`)).toBeInTheDocument();
-      // Voice recordings are rendered in VoiceRecordingPreviewSlot above the list (REACT-794)
+      // Voice recordings render in `VoiceRecordingPreviewSlot`, not in this list.
       expect(screen.getByTitle(`video-attachment-${state}`)).toBeInTheDocument();
     },
   );
@@ -188,7 +188,7 @@ describe('AttachmentPreviewList', () => {
     expect(screen.getByTestId('custom-voice-recording-preview')).toBeInTheDocument();
   });
 
-  // voiceRecording is rendered in VoiceRecordingPreviewSlot (REACT-794), not in AttachmentPreviewList
+  // Voice recordings render in `VoiceRecordingPreviewSlot`, not in `AttachmentPreviewList`.
   describe.each(['audio', 'file', 'image', 'unsupported', 'video'])(
     '%s attachments rendering',
     (type) => {
@@ -391,7 +391,7 @@ describe('AttachmentPreviewList', () => {
       await renderComponent({
         attachments: [
           {
-            // v10: file_size lives under `attachment.custom`.
+            // `file_size` lives under `attachment.custom`.
             ...generateFileAttachment({
               custom: { file_size: 1000 },
               title: 'sized.pdf',
@@ -512,7 +512,7 @@ describe('AttachmentPreviewList', () => {
     });
 
     it('should render location preview without possibility to remove it when editing a message', async () => {
-      // When editing, no remove callback is provided, so the remove button is absent
+      // While editing, no remove callback is provided, so the remove button is absent.
       await renderLocationPreview();
       expect(screen.queryByTestId('location-preview')).toBeInTheDocument();
       expect(

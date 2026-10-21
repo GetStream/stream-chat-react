@@ -56,8 +56,7 @@ export const CommandsMenu = () => {
   const { announceInteraction } = useInteractionAnnouncements();
   const messageComposer = useMessageComposerController();
   const { textareaRef } = useMessageComposerContext();
-  // Render commands in the channel config's own order (no client re-sort) — matches the composer's
-  // suggestion list, which likewise trusts the SDK's ordering.
+  // Commands keep the channel config's order, like the composer's suggestion list.
   const commands = useMessageComposerCommands();
 
   return (
@@ -71,7 +70,7 @@ export const CommandsMenu = () => {
             if (!command.name || !enabled) return;
             messageComposer.textComposer.setCommand(command);
             closeMenu();
-            // Defer the focus to the next frame so it wins over FocusScope's restore-to-attachment-selector-button behavior.
+            // Deferred a frame so focus wins over FocusScope restoring it to the selector button.
             requestAnimationFrame(() => textareaRef.current?.focus());
             announceInteraction('command.selected', { command: command.name });
           }}

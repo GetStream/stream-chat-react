@@ -7,9 +7,9 @@ import { UploadedSizeIndicator as DefaultUploadedSizeIndicator } from './Uploade
 
 export type AttachmentUploadedSizeIndicatorProps = {
   /**
-   * Live progress, overriding `localMetadata.uploadProgress`. Required when rendering an
-   * attachment carried by a message: the value stored there is a snapshot frozen when the
-   * message was composed, whereas `client.uploadManager` keeps reporting.
+   * Live progress that overrides `localMetadata.uploadProgress`. Pass it for an attachment
+   * carried by a message: the stored value is a snapshot from composition, while
+   * `client.uploadManager` keeps reporting.
    */
   uploadProgress?: number;
   attachment: {

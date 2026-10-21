@@ -12,13 +12,12 @@ import {
   initClientWithChannels,
 } from '../../../../mock-builders';
 
-// Sending moved onto the composer (`messageComposer.send`), which `useMediaRecorder` calls
-// internally in place of the old `handleSubmit` prop. `render` spies on the composer of the
-// channel it builds, which is what these tests assert the "submit" step against.
+// `useMediaRecorder` submits through `messageComposer.send`. `render` spies on the composer of the
+// channel it builds, which is what these tests assert the submit step against.
 let sendSpy: ReturnType<typeof vi.spyOn>;
 
-// Capture interaction announcements while keeping the rest of the Accessibility module intact (Chat
-// mounts AriaLiveAnnouncerProvider / NotificationAnnouncer from it).
+// Captures interaction announcements while keeping the rest of the Accessibility module intact,
+// since Chat mounts AriaLiveAnnouncerProvider / NotificationAnnouncer from it.
 const { announceInteractionMock } = vi.hoisted(() => ({
   announceInteractionMock: vi.fn(),
 }));
@@ -265,8 +264,8 @@ describe('useMediaRecorder', () => {
       });
       announceInteractionMock.mockClear();
 
-      // Cancelling resets the state to `undefined`; the "Voice message deleted" notification (spoken
-      // by NotificationAnnouncer) is the announcement — no interaction is fired here.
+      // Cancelling resets the state to `undefined`; the "Voice message deleted" notification,
+      // spoken by NotificationAnnouncer, is the announcement, so no interaction is fired.
       await act(() => {
         recorder.recordingState.next(undefined);
       });

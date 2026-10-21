@@ -42,10 +42,13 @@ type PartialBaseImagePropMap = Partial<
 >;
 
 export type ModalGalleryProps = {
-  /** Array of media attachments to display */
+  /**
+   * Media items to display. Only the first four render as thumbnails; the fourth gets a "+N"
+   * overlay for the rest.
+   */
   items: GalleryItem[];
   className?: string;
-  /** Whether clicking the empty gallery background should close the modal (default: true) */
+  /** Whether clicking the empty gallery background closes the modal. Defaults to true. */
   closeOnBackgroundClick?: boolean;
   modalClassName?: string;
 };
@@ -61,11 +64,11 @@ export const ModalGallery = ({
     Gallery = DefaultGallery,
     Modal = GlobalModal,
   } = useComponentContext();
-  // ModalGallery is also usable standalone, outside a message
+  // ModalGallery also renders outside a message, where there is no `MessageContext`.
   const { message } = useContext(MessageContext) ?? {};
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState(0);
-  // the gallery header renders outside this provider, so sender and timestamp travel on the items
+  // The gallery header renders outside `MessageContext`, so the items carry sender and timestamp.
   const itemsWithSender = useMemo(
     () =>
       items.map((item) => ({
@@ -166,9 +169,8 @@ const ThumbnailButton = ({
   const imageUrl = item.imageUrl;
   const [isLoadFailed, setIsLoadFailed] = useState(false);
   const [isImageLoading, setIsImageLoading] = useState(Boolean(imageUrl));
-  // Cache-busting suffix appended to image src on retry. Using a suffix instead of
-  // a React key remount keeps the component (and its placeholder) mounted, preventing
-  // layout shifts and height collapse during the reload attempt.
+  // Cache-busting suffix appended to the image src on retry; keeps the component and its
+  // placeholder mounted, avoiding layout shifts and height collapse during the reload.
   const [retrySuffix, setRetrySuffix] = useState('');
 
   const {

@@ -23,17 +23,16 @@ type UseMarkReadParams = {
   // todo: remove and infer only from useThreadContext return value - if undefined, not a thread list
   messageListIsThread: boolean;
   /**
-   * Whether the last message is fully shown. Lists whose at-bottom flag carries a threshold -- it
-   * can read true while part of the last message is still below the fold -- pass this so a channel
-   * is never marked read on a message nobody has seen. Omitted, only the at-bottom flag applies.
+   * Whether the last message is fully shown. Pass it when the at-bottom flag is thresholded and can
+   * read true while the last message is partly clipped. Defaults to true, so only the flag applies.
    */
   isAtTrueBottom?: boolean;
 };
 
 /**
- * Marks the active message collection (channel or thread) read when the user is caught up at the
- * bottom, and keeps the paginator's unread snapshot (the "Unread messages" separator / "N new"
- * banner) in sync.
+ * Marks the channel or thread read when the user is caught up at the bottom, clears the
+ * paginator's unread snapshot on that catch-up, and tells the paginator whether the user is
+ * viewing live.
  */
 export const useMarkRead = ({
   hasMoreNewer,
@@ -56,9 +55,8 @@ export const useMarkRead = ({
     client.messageDeliveryReporter.throttledMarkRead(thread ?? channel);
   }, [channel, client.messageDeliveryReporter, thread]);
 
-  // Advance the frozen unread snapshot the separator/banner render from. The LLC never clears it on
-  // `message.read`, so on a genuine catch-up we clear it ourselves; deliberately NOT called on the
-  // initial open (see the effect below) so the separator persists where the user left off.
+  // Clears the unread snapshot the separator and banner render from, which the LLC never clears on
+  // `message.read`. Not called on the initial open, so the separator stays where the user left off.
   const resetUnreadSnapshot = useCallback(() => {
     const loadedItems = messagePaginator.state.getLatestValue().items ?? [];
     const previous = messagePaginator.unreadStateSnapshot.getLatestValue();
@@ -73,9 +71,9 @@ export const useMarkRead = ({
   }, [messagePaginator]);
 
   useEffect(() => {
-    // Tell the state layer whether the user is actively viewing the latest messages (tab
-    // foregrounded AND at the bottom AND no newer messages beyond the loaded window). While live,
-    // the LLC skips the own-unread bump on `message.new` so the separator/banner never flash.
+    // Live means the tab is visible, the list is at the bottom and no newer messages lie beyond the
+    // loaded window. While live, the LLC skips the own-unread bump on `message.new`, so the
+    // separator and banner do not flash.
     const pushViewingLive = () =>
       messagePaginator.setViewingLive(
         !document.hidden &&
@@ -94,8 +92,8 @@ export const useMarkRead = ({
   }, [hasMoreNewer, isAtTrueBottom, isMessageListScrolledToBottom, messagePaginator]);
 
   useEffect(() => {
-    // No read events means no server-side read state - but a channel counting unread locally still
-    // needs the catch-up, and the LLC resets it locally rather than requesting.
+    // Without read events there is no server-side read state, but a channel counting unread locally
+    // still needs the catch-up; the LLC resets it locally instead of requesting.
     if (!readEventsEnabled && !localUnreadCountEnabled) return;
     const shouldMarkRead = () => {
       const wasMarkedUnread =

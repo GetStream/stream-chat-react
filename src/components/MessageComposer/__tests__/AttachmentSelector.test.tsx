@@ -1,7 +1,6 @@
-// Import the package barrel first so it evaluates in its natural order (components
-// then context). MessageComposer's send/update hooks import `useChannel` from this
-// root barrel; importing a deep component path first would trigger a partial circular
-// re-entry that leaves `useChannel` undefined under Vitest.
+// Import the package barrel first so it evaluates in its natural order (components, then
+// context). MessageComposer's send/update hooks import `useChannel` from this root barrel, and
+// a deep component import first would re-enter it and leave `useChannel` undefined under Vitest.
 import '../../..';
 import React from 'react';
 import {
@@ -41,9 +40,9 @@ const SHARE_LOCATION_BUTTON_CLASS =
 const SIMPLE_ATTACHMENT_SELECTOR_TEST_ID = 'invoke-attachment-selector-button';
 const UPLOAD_INPUT_TEST_ID = 'file-input';
 
-// Capabilities & config now live on the channel (own_capabilities +
-// client.channelServerConfigsStore) rather than in a ChannelStateContext. These defaults grant every
-// attachment option so the full AttachmentSelector menu renders.
+// Capabilities and config live on the channel (`own_capabilities` and
+// `client.channelServerConfigsStore`). These defaults grant every attachment option so the full
+// AttachmentSelector menu renders.
 const DEFAULT_OWN_CAPABILITIES = ['upload-file', 'send-poll'];
 const DEFAULT_CONFIG = { polls: true, shared_locations: true, uploads: true };
 
@@ -304,11 +303,9 @@ describe('AttachmentSelector', () => {
   });
 
   it('hides location when the client disables it, even though the server allows it', async () => {
-    // The composer resolves `location.enabled` by ANDing the integrator's declarative configuration with
-    // the channel type's `shared_locations`, so either side can switch the feature off. This menu used to
-    // read the raw server flag instead, which meant it saw only the server's half of that answer: with a
-    // permissive server it offered an action the composer had already disabled and would refuse to
-    // compose. Reading the composer's resolved config is what makes the two agree.
+    // The composer resolves `location.enabled` by ANDing the integrator's configuration with the
+    // channel type's `shared_locations`, so either side can switch the feature off. The menu reads
+    // the composer's resolved config, so it never offers an action the composer would refuse.
     const {
       channels: [customChannel],
       client: customClient,
@@ -330,7 +327,7 @@ describe('AttachmentSelector', () => {
 
     await renderComponent({ customChannel, customClient });
 
-    // The two halves of the answer, so a future reader can see the divergence this pins down.
+    // The two halves of the answer diverge: the client disables it, the server allows it.
     expect(customChannel.messageComposer.config.location.enabled).toBe(false);
     expect(customChannel.serverConfig?.shared_locations).toBe(true);
 
@@ -348,10 +345,8 @@ describe('AttachmentSelector', () => {
       name: 'the composer configuration changes',
     },
   ])('drops the File action while the menu is open when $name', async ({ change }) => {
-    // `isUploadEnabled` is a getter, so nothing re-renders on its own. This hook subscribes to the
-    // configuration and the capability store precisely so that a change to either reaches the screen;
-    // without those subscriptions the only trigger was the attachment list moving, and an action the SDK
-    // had already stopped honouring stayed on offer until something unrelated happened.
+    // `isUploadEnabled` is a getter, so nothing re-renders on its own. The hook subscribes to the
+    // configuration and the capability store so that a change to either reaches the screen.
     const {
       channels: [customChannel],
       client: customClient,
@@ -375,7 +370,7 @@ describe('AttachmentSelector', () => {
       screen.getByTestId(ATTACHMENT_SELECTOR__ACTIONS_MENU_TEST_ID),
     ).toHaveTextContent('File');
 
-    // No re-open, no unrelated state change — the open menu has to update by itself.
+    // No re-open and no unrelated state change: the open menu updates by itself.
     act(() => {
       change(customClient);
     });
@@ -386,9 +381,8 @@ describe('AttachmentSelector', () => {
   });
 
   it('offers File without the upload-file capability when files go to storage outside Stream', async () => {
-    // `attachments.customCdn` declares that bytes never reach Stream, so Stream's `upload-file` capability
-    // has nothing to permit or refuse. The menu asks the composer rather than the capability directly,
-    // which is what lets the two agree.
+    // `attachments.customCdn` declares that bytes never reach Stream, so Stream's `upload-file`
+    // capability has nothing to permit or refuse. The menu asks the composer, not the capability.
     const {
       channels: [customChannel],
       client: customClient,
@@ -429,9 +423,8 @@ describe('AttachmentSelector', () => {
   ])(
     'hides $action when the client disables $path, even though the server allows it',
     async ({ action, path }) => {
-      // Same reconciliation as location: the composer ANDs `attachments.enabled` with the channel type's
-      // `uploads`, and `polls.enabled` with `polls`. The menu reads the composer's answer, so an
-      // integrator can switch either feature off against a permissive server.
+      // Same as location: the composer ANDs `attachments.enabled` with the channel type's
+      // `uploads`, and `polls.enabled` with `polls`. The menu reads the composer's answer.
       const {
         channels: [customChannel],
         client: customClient,
@@ -486,7 +479,7 @@ describe('AttachmentSelector', () => {
       customChannel,
       customClient,
     });
-    // When only file uploads are enabled, the full context menu is not rendered; only the simple button
+    // With only file uploads enabled, only the simple button renders, not the full context menu.
     expect(
       screen.queryByTestId('attachment-selector-actions-menu'),
     ).not.toBeInTheDocument();
@@ -555,7 +548,7 @@ describe('AttachmentSelector', () => {
       customClient,
       thread: generateMessage({ cid: customChannel.cid }),
     });
-    // In a thread, the full AttachmentSelector context menu is not used; only the simple button is rendered
+    // In a thread, only the simple button renders, not the full context menu.
     expect(
       screen.queryByTestId('attachment-selector-actions-menu'),
     ).not.toBeInTheDocument();
@@ -614,15 +607,15 @@ describe('AttachmentSelector', () => {
     // Accessible name comes from the translated dialog title (en: "Create Poll").
     const dialog = screen.getByRole('dialog', { name: 'Create Poll' });
     const questionInput = screen.getByLabelText('Question');
-    // The description id is per-instance (unique across stacked modals), so read it rather than
-    // hardcoding the shared base.
+    // The description ID is per instance (unique across stacked modals), so it is read rather than
+    // hardcoded.
     const descriptionId = dialog.getAttribute('aria-describedby');
     expect(descriptionId).toMatch(/-description$/);
     expect(document.getElementById(descriptionId!)).toHaveTextContent(
       'Create a question, add options, and configure poll settings',
     );
-    // Initial focus lands on the dialog surface (so the SR announces the dialog identity before a
-    // field's focus could supersede it).
+    // Initial focus lands on the dialog surface, so the SR announces the dialog before a field's
+    // focus could supersede it.
     await waitFor(() => {
       expect(dialog).toHaveFocus();
     });
@@ -696,8 +689,8 @@ describe('AttachmentSelector', () => {
     await waitFor(() =>
       expect(screen.queryByTestId(POLL_CREATION_DIALOG_TEST_ID)).not.toBeInTheDocument(),
     );
-    // The fix: focus lands on the composer textarea, and neither focus-restorer (react-aria's
-    // FocusScope nor AttachmentSelector's own trigger restore) blips focus back to the "+" trigger.
+    // Focus lands on the composer textarea, and neither focus restorer (react-aria's FocusScope,
+    // AttachmentSelector's own trigger restore) blips it back to the "+" trigger.
     await waitFor(() => {
       expect(document.activeElement?.tagName).toBe('TEXTAREA');
     });
@@ -902,7 +895,7 @@ const getSimpleAttachmentSelectorInvokeElement = () =>
 
 describe('SimpleAttachmentSelector', () => {
   const message = generateMessage();
-  // Only file uploads enabled => AttachmentSelector falls back to SimpleAttachmentSelector.
+  // Only file uploads are enabled, so AttachmentSelector falls back to SimpleAttachmentSelector.
   const renderSimple = (overrides: Record<string, unknown> = {}) =>
     renderComponent({
       config: { uploads: true },
@@ -996,7 +989,7 @@ describe('SimpleAttachmentSelector', () => {
     await renderSimple({
       componentContext: { FileUploadIcon },
     });
-    // FileUploadIcon is no longer used by SimpleAttachmentSelector
+    // SimpleAttachmentSelector ignores FileUploadIcon.
     expect(screen.queryByTestId('customFileUploadIcon')).not.toBeInTheDocument();
   });
 
@@ -1034,7 +1027,7 @@ describe('SimpleAttachmentSelector', () => {
         expect(el).not.toHaveAttribute('inert');
         expect(el).not.toHaveAttribute('aria-hidden');
         expect(el).not.toHaveAttribute('tabindex');
-        // never display:none — the CSS transition handles visual hiding.
+        // Never `display: none`: the CSS transition handles the visual hiding.
         expect(el).not.toHaveAttribute('hidden');
       });
     });
@@ -1054,7 +1047,7 @@ describe('SimpleAttachmentSelector', () => {
           expect(el).toHaveAttribute('aria-hidden', 'true');
           expect(el).toHaveAttribute('tabindex', '-1');
           expect(el).toHaveAttribute('inert');
-          // visual hiding is CSS-only; the `hidden` attribute must NOT be set.
+          // Visual hiding is CSS-only, so the `hidden` attribute must not be set.
           expect(el).not.toHaveAttribute('hidden');
         });
       });

@@ -147,7 +147,7 @@ describe('useSlotEntity hooks', () => {
       },
     });
 
-    // Base binding: a thread. Layer on top: a member profile.
+    // A thread as the base binding, a user profile layered on top.
     layoutController.bind('slot1', {
       key: `thread:${thread.id}`,
       payload: { key: thread.id, kind: 'thread', source: thread },
@@ -159,9 +159,9 @@ describe('useSlotEntity hooks', () => {
 
     const Harness = () => {
       const topProfile = useSlotTopLayerEntity({ kind: 'userProfile', slot: 'slot1' });
-      // The base binding (thread) is unchanged — a layer never rewrites `slotBindings`.
+      // A layer never rewrites `slotBindings`, so the base binding (thread) is unchanged.
       const baseThread = useSlotThread({ slot: 'slot1' });
-      // Reading the profile as a base binding must NOT find it (it lives in the layer stack).
+      // The profile lives in the layer stack, so reading it as a base binding finds nothing.
       const profileAsBase = useSlotEntity({ kind: 'userProfile', slot: 'slot1' });
 
       return (

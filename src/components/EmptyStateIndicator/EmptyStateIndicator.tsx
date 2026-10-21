@@ -5,7 +5,7 @@ import { useComponentContextIcons } from '../../context';
 import { asDynamicKey } from '../../i18n/utils';
 
 export type EmptyStateIndicatorProps = {
-  /** List Type: channel | message */
+  /** Which list is empty. A 'thread' list renders nothing. */
   listType?: 'channel' | 'message' | 'thread';
   messageText?: string;
 };
@@ -32,8 +32,8 @@ const UnMemoizedEmptyStateIndicator = (props: EmptyStateIndicatorProps) => {
   }
 
   if (listType === 'message') {
-    // `messageText` is integrator-supplied and may itself be a translation key, so it is
-    // passed through `t` as-is; only the built-in default carries a key + inline copy.
+    // `messageText` is integrator-supplied and may be a translation key, so it goes through `t`
+    // as-is; only the built-in default has a key and inline copy.
     const text = messageText
       ? t(asDynamicKey(messageText))
       : t(

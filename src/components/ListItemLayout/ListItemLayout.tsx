@@ -54,9 +54,8 @@ export const ListItemLayout = <RootElement extends ListItemLayoutRootElement = '
   TrailingIcon,
   TrailingSlot,
 }: ListItemLayoutProps<RootElement>) => {
-  // The inner container is the interactive element (button/anchor). The outer
-  // wrapper is a plain spacing buffer so the container's focus ring (2px offset)
-  // never overlaps adjacent items or gets clipped by an overflow ancestor.
+  // The inner container is the interactive element. The outer wrapper only adds spacing, so the
+  // container's focus ring (2px offset) neither overlaps neighbors nor gets clipped by an ancestor.
   const ContainerComponent = (RootElement ?? 'div') as ElementType<
     HTMLAttributes<HTMLElement>
   >;

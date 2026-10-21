@@ -161,8 +161,8 @@ describe('the panel implied by the raising composer', () => {
   });
 
   it('makes a composer-raised notification targeted, so it ignores a fallback panel', () => {
-    // Worth pinning: before the composer was carried, this notification was untargeted and any
-    // list claimed it through its `fallbackPanel`. It now belongs to one panel.
+    // The composer context targets the notification at one panel; untargeted, any list would claim
+    // it through its `fallbackPanel`.
     const raisedInThread = composerNotification('thread');
 
     expect(isNotificationForPanel(raisedInThread, 'thread')).toBe(true);

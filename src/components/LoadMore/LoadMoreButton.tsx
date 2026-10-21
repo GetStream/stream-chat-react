@@ -5,9 +5,9 @@ import { useTranslationContext } from '../../context';
 import { Button } from '../Button';
 
 export type LoadMoreButtonProps = {
-  /** onClick handler load more button. Pagination logic should be executed in this handler. */
+  /** Click handler; run the pagination logic here. */
   onClick: React.MouseEventHandler<HTMLButtonElement>;
-  /** indicates whether a loading request is in progress */
+  /** Whether a load is in progress; disables the button and shows a loading indicator. */
   isLoading?: boolean;
 };
 

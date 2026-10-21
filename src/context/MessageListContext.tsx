@@ -4,11 +4,11 @@ import type { RenderedMessage } from '../components';
 import { requireContext } from './requireContext';
 
 export type MessageListContextValue = {
-  /** Enriched message list, including date separators and intro message (if enabled) */
+  /** Messages enriched with date separators and, if enabled, the intro message. */
   processedMessages: RenderedMessage[];
-  /** The scroll container within which the messages and typing indicator are rendered */
+  /** The scroll container that holds the messages and the typing indicator. */
   listElement: HTMLElement | null;
-  /** Function that scrolls the `listElement` to the bottom. */
+  /** Scrolls the `listElement` to the bottom. */
   scrollToBottom: () => void;
 };
 
@@ -16,9 +16,7 @@ export const MessageListContext = createContext<MessageListContextValue | undefi
   undefined,
 );
 
-/**
- * Context provider for components rendered within the `MessageList`
- */
+/** Provides the value to components rendered within the `MessageList`. */
 export const MessageListContextProvider = ({
   children,
   value,

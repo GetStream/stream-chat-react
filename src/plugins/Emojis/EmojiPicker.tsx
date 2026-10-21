@@ -23,13 +23,11 @@ export type EmojiPickerProps = {
   wrapperClassName?: string;
   closeOnEmojiSelect?: boolean;
   /**
-   * Untyped [properties](https://github.com/missive/emoji-mart/tree/v5.5.2#options--props) to be
-   * passed down to the [emoji-mart `Picker`](https://github.com/missive/emoji-mart/tree/v5.5.2#-picker) component
+   * Untyped [properties](https://github.com/missive/emoji-mart/tree/v5.5.2#options--props)
+   * passed to the [emoji-mart `Picker`](https://github.com/missive/emoji-mart/tree/v5.5.2#-picker).
    */
   pickerProps?: Partial<{ theme: 'auto' | 'light' | 'dark' } & PickerProps>;
-  /**
-   * Floating UI placement (default: 'top-end') for the picker popover
-   */
+  /** Floating UI placement of the picker popover. Defaults to `'top-end'`. */
   placement?: PopperLikePlacement;
 };
 

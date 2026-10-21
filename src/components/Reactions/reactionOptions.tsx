@@ -114,18 +114,17 @@ export const getHasExtendedReactions = (reactionOptions: ReactionOptions) =>
   Object.keys(reactionOptions.extended).length > 0;
 
 /**
- * Resolves the native emoji character (e.g. "👍") for a given reaction type from
- * the configured reaction options. The value is used as the `emoji_code` sent
- * with a reaction so that push notifications can render the emoji.
+ * Resolves the native emoji character (e.g. "👍") that is sent as `emoji_code` with a reaction, so
+ * that push notifications can render it.
  *
- * Returns `undefined` when no `unicode` is available for the type (e.g. legacy
- * array reaction options or custom options that omit `unicode`).
+ * @param reactionOptions - Configured reaction options. Legacy array options carry no `unicode`.
+ * @param reactionType - Reaction type to resolve.
+ * @returns The emoji, or undefined when the type has no `unicode`.
  */
 export const getEmojiCodeByReactionType = (
   reactionOptions: ReactionOptions,
   reactionType: string,
 ): string | undefined => {
-  // Legacy array reaction options carry no unicode data.
   if (Array.isArray(reactionOptions)) return undefined;
 
   const unicode =

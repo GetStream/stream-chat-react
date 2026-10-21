@@ -62,7 +62,7 @@ describe('SupersededChannelSwap', () => {
     );
     const bind = vi.spyOn(layoutController, 'bind');
 
-    // what the first query does: the channel takes its real id and cid, then is marked initialized
+    // What the first query does: the channel takes its real ID and cid, then is marked initialized.
     act(() => {
       created.id = '!members-real';
       created.cid = 'messaging:!members-real';
@@ -112,7 +112,7 @@ describe('SupersededChannelSwap', () => {
     const other = client.channelManager.ensure({ id: 'other', type: 'messaging' });
     renderSwap();
 
-    // the slot is bound to another channel before the swap's effect runs
+    // The slot is bound to another channel before the swap's effect runs.
     act(() => {
       previous.state.partialNext({ supersededBy: successor });
       layoutController.bind(

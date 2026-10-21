@@ -22,8 +22,8 @@ export const ChannelInstanceProvider = ({
 );
 
 /**
- * Non-throwing counterpart to {@link useChannel}: returns an empty object outside a `Channel`
- * subtree, for callers that only need to know whether a channel is in scope.
+ * Returns the channel provided by the nearest `Channel`, or an empty object outside one. Unlike
+ * {@link useChannel}, it does not throw and does not read the thread's channel.
  */
 export const useChannelInstanceContext = (): Partial<ChannelInstanceContextValue> =>
   useContext(ChannelInstanceContext) ?? {};

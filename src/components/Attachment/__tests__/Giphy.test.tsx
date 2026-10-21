@@ -57,7 +57,7 @@ describe('Giphy accessible name', () => {
   });
 
   it('never exposes a raw URL as the accessible name', () => {
-    // mimic a payload where the only "title" is a URL (the descriptor's URL fallback)
+    // Mimics a payload where the only "title" is a URL (the descriptor's URL fallback).
     const attachment = generateGiphyAttachment({
       thumb_url: 'https://media.giphy.com/media/abc/giphy.gif',
       title: undefined,

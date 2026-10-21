@@ -6,15 +6,13 @@ export type ButtonAppearance = 'solid' | 'outline' | 'ghost';
 export type ButtonSize = 'lg' | 'md' | 'sm' | 'xs';
 
 export type ButtonProps = ComponentProps<'button'> & {
-  /** Semantic variant: primary, secondary, or danger (maps to destructive in styles). */
+  /** The `'danger'` variant uses the destructive styling. */
   variant?: ButtonVariant;
-  /** Visual style: solid, outline, or ghost. */
   appearance?: ButtonAppearance;
-  /** When true, uses full border-radius for icon-only/pill shape. */
+  /** Uses a full border radius, for icon-only or pill buttons. */
   circular?: boolean;
-  /** When true, button uses inverse theme (e.g. on dark surface in light theme). */
+  /** Applies the inverse theme, e.g. for a dark surface in the light theme. */
   inverseTheme?: boolean;
-  /** Size: lg, md, or sm. */
   size?: ButtonSize;
 };
 

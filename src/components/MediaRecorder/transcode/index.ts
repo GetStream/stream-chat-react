@@ -2,9 +2,9 @@ import { encodeToWaw } from './wav';
 import { createFileFromBlobs, getExtensionFromMimeType } from '../../ReactFileUtilities';
 
 export type TranscoderConfig = {
-  // defaults to 16000Hz
+  /** Output sample rate in Hz. Defaults to 16000. */
   sampleRate: number;
-  // Custom encoder function that converts the recorded audio file into a blob with the desired MIME type
+  /** Converts the recorded audio file into a blob of the desired MIME type. Defaults to WAV. */
   encoder?: (file: File, sampleRate: number) => Promise<Blob>;
 };
 

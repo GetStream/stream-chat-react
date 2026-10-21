@@ -4,11 +4,9 @@ import { fromPartial } from '@total-typescript/shoehorn';
 
 import type { Thread } from 'stream-chat';
 
-/**
- * The key a message list resets on. It has to follow the same axis as `useMessagePaginator()` --
- * the thread when there is one, the channel otherwise -- or a list shows one source's messages with
- * another's scroll position.
- */
+// The key a message list resets on follows the same axis as `useMessagePaginator()` (the thread
+// when there is one, the channel otherwise), or a list shows one source's messages with another's
+// scroll position.
 describe('getMessageSourceKey', () => {
   it('is stable for one channel instance and distinct per instance', async () => {
     const {

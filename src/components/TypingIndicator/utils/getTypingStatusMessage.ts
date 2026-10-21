@@ -1,9 +1,7 @@
 import type { TranslationContextValue } from '../../../context/TranslationContext';
 import type { TypingEntry } from '../hooks/useDebouncedTypingActive';
 
-/**
- * Build a localized typing-status message for screen-reader and inline indicator text.
- */
+/** Localized typing status for the live region and the inline header: names, or a count. */
 export const getTypingStatusMessage = (
   displayUsers: readonly TypingEntry[],
   t: TranslationContextValue['t'],

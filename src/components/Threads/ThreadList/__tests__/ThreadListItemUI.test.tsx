@@ -22,8 +22,7 @@ const mockIsThreadActive = vi.fn();
 const mockUseThreadListItemContext = vi.fn();
 const mockUseChannelPreviewInfo = vi.fn();
 
-// Active state and selection now come from the workspace navigation adapter:
-// `isThreadActive(id)` drives the selected state; clicking opens the thread via `openThread`.
+// `isThreadActive(id)` drives the selected state; a click opens the thread via `openThread`.
 vi.mock('../../../../context', () => ({
   useChatContext: () => mockUseChatContext(),
   useComponentContext: () => ({}),
@@ -135,7 +134,7 @@ describe('ThreadListItemUI', () => {
     expect(label).toContain('2 unread message');
     expect(label).toContain('Thread: hello world');
     expect(label).toContain('3 replies');
-    // Active row announces its state in the name (since aria-selected is unreliable for SR).
+    // The active state is in the name because `aria-selected` is unreliable for screen readers.
     expect(label).toContain('Active');
   });
 
@@ -170,7 +169,7 @@ describe('ThreadListItemUI', () => {
     render(<ThreadListItemUI />);
     fireEvent.click(screen.getByRole('option'));
 
-    // Re-selecting still routes through openThread (idempotent), but must not re-announce.
+    // Re-selecting still calls openThread (idempotent) but must not re-announce.
     expect(mockOpenThread).toHaveBeenCalledWith(thread, { additive: false });
     expect(announceInteraction).not.toHaveBeenCalled();
   });

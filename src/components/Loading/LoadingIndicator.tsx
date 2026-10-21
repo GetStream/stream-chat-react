@@ -2,8 +2,8 @@ import React from 'react';
 import { useComponentContextIcons } from '../../context';
 import type { BaseIconProps } from '../Icons/BaseIcon';
 
-// Typed off the icon contract rather than off a concrete icon: the rendered icon now comes from
-// the `IconLoading` slot, which any override can replace.
+// Typed off the icon contract because the rendered icon comes from the replaceable
+// `IconLoading` slot.
 export type LoadingIndicatorProps = BaseIconProps;
 
 export const LoadingIndicator = (props: LoadingIndicatorProps) => {

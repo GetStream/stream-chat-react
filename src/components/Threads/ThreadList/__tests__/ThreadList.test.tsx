@@ -14,16 +14,14 @@ const mockUseStateStore = vi.fn();
 const mockVirtuoso = vi.fn();
 const mockScrollIntoView = vi.fn();
 
-// Number of rows the mocked Virtuoso keeps in the DOM — a fixed "window" of the first N threads, so
-// navigating past it exercises the off-window (scroll-into-view) path the same way real
-// virtualization does.
+// Number of rows the mocked Virtuoso keeps in the DOM: a fixed window of the first N threads, so
+// navigating past it takes the off-window scroll-into-view path as real virtualization does.
 const MOCK_WINDOW_SIZE = 3;
 
-// A Virtuoso stand-in that wires the props/handle ThreadList relies on for keyboard navigation:
-// `scrollerRef` (the `role="listbox"` element), `onKeyDown`, and a `ref` exposing `scrollIntoView`
-// (how navigation asks the virtualized list to bring an off-window index into view). It renders only
-// the first MOCK_WINDOW_SIZE threads as `role="option"` buttons (mirroring ThreadListItemUI), so the
-// rest are genuinely absent from the DOM. `scrollIntoView` records the requested index.
+// A Virtuoso stand-in with the props and handle ThreadList uses for keyboard navigation:
+// `scrollerRef`, `onKeyDown` and a `ref` exposing `scrollIntoView`, which records the requested
+// index. It renders only the first MOCK_WINDOW_SIZE threads, as `role="option"` buttons, so the
+// rest are absent from the DOM.
 vi.mock('react-virtuoso', async () => {
   const React = await vi.importActual<typeof import('react')>('react');
   const Virtuoso = React.forwardRef((props: Record<string, any>, ref) => {
@@ -84,9 +82,8 @@ vi.mock('../../../Notifications', () => ({
 }));
 
 describe('ThreadList', () => {
-  // A real StreamChat client (via initClientWithChannels), so `client.threads` and its paginator
-  // are genuine. `useStateStore` stays mocked to drive isLoading/threads, and
-  // `client.threads.reload` is stubbed to avoid a network call in the mount effect.
+  // A real client, so `client.threads` and its paginator are genuine. `useStateStore` is mocked to
+  // drive isLoading/threads, and `client.threads.reload` is stubbed to avoid a network call.
   let client: StreamChat;
 
   beforeEach(async () => {
@@ -187,7 +184,7 @@ describe('ThreadList', () => {
     expect(toTail).toHaveBeenCalledTimes(1);
   });
 
-  // 5 threads, but the mocked Virtuoso only renders the first MOCK_WINDOW_SIZE (3).
+  // 5 threads, but the mocked Virtuoso renders only the first MOCK_WINDOW_SIZE (3).
   const FIVE_THREADS = [
     { id: 'thread-1' },
     { id: 'thread-2' },
@@ -211,7 +208,7 @@ describe('ThreadList', () => {
     fireEvent.keyDown(listbox, { key: 'ArrowDown' });
     expect(document.activeElement).toBe(optionFor('thread-3'));
 
-    // All targets so far were already in the DOM — no virtualization scroll needed.
+    // Every target was already in the DOM, so no scroll is requested.
     expect(mockScrollIntoView).not.toHaveBeenCalled();
   });
 
@@ -220,17 +217,17 @@ describe('ThreadList', () => {
 
     render(<ThreadList />);
     const listbox = screen.getByTestId('virtuoso');
-    // Focus the last rendered row (index 2); the next row (index 3) is NOT in the DOM.
+    // Focus the last rendered row (index 2); the next row (index 3) is not in the DOM.
     optionFor('thread-3')!.focus();
 
-    // The regression: a DOM-only roving approach would wrap back to the first rendered option and
-    // never call scrollIntoView. The fix indexes into the full list and asks Virtuoso to scroll.
+    // Regression guard: a DOM-only roving approach wraps to the first rendered option and never
+    // calls scrollIntoView.
     fireEvent.keyDown(listbox, { key: 'ArrowDown' });
     expect(mockScrollIntoView).toHaveBeenLastCalledWith(3);
-    // Focus did NOT wrap back into the window.
+    // Focus does not wrap back into the window.
     expect(document.activeElement).not.toBe(optionFor('thread-1'));
 
-    // End scrolls all the way to the last thread (index 4) — i.e. to the bottom.
+    // End scrolls to the last thread (index 4).
     fireEvent.keyDown(listbox, { key: 'End' });
     expect(mockScrollIntoView).toHaveBeenLastCalledWith(4);
   });

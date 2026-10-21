@@ -34,8 +34,7 @@ export class NotificationTranslationTopic extends TranslationTopic<NotificationT
 
   translate = (value: string, key: string, options: { notification?: Notification }) => {
     const { notification } = options;
-    // i18next hands over its own untyped `TFunction`; the translators take the SDK's narrowed
-    // `StreamTFunction`. Narrowed once here rather than at each of the four use sites below.
+    // i18next's `TFunction` is untyped; the translators take the SDK's `StreamTFunction`.
     const t = this.i18next.t as unknown as StreamTFunction;
     if (!notification) return value;
     const byType = notification.type
@@ -48,12 +47,8 @@ export class NotificationTranslationTopic extends TranslationTopic<NotificationT
     if (translated) return translated;
     if (!notification.message) return value;
 
-    // Final fallback for an identifier no translator claims -- a newer `stream-chat`, or one emitted
-    // by integrator code. Render the English message rather than a blank or a raw dotted key.
-    //
-    // This used to run the message through a hand-maintained table of English sentences mapped onto
-    // keys. That table is gone: identifiers are the seam now, so prose matching would only mask a
-    // missing translator entry.
+    // No translator claims this type (e.g. a newer `stream-chat` or integrator code): render the
+    // English message rather than a blank or a raw dotted key.
     return notification.message;
   };
 }

@@ -26,13 +26,6 @@ import { Thread } from '../Thread';
 import { useThreadContext } from '../../Threads';
 import type { ComponentContextValue } from '../../../context';
 
-// MERGE-RECONCILE (test migration): PR #2909 / v14 rewrote Thread to read from a Thread instance
-// (not the deleted ChannelStateContext/ChannelActionContext). The parent message, reply pagination
-// and loading live on `thread.state` / `thread.messagePaginator`, and opened threads resolve through
-// `client.threads.get()`. Obsolete assertions that referenced the removed MessageList props
-// (`hasMore`/`loadMore`/`messages`/`threadList`) and the ChannelActionContext
-// `loadMoreThread`/`closeThread` handlers are updated to the current contract.
-
 let chatClient: StreamChat;
 let channel: StreamChannel;
 const alice = generateUser({ id: 'alice', name: 'alice' });
@@ -53,20 +46,19 @@ const makeThread = (
 ) => {
   const { isLoading = false, isStateStale = false, replies = true } = opts;
   const parent = opts.parentMessage ?? parentMessage;
-  // `ThreadState.replyCount` is a projection of the parent message's `reply_count` (the SDK keeps
-  // the two in sync through the message store), so derive it here instead of letting callers set
-  // the two independently.
+  // `ThreadState.replyCount` mirrors the parent message's `reply_count`, so derive it instead of
+  // setting both independently.
   const replyCount = opts.replyCount ?? parent.reply_count ?? 0;
-  // Distinguish "not provided" (default to loaded replies) from an explicit `undefined`
-  // (replies not fetched yet) — a destructuring default cannot tell them apart.
+  // A destructuring default cannot tell an explicit `undefined` (replies not fetched yet) from
+  // "not provided".
   const items = 'items' in opts ? opts.items : [reply1, reply2];
   const deactivate = vi.fn();
   const reload = vi.fn(() => Promise.resolve());
   const thread = fromPartial<StreamThread>({
     channel: fromPartial({
       cid: 'messaging:thread-test',
-      // A real store: `Thread` subscribes to the resolved configuration rather than reading the
-      // non-reactive `channel.config` getter, so a stub with only `getLatestValue` is not enough.
+      // A real store: `Thread` subscribes to the resolved configuration, not the non-reactive
+      // `channel.config` getter, so a stub with only `getLatestValue` is not enough.
       configState: new StateStore(
         fromPartial<ChannelConfig>({ replies: { enabled: replies } }),
       ),
@@ -126,7 +118,6 @@ describe('Thread', () => {
   });
 
   it('should render no UI of its own beyond the container', () => {
-    // The composition is the caller's: no header, list or composer is implied by `Thread`.
     const { container } = renderComponent({ children: null });
 
     expect(container.querySelector('.str-chat__thread')).toBeEmptyDOMElement();
@@ -202,7 +193,7 @@ describe('Thread', () => {
   });
 
   it('should leave the opened thread out of the thread list', () => {
-    // An opened thread stays live through the manager's store; `Thread` does not add it to the list.
+    // An opened thread stays live through the manager's store; `Thread` does not list it.
     const { thread } = ensureThread(
       generateMessage({
         cid: channel.cid,
@@ -229,7 +220,7 @@ describe('Thread', () => {
 
   it('should not reload a thread whose parent message has no replies yet', () => {
     // The thread does not exist server-side until its first reply, so `GET /threads/:id` can only
-    // 404 here — opening a reply-less message to write the first reply must not query.
+    // 404 here: opening a reply-less message to write the first reply must not query.
     const { reload, thread } = makeThread({
       items: undefined,
       parentMessage: generateMessage({
@@ -244,8 +235,8 @@ describe('Thread', () => {
   });
 
   it('should not load a thread built by `ensure()` for a parent without replies in a watched channel', () => {
-    // There is no server-side thread to load yet (`getThread` would answer 404), so `ensure()` builds
-    // it up to date. It is registered, so its first reply reaches it as an event, not through a load.
+    // There is no server-side thread to load yet (`getThread` would answer 404), so `ensure()`
+    // builds it up to date. It is registered, so its first reply arrives as an event, not a load.
     channel.watchStatus = ChannelWatchStatus.Watching;
     const { reload, thread } = ensureThread(
       generateMessage({
@@ -287,8 +278,8 @@ describe('Thread', () => {
   });
 
   it('should load a stale thread whose parent reports no replies, and again once it reports one', () => {
-    // A thread never created server-side answers not-found, which leaves it stale (the stub resolves
-    // without clearing it), so it loads again once its parent reports a reply.
+    // A thread never created server-side answers not-found, which leaves it stale (the stub
+    // resolves without clearing it), so it loads again once its parent reports a reply.
     const { reload, thread } = makeThread({
       isStateStale: true,
       // `[]`: a reopened thread has replies loaded, so only its staleness can trigger the load.

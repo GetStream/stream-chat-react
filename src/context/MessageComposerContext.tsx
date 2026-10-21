@@ -31,8 +31,8 @@ export const useMessageComposerContext = () =>
   );
 
 /**
- * Whether the caller sits beneath a `MessageComposerContextProvider`, for components that render
- * both inside and outside a composer. See `WithDragAndDropUpload`.
+ * Whether the caller is rendered within a `MessageComposerContextProvider`, for components that
+ * render both inside and outside a composer (see `WithDragAndDropUpload`).
  */
 export const useIsWithinMessageComposerContext = () =>
   useContext(MessageComposerContext) !== undefined;

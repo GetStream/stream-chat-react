@@ -38,13 +38,16 @@ export type ModalCloseSource = 'overlay' | 'button' | 'escape';
 export type ModalInitialFocusStrategy = 'dialog' | 'firstElement';
 
 export type ModalProps = {
-  /** If true, modal is opened or visible. */
+  /** Whether the modal is open. */
   open: boolean;
-  /** Custom class to be applied to the modal root div */
+  /** Class applied to the modal root div. */
   className?: string;
-  /** Optional stable id for this modal instance. Generated automatically when omitted. */
+  /** Stable ID for this modal instance. Generated when omitted. */
   dialogId?: string;
-  /** Properties forwarded to the root div within which the dialog content is rendered */
+  /**
+   * Props forwarded to the dialog surface div. `className` is merged; `onKeyDown` runs first, and
+   * `preventDefault()` in it skips the built-in Escape and Enter handling.
+   */
   dialogRootProps?: Omit<
     ComponentProps<'div'>,
     'aria-label' | 'aria-labelledby' | 'aria-describedby' | 'role'
@@ -57,15 +60,24 @@ export type ModalProps = {
   'aria-describedby'?: string;
   /** ARIA role for the modal dialog surface. */
   role?: 'alertdialog' | 'dialog';
-  /** Controls whether the dialog surface or the first focusable descendant receives initial focus. */
+  /**
+   * Whether the dialog surface (`'dialog'`) or its first focusable descendant (`'firstElement'`)
+   * receives initial focus. Defaults to `'firstElement'`.
+   */
   initialFocusStrategy?: ModalInitialFocusStrategy;
-  /** Resolves a custom initial focus element. When provided, it overrides `initialFocusStrategy` and falls back to the dialog surface when no element is returned. */
+  /**
+   * Returns the element to focus initially. It overrides `initialFocusStrategy`, and the dialog
+   * surface is focused when it returns `null`.
+   */
   getInitialFocusElement?: (dialogElement: HTMLDivElement) => HTMLElement | null;
-  /** If provided, the close button is rendered on overlay */
+  /** Close button component rendered on the overlay when provided. */
   CloseButtonOnOverlay?: ComponentType<ComponentProps<'button'>>;
-  /** Callback handler for closing of modal. */
+  /**
+   * Called when the modal closes itself (overlay click, close button, Escape or the modal
+   * context's `close`), not when `open` turns false.
+   */
   onClose?: (event: ModalCloseEvent) => void;
-  /** Optional handler to intercept closing logic. Return false to prevent onClose. */
+  /** Called before closing; return `false` to prevent closing and `onClose`. */
   onCloseAttempt?: (source: ModalCloseSource, event: ModalCloseEvent) => boolean;
 };
 
@@ -101,8 +113,8 @@ export const GlobalModal = ({
     onKeyDown: dialogRootOnKeyDown,
     ...dialogRootPropsRest
   } = dialogRootProps ?? {};
-  // Base for label/description ids must be unique per modal. `resolvedDialogId` already carries a
-  // per-instance suffix; the shared `modalDialogId` fallback would collide across stacked modals.
+  // The base for label and description IDs must be unique per modal: `resolvedDialogId` carries a
+  // per-instance suffix, while the shared `modalDialogId` would collide across stacked modals.
   const dialogLabelingBaseId = resolvedDialogId;
   const resolvedInitialFocusStrategy: ModalInitialFocusStrategy =
     initialFocusStrategy ?? 'firstElement';
@@ -155,11 +167,9 @@ export const GlobalModal = ({
       return;
     }
 
-    // Initial focus lands on the dialog surface so the screen reader announces the dialog
-    // identity/description (a child field's focus would supersede that). Enter on the surface then
-    // steps the user into the dialog's declared default field (`[data-autofocus]`), so they can
-    // start interacting without hunting for it. `event.target === dialogRef.current` ensures we
-    // only react to Enter on the surface itself, never one bubbling up from a control inside.
+    // Initial focus can land on the dialog surface so the screen reader announces the dialog. Enter
+    // there moves focus to the default field (`[data-autofocus]`); the target check ignores Enter
+    // bubbling up from a control inside.
     if (event.key === 'Enter' && event.target === dialogRef.current) {
       const target = dialogRef.current?.querySelector<HTMLElement>('[data-autofocus]');
       if (target) {
@@ -169,8 +179,8 @@ export const GlobalModal = ({
     }
   };
 
-  // Sync open prop to dialog state.
-  // closingRef blocks re-open when we just closed and parent hasn't set open=false yet.
+  // Syncs the `open` prop to dialog state. `closingRef` blocks a re-open after closing until the
+  // parent sets `open` to false.
   useEffect(() => {
     if (!open) {
       closingRef.current = false;
@@ -188,8 +198,7 @@ export const GlobalModal = ({
     if (
       !open ||
       !isOpen ||
-      // Only the topmost modal may take initial focus; a non-topmost (inert) stacked modal must not
-      // pull focus behind the active one (mirrors the FocusScope/AriaLiveOutlet topmost gating).
+      // Only the topmost modal takes initial focus, so an inert stacked one does not pull it away.
       !isTopmost ||
       (!getInitialFocusElement && resolvedInitialFocusStrategy === 'firstElement')
     )
@@ -252,9 +261,8 @@ export const GlobalModal = ({
                 }}
               >
                 {children}
-                {/* Render the live-region outlet inside the active modal subtree
-                  (only the topmost dialog carries `aria-modal`) so announcements
-                  are not suppressed by assistive technologies. */}
+                {/* The live-region outlet sits inside the active modal subtree (only the topmost
+                  carries `aria-modal`) so assistive technologies do not suppress announcements. */}
                 {isTopmost && <AriaLiveOutlet layer={1} />}
               </DialogManagerProvider>
             </div>

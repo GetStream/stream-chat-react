@@ -31,7 +31,7 @@ export function useActionHandler(message?: LocalMessage): ActionHandlerReturnTyp
     const messageId = message.id;
     let formData: FormData = {};
 
-    // deprecated: value&name should be removed in favor of data obj
+    // Deprecated: the separate `name` and `value` arguments. Pass a data object instead.
     if (typeof dataOrName === 'string') {
       formData[dataOrName] = value as string;
     } else {

@@ -8,10 +8,9 @@ const aiStateSelector = (nextValue: AIIndicatorState) => ({
 });
 
 /**
- * A hook that returns the current state of the AI.
+ * Returns the AI state of the channel, driven by its `ai_indicator.*` events. Falls back to
+ * `AIStates.Idle` when there is no channel or no state yet.
  *
- * Reads the channel's reactive `aiState` slice, which the client drives from the
- * `ai_indicator.update` / `.clear` / `.stop` events
  * @param {Channel} channel - The channel for which we want to know the AI state.
  * @returns {{ aiState: AIState }} The current AI state for the given channel.
  */

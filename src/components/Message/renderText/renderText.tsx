@@ -5,7 +5,7 @@ import remarkGfm from 'remark-gfm';
 import type { ComponentType, JSX, ReactNode } from 'react';
 import type { Options } from 'react-markdown';
 import type { UserResponse } from 'stream-chat';
-import type { PluggableList } from 'unified'; // A sub-dependency of react-markdown. The type is not declared or re-exported from anywhere else
+import type { PluggableList } from 'unified';
 
 import { Anchor, Emoji, Mention } from './componentRenderers';
 import { detectHttp, matchMarkdownLinks, messageCodeBlocks } from './regex';
@@ -54,7 +54,7 @@ export const defaultAllowedTagNames: Array<
   'tr',
   'td',
   'tfoot',
-  // custom types (tagNames)
+  // Custom tag names produced by the SDK's emoji and mention plugins.
   'emoji',
   'mention',
   'h1',
@@ -104,13 +104,8 @@ export type RenderTextOptions = {
   getRehypePlugins?: RenderTextPluginConfigurator;
   getRemarkPlugins?: RenderTextPluginConfigurator;
   /**
-   * Additive mention metadata for rendered message text.
-   *
-   * Prefer this over the deprecated `mentionedUsers` argument. Use it whenever
-   * the message contains mention kinds beyond direct-user mentions
-   * (for example `@channel`, `@here`, roles, or user groups) and `renderText`
-   * needs the exact mention entities that should be highlighted in the rendered
-   * markdown output.
+   * Mention entities to highlight in the rendered text, including `@channel`, `@here`, roles and
+   * user groups. Takes precedence over the deprecated `mentionedUsers` argument.
    */
   messageMentionEntities?: RenderTextMentionEntity[];
 };
@@ -118,8 +113,7 @@ export type RenderTextOptions = {
 export type RenderTextFunction = (
   text?: string,
   /**
-   * @deprecated Pass mention metadata through `options.messageMentionEntities`
-   * instead. This argument only supports direct-user mentions. Will be removed in next major version.
+   * @deprecated Use `options.messageMentionEntities` instead, which also covers non-user mentions.
    */
   mentionedUsers?: UserResponse[],
   options?: RenderTextOptions,
@@ -128,8 +122,7 @@ export type RenderTextFunction = (
 export function renderText(
   text?: string,
   /**
-   * @deprecated Pass mention metadata through `options.messageMentionEntities`
-   * instead. This argument only supports direct-user mentions.
+   * @deprecated Use `options.messageMentionEntities` instead, which also covers non-user mentions.
    */
   mentionedUsers?: UserResponse[],
   {
@@ -140,8 +133,6 @@ export function renderText(
     messageMentionEntities,
   }: RenderTextOptions = {},
 ) {
-  // take the @ mentions and turn them into markdown?
-  // translate links
   if (!text) return null;
   if (text.trim().length === 1) return <>{text}</>;
 
@@ -154,15 +145,14 @@ export function renderText(
   const markdownLinks = matchMarkdownLinks(newText);
   const codeBlocks = messageCodeBlocks(newText);
 
-  // Extract all valid links/emails within text and replace it with proper markup
-  // Revert the link order to avoid getting out of sync of the original start and end positions of links
-  // - due to the addition of new characters when creating Markdown links
+  // URLs (and e-mails that match a mention display text) become Markdown links, iterating from
+  // the last match so the added characters do not shift the positions of earlier ones.
   const links = [...find(newText, 'email'), ...find(newText, 'url')];
   for (let i = links.length - 1; i >= 0; i--) {
     const { end, href, start, type, value } = links[i];
     const linkIsInBlock = codeBlocks.some((block) => block?.includes(value));
 
-    // check if message is already  markdown
+    // Skip links that are already Markdown links.
     const noParsingNeeded =
       markdownLinks &&
       markdownLinks.filter((text) => {
@@ -177,17 +167,14 @@ export function renderText(
     if (noParsingNeeded.length > 0 || linkIsInBlock) continue;
 
     try {
-      // special case for mentions:
-      // it could happen that a mention display text matches with an e-mail-like pattern.
-      // in that case, we check whether the found e-mail is actually a mention
-      // by naively checking for an existence of @ sign in front of it.
+      // A mention display text can look like an e-mail; the match counts as a mention when an
+      // `@` directly precedes it.
       if (type === 'email') {
         const mentionDisplayText = `@${value}`;
         if (mentionDisplayTextSet.has(mentionDisplayText)) {
           // FIXME: breaks if the mention symbol is not '@'
           const isMention = newText.charAt(start - 1) === '@';
-          // in case of mention, we leave the match in its original form,
-          // and we let `mentionsMarkdownPlugin` to do its job
+          // A mention is left as is for `mentionsMarkdownPlugin` to handle.
           newText =
             newText.slice(0, start) +
             (isMention ? value : `[${value}](${encodeDecode(href)})`) +

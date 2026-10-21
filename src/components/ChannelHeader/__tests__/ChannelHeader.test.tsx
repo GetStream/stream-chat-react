@@ -4,10 +4,6 @@ import { fromPartial } from '@total-typescript/shoehorn';
 
 import { ChannelHeader } from '../ChannelHeader';
 
-// MERGE-RECONCILE (test migration): the deleted ChannelStateContext/ChatContext mock providers were
-// replaced by the real <Chat client><Channel channel> tree (which supplies the channel instance,
-// translation and component contexts). Component-slot overrides are provided via
-// <WithComponents> nested inside <Channel>.
 import { Channel } from '../../Channel';
 import { Chat } from '../../Chat';
 import { WithComponents } from '../../../context/WithComponents';
@@ -50,8 +46,8 @@ const defaultChannelState = {
   members: [generateMember({ user: user1 }), generateMember({ user: user2 })],
 };
 
-// stream-chat v10: channel custom data is nested - `channel.data.custom.name` /
-// `channel.data.custom.image` (the display helpers read exactly those paths).
+// Channel custom data is nested: `channel.data.custom.name` and `channel.data.custom.image`, the
+// paths the display helpers read.
 const channelCustom = (custom: Record<string, unknown>) => ({ custom });
 
 const renderComponentBase = ({
@@ -147,11 +143,10 @@ describe('ChannelHeader', () => {
     });
     const results = await axe(container);
     expect(results).toHaveNoViolations();
-    // The subtitle area now shows online status or typing indicator, not channel.data.subtitle
     const subtitleEl = container.querySelector(
       '.str-chat__channel-header__data__subtitle',
     );
-    // Subtitle renders when there is member count and thus online status text
+    // The subtitle renders because a member count yields online status text.
     await waitFor(() => {
       expect(subtitleEl).toBeInTheDocument();
     });
@@ -366,8 +361,7 @@ describe('ChannelHeader', () => {
       });
       await renderComponentBase({ channel, client, props });
       await waitFor(() => {
-        // For 5 members, getGroupChannelDisplayInfo returns overflowCount,
-        // so GroupAvatar renders 2 avatars + a "+N" overflow badge
+        // With more than 4 members (5 here), `GroupAvatar` renders 2 avatars and a "+N" badge.
         const groupAvatar = screen.getByTestId('group-avatar');
         expect(groupAvatar).toBeInTheDocument();
         const avatarImages = screen.getAllByTestId(AVATAR_IMG_TEST_ID);
@@ -496,7 +490,7 @@ describe('ChannelHeader', () => {
         channelsData: [channelState],
         customUser: ownUser,
       });
-      // v10: arbitrary user attributes live under `user.custom` (an object, not a string).
+      // Arbitrary user attributes live under `user.custom`, which is an object.
       const updatedAttribute = { custom: { someAttribute: 'new-custom' } };
       await renderComponentBase({ channel, client, props });
 
@@ -539,7 +533,7 @@ describe('ChannelHeader', () => {
         channelsData: [channelState],
         customUser: ownUser,
       });
-      // v10: arbitrary user attributes live under `user.custom` (an object, not a string).
+      // Arbitrary user attributes live under `user.custom`, which is an object.
       const updatedAttribute = { custom: { someAttribute: 'new-custom' } };
       await renderComponentBase({ channel, client, props });
 

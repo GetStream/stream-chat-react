@@ -10,11 +10,16 @@ import type {
 } from 'stream-chat';
 
 /**
- * React hook to create, connect and return `StreamChat` client.
+ * Creates a `StreamChat` client and connects the user. Unmounting disconnects it; a change of
+ * `apiKey`, `tokenOrProvider` or `userData.id` disconnects it and creates a new client.
  *
- * `config` is the declarative configuration the client is constructed with — the same tree
- * `client.config.set()` takes, e.g. `{ client: { baseURL, axiosRequestConfig } }`. It is read once, on
+ * @param params.apiKey - Stream API key.
+ * @param params.config - Client configuration, the tree `client.config.set()` takes. Read only on
  * the first render.
+ * @param params.tokenOrProvider - Token or token provider of the user. Compared by reference, so
+ * keep it stable across renders.
+ * @param params.userData - User to connect. Changes other than `userData.id` are ignored.
+ * @returns The client once the user is connected, null before that.
  */
 export const useCreateChatClient = ({
   apiKey,

@@ -14,13 +14,13 @@ import { AvatarStack as DefaultAvatarStack } from '../Avatar';
 import { extractDisplayInfo as defaultExtractDisplayInfo } from '../Avatar/utils';
 
 export type MessageRepliesCountButtonProps = {
-  /* If supplied, adds custom text to the end of a multiple replies message */
+  /** Replaces the default text after the count when there is more than one reply. */
   labelPlural?: string;
-  /* If supplied, adds custom text to the end of a single reply message */
+  /** Replaces the default text after the count when there is one reply. */
   labelSingle?: string;
-  /* Function to navigate into an existing thread on a message */
+  /** Replaces the default open-thread behavior. */
   onClick?: MouseEventHandler;
-  /* The amount of replies (i.e., threaded messages) on a message */
+  /** Fallback when the channel's message paginator has no reply count for the message. */
   reply_count?: number;
   thread_participants?: UserResponse[];
 };
@@ -37,7 +37,7 @@ function UnMemoizedMessageRepliesCountButton(props: MessageRepliesCountButtonPro
     reply_count: replyCountFromProps = 0,
     thread_participants: threadParticipantsFromProps = [],
   } = props;
-  // reply counts also render outside a message, from props alone
+  // Also renders outside a message, from props alone.
   const { handleOpenThread, message: contextMessage } = useContext(MessageContext) ?? {};
   const channel = useChannel();
   const { openThread } = useWorkspaceNavigation();

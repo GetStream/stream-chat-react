@@ -20,8 +20,7 @@ export const Slot = ({ children, className, slot }: SlotProps) => {
   const hidden = !!hiddenSlots?.[slot];
   const layers = slotLayers?.[slot] ?? [];
 
-  // Explicit children win (legacy claim-and-render wrappers); otherwise dispatch
-  // on the slot's current binding via the registry.
+  // Explicit children win over the renderer the registry picks for the slot's binding.
   const baseContent =
     children ??
     renderSlotFromRegistry(getChatViewEntityBinding(slotBindings[slot]), slot, registry);
@@ -41,14 +40,12 @@ export const Slot = ({ children, className, slot }: SlotProps) => {
       {/* Whatever the slot shows is in this panel, so its controls act on this slot. */}
       <WorkspacePanelProvider panel={slot}>
         {layers.length === 0 ? (
-          // Fast path: no layers — render the base content directly (unchanged structure).
+          // No layers: render the base content directly.
           baseContent
         ) : (
-          // Layered: base + each layer kept mounted; only the topmost is shown. Non-top layers get
-          // the `hidden` attribute (display:none) so their subtree state is preserved; the visible
-          // layer uses `display: contents` so it lays out exactly as a direct child would. Each entry
-          // is keyed by its binding identity (`LayoutSlotBinding.key`, the same key the controller
-          // dedupes on) — not the array index — so a layer keeps its subtree as the stack changes.
+          // Base and layers stay mounted and only the topmost is shown (`display: contents`, the
+          // rest `hidden`), so a layer keeps its state. Keyed by binding key, not index. The base
+          // remounts when the first layer is pushed and when the last is popped.
           <>
             {[
               { key: 'base', node: baseContent },

@@ -15,7 +15,7 @@ export const ModalContextProvider = ({
   value: ModalContextValue;
 }>) => <ModalContext.Provider value={value}>{children}</ModalContext.Provider>;
 
-// module-level to keep a stable identity across renders
+// Module-level so its identity is stable across renders.
 const NO_MODAL_FALLBACK: ModalContextValue = { close: () => undefined };
 
 /**

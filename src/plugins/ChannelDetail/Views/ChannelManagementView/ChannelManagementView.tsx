@@ -77,9 +77,7 @@ export const ChannelManagementInfoBody = ({
   const { muted: channelMuted } = useIsChannelMuted(channel);
   const userMuted = useIsUserMuted(otherMemberUserId);
   const membership = useChannelMembershipState(channel);
-  // MERGE-RECONCILE: useChannelHeaderOnlineStatus was reworked (PR #2909) to read the channel
-  // from context (useChannel) instead of an argument. Verify this view renders within a
-  // Channel/ChannelInstance subtree so the context channel matches `channel`.
+  // Reads its channel through `useChannel()`, which must match the `ChannelDetailContext` channel.
   const onlineStatusText = useChannelHeaderOnlineStatus();
   const pinned = membership.pinned_at != null;
 
@@ -131,9 +129,9 @@ type ChannelUpdatePayload = {
 };
 
 /**
- * Assembles the argument for `channel.updatePartial` from the pending edits,
- * or returns `null` when there is nothing to persist. `image` is a tri-state:
- * a string sets a new avatar, `null` clears it, `undefined` leaves it untouched.
+ * Assembles the argument for `channel.updatePartial` from the pending edits, or `null` when there
+ * is nothing to persist. `image` is a tri-state: a string sets the avatar, `null` clears it and
+ * `undefined` leaves it untouched.
  */
 const buildChannelUpdatePayload = ({
   image,
@@ -144,8 +142,8 @@ const buildChannelUpdatePayload = ({
 }): ChannelUpdatePayload | null => {
   const payload: ChannelUpdatePayload = {};
 
-  // Custom channel fields (name/image) live under `channel.data.custom` in v10, so partial-update
-  // set/unset target them by dot-path — mirroring the `channel.data.custom.name` read path.
+  // Custom channel fields (name, image) live under `channel.data.custom`, so partial-update
+  // set/unset target them by dot-path, like the `channel.data.custom.name` read path.
   const set: { 'custom.image'?: string; 'custom.name'?: string } = {};
   if (name !== undefined) set['custom.name'] = name;
   if (typeof image === 'string') set['custom.image'] = image;
@@ -157,9 +155,8 @@ const buildChannelUpdatePayload = ({
 };
 
 /**
- * Owns the channel-edit form: field state, the local image preview lifecycle,
- * the derived "can save" flags, and the save orchestration (upload → persist →
- * notify). The component is left to render the values this returns.
+ * Owns the channel-edit form: field state, the local image preview, the derived "can save" flags
+ * and saving (upload, persist, notify).
  */
 const useChannelManagementEditForm = ({
   uploadImage,
@@ -179,8 +176,7 @@ const useChannelManagementEditForm = ({
     ? t('channelDetail.channelManagementView.contactName.label', 'Contact name')
     : t('channelDetail.channelManagementView.groupName.label', 'Group name');
 
-  // Dirty-tracking baseline; advanced to the saved value on success so the form
-  // is no longer considered dirty (and the Save button hides) after a write.
+  // Dirty-tracking baseline, advanced to the saved value so the form is clean after a save.
   const [baselineName, setBaselineName] = useState(channel.data?.custom?.name ?? '');
   const [name, setName] = useState(baselineName);
   // null = keep current avatar, File = replace it, 'removed' = clear it
@@ -443,8 +439,7 @@ export const ChannelManagementView = ({
   const actions = useBaseChannelManagementActionSetFilter(channelManagementActionSet);
   const [isEditing, setIsEditing] = useState(false);
   const canEditChannel = channel.data?.own_capabilities?.includes('update-channel');
-  // Edit mode requires the capability: revoking it (or swapping channels) must
-  // drop back to view mode so the form cannot keep editing/submitting.
+  // Edit mode requires the capability, so revoking it drops back to view mode.
   const isEditMode = isEditing && canEditChannel;
 
   useEffect(() => {

@@ -89,5 +89,5 @@ export type ChartProps = ComponentProps<typeof Chart>;
 
 export default Chart;
 
-// Context for usage:
-// the application rendering these messages is capable of rendering charts using Chart.js, to render a chart return a markdown code block with language "chartjs" which contains JSON of Chart.js compatible data
+// Usage: an app rendering these messages can render Chart.js charts. To render one, return a
+// markdown code block with language "chartjs" that holds JSON of Chart.js compatible data.

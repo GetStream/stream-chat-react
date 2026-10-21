@@ -13,11 +13,11 @@ import type { LocalMessage } from 'stream-chat';
 import { getTranslatedMessageText } from '../../context/MessageTranslationViewContext';
 
 export type MessageTextProps = {
-  /* Replaces the CSS class name placed on the component's inner `div` container */
+  /** Class name for the inner `div`. */
   customInnerClass?: string;
-  /* Adds a CSS class name to the component's outer `div` container */
+  /** Replaces the default `str-chat__message-text` class on the outer `div`. */
   customWrapperClass?: string;
-  /* The `StreamChat` message object, which provides necessary data to the underlying UI components (overrides the value stored in `MessageContext`) */
+  /** Message to render; overrides the one from `MessageContext`. */
   message?: LocalMessage;
 } & Pick<MessageContextValue, 'renderText'>;
 
@@ -87,8 +87,8 @@ const UnMemoizedMessageTextComponent = (props: MessageTextProps) => {
         user: senderName,
       })
     : t('message.text.message.ariaLabel', 'Message,');
-  // `aria-labelledby` accepts a space-separated list of element ids. We point to the
-  // hidden message context and the rendered message text so screen readers announce both.
+  // `aria-labelledby` takes space-separated IDs: the hidden message context and the rendered
+  // text, so screen readers announce both.
   const messageLabelledBy = `${messageContextId} ${messageTextId}`;
 
   const handleMentionsKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
@@ -102,18 +102,9 @@ const UnMemoizedMessageTextComponent = (props: MessageTextProps) => {
 
   if (!messageTextToRender) return null;
 
-  /**
-   * The component has two mutually exclusive focus models. The reason is this bit of behavior:
-   *
-   * if mentions are not interactive:
-   *  - the whole message text block is just a readable focus stop
-   *  - outer wrapper gets tabIndex={0}
-   *  - inner wrapper is not focusable
-   * if mentions are interactive:
-   *  - keyboard interaction needs to land on the inner element, because that’s where onClick, onKeyDown, and mention hover/click behavior live
-   *  - inner wrapper gets tabIndex={0}
-   *  - outer wrapper must stop being focusable, otherwise you create an extra dead focus stop before the actual interactive target
-   */
+  // Two mutually exclusive focus models. Without interactive mentions the outer wrapper is the
+  // only focus stop. With them the inner element takes focus, because its onClick, onKeyDown and
+  // hover handlers live there, and the outer one is not focusable so it adds no dead focus stop.
   return (
     <div
       aria-labelledby={isMentionsInteractionEnabled ? undefined : messageLabelledBy}

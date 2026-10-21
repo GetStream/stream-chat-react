@@ -36,8 +36,8 @@ type RenderNotificationAnnouncerProps = {
   notificationFilter?: NotificationAnnouncementFilter;
 };
 
-// The announcer no longer renders its own region — it routes through the shared announcer,
-// so the tree must provide an AriaLiveAnnouncerProvider + an AriaLiveOutlet (the live region).
+// The announcer renders no region of its own, so the tree provides an AriaLiveAnnouncerProvider
+// and an AriaLiveOutlet (the live region).
 const notificationAnnouncerTree = (props: RenderNotificationAnnouncerProps = {}) => (
   <TranslationProvider value={mockTranslationContextValue({ t: mockTranslation })}>
     <AriaLiveAnnouncerProvider>

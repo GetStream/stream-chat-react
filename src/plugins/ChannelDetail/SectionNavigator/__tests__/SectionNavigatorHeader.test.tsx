@@ -92,7 +92,7 @@ describe('SectionNavigatorHeader', () => {
   it('gives the close button a concise "Close" label for a string title', () => {
     render(<SectionNavigatorHeader close={vi.fn()} title='Files' />);
 
-    // The dialog is already named by its title (aria-labelledby), so the close button stays concise.
+    // The dialog is already named by its title (aria-labelledby), so the close label stays short.
     expect(screen.getByRole('button', { name: 'Close' })).toBeInTheDocument();
   });
 

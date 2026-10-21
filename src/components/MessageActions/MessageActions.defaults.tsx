@@ -772,8 +772,7 @@ const DefaultMessageActionComponents = {
       );
     }),
     React() {
-      // No `ReactionIcon`: the component resolves the `IconEmoji` slot itself. Passing it from
-      // here would read the same value and only add a hop that invites a direct import later.
+      // No `ReactionIcon` prop: the component resolves the `IconEmoji` slot itself.
       return <ReactionSelectorWithButton />;
     },
     Reply() {

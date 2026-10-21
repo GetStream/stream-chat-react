@@ -12,22 +12,18 @@ export type ChannelSlotProps = PropsWithChildren<
     /** Rendered when no channel is bound to `slot`. */
     fallback?: ReactNode;
     /**
-     * The layout slot this adapter renders. Always pass an explicit `slot` — a
-     * generic list/workspace must be precise about which slot it displays (multiple
-     * channels can be open side by side). Omitting it falls back to the first
-     * channel slot and is only meaningful for a single-channel workspace.
+     * The layout slot to render. Pass it explicitly, since several channels can be open side by
+     * side. Without it the first slot holding a channel is used, which only suits a single-channel
+     * workspace.
      */
     slot?: SlotName;
   }
 >;
 
 /**
- * ChatView-aware channel adapter: renders the channel bound to `slot`.
- *
- * It only *displays* — it never adopts/moves a channel from another slot. Which
- * channel goes into which slot is decided by navigation (`open`). If your app
- * resolves channel instances directly from layout bindings (e.g. via custom
- * `slotRenderers`), render `<Channel channel={...} />` directly and skip this.
+ * Renders the channel bound to `slot`, or `fallback` when none is. It only displays: navigation
+ * decides which channel goes into which slot. To resolve channels from layout bindings yourself
+ * (e.g. in custom `slotRenderers`), render `<Channel channel={...} />` directly.
  */
 export const ChannelSlot = ({
   children,

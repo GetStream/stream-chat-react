@@ -116,8 +116,8 @@ export const SimpleAttachmentSelector = ({
     messageComposer.textComposer.state,
     textComposerStateSelector,
   );
-  // Visually hidden via a CSS transition while a command is active; keep it out
-  // of the a11y tree and tab order without setting `display: none`.
+  // Hidden by a CSS transition while a command is active. Inert keeps it out of the a11y tree
+  // and tab order without `display: none`, which would break the transition.
   const inertProps = useInertWhenHidden(!!command, { setHiddenAttribute: false });
 
   useEffect(() => {
@@ -255,9 +255,7 @@ export const DefaultAttachmentSelectorComponents = {
   },
 };
 
-/**
- * Order of AttachmentSelectorAction objects defines the order in the context menu width index 0 being at the top.
- */
+/** Default actions of the attachment selector menu, listed from the top of the menu down. */
 export const defaultAttachmentSelectorActionSet: AttachmentSelectorAction[] = [
   {
     ActionButton: DefaultAttachmentSelectorComponents.File,
@@ -360,9 +358,8 @@ export const AttachmentSelector = ({
     messageComposer.textComposer.state,
     textComposerStateSelector,
   );
-  // The selector is visually hidden via a CSS transition while a command is
-  // active; keep it out of the a11y tree and tab order without setting
-  // `display: none` (which would break the transition).
+  // Hidden by a CSS transition while a command is active. Inert keeps it out of the a11y tree
+  // and tab order without `display: none`, which would break the transition.
   const inertProps = useInertWhenHidden(!!command, { setHiddenAttribute: false });
   const actions = useAttachmentSelectorActionsFiltered(attachmentSelectorActionSet);
 
@@ -379,9 +376,8 @@ export const AttachmentSelector = ({
     (actionType: AttachmentSelectorAction['type']) => {
       const action = actions.find((a) => a.type === actionType);
       if (!action?.ModalContent) return;
-      // Reset composer state when the dialog is opened (not on close), so every
-      // open starts from a fresh form without flashing cleared fields right
-      // before the modal unmounts on cancel/submit.
+      // Reset on open, not on close, so each open starts from a fresh form and cleared fields
+      // do not flash before the modal unmounts.
       if (actionType === 'createPoll') {
         messageComposer.pollComposer.initState();
       }
@@ -403,11 +399,9 @@ export const AttachmentSelector = ({
 
     const frame = requestAnimationFrame(() => {
       shouldRestoreFocusToTriggerRef.current = false;
-      // Only restore focus to the trigger if focus actually fell to <body> when the dialog closed
-      // (the cancel/escape case). If the dialog content purposefully moved focus elsewhere — e.g.
-      // the poll dialog returns focus to the composer on a successful send — leave it there. This
-      // mirrors react-aria FocusScope's own restore guard and prevents a focus blip through the
-      // trigger before the content's intended target.
+      // Restore focus to the trigger only if it fell to <body> when the dialog closed (cancel or
+      // escape). When the content moved focus on purpose, e.g. the poll dialog returning it to
+      // the composer after a send, leave it there so focus does not blip through the trigger.
       const active = document.activeElement;
       if (active && active !== document.body) return;
       menuButtonRef.current?.focus();
@@ -488,10 +482,9 @@ export const AttachmentSelector = ({
               'str-chat__share-location-modal':
                 modalContentAction?.type === 'addLocation',
             })}
-            // Focus the dialog surface on open (not a field): a field's focus would supersede the
-            // screen reader's dialog identity/description announcement. The user then presses Enter
-            // to step into the dialog's default field (see GlobalModal's `[data-autofocus]`
-            // handling).
+            // Focus the dialog surface on open, not a field: a field's focus would supersede the
+            // screen reader's dialog announcement. Enter steps into the default field
+            // (`[data-autofocus]`, handled by GlobalModal).
             initialFocusStrategy='dialog'
             onClose={closeModal}
             open={modalIsOpen}

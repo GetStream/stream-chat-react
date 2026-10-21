@@ -49,8 +49,8 @@ type DefaultPreProps = BaseDefaultPreProps & {
   Pre?: ComponentType<BaseDefaultPreProps> | ElementType;
 };
 
-// true inside a plain (language-less) <pre>: lets DefaultCode tell a fenced
-// block without a language from inline code (react-markdown v9 has no `inline`)
+// True inside a language-less <pre>, so DefaultCode can tell a fenced block from inline code
+// (react-markdown v9 has no `inline` prop).
 const InsidePreContext = React.createContext(false);
 
 const DefaultPre = (props: DefaultPreProps) => {
@@ -68,7 +68,6 @@ const DefaultPre = (props: DefaultPreProps) => {
 
     const fallback = <>{children}</>;
 
-    // grab from pre-registered component set and render
     const Component =
       typeof toolOrLanguage === 'string' ? toolComponents[toolOrLanguage] : null;
 
@@ -80,14 +79,13 @@ const DefaultPre = (props: DefaultPreProps) => {
       );
     }
 
-    // render just a fragment with the code content
-    // which gets replaced by SyntaxHighlighter (it itself renders pre too)
+    // Only the code content: DefaultCode renders it with SyntaxHighlighter, which adds its own pre.
     if (toolOrLanguage) {
       return fallback;
     }
   }
 
-  // treat as regular pre/code block if there's no tool/language
+  // No tool or language: render a regular pre block.
   return (
     <Pre
       className={clsx(className, 'str-chat__ai-pre')}
