@@ -188,6 +188,8 @@ export const VoiceGlowCss = ({
         root.style.setProperty(name, value);
       }
       root.setAttribute('data-dark', String(!!dark));
+      // Fades in once the palette is in, so the theme color it starts from never shows.
+      root.setAttribute('data-ready', 'true');
     };
     apply();
     const interval = setInterval(apply, THEME_INTERVAL);
@@ -316,6 +318,8 @@ export const VoiceGlowCss = ({
           </Layer>
         </div>
       </Layer>
+      {/* Only the globe takes the pointer; around it, events reach what is behind. */}
+      <div aria-hidden='true' className='str-chat__ai-voice-visualization__hit' />
       {ripples.map((ripple) => (
         <span
           aria-hidden='true'

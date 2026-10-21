@@ -161,6 +161,9 @@ export const VoiceVisualizationView = ({
         height: canvas.height,
         width: canvas.width,
       });
+      // The canvas fades in once it has something to show, as on iOS, rather than flashing
+      // empty while a shader compiles or the first frame lands.
+      if (!canvas.dataset.ready) canvas.dataset.ready = 'true';
       schedule();
     };
 
@@ -218,7 +221,8 @@ export const VoiceVisualizationView = ({
   };
 
   // Pointer events are only watched, never prevented or stopped, so a click handler on the
-  // element or a parent still gets them.
+  // element or a parent still gets them. They come only from the shape's hit area: the rest of
+  // the box lets them through to whatever is behind it.
   const handlePointerUp = (event: PointerEvent<HTMLDivElement>) => {
     onPointerUp?.(event);
     const { x, y } = toLocal(event);
@@ -257,6 +261,8 @@ export const VoiceVisualizationView = ({
         key={rendererKey}
         ref={canvasRef}
       />
+      {/* Only the shape takes the pointer; around it, events reach what is behind. */}
+      <div aria-hidden='true' className='str-chat__ai-voice-visualization__hit' />
     </div>
   );
 };

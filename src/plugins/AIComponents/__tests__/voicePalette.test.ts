@@ -1,4 +1,9 @@
-import { audioLevelInput, expressivityInput } from '../VoiceVisualization/math';
+import {
+  audioLevelInput,
+  expressivityInput,
+  speechEnv,
+} from '../VoiceVisualization/math';
+import { snoise } from '../VoiceVisualization/simplex';
 import {
   luminance,
   parseColor,
@@ -79,5 +84,31 @@ describe('voice visualization inputs', () => {
     expect(audioLevelInput(Number.NaN)).toBeNull();
     expect(audioLevelInput(null)).toBeNull();
     expect(audioLevelInput(undefined)).toBeNull();
+  });
+});
+
+describe('voice visualization noise', () => {
+  it('matches the shader’s simplex noise as a GPU computes it', () => {
+    // Read back from the WebGL shader's own snoise on a GPU.
+    const gpu: Array<[number, number, number, number]> = [
+      [0.3, 21, 0, 0.7696],
+      [1.7, 5, 0, 0.208],
+      [0.12, 0, 0, 0.049],
+      [2.5, 9, 0, 0.3869],
+      [10.2, 14, 0, 0.603],
+      [3.3, 1.1, 0.9, -0.7541],
+      [0.05, 0.05, 0.05, -0.5481],
+    ];
+    for (const [x, y, z, expected] of gpu) {
+      expect(snoise(x, y, z)).toBeCloseTo(expected, 2);
+    }
+  });
+
+  it('keeps the speech envelope between 0 and 1, pausing and swelling over time', () => {
+    const samples = Array.from({ length: 2000 }, (_, i) => speechEnv(i * 0.01));
+
+    expect(Math.min(...samples)).toBe(0);
+    expect(Math.max(...samples)).toBeGreaterThan(0.6);
+    expect(Math.max(...samples)).toBeLessThanOrEqual(1);
   });
 });

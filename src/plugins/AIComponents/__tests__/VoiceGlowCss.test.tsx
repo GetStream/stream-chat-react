@@ -181,6 +181,15 @@ describe('VoiceGlow rendering="css"', () => {
     );
   });
 
+  it('fades in once the palette is set, and takes the pointer only on the globe', () => {
+    const { container } = render(<VoiceGlow rendering='css' state='idle' />);
+
+    expect(screen.getByRole('img')).toHaveAttribute('data-ready', 'true');
+    expect(
+      container.querySelectorAll('.str-chat__ai-voice-visualization__hit'),
+    ).toHaveLength(1);
+  });
+
   it('runs no frame loop without an audio level', () => {
     render(<VoiceGlow rendering='css' state='speaking' />);
 

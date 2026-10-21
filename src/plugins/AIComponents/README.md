@@ -316,11 +316,12 @@ Both draw on a `<canvas>` inside a `div` with `role="img"` and an accessible nam
 | `audioLevel`   | `() => number \| null \| undefined`                                 | no       | The level of whoever is talking, from 0 to 1, read once a frame, so a level changing many times a second re-renders nothing. Returning `null` (or omitting it) animates speech on its own.                                                                                                     |
 | `rendering`    | `'auto' \| 'webgl' \| 'canvas' \| 'css'`                            | no       | `VoiceGlow` only. `auto` (default) and `webgl` draw with a WebGL shader and fall back to a 2D canvas when WebGL is unavailable or its context is lost; `canvas` always uses the cheaper 2D drawing; `css` builds the glow from CSS gradients animated by the browser's compositor (see below). |
 
-Any other `div` prop (`className`, `style`, event handlers, ...) is passed to the root. Pointer events are watched, never stopped: a tap inside the shape bounces it and a hovering mouse or pen ripples it, while your own `onClick` still fires.
+Any other `div` prop (`className`, `style`, event handlers, ...) is passed to the root. Only the shape takes the pointer, as on iOS: the globe (within 0.32 of the shorter side from the centre) or the string. Elsewhere in the box, clicks and hovers reach whatever is behind it. On the shape, pointer events are watched and never stopped: a tap bounces it and a hovering mouse or pen ripples it, while your own `onClick` on the root or a parent still fires.
 
 Behavior:
 
 - The animation runs only while the element is on screen and the tab is visible.
+- It fades in over 0.3 s once its first frame is drawn (instantly with reduced motion), so it never flashes empty while a shader compiles.
 - With `prefers-reduced-motion: reduce`, the motion slows to a crawl and taps and hover are ignored.
 - The palette and the light or dark look follow the theme (`--str-chat__ai-voice-color` and `--str-chat__ai-voice-backdrop`), re-read about once a second, so a theme switch needs no prop.
 

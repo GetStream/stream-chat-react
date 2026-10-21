@@ -1,3 +1,4 @@
+import { snoise } from './simplex';
 import type { Hsv } from './types';
 
 /** The shader math the Canvas renderers run on the CPU, once per frame. */
@@ -50,10 +51,13 @@ export const noise = (x: number, seed: number) => {
   return mix(gradient(i, seed) * f, gradient(i + 1, seed) * (f - 1), u) * 2;
 };
 
-/** How much the agent is talking, 0 to 1: a slow phrase gate times a faster syllable wobble. */
+/**
+ * How much the agent is talking, 0 to 1: a slow phrase gate times a faster syllable wobble. The
+ * shader's own envelope, on the same simplex noise, so every renderer and iOS speak alike.
+ */
 export const speechEnv = (t: number) => {
-  const gate = smoothstep(-0.25, 0.35, noise(t * 0.6, 21));
-  const syllable = 0.55 + 0.45 * noise(t * 3, 5);
+  const gate = smoothstep(-0.25, 0.35, snoise(t * 0.6, 21, 0));
+  const syllable = 0.55 + 0.45 * snoise(t * 3, 5, 0);
   return clamp(gate * syllable, 0, 1);
 };
 

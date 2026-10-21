@@ -142,6 +142,13 @@ $ease: 0.6s ease-out;
 #{$glow}__halo,
 #{$glow}__level {
   grid-area: 1 / 1;
+  // Fades in once the script has set the palette, as the canvas renderers fade in.
+  opacity: 0;
+  transition: opacity 0.3s ease-out;
+
+  #{$glow}--css[data-ready='true'] > & {
+    opacity: 1;
+  }
 }
 
 // Behind the globe: solid to 0.8 R, e^-1 a further 0.09 of the side, gone at 0.8 R + 0.25 side.
@@ -545,6 +552,11 @@ $w: 'var(--str-ai-glow-warp) * var(--str-ai-glow-amp, 1)';
 }
 
 @media (prefers-reduced-motion: reduce) {
+  #{$glow}__halo,
+  #{$glow}__level {
+    transition: none;
+  }
+
   #{$glow}__ripple,
   #{$glow}__bounce--active {
     animation: none;

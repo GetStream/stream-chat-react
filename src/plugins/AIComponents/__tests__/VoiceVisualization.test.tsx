@@ -275,6 +275,58 @@ describe('VoiceWave and VoiceGlow', () => {
     expect(mask).toBeDefined();
   });
 
+  it('fades the canvas in once its first frame is drawn', () => {
+    render(<VoiceGlow rendering='canvas' state='idle' />);
+    const canvas = screen.getByRole('img').querySelector('canvas') as HTMLCanvasElement;
+    expect(canvas).not.toHaveAttribute('data-ready');
+
+    step();
+
+    expect(canvas).toHaveAttribute('data-ready', 'true');
+  });
+
+  it('never marks a canvas ready that cannot be drawn on', () => {
+    vi.mocked(HTMLCanvasElement.prototype.getContext).mockReturnValue(null);
+    render(<VoiceWave state='idle' />);
+    step();
+
+    expect(screen.getByRole('img').querySelector('canvas')).not.toHaveAttribute(
+      'data-ready',
+    );
+  });
+
+  it('takes the pointer only on the shape and hands it to the root', () => {
+    const onClick = vi.fn();
+    const { container } = render(
+      <>
+        <VoiceWave onClick={onClick} state='idle' />
+        <VoiceGlow rendering='canvas' state='idle' />
+      </>,
+    );
+    const hits = container.querySelectorAll('.str-chat__ai-voice-visualization__hit');
+    expect(hits).toHaveLength(2);
+    hits.forEach((hit) => expect(hit).toHaveAttribute('aria-hidden', 'true'));
+
+    const glow = screen.getAllByRole('img')[1];
+    vi.spyOn(glow, 'getBoundingClientRect').mockReturnValue({
+      height: 200,
+      left: 0,
+      top: 0,
+      width: 200,
+    } as DOMRect);
+    step();
+    fireEvent.pointerUp(hits[1], { clientX: 100, clientY: 100 });
+    calls.length = 0;
+    step(3);
+    const scales = calls
+      .filter((call) => call.name === 'scale')
+      .map((call) => call.args[0] as number);
+    expect(Math.min(...scales)).toBeLessThan(1);
+
+    fireEvent.click(hits[0]);
+    expect(onClick).toHaveBeenCalledTimes(1);
+  });
+
   it('stops the loop on unmount', () => {
     const { unmount } = render(<VoiceWave state='idle' />);
     step();
