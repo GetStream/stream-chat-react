@@ -106,6 +106,7 @@ describe('AI components accessibility', () => {
       >
         <VoiceWave state='listening' />
         <VoiceGlow state='thinking' />
+        <VoiceGlow rendering='css' state='speaking' />
       </TranslationProvider>,
     );
     expect(await axe(container)).toHaveNoViolations();
@@ -114,6 +115,9 @@ describe('AI components accessibility', () => {
     ).toBeInTheDocument();
     expect(
       screen.getByRole('img', { name: 'Voice agent: Thinking' }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('img', { name: 'Voice agent: Speaking' }),
     ).toBeInTheDocument();
   });
 

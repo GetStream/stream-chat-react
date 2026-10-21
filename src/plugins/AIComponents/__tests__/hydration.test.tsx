@@ -59,6 +59,7 @@ describe('VoiceWave and VoiceGlow hydration', () => {
       <>
         <VoiceWave state='speaking' />
         <VoiceGlow state='listening' />
+        <VoiceGlow rendering='css' state='speaking' />
       </>
     );
     const html = renderToString(<VoiceTree />);
@@ -79,7 +80,8 @@ describe('VoiceWave and VoiceGlow hydration', () => {
     expect(container.querySelector('.str-chat__ai-voice-wave canvas')).toBe(
       serverCanvases[0],
     );
-    expect(container.querySelectorAll('[role="img"]')).toHaveLength(2);
+    expect(container.querySelectorAll('[role="img"]')).toHaveLength(3);
+    expect(container.querySelector('.str-chat__ai-voice-glow--css')).toBeInTheDocument();
     container.remove();
   });
 });

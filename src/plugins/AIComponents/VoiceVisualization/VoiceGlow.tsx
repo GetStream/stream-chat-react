@@ -4,6 +4,7 @@ import clsx from 'clsx';
 import { createGlowCanvasRenderer, glowContains } from './renderers/glowCanvasRenderer';
 import { createGlowWebGLRenderer } from './renderers/glowWebGLRenderer';
 import type { VoiceGlowRendering, VoiceVisualizationProps } from './types';
+import { VoiceGlowCss } from './VoiceGlowCss';
 import { VoiceVisualizationView } from './VoiceVisualizationView';
 
 export type VoiceGlowProps = VoiceVisualizationProps & {
@@ -12,7 +13,8 @@ export type VoiceGlowProps = VoiceVisualizationProps & {
 };
 
 /** Whether `rendering` tries WebGL first; any WebGL failure still falls back to Canvas. */
-export const usesWebGL = (rendering: VoiceGlowRendering) => rendering !== 'canvas';
+export const usesWebGL = (rendering: VoiceGlowRendering) =>
+  rendering === 'auto' || rendering === 'webgl';
 
 const createCanvasRenderer = (canvas: HTMLCanvasElement) => {
   const ctx = canvas.getContext('2d');
@@ -45,6 +47,10 @@ export const VoiceGlow = ({
     },
     [webGL],
   );
+
+  if (rendering === 'css') {
+    return <VoiceGlowCss className={className} {...props} />;
+  }
 
   return (
     <VoiceVisualizationView

@@ -115,6 +115,19 @@ describe('AI components stylesheet accessibility', () => {
     );
   });
 
+  it('animates the CSS voice glow only through transform and opacity', () => {
+    const keyframes = [
+      ...css.matchAll(/@keyframes str-ai-glow-[a-z-]+\s*\{([\s\S]*?)\n\}/g),
+    ];
+    expect(keyframes.length).toBeGreaterThan(10);
+    for (const [, body] of keyframes) {
+      const properties = [...body.matchAll(/([a-z-]+)\s*:/g)].map(([, name]) => name);
+      expect(properties.every((name) => name === 'transform' || name === 'opacity')).toBe(
+        true,
+      );
+    }
+  });
+
   it('disables the state indicator animations for reduced motion', () => {
     const reduced = css.split('@media (prefers-reduced-motion: reduce)')[1] ?? '';
     expect(reduced).toMatch(

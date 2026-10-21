@@ -1,14 +1,14 @@
 import { type PointerEvent, useEffect, useRef } from 'react';
 import clsx from 'clsx';
 
-import { useTranslationContext } from '../../../context/TranslationContext';
 import { useReducedMotionPreference } from '../../../components/MessageList/hooks/useReducedMotionPreference';
 import { useStableCallback } from '../../../utils/useStableCallback';
 import { type VoiceDriverInput, VoiceVisualizationDriver } from './driver';
 import { audioLevelInput, expressivityInput } from './math';
 import { luminance, toHsvPalette } from './palette';
 import type { VoiceRenderer } from './renderers/types';
-import type { Hsv, VoiceAgentState, VoiceVisualizationProps } from './types';
+import type { Hsv, VoiceVisualizationProps } from './types';
+import { useVoiceStateLabel } from './useVoiceStateLabel';
 
 /** Used when neither the `colors` prop nor the theme gives a readable color. */
 const FALLBACK_COLOR = '#005fff';
@@ -29,18 +29,6 @@ type ViewProps = VoiceVisualizationProps & {
    * at a quarter of the pixels of a 2x display.
    */
   maxPixelRatio?: number;
-};
-
-const useStateLabel = (state: VoiceAgentState) => {
-  const { t } = useTranslationContext();
-  const labels: Record<VoiceAgentState, string> = {
-    connecting: t('Connecting'),
-    idle: t('Ready'),
-    listening: t('Listening'),
-    speaking: t('Speaking'),
-    thinking: t('Thinking'),
-  };
-  return t('aria/Voice agent: {{ state }}', { state: labels[state] });
 };
 
 /**
@@ -65,7 +53,7 @@ export const VoiceVisualizationView = ({
   state,
   ...restProps
 }: ViewProps) => {
-  const label = useStateLabel(state);
+  const label = useVoiceStateLabel(state);
   const reduceMotion = useReducedMotionPreference();
   const rootRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);

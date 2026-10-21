@@ -22,6 +22,7 @@ it('emits no legacy aicr__ classes', () => {
       </AIMessageComposer>
       <VoiceWave state='idle' />
       <VoiceGlow state='idle' />
+      <VoiceGlow rendering='css' state='idle' />
     </>,
   );
   expect(container.innerHTML).not.toContain('aicr__');
@@ -30,4 +31,5 @@ it('emits no legacy aicr__ classes', () => {
   ).toBeInTheDocument();
   expect(container.querySelector('.str-chat__ai-voice-wave')).toBeInTheDocument();
   expect(container.querySelector('.str-chat__ai-voice-glow')).toBeInTheDocument();
+  expect(container.querySelector('.str-chat__ai-voice-glow--css')).toBeInTheDocument();
 });

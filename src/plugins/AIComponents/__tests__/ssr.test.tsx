@@ -24,6 +24,7 @@ it('server-renders without touching browser globals', () => {
       </AIMessageComposer>
       <VoiceWave state='speaking' />
       <VoiceGlow state='thinking' />
+      <VoiceGlow rendering='css' state='speaking' />
     </>,
   );
   expect(html).toContain('<strong>bold</strong>');
@@ -36,6 +37,7 @@ it('server-renders without touching browser globals', () => {
   expect(html).toContain(
     'class="str-chat__ai-voice-visualization str-chat__ai-voice-glow"',
   );
-  expect(html.match(/role="img"/g)).toHaveLength(2);
+  expect(html).toContain('str-chat__ai-voice-glow--css');
+  expect(html.match(/role="img"/g)).toHaveLength(3);
   expect(html.match(/<canvas/g)).toHaveLength(2);
 });

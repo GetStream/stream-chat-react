@@ -27,8 +27,11 @@ export type VoiceAgentState =
  *   WebGL is unavailable or its context is lost.
  * - `canvas`: a handful of 2D gradients, cheaper, without the shader's marbling or its ripples
  *   from a tap or a hovering pointer.
+ * - `css`: the shader's composition in CSS, animated by the browser's compositor. It keeps
+ *   moving while the page is busy and needs no canvas, at the cost of the shader's fine
+ *   marbling; a tap sends out a ring instead of a ripple, and a hovering pointer does nothing.
  */
-export type VoiceGlowRendering = 'auto' | 'webgl' | 'canvas';
+export type VoiceGlowRendering = 'auto' | 'webgl' | 'canvas' | 'css';
 
 export type VoiceVisualizationProps = Omit<
   ComponentPropsWithoutRef<'div'>,
