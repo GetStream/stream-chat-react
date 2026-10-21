@@ -89,9 +89,54 @@ describe('VoiceGlow rendering="css"', () => {
     expect(glow).toHaveAttribute('data-state', 'speaking');
     expect(container.querySelector('canvas')).toBeNull();
     expect(getContext).not.toHaveBeenCalledWith('webgl', expect.anything());
-    // A faint still body and one riding each of the two orbits, each over the color field.
+    // A faint still body and one riding each of the two orbits, each over the color field;
+    // with the theme's one color, the fourth and fifth masses are left out.
+    expect(glow).toHaveAttribute('data-detail', 'full');
     expect(container.querySelectorAll('.str-chat__ai-voice-glow__field')).toHaveLength(3);
+    expect(container.querySelectorAll('.str-chat__ai-voice-glow__mass')).toHaveLength(9);
+    expect(container.querySelectorAll('.str-chat__ai-voice-glow__shade')).toHaveLength(3);
+  });
+
+  it('draws a mass for each color the palette has', () => {
+    const { container, rerender } = render(
+      <VoiceGlow
+        colors={['#f00', '#0f0', '#00f', '#ff0']}
+        rendering='css'
+        state='idle'
+      />,
+    );
+    expect(container.querySelectorAll('.str-chat__ai-voice-glow__mass')).toHaveLength(12);
+
+    rerender(
+      <VoiceGlow
+        colors={['#f00', '#0f0', '#00f', '#ff0', '#0ff', '#f0f']}
+        rendering='css'
+        state='idle'
+      />,
+    );
     expect(container.querySelectorAll('.str-chat__ai-voice-glow__mass')).toHaveLength(15);
+  });
+
+  it('draws fewer layers when it stands in for WebGL', () => {
+    // jsdom has no WebGL, so `auto` falls back to CSS.
+    const { container } = render(
+      <VoiceGlow colors={['#f00', '#0f0', '#00f', '#ff0', '#0ff']} state='speaking' />,
+    );
+    const glow = screen.getByRole('img');
+
+    expect(glow).toHaveAttribute('data-rendering', 'css');
+    expect(glow).toHaveAttribute('data-detail', 'lite');
+    // The still body and the body riding the first orbit; no stretches, shade or rim.
+    expect(container.querySelectorAll('.str-chat__ai-voice-glow__field')).toHaveLength(2);
+    expect(container.querySelectorAll('.str-chat__ai-voice-glow__mass')).toHaveLength(10);
+    expect(
+      container.querySelectorAll('.str-chat__ai-voice-glow__sway--mask'),
+    ).toHaveLength(1);
+    for (const part of ['warp', 'unwarp', 'shade', 'rim']) {
+      expect(
+        container.querySelectorAll(`.str-chat__ai-voice-glow__${part}`),
+      ).toHaveLength(0);
+    }
   });
 
   it('sets the palette from the colors prop', () => {

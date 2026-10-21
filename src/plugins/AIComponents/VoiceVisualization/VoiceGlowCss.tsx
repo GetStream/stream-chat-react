@@ -22,8 +22,8 @@ import {
 } from './cssGlow';
 import { ease, scales } from './driver';
 import { audioLevelInput, expressivityInput } from './math';
+import { glowContains } from './glowShape';
 import { luminance, toHsvPalette } from './palette';
-import { glowContains } from './renderers/glowCanvasRenderer';
 import type { VoiceVisualizationProps } from './types';
 import { useVoiceStateLabel } from './useVoiceStateLabel';
 
@@ -69,32 +69,52 @@ const warpStyle = (orbit: number, [period, turn]: [number, number]) =>
     '--str-ai-glow-warp-turn': `${turn}deg`,
   }) as CSSProperties;
 
+/**
+ * How much of the glow is drawn. `lite` is for the WebGL fallback, where the GPU is likely off
+ * and the compositor blends every layer on the CPU: it keeps the colors and the opacity riding
+ * the first orbit, and leaves out the second riding body, the stretches, the shade and the rim.
+ */
+type Detail = { colorCount: number; lite: boolean };
+
+/** The masses the palette fills: the fourth and fifth only with that many colors. */
+const massesFor = (colorCount: number) =>
+  MASSES.filter((_, index) => index < 3 || index < colorCount);
+
 /** The opaque color field: a base, the masses mixed over it in order, then shade and rim. */
-const ColorField = () => (
+const ColorField = ({ colorCount, lite }: Detail) => (
   <Layer className='field'>
     <Layer className='base' />
     <Layer className='flow'>
-      {MASSES.map((mass, index) => (
-        <Layer className='orbit' key={index} style={orbitStyle(mass.orbit)}>
-          <Layer className='sway' style={swayStyle(mass.orbit)}>
-            <Layer className='warp' style={warpStyle(mass.orbit, mass.warp)}>
-              <div
-                className={`${block}__mass`}
-                style={
-                  {
-                    '--str-ai-glow-dist': orbitDistance(mass.orbit),
-                    '--str-ai-glow-reach': mass.reach,
-                    background: massBackground(mass),
-                  } as CSSProperties
-                }
-              />
+      {massesFor(colorCount).map((mass, index) => {
+        const body = (
+          <div
+            className={`${block}__mass`}
+            style={
+              {
+                '--str-ai-glow-dist': orbitDistance(mass.orbit),
+                '--str-ai-glow-reach': mass.reach,
+                background: massBackground(mass),
+              } as CSSProperties
+            }
+          />
+        );
+        return (
+          <Layer className='orbit' key={index} style={orbitStyle(mass.orbit)}>
+            <Layer className='sway' style={swayStyle(mass.orbit)}>
+              {lite ? (
+                body
+              ) : (
+                <Layer className='warp' style={warpStyle(mass.orbit, mass.warp)}>
+                  {body}
+                </Layer>
+              )}
             </Layer>
           </Layer>
-        </Layer>
-      ))}
+        );
+      })}
     </Layer>
-    <Layer className='shade' />
-    <Layer className='rim' />
+    {!lite && <Layer className='shade' />}
+    {!lite && <Layer className='rim' />}
   </Layer>
 );
 
@@ -102,35 +122,52 @@ const ColorField = () => (
  * The color field seen through opacity that rides an orbit: the mask turns and stretches with
  * the orbit, and the inverse turns and stretches inside it keep the colors where they are.
  */
-const RidingBody = ({ alpha, orbit, reach, warp }: (typeof RIDING_BODIES)[number]) => (
-  <Layer className='body'>
-    <Layer className='flow'>
-      <Layer className='orbit' style={orbitStyle(orbit)}>
-        <Layer className='sway' style={swayStyle(orbit)}>
-          <div
-            className={`${block}__warp ${block}__warp--mask`}
-            style={
-              {
-                ...warpStyle(orbit, warp),
-                '--str-ai-glow-mask': orbitMask(orbit, reach, alpha),
-              } as CSSProperties
-            }
-          >
-            <Layer className='unwarp' style={warpStyle(orbit, warp)}>
-              <Layer className='unsway' style={swayStyle(orbit)}>
-                <Layer className='unorbit' style={orbitStyle(orbit)}>
-                  <Layer className='unflow'>
-                    <ColorField />
-                  </Layer>
-                </Layer>
-              </Layer>
-            </Layer>
-          </div>
+const RidingBody = ({
+  alpha,
+  detail,
+  orbit,
+  reach,
+  warp,
+}: (typeof RIDING_BODIES)[number] & { detail: Detail }) => {
+  const unturned = (
+    <Layer className='unsway' style={swayStyle(orbit)}>
+      <Layer className='unorbit' style={orbitStyle(orbit)}>
+        <Layer className='unflow'>
+          <ColorField {...detail} />
         </Layer>
       </Layer>
     </Layer>
-  </Layer>
-);
+  );
+  const mask = { '--str-ai-glow-mask': orbitMask(orbit, reach, alpha) } as CSSProperties;
+  return (
+    <Layer className='body'>
+      <Layer className='flow'>
+        <Layer className='orbit' style={orbitStyle(orbit)}>
+          {detail.lite ? (
+            // Turns with the orbit but does not stretch, so it needs no inverse stretch.
+            <div
+              className={`${block}__sway ${block}__sway--mask`}
+              style={{ ...swayStyle(orbit), ...mask }}
+            >
+              {unturned}
+            </div>
+          ) : (
+            <Layer className='sway' style={swayStyle(orbit)}>
+              <div
+                className={`${block}__warp ${block}__warp--mask`}
+                style={{ ...warpStyle(orbit, warp), ...mask }}
+              >
+                <Layer className='unwarp' style={warpStyle(orbit, warp)}>
+                  {unturned}
+                </Layer>
+              </div>
+            </Layer>
+          )}
+        </Layer>
+      </Layer>
+    </Layer>
+  );
+};
 
 type Ripple = { id: number; x: number; y: number };
 
@@ -148,11 +185,15 @@ export const VoiceGlowCss = ({
   className,
   colors,
   expressivity,
+  lite = false,
   onPointerUp,
   state,
   style,
   ...restProps
-}: VoiceVisualizationProps) => {
+}: VoiceVisualizationProps & {
+  /** Draws fewer layers, for when it stands in for WebGL. See `Detail`. */
+  lite?: boolean;
+}) => {
   const label = useVoiceStateLabel(state);
   const reduceMotion = useReducedMotionPreference();
   const rootRef = useRef<HTMLDivElement>(null);
@@ -161,6 +202,7 @@ export const VoiceGlowCss = ({
   const [ripples, setRipples] = useState<Ripple[]>([]);
   const { amplitude, speed } = scales(expressivityInput(expressivity));
   const colorsKey = (colors ?? []).join('|');
+  const detail: Detail = { colorCount: Math.min(colors?.length || 1, 5), lite };
   const hasAudioLevel = !!audioLevel;
 
   useEffect(() => {
@@ -216,7 +258,8 @@ export const VoiceGlowCss = ({
       const kind = cssGlowRateKind((animation as CSSAnimation).animationName ?? '');
       if (kind) animation.updatePlaybackRate(rates[kind] * speed * slow);
     }
-  }, [reduceMotion, speed, state]);
+    // Layers come and go with the palette and the detail, so their animations need rates too.
+  }, [colorsKey, lite, reduceMotion, speed, state]);
 
   // A live audio level, eased like the driver eases it, is the only value written per frame.
   useEffect(() => {
@@ -289,6 +332,7 @@ export const VoiceGlowCss = ({
         `${block}--css`,
         className,
       )}
+      data-detail={lite ? 'lite' : 'full'}
       data-rendering='css'
       data-state={state}
       role='img'
@@ -306,10 +350,10 @@ export const VoiceGlowCss = ({
                 <Layer className='pulse'>
                   <Layer className='globe'>
                     <div className={`${block}__body ${block}__body--still`}>
-                      <ColorField />
+                      <ColorField {...detail} />
                     </div>
-                    {RIDING_BODIES.map((body) => (
-                      <RidingBody key={body.orbit} {...body} />
+                    {(lite ? RIDING_BODIES.slice(0, 1) : RIDING_BODIES).map((body) => (
+                      <RidingBody detail={detail} key={body.orbit} {...body} />
                     ))}
                   </Layer>
                 </Layer>

@@ -5,6 +5,18 @@ import { VoiceGlow, VoiceWave } from '..';
 import { TranslationProvider } from '../../../context';
 import en from '../../../i18n/en.json';
 
+// jsdom has no WebGL: a fake renderer stands in, recording the bounce it draws each frame, and
+// tests can make it fail to start or lose its context.
+const webgl = vi.hoisted(() => ({
+  create: vi.fn(),
+  drawnScales: [] as number[],
+  lose: () => undefined as void,
+}));
+vi.mock('../VoiceVisualization/renderers/glowWebGLRenderer', () => ({
+  createGlowWebGLRenderer: (canvas: HTMLCanvasElement, onLost: () => void) =>
+    webgl.create(canvas, onLost),
+}));
+
 type Recorded = { args: unknown[]; name: string };
 
 /** A 2D context that records every call and accepts any property. */
@@ -46,7 +58,6 @@ describe('VoiceWave and VoiceGlow', () => {
   let frames: FrameRequestCallback[];
   let now: number;
   let calls: Recorded[];
-  let contextTypes: string[];
 
   const step = (count = 1) => {
     for (let i = 0; i < count; i++) {
@@ -61,7 +72,6 @@ describe('VoiceWave and VoiceGlow', () => {
     frames = [];
     now = 1000;
     calls = [];
-    contextTypes = [];
     vi.spyOn(window, 'requestAnimationFrame').mockImplementation((callback) => {
       frames.push(callback);
       return frames.length;
@@ -70,11 +80,20 @@ describe('VoiceWave and VoiceGlow', () => {
     // jsdom lays nothing out; the renderers draw nothing in a box with no size.
     vi.spyOn(HTMLElement.prototype, 'clientWidth', 'get').mockReturnValue(200);
     vi.spyOn(HTMLElement.prototype, 'clientHeight', 'get').mockReturnValue(200);
+    webgl.drawnScales = [];
+    webgl.create.mockReset();
+    webgl.create.mockImplementation((_canvas: HTMLCanvasElement, onLost: () => void) => {
+      webgl.lose = onLost;
+      return {
+        dispose: vi.fn(),
+        draw: ({ driver }: { driver: { scale: number } }) =>
+          webgl.drawnScales.push(driver.scale),
+      };
+    });
     vi.spyOn(HTMLCanvasElement.prototype, 'getContext').mockImplementation(function (
       this: HTMLCanvasElement,
       type: string,
     ) {
-      contextTypes.push(type);
       return type === '2d' ? (createFakeContext(calls) as never) : null;
     } as never);
   });
@@ -173,7 +192,7 @@ describe('VoiceWave and VoiceGlow', () => {
     const onPointerUp = vi.fn();
     render(
       <div onClick={onClick}>
-        <VoiceGlow onPointerUp={onPointerUp} rendering='canvas' state='idle' />
+        <VoiceGlow onPointerUp={onPointerUp} state='idle' />
       </div>,
     );
     const glow = screen.getByRole('img');
@@ -191,19 +210,16 @@ describe('VoiceWave and VoiceGlow', () => {
 
     fireEvent.pointerUp(glow, { clientX: 100, clientY: 100 });
     fireEvent.click(glow);
-    calls.length = 0;
+    webgl.drawnScales = [];
     step(3);
 
     expect(onPointerUp).toHaveBeenCalledTimes(1);
     expect(onClick).toHaveBeenCalledTimes(1);
-    const scales = calls
-      .filter((call) => call.name === 'scale')
-      .map((call) => call.args[0] as number);
-    expect(Math.min(...scales)).toBeLessThan(1);
+    expect(Math.min(...webgl.drawnScales)).toBeLessThan(1);
   });
 
   it('ignores a tap outside the globe', () => {
-    render(<VoiceGlow rendering='canvas' state='idle' />);
+    render(<VoiceGlow state='idle' />);
     const glow = screen.getByRole('img');
     vi.spyOn(glow, 'getBoundingClientRect').mockReturnValue({
       height: 200,
@@ -214,32 +230,48 @@ describe('VoiceWave and VoiceGlow', () => {
     step();
 
     fireEvent.pointerUp(glow, { clientX: 2, clientY: 2 });
-    calls.length = 0;
+    webgl.drawnScales = [];
     step(3);
 
-    const scales = calls
-      .filter((call) => call.name === 'scale')
-      .map((call) => call.args[0]);
-    expect(scales.every((scale) => scale === 1)).toBe(true);
+    expect(webgl.drawnScales.every((scale) => scale === 1)).toBe(true);
   });
 
-  it('falls back to Canvas when WebGL is unavailable', () => {
+  it('draws the glow with WebGL by default', () => {
     render(<VoiceGlow state='speaking' />);
-
-    expect(contextTypes).toEqual(['webgl', '2d']);
-    expect(screen.getByRole('img')).toHaveAttribute('data-rendering', 'canvas');
     step();
-    expect(calls.some((call) => call.name === 'createRadialGradient')).toBe(true);
+
+    expect(webgl.create).toHaveBeenCalledTimes(1);
+    expect(screen.getByRole('img')).toHaveAttribute('data-rendering', 'webgl');
+    expect(webgl.drawnScales.length).toBeGreaterThan(0);
   });
 
-  it('never asks for WebGL when told to draw on Canvas', () => {
-    render(<VoiceGlow rendering='canvas' state='speaking' />);
+  it('falls back to CSS when WebGL is unavailable', () => {
+    webgl.create.mockReturnValue(null);
+    const { container } = render(<VoiceGlow state='speaking' />);
 
-    expect(contextTypes).toEqual(['2d']);
+    expect(screen.getByRole('img')).toHaveAttribute('data-rendering', 'css');
+    expect(container.querySelector('canvas')).toBeNull();
+  });
+
+  it('falls back to CSS when the WebGL context is lost', () => {
+    render(<VoiceGlow state='speaking' />);
+    step();
+    expect(screen.getByRole('img')).toHaveAttribute('data-rendering', 'webgl');
+
+    act(() => webgl.lose());
+
+    expect(screen.getByRole('img')).toHaveAttribute('data-rendering', 'css');
+  });
+
+  it('never starts WebGL when told to draw with CSS', () => {
+    render(<VoiceGlow rendering='css' state='speaking' />);
+
+    expect(webgl.create).not.toHaveBeenCalled();
   });
 
   it('renders its labelled root even where no canvas context exists', () => {
     vi.mocked(HTMLCanvasElement.prototype.getContext).mockReturnValue(null);
+    webgl.create.mockReturnValue(null);
 
     render(<VoiceGlow state='connecting' />);
     render(<VoiceWave state='connecting' />);
@@ -252,7 +284,7 @@ describe('VoiceWave and VoiceGlow', () => {
     vi.spyOn(window, 'devicePixelRatio', 'get').mockReturnValue(3);
     render(
       <>
-        <VoiceGlow rendering='canvas' state='idle' />
+        <VoiceGlow state='idle' />
         <VoiceWave state='idle' />
       </>,
     );
@@ -264,19 +296,8 @@ describe('VoiceWave and VoiceGlow', () => {
     expect([wave.width, wave.height]).toEqual([400, 400]);
   });
 
-  it('paints the Canvas glow only inside the globe', () => {
-    render(<VoiceGlow rendering='canvas' state='speaking' />);
-    step();
-
-    expect(calls.some((call) => call.name === 'clip')).toBe(true);
-    const mask = calls.find(
-      (call) => call.name === 'fillRect' && (call.args[2] as number) < 200,
-    );
-    expect(mask).toBeDefined();
-  });
-
   it('fades the canvas in once its first frame is drawn', () => {
-    render(<VoiceGlow rendering='canvas' state='idle' />);
+    render(<VoiceGlow state='idle' />);
     const canvas = screen.getByRole('img').querySelector('canvas') as HTMLCanvasElement;
     expect(canvas).not.toHaveAttribute('data-ready');
 
@@ -300,7 +321,7 @@ describe('VoiceWave and VoiceGlow', () => {
     const { container } = render(
       <>
         <VoiceWave onClick={onClick} state='idle' />
-        <VoiceGlow rendering='canvas' state='idle' />
+        <VoiceGlow state='idle' />
       </>,
     );
     const hits = container.querySelectorAll('.str-chat__ai-voice-visualization__hit');
@@ -316,12 +337,9 @@ describe('VoiceWave and VoiceGlow', () => {
     } as DOMRect);
     step();
     fireEvent.pointerUp(hits[1], { clientX: 100, clientY: 100 });
-    calls.length = 0;
+    webgl.drawnScales = [];
     step(3);
-    const scales = calls
-      .filter((call) => call.name === 'scale')
-      .map((call) => call.args[0] as number);
-    expect(Math.min(...scales)).toBeLessThan(1);
+    expect(Math.min(...webgl.drawnScales)).toBeLessThan(1);
 
     fireEvent.click(hits[0]);
     expect(onClick).toHaveBeenCalledTimes(1);

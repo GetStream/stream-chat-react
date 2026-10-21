@@ -40,17 +40,6 @@ export const saturate = (c: number[], amount: number) => {
   for (let i = 0; i < 3; i++) c[i] = clamp(mix(l, c[i], amount), 0, 1);
 };
 
-const gradient = (i: number, seed: number) =>
-  fract(Math.sin(i * 127.1 + seed * 311.7) * 43758.547) * 2 - 1;
-
-/** Smooth 1-D gradient noise from -1 to 1: the slow wobble the CPU needs, where the shader uses simplex. */
-export const noise = (x: number, seed: number) => {
-  const i = Math.floor(x);
-  const f = x - i;
-  const u = f * f * (3 - 2 * f);
-  return mix(gradient(i, seed) * f, gradient(i + 1, seed) * (f - 1), u) * 2;
-};
-
 /**
  * How much the agent is talking, 0 to 1: a slow phrase gate times a faster syllable wobble. The
  * shader's own envelope, on the same simplex noise, so every renderer and iOS speak alike.

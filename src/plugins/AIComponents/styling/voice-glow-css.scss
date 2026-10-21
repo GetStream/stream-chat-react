@@ -415,6 +415,11 @@ $ease: 0.6s ease-out;
     alternate;
 }
 
+#{$glow}__sway#{$glow}__sway--mask {
+  -webkit-mask-image: var(--str-ai-glow-mask);
+  mask-image: var(--str-ai-glow-mask);
+}
+
 #{$glow}__warp#{$glow}__warp--mask {
   -webkit-mask-image: var(--str-ai-glow-mask);
   mask-image: var(--str-ai-glow-mask);

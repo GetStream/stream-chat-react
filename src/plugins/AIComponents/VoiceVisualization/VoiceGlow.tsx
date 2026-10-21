@@ -1,7 +1,7 @@
 import { useCallback, useState } from 'react';
 import clsx from 'clsx';
 
-import { createGlowCanvasRenderer, glowContains } from './renderers/glowCanvasRenderer';
+import { glowContains } from './glowShape';
 import { createGlowWebGLRenderer } from './renderers/glowWebGLRenderer';
 import type { VoiceGlowRendering, VoiceVisualizationProps } from './types';
 import { VoiceGlowCss } from './VoiceGlowCss';
@@ -10,15 +10,6 @@ import { VoiceVisualizationView } from './VoiceVisualizationView';
 export type VoiceGlowProps = VoiceVisualizationProps & {
   /** How the glow is drawn. See `VoiceGlowRendering`. Defaults to `auto`. */
   rendering?: VoiceGlowRendering;
-};
-
-/** Whether `rendering` tries WebGL first; any WebGL failure still falls back to Canvas. */
-export const usesWebGL = (rendering: VoiceGlowRendering) =>
-  rendering === 'auto' || rendering === 'webgl';
-
-const createCanvasRenderer = (canvas: HTMLCanvasElement) => {
-  const ctx = canvas.getContext('2d');
-  return ctx ? createGlowCanvasRenderer(ctx) : null;
 };
 
 /**
@@ -34,22 +25,19 @@ export const VoiceGlow = ({
   rendering = 'auto',
   ...props
 }: VoiceGlowProps) => {
-  // A canvas that has had a WebGL context can never give a 2D one, so falling back remounts it.
+  // Set when WebGL cannot start or its context is lost; the CSS glow takes over from then on.
   const [webGLFailed, setWebGLFailed] = useState(false);
-  const webGL = usesWebGL(rendering) && !webGLFailed;
 
-  const createRenderer = useCallback(
-    (canvas: HTMLCanvasElement) => {
-      if (!webGL) return createCanvasRenderer(canvas);
-      const renderer = createGlowWebGLRenderer(canvas, () => setWebGLFailed(true));
-      if (!renderer) setWebGLFailed(true);
-      return renderer;
-    },
-    [webGL],
-  );
+  const createRenderer = useCallback((canvas: HTMLCanvasElement) => {
+    const renderer = createGlowWebGLRenderer(canvas, () => setWebGLFailed(true));
+    if (!renderer) setWebGLFailed(true);
+    return renderer;
+  }, []);
 
-  if (rendering === 'css') {
-    return <VoiceGlowCss className={className} {...props} />;
+  if (rendering === 'css' || webGLFailed) {
+    // Standing in for WebGL, the GPU is likely off and the compositor works on the CPU, so the
+    // fallback draws fewer layers than a glow asked to be CSS.
+    return <VoiceGlowCss className={className} lite={rendering !== 'css'} {...props} />;
   }
 
   return (
@@ -57,11 +45,11 @@ export const VoiceGlow = ({
       className={clsx('str-chat__ai-voice-glow', className)}
       contains={glowContains}
       createRenderer={createRenderer}
-      data-rendering={webGL ? 'webgl' : 'canvas'}
+      data-rendering='webgl'
       // The glow is all soft gradients: drawn at 1x it looks the same as at 2x, with a quarter
       // of the pixels to fill every frame.
       maxPixelRatio={1}
-      rendererKey={webGL ? 'webgl' : 'canvas'}
+      rendererKey='webgl'
       {...props}
     />
   );
