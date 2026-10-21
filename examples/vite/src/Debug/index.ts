@@ -12,3 +12,8 @@ export { ComposerStateInspectorPanel } from './ComposerStateInspector';
 export { listComposers } from './composerRegistry';
 export { StreamDebugHandles } from './StreamDebugHandles';
 export { toDebugJson } from './serialize';
+export {
+  PaginationScenariosDialog,
+  paginationScenariosDialogId,
+  usePaginationScenariosDialog,
+} from './PaginationScenariosDialog';
