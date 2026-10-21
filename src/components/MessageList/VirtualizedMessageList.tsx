@@ -671,12 +671,11 @@ const VirtualizedMessageListWithContext = (
               {...(scrollSeekPlaceHolder ? { scrollSeek: scrollSeekPlaceHolder } : {})}
               {...(defaultItemHeight ? { defaultItemHeight } : {})}
             />
+            {/* Only for messages that arrived while the reader was scrolled up. Reading an older
+                  window (e.g. after a jump) is signalled by ScrollToLatestMessageButton instead. */}
             <NewMessageNotification
               newMessageCount={channelUnreadUiState?.unreadCount}
-              showNotification={
-                (newMessagesNotification || hasMoreNewer) &&
-                !isMessageListScrolledToBottom
-              }
+              showNotification={newMessagesNotification && !isMessageListScrolledToBottom}
             />
             {/* An empty list has nothing to jump to. Gate on the message count rather than on
                   scroll position alone: a list with no content can legitimately report "not at

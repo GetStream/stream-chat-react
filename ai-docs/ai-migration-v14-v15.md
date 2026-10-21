@@ -445,6 +445,17 @@ already gives one focus per list.
   `jumpToMessage` call — the signal waits, uncounted, until a list renders it. `examples/vite` reads a
   repeatable `?focus=<cid>:<messageId>` parameter this way.
 
+### The "New Messages!" notification shows only for messages that arrived
+
+In v14 both message lists also showed `NewMessageNotification` whenever newer messages existed than
+the loaded window — for example after jumping to an old message — even if nothing had arrived. Now
+`showNotification` is true only when a message from someone else arrived while the reader was
+scrolled up. Being in an older window is signalled by `ScrollToLatestMessageButton` alone.
+
+- **A custom `NewMessageNotification`** that relied on `showNotification` for the jumped-to-history
+  state should read `channel.messagePaginator.hasMoreHead` instead (via `useStateStore` on
+  `messagePaginator.state`).
+
 ### `ChannelListItem` `getLatestMessagePreview` prop → removed; customize via `SummarizedMessagePreview`
 
 `ChannelListItem`'s `getLatestMessagePreview` prop and the `getLatestMessagePreview` util (previously re-exported from the package root) are **removed**, along with the `latestMessagePreview` prop on `ChannelListItemUIProps`. The default `ChannelListItemUI` renders the last-message preview via the `SummarizedMessagePreview` component, which is now overridable through `ComponentContext`.

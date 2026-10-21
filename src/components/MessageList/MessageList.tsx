@@ -410,11 +410,11 @@ const MessageListWithContext = (props: MessageListWithContextProps) => {
                 <div key='bottom' />
               </InfiniteScrollPaginator>
             )}
+            {/* Only for messages that arrived while the reader was scrolled up. Reading an older
+                  window (e.g. after a jump) is signalled by ScrollToLatestMessageButton instead. */}
             <NewMessageNotification
               newMessageCount={channelUnreadUiState?.unreadCount}
-              showNotification={
-                (hasNewMessages || hasMoreNewer) && !isMessageListScrolledToBottom
-              }
+              showNotification={hasNewMessages && !isMessageListScrolledToBottom}
             />
             {/* An empty list has nothing to jump to — see the matching gate in
                   VirtualizedMessageList. */}
