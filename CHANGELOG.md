@@ -1,3 +1,11 @@
+## [14.13.3](https://github.com/GetStream/stream-chat-react/compare/v14.13.2...v14.13.3) (2026-10-21)
+
+### Bug Fixes
+
+* **Attachment:** render giphy attachments in their own group with uni… ([#3325](https://github.com/GetStream/stream-chat-react/issues/3325)) ([a61c0c4](https://github.com/GetStream/stream-chat-react/commit/a61c0c4190592ebed83de67267fb79c9f51f338e))
+* **Attachment:** render giphy attachments in their own group with unique keys ([b753243](https://github.com/GetStream/stream-chat-react/commit/b7532434ae05f4dc433cdd99035e92eef7d63d34))
+* **MessageComposer:** send an edited bounced message as a new message ([#3337](https://github.com/GetStream/stream-chat-react/issues/3337)) ([3f45e67](https://github.com/GetStream/stream-chat-react/commit/3f45e670cd34c41daf46a17c74419976c5932f27))
+
 ## [14.13.2](https://github.com/GetStream/stream-chat-react/compare/v14.13.1...v14.13.2) (2026-10-13)
 
 ### Bug Fixes
