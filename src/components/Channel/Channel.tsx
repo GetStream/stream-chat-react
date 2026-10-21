@@ -1067,8 +1067,10 @@ const ChannelInner = (
   }) => {
     channel.state.filterErrorMessages();
 
+    // A message resent after being rejected by the server keeps its id under a new timestamp.
     thread?.upsertReplyLocally({
       message: localMessage,
+      timestampChanged: true,
     });
 
     updateMessage(localMessage);
