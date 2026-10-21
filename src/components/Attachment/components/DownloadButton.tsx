@@ -15,8 +15,8 @@ export type DownloadButtonProps = {
 };
 
 /**
- * Icon button that downloads an attachment asset. Renders nothing without an `assetUrl`;
- * `sanitizeUrl` turns an unsafe one into `about:blank`.
+ * Icon button that downloads an attachment asset. Renders nothing without an `assetUrl` or when
+ * the URL is unsafe (`sanitizeUrl` turns it into `about:blank`).
  */
 export const DownloadButton = ({
   assetUrl,
@@ -28,7 +28,7 @@ export const DownloadButton = ({
   const { t } = useTranslationContext();
   if (!assetUrl) return null;
   const href = sanitizeUrl(assetUrl);
-  if (!href) return null;
+  if (href === 'about:blank') return null;
 
   return (
     <a

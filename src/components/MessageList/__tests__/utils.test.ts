@@ -9,6 +9,7 @@ import {
 
 import {
   getGroupStyles,
+  getLastReceived,
   insertIntro,
   isDateSeparatorMessage,
   makeDateMessageId,
@@ -803,7 +804,7 @@ describe('getGroupStyles', () => {
   });
 
   // deleted_at on the message itself does not force 'single'.
-  it('marks message as middle even when deleted (deleted_at no longer affects grouping)', () => {
+  it('marks message as middle even when deleted (deleted_at does not affect grouping)', () => {
     message = { ...message, deleted_at: convertDateToTimestamp(new Date()) };
     expect(getGroupStyles(message, previousMessage, nextMessage, noGroupByUser)).toBe(
       'middle',
@@ -917,7 +918,7 @@ describe('insertIntro', () => {
     ]);
   });
 
-  it('is in nanoseconds, not milliseconds — the unit the migration changed', () => {
+  it('takes the header position in nanoseconds, not milliseconds', () => {
     const messages = [
       msg('2026-01-01T00:00:00Z', 'older'),
       msg('2026-01-03T00:00:00Z', 'newer'),
@@ -938,5 +939,26 @@ describe('insertIntro', () => {
         isIntro(m) ? 'intro' : m.id,
       ),
     ).toEqual(['older', 'intro', 'newer']);
+  });
+});
+
+describe('getLastReceived', () => {
+  const received = (id: string) =>
+    fromPartial<LocalMessage>({ ...generateMessage({ id }), status: 'received' });
+  const sending = (id: string) =>
+    fromPartial<LocalMessage>({ ...generateMessage({ id }), status: 'sending' });
+
+  it('returns the ID of the last received message', () => {
+    expect(getLastReceived([received('a'), received('b'), sending('c')])).toBe('b');
+  });
+
+  it('checks the first message', () => {
+    expect(getLastReceived([received('only')])).toBe('only');
+    expect(getLastReceived([received('first'), sending('second')])).toBe('first');
+  });
+
+  it('returns null without a received message', () => {
+    expect(getLastReceived([])).toBeNull();
+    expect(getLastReceived([sending('a')])).toBeNull();
   });
 });

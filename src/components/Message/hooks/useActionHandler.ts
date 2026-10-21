@@ -13,8 +13,8 @@ export type ActionHandlerReturnType = (
   event?: React.BaseSyntheticEvent,
 ) => Promise<void> | void;
 
-export const handleActionWarning = `Action handler was called, but it is missing one of its required arguments. 
-Make sure the ChannelAction and ChannelState contexts are properly set and the hook is initialized with a valid message.`;
+export const handleActionWarning = `Action handler was called, but it is missing one of its required arguments.
+Make sure the hook is used within a Channel and is initialized with a valid message.`;
 
 export function useActionHandler(message?: LocalMessage): ActionHandlerReturnType {
   const channel = useChannel();

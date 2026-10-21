@@ -103,4 +103,26 @@ describe('WithDragAndDropUpload', () => {
     expect(queuedHandler).toHaveBeenCalledWith([dropped]);
     expect(uploadFiles).not.toHaveBeenCalled();
   });
+
+  it('keeps the className and style of a nested instance', async () => {
+    const { channel, client } = await setup();
+
+    await act(async () => {
+      await render(
+        <Chat client={client}>
+          <Channel channel={channel}>
+            <WithDragAndDropUpload>
+              <WithDragAndDropUpload className='nested' style={{ color: 'red' }}>
+                <div data-testid='nested-child' />
+              </WithDragAndDropUpload>
+            </WithDragAndDropUpload>
+          </Channel>
+        </Chat>,
+      );
+    });
+
+    const nested = screen.getByTestId('nested-child').parentElement;
+    expect(nested).toHaveClass('nested');
+    expect(nested).toHaveStyle({ color: 'rgb(255, 0, 0)' });
+  });
 });

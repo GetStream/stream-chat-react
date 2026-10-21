@@ -181,7 +181,7 @@ export function renderText(
             newText.slice(end);
         }
       } else {
-        const displayLink = type === 'email' ? value : formatUrlForDisplay(href);
+        const displayLink = formatUrlForDisplay(href);
 
         newText =
           newText.slice(0, start) +

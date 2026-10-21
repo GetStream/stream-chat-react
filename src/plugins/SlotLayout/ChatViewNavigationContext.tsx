@@ -340,21 +340,21 @@ export const ChatViewNavigationProvider = ({ children }: PropsWithChildren) => {
     // Replacing a channel closes the reply threads opened from it. A thread slot is released, but
     // content stacked over the thread (a channel opened beside it) stays, its top layer becoming
     // the slot's base. A reply thread of `replacedChannel` stacked over another panel is popped,
-    // revealing that panel.
+    // revealing that panel. With a known `replacedChannel`, threads of other channels stay; without
+    // one, every thread slot is released. A thread is matched by `cid`, its conversation.
     const closeReplyThreads = (replacedChannel?: StreamChannel) => {
+      const isReplyThread = (entity: ReturnType<typeof getChatViewEntityBinding>) =>
+        entity?.kind === 'thread' &&
+        (!replacedChannel || entity.source.channel?.cid === replacedChannel.cid);
+
       availableSlots.forEach((slot) => {
         const layers = slotLayers?.[slot] ?? [];
         const top = layers[layers.length - 1];
-        const topEntity = getChatViewEntityBinding(top);
-        if (
-          replacedChannel &&
-          topEntity?.kind === 'thread' &&
-          topEntity.source.channel?.cid === replacedChannel.cid
-        ) {
+        if (replacedChannel && isReplyThread(getChatViewEntityBinding(top))) {
           layoutController.popLayer(slot);
           return;
         }
-        if (slotKind(slot) !== 'thread') return;
+        if (!isReplyThread(getChatViewEntityBinding(slotBindings[slot]))) return;
         if (!top) {
           layoutController.release(slot);
           return;

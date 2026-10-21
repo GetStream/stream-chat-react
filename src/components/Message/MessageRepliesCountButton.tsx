@@ -96,7 +96,7 @@ function UnMemoizedMessageRepliesCountButton(props: MessageRepliesCountButtonPro
 
   if (labelPlural && replyCount > 1) {
     replyCountText = `${replyCount} ${labelPlural}`;
-  } else if (labelSingle) {
+  } else if (labelSingle && replyCount === 1) {
     replyCountText = `1 ${labelSingle}`;
   }
 

@@ -136,16 +136,17 @@ const pickNewestPersistent = (
   return newest;
 };
 
-const pickNewestOfType = (
+const isNewerOfSameType = (candidate: Notification, displayed: Notification) =>
+  haveSameType(candidate, displayed) && candidate.createdAt > displayed.createdAt;
+
+/** The newest notification of the displayed one's `type` that arrived after it. */
+const pickNewerOfType = (
   notifications: Notification[],
-  type: string | undefined | null,
-  excludeId: string | null,
+  displayed: Notification,
 ): Notification | null => {
-  if (!type) return null;
   let newest: Notification | null = null;
   for (const notification of notifications) {
-    if (notification.id === excludeId) continue;
-    if (notification.type !== type) continue;
+    if (!isNewerOfSameType(notification, displayed)) continue;
     if (!newest || notification.createdAt > newest.createdAt) {
       newest = notification;
     }
@@ -161,8 +162,8 @@ const pickNewestOfType = (
  * - Nothing displayed, or the displayed one left the store: the newest persistent notification (no
  *   `duration`), else `pickFromQueue`.
  * - A persistent is displayed: it stays until a newer persistent arrives or it is dismissed.
- * - A transient is displayed: the newest other notification of the same `type`, else the newest
- *   persistent, else `pickFromQueue`, else the displayed one.
+ * - A transient is displayed: the newest notification of the same `type` that arrived after it,
+ *   else the newest persistent, else `pickFromQueue`, else the displayed one.
  *
  * @param pickFromQueue - Queue fallback. Defaults to `pickOldest`.
  * @returns The selector.
@@ -196,9 +197,9 @@ export const createDefaultPickNext =
       return displayed;
     }
 
-    // A transient is displayed. A repeat of its type collapses to the latest occurrence.
-    const sameTypeNewest = pickNewestOfType(notifications, displayed.type, displayed.id);
-    if (sameTypeNewest) return sameTypeNewest;
+    // A transient is displayed. A later repeat of its type collapses to the latest occurrence.
+    const newerOfType = pickNewerOfType(notifications, displayed);
+    if (newerOfType) return newerOfType;
 
     // A queued persistent jumps ahead of the queue.
     if (newestPersistent) return newestPersistent;
@@ -364,9 +365,9 @@ export const NotificationList = ({
       return;
     }
 
-    // A repeat of the same type replaces the active notification immediately, and the new one
-    // starts its own auto-dismiss countdown.
-    if (haveSameType(displayedNotification, candidate)) {
+    // A later repeat of the same type replaces the active notification immediately, and the new
+    // one starts its own auto-dismiss countdown. An older one of the same type waits its turn.
+    if (isNewerOfSameType(candidate, displayedNotification)) {
       clearReplacementTimeout();
       startSwap();
       return;

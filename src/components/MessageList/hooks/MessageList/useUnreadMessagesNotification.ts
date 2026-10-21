@@ -28,7 +28,6 @@ export type UseUnreadMessagesNotificationParams = {
   listElement: HTMLDivElement | null;
   isMessageListScrolledToBottom: boolean;
   showAlways: boolean;
-  unreadCount?: number;
 };
 
 const messagePaginatorStateSelector = (state: MessagePaginatorState) => ({

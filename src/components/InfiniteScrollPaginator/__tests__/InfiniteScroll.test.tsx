@@ -76,16 +76,29 @@ describe('InfiniteScroll', () => {
         expect.any(Function),
         useCapture,
       );
-      expect(removeEventListenerSpy).toHaveBeenCalledWith(
-        'wheel',
-        expect.any(Function),
-        useCapture,
-      );
+      // The wheel listener is added without capture whatever `useCapture` is.
+      expect(removeEventListenerSpy).toHaveBeenCalledWith('wheel', expect.any(Function));
       expect(removeEventListenerSpy).toHaveBeenCalledWith(
         'resize',
         expect.any(Function),
         useCapture,
       );
+    },
+  );
+
+  it.each([true, false])(
+    'stops preventing wheel events after unmount with useCapture as %s',
+    (useCapture) => {
+      const { scrollParent, unmount } = renderComponent({
+        hasPreviousPage: true,
+        useCapture,
+      });
+
+      unmount();
+
+      const wheelEvent = new WheelEvent('wheel', { cancelable: true, deltaY: 1 });
+      scrollParent.dispatchEvent(wheelEvent);
+      expect(wheelEvent.defaultPrevented).toBe(false);
     },
   );
 

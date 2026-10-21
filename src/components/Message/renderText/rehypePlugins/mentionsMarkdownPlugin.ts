@@ -246,7 +246,7 @@ export const mentionsMarkdownPluginFromLookup =
             if (
               textNode.type === 'text' &&
               // The text node has to end with the `@` that starts the mention.
-              /.?\s?@$|^@$/.test(textNode.value) &&
+              textNode.value.endsWith('@') &&
               nextChildHref?.startsWith('mailto:')
             ) {
               const newTextValue = textNode.value.replace(/@$/, '');

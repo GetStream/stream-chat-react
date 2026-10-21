@@ -51,7 +51,7 @@ export const excelMimeTypes = [
   // .xlam
   'application/vnd.ms-excel.addin.macroEnabled.12',
   // .xlsb
-  'application/vnd.ms-excel.addin.macroEnabled.12',
+  'application/vnd.ms-excel.sheet.binary.macroEnabled.12',
 
   // LibreOffice/OpenOffice Calc
   // .ods
@@ -178,6 +178,7 @@ export const mimeTypeToExtensionMap: Record<string, string> = {
   'application/vnd.mozilla.xul+xml': 'xul',
   'application/vnd.ms-excel': 'xls',
   'application/vnd.ms-excel.addin.macroEnabled.12': 'xlam',
+  'application/vnd.ms-excel.sheet.binary.macroEnabled.12': 'xlsb',
   'application/vnd.ms-excel.sheet.macroEnabled.12': 'xlsm',
   'application/vnd.ms-excel.template.macroEnabled.12': 'xltm',
   'application/vnd.ms-fontobject': 'eot',

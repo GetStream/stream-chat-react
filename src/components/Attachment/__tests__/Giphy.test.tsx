@@ -4,17 +4,9 @@ import { render } from '@testing-library/react';
 import { Giphy } from '../Giphy';
 import { generateGiphyAttachment } from '../../../mock-builders';
 
-const { channelStateMock } = vi.hoisted(() => ({
-  channelStateMock: {
-    giphyVersion: 'fixed_height',
-    imageAttachmentSizeHandler: undefined,
-  },
-}));
-
 vi.mock('../../../context', async (importOriginal) => {
   const actual = await importOriginal<typeof import('../../../context')>();
   return {
-    useChannelStateContext: () => channelStateMock,
     useComponentContext: () => ({}),
     // The real hook: with no provider it returns the SDK icons, which is what these
     // assertions are written against.

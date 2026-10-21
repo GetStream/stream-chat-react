@@ -53,6 +53,9 @@ export const PollCreationDialogControls = ({
               // error is swallowed to avoid an unhandled rejection. No poll exists, so do not send.
               return;
             }
+            // `createPoll()` also returns without a poll when the composition is empty. Sending
+            // then would submit whatever else the composer holds (drafted text) without the poll.
+            if (!messageComposer.pollId) return;
             // `sendMessage()` never rejects and reports its own failure, so the success
             // notification is gated on the result. Compared to `'sent'` because `'failed'` and
             // `'nothing-to-send'` are truthy strings.

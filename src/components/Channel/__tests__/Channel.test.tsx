@@ -361,11 +361,7 @@ describe('Channel', () => {
 
     it('does not paginate (query) when the client is disconnected', async () => {
       const { channel, chatClient } = await setup();
-      await renderComponent({
-        channel,
-        channelQueryOptions: { messages: { limit: 25 } },
-        chatClient,
-      });
+      await renderComponent({ channel, chatClient });
 
       const querySpy = vi.spyOn(channel, 'query');
       const prevSpy = vi.spyOn(channel.messagePaginator, 'prev');

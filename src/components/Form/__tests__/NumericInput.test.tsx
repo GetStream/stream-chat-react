@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 
 import { NumericInput } from '../NumericInput';
 
@@ -35,5 +35,32 @@ describe('NumericInput', () => {
       />,
     );
     expect(screen.getByRole('spinbutton')).toHaveAttribute('size', '8');
+  });
+
+  it.each([
+    ['increment', 'Increase value'],
+    ['decrement', 'Decrease value'],
+  ])('steps an empty value without a lower bound to 0 on %s', (_, buttonName) => {
+    const onChange = vi.fn();
+    render(<NumericInput aria-label='Delay' onChange={onChange} value='' />);
+
+    fireEvent.click(screen.getByRole('button', { name: buttonName }));
+
+    expect(onChange).toHaveBeenCalledWith(
+      expect.objectContaining({ target: { value: '0' } }),
+    );
+  });
+
+  it('steps an empty value to the lower bound', () => {
+    const onChange = vi.fn();
+    render(
+      <NumericInput aria-label='Votes' max={10} min={2} onChange={onChange} value='' />,
+    );
+
+    fireEvent.click(screen.getByRole('button', { name: 'Increase value' }));
+
+    expect(onChange).toHaveBeenCalledWith(
+      expect.objectContaining({ target: { value: '2' } }),
+    );
   });
 });

@@ -84,6 +84,15 @@ describe('MessageRepliesCountButton', () => {
     expect(getByText(`2 ${customPluralLabel}`)).toBeInTheDocument();
   });
 
+  it('keeps the count and the default text for more than one reply when only labelSingle is defined', () => {
+    const { getByText } = renderComponent({
+      labelSingle: 'text',
+      reply_count: 2,
+    });
+
+    expect(getByText(defaultPluralText)).toBeInTheDocument();
+  });
+
   it('should call the onClick prop if the button is clicked', () => {
     const { getByTestId } = renderComponent({
       reply_count: 1,
