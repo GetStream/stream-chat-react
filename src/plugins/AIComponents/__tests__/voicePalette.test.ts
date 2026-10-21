@@ -67,6 +67,51 @@ describe('voice visualization palette', () => {
   });
 });
 
+describe('voice visualization colors in a browser', () => {
+  // A 2D context like a browser's: a color it cannot read leaves the previous fillStyle as is.
+  const browserContext = () => {
+    const names: Record<string, string> = { rebeccapurple: '#663399' };
+    let fillStyle = '#000000';
+    return {
+      get fillStyle() {
+        return fillStyle;
+      },
+      set fillStyle(color: string) {
+        const value = names[color] ?? color.toLowerCase();
+        if (/^#[0-9a-f]{6}$/.test(value) || /^rgba?\(/.test(value)) fillStyle = value;
+      },
+    };
+  };
+
+  beforeEach(() => {
+    // The palette caches its context, so each test loads a fresh copy of it.
+    vi.resetModules();
+    vi.spyOn(HTMLCanvasElement.prototype, 'getContext').mockImplementation(((
+      type: string,
+    ) => (type === '2d' ? browserContext() : null)) as never);
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  it('skips colors the browser rejects instead of reading them as black', async () => {
+    const { luminance, parseColor, toHsvPalette } =
+      await import('../VoiceVisualization/palette');
+
+    expect(parseColor('var(--brand)')).toBeNull();
+    expect(parseColor('#12345')).toBeNull();
+    expect(toHsvPalette(['nope', '#ff0000'])).toHaveLength(1);
+    // An empty backdrop is unknown, not dark.
+    expect(luminance('')).toBeNull();
+    // Black itself, and names the browser knows, still read.
+    expect(parseColor('#000000')).toEqual([0, 0, 0]);
+    parseColor('rebeccapurple')?.forEach((channel, i) =>
+      expect(channel).toBeCloseTo([0.4, 0.2, 0.6][i], 4),
+    );
+  });
+});
+
 describe('voice visualization inputs', () => {
   it('clamps expressivity to 0-2 and replaces one that is not a number', () => {
     expect(expressivityInput(3)).toBe(2);

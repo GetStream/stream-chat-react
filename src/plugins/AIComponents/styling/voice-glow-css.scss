@@ -1,16 +1,14 @@
 // Intentionally declares no `--str-chat__ai-*` custom properties; see _tokens.scss.
-@use 'sass:list';
 @use './tokens' as *;
 
-// VoiceGlow with rendering='css': the shader's composition in CSS. An opaque color field (a
-// base, the masses mixed over it in order, shade and rim) is seen through an alpha that only the
-// first two masses make: a faint static body plus one mask riding each of their orbits, with the
-// inverse turns inside each mask keeping the colors still. Only `transform` and `opacity`
-// animate, so the compositor runs the motion. Sizes follow the shader: R = 0.24 of the shorter
-// side, the soft edge at 1.06 R.
+// VoiceGlow drawn with CSS: the shader's composition. An opaque color field (a base and the
+// masses mixed over it in order) is seen through an alpha that the first mass makes: a faint
+// static body plus a mask riding its orbit, with the inverse turns inside the mask keeping the
+// colors still. Only `transform` and `opacity` animate, so the compositor runs the motion. Sizes
+// follow the shader: R = 0.24 of the shorter side, the soft edge at 1.06 R.
 //
-// The script sets the palette (--str-ai-glow-k0, -col-b to -col-e, -base, -halo, -rim, -shade),
-// the falloff gradients and masks, the expressivity (--str-ai-glow-amp), each animation's
+// The script sets the palette (--str-ai-glow-k0, -col-b to -col-e, -base, -halo, -ring), the
+// falloff gradients and the mask, the expressivity (--str-ai-glow-amp), each animation's
 // playback rate for the state, and the live audio level. Until it runs, the masses take the
 // theme's voice color.
 
@@ -40,12 +38,6 @@
   initial-value: 40deg;
 }
 
-@property --str-ai-glow-warp {
-  syntax: '<number>';
-  inherits: true;
-  initial-value: 0.06;
-}
-
 @property --str-ai-glow-halo-alpha {
   syntax: '<percentage>';
   inherits: true;
@@ -71,7 +63,7 @@ $ease: 0.6s ease-out;
   --str-ai-glow-col-e: var(--str-ai-glow-k0);
   --str-ai-glow-base: var(--str-ai-glow-k0);
   --str-ai-glow-halo: var(--str-ai-glow-k0);
-  --str-ai-glow-rim: var(--str-ai-glow-k0);
+  --str-ai-glow-ring: var(--str-ai-glow-k0);
 
   display: grid;
   place-items: center;
@@ -81,7 +73,6 @@ $ease: 0.6s ease-out;
     --str-ai-glow-speech $ease,
     --str-ai-glow-pulse $ease,
     --str-ai-glow-sway $ease,
-    --str-ai-glow-warp $ease,
     --str-ai-glow-halo-alpha $ease;
 
   // How far each state moves; how fast is the script's playback rates.
@@ -90,7 +81,6 @@ $ease: 0.6s ease-out;
     --str-ai-glow-speech: 0;
     --str-ai-glow-pulse: 0;
     --str-ai-glow-sway: 40deg;
-    --str-ai-glow-warp: 0.06;
     --str-ai-glow-halo-alpha: 5.6%;
   }
 
@@ -99,7 +89,6 @@ $ease: 0.6s ease-out;
     --str-ai-glow-speech: 0;
     --str-ai-glow-pulse: 1;
     --str-ai-glow-sway: 50deg;
-    --str-ai-glow-warp: 0.1;
     --str-ai-glow-halo-alpha: 5%;
   }
 
@@ -108,7 +97,6 @@ $ease: 0.6s ease-out;
     --str-ai-glow-speech: 0.35;
     --str-ai-glow-pulse: 0;
     --str-ai-glow-sway: 45deg;
-    --str-ai-glow-warp: 0.1;
     --str-ai-glow-halo-alpha: 7.3%;
   }
 
@@ -117,7 +105,6 @@ $ease: 0.6s ease-out;
     --str-ai-glow-speech: 0;
     --str-ai-glow-pulse: 0;
     --str-ai-glow-sway: 60deg;
-    --str-ai-glow-warp: 0.12;
     --str-ai-glow-halo-alpha: 5%;
   }
 
@@ -126,7 +113,6 @@ $ease: 0.6s ease-out;
     --str-ai-glow-speech: 1;
     --str-ai-glow-pulse: 0;
     --str-ai-glow-sway: 45deg;
-    --str-ai-glow-warp: 0.14;
     --str-ai-glow-halo-alpha: 10%;
   }
 
@@ -137,6 +123,11 @@ $ease: 0.6s ease-out;
   // A live audio level replaces the self-animated speech, as in the other renderers.
   &[data-state][data-live='true'] {
     --str-ai-glow-speech: 0;
+  }
+
+  // Off screen nothing animates, as the canvas renderers stop drawing there.
+  &[data-offscreen='true'] * {
+    animation-play-state: paused;
   }
 }
 
@@ -193,11 +184,7 @@ $ease: 0.6s ease-out;
 #{$glow}__orbit,
 #{$glow}__unorbit,
 #{$glow}__sway,
-#{$glow}__unsway,
-#{$glow}__warp,
-#{$glow}__unwarp,
-#{$glow}__shade,
-#{$glow}__rim {
+#{$glow}__unsway {
   position: absolute;
   inset: 0;
 }
@@ -404,70 +391,9 @@ $ease: 0.6s ease-out;
   }
 }
 
-// The shader's noise bends the masses; a slow, uneven stretch of each stands in for it. The
-// riding masks stretch twice as far, and the inverse stretch inside them keeps the colors still.
-#{$glow}__warp,
-#{$glow}__unwarp {
-  transform-origin: calc(50% + var(--str-ai-glow-dist)) 50%;
-}
-
-#{$glow}__warp {
-  animation: str-ai-glow-warp var(--str-ai-glow-warp-period) ease-in-out infinite
-    alternate;
-}
-
 #{$glow}__sway#{$glow}__sway--mask {
   -webkit-mask-image: var(--str-ai-glow-mask);
   mask-image: var(--str-ai-glow-mask);
-}
-
-#{$glow}__warp#{$glow}__warp--mask {
-  -webkit-mask-image: var(--str-ai-glow-mask);
-  mask-image: var(--str-ai-glow-mask);
-  animation-name: str-ai-glow-mask-warp;
-}
-
-#{$glow}__unwarp {
-  animation: str-ai-glow-mask-unwarp var(--str-ai-glow-warp-period) ease-in-out infinite
-    alternate;
-}
-
-@mixin stretch($amount) {
-  transform: rotate(var(--str-ai-glow-warp-turn))
-    scale(#{list.nth($amount, 1)}, #{list.nth($amount, 2)})
-    rotate(calc(var(--str-ai-glow-warp-turn) * -1));
-}
-
-$w: 'var(--str-ai-glow-warp) * var(--str-ai-glow-amp, 1)';
-
-@keyframes str-ai-glow-warp {
-  from {
-    @include stretch((calc(1 + #{$w}), calc(1 - #{$w})));
-  }
-
-  to {
-    @include stretch((calc(1 - #{$w}), calc(1 + #{$w})));
-  }
-}
-
-@keyframes str-ai-glow-mask-warp {
-  from {
-    @include stretch((calc(1 + #{$w} * 2), calc(1 - #{$w} * 2)));
-  }
-
-  to {
-    @include stretch((calc(1 - #{$w} * 2), calc(1 + #{$w} * 2)));
-  }
-}
-
-@keyframes str-ai-glow-mask-unwarp {
-  from {
-    @include stretch((calc(1 / (1 + #{$w} * 2)), calc(1 / (1 - #{$w} * 2))));
-  }
-
-  to {
-    @include stretch((calc(1 / (1 - #{$w} * 2)), calc(1 / (1 + #{$w} * 2))));
-  }
 }
 
 #{$glow}__field {
@@ -488,27 +414,6 @@ $w: 'var(--str-ai-glow-warp) * var(--str-ai-glow-amp, 1)';
   aspect-ratio: 1;
   border-radius: 50%;
   translate: -50% -50%;
-}
-
-// Diffuse light from the upper left: 1 where the globe faces it, 0.8 on the far side.
-#{$glow}__shade {
-  background: radial-gradient(
-    circle at 33% 27%,
-    transparent 15%,
-    color-mix(in srgb, var(--str-ai-glow-shade) 8%, transparent) 55%,
-    color-mix(in srgb, var(--str-ai-glow-shade) 20%, transparent) 100%
-  );
-}
-
-// Fresnel: light gathering at the rim, added on top.
-#{$glow}__rim {
-  background: radial-gradient(
-    closest-side,
-    transparent 55%,
-    color-mix(in srgb, var(--str-ai-glow-rim) 4%, transparent) 80%,
-    color-mix(in srgb, var(--str-ai-glow-rim) 10%, transparent) 100%
-  );
-  mix-blend-mode: plus-lighter;
 }
 
 // A tap: the same dip and overshoot as the other renderers, and a ring in place of the ripple.
@@ -540,7 +445,7 @@ $w: 'var(--str-ai-glow-warp) * var(--str-ai-glow-amp, 1)';
   aspect-ratio: 1;
   border-radius: 50%;
   translate: -50% -50%;
-  border: 2px solid color-mix(in srgb, var(--str-ai-glow-rim) 60%, transparent);
+  border: 2px solid color-mix(in srgb, var(--str-ai-glow-ring) 60%, transparent);
   pointer-events: none;
   animation: str-ai-glow-ripple 0.9s ease-out forwards;
 }

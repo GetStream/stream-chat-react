@@ -9,6 +9,7 @@ let normalizer: CanvasRenderingContext2D | null | undefined;
 /**
  * The browser's own reading of a CSS color, as `#rrggbb` or `rgba(...)`, so any syntax it
  * understands (names, `hsl()`, `color-mix()`, ...) reaches the parser below in one of two forms.
+ * Null for a color the browser rejects.
  */
 const normalize = (color: string) => {
   if (normalizer === undefined) {
@@ -18,10 +19,14 @@ const normalize = (color: string) => {
         : document.createElement('canvas').getContext('2d');
   }
   if (!normalizer) return color;
-  // An invalid color leaves the previous value in place, so reset first and compare.
+  // A rejected color leaves the previous value in place, so it reads back as whichever of two
+  // different starting values was there; an accepted one reads the same both times.
   normalizer.fillStyle = '#000000';
   normalizer.fillStyle = color;
-  return String(normalizer.fillStyle);
+  const read = String(normalizer.fillStyle);
+  normalizer.fillStyle = '#ffffff';
+  normalizer.fillStyle = color;
+  return String(normalizer.fillStyle) === read ? read : null;
 };
 
 const channel = (value: string) =>
@@ -29,7 +34,9 @@ const channel = (value: string) =>
 
 /** Reads `#rgb`, `#rrggbb` (with optional alpha) and `rgb()`/`rgba()` into 0-1 channels. */
 export const parseColor = (color: string): Rgb | null => {
-  const value = normalize(color.trim()).trim().toLowerCase();
+  const normalized = normalize(color.trim());
+  if (normalized === null) return null;
+  const value = normalized.trim().toLowerCase();
   const hex = /^#([0-9a-f]{3,8})$/.exec(value)?.[1];
   if (hex) {
     const full =
@@ -88,4 +95,21 @@ export const luminance = (color: string) => {
     c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4),
   );
   return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+};
+
+/** Used when neither the `colors` prop nor the theme gives a readable color. */
+export const FALLBACK_COLOR = '#005fff';
+
+/**
+ * The theme a voice visualization reads from its root: the accent color (the root's `color`) as
+ * a palette, empty when unreadable, and whether it sits on a dark backdrop (the root's
+ * `text-decoration-color`, which carries the backdrop token and never paints).
+ */
+export const readVoiceTheme = (root: Element) => {
+  const style = getComputedStyle(root);
+  const backdrop = luminance(style.textDecorationColor || '');
+  return {
+    dark: backdrop !== null && backdrop < 0.5 ? 1 : 0,
+    palette: toHsvPalette(style.color ? [style.color] : []),
+  };
 };

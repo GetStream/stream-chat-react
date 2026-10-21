@@ -3,9 +3,10 @@ import type { Hsv, VoiceAgentState } from './types';
 
 /*
  * The CSS glow is built the way the shader composes the glow: an opaque color field (a base and
- * the masses mixed over it in order, with smoothstep falloffs, then shaded) seen through an alpha
- * that only the first two masses make, 0.15 + 0.6 (b0 + 0.8 b1). The gradients below are what
- * the stylesheet cannot know ahead of time: the falloffs, the masks and the palette.
+ * the masses mixed over it in order, with smoothstep falloffs) seen through an alpha that the
+ * first mass makes, 0.15 + 0.6 b0, as the shader's 0.15 + 0.6 (b0 + 0.8 b1) without its fainter
+ * second term. The gradients below are what the stylesheet cannot know ahead of time: the
+ * falloffs, the mask and the palette.
  */
 
 /** R as a share of the globe's width: the globe is the soft edge, 1.06 R across each side. */
@@ -27,43 +28,33 @@ type Mass = {
   color: string;
   orbit: number;
   reach: number;
-  /** Period and turn of the stretch that stands in for the noise bending it. */
-  warp: [number, number];
   weight?: string;
 };
 
 /** The masses in the order the shader mixes them, each reaching `reach` R. */
 export const MASSES: Mass[] = [
-  { color: 'var(--str-ai-glow-k0)', orbit: 0, reach: 1.15, warp: [5.3, 20] },
-  { color: 'var(--str-ai-glow-col-b)', orbit: 1, reach: 1.3, warp: [6.7, 75] },
-  {
-    color: 'var(--str-ai-glow-col-c)',
-    orbit: 0,
-    reach: 1.15,
-    warp: [4.9, -30],
-    weight: '0.5',
-  },
+  { color: 'var(--str-ai-glow-k0)', orbit: 0, reach: 1.15 },
+  { color: 'var(--str-ai-glow-col-b)', orbit: 1, reach: 1.3 },
+  { color: 'var(--str-ai-glow-col-c)', orbit: 0, reach: 1.15, weight: '0.5' },
   {
     color: 'var(--str-ai-glow-col-d)',
     orbit: 2,
     reach: 1.2,
-    warp: [7.9, 110],
     weight: 'var(--str-ai-glow-w3, 0)',
   },
   {
     color: 'var(--str-ai-glow-col-e)',
     orbit: 3,
     reach: 1.25,
-    warp: [6.1, -60],
     weight: 'var(--str-ai-glow-w4, 0)',
   },
 ];
 
-/** The two masses that carry the glow's opacity: orbit, reach, peak alpha and their stretch. */
-export const RIDING_BODIES = [
-  { alpha: 0.6, orbit: 0, reach: 1.15, warp: [6.3, 35] as [number, number] },
-  { alpha: 0.48, orbit: 1, reach: 1.3, warp: [7.7, -50] as [number, number] },
-];
+/**
+ * The mass that carries the glow's opacity along its orbit: its orbit, reach and peak alpha. The
+ * shader's second, fainter one is left out, as it costs a full layer for little the eye sees.
+ */
+export const RIDING_BODY = { alpha: 0.6, orbit: 0, reach: 1.15 };
 
 const smoothstep = (edge0: number, edge1: number, x: number) => {
   const t = clamp((x - edge0) / (edge1 - edge0), 0, 1);
@@ -131,7 +122,7 @@ const finish = (c: Rgb) => scaled(saturated(c, 1.15), 1.12);
 /**
  * The colors the CSS glow mixes, as the shader derives them from the palette: masses saturated
  * x1.7, the first color lightened or darkened where the palette has no color of its own, a
- * near-white tint of it for the base, the halo and the rim. In custom properties for the
+ * near-white tint of it for the base, the halo and a tap's ring. In custom properties for the
  * stylesheet.
  */
 export const cssGlowPalette = (palette: Hsv[], dark: number): Record<string, string> => {
@@ -155,8 +146,7 @@ export const cssGlowPalette = (palette: Hsv[], dark: number): Record<string, str
     '--str-ai-glow-col-e': mass(colors[4] ?? first),
     '--str-ai-glow-halo': rgb(towardWhite(first, dark ? 0.32 : 0.75)),
     '--str-ai-glow-k0': mass(first),
-    '--str-ai-glow-rim': rgb(towardWhite(saturated(first, 1.7), 0.4)),
-    '--str-ai-glow-shade': 'rgb(0 0 0)',
+    '--str-ai-glow-ring': rgb(towardWhite(saturated(first, 1.7), 0.4)),
     '--str-ai-glow-w3': colors.length > 3 ? '1' : '0',
     '--str-ai-glow-w4': colors.length > 4 ? '1' : '0',
   };

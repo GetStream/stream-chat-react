@@ -41,6 +41,8 @@ const WORKING_STATES: string[] = [
 
 /** Long answers are cut, as browsers stop reading aloud after a while. */
 const MAX_SPOKEN_LENGTH = 1200;
+/** How long the agent may take to start on an answer before the turn is given up. */
+const ANSWER_TIMEOUT = 20_000;
 
 const canSpeak = () => typeof window !== 'undefined' && 'speechSynthesis' in window;
 
@@ -57,12 +59,12 @@ export const toSpeech = (markdown: string) =>
     .trim()
     .slice(0, MAX_SPOKEN_LENGTH);
 
-const lastAgentMessageText = (channel: Channel, userId?: string) => {
+const lastAgentMessage = (channel: Channel, userId?: string) => {
   const messages = channel.state.messages;
   for (let i = messages.length - 1; i >= 0; i--) {
-    if (messages[i].user?.id !== userId) return messages[i].text ?? '';
+    if (messages[i].user?.id !== userId) return messages[i];
   }
-  return '';
+  return undefined;
 };
 
 /**
@@ -88,6 +90,8 @@ export const useVoiceConversation = () => {
   }, [phase]);
   const transcriptRef = useRef('');
   const sawAgentWorkRef = useRef(false);
+  // The agent's last answer when a turn was sent, to tell a new answer from it.
+  const previousAnswerIdRef = useRef<string | undefined>(undefined);
   const wasListeningRef = useRef(false);
 
   const micLevel = useAudioLevel(mic);
@@ -158,12 +162,13 @@ export const useVoiceConversation = () => {
         return;
       }
       sawAgentWorkRef.current = false;
+      previousAnswerIdRef.current = lastAgentMessage(channel, client.userID)?.id;
       setReply('');
       setAgentStarting(!isWatchedByAI(channel));
       setPhase('waiting');
       sendAIMessage({ text }).catch(() => fail('Your message could not be sent.'));
     },
-    [channel, fail, sendAIMessage],
+    [channel, client.userID, fail, sendAIMessage],
   );
 
   // A turn ends when recognition stops: send what was said, or listen again after silence.
@@ -206,8 +211,21 @@ export const useVoiceConversation = () => {
       return;
     }
     if (!sawAgentWorkRef.current) return;
-    speak(lastAgentMessageText(channel, client.userID));
+    speak(lastAgentMessage(channel, client.userID)?.text ?? '');
   }, [aiState, channel, client.userID, speak]);
+
+  // A turn the agent is never seen working on (no indicator events, or missed ones) still ends:
+  // with its answer if one came in, otherwise with an error, rather than waiting forever.
+  useEffect(() => {
+    if (phase !== 'waiting') return;
+    const timeout = setTimeout(() => {
+      if (sawAgentWorkRef.current) return;
+      const answer = lastAgentMessage(channel, client.userID);
+      if (answer && answer.id !== previousAnswerIdRef.current) speak(answer.text ?? '');
+      else fail('The agent did not answer.');
+    }, ANSWER_TIMEOUT);
+    return () => clearTimeout(timeout);
+  }, [channel, client.userID, fail, phase, speak]);
 
   const pause = useCallback(() => {
     setPhase('paused');

@@ -50,11 +50,13 @@ const MOTIONS: Record<VoiceAgentState, VoiceMotion> = {
 
 export const NO_TAP = 100;
 const MAX_FRAME = 0.05;
-const REDUCED = 0.07;
+/** How fast time runs under reduced motion. */
+export const REDUCED = 0.07;
 const DRIVERS = 0.08;
 const GENTLE = 0.12;
 const VOICE = 0.1;
-const MIC = 0.35;
+/** Per-frame easing at 60 Hz of a live audio level. */
+export const MIC = 0.35;
 
 /** Expressivity scales amplitude and speed, each with a floor so the motion breathes at 0. */
 export const scales = (expressivity: number) => ({
@@ -70,14 +72,12 @@ export const ease = (perFrame: number, dt: number) => 1 - Math.pow(1 - perFrame,
 
 const rem = (x: number, m: number) => ((x % m) + m) % m;
 
-/** Eases an HSV color, its hue taking the shorter way round the wheel. */
-export const easeHsv = (color: Hsv, target: Hsv, fraction: number): Hsv => {
+/** Eases an HSV color in place, its hue taking the shorter way round the wheel. */
+const easeHsv = (color: Hsv, target: Hsv, fraction: number) => {
   const hueStep = (rem(target.hue - color.hue + 1.5, 1) - 0.5) * fraction;
-  return {
-    hue: rem(color.hue + hueStep + 1, 1),
-    saturation: color.saturation + (target.saturation - color.saturation) * fraction,
-    value: color.value + (target.value - color.value) * fraction,
-  };
+  color.hue = rem(color.hue + hueStep + 1, 1);
+  color.saturation += (target.saturation - color.saturation) * fraction;
+  color.value += (target.value - color.value) * fraction;
 };
 
 /** The five color slots the renderers read; past the palette they repeat its first color. */
@@ -114,7 +114,9 @@ export class VoiceVisualizationDriver {
   voice = 0;
 
   private baseReact: number;
+  /** The colors drawn, eased in place toward `targets`, the palette's slots. */
   private colors: Hsv[];
+  private targets: Hsv[];
   private isHovering = false;
   private bounce = new VoiceVisualizationBounce();
   private currentInput: VoiceDriverInput;
@@ -131,7 +133,9 @@ export class VoiceVisualizationDriver {
     this.flow = m.flow * s.amplitude;
     this.baseReact = m.react * s.amplitude;
     this.expressivity = input.expressivity;
-    this.colors = slots(input.colors);
+    this.targets = slots(input.colors);
+    // Copies, as they are eased in place and the palette belongs to the caller.
+    this.colors = this.targets.map((color) => ({ ...color }));
     this.count = input.colors.length;
   }
 
@@ -140,6 +144,8 @@ export class VoiceVisualizationDriver {
   }
 
   set input(value: VoiceDriverInput) {
+    // The view hands in a fresh input every frame for the audio level, with the same palette.
+    if (value.colors !== this.currentInput.colors) this.targets = slots(value.colors);
     this.currentInput = value;
     if (value.reduceMotion) this.isHovering = false;
   }
@@ -207,9 +213,8 @@ export class VoiceVisualizationDriver {
     const level = input.audioLevel ?? null;
     this.voice += ((level === null ? 0 : 1) - this.voice) * ease(VOICE, dt);
     this.mic += ((level ?? 0) - this.mic) * ease(MIC, dt);
-    const targets = slots(input.colors);
     for (let i = 0; i < this.colors.length; i++) {
-      this.colors[i] = easeHsv(this.colors[i], targets[i], gentle);
+      easeHsv(this.colors[i], this.targets[i], gentle);
     }
     this.count += (input.colors.length - this.count) * gentle;
   }

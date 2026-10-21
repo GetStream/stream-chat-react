@@ -1,7 +1,7 @@
 import { useCallback, useState } from 'react';
 import clsx from 'clsx';
 
-import { glowContains } from './glowShape';
+import { glowContains } from './hitArea';
 import { createGlowWebGLRenderer } from './renderers/glowWebGLRenderer';
 import type { VoiceGlowRendering, VoiceVisualizationProps } from './types';
 import { VoiceGlowCss } from './VoiceGlowCss';
@@ -35,9 +35,7 @@ export const VoiceGlow = ({
   }, []);
 
   if (rendering === 'css' || webGLFailed) {
-    // Standing in for WebGL, the GPU is likely off and the compositor works on the CPU, so the
-    // fallback draws fewer layers than a glow asked to be CSS.
-    return <VoiceGlowCss className={className} lite={rendering !== 'css'} {...props} />;
+    return <VoiceGlowCss className={className} {...props} />;
   }
 
   return (

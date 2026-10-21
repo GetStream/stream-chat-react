@@ -89,12 +89,13 @@ describe('VoiceGlow rendering="css"', () => {
     expect(glow).toHaveAttribute('data-state', 'speaking');
     expect(container.querySelector('canvas')).toBeNull();
     expect(getContext).not.toHaveBeenCalledWith('webgl', expect.anything());
-    // A faint still body and one riding each of the two orbits, each over the color field;
-    // with the theme's one color, the fourth and fifth masses are left out.
-    expect(glow).toHaveAttribute('data-detail', 'full');
-    expect(container.querySelectorAll('.str-chat__ai-voice-glow__field')).toHaveLength(3);
-    expect(container.querySelectorAll('.str-chat__ai-voice-glow__mass')).toHaveLength(9);
-    expect(container.querySelectorAll('.str-chat__ai-voice-glow__shade')).toHaveLength(3);
+    // A faint still body and one riding the first orbit, each over the color field; with the
+    // theme's one color, the fourth and fifth masses are left out.
+    expect(container.querySelectorAll('.str-chat__ai-voice-glow__field')).toHaveLength(2);
+    expect(container.querySelectorAll('.str-chat__ai-voice-glow__mass')).toHaveLength(6);
+    expect(
+      container.querySelectorAll('.str-chat__ai-voice-glow__sway--mask'),
+    ).toHaveLength(1);
   });
 
   it('draws a mass for each color the palette has', () => {
@@ -105,7 +106,7 @@ describe('VoiceGlow rendering="css"', () => {
         state='idle'
       />,
     );
-    expect(container.querySelectorAll('.str-chat__ai-voice-glow__mass')).toHaveLength(12);
+    expect(container.querySelectorAll('.str-chat__ai-voice-glow__mass')).toHaveLength(8);
 
     rerender(
       <VoiceGlow
@@ -114,29 +115,21 @@ describe('VoiceGlow rendering="css"', () => {
         state='idle'
       />,
     );
-    expect(container.querySelectorAll('.str-chat__ai-voice-glow__mass')).toHaveLength(15);
+    expect(container.querySelectorAll('.str-chat__ai-voice-glow__mass')).toHaveLength(10);
   });
 
-  it('draws fewer layers when it stands in for WebGL', () => {
+  it('falls back to the same glow when WebGL is unavailable', () => {
     // jsdom has no WebGL, so `auto` falls back to CSS.
-    const { container } = render(
-      <VoiceGlow colors={['#f00', '#0f0', '#00f', '#ff0', '#0ff']} state='speaking' />,
+    const colors = ['#f00', '#0f0', '#00f', '#ff0', '#0ff'];
+    const { container: fallback } = render(
+      <VoiceGlow colors={colors} state='speaking' />,
     );
-    const glow = screen.getByRole('img');
+    const { container: css } = render(
+      <VoiceGlow colors={colors} rendering='css' state='speaking' />,
+    );
 
-    expect(glow).toHaveAttribute('data-rendering', 'css');
-    expect(glow).toHaveAttribute('data-detail', 'lite');
-    // The still body and the body riding the first orbit; no stretches, shade or rim.
-    expect(container.querySelectorAll('.str-chat__ai-voice-glow__field')).toHaveLength(2);
-    expect(container.querySelectorAll('.str-chat__ai-voice-glow__mass')).toHaveLength(10);
-    expect(
-      container.querySelectorAll('.str-chat__ai-voice-glow__sway--mask'),
-    ).toHaveLength(1);
-    for (const part of ['warp', 'unwarp', 'shade', 'rim']) {
-      expect(
-        container.querySelectorAll(`.str-chat__ai-voice-glow__${part}`),
-      ).toHaveLength(0);
-    }
+    expect(fallback.firstElementChild).toHaveAttribute('data-rendering', 'css');
+    expect(fallback.innerHTML).toBe(css.innerHTML);
   });
 
   it('sets the palette from the colors prop', () => {
@@ -303,6 +296,79 @@ describe('VoiceGlow rendering="css"', () => {
       CSS_GLOW_RATES.speaking.orbit * 0.07,
     );
   });
+
+  it('clears each ring once it has played', () => {
+    vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] });
+    try {
+      const { container } = render(<VoiceGlow rendering='css' state='idle' />);
+      const glow = screen.getByRole('img');
+      vi.spyOn(glow, 'getBoundingClientRect').mockReturnValue({
+        height: 200,
+        left: 0,
+        top: 0,
+        width: 200,
+      } as DOMRect);
+      const rings = () => container.querySelectorAll('.str-chat__ai-voice-glow__ripple');
+
+      fireEvent.pointerUp(glow, { clientX: 100, clientY: 100 });
+      fireEvent.pointerUp(glow, { clientX: 110, clientY: 100 });
+      expect(rings()).toHaveLength(2);
+
+      act(() => {
+        vi.advanceTimersByTime(900);
+      });
+      expect(rings()).toHaveLength(0);
+      expect(vi.getTimerCount()).toBe(0);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it('rests off screen: animations paused, no theme reads and no audio frames', () => {
+    let report: (onScreen: boolean) => void = () => undefined;
+    vi.stubGlobal(
+      'IntersectionObserver',
+      class {
+        constructor(callback: IntersectionObserverCallback) {
+          report = (onScreen) =>
+            callback(
+              [{ isIntersecting: onScreen } as IntersectionObserverEntry],
+              this as unknown as IntersectionObserver,
+            );
+        }
+        observe() {}
+        disconnect() {}
+      },
+    );
+    vi.useFakeTimers({ toFake: ['setInterval', 'clearInterval'] });
+    try {
+      const audioLevel = vi.fn(() => 0.5);
+      render(<VoiceGlow audioLevel={audioLevel} rendering='css' state='speaking' />);
+      const glow = screen.getByRole('img');
+      step();
+
+      act(() => report(false));
+      expect(glow).toHaveAttribute('data-offscreen', 'true');
+      // The frame it cancelled never runs.
+      frames = [];
+      audioLevel.mockClear();
+      const styles = vi.spyOn(window, 'getComputedStyle');
+      step(3);
+      act(() => {
+        vi.advanceTimersByTime(3000);
+      });
+      expect(audioLevel).not.toHaveBeenCalled();
+      expect(styles).not.toHaveBeenCalled();
+
+      act(() => report(true));
+      expect(glow).not.toHaveAttribute('data-offscreen');
+      step();
+      expect(audioLevel).toHaveBeenCalled();
+    } finally {
+      vi.useRealTimers();
+      vi.unstubAllGlobals();
+    }
+  });
 });
 
 describe('cssGlowPalette', () => {
@@ -342,7 +408,7 @@ describe('cssGlowPalette', () => {
     expect(cssGlowRateKind('str-ai-glow-unspin')).toBe('orbit');
     expect(cssGlowRateKind('str-ai-glow-flow')).toBe('flow');
     expect(cssGlowRateKind('str-ai-glow-unflow')).toBe('flow');
-    expect(cssGlowRateKind('str-ai-glow-mask-warp')).toBe('tempo');
+    expect(cssGlowRateKind('str-ai-glow-sway')).toBe('tempo');
     expect(cssGlowRateKind('str-ai-glow-bounce')).toBeNull();
     expect(cssGlowRateKind('str-ai-glow-ripple')).toBeNull();
   });

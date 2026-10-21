@@ -5,13 +5,12 @@ import { useReducedMotionPreference } from '../../../components/MessageList/hook
 import { useStableCallback } from '../../../utils/useStableCallback';
 import { type VoiceDriverInput, VoiceVisualizationDriver } from './driver';
 import { audioLevelInput, expressivityInput } from './math';
-import { luminance, toHsvPalette } from './palette';
+import { toLocalPoint } from './hitArea';
+import { FALLBACK_COLOR, readVoiceTheme, toHsvPalette } from './palette';
 import type { VoiceRenderer } from './renderers/types';
 import type { Hsv, VoiceVisualizationProps } from './types';
 import { useVoiceStateLabel } from './useVoiceStateLabel';
 
-/** Used when neither the `colors` prop nor the theme gives a readable color. */
-const FALLBACK_COLOR = '#005fff';
 /** How many frames pass between two reads of the theme, about once a second at 60 Hz. */
 const THEME_FRAMES = 60;
 
@@ -61,19 +60,11 @@ export const VoiceVisualizationView = ({
   const paletteRef = useRef<{ key: string; palette: Hsv[] }>({ key: '', palette: [] });
   const propsRef = useRef({ colors, expressivity, reduceMotion, state });
 
-  /**
-   * The theme's accent color (the root's `color`) and whether it sits on a dark backdrop (the
-   * root's `text-decoration-color`, which carries the backdrop token and never paints).
-   */
+  /** The theme's accent color and whether it sits on a dark backdrop. */
   const readTheme = useStableCallback(() => {
     const root = rootRef.current;
     if (!root || typeof getComputedStyle !== 'function') return;
-    const style = getComputedStyle(root);
-    const backdrop = luminance(style.textDecorationColor || '');
-    themeRef.current = {
-      dark: backdrop !== null && backdrop < 0.5 ? 1 : 0,
-      palette: toHsvPalette(style.color ? [style.color] : []),
-    };
+    themeRef.current = readVoiceTheme(root);
   });
 
   /** The driver's input from the latest props and the theme, keeping the audio level it has. */
@@ -129,6 +120,23 @@ export const VoiceVisualizationView = ({
     const resizeObserver =
       typeof ResizeObserver === 'function' ? new ResizeObserver(resize) : null;
     resizeObserver?.observe(root);
+
+    // A new pixel ratio alone (another monitor, browser zoom) needs a new backing size too. The
+    // query matches only the ratio it was made for, so it is made again after each change.
+    let ratioQuery: MediaQueryList | null = null;
+    const onRatioChange = () => {
+      resize();
+      watchRatio();
+    };
+    const watchRatio = () => {
+      ratioQuery?.removeEventListener?.('change', onRatioChange);
+      ratioQuery =
+        typeof window.matchMedia === 'function'
+          ? window.matchMedia(`(resolution: ${window.devicePixelRatio || 1}dppx)`)
+          : null;
+      ratioQuery?.addEventListener?.('change', onRatioChange);
+    };
+    watchRatio();
 
     let frameId = 0;
     let last = 0;
@@ -202,28 +210,19 @@ export const VoiceVisualizationView = ({
     return () => {
       stop();
       resizeObserver?.disconnect();
+      ratioQuery?.removeEventListener?.('change', onRatioChange);
       intersectionObserver?.disconnect();
       colorScheme?.removeEventListener?.('change', onSchemeChange);
       renderer.dispose?.();
     };
   }, [applyInput, makeRenderer, maxPixelRatio, readTheme, rendererKey]);
 
-  /** The pointer in the renderers' coordinates: centred, normalized to the shorter side, y up. */
-  const toLocal = (event: PointerEvent<HTMLDivElement>) => {
-    const rect = event.currentTarget.getBoundingClientRect();
-    const side = Math.min(rect.width, rect.height) || 1;
-    return {
-      x: (event.clientX - rect.left - rect.width / 2) / side,
-      y: (rect.height / 2 - (event.clientY - rect.top)) / side,
-    };
-  };
-
   // Pointer events are only watched, never prevented or stopped, so a click handler on the
   // element or a parent still gets them. They come only from the shape's hit area: the rest of
   // the box lets them through to whatever is behind it.
   const handlePointerUp = (event: PointerEvent<HTMLDivElement>) => {
     onPointerUp?.(event);
-    const { x, y } = toLocal(event);
+    const { x, y } = toLocalPoint(event);
     if (contains(x, y)) driverRef.current?.tap(x, y);
   };
 
@@ -231,7 +230,7 @@ export const VoiceVisualizationView = ({
     onPointerMove?.(event);
     // Only a hovering mouse or pen ripples it; a finger has no hover.
     if (event.pointerType === 'touch') return;
-    const { x, y } = toLocal(event);
+    const { x, y } = toLocalPoint(event);
     const hovering = event.buttons === 0 && contains(x, y);
     driverRef.current?.hover(hovering ? x : null, hovering ? y : null);
   };

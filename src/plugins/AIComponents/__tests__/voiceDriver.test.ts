@@ -195,6 +195,25 @@ describe('VoiceVisualizationDriver', () => {
     expect(driver.count).toBeCloseTo(2.12, 4);
   });
 
+  it('eases its own colors, leaving the palette it was given untouched', () => {
+    const palette = [{ ...blue }];
+    const driver = new VoiceVisualizationDriver(input('idle', { colors: palette }));
+
+    driver.input = input('idle', { colors: [red] });
+    driver.advance(frame);
+
+    expect(palette[0]).toEqual(blue);
+    expect(driver.color(0).hue).not.toBe(blue.hue);
+    // A fresh input with the same palette, as the view sends each frame, keeps easing it.
+    const hue = driver.color(0).hue;
+    driver.input = { ...driver.input, audioLevel: 0.5 };
+    driver.advance(frame);
+    // Around the wheel, as the hue takes the short way.
+    const fromRed = (h: number) =>
+      Math.min(Math.abs(h - red.hue), 1 - Math.abs(h - red.hue));
+    expect(fromRed(driver.color(0).hue)).toBeLessThan(fromRed(hue));
+  });
+
   it('moves the per-frame share at 60 Hz', () => {
     expect(ease(0.08, 1 / 60)).toBeCloseTo(0.08, 5);
     expect(ease(0.08, 0)).toBe(0);

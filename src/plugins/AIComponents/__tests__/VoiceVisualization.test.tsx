@@ -317,6 +317,32 @@ describe('VoiceWave and VoiceGlow', () => {
     expect(widths.at(-1)).toBeCloseTo(lineWidth, 5);
   });
 
+  it('follows a change of pixel ratio alone, as on a move to another monitor', () => {
+    const ratio = vi.spyOn(window, 'devicePixelRatio', 'get').mockReturnValue(1);
+    const queries = new Map<string, () => void>();
+    vi.spyOn(window, 'matchMedia').mockImplementation(
+      (query: string) =>
+        ({
+          addEventListener: (_: string, listener: () => void) =>
+            queries.set(query, listener),
+          matches: false,
+          media: query,
+          removeEventListener: () => queries.delete(query),
+        }) as unknown as MediaQueryList,
+    );
+    render(<VoiceWave state='idle' />);
+    const canvas = screen.getByRole('img').querySelector('canvas') as HTMLCanvasElement;
+    expect(canvas.width).toBe(200);
+
+    ratio.mockReturnValue(2);
+    act(() => queries.get('(resolution: 1dppx)')?.());
+
+    expect(canvas.width).toBe(400);
+    // It now watches for the next change, from the new ratio.
+    expect(queries.has('(resolution: 2dppx)')).toBe(true);
+    expect(queries.has('(resolution: 1dppx)')).toBe(false);
+  });
+
   it('fades the canvas in once its first frame is drawn', () => {
     render(<VoiceGlow state='idle' />);
     const canvas = screen.getByRole('img').querySelector('canvas') as HTMLCanvasElement;

@@ -263,17 +263,23 @@ const compile = (gl: WebGLRenderingContext, type: number, source: string) => {
 };
 
 /**
- * The glow drawn by a WebGL shader, every pixel computed on the GPU: color masses warped by
- * noise, concentric waves, ripples from a tap or a hovering pointer, light and a halo. It reads
- * the same motion as the Canvas glow.
- *
- * Returns null when WebGL is unavailable or the shader does not compile, so the caller can fall
- * back to Canvas. `onLost` is called if the browser later drops the context.
+ * The one WebGL context every glow draws with, as iOS shares one renderer: the shader compiles
+ * once, and a page with many glows stays far below the browser's limit on live contexts. Each
+ * glow renders into a corner of its canvas and copies that onto its own 2D canvas.
  */
-export const createGlowWebGLRenderer = (
-  canvas: HTMLCanvasElement,
-  onLost: () => void,
-): VoiceRenderer | null => {
+type SharedContext = {
+  canvas: HTMLCanvasElement;
+  gl: WebGLRenderingContext;
+  locations: Record<Uniform, WebGLUniformLocation | null>;
+  /** What each glow drawing with it does when the context is lost. */
+  users: Set<() => void>;
+  release: () => void;
+};
+
+let shared: SharedContext | null = null;
+
+const createSharedContext = (): SharedContext | null => {
+  const canvas = document.createElement('canvas');
   let gl: WebGLRenderingContext | null = null;
   try {
     gl = canvas.getContext('webgl', {
@@ -314,16 +320,67 @@ export const createGlowWebGLRenderer = (
   const locations = {} as Record<Uniform, WebGLUniformLocation | null>;
   for (const name of UNIFORMS) locations[name] = gl.getUniformLocation(program, name);
 
-  let lost = false;
+  const context: SharedContext = {
+    canvas,
+    gl,
+    locations,
+    release: () => {
+      canvas.removeEventListener('webglcontextlost', handleLost);
+      if (shared === context) shared = null;
+      if (gl?.isContextLost()) return;
+      gl?.deleteBuffer(buffer);
+      gl?.deleteProgram(program);
+      gl?.deleteShader(vertex);
+      gl?.deleteShader(fragment);
+      // Frees the context now rather than whenever it is garbage collected.
+      gl?.getExtension('WEBGL_lose_context')?.loseContext();
+    },
+    users: new Set(),
+  };
+  // Every glow drawing with it falls back, and the next glow to mount makes a new one.
   const handleLost = (event: Event) => {
     event.preventDefault();
+    if (shared === context) shared = null;
+    const users = [...context.users];
+    context.users.clear();
+    users.forEach((onLost) => onLost());
+  };
+  canvas.addEventListener('webglcontextlost', handleLost);
+  return context;
+};
+
+/**
+ * The glow drawn by a WebGL shader, every pixel computed on the GPU: color masses warped by
+ * noise, concentric waves, ripples from a tap or a hovering pointer, light and a halo.
+ *
+ * Returns null when WebGL is unavailable or the shader does not compile, so the caller can fall
+ * back to CSS. `onLost` is called if the browser later drops the context.
+ */
+export const createGlowWebGLRenderer = (
+  canvas: HTMLCanvasElement,
+  onLost: () => void,
+): VoiceRenderer | null => {
+  const target = canvas.getContext('2d');
+  if (!target) return null;
+  shared ??= createSharedContext();
+  const context = shared;
+  if (!context) return null;
+
+  let lost = false;
+  const handleLost = () => {
     lost = true;
     onLost();
   };
-  canvas.addEventListener('webglcontextlost', handleLost);
+  context.users.add(handleLost);
 
   const draw = ({ dark, driver: d, height, width }: VoiceFrame) => {
-    if (lost || !gl) return;
+    target.clearRect(0, 0, width, height);
+    if (lost || width <= 0 || height <= 0) return;
+    const { canvas: source, gl, locations } = context;
+    // Large enough for the biggest glow, so glows of different sizes never resize it each frame.
+    if (source.width < width) source.width = width;
+    if (source.height < height) source.height = height;
+    // The glow renders into the bottom-left corner, which is the top-left of the image copied.
     gl.viewport(0, 0, width, height);
     gl.clearColor(0, 0, 0, 0);
     gl.clear(gl.COLOR_BUFFER_BIT);
@@ -350,15 +407,23 @@ export const createGlowWebGLRenderer = (
     gl.uniform2f(locations.hover, d.hoverX, d.hoverY);
     gl.uniform1f(locations.hoverAmt, d.hoverAmount);
     gl.drawArrays(gl.TRIANGLES, 0, 3);
+    // Copied in the same task it was drawn, before the browser may discard the drawing buffer.
+    target.drawImage(
+      source,
+      0,
+      source.height - height,
+      width,
+      height,
+      0,
+      0,
+      width,
+      height,
+    );
   };
 
   const dispose = () => {
-    canvas.removeEventListener('webglcontextlost', handleLost);
-    if (!gl || lost) return;
-    gl.deleteBuffer(buffer);
-    gl.deleteProgram(program);
-    gl.deleteShader(vertex);
-    gl.deleteShader(fragment);
+    context.users.delete(handleLost);
+    if (!context.users.size) context.release();
   };
 
   return { dispose, draw };

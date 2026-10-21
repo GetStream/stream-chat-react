@@ -22,15 +22,14 @@ export type VoiceAgentState =
 /**
  * How `VoiceGlow` is drawn. Either way it moves the same; only the look and the cost differ.
  *
- * - `auto`: WebGL, falling back to CSS where the browser cannot create a WebGL context or later
- *   loses it.
- * - `webgl`: a shader computing every pixel, the richest look: noise-marbled color masses and
- *   ripples from a tap or a hovering pointer. Currently the same as `auto`.
+ * - `auto`: a WebGL shader computing every pixel, the richest look: noise-marbled color masses
+ *   and ripples from a tap or a hovering pointer. It falls back to `css` where the browser
+ *   cannot create a WebGL context or later loses it.
  * - `css`: the shader's composition in CSS, animated by the browser's compositor. It keeps
  *   moving while the page is busy and needs no canvas or WebGL, at the cost of the shader's fine
  *   marbling; a tap sends out a ring instead of a ripple, and a hovering pointer does nothing.
  */
-export type VoiceGlowRendering = 'auto' | 'webgl' | 'css';
+export type VoiceGlowRendering = 'auto' | 'css';
 
 export type VoiceVisualizationProps = Omit<
   ComponentPropsWithoutRef<'div'>,
