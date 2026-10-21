@@ -1,5 +1,5 @@
 import { useCallback } from 'react';
-import { MessageComposer } from 'stream-chat';
+import { type LocalMessage, type Message, MessageComposer } from 'stream-chat';
 import { useMessageComposerController } from './useMessageComposerController';
 import { useChannelActionContext } from '../../../context/ChannelActionContext';
 import { useTranslationContext } from '../../../context/TranslationContext';
@@ -27,6 +27,37 @@ const takeStateSnapshot = (messageComposer: MessageComposer) => {
   };
 };
 
+/**
+ * Messages of type `error` were rejected by the server (for example bounced by moderation) and
+ * exist only in the local state, so editing one sends it as a new message instead of updating it.
+ */
+const isRejectedByServer = (message: LocalMessage) => message.type === 'error';
+
+/**
+ * Turns the composition of an edited rejected message into a new message. The composition takes
+ * over the creation time and status of the edited message, which would list the new message at the
+ * old position and show it as delivered before it is sent. A reply also sent to the channel and
+ * edited in the channel's composer would lose its thread, so it keeps the edited message's thread.
+ */
+const asNewMessage = <T extends { localMessage: LocalMessage; message: Message }>(
+  composition: T,
+  rejectedMessage: LocalMessage,
+): T => {
+  const now = new Date();
+  const { parent_id } = rejectedMessage;
+  return {
+    ...composition,
+    localMessage: {
+      ...composition.localMessage,
+      created_at: now,
+      parent_id,
+      status: 'sending',
+      updated_at: now,
+    },
+    message: { ...composition.message, parent_id },
+  };
+};
+
 export const useSubmitHandler = (props: MessageComposerProps) => {
   const { overrideSubmitHandler } = props;
 
@@ -41,9 +72,15 @@ export const useSubmitHandler = (props: MessageComposerProps) => {
       const composition = await messageComposer.compose();
       if (!composition || !composition.message) return;
 
-      const { localMessage, message, sendOptions } = composition;
+      // Read from the composer: the composed message never carries the `error` type.
+      const { editedMessage } = messageComposer;
+      const rejectedMessage =
+        editedMessage && isRejectedByServer(editedMessage) ? editedMessage : undefined;
+      const { localMessage, message, sendOptions } = rejectedMessage
+        ? asNewMessage(composition, rejectedMessage)
+        : composition;
 
-      if (messageComposer.editedMessage && localMessage.type !== 'error') {
+      if (editedMessage && !rejectedMessage) {
         try {
           await editMessage(localMessage, sendOptions);
           discardPreEditSnapshot(messageComposer);
@@ -74,6 +111,8 @@ export const useSubmitHandler = (props: MessageComposerProps) => {
           } else {
             messageComposer.clear();
           }
+          // Sending ends the edit, so the composer state from before it is no longer restored.
+          if (rejectedMessage) discardPreEditSnapshot(messageComposer);
           // Before the send, and not awaited. The composer is already cleared, so as far as the
           // user is concerned they have stopped typing — and when composing with pending uploads
           // the send lasts as long as the upload, which would leave everyone else watching a

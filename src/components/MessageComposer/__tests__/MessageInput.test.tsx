@@ -53,6 +53,7 @@ import {
   initClientWithChannels,
 } from '../../../mock-builders';
 import { QuotedMessagePreview } from '../QuotedMessagePreview';
+import { restorePreEditSnapshot, savePreEditSnapshot } from '../preEditSnapshot';
 import type { ChannelProps } from '../../Channel';
 import type { GenerateChannelOptions } from '../../../mock-builders/generator/channel';
 
@@ -2144,6 +2145,113 @@ describe(`MessageInputFlat`, () => {
       expect(textarea).not.toHaveAttribute('aria-activedescendant');
 
       Element.prototype.scrollIntoView = scrollIntoView;
+    });
+
+    it('should update the edited message on submit', async () => {
+      const doUpdateMessageRequest = vi.fn((_cid, message) => ({ message }));
+      const { submit } = await renderComponent({
+        channelProps: { doUpdateMessageRequest },
+      });
+      const textarea = await screen.findByPlaceholderText(inputPlaceholder);
+
+      await enterEditMode();
+      await act(() => {
+        fireEvent.change(textarea, { target: { value: 'edited text' } });
+      });
+      await act(() => submit());
+
+      expect(doUpdateMessageRequest).toHaveBeenCalledWith(
+        cid,
+        expect.objectContaining({ id: mainListMessage.id, text: 'edited text' }),
+        {},
+      );
+      expect(sendMessageMock).not.toHaveBeenCalled();
+    });
+
+    const generateBouncedMessage = (overrides: Partial<LocalMessage> = {}) =>
+      fromPartial<LocalMessage>({
+        ...generateMessage({
+          cid,
+          created_at: new Date('2020-01-01T00:00:00.000Z'),
+          moderation_details: { action: 'MESSAGE_RESPONSE_ACTION_BOUNCE' },
+          status: 'received',
+          text: 'bounced text',
+          type: 'error',
+          user,
+          ...overrides,
+        }),
+      });
+
+    // Mirrors the "Edit" action of the message bounce prompt
+    const editBouncedMessage = async (channel: ChannelType, message: LocalMessage) => {
+      await act(() => {
+        channel.state.addMessageSorted(message);
+        savePreEditSnapshot(channel.messageComposer);
+        channel.messageComposer.initState({ composition: message });
+      });
+    };
+
+    it('should send an edited bounced message as a new message', async () => {
+      const doUpdateMessageRequest = vi.fn();
+      const { channel, submit } = await renderComponent({
+        channelProps: { doUpdateMessageRequest },
+      });
+      const textarea = await screen.findByPlaceholderText(inputPlaceholder);
+      await act(() => {
+        fireEvent.change(textarea, { target: { value: 'draft before edit' } });
+      });
+      const bouncedMessage = generateBouncedMessage();
+      await editBouncedMessage(channel, bouncedMessage);
+      await act(() => {
+        fireEvent.change(textarea, { target: { value: 'acceptable text' } });
+      });
+      await act(() => submit());
+
+      expect(doUpdateMessageRequest).not.toHaveBeenCalled();
+      expect(sendMessageMock).toHaveBeenCalledWith(
+        channel,
+        expect.objectContaining({
+          id: bouncedMessage.id,
+          text: 'acceptable text',
+          type: 'regular',
+        }),
+        {},
+      );
+      const resentMessages = channel.state.messages.filter(
+        ({ id }) => id === bouncedMessage.id,
+      );
+      expect(resentMessages).toHaveLength(1);
+      expect(resentMessages[0]).toMatchObject({ status: 'sending', type: 'regular' });
+      expect(resentMessages[0].created_at.getTime()).toBeGreaterThan(
+        bouncedMessage.created_at.getTime(),
+      );
+      expect(channel.messageComposer.editedMessage).toBeUndefined();
+
+      // the edit has ended, so the draft from before it is not restored anymore
+      await act(() => {
+        restorePreEditSnapshot(channel.messageComposer);
+      });
+      expect(textarea).toHaveValue('');
+    });
+
+    it('should keep the thread of an edited bounced reply that was also sent to the channel', async () => {
+      const { channel, submit } = await renderComponent();
+      const bouncedReply = generateBouncedMessage({
+        parent_id: mainListMessage.id,
+        show_in_channel: true,
+      });
+      await editBouncedMessage(channel, bouncedReply);
+      await act(() => submit());
+
+      expect(sendMessageMock).toHaveBeenCalledWith(
+        channel,
+        expect.objectContaining({
+          id: bouncedReply.id,
+          parent_id: mainListMessage.id,
+          show_in_channel: true,
+        }),
+        {},
+      );
     });
   });
 });
