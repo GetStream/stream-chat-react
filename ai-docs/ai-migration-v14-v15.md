@@ -14,6 +14,8 @@ Never rely on training knowledge. The v14 surface is heavily represented in pret
 
 Rule: before claiming a symbol, prop or method exists, or writing a replacement snippet, grep the installed `.d.ts` and read the current signature. Do not reconstruct it from memory.
 
+Rule: change only what a section says is broken. Much of the v14 / `stream-chat` v9 surface carries over (`client.channel()`, `channel.watch()`, `channel.markRead()`, ...). When existing app code still type-checks and does what the app needs, keep it. Make the smallest edit that fixes the break rather than rewriting the code into the shape of a snippet below. The snippets show one valid form, not the only one.
+
 Links to this repository point at `master`, because `ai-docs/` and `examples/` are not in the npm package (`files` ships only `dist`, `package.json` and `README.md`), so an agent working in a consumer repo cannot read them from `node_modules`. At the stable v15 release, re-pin them to the release tag.
 
 ## How to migrate
@@ -57,7 +59,8 @@ These compile cleanly, or are ignored in plain JS, and change behavior at runtim
 | A thread renders below the channel instead of beside it, or a panel collapses to a narrow column                                           | The channel no longer contains a flex row, and `ChatView` slots are `flex: 1 1 0` siblings                                                                   | Make your container a row; size panels by slot ([section 19](#panel-layout))                                                                     |
 | A channel name or image renders empty                                                                                                      | `name` / `image` are custom data in `stream-chat` v10: `channel.data.custom.name`                                                                            | Read `custom` ([section 17](#17-other-stream-chat-v10-data-shapes))                                                                              |
 | A held channel throws "pending disposal" after logout or a user switch                                                                     | `disconnectUser()` disposes the user's channels                                                                                                              | Drop held channels on disconnect ([section 4](#without-chatview))                                                                                |
-| A channel renders empty, with no error, and gets no new messages                                                                           | `Channel` no longer watches the channel                                                                                                                      | `await channel.ensureWatched()` before rendering it ([section 5](#channel-no-longer-watches-the-channel))                                        |
+| A channel renders empty, with no error, and gets no new messages                                                                           | `Channel` no longer watches the channel                                                                                                                      | Watch it first: keep `channel.watch()`, or `ensureWatched()` ([section 5](#channel-no-longer-watches-the-channel))                               |
+| A direct message the app just created renders, but new messages never arrive                                                               | The created members-only instance was superseded by the store's instance for the same cid                                                                    | Render the instance `ensureWatched()` resolves with ([section 5](#channel-no-longer-watches-the-channel))                                        |
 | After a failed send, the composer is empty instead of holding the text and attachments                                                     | The composer is released before the request and nothing is put back                                                                                          | Nothing to do; the failed message is retried from the list ([section 13](#a-failed-send-or-edit-no-longer-restores-the-composer))                |
 | A component that rendered blank outside its provider now throws                                                                            | Required context hooks throw instead of warning and returning `{}`                                                                                           | Render it inside the provider ([section 10](#required-context-hooks-throw-outside-their-provider))                                               |
 | A standalone `<Message>` (a preview, a pinned-message card) throws                                                                         | `Message` needs a channel in context                                                                                                                         | Wrap it in `ChannelInstanceProvider` ([section 12](#a-standalone-message-needs-a-channel-in-context))                                            |
@@ -646,7 +649,7 @@ export const App = ({ client, userId }: { client: StreamChat; userId: string }) 
 
 - `useWorkspaceNavigation().openChannel(channel)`.
 - To also add it to the matching channel lists without a re-query: `client.channelManager.ingestChannel(channel)`.
-- v14's `setActiveChannel(channel, watchers)` `watchers` argument: query the channel yourself before opening it, for example `channel.ensureWatched({ watchers: { limit: 10 } })`.
+- v14's `setActiveChannel(channel, watchers)` `watchers` argument: watch the channel yourself before opening it with the same options, `await channel.watch({ watchers: { limit: 10 } })` (or `ensureWatched(...)`, which skips the request when the channel is already watched).
 
 ### Search results
 
@@ -707,14 +710,39 @@ export const Main = ({ activeChannel }: { activeChannel?: StreamChannel }) =>
 
 `Channel` used to call `channel.watch()` on mount. That call, `initializeOnMount`, `channelQueryOptions` and the `getChannel` util are removed. **An uninitialized channel passed to `Channel` renders as an empty channel, with no error, and receives no events.** If a channel renders blank, check `channel.initialized` first.
 
+What to change depends on whether the app already watched the channel, and on whether the channel has an id:
+
 - **Channels from `ChannelList` or any `queryChannels` call arrive watched.** Nothing changes for them.
-- **A channel you create and hand to `Channel`**: get the instance from `client.channelManager.ensure({ type, id, data })` and `await channel.ensureWatched(options)` before rendering it. `ensureWatched()` sends nothing for a channel already watched and joins an in-flight watch with the same options, so an effect that runs twice still sends one query. `channel.watch()` always sends its request. `ensureWatched()` resolves with the channel.
-- **`channelQueryOptions`** → pass them to `ensureWatched(options)` (`ChannelGetOrCreateRequest`: `messages`, `members`, `watchers`, `presence`, `state`, `watch`, `data`, ...).
-- **`getChannel({ client, id, type })`** → `await client.channelManager.ensure({ id, type }).ensureWatched()`.
+- **The app already watches a channel it created by id** (`client.channel(type, id)` + `await channel.watch()`): **nothing changes.** `client.channel(...)` and `channel.watch(options)` still exist with the same roles; `client.channel()` is shorthand for `client.channelManager.ensure({ type, id, data })`. Do not rewrite these calls. The only edit at such call sites is the `stream-chat` v10 input shape ([below](#channel-input-shape)).
+- **Members-only channels** (`client.channel(type, { members })`, no id, as most "start a direct message" flows create): keep `client.channel()`, but **render the instance `ensureWatched()` resolves with**, not the one you created. The created instance is provisional until the server assigns the id, and the client may already hold a channel with that id (event routing can store it while the request is in flight). The store then keeps its own instance and marks yours superseded (`state.supersededBy` set, `watchStatus: NotWatching`), and yours receives no events. `ensureWatched()` resolves with the surviving instance; `watch()` resolves with the response, so code that keeps the created instance renders a channel that silently stops updating. `ChatView` swaps superseded channels in its slots, so this bites when the app holds the channel itself.
+- **The app relied on `Channel` to watch** (rendered an instance it never watched, possibly with `channelQueryOptions`): watch it before rendering. `await channel.watch(options)` works. `await channel.ensureWatched(options)` is the better fit where the call can repeat, such as an effect: it sends nothing for a channel already watched and joins an in-flight watch with the same options, so an effect that runs twice still sends one query. `channel.watch()` always sends its request. `ensureWatched()` resolves with the channel.
+- **`channelQueryOptions`** → pass them to that watch call (`ChannelGetOrCreateRequest`: `messages`, `members`, `watchers`, `presence`, `state`, `watch`, `data`, ...).
+- **`getChannel({ client, id, type })`** → `await client.channel(type, id).ensureWatched()`.
+
+A members-only channel the app already watched: keep `client.channel()`, take the instance from `ensureWatched()`, and fix the member shape:
 
 ```tsx
 // v14
 const channel = client.channel('messaging', { members: [userId, otherUserId] });
+await channel.watch();
+setActiveChannel(channel);
+```
+
+```tsx
+// v15
+const channel = await client
+  .channel('messaging', { members: [{ user_id: userId }, { user_id: otherUserId }] })
+  .ensureWatched(); // the surviving instance; the created one can be superseded
+openChannel(channel); // useWorkspaceNavigation(), section 4
+```
+
+A channel created by id that the app already watched (`client.channel('messaging', 'general')` + `await channel.watch()`) needs no change.
+
+`Channel` did the watching, so the watch moves to the app, with the options that were on `Channel`:
+
+```tsx
+// v14
+const channel = client.channel('messaging', 'general');
 
 <Channel channel={channel} channelQueryOptions={{ messages: { limit: 30 } }}>
   {/* ... */}
@@ -722,24 +750,12 @@ const channel = client.channel('messaging', { members: [userId, otherUserId] });
 ```
 
 ```tsx
-import type { StreamChat } from 'stream-chat';
+// v15, before rendering
+const channel = client.channel('messaging', 'general');
+await channel.ensureWatched({ messages: { limit: 30 } }); // or channel.watch(...)
 
-export const openDirectMessage = (
-  client: StreamChat,
-  userId: string,
-  otherUserId: string,
-) =>
-  client.channelManager
-    .ensure({
-      data: { members: [{ user_id: userId }, { user_id: otherUserId }] },
-      type: 'messaging',
-    })
-    .ensureWatched({ messages: { limit: 30 } });
-
-// then: <Channel channel={await openDirectMessage(client, userId, otherUserId)}>
+<Channel channel={channel}>{/* ... */}</Channel>;
 ```
-
-`data.members` is `ChannelMemberRequest[]` (`{ user_id }` objects) in `stream-chat` v10, not an id list.
 
 ```ts
 // v14
@@ -747,11 +763,13 @@ const channel = await getChannel({ client, id: 'general', type: 'messaging' });
 ```
 
 ```ts
-import type { StreamChat } from 'stream-chat';
-
-export const getGeneral = (client: StreamChat) =>
-  client.channelManager.ensure({ id: 'general', type: 'messaging' }).ensureWatched();
+// v15
+const channel = await client.channel('messaging', 'general').ensureWatched();
 ```
+
+<a id="channel-input-shape"></a>
+
+**Channel input shape (`stream-chat` v10).** The third argument of `client.channel()` (and `data` of `channelManager.ensure()`) is `ChannelInput`. `members` is `ChannelMemberRequest[]`, `{ user_id }` objects instead of an id list, and custom fields such as `name` go under `custom` (`{ custom: { name } }`). Plain ids now fail to compile (`TS2769`), though the API still accepts them at runtime (checked with `stream-chat@10.0.0-rc.22`), so this is a type fix, not a behavior change.
 
 [`examples/vite`](https://github.com/GetStream/stream-chat-react/tree/master/examples/vite) and the tutorial steps show the full flow.
 
