@@ -14,7 +14,8 @@ import type { Hsv, VoiceAgentState, VoiceVisualizationProps } from './types';
 const FALLBACK_COLOR = '#005fff';
 /** How many frames pass between two reads of the theme, about once a second at 60 Hz. */
 const THEME_FRAMES = 60;
-const MAX_PIXEL_RATIO = 2;
+/** Sharper than this is invisible on a soft drawing and only costs fill rate. */
+const DEFAULT_MAX_PIXEL_RATIO = 2;
 
 type ViewProps = VoiceVisualizationProps & {
   /** Whether a point, centred and normalized to the shorter side with y up, is on the shape. */
@@ -23,6 +24,11 @@ type ViewProps = VoiceVisualizationProps & {
   createRenderer: (canvas: HTMLCanvasElement) => VoiceRenderer | null;
   /** Remounts the canvas and remakes the renderer when it changes. */
   rendererKey: string;
+  /**
+   * The most device pixels per CSS pixel the canvas gets. A blurred shape looks the same at 1,
+   * at a quarter of the pixels of a 2x display.
+   */
+  maxPixelRatio?: number;
 };
 
 const useStateLabel = (state: VoiceAgentState) => {
@@ -51,6 +57,7 @@ export const VoiceVisualizationView = ({
   contains,
   createRenderer,
   expressivity,
+  maxPixelRatio = DEFAULT_MAX_PIXEL_RATIO,
   onPointerLeave,
   onPointerMove,
   onPointerUp,
@@ -127,7 +134,7 @@ export const VoiceVisualizationView = ({
 
     let pixelRatio = 1;
     const resize = () => {
-      pixelRatio = Math.min(window.devicePixelRatio || 1, MAX_PIXEL_RATIO);
+      pixelRatio = Math.min(window.devicePixelRatio || 1, maxPixelRatio);
       const width = Math.round(root.clientWidth * pixelRatio);
       const height = Math.round(root.clientHeight * pixelRatio);
       if (canvas.width !== width) canvas.width = width;
@@ -210,7 +217,7 @@ export const VoiceVisualizationView = ({
       colorScheme?.removeEventListener?.('change', onSchemeChange);
       renderer.dispose?.();
     };
-  }, [applyInput, makeRenderer, readTheme, rendererKey]);
+  }, [applyInput, makeRenderer, maxPixelRatio, readTheme, rendererKey]);
 
   /** The pointer in the renderers' coordinates: centred, normalized to the shorter side, y up. */
   const toLocal = (event: PointerEvent<HTMLDivElement>) => {

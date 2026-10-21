@@ -28,6 +28,7 @@ export const createGlowCanvasRenderer = (
   const rim = [0, 0, 0];
   const tmp = [0, 0, 0];
   const tmp2 = [0, 0, 0];
+  const angles = [0, 0, 0, 0];
 
   /** Slot `index` fading in over a lighter or darker first color as the palette grows. */
   const mixSlot = (
@@ -121,15 +122,16 @@ export const createGlowCanvasRenderer = (
     const gain = d.bright * mix(1, 0.45 + 0.35 * Math.sin(t * 2), d.load);
     colors(d, dark);
 
+    // Each orbit's angle, once a frame rather than once a blob.
+    const flowTurn = d.flowSpin * 0.3;
+    angles[0] = d.orbSpin * 0.42 + 2 * noise(t * 0.12, 0) + flowTurn;
+    angles[1] = -d.orbSpin * 0.34 + 2 * noise(t * 0.1, 5) + 2 + flowTurn;
+    angles[2] = d.orbSpin * 0.3 + 2 * noise(t * 0.11, 9) + 1 + flowTurn;
+    angles[3] = -d.orbSpin * 0.26 + 2 * noise(t * 0.09, 14) + 3.5 + flowTurn;
+
     const blob = (i: number, color: number[], alpha: number) => {
       if (alpha <= 0.002) return;
-      const angleByIndex = [
-        d.orbSpin * 0.42 + 2 * noise(t * 0.12, 0),
-        -d.orbSpin * 0.34 + 2 * noise(t * 0.1, 5) + 2,
-        d.orbSpin * 0.3 + 2 * noise(t * 0.11, 9) + 1,
-        -d.orbSpin * 0.26 + 2 * noise(t * 0.09, 14) + 3.5,
-      ];
-      const angle = angleByIndex[i] + d.flowSpin * 0.3;
+      const angle = angles[i];
       const distance = 0.4 - 0.02 * i;
       // A slow breath stands in for the shader's per-pixel warp.
       const blobRadius = REACH[i] * r * (1 + 0.12 * energy * noise(t * 0.5 + i, 33));
@@ -148,8 +150,14 @@ export const createGlowCanvasRenderer = (
       );
     };
 
+    const edge = r * 1.06;
     withScale(d.scale, cx, cy, () => {
-      circle(cx, cy, r * 1.06, rgba(base, 0.15 * gain));
+      // Nothing past the soft edge survives its mask, so the blobs are not painted there at all:
+      // they reach well beyond the globe, and painting less is most of the cost.
+      ctx.beginPath();
+      ctx.arc(cx, cy, edge, 0, Math.PI * 2);
+      ctx.clip();
+      circle(cx, cy, edge, rgba(base, 0.15 * gain));
       const blobAlpha = 0.6 * (0.75 + 0.25 * energy) * gain;
       blob(1, colB, blobAlpha * 0.8);
       blob(0, k0, blobAlpha);
@@ -178,16 +186,17 @@ export const createGlowCanvasRenderer = (
       );
     });
 
-    // The soft edge, outside the bounce's scale so it covers the whole area at any scale and
-    // whatever spilled past the globe goes too. The canvas is the glow's own layer, so this masks
-    // only the glow, never what is behind it.
+    // The soft edge, outside the bounce's scale so it follows the globe at any scale. The canvas
+    // is the glow's own layer, so this masks only the glow, never what is behind it. The clip
+    // above left nothing outside the globe, so only its square needs masking.
+    const masked = edge * d.scale;
     ctx.globalCompositeOperation = 'destination-in';
-    ctx.fillStyle = radial(cx, cy, r * 1.06 * d.scale, [
+    ctx.fillStyle = radial(cx, cy, masked, [
       [0, 'rgba(0, 0, 0, 1)'],
       [0.62 / 1.06, 'rgba(0, 0, 0, 1)'],
       [1, 'rgba(0, 0, 0, 0)'],
     ]);
-    ctx.fillRect(0, 0, width, height);
+    ctx.fillRect(cx - masked, cy - masked, masked * 2, masked * 2);
 
     // The halo, behind the globe.
     ctx.globalCompositeOperation = 'destination-over';

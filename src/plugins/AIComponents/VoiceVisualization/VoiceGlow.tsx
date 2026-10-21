@@ -52,6 +52,9 @@ export const VoiceGlow = ({
       contains={glowContains}
       createRenderer={createRenderer}
       data-rendering={webGL ? 'webgl' : 'canvas'}
+      // The glow is all soft gradients: drawn at 1x it looks the same as at 2x, with a quarter
+      // of the pixels to fill every frame.
+      maxPixelRatio={1}
       rendererKey={webGL ? 'webgl' : 'canvas'}
       {...props}
     />

@@ -248,6 +248,33 @@ describe('VoiceWave and VoiceGlow', () => {
     expect(frames).toHaveLength(0);
   });
 
+  it('draws the soft glow at 1x and the sharp wave at up to 2x', () => {
+    vi.spyOn(window, 'devicePixelRatio', 'get').mockReturnValue(3);
+    render(
+      <>
+        <VoiceGlow rendering='canvas' state='idle' />
+        <VoiceWave state='idle' />
+      </>,
+    );
+    const [glow, wave] = screen
+      .getAllByRole('img')
+      .map((root) => root.querySelector('canvas') as HTMLCanvasElement);
+
+    expect([glow.width, glow.height]).toEqual([200, 200]);
+    expect([wave.width, wave.height]).toEqual([400, 400]);
+  });
+
+  it('paints the Canvas glow only inside the globe', () => {
+    render(<VoiceGlow rendering='canvas' state='speaking' />);
+    step();
+
+    expect(calls.some((call) => call.name === 'clip')).toBe(true);
+    const mask = calls.find(
+      (call) => call.name === 'fillRect' && (call.args[2] as number) < 200,
+    );
+    expect(mask).toBeDefined();
+  });
+
   it('stops the loop on unmount', () => {
     const { unmount } = render(<VoiceWave state='idle' />);
     step();
