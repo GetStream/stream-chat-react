@@ -471,6 +471,25 @@ rather than a count of `message.new` events received while scrolled up.
 - **In a thread** the number still counts the replies other users posted while scrolled up; it no
   longer starts from the channel's unread count.
 
+### Loading older messages keeps your place; `loadNextDebounceMs` rate-limits the check
+
+- **`MessageList` keeps the reader's place when an older page loads**, including when loading
+  starts at the very top of the list. It no longer shows the top of the newly loaded page.
+- **A switch to the newest messages shows the bottom.** When the shown messages are replaced by the
+  newest page (e.g. a reconnect across a gap, or jumping to the latest message from an older
+  window), `MessageList` scrolls to the bottom at once. A jump to a message still positions the
+  list itself.
+- **`InfiniteScrollPaginator`'s `loadNextDebounceMs` is now the minimum interval between checks
+  while scrolling**, not the wait after scrolling stops. The same applies to `ChannelList`'s and
+  `SearchSourceResultList`'s `loadMoreDebounceMs`, which pass it on. The next page starts loading
+  as soon as the scroll position comes within `threshold` of an edge, and the check also runs at
+  once on mount and on resize, so `loadNextOnScrollToTop` and `loadNextOnScrollToBottom` are
+  called earlier and more often: a custom loader must ignore calls while a page is loading.
+  `listenToScroll` is called while scrolling too.
+- **`useMessageListScrollManager`:** the `onScrollToTop` parameter is removed. The optional
+  `hasMoreNewer` and `focusedMessageId` parameters are new, and `useScrollLocationLogic` takes an
+  optional `focusedMessageId`.
+
 ### `ChannelListItem` `getLatestMessagePreview` prop → removed; customize via `SummarizedMessagePreview`
 
 `ChannelListItem`'s `getLatestMessagePreview` prop and the `getLatestMessagePreview` util (previously re-exported from the package root) are **removed**, along with the `latestMessagePreview` prop on `ChannelListItemUIProps`. The default `ChannelListItemUI` renders the last-message preview via the `SummarizedMessagePreview` component, which is now overridable through `ComponentContext`.

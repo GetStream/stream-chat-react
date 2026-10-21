@@ -149,6 +149,7 @@ const MessageListWithContext = (props: MessageListWithContextProps) => {
     scrollToBottom,
     wrapperRect,
   } = useScrollLocationLogic({
+    focusedMessageId,
     hasMoreNewer,
     listElement,
     loadingMore: isLoading,

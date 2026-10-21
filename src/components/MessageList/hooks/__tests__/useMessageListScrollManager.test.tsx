@@ -18,6 +18,21 @@ const myUserId = 'alice';
 const generateMessages = (length, userId = myUserId) =>
   Array.from({ length }, (_, index) => ({ id: index.toString(), userId }));
 
+/** Messages `sim-<from>` to `sim-<to>` from another user, as the server has them. */
+const generateWindow = (from: number, to: number) =>
+  fromPartial<LocalMessage[]>(
+    Array.from({ length: to - from + 1 }, (_, index) => ({
+      id: `sim-${from + index}`,
+      status: 'received',
+      user: { id: 'bob' },
+    })),
+  );
+
+const unsentMessages = fromPartial<LocalMessage[]>([
+  { id: 'failed', status: 'failed', user: { id: myUserId } },
+  { id: 'sending', status: 'sending', user: { id: myUserId } },
+]);
+
 const defaultInputs: any = {
   loadMoreScrollThreshold: 100,
   messages: [],
@@ -272,5 +287,174 @@ describe('useMessageListScrollManager', () => {
 
     expect(scrollToBottom).not.toHaveBeenCalled();
     expect(showNewMessages).toHaveBeenCalledTimes(1);
+  });
+
+  describe('when another window replaces the rendered messages', () => {
+    const renderWindowSwitch = ({
+      focusedMessageId,
+      hasMoreNewer,
+      newMessages,
+      prevMessages,
+    }: {
+      focusedMessageId?: string;
+      hasMoreNewer: boolean;
+      newMessages: LocalMessage[];
+      prevMessages: LocalMessage[];
+    }) => {
+      const scrollToBottom = vi.fn();
+      const Comp = (props: {
+        focusedMessageId?: string;
+        hasMoreNewer: boolean;
+        messages: LocalMessage[];
+      }) => {
+        const updateScrollTop = useMessageListScrollManager(
+          fromPartial<UseMessageListScrollManagerParams>({
+            ...defaultInputs,
+            focusedMessageId: props.focusedMessageId,
+            hasMoreNewer: props.hasMoreNewer,
+            messages: props.messages,
+            scrollToBottom,
+          }),
+        );
+        // scrolled up far from the bottom, so no append rule would scroll
+        updateScrollTop(0);
+        return <div />;
+      };
+
+      const { rerender } = render(
+        <ChatProvider value={mockChatContext({ client })}>
+          <Comp hasMoreNewer={false} messages={prevMessages} />
+        </ChatProvider>,
+      );
+      rerender(
+        <ChatProvider value={mockChatContext({ client })}>
+          <Comp
+            focusedMessageId={focusedMessageId}
+            hasMoreNewer={hasMoreNewer}
+            messages={newMessages}
+          />
+        </ChatProvider>,
+      );
+
+      return { scrollToBottom };
+    };
+
+    it('scrolls to the bottom when the new window holds the newest messages', () => {
+      const { scrollToBottom } = renderWindowSwitch({
+        hasMoreNewer: false,
+        newMessages: generateWindow(94, 120),
+        prevMessages: generateWindow(36, 60),
+      });
+
+      expect(scrollToBottom).toHaveBeenCalledTimes(1);
+    });
+
+    it('scrolls to the bottom when only unsent messages are kept across the switch', () => {
+      const { scrollToBottom } = renderWindowSwitch({
+        hasMoreNewer: false,
+        newMessages: [...generateWindow(94, 120), ...unsentMessages],
+        prevMessages: [...generateWindow(36, 60), ...unsentMessages],
+      });
+
+      expect(scrollToBottom).toHaveBeenCalledTimes(1);
+    });
+
+    it('does not scroll to the bottom when the new window is older than the newest messages', () => {
+      const { scrollToBottom } = renderWindowSwitch({
+        hasMoreNewer: true,
+        newMessages: generateWindow(1, 25),
+        prevMessages: generateWindow(94, 120),
+      });
+
+      expect(scrollToBottom).not.toHaveBeenCalled();
+    });
+
+    it('leaves the list to a jump that focuses a message in the newest window', () => {
+      const { scrollToBottom } = renderWindowSwitch({
+        focusedMessageId: 'sim-100',
+        hasMoreNewer: false,
+        newMessages: generateWindow(94, 120),
+        prevMessages: generateWindow(1, 25),
+      });
+
+      expect(scrollToBottom).not.toHaveBeenCalled();
+    });
+
+    it('scrolls to the bottom when the focused message of an earlier jump is not in the new window', () => {
+      const { scrollToBottom } = renderWindowSwitch({
+        focusedMessageId: 'sim-5',
+        hasMoreNewer: false,
+        newMessages: generateWindow(94, 120),
+        prevMessages: generateWindow(1, 25),
+      });
+
+      expect(scrollToBottom).toHaveBeenCalledTimes(1);
+    });
+
+    it('does not treat a window that keeps a message the user was reading as a switch', () => {
+      const { scrollToBottom } = renderWindowSwitch({
+        hasMoreNewer: false,
+        // the oldest message pruned and a newer one added: sim-37 to sim-60 stay rendered
+        newMessages: generateWindow(37, 61),
+        prevMessages: generateWindow(36, 60),
+      });
+
+      expect(scrollToBottom).not.toHaveBeenCalled();
+    });
+  });
+
+  it('keeps the message the user was looking at in place when an older page loads from the very top', () => {
+    const anchor = { id: 'sim-36', offsetTop: 0 };
+    const captureAnchor = vi.fn(() => anchor);
+    const onScrollBy = vi.fn();
+    const restoreAnchor = vi.fn();
+    const Comp = (props: {
+      loadingMore: boolean;
+      messages: LocalMessage[];
+      scrollHeight: number;
+    }) => {
+      const updateScrollTop = useMessageListScrollManager(
+        fromPartial<UseMessageListScrollManagerParams>({
+          ...defaultInputs,
+          captureAnchor,
+          loadingMore: props.loadingMore,
+          messages: props.messages,
+          onScrollBy,
+          restoreAnchor,
+          scrollContainerMeasures: () => ({
+            offsetHeight: 200,
+            scrollHeight: props.scrollHeight,
+            scrollTop: 0,
+          }),
+        }),
+      );
+      updateScrollTop(0);
+      return <div />;
+    };
+
+    const loadedWindow = generateWindow(36, 60);
+    const { rerender } = render(
+      <ChatProvider value={mockChatContext({ client })}>
+        <Comp loadingMore={false} messages={loadedWindow} scrollHeight={2000} />
+      </ChatProvider>,
+    );
+    // loading the older page starts with the list scrolled to the very top
+    rerender(
+      <ChatProvider value={mockChatContext({ client })}>
+        <Comp loadingMore={true} messages={loadedWindow} scrollHeight={2000} />
+      </ChatProvider>,
+    );
+    rerender(
+      <ChatProvider value={mockChatContext({ client })}>
+        <Comp
+          loadingMore={false}
+          messages={[...generateWindow(11, 35), ...loadedWindow]}
+          scrollHeight={4000}
+        />
+      </ChatProvider>,
+    );
+
+    expect(restoreAnchor).toHaveBeenCalledWith(anchor);
+    expect(onScrollBy).not.toHaveBeenCalled();
   });
 });

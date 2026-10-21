@@ -114,6 +114,49 @@ describe('useScrollLocationLogic', () => {
     expect(listElement.scrollTo).toHaveBeenCalled();
   });
 
+  describe('another window replaces the rendered messages', () => {
+    // A reconnect across a gap replaces the loaded messages with the newest page.
+    const renderWindowSwitch = ({ focusedMessageId }: { focusedMessageId?: string }) => {
+      const listElement = createListElement();
+      const { rerender, result } = renderHook(
+        (props: { focusedMessageId?: string; messages: LocalMessage[] }) =>
+          useScrollLocationLogic({
+            focusedMessageId: props.focusedMessageId,
+            hasMoreNewer: false,
+            listElement,
+            loadMoreScrollThreshold: 100,
+            messages: props.messages,
+            scrolledUpThreshold: 200,
+          }),
+        {
+          initialProps: { messages: generateMessages(25) },
+          wrapper: ({ children }: React.PropsWithChildren) => (
+            <ChatProvider value={mockChatContext({ client })}>{children}</ChatProvider>
+          ),
+        },
+      );
+      act(() => result.current.onScroll(fromPartial({ target: listElement })));
+      listElement.scrollTo.mockClear();
+
+      rerender({ focusedMessageId, messages: generateMessages(27, 94) });
+      return listElement;
+    };
+
+    it('scrolls to the bottom of the newest messages', () => {
+      const listElement = renderWindowSwitch({});
+
+      expect(listElement.scrollTo).toHaveBeenCalledWith(
+        expect.objectContaining({ top: listElement.scrollHeight }),
+      );
+    });
+
+    it('leaves the list to the jump focusing a message', () => {
+      const listElement = renderWindowSwitch({ focusedMessageId: '100' });
+
+      expect(listElement.scrollTo).not.toHaveBeenCalled();
+    });
+  });
+
   describe('older page prepended', () => {
     // The anchor message sits at the top of the viewport (100 px from the list's top edge) when
     // loading starts. After the prepend its layout offset inside the list is `ANCHOR_CONTENT_TOP`.

@@ -1,8 +1,8 @@
 import clsx from 'clsx';
-import debounce from 'lodash.debounce';
+import throttle from 'lodash.throttle';
 import type { PropsWithChildren } from 'react';
 import { forwardRef } from 'react';
-import React, { useEffect, useMemo, useRef } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef } from 'react';
 import { DEFAULT_LOAD_PAGE_SCROLL_THRESHOLD } from '../../constants/limits';
 
 /**
@@ -15,6 +15,43 @@ const mousewheelListener = (event: Event) => {
   }
 };
 
+type DistancesToEdges = { distanceFromBottom: number; distanceFromTop: number };
+
+/** The scroll position's distance to both ends of the content; `null` while hidden or unmounted. */
+const getDistancesToEdges = (
+  root: HTMLElement | null,
+  content: HTMLElement | null,
+): DistancesToEdges | null => {
+  if (!root || root.offsetParent === null || !content) return null;
+  return {
+    distanceFromBottom: content.scrollHeight - root.scrollTop - root.clientHeight,
+    distanceFromTop: root.scrollTop,
+  };
+};
+
+type EdgesWithinThreshold = { nearBottom: boolean; nearTop: boolean };
+
+const NO_EDGE_WITHIN_THRESHOLD: EdgesWithinThreshold = {
+  nearBottom: false,
+  nearTop: false,
+};
+
+/** The edges whose next page the scroll position is close enough to load. */
+const getEdgesWithinThreshold = (
+  { distanceFromBottom, distanceFromTop }: DistancesToEdges,
+  threshold: number,
+): EdgesWithinThreshold => ({
+  nearBottom: distanceFromBottom < threshold,
+  nearTop: distanceFromTop < threshold,
+});
+
+/** Whether `current` is within the threshold of an edge that `previous` was not. */
+const reachedAnotherEdge = (
+  previous: EdgesWithinThreshold,
+  current: EdgesWithinThreshold,
+) =>
+  (current.nearTop && !previous.nearTop) || (current.nearBottom && !previous.nearBottom);
+
 type InfiniteScrollPaginatorOwnProps = {
   element?: React.ElementType;
   /**
@@ -24,11 +61,22 @@ type InfiniteScrollPaginatorOwnProps = {
    * ancestor (`listbox`/`menu`) and its `option`/`menuitem` children.
    */
   contentProps?: React.ComponentProps<'div'>;
+  /**
+   * Called with the scroll distances on each check of the distance to the edges (see
+   * `loadNextDebounceMs`).
+   */
   listenToScroll?: (
     distanceFromBottom: number,
     distanceFromTop: number,
     threshold: number,
   ) => void;
+  /**
+   * The minimum interval, in milliseconds, between two checks of the distance to the edges while
+   * the list scrolls or resizes. Scrolling is checked as it happens, not once it stops: the first
+   * scroll, and the first one within `threshold` of an edge, are checked at once, and a final check
+   * runs when the interval ends, so the position the scrolling stopped at is always checked.
+   * Defaults to 500.
+   */
   loadNextDebounceMs?: number;
   loadNextOnScrollToBottom?: () => void;
   loadNextOnScrollToTop?: () => void;
@@ -82,31 +130,29 @@ export const InfiniteScrollPaginator = forwardRef(function InfiniteScrollPaginat
   const rootRef = useRef<HTMLElement | null>(null);
   const childRef = useRef<HTMLDivElement | null>(null);
 
-  const scrollListener = useMemo(
+  // Reports the distances and loads the next page at an edge, at most once per interval (the first
+  // call at once, the latest one when the interval ends). The loaders guard against being called
+  // while a page loads.
+  const checkDistanceToEdges = useMemo(
     () =>
-      debounce(() => {
-        const root = rootRef.current;
-        const child = childRef.current;
-        if (!root || root.offsetParent === null || !child) {
-          return;
-        }
+      throttle(
+        () => {
+          const distances = getDistancesToEdges(rootRef.current, childRef.current);
+          if (!distances) return;
 
-        const distanceFromBottom =
-          child.scrollHeight - root.scrollTop - root.clientHeight;
-        const distanceFromTop = root.scrollTop;
+          listenToScroll?.(
+            distances.distanceFromBottom,
+            distances.distanceFromTop,
+            threshold,
+          );
 
-        if (listenToScroll) {
-          listenToScroll(distanceFromBottom, distanceFromTop, threshold);
-        }
-
-        if (distanceFromTop < Number(threshold)) {
-          loadNextOnScrollToTop?.();
-        }
-
-        if (distanceFromBottom < Number(threshold)) {
-          loadNextOnScrollToBottom?.();
-        }
-      }, loadNextDebounceMs),
+          const { nearBottom, nearTop } = getEdgesWithinThreshold(distances, threshold);
+          if (nearTop) loadNextOnScrollToTop?.();
+          if (nearBottom) loadNextOnScrollToBottom?.();
+        },
+        loadNextDebounceMs,
+        { leading: true, trailing: true },
+      ),
     [
       listenToScroll,
       loadNextDebounceMs,
@@ -115,6 +161,26 @@ export const InfiniteScrollPaginator = forwardRef(function InfiniteScrollPaginat
       threshold,
     ],
   );
+
+  // A check left for the end of the interval belongs to the props it was created with.
+  useEffect(() => () => checkDistanceToEdges.cancel(), [checkDistanceToEdges]);
+
+  const edgesWithinThresholdRef = useRef(NO_EDGE_WITHIN_THRESHOLD);
+
+  // Checks while scrolling rather than once it stops. Reaching an edge's threshold runs the check at
+  // once: waiting for the interval to end would let a fast scroll reach the edge before the next
+  // page starts loading.
+  const scrollListener = useCallback(() => {
+    checkDistanceToEdges();
+    const distances = getDistancesToEdges(rootRef.current, childRef.current);
+    const edgesWithinThreshold = distances
+      ? getEdgesWithinThreshold(distances, threshold)
+      : NO_EDGE_WITHIN_THRESHOLD;
+    if (reachedAnotherEdge(edgesWithinThresholdRef.current, edgesWithinThreshold)) {
+      checkDistanceToEdges.flush();
+    }
+    edgesWithinThresholdRef.current = edgesWithinThreshold;
+  }, [checkDistanceToEdges, threshold]);
 
   useEffect(() => {
     const scrollElement = rootRef.current;
