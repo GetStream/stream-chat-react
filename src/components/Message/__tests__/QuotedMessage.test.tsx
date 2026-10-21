@@ -52,6 +52,7 @@ async function renderQuotedMessage({
   customChannel,
   customClient,
   customProps,
+  userLanguage = 'en',
 }: any = {}) {
   const {
     channels: [channel],
@@ -72,7 +73,7 @@ async function renderQuotedMessage({
           value={mockTranslationContextValue({
             t: mockT,
             tDateTimeParser: customDateTimeParser,
-            userLanguage: 'en',
+            userLanguage,
           })}
         >
           <ComponentProvider
@@ -134,6 +135,38 @@ describe('QuotedMessage', () => {
     expect(textEl.textContent).toContain(messageText);
     const results = await axe(container);
     expect(results).toHaveNoViolations();
+  });
+
+  describe('quoted poll', () => {
+    const quotedPollMessage = {
+      quoted_message: {
+        // Server messages always carry `attachments`; the preview finds the poll alongside them.
+        attachments: [],
+        poll: {
+          name: 'Favourite fruit?',
+          name_i18n: { es_text: '¿Fruta favorita?', language: 'en' },
+        },
+        text: '',
+      },
+    };
+
+    it('shows the poll question in the user language', async () => {
+      const { container, findByText } = await renderQuotedMessage({
+        customProps: { message: quotedPollMessage },
+        userLanguage: 'es',
+      });
+      expect(await findByText('¿Fruta favorita?')).toBeInTheDocument();
+      const results = await axe(container);
+      expect(results).toHaveNoViolations();
+    });
+
+    it('shows the original question without a translation for the user language', async () => {
+      const { findByText } = await renderQuotedMessage({
+        customProps: { message: quotedPollMessage },
+        userLanguage: 'de',
+      });
+      expect(await findByText('Favourite fruit?')).toBeInTheDocument();
+    });
   });
 
   it('renders built-in, role, and user-group mentions inside quoted message text', async () => {
