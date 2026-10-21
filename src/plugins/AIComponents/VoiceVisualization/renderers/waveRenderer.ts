@@ -1,4 +1,4 @@
-import type { VoiceVisualizationDriver } from '../driver';
+import { ease, type VoiceVisualizationDriver } from '../driver';
 import { clamp, mix, saturate, smoothstep, speechEnv, vivid } from '../math';
 import { rgba, type VoiceFrame, type VoiceRenderer } from './types';
 
@@ -7,7 +7,28 @@ const STOPS = 13;
 const START = -0.42;
 const END = 0.42;
 
+/**
+ * The steepest a crest may rise, about as steep as the wave gets while listening. Louder speech
+ * spreads the crests out instead, so it swells rather than spikes.
+ */
+const MAX_SLOPE = 6;
+/** How far the syllables swing the self-animated speech: calmer than the glow's 0.45. */
+const SYLLABLE_DEPTH = 0.3;
+/** Per-frame easing at 60 Hz of the cap on the crest spacing, slow enough to read as breathing. */
+const SPACING = 0.04;
+/** Per-frame easing at 60 Hz of the speech height: quick to rise and slow to settle. */
+const ATTACK = 0.3;
+const RELEASE = 0.06;
+/** Frames longer than this ease as if they were this long, as the driver's do. */
+const MAX_FRAME = 0.05;
+
 const sq = (x: number) => x * x;
+
+/** `x` as it is up to 85% of `limit`, then bending smoothly toward `limit` without reaching it. */
+const softLimit = (x: number, limit: number) => {
+  const knee = 0.85 * limit;
+  return x <= knee ? x : knee + (limit - knee) * Math.tanh((x - knee) / (limit - knee));
+};
 
 const bandCenter = (i: number, seg: number, t: number) => {
   switch (i) {
@@ -31,12 +52,18 @@ export const waveContains = (x: number, y: number) =>
 /**
  * The wave: a string, flat at its ends, carrying a wave packet that erupts with speech, with up
  * to five colors flowing along it in bands. Its buffers are reused from one frame to the next.
+ *
+ * It moves as on Android and iOS, smoothed for speech: the height rises quickly and settles
+ * slowly, and as it grows the crests spread out rather than steepen into spikes.
  */
 export const createWaveRenderer = (ctx: CanvasRenderingContext2D): VoiceRenderer => {
   const xs = new Float32Array(POINTS + 1);
   const ys = new Float32Array(POINTS + 1);
   const band = Array.from({ length: 5 }, () => [0, 0, 0]);
   const color = [0, 0, 0];
+  // Eased from one frame to the next, and settled on the first.
+  let drive: number | null = null;
+  let freqCap: number | null = null;
 
   /** The string's color at `x`: the bands weighed by how near their centres are, faded at the ends. */
   const stopColor = (d: VoiceVisualizationDriver, x: number) => {
@@ -59,17 +86,25 @@ export const createWaveRenderer = (ctx: CanvasRenderingContext2D): VoiceRenderer
     return rgba(color, alpha);
   };
 
-  const draw = ({ dark, driver: d, height, width }: VoiceFrame) => {
+  const draw = ({ dark, driver: d, height, seconds, width }: VoiceFrame) => {
     ctx.clearRect(0, 0, width, height);
     const m = Math.min(width, height);
     if (m <= 0) return;
+    const dt = Math.min(Math.max(seconds, 0), MAX_FRAME);
     const t = d.time;
     const react = d.react;
     const center = d.load * 0.3 * Math.sin(t * 1.3);
-    const freq = 24 + 26 * react + 10 * d.flow;
     const speak = smoothstep(0.6, 1, react);
-    const drive = mix(speak * 0.26 * speechEnv(t), 0.3 * d.mic, d.voice);
-    const reach = 0.018 + 0.022 * react + drive + 0.14 * d.flow + 0.1 * d.load;
+    const speech = mix(speak * 0.26 * speechEnv(t, SYLLABLE_DEPTH), 0.3 * d.mic, d.voice);
+    drive ??= speech;
+    drive += (speech - drive) * ease(speech > drive ? ATTACK : RELEASE, dt);
+    let reach = 0.018 + 0.022 * react + drive + 0.14 * d.flow + 0.1 * d.load;
+    // The crests spread out as the wave grows: the cap on their spacing eases so it breathes,
+    // and the height is softly limited while it catches up. Below the cap the spacing is iOS's.
+    freqCap ??= MAX_SLOPE / reach;
+    freqCap += (MAX_SLOPE / reach - freqCap) * ease(SPACING, dt);
+    const freq = Math.min(24 + 26 * react + 10 * d.flow, freqCap);
+    reach = softLimit(reach, (MAX_SLOPE * 1.1) / freq);
     const tapAlive = d.tapAge < 1.5;
     const hovered = d.hoverAmount > 0.001;
 

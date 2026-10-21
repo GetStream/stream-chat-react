@@ -139,12 +139,13 @@ export const VoiceVisualizationView = ({
       frameId = 0;
       const driver = driverRef.current;
       if (!driver) return;
+      const seconds = last === 0 ? 0 : (now - last) / 1000;
       if (last !== 0) {
         driver.input = {
           ...driver.input,
           audioLevel: audioLevelInput(audioLevelRef.current?.()),
         };
-        driver.advance((now - last) / 1000);
+        driver.advance(seconds);
       }
       last = now;
       if (++frames % THEME_FRAMES === 0) {
@@ -155,6 +156,7 @@ export const VoiceVisualizationView = ({
         dark: themeRef.current.dark,
         driver,
         height: canvas.height,
+        seconds,
         width: canvas.width,
       });
       // The canvas fades in once it has something to show, as on iOS, rather than flashing

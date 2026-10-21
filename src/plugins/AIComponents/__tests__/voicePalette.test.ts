@@ -111,4 +111,13 @@ describe('voice visualization noise', () => {
     expect(Math.max(...samples)).toBeGreaterThan(0.6);
     expect(Math.max(...samples)).toBeLessThanOrEqual(1);
   });
+
+  it('swings the speech envelope less with shallower syllables', () => {
+    for (let i = 0; i < 500; i++) {
+      const t = i * 0.037;
+      expect(speechEnv(t, 0.45)).toBe(speechEnv(t));
+      // With no syllables left, only the phrases shape it.
+      expect(speechEnv(t, 0)).toBeGreaterThanOrEqual(speechEnv(t) - 1e-9);
+    }
+  });
 });

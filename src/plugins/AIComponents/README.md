@@ -324,6 +324,7 @@ Behavior:
 - It fades in over 0.3 s once its first frame is drawn (instantly with reduced motion), so it never flashes empty while a shader compiles.
 - With `prefers-reduced-motion: reduce`, the motion slows to a crawl and taps and hover are ignored.
 - The palette and the light or dark look follow the theme (`--str-chat__ai-voice-color` and `--str-chat__ai-voice-backdrop`), re-read about once a second, so a theme switch needs no prop.
+- `VoiceWave` moves as on Android and iOS, smoothed for speech: its height rises quickly and settles slowly, its syllables swing it a little less, and as it grows its crests spread out rather than steepen into spikes. While idle, connecting or thinking it is the native wave exactly.
 
 `rendering='css'`, also the fallback when WebGL is unavailable, composes the glow the way the shader does, as gradients that are painted once and animated only through `transform` and `opacity`, so the browser's compositor runs the motion. It keeps moving while the main thread is busy (for example while a long answer streams in), needs no canvas or WebGL, and runs no script per frame unless `audioLevel` is given. It lacks the shader's fine marbling: a tap bounces the glow and sends out a ring instead of a ripple, and a hovering pointer does nothing. It needs `@property`, container query units and `color-mix()` (Chrome 111, Safari 16.4, Firefox 128 and later).
 
@@ -582,7 +583,7 @@ Reads the live level of a `MediaStream`'s audio (a microphone from `getUserMedia
 const useAudioLevel: (stream: MediaStream | null | undefined) => () => number | null;
 ```
 
-It returns a stable getter that measures the level when called, from 0 to 1, so nothing re-renders as the level changes. The getter returns `null` while there is no stream or no Web Audio support. The audio graph is torn down when the stream changes and on unmount; the stream's tracks are left running, since they belong to you.
+It returns a stable getter that measures the level when called, from 0 to 1, so nothing re-renders as the level changes. It measures over the last 2048 samples (about 43 ms at 48 kHz), a few pitch periods of a voice, so the level holds steady through a vowel. The getter returns `null` while there is no stream or no Web Audio support. The audio graph is torn down when the stream changes and on unmount; the stream's tracks are left running, since they belong to you.
 
 ## Examples
 

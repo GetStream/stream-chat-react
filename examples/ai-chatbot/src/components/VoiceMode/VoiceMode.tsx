@@ -69,7 +69,6 @@ const VoiceConversation = () => {
         audioLevel={phase === 'listening' ? micLevel : undefined}
         className='ai-demo-voice-mode__wave'
         colors={VOICE_COLORS}
-        expressivity={1.4}
         state={phase === 'listening' ? 'listening' : 'idle'}
       />
 

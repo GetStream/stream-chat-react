@@ -56,7 +56,9 @@ export const useAudioLevel = (stream: MediaStream | null | undefined) => {
     const context = new AudioContextClass();
     const source = context.createMediaStreamSource(stream);
     const analyser = context.createAnalyser();
-    analyser.fftSize = 256;
+    // About 43 ms at 48 kHz: a few pitch periods of a voice, so the level holds steady on a vowel
+    // instead of jittering with each period, as a shorter window would.
+    analyser.fftSize = 2048;
     source.connect(analyser);
     analyserRef.current = { analyser, samples: new Uint8Array(analyser.fftSize) };
     // A context made outside a user gesture can start suspended.

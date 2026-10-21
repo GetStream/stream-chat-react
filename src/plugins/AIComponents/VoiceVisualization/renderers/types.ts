@@ -6,6 +6,8 @@ export type VoiceFrame = {
   dark: number;
   driver: VoiceVisualizationDriver;
   height: number;
+  /** Seconds since the previous frame, 0 on the first. */
+  seconds: number;
   width: number;
 };
 

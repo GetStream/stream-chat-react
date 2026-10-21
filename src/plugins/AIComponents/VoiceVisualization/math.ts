@@ -43,10 +43,12 @@ export const saturate = (c: number[], amount: number) => {
 /**
  * How much the agent is talking, 0 to 1: a slow phrase gate times a faster syllable wobble. The
  * shader's own envelope, on the same simplex noise, so every renderer and iOS speak alike.
+ * `syllableDepth` is how far the syllables swing it, the shader's 0.45 unless a renderer wants it
+ * calmer.
  */
-export const speechEnv = (t: number) => {
+export const speechEnv = (t: number, syllableDepth = 0.45) => {
   const gate = smoothstep(-0.25, 0.35, snoise(t * 0.6, 21, 0));
-  const syllable = 0.55 + 0.45 * snoise(t * 3, 5, 0);
+  const syllable = 1 - syllableDepth + syllableDepth * snoise(t * 3, 5, 0);
   return clamp(gate * syllable, 0, 1);
 };
 

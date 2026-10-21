@@ -38,7 +38,7 @@ const stream = (audioTracks = 1) =>
 describe('useAudioLevel', () => {
   beforeEach(() => {
     AudioContextFake.instances = [];
-    samples = new Uint8Array(256).fill(128);
+    samples = new Uint8Array(2048).fill(128);
     vi.stubGlobal('AudioContext', AudioContextFake);
   });
 
@@ -78,10 +78,16 @@ describe('useAudioLevel', () => {
     expect(context.source.connect).toHaveBeenCalledWith(context.analyser);
     expect(result.current()).toBe(0);
 
-    samples = new Uint8Array(256).map((_, i) => (i % 2 ? 192 : 64));
+    samples = new Uint8Array(2048).map((_, i) => (i % 2 ? 192 : 64));
 
     expect(result.current()).toBe(1);
     expect(context.analyser.getByteTimeDomainData).toHaveBeenCalledTimes(2);
+  });
+
+  it('measures over about 43 ms, a few pitch periods of a voice', () => {
+    renderHook(() => useAudioLevel(stream()));
+
+    expect(AudioContextFake.instances[0].analyser.fftSize).toBe(2048);
   });
 
   it('keeps the same getter across renders', () => {
