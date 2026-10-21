@@ -4,8 +4,6 @@ import type { VoiceVisualizationDriver } from '../driver';
 export type VoiceFrame = {
   /** 1 to draw for a dark background, 0 for a light one. */
   dark: number;
-  /** Device pixels per CSS pixel. */
-  dpr: number;
   driver: VoiceVisualizationDriver;
   height: number;
   width: number;

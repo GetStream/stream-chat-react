@@ -24,6 +24,8 @@ export const VoiceWave = ({ className, ...props }: VoiceWaveProps) => (
     className={clsx('str-chat__ai-voice-wave', className)}
     contains={waveContains}
     createRenderer={createRenderer}
+    // The thin line stays crisp at the screen's own density, up to 3x as on iOS.
+    maxPixelRatio={3}
     rendererKey='wave'
     {...props}
   />

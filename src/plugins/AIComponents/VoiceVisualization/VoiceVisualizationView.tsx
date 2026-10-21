@@ -14,8 +14,6 @@ import { useVoiceStateLabel } from './useVoiceStateLabel';
 const FALLBACK_COLOR = '#005fff';
 /** How many frames pass between two reads of the theme, about once a second at 60 Hz. */
 const THEME_FRAMES = 60;
-/** Sharper than this is invisible on a soft drawing and only costs fill rate. */
-const DEFAULT_MAX_PIXEL_RATIO = 2;
 
 type ViewProps = VoiceVisualizationProps & {
   /** Whether a point, centred and normalized to the shorter side with y up, is on the shape. */
@@ -25,10 +23,10 @@ type ViewProps = VoiceVisualizationProps & {
   /** Remounts the canvas and remakes the renderer when it changes. */
   rendererKey: string;
   /**
-   * The most device pixels per CSS pixel the canvas gets. A blurred shape looks the same at 1,
-   * at a quarter of the pixels of a 2x display.
+   * The most device pixels per CSS pixel the canvas gets: a blurred shape looks the same at 1,
+   * at a quarter of the pixels of a 2x display, while a thin line needs the screen's own.
    */
-  maxPixelRatio?: number;
+  maxPixelRatio: number;
 };
 
 /**
@@ -45,7 +43,7 @@ export const VoiceVisualizationView = ({
   contains,
   createRenderer,
   expressivity,
-  maxPixelRatio = DEFAULT_MAX_PIXEL_RATIO,
+  maxPixelRatio,
   onPointerLeave,
   onPointerMove,
   onPointerUp,
@@ -120,9 +118,8 @@ export const VoiceVisualizationView = ({
     const renderer = makeRenderer(canvas);
     if (!renderer) return;
 
-    let pixelRatio = 1;
     const resize = () => {
-      pixelRatio = Math.min(window.devicePixelRatio || 1, maxPixelRatio);
+      const pixelRatio = Math.min(window.devicePixelRatio || 1, maxPixelRatio);
       const width = Math.round(root.clientWidth * pixelRatio);
       const height = Math.round(root.clientHeight * pixelRatio);
       if (canvas.width !== width) canvas.width = width;
@@ -156,7 +153,6 @@ export const VoiceVisualizationView = ({
       }
       renderer.draw({
         dark: themeRef.current.dark,
-        dpr: pixelRatio,
         driver,
         height: canvas.height,
         width: canvas.width,

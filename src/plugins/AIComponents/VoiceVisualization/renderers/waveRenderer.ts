@@ -59,7 +59,7 @@ export const createWaveRenderer = (ctx: CanvasRenderingContext2D): VoiceRenderer
     return rgba(color, alpha);
   };
 
-  const draw = ({ dark, dpr, driver: d, height, width }: VoiceFrame) => {
+  const draw = ({ dark, driver: d, height, width }: VoiceFrame) => {
     ctx.clearRect(0, 0, width, height);
     const m = Math.min(width, height);
     if (m <= 0) return;
@@ -113,7 +113,8 @@ export const createWaveRenderer = (ctx: CanvasRenderingContext2D): VoiceRenderer
     ctx.moveTo(xs[0], ys[0]);
     for (let i = 1; i <= POINTS; i++) ctx.lineTo(xs[i], ys[i]);
     ctx.strokeStyle = gradient;
-    ctx.lineWidth = Math.max(0.006 * m, 1.5 * dpr);
+    // As thick as on Android and iOS: 0.6% of the shorter side, and never under 1.5 device pixels.
+    ctx.lineWidth = Math.max(0.006 * m, 1.5);
     ctx.lineCap = 'round';
     ctx.lineJoin = 'round';
     ctx.stroke();

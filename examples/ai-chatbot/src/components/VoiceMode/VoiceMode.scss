@@ -48,9 +48,14 @@
     -webkit-box-orient: vertical;
   }
 
+  // The wave is about 84% as long as its box's shorter side, so its box is square. The empty
+  // space above and below the line overlaps its neighbours, which the wave lets clicks through.
   &__wave {
-    width: min(32rem, 100%);
-    height: 5rem;
+    --ai-demo-voice-wave-size: min(18rem, 100%, 32vh);
+    flex-shrink: 0;
+    width: var(--ai-demo-voice-wave-size);
+    height: var(--ai-demo-voice-wave-size);
+    margin-block: calc(var(--ai-demo-voice-wave-size) * -0.3);
   }
 
   &__controls {

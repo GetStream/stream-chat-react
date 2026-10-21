@@ -304,7 +304,7 @@ function MessageContent({ content }) {
 
 Two animated visualizations of a voice agent, the web counterparts of `AIVoiceWave` and `AIVoiceGlow` in the Android and iOS AI components, with the same motion. `VoiceWave` is a single string carrying a wave packet that erupts with speech; `VoiceGlow` is a soft globe whose color masses orbit inside it and swell with speech.
 
-Both draw on a `<canvas>` inside a `div` with `role="img"` and an accessible name such as "Voice agent: Speaking". They have no size of their own and draw in the middle of the box they are given (`VoiceWave` about 80% as wide as the shorter side, `VoiceGlow` about half), so size them with CSS. The defaults are `width: 100%; height: 8rem` for the wave and `12rem` square for the glow.
+Both draw on a `<canvas>` inside a `div` with `role="img"` and an accessible name such as "Voice agent: Speaking". They have no size of their own and draw in the middle of the box they are given (`VoiceWave` about 80% as wide as the shorter side, `VoiceGlow` about half), so size them with CSS. The defaults are `width: 100%; height: 8rem` for the wave and `12rem` square for the glow. The wave's line is as thick as on Android and iOS, 0.6% of the shorter side and never under 1.5 device pixels, and drawn at the screen's own density up to 3x; the soft glow is drawn at 1x, which looks the same at a fraction of the cost.
 
 #### Props
 

@@ -19,7 +19,7 @@ vi.mock('../VoiceVisualization/renderers/glowWebGLRenderer', () => ({
 
 type Recorded = { args: unknown[]; name: string };
 
-/** A 2D context that records every call and accepts any property. */
+/** A 2D context that records every call and every property it is given. */
 const createFakeContext = (calls: Recorded[]) =>
   new Proxy({} as Record<string | symbol, unknown>, {
     get(target, name) {
@@ -36,6 +36,11 @@ const createFakeContext = (calls: Recorded[]) =>
       };
       target[name] = fn;
       return fn;
+    },
+    set(target, name, value) {
+      calls.push({ args: [value], name: `set ${String(name)}` });
+      target[name] = value;
+      return true;
     },
   });
 
@@ -280,8 +285,8 @@ describe('VoiceWave and VoiceGlow', () => {
     expect(frames).toHaveLength(0);
   });
 
-  it('draws the soft glow at 1x and the sharp wave at up to 2x', () => {
-    vi.spyOn(window, 'devicePixelRatio', 'get').mockReturnValue(3);
+  it('draws the soft glow at 1x and the sharp wave at up to 3x', () => {
+    vi.spyOn(window, 'devicePixelRatio', 'get').mockReturnValue(4);
     render(
       <>
         <VoiceGlow state='idle' />
@@ -293,7 +298,23 @@ describe('VoiceWave and VoiceGlow', () => {
       .map((root) => root.querySelector('canvas') as HTMLCanvasElement);
 
     expect([glow.width, glow.height]).toEqual([200, 200]);
-    expect([wave.width, wave.height]).toEqual([400, 400]);
+    expect([wave.width, wave.height]).toEqual([600, 600]);
+  });
+
+  it.each([
+    // 0.6% of the shorter side: 600 device pixels at 3x.
+    [3, 3.6],
+    // Never under 1.5 device pixels: 0.6% of 200 is 1.2.
+    [1, 1.5],
+  ])('strokes the wave as thick as on Android and iOS at %sx', (ratio, lineWidth) => {
+    vi.spyOn(window, 'devicePixelRatio', 'get').mockReturnValue(ratio);
+    render(<VoiceWave state='idle' />);
+    step();
+
+    const widths = calls
+      .filter((call) => call.name === 'set lineWidth')
+      .map((call) => call.args[0]);
+    expect(widths.at(-1)).toBeCloseTo(lineWidth, 5);
   });
 
   it('fades the canvas in once its first frame is drawn', () => {
