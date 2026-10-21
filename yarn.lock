@@ -2172,6 +2172,16 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@stream-io/react-perf-runner@workspace:perf/runner":
+  version: 0.0.0-use.local
+  resolution: "@stream-io/react-perf-runner@workspace:perf/runner"
+  dependencies:
+    "@types/node": "npm:^24.13.3"
+    playwright: "npm:1.60.0"
+    typescript: "npm:^6.0.3"
+  languageName: unknown
+  linkType: soft
+
 "@stream-io/state-store@npm:^1.1.6":
   version: 1.1.6
   resolution: "@stream-io/state-store@npm:1.1.6"

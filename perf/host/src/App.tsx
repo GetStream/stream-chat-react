@@ -12,6 +12,7 @@ import {
   ThreadHeader,
   useCreateChatClient,
   VirtualizedMessageList,
+  WithComponents,
 } from 'stream-chat-react';
 import {
   ChatView,
@@ -20,6 +21,11 @@ import {
 } from 'stream-chat-react/slot-layout';
 
 import type { PerfHostConfig } from './config';
+import { tapClientEvents } from './events';
+import { GroundTruthMessageUI } from './groundTruth';
+import { enableGroundTruth } from './renders';
+import { trackChannelListReady } from './marks';
+import { flushLongTasks, observeClient } from './observers';
 
 // A deliberately boring chat page: SDK defaults only, one channel list, no customisation. Whatever
 // it measures should be the SDK, not this app (WEB-PLAN.md §5.2).
@@ -32,6 +38,9 @@ const SDK_VIRTUOSO_DEFAULTS = {
   increaseViewportBy: { bottom: 200, top: 0 },
   overscan: 0,
 };
+
+// Stable identity: a new overrides object every render would re-render every consumer.
+const groundTruthOverrides = { MessageUI: GroundTruthMessageUI };
 
 const chatViewLayouts = [{ id: 'channels' as const, slots: ['left', 'right'] }];
 
@@ -114,6 +123,10 @@ export const App = ({ config }: { config: PerfHostConfig }) => {
       sort,
     });
     client.channelManager.insertPaginator({ paginator });
+    const cancelReadyTracker = trackChannelListReady(paginator, flushLongTasks);
+    const stopObservingClient = observeClient(client);
+    tapClientEvents(client);
+    if (config.groundTruth) enableGroundTruth();
 
     window.__perfHost = {
       build: __PERF_BUILD__,
@@ -136,20 +149,30 @@ export const App = ({ config }: { config: PerfHostConfig }) => {
     setReady(true);
 
     return () => {
+      cancelReadyTracker();
+      stopObservingClient();
       client.channelManager.removePaginator(paginator);
       setReady(false);
     };
   }, [client, config]);
 
+  const chatView = (
+    <ChatView
+      layouts={chatViewLayouts}
+      slotRenderers={slotRenderers}
+      views={{ channels: <Workspace /> }}
+    />
+  );
+
   if (!client || !ready) return <div className='perf-host__loading'>Connecting…</div>;
 
   return (
     <Chat client={client}>
-      <ChatView
-        layouts={chatViewLayouts}
-        slotRenderers={slotRenderers}
-        views={{ channels: <Workspace /> }}
-      />
+      {config.groundTruth ? (
+        <WithComponents overrides={groundTruthOverrides}>{chatView}</WithComponents>
+      ) : (
+        chatView
+      )}
     </Chat>
   );
 };

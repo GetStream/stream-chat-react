@@ -19,6 +19,8 @@ export type PerfHostConfig = {
   /** True when `cap` is the protocol's value for `type`; false for an exploration override. */
   capIsCanonical: boolean;
   pageSize: number;
+  /** Validation only: count message UI slot renders directly (adds a component to every row). */
+  groundTruth: boolean;
 };
 
 /** The livestream message cap the protocol pins (WEB-SCENARIOS.md §1.2b); messaging is uncapped. */
@@ -26,6 +28,7 @@ export const LIVESTREAM_CAP = 230;
 export const DEFAULT_PAGE_SIZE = 30;
 
 const KNOWN_PARAMS = new Set([
+  'ground_truth',
   'api_key',
   'token',
   'user_id',
@@ -97,6 +100,7 @@ export const parseConfig = (search: string): PerfHostConfig => {
     type,
     cap,
     capIsCanonical: cap === canonicalCap,
+    groundTruth: params.get('ground_truth') === '1',
     pageSize:
       pageSizeParam === null
         ? DEFAULT_PAGE_SIZE

@@ -9,3 +9,7 @@ examples/*/next-env.d.ts
 .agents/
 .claude/skills/
 skills-lock.json
+
+# perf harness data: recorded event fixtures and run results (generated, not hand-edited)
+perf/runner/fixtures/
+perf/runner/results/

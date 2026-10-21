@@ -1,8 +1,15 @@
+// First imports on purpose. The render counter installs React's DevTools hook, which React only
+// picks up if it exists before react-dom loads; the performance observers must be registered before
+// React or the SDK load, so nothing that happens early goes unrecorded.
+import './renders';
+import './observers';
+
 import { Fragment, StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 
 import { App } from './App';
 import { ConfigError, parseConfig } from './config';
+import { installDriver } from './driver';
 
 import 'stream-chat-react/dist/css/index.css';
 import './layout.css';
@@ -15,6 +22,8 @@ const Mode = import.meta.env.DEV ? StrictMode : Fragment;
 
 try {
   const config = parseConfig(window.location.search);
+  // Installed before React renders, so the runner can await __perf.ready() from the first moment.
+  installDriver(config);
   root.render(
     <Mode>
       <App config={config} />
