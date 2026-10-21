@@ -133,6 +133,33 @@ export const rnScenarios = ({
       );
     };
 
+  /**
+   * Like {@link reads}, but the list may also have loaded older messages by itself (a reader near
+   * the top of a short window): you see the server's messages from `first` or earlier up to `last`,
+   * with nothing missing in between.
+   */
+  const readsAtLeast =
+    (first: number, last: number): ScenarioCheck =>
+    ({ backend, now }) => {
+      const shown = (now.read?.messageIds ?? []).filter(
+        (id) => sequenceOf(id) !== undefined,
+      );
+      const serverIds = backend.timeline
+        .map((message) => message.id)
+        .filter((id) => sequenceOf(id) !== undefined);
+      const start = serverIds.indexOf(shown[0]);
+      const isUnbrokenServerRun =
+        start >= 0 && shown.every((id, index) => serverIds[start + index] === id);
+      const startsAtOrBefore = (sequenceOf(shown[0]) ?? Infinity) <= first;
+      const endsAt = sequenceOf(shown[shown.length - 1]) === last;
+      const range = `${sim(first)}–${sim(last)}`;
+      return verdict(
+        isUnbrokenServerRun && startsAtOrBefore && endsAt,
+        `You see ${rangeOf(shown)}, which holds the server's ${range} with nothing missing`,
+        `You see ${rangeOf(shown)} (${shown.length} messages); expected the server's ${range}, or more older messages, with nothing missing`,
+      );
+    };
+
   const holdsMessages =
     (count: number): ScenarioCheck =>
     ({ channel, now }) => {
@@ -525,7 +552,8 @@ export const rnScenarios = ({
         goOffline,
         missedWhileOffline(30),
         openInApp([reads(36, 60)]),
-        reconnect('reload', [reads(66, 90), readsHead]),
+        // The list sits near the top of the short newest page and may load an older page itself.
+        reconnect('reload', [readsAtLeast(66, 90), readsHead]),
       ],
       title: 'Leave, 30 missed in the background, open again, reconnect (RN S15)',
     }),

@@ -327,12 +327,19 @@ export class FakeChannelBackend {
 
   // ---- server-side timeline ---------------------------------------------------------------------
 
-  /** Replaces the timeline with `count` messages, one minute apart, the newest a minute ago. */
-  seed(count: number) {
+  /**
+   * Replaces the timeline with `count` messages, one minute apart, the newest a minute ago. The
+   * newest `yours` of them are from you, the connected user.
+   */
+  seed(count: number, { yours = 0 }: { yours?: number } = {}) {
     const start = Date.now() - (count + 1) * SEED_SPACING_MS;
     this.nextSequence = 1;
+    const you = this.channel.getClient().user as UserResponse | undefined;
     const timeline = Array.from({ length: count }, (_, index) =>
-      this.fabricate(start + index * SEED_SPACING_MS),
+      this.fabricate(
+        start + index * SEED_SPACING_MS,
+        index >= count - yours ? you : undefined,
+      ),
     );
     this.state.partialNext({ timeline });
     // you have read everything seeded; what arrives later is unread
@@ -392,13 +399,15 @@ export class FakeChannelBackend {
     await this.reopen();
   }
 
-  private fabricate(createdAtMs: number) {
+  /** A simulated message; from the simulated user unless `user` is given. */
+  private fabricate(createdAtMs: number, user?: UserResponse) {
     const sequence = this.nextSequence++;
     return fabricateMessage({
       cid: this.channel.cid,
       createdAtMs,
       id: simulatedMessageId(sequence),
       text: `Simulated message #${sequence}`,
+      user,
     });
   }
 

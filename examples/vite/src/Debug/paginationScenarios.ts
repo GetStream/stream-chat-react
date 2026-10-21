@@ -784,6 +784,39 @@ export const scenarios: Scenario[] = [
     title: 'Your message queued offline is sent before the reconnect reload',
   },
   ...rnScenarios(sharedParts),
+  {
+    bugPrevented:
+      'Your loaded history dropped and the list jumping to the newest messages, though nothing was missed: the reload shares only your own messages with what is loaded.',
+    checks: [stillReading, readsHead, noGapGluedShut, noDuplicates],
+    group: 'reconnect',
+    id: 'own-messages-only-overlap-after-reconnect',
+    lookFor:
+      'After the reload the list holds sim-036–sim-080 in one window: sim-036–sim-055 stay loaded and the 20 new messages follow your sim-051–sim-060.',
+    pageSize: 25,
+    precondition: 'open',
+    rule: "A reload whose oldest message was already loaded joins the loaded window, whoever wrote it: older history stays and you aren't moved.",
+    situation:
+      'A 60-message channel opens at its newest 25 (sim-036–sim-060); you wrote the last 10. You go offline, others send 20, and you reconnect: the reload of 25 holds your sim-056–sim-060 and the 20 new ones.',
+    steps: [
+      {
+        label: 'Seed 60 messages, the newest 10 from you, and load the channel',
+        run: async ({ backend }) => {
+          backend.setHoldAnswers(false);
+          backend.setOnline(true);
+          backend.seed(60, { yours: 10 });
+          await backend.reopen();
+        },
+      },
+      goOffline,
+      {
+        label:
+          '20 messages from others arrive while you are offline (no events reach you)',
+        run: ({ backend }) => backend.addMessages(20),
+      },
+      reconnect('reload', [stillReading, noGapGluedShut, noDuplicates]),
+    ],
+    title: 'Reconnect when the reload shares only your own messages',
+  },
 ];
 
 /** e.g. "2. Reconnect across a gap while reading the head" */
