@@ -15,7 +15,6 @@ import { mockT } from '../../../mock-builders/translator';
 
 const { announceInteraction } = vi.hoisted(() => ({ announceInteraction: vi.fn() }));
 
-// Mock the hooks
 vi.mock('../SearchContext');
 vi.mock('../../../context');
 vi.mock('../../../store');
@@ -60,8 +59,8 @@ describe('SearchBar', () => {
       isActive: false,
       searchQuery: '',
     });
-    // The module is auto-mocked, so the icon hook would return undefined; hand back the real
-    // icons rather than stubs, so these tests keep asserting against what users actually see.
+    // The module is auto-mocked, so the icon hook would return undefined; the real icons keep the
+    // tests asserting what users see.
     vi.mocked(useComponentContextIcons).mockReturnValue(DEFAULT_ICONS);
   });
 
@@ -118,7 +117,7 @@ describe('SearchBar', () => {
           autoComplete: 'off',
           className: 'custom-input',
           'data-1p-ignore': true,
-          // A controlled prop the SDK owns — must NOT win over the component's own value.
+          // Owned by the component, so it must not be overridden.
           type: 'password',
         },
       }),
@@ -127,13 +126,13 @@ describe('SearchBar', () => {
     render(<SearchBar />);
 
     const input = screen.getByTestId('search-input');
-    // Integrator-supplied, non-conflicting props land on the element.
+    // Props that do not conflict reach the element.
     expect(input).toHaveAttribute('data-1p-ignore', 'true');
     expect(input).toHaveAttribute('autocomplete', 'off');
     // className is merged, not replaced.
     expect(input).toHaveClass('str-chat__search-bar__input');
     expect(input).toHaveClass('custom-input');
-    // The SDK's controlled prop wins.
+    // The component's own prop wins.
     expect(input).toHaveAttribute('type', 'text');
   });
 
@@ -289,7 +288,7 @@ describe('SearchBar', () => {
         exitSearchOnInputBlur: true,
       }),
     );
-    // a query is present — the old `!currentTarget.value` guard would have suppressed the exit here
+    // the exit happens even though a query is present
     vi.mocked(useStateStore).mockReturnValue({ isActive: true, searchQuery: 'test' });
 
     render(<SearchBar />);
@@ -357,11 +356,11 @@ describe('SearchBar', () => {
     vi.mocked(useStateStore).mockReturnValue({ isActive: true, searchQuery: '' });
 
     render(<SearchBar />);
-    // the container encloses the bar's controls (Cancel/clear), mirroring the real DOM
+    // the container encloses the bar's controls (Cancel/clear), as in the real DOM
     containerRef.current = screen.getByTestId('search-bar');
 
-    // focus moving TO the Cancel button (inside the widget) must not collapse search — it exits
-    // only on the button's own activation (WCAG 3.2.1)
+    // focus moving to the Cancel button, inside the widget, must not collapse search; Cancel exits
+    // through its own activation (WCAG 3.2.1)
     fireEvent.blur(screen.getByTestId('search-input'), {
       relatedTarget: screen.getByTestId('search-bar-button'),
     });
@@ -385,7 +384,6 @@ describe('SearchBar', () => {
   it('disables clear button during queries in progress', () => {
     const { rerender } = render(<SearchBar />);
 
-    // Mock queries in progress
     vi.mocked(useSearchQueriesInProgress).mockReturnValue(['users']);
 
     vi.mocked(useStateStore).mockReturnValue({

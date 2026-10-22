@@ -2,19 +2,16 @@ import ReactPlayerImport from 'react-player';
 
 import type { VideoPlayerProps } from './VideoPlayer';
 
-// react-player ships as CJS with the component on `exports.default`. Some
-// bundler/interop setups (e.g. Vite serving our built ESM as a linked workspace
-// dependency) hand back the module namespace `{ default }` instead of the
-// component itself, which makes React throw "Element type is invalid ... got:
-// object". Unwrap the default defensively so it works regardless of interop.
+// react-player is CJS with the component on `exports.default`. Some interop setups (e.g. Vite
+// serving the built ESM as a linked workspace dependency) hand back the namespace `{ default }`,
+// which makes React throw "Element type is invalid". Unwrap `default` when present.
 const ReactPlayer =
   (ReactPlayerImport as unknown as { default?: typeof ReactPlayerImport }).default ??
   ReactPlayerImport;
 
 /**
- * Default-exported so `VideoPlayer` can code-split it via `React.lazy`, keeping
- * `react-player` (~2 MB) out of the SDK's eager import graph — it is fetched
- * only when a default video player actually renders.
+ * Default export so `VideoPlayer` can load it with `React.lazy`, keeping `react-player` (~2 MB)
+ * out of the SDK's eager import graph until a default video player renders.
  */
 const ReactPlayerWrapper = ({
   controls = true,

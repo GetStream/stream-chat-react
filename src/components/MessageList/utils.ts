@@ -19,17 +19,12 @@ type IntroMessage = {
 
 type DateSeparatorMessage = {
   customType: typeof CUSTOM_MESSAGE_TYPE.date;
-  /**
-   * A `Date`, not the wire number: this is a view-model the separator renders from, and keeping it
-   * a `Date` is what lets `DateSeparator`, the render key and `isDateSeparatorMessage` stay as they
-   * are. Converted once, where core data enters the list.
-   */
+  /** A `Date`, not the numeric timestamp: `isDateSeparatorMessage` requires one. */
   date: Date;
   id: string;
   /**
-   * Only the unread separator sets this; the plain day divider leaves it absent. There is
-   * deliberately no `type`: a separator is a view-model, not a message, and `IntroMessage` declares
-   * none either — every consumer narrows the union with `isDateSeparatorMessage` first.
+   * Set only on the unread separator. Separators carry no `type`, so consumers narrow the union
+   * with `isDateSeparatorMessage` first.
    */
   unread?: boolean;
 };
@@ -37,51 +32,50 @@ type DateSeparatorMessage = {
 export type RenderedMessage = LocalMessage | DateSeparatorMessage | IntroMessage;
 
 type ProcessMessagesContext = {
-  /** the connected user ID */
+  /** ID of the connected user. */
   userId: string;
-  /** Enable deleted messages to be filtered out of resulting message list */
+  /** Filters deleted messages out of the result. */
   hideDeletedMessages?: boolean;
-  /** Disable date separator display for unread incoming messages */
+  /** Disables the date separator shown for unread incoming messages. */
   hideNewMessageSeparator?: boolean;
-  /** Sets the threshold after everything is considered unread. Unix nanoseconds, as `channel.lastRead()` returns. */
+  /**
+   * Messages created after this timestamp count as unread. Unix nanoseconds, as
+   * `channel.lastRead()` returns.
+   */
   lastRead?: TimestampNS | null;
-  /** Inject date separators between messages posted on different days */
+  /** Inserts date separators between messages posted on different days. */
   withDateSeparator?: boolean;
 };
 
 export type ProcessMessagesParams = ProcessMessagesContext & {
   messages: LocalMessage[];
   reviewProcessedMessage?: (params: {
-    /** array of messages representing the changes applied around a given processed message */
+    /** Items built for the processed message: its separator, if any, then the message itself. */
     changes: RenderedMessage[];
-    /** configuration params and information forwarded from `processMessages` */
+    /** Config params forwarded from `processMessages`. */
     context: ProcessMessagesContext;
-    /** index of the processed message in the original messages array */
+    /** Index of the processed message in `messages`. */
     index: number;
-    /** array of messages retrieved from the back-end */
+    /** The input messages. */
     messages: LocalMessage[];
-    /** newly built array of messages to be later rendered */
+    /** Items built so far, before this message's `changes`. */
     processedMessages: RenderedMessage[];
   }) => LocalMessage[];
-  /** Signals whether to separate giphy preview as well as used to set the giphy preview state */
+  /**
+   * Receives the ephemeral giphy preview message, which is left out of the result, or `undefined`
+   * when there is none.
+   */
   setGiphyPreviewMessage?: React.Dispatch<React.SetStateAction<LocalMessage | undefined>>;
 };
 
 /**
- * processMessages - Transform the input message list according to config parameters
+ * Prepares messages for rendering: inserts date separators between messages posted on different
+ * days and before the first unread message, and optionally drops deleted ones. The ephemeral giphy
+ * preview is left out and handed to `setGiphyPreviewMessage`. `MessageList` enables date
+ * separators by default, `VirtualizedMessageList` does not.
  *
- * Inserts date separators btw. messages created on different dates or before unread incoming messages. By default:
- * - enabled in main message list
- * - disabled in virtualized message list
- * - disabled in thread
- *
- * Allows to filter out deleted messages, contolled by hideDeletedMessages param. This is disabled by default.
- *
- * Sets Giphy preview message for VirtualizedMessageList
- *
- * The only required params are messages and userId, the rest are config params:
- *
- * @return {LocalMessage[]} Transformed list of messages
+ * @param params - Only `messages` and `userId` are required.
+ * @returns The messages to render, with separators inserted.
  */
 export const processMessages = (params: ProcessMessagesParams) => {
   const { messages, reviewProcessedMessage, setGiphyPreviewMessage, ...context } = params;
@@ -134,7 +128,7 @@ export const processMessages = (params: ProcessMessagesParams) => {
           lastRead < message.created_at) ||
         false;
 
-      // do not show date separator for current user's messages
+      // No unread date separator for the current user's messages.
       if (
         withDateSeparator &&
         unread &&
@@ -153,13 +147,13 @@ export const processMessages = (params: ProcessMessagesParams) => {
 
     if (
       withDateSeparator &&
-      (i === 0 || // always put date separator before the first message
-        messageDate !== prevMessageDate || // add date separator btw. 2 messages created on different date
-        // if hiding deleted messages replace the previous deleted message(s) with A separator if the last rendered message was created on different date
+      (i === 0 || // the first message always gets a separator
+        messageDate !== prevMessageDate || // the date changed
+        // Hidden deleted messages: add a separator if the last separator is for another date.
         (hideDeletedMessages &&
           previousMessage?.type === 'deleted' &&
           lastDateSeparator !== messageDate)) &&
-      !isDateSeparatorMessage(changes[changes.length - 1]) // do not show two date separators in a row)
+      !isDateSeparatorMessage(changes[changes.length - 1]) // never two separators in a row
     ) {
       lastDateSeparator = messageDate;
 
@@ -184,7 +178,7 @@ export const processMessages = (params: ProcessMessagesParams) => {
     );
   }
 
-  // clean up the giphy preview component state after a Cancel action
+  // Clears the giphy preview state once no ephemeral giphy message remains (e.g. after Cancel).
   if (setGiphyPreviewMessage && !ephemeralMessagePresent) {
     setGiphyPreviewMessage(undefined);
   }
@@ -207,9 +201,15 @@ export const makeDateMessageId = (date?: string | Date) => {
   return `${CUSTOM_MESSAGE_TYPE.date}-${idSuffix}`;
 };
 
-// fast since it usually iterates just the last few messages
+/**
+ * Returns the ID of the latest message with status `received`, or `null`. It scans from the end, so
+ * it usually iterates only the last few messages.
+ *
+ * @param messages - Rendered messages, oldest first.
+ * @returns The message ID, or `null` when none is found.
+ */
 export const getLastReceived = (messages: RenderedMessage[]) => {
-  for (let i = messages.length - 1; i > 0; i -= 1) {
+  for (let i = messages.length - 1; i >= 0; i -= 1) {
     if ((messages[i] as LocalMessage).status === 'received') {
       return messages[i].id;
     }
@@ -225,27 +225,26 @@ export const insertIntro = (
   const newMessages = messages;
   const intro = makeIntroMessage();
 
-  // if no headerPosition is set, HeaderComponent will go at the top
+  // Without a header position the intro goes at the top.
   if (headerPosition == null) {
     newMessages.unshift(intro);
     return newMessages;
   }
 
-  // if no messages, intro gets inserted
+  // An empty list holds only the intro.
   if (!newMessages.length) {
     newMessages.unshift(intro);
     return newMessages;
   }
 
-  // else loop over the messages
   for (let i = 0; i < messages.length; i += 1) {
     const messageTime = (messages[i] as LocalMessage).created_at;
 
     const nextMessageTime = (messages[i + 1] as LocalMessage)?.created_at ?? null;
 
-    // header position is smaller than message time so comes after;
+    // The message is older than the header position, so the intro comes after it.
     if (messageTime < headerPosition) {
-      // if header position is also smaller than message time continue;
+      // Keep looking while the next message is also older.
       if (nextMessageTime != null && nextMessageTime < headerPosition) {
         if (messages[i + 1] && isDateSeparatorMessage(messages[i + 1])) continue;
       } else {
@@ -255,16 +254,15 @@ export const insertIntro = (
     }
   }
 
-  // No message is older than the position, so it precedes the whole list and the intro goes first.
-  // Falling through without inserting dropped the intro entirely (what `headerPosition={0}` did).
+  // No message is older than the header position, so the intro precedes the whole list.
   newMessages.unshift(intro);
   return newMessages;
 };
 
 export type GroupStyle = '' | 'middle' | 'top' | 'bottom' | 'single';
 
-// Allocation-free, early-exiting emptiness check. Avoids the throwaway array
-// that `Object.keys(obj).length > 0` allocates per message inside getGroupStyles.
+// Allocation-free emptiness check; avoids the array `Object.keys(...)` allocates per message in
+// `getGroupStyles`.
 const isNonEmptyRecord = (record: Record<string, unknown>) => {
   for (const key in record) {
     if (Object.prototype.hasOwnProperty.call(record, key)) return true;
@@ -294,8 +292,7 @@ export const getGroupStyles = (
     (message.reaction_groups && isNonEmptyRecord(message.reaction_groups)) ||
     isMessageEdited(previousMessage) ||
     (maxTimeBetweenGroupedMessages !== undefined &&
-      // Nullish, not truthy: `0` is a legitimate wire timestamp (the epoch), and skipping the
-      // cutoff for it would keep messages grouped past `maxTimeBetweenGroupedMessages`.
+      // Nullish, not truthy: `0` is a valid timestamp (the epoch) and must not skip the cutoff.
       previousMessage.created_at != null &&
       message.created_at != null &&
       nsToMs(message.created_at - previousMessage.created_at) >
@@ -332,11 +329,17 @@ export const getGroupStyles = (
   return '';
 };
 
-// "Probably" included, because it may happen that the last page was returned and it has exactly the size of the limit
-// but the back-end cannot provide us with information on whether it has still more messages in the DB
 // FIXME: once the pagination state is moved from Channel to MessageList, these should be moved as well.
 //  The MessageList should have configurable the limit for performing the requests.
 //  This parameter would then be used within these functions
+/**
+ * Whether more messages probably follow a page of `returnedCountMessages`. Only a guess: a last
+ * page of exactly `limit` messages looks the same, and the back-end does not say if more exist.
+ *
+ * @param returnedCountMessages - Number of messages the request returned.
+ * @param limit - Requested page size.
+ * @returns Whether `returnedCountMessages` reaches `limit`.
+ */
 export const hasMoreMessagesProbably = (returnedCountMessages: number, limit: number) =>
   returnedCountMessages >= limit;
 
@@ -381,10 +384,9 @@ export const getIsFirstUnreadMessage = ({
   message: LocalMessage;
   previousMessage?: RenderedMessage;
 }) => {
-  // prevent showing unread indicator in threads
+  // No unread indicator in threads.
   if (message.parent_id || !channel) return false;
-  // unread separator is snapshot-driven; if snapshot says there are no unread messages,
-  // the separator should not be rendered.
+  // Snapshot-driven: no unread messages in the snapshot means no separator.
   if (!unreadCount) return false;
 
   const createdAtTimestamp = message.created_at;

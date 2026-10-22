@@ -2,19 +2,13 @@ import type { PropsWithChildren } from 'react';
 import React from 'react';
 import { sanitizeUrl } from '@braintree/sanitize-url';
 
-/**
- * Similar to a regular anchor tag, but it sanitizes the href value and prevents XSS
- */
 export type SafeAnchorProps = {
-  /** Set the className for the anchor tag element */
   className?: string;
-  /** Specifies that the target (href attribute) will be downloaded instead of navigating to a file */
+  /** Downloads the file at `href` instead of navigating to it. */
   download?: boolean;
-  /** Set the href attribute for the anchor tag element */
+  /** Sanitized before it is rendered. The component renders nothing when it is empty. */
   href?: string;
-  /** Set the rel attribute for the anchor tag element */
   rel?: string;
-  /** Set the target attribute for the anchor tag element */
   target?: string;
 };
 
@@ -35,4 +29,5 @@ const UnMemoizedSafeAnchor = (props: PropsWithChildren<SafeAnchorProps>) => {
   );
 };
 
+/** Anchor that sanitizes `href` to prevent XSS. */
 export const SafeAnchor = React.memo(UnMemoizedSafeAnchor) as typeof UnMemoizedSafeAnchor;

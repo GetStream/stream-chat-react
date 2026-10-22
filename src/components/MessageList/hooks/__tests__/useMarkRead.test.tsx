@@ -14,14 +14,8 @@ import {
 import { act } from 'react';
 import { convertDateToTimestamp } from '../../../../mock-builders';
 
-// MERGE-RECONCILE (test migration): useMarkRead was rewritten (PR #2909). It no longer receives
-// `markRead`/`setChannelUnreadUiState` from the removed ChannelActionContext, and the manual
-// `setChannelUnreadUiState` unread-UI-state mechanism was removed entirely (unread state is now
-// driven by `channel.messagePaginator.unreadStateSnapshot`). Marking read now goes through
-// `client.messageDeliveryReporter.throttledMarkRead(channel | thread)`, so assertions spy on that.
-// The `wasMarkedUnread` param was removed; "was marked unread" is now expressed by seeding
-// `channel.messagePaginator.setUnreadSnapshot({ firstUnreadMessageId })`. Tests that only exercised
-// the removed `setChannelUnreadUiState` unread-count / last_read bookkeeping were dropped as obsolete.
+// Marking read goes through `client.messageDeliveryReporter.throttledMarkRead`, so assertions spy
+// on that. "Was marked unread" is seeded with `channel.messagePaginator.setUnreadSnapshot`.
 
 const visibilityChangeScenario = 'visibilitychange event';
 
@@ -292,9 +286,8 @@ describe('useMarkRead', () => {
       expect(markRead).not.toHaveBeenCalled();
     });
 
-    // A thresholded at-bottom flag reads true while the last message is still partly below the
-    // fold. isViewingLive is what gates both marking read and the LLC's own-unread bump, so that
-    // is the contract to assert: it must not go live while the last message is clipped.
+    // A thresholded at-bottom flag can read true while the last message is partly clipped.
+    // `isViewingLive` gates marking read and the LLC's own-unread bump, so it must stay false then.
     it('does not report viewing live while the last message is not fully shown', async () => {
       const channelData = unreadLastMessageChannelData();
       const {
@@ -339,8 +332,8 @@ describe('useMarkRead', () => {
       expect(channel.messagePaginator.isViewingLive).toBe(true);
     });
 
-    // Scrolling the last few pixels moves isAtTrueBottom without moving the thresholded
-    // at-bottom flag, so the catch-up has to re-run the mark-read check on that change alone.
+    // Scrolling the last few pixels flips `isAtTrueBottom` but not the thresholded at-bottom flag,
+    // so the catch-up must re-run the mark-read check on that change alone.
     it('marks read when the last message finally becomes fully shown', async () => {
       const channelData = unreadLastMessageChannelData();
       const {
@@ -643,8 +636,8 @@ describe('useMarkRead', () => {
     });
   });
 
-  // Such a channel has no server-side read state; a client that opted into counting unread itself
-  // still needs the catch-up, which the LLC then resets locally instead of requesting.
+  // Such a channel has no server-side read state; one that counts unread locally still needs the
+  // catch-up, which the LLC resets locally instead of requesting.
   describe('channel with read events disabled', () => {
     const renderWithLocalUnreadCount = async (localUnreadCountEnabled: boolean) => {
       const channelData = {

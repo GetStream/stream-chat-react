@@ -26,14 +26,14 @@ import { useNotificationApi } from '../Notifications';
 import { ChannelListItemActionButtons } from './ChannelListItemActionButtons';
 
 type ChannelActionBehavior = {
-  /** Toggle state for actions that have one (mute/archive/pin); omit for one-shot actions (leave). */
+  /** Toggle state of the action; omitted for one-shot actions such as leave. */
   'aria-pressed'?: boolean;
   title: string;
   toggle: () => Promise<void>;
 };
 
-// Core mute/unmute action — performs the API call and reports the result. No UI state: the placement
-// wrappers below own the busy/disabled affordance and the menu-close behavior.
+// The core actions call the API and report the result. The placement wrappers below own the busy
+// and menu-close behavior.
 const useMuteAction = (): ChannelActionBehavior => {
   const { addNotification } = useNotificationApi();
   const { channel } = useChannelListItemContext();
@@ -83,7 +83,6 @@ const useMuteAction = (): ChannelActionBehavior => {
   };
 };
 
-// Core archive/unarchive action — performs the API call and reports the result.
 const useArchiveAction = (): ChannelActionBehavior => {
   const { channel } = useChannelListItemContext();
   const { addNotification } = useNotificationApi();
@@ -136,18 +135,15 @@ const useArchiveAction = (): ChannelActionBehavior => {
   };
 };
 
-// Quick (hover/focus-revealed) action button. Marks itself busy with `aria-disabled`/`aria-busy` —
-// NOT the native `disabled` attribute, which would blur the button and collapse its hover-revealed
-// row, leaving it un-focusable. Keeps focus and guards against re-activation while in flight.
+// Quick (hover/focus-revealed) action button. Busy state uses `aria-disabled` and `aria-busy`, not
+// `disabled`, which would blur the button and collapse its hover-revealed row.
 const useQuickActionButtonProps = ({
   'aria-pressed': ariaPressed,
   title,
   toggle,
 }: ChannelActionBehavior) => {
-  // Ref latch flips synchronously in the handler so two clicks in the same tick (before the
-  // `setInProgress(true)` rerender commits) can't both call `toggle()` — the `aria-busy`/
-  // `aria-disabled` state only guards after the rerender, which is too late for non-idempotent
-  // actions (archive/leave/mute).
+  // A ref latch flips synchronously, so two clicks in the same tick cannot both call `toggle()`;
+  // the `aria-*` state only guards after the rerender, too late for non-idempotent actions.
   const inProgressRef = useRef(false);
   const [inProgress, setInProgress] = useState(false);
 
@@ -157,7 +153,7 @@ const useQuickActionButtonProps = ({
     'aria-pressed': ariaPressed,
     onClick: async (e: React.MouseEvent<HTMLButtonElement>) => {
       e.stopPropagation();
-      if (inProgressRef.current) return; // busy: ignore re-activation while in flight
+      if (inProgressRef.current) return;
       inProgressRef.current = true;
       try {
         setInProgress(true);
@@ -171,16 +167,12 @@ const useQuickActionButtonProps = ({
   } satisfies ComponentPropsWithoutRef<'button'>;
 };
 
-// Dropdown menu item. Standard menu behavior: activating closes the menu (which returns focus to the
-// toggle) and runs the action in the background, reporting via its notification — so the item needs
-// no busy/disabled state, it unmounts with the menu.
+// Dropdown menu item: activating closes the menu, which returns focus to the toggle, and runs the
+// action in the background, so the item needs no busy state.
 //
-// The action is deferred to after the close commits, on the next animation frame. The open menu is an
-// aria-modal dialog with its OWN `AriaLiveOutlet` (the inert root outlet is ignored by assistive tech
-// while it is open); running the action synchronously can route its notification into that outlet
-// just as it is torn down — so the notification is never spoken. Deferring lets the menu (and its
-// outlet) unmount and focus return to the toggle first, so the notification lands in the root outlet,
-// in a calm window after the focus re-read.
+// The action runs on the next animation frame, after the close commits. The open menu is an
+// aria-modal dialog with its own `AriaLiveOutlet` (the root outlet is inert meanwhile), so a
+// notification raised synchronously can land in that outlet as it unmounts and never be spoken.
 const useDropdownActionButtonProps = ({
   'aria-pressed': ariaPressed,
   title,
@@ -199,7 +191,7 @@ const useDropdownActionButtonProps = ({
   } satisfies ComponentPropsWithoutRef<'button'>;
 };
 
-// Core block/unblock action for the other member of a DM.
+// Blocks or unblocks the other member of a DM.
 const useBanAction = (): ChannelActionBehavior => {
   const { client } = useChatContext();
   const { addNotification } = useNotificationApi();
@@ -257,7 +249,7 @@ const useBanAction = (): ChannelActionBehavior => {
   };
 };
 
-// Core leave-channel action (one-shot — not a toggle).
+// One-shot, so it returns no `aria-pressed`.
 const useLeaveAction = (): ChannelActionBehavior => {
   const { t } = useTranslationContext();
   const { channel } = useChannelListItemContext();
@@ -290,7 +282,6 @@ const useLeaveAction = (): ChannelActionBehavior => {
   return { title: t('channelListItem.leaveChannel.title', 'Leave Channel'), toggle };
 };
 
-// Core pin/unpin action.
 const usePinAction = (): ChannelActionBehavior => {
   const { t } = useTranslationContext();
   const { addNotification } = useNotificationApi();

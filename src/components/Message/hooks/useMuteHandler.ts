@@ -28,10 +28,7 @@ export const useMuteHandler = (
 
     const { getErrorNotification, getSuccessNotification, notify } = notifications;
 
-    // Perform the mute/unmute unconditionally — mirror useMarkUnreadHandler/useDeleteHandler, which
-    // do the action first and treat `notify` as an optional UI bridge. Gating the action on `notify`
-    // (as this hook previously did) turned mute into a no-op, because Message.tsx wires the handler
-    // as `useMuteHandler(message)` with no notifications, per the canonical `(message)`-only style.
+    // The action runs even without `notify` (`Message` passes none); it only reports the outcome.
     if (!message?.user || !client) {
       console.warn(missingUseMuteHandlerParamsWarning);
       return;

@@ -33,9 +33,9 @@ const threadWithParentMessage = () =>
     ),
   });
 
-// Records the props VML hands to Virtuoso and routes the imperative handle through a spy, so the
-// scroll target is assertable. The overrides keep the real Virtuoso renderable under jsdom, which
-// reports every element as 0px.
+// Records the props `VirtualizedMessageList` hands to Virtuoso and routes the imperative handle
+// through a spy, so the scroll target is assertable. The overrides keep the real Virtuoso
+// renderable under jsdom, which reports every element as 0px.
 const { scrollToIndexSpy, virtuosoProps } = vi.hoisted(() => ({
   scrollToIndexSpy: vi.fn(),
   virtuosoProps: [] as Record<string, any>[],
@@ -123,7 +123,7 @@ async function createChannel(empty = false) {
   return { channel, client };
 }
 
-// simple test since Virtuoso heavily relies on document height and jsdom doesn't support it
+// Virtuoso relies heavily on document height, which jsdom does not support, so tests stay simple.
 describe('VirtualizedMessageList', () => {
   afterEach(cleanup);
   beforeEach(vi.clearAllMocks);
@@ -145,12 +145,12 @@ describe('VirtualizedMessageList', () => {
     expect(result.container).toMatchSnapshot();
   });
 
-  // The `VirtualMessage` override has to beat `MessageUI`, but only for messages rendered
-  // by this list. The list applies it by overriding `MessageUI` for its own subtree, so
-  // these assert on what `useComponentContext()` resolves to inside vs. outside the list.
-  // Virtuoso renders no items under jsdom (it measures document height), so the thread head is
-  // the in-subtree render point available to us — it is the same provider subtree the items
-  // render into. The list renders it whenever a thread is in context.
+  // The `VirtualMessage` override has to beat `MessageUI`, but only for messages rendered by this
+  // list. The list applies it by overriding `MessageUI` for its own subtree, so these assert on
+  // what `useComponentContext()` resolves to inside vs. outside the list. Virtuoso renders no
+  // items under jsdom (it measures document height), so the thread head is the in-subtree probe
+  // point: the list renders it, in the same provider subtree as the items, whenever a thread is in
+  // context.
   describe('VirtualMessage override', () => {
     const CustomMessageUI = () => <div />;
     const CustomVirtualMessage = () => <div />;
@@ -225,15 +225,14 @@ describe('VirtualizedMessageList', () => {
   });
 
   // A bare index means align: 'start', which parks the last row's top at the viewport top and
-  // clips its bottom whenever that row is taller than the list -- visible in a short panel.
-  // jsdom has no layout, so these assert the scroll target rather than the clipping.
+  // clips its bottom whenever that row is taller than the list, visible in a short panel. jsdom has
+  // no layout, so these assert the scroll target rather than the clipping.
   describe('scroll anchoring', () => {
     const MESSAGE_COUNT = 20;
 
     let scrollToBottom: (() => Promise<void>) | undefined;
 
-    // VML passes scrollToBottom to TypingIndicator, which it renders inside its own context
-    // provider -- the simplest overridable seam that receives the callback.
+    // `TypingIndicator` is the simplest overridable seam that receives the list's `scrollToBottom`.
     const TypingIndicatorProbe = (props: { scrollToBottom: () => Promise<void> }) => {
       scrollToBottom = props.scrollToBottom;
       return null;
@@ -242,7 +241,7 @@ describe('VirtualizedMessageList', () => {
     const renderList = async ({ hasMoreHead = false, listProps = {} } = {}) => {
       const user1 = generateUser();
       const user2 = generateUser();
-      // The file-wide nanoid mock collapses generated ids, which would dedupe the messages down
+      // The file-wide nanoid mock collapses generated IDs, which would dedupe the messages down
       // to one and let an off-by-one pass.
       const mockedChannel = generateChannel({
         members: [generateMember({ user: user1 }), generateMember({ user: user2 })],
@@ -257,8 +256,8 @@ describe('VirtualizedMessageList', () => {
         type: 'messaging',
       });
       await channel.watch();
-      // With older pages still to load, scrollToBottom jumps to the latest message set instead of
-      // scrolling, so pin it to the branch that actually targets a Virtuoso index.
+      // With newer pages still to load, scrollToBottom jumps to the latest message set instead of
+      // scrolling, so pin it to the branch that targets a Virtuoso index.
       vi.spyOn(channel.messagePaginator, 'hasMoreHead', 'get').mockReturnValue(
         hasMoreHead,
       );
@@ -341,8 +340,8 @@ describe('VirtualizedMessageList', () => {
       expect(totalListHeightChangedFromProps).toHaveBeenCalledWith(1234);
     });
 
-    // Virtuoso's window-scroll path never calls the supplied scrollerRef, so without feeding the
-    // hook directly the list is never measured and the true-bottom check answers "yes" forever.
+    // Virtuoso's window-scroll path never calls the supplied scrollerRef, so unless the hook is fed
+    // directly the list is never measured and the true-bottom check always answers "yes".
     describe('window scrolling', () => {
       // Virtuoso's own window-viewport hook needs a ResizeObserver, which jsdom does not
       // provide. mock-builders' ResizeObserverMock has no `unobserve`, which Virtuoso calls.

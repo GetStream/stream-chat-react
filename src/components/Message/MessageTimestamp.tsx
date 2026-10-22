@@ -1,24 +1,29 @@
 import { convertTimestampToDate } from 'stream-chat';
-import React from 'react';
-import { useMessageContext } from '../../context/MessageContext';
+import React, { useContext } from 'react';
+import { MessageContext } from '../../context/MessageContext';
 import { Timestamp as DefaultTimestamp } from './Timestamp';
 import { useComponentContext } from '../../context';
+import { requireContext } from '../../context/requireContext';
 
 import type { LocalMessage } from 'stream-chat';
 import type { TimestampFormatterOptions } from '../../i18n/types';
 
 export type MessageTimestampProps = TimestampFormatterOptions & {
-  /* Adds a CSS class name to the component's outer `time` container. */
+  /** Class name for the outer `time` element. */
   customClass?: string;
-  /* The `StreamChat` message object, which provides necessary data to the underlying UI components (overrides the value from `MessageContext`) */
+  /** Message to render; overrides the one from `MessageContext`. */
   message?: LocalMessage;
 };
 
 const UnMemoizedMessageTimestamp = (props: MessageTimestampProps) => {
   const { message: propMessage, ...timestampProps } = props;
-  const { message: contextMessage } = useMessageContext();
+  // Renders outside a message when given a `message` prop (e.g. the gallery header); otherwise it
+  // requires a `MessageProvider`.
+  const messageContext = useContext(MessageContext);
   const { Timestamp = DefaultTimestamp } = useComponentContext();
-  const message = propMessage || contextMessage;
+  const message =
+    propMessage ||
+    requireContext(messageContext, 'MessageTimestamp', 'MessageProvider').message;
   return (
     <Timestamp
       timestamp={convertTimestampToDate(message.created_at)}

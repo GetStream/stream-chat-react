@@ -14,13 +14,13 @@ import { AvatarStack as DefaultAvatarStack } from '../Avatar';
 import { extractDisplayInfo as defaultExtractDisplayInfo } from '../Avatar/utils';
 
 export type MessageRepliesCountButtonProps = {
-  /* If supplied, adds custom text to the end of a multiple replies message */
+  /** Replaces the default text after the count when there is more than one reply. */
   labelPlural?: string;
-  /* If supplied, adds custom text to the end of a single reply message */
+  /** Replaces the default text after the count when there is one reply. */
   labelSingle?: string;
-  /* Function to navigate into an existing thread on a message */
+  /** Replaces the default open-thread behavior. */
   onClick?: MouseEventHandler;
-  /* The amount of replies (i.e., threaded messages) on a message */
+  /** Fallback when the channel's message paginator has no reply count for the message. */
   reply_count?: number;
   thread_participants?: UserResponse[];
 };
@@ -37,8 +37,8 @@ function UnMemoizedMessageRepliesCountButton(props: MessageRepliesCountButtonPro
     reply_count: replyCountFromProps = 0,
     thread_participants: threadParticipantsFromProps = [],
   } = props;
-  // reply counts also render outside a message, from props alone
-  const { message: contextMessage } = useContext(MessageContext) ?? {};
+  // Also renders outside a message, from props alone.
+  const { handleOpenThread, message: contextMessage } = useContext(MessageContext) ?? {};
   const channel = useChannel();
   const { openThread } = useWorkspaceNavigation();
   const replyMetadataSelector = useMemo(
@@ -75,9 +75,15 @@ function UnMemoizedMessageRepliesCountButton(props: MessageRepliesCountButtonPro
       }
 
       if (!contextMessage) return;
+      // The message's own handler honors a `Message.openThread` override before falling back to
+      // workspace navigation.
+      if (handleOpenThread) {
+        handleOpenThread(event);
+        return;
+      }
       void openThread({ channel, message: contextMessage });
     },
-    [channel, contextMessage, onClick, openThread],
+    [channel, contextMessage, handleOpenThread, onClick, openThread],
   );
 
   if (!replyCount) return null;
@@ -90,7 +96,7 @@ function UnMemoizedMessageRepliesCountButton(props: MessageRepliesCountButtonPro
 
   if (labelPlural && replyCount > 1) {
     replyCountText = `${replyCount} ${labelPlural}`;
-  } else if (labelSingle) {
+  } else if (labelSingle && replyCount === 1) {
     replyCountText = `1 ${labelSingle}`;
   }
 

@@ -11,7 +11,7 @@ const mocks = vi.hoisted(() => ({
   jumpToMessage: vi.fn(() => Promise.resolve(true)),
   openChannel: vi.fn(),
   openThread: vi.fn(),
-  // `query` should never be called by the hook (the jump bootstraps the channel) — asserted below.
+  // The hook never calls `query`, because the jump bootstraps the channel; asserted below.
   query: vi.fn(() => Promise.resolve()),
   state: {
     channelSlot: undefined as string | undefined,
@@ -59,8 +59,7 @@ vi.mock('../../../../context', () => ({
       });
     },
   }),
-  // `isChannelActive` mirrors the old `useSlotForKey` presence check: truthy when the channel
-  // is already shown in the workspace.
+  // `isChannelActive` is true when the channel is already shown in the workspace.
   useWorkspaceNavigation: () => ({
     isChannelActive: () => !!mocks.state.channelSlot,
     openChannel: mocks.openChannel,
@@ -109,11 +108,11 @@ describe('useMessageAlsoSentInChannelNavigation', () => {
       );
       expect(mocks.jumpToMessage).toHaveBeenCalledWith('reply-1');
       expect(mocks.ingestChannel).toHaveBeenCalledTimes(1);
-      // The jump's own `channel.query({ messages: { id_around } })` bootstraps the channel, so we
-      // must NOT fire a separate init query.
+      // The jump's own `channel.query({ messages: { id_around } })` bootstraps the channel, so no
+      // separate init query must fire.
       expect(mocks.query).not.toHaveBeenCalled();
 
-      // Order: open → jumpToMessage → ingestChannel (ingest after the jump so channel.data is loaded).
+      // Order: open → jumpToMessage → ingestChannel (ingest last, once channel.data is loaded).
       const openOrder = mocks.openChannel.mock.invocationCallOrder[0];
       const jumpOrder = mocks.jumpToMessage.mock.invocationCallOrder[0];
       const ingestOrder = mocks.ingestChannel.mock.invocationCallOrder[0];

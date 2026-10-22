@@ -24,10 +24,8 @@ import {
 } from '../../../mock-builders';
 import { mockT } from '../../../mock-builders/translator';
 
-// MERGE-RECONCILE (test migration): the deleted ChannelStateContext no longer provides
-// `channelCapabilities`. Poll components now read capabilities via useChannelCapabilities({ cid }),
-// which subscribes to the unified `channel.state` (`ownCapabilities`, a string[]). Convert the legacy
-// `{ 'cap': boolean }` object into that string[] and seed a real ChannelInstanceProvider channel.
+// Poll components read capabilities through `useChannelCapabilities`, which subscribes to
+// `channel.state.ownCapabilities` (a string[]), so the capability map becomes that array.
 const toOwnCapabilities = (capabilities: Record<string, boolean> = {}) =>
   Object.entries(capabilities)
     .filter(([, enabled]) => enabled)

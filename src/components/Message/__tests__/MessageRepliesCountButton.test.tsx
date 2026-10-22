@@ -2,11 +2,18 @@ import React from 'react';
 import { cleanup, fireEvent, render } from '@testing-library/react';
 import type { Channel as ChannelType, StreamChat } from 'stream-chat';
 import { MessageRepliesCountButton } from '../MessageRepliesCountButton';
+import { Message } from '../Message';
 import { Channel } from '../../Channel';
 import { Chat } from '../../Chat';
-import { TranslationProvider } from '../../../context';
+import {
+  defaultWorkspaceNavigation,
+  TranslationProvider,
+  WithComponents,
+  WorkspaceNavigationProvider,
+} from '../../../context';
 import type { TranslationContextValue } from '../../../context';
 import {
+  generateMessage,
   initClientWithChannels,
   mockTranslationContextValue,
 } from '../../../mock-builders';
@@ -77,6 +84,15 @@ describe('MessageRepliesCountButton', () => {
     expect(getByText(`2 ${customPluralLabel}`)).toBeInTheDocument();
   });
 
+  it('keeps the count and the default text for more than one reply when only labelSingle is defined', () => {
+    const { getByText } = renderComponent({
+      labelSingle: 'text',
+      reply_count: 2,
+    });
+
+    expect(getByText(defaultPluralText)).toBeInTheDocument();
+  });
+
   it('should call the onClick prop if the button is clicked', () => {
     const { getByTestId } = renderComponent({
       reply_count: 1,
@@ -101,9 +117,66 @@ describe('MessageRepliesCountButton', () => {
     expect(queryByTestId('reply-icon')).not.toBeInTheDocument();
   });
 
-  // MERGE-RECONCILE (test migration): the reply-count button no longer gates on the
-  // 'send-reply' channel capability (permission gating was removed from this component in
-  // the slot-layout refactor). The button now always renders enabled.
+  describe('inside a Message, without an onClick prop', () => {
+    // A MessageUI that renders the button the way the default one does: without `onClick`.
+    const ReplyCountOnlyMessageUI = () => <MessageRepliesCountButton reply_count={2} />;
+
+    const renderInMessage = ({
+      openThread,
+      workspaceOpenThread = vi.fn(),
+    }: {
+      openThread?: (...args: unknown[]) => void;
+      workspaceOpenThread?: (...args: unknown[]) => void;
+    }) => {
+      const message = generateMessage({ reply_count: 2 });
+      const result = render(
+        <Chat client={client}>
+          <Channel channel={channel}>
+            <TranslationProvider value={mockTranslationContextValue({ t: i18nMock })}>
+              <WorkspaceNavigationProvider
+                value={{ ...defaultWorkspaceNavigation, openThread: workspaceOpenThread }}
+              >
+                <WithComponents overrides={{ MessageUI: ReplyCountOnlyMessageUI }}>
+                  <Message message={message} openThread={openThread} />
+                </WithComponents>
+              </WorkspaceNavigationProvider>
+            </TranslationProvider>
+          </Channel>
+        </Chat>,
+      );
+      return { message, ...result };
+    };
+
+    it("calls the Message's openThread override", () => {
+      const openThread = vi.fn();
+      const workspaceOpenThread = vi.fn();
+      const { getByTestId, message } = renderInMessage({
+        openThread,
+        workspaceOpenThread,
+      });
+
+      fireEvent.click(getByTestId('replies-count-button'));
+
+      expect(openThread).toHaveBeenCalledWith(
+        expect.objectContaining({ id: message.id }),
+        expect.anything(),
+      );
+      expect(workspaceOpenThread).not.toHaveBeenCalled();
+    });
+
+    it('opens the thread through workspace navigation without an override', () => {
+      const workspaceOpenThread = vi.fn();
+      const { getByTestId, message } = renderInMessage({ workspaceOpenThread });
+
+      fireEvent.click(getByTestId('replies-count-button'));
+
+      expect(workspaceOpenThread).toHaveBeenCalledWith({
+        channel,
+        message: expect.objectContaining({ id: message.id }),
+      });
+    });
+  });
+
   it('should not be disabled regardless of channel capabilities', () => {
     const { getByText } = renderComponent({ reply_count: 1 });
 

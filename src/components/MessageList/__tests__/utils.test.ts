@@ -9,6 +9,7 @@ import {
 
 import {
   getGroupStyles,
+  getLastReceived,
   insertIntro,
   isDateSeparatorMessage,
   makeDateMessageId,
@@ -80,7 +81,7 @@ const runMessageProcessing = (
   };
 };
 
-// The separator is a view-model carrying a `Date`, built from the message's wire timestamp — so the
+// The separator is a view-model carrying a `Date`, built from the message's wire timestamp, so the
 // expectation has to go through the same conversion the list does.
 const makeDateSeparator = (message) => ({
   customType: 'message.date',
@@ -108,7 +109,6 @@ const dateSeparatorInsertedAt = (
     midDateMsg['unread'] = unread;
   }
 
-  // beginning + mid
   if (expectedWhere[0] === 'start' && expectedWhere[1] === 'mid') {
     expect(newMessageList[0]).toMatchObject(startDateMsg);
     expect(newMessageList[1]).toMatchObject(messages[0]);
@@ -516,10 +516,10 @@ describe('processMessages', () => {
     });
   });
 
-  // The other separator assertions in this file use `toMatchObject`, which is a subset match and so
-  // pins nothing about the shape. These two do, because the shape is public: `customMessageRenderer`
-  // receives the enriched list, and integrators discriminate it on `customType`. In particular there
-  // is deliberately no `type` field — a separator is a view-model, not a message.
+  // The other separator assertions in this file use `toMatchObject`, a subset match that pins
+  // nothing about the shape. These two pin it because the shape is public: `customMessageRenderer`
+  // receives the enriched list and integrators discriminate it on `customType`. There is no `type`
+  // field: a separator is a view-model, not a message.
   describe('the date separator shape', () => {
     const expectedSeparator = (message: LocalMessage) => ({
       customType: CUSTOM_MESSAGE_TYPE.date,
@@ -684,7 +684,7 @@ describe('getGroupStyles', () => {
       );
     });
 
-    // deleted_at no longer affects grouping in v14
+    // deleted_at does not affect grouping.
     it('is deleted', () => {
       if (position === 'bottom') {
         nextMessage = { ...nextMessage, deleted_at: convertDateToTimestamp(new Date()) };
@@ -695,7 +695,7 @@ describe('getGroupStyles', () => {
           deleted_at: convertDateToTimestamp(new Date()),
         };
       }
-      // deleted_at on adjacent messages does not break groups anymore
+      // deleted_at on adjacent messages does not break groups.
       expect(getGroupStyles(message, previousMessage, nextMessage, noGroupByUser)).toBe(
         'middle',
       );
@@ -803,8 +803,8 @@ describe('getGroupStyles', () => {
     );
   });
 
-  // deleted_at on the message itself no longer forces 'single' in v14
-  it('marks message as middle even when deleted (deleted_at no longer affects grouping)', () => {
+  // deleted_at on the message itself does not force 'single'.
+  it('marks message as middle even when deleted (deleted_at does not affect grouping)', () => {
     message = { ...message, deleted_at: convertDateToTimestamp(new Date()) };
     expect(getGroupStyles(message, previousMessage, nextMessage, noGroupByUser)).toBe(
       'middle',
@@ -818,7 +818,7 @@ describe('getGroupStyles', () => {
     );
   });
 
-  // deleted_at no longer forces 'single'; at the bottom position it's just 'bottom'
+  // deleted_at does not force 'single'; at the bottom position it is just 'bottom'.
   it('marks message at the bottom as bottom even when deleted', () => {
     message = { ...message, deleted_at: convertDateToTimestamp(new Date()) };
     nextMessage = undefined;
@@ -835,8 +835,8 @@ describe('getGroupStyles', () => {
     );
   });
 
-  // `created_at` is unix nanoseconds, so the epoch is `0` — a legitimate wire value that is falsy.
-  // A truthiness guard in front of the time-gap calculation skips the cutoff entirely, leaving
+  // `created_at` is unix nanoseconds, so the epoch is `0`, a legitimate wire value that is falsy. A
+  // truthiness guard in front of the time-gap calculation skips the cutoff entirely, leaving
   // messages grouped however far apart they are.
   describe('with a message created at the epoch', () => {
     it('applies the cutoff when the previous message is at the epoch', () => {
@@ -918,16 +918,16 @@ describe('insertIntro', () => {
     ]);
   });
 
-  it('is in nanoseconds, not milliseconds — the unit the migration changed', () => {
+  it('takes the header position in nanoseconds, not milliseconds', () => {
     const messages = [
       msg('2026-01-01T00:00:00Z', 'older'),
       msg('2026-01-03T00:00:00Z', 'newer'),
     ];
-    // The epoch-millisecond value an integrator would have passed before the migration. The prop is
-    // typed `TimestampNS`, so this only compiles when mislabelled on purpose — which is the point.
+    // Epoch milliseconds, as a caller using the wrong unit would pass. The prop is typed
+    // `TimestampNS`, so this only compiles when mislabelled on purpose.
     const asMilliseconds = Date.parse('2026-01-02T00:00:00Z');
 
-    // A millisecond value precedes every message, so the intro lands at the top — wrong placement,
+    // A millisecond value precedes every message, so the intro lands at the top: wrong placement,
     // but visible rather than dropped. Nanoseconds split the list where they should.
     expect(
       insertIntro([...messages], asTimestampNS(asMilliseconds)).map((m) =>
@@ -939,5 +939,26 @@ describe('insertIntro', () => {
         isIntro(m) ? 'intro' : m.id,
       ),
     ).toEqual(['older', 'intro', 'newer']);
+  });
+});
+
+describe('getLastReceived', () => {
+  const received = (id: string) =>
+    fromPartial<LocalMessage>({ ...generateMessage({ id }), status: 'received' });
+  const sending = (id: string) =>
+    fromPartial<LocalMessage>({ ...generateMessage({ id }), status: 'sending' });
+
+  it('returns the ID of the last received message', () => {
+    expect(getLastReceived([received('a'), received('b'), sending('c')])).toBe('b');
+  });
+
+  it('checks the first message', () => {
+    expect(getLastReceived([received('only')])).toBe('only');
+    expect(getLastReceived([received('first'), sending('second')])).toBe('first');
+  });
+
+  it('returns null without a received message', () => {
+    expect(getLastReceived([])).toBeNull();
+    expect(getLastReceived([sending('a')])).toBeNull();
   });
 });

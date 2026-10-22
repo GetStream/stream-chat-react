@@ -45,24 +45,22 @@ export function useNewMessageNotification(
   const atBottom = useRef(false);
 
   useEffect(() => {
-    /* handle scrolling behavior for new messages */
     if (!messages?.length) return;
 
     const lastMessage = messages[messages.length - 1];
     const prevMessageId = lastMessageId.current;
-    lastMessageId.current = lastMessage.id || ''; // update last message id
+    lastMessageId.current = lastMessage.id || '';
 
-    /* do nothing if new messages are loaded from top(loadMore)  */
+    // Unchanged last message: older messages were loaded at the top.
     if (lastMessage.id === prevMessageId) return;
 
     if (!isArrivalAtLatestMessages({ hasMoreNewer, messages, prevMessageId })) return;
 
-    /* if list is already at the bottom return, followOutput will do the job */
+    // At the bottom, `followOutput` scrolls the list.
     if (atBottom.current) return;
 
-    /* if the new message belongs to current user scroll to bottom */
+    // Only messages from other users notify.
     if ((lastMessage as LocalMessage).user?.id !== currentUserId) {
-      /* otherwise just show newMessage notification  */
       setNewMessagesNotification(true);
     }
   }, [currentUserId, messages, hasMoreNewer]);

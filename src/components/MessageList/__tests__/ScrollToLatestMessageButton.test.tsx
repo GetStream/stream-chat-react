@@ -25,10 +25,6 @@ import {
   useMockedApis,
 } from '../../../mock-builders';
 
-// The button resolves the client via useChatContext, the channel via useChannel and the thread via
-// useThreadContext, so it renders inside the real <Chat>/<Channel> providers. A thread is provided
-// through <ThreadProvider> with a stub exposing a real StateStore that holds the parent message.
-
 const BUTTON_TEST_ID = 'scroll-to-latest-message-button';
 const COUNTER_TEST_ID = 'unread-message-notification-counter';
 
@@ -41,6 +37,7 @@ let thread: Thread;
 
 const onClick = vi.fn();
 
+// The stub holds the parent message in a real `StateStore` so `useStateStore` resolves it.
 const makeThread = (parent: LocalMessage) =>
   ({
     state: new StateStore({ parentMessage: parent }),

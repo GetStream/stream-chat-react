@@ -6,9 +6,9 @@ import { LoadMoreButton as DefaultLoadMoreButton } from './LoadMoreButton';
 import type { PaginatorProps } from '../../types/types';
 
 export type LoadMorePaginatorProps = PaginatorProps & {
-  /** A UI button component that handles pagination logic */
+  /** Replaces the default button. Receives `isLoading` and `onClick` set to `loadNextPage`. */
   LoadMoreButton?: React.ComponentType<LoadMoreButtonProps>;
-  /** indicates if the `LoadMoreButton` should be displayed at the top of the list of channels instead of the bottom of the list (the default) */
+  /** Places the button above `children` instead of below. */
   reverse?: boolean;
 };
 

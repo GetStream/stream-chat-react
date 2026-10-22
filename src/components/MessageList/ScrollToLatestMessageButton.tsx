@@ -14,7 +14,7 @@ import { Badge } from '../Badge';
 import { Button } from '../Button';
 
 export type ScrollToLatestMessageButtonProps = {
-  /** When true, user has jumped to an older message set and newer messages can be loaded */
+  /** Whether newer messages than the loaded set exist. The button then shows even at the bottom. */
   isNotAtLatestMessageSet?: boolean;
   isMessageListScrolledToBottom?: boolean;
   onClick: React.MouseEventHandler;

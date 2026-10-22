@@ -56,8 +56,8 @@ const PreviewUIComponent = (props: ChannelListItemUIProps) => (
     <div data-testid='pinned'>{String(!!props.pinned)}</div>
   </>
 );
-// The badge reads the channel's own unread count (`read[ownUserId].unread_messages`), which is what
-// `countUnread()` returns, so tests seed that slice rather than stubbing the method.
+// The badge reads `read[ownUserId].unread_messages`, which `countUnread()` returns, so tests seed
+// that slice instead of stubbing the method.
 const seedUnreadCount = (
   channel: Channel,
   unread_messages: number,
@@ -125,8 +125,8 @@ describe('ChannelPreview', () => {
 
   beforeEach(async () => {
     client = await getTestClientWithUser(user);
-    // Distinct, increasing created_at so "newest" is unambiguous — the message paginator orders by
-    // created_at (with an id tiebreaker), so identical timestamps would make its head diverge from
+    // Distinct, increasing created_at so "newest" is unambiguous: the message paginator orders by
+    // created_at (with an ID tiebreaker), so identical timestamps would make its head diverge from
     // the mocked response's array order.
     const genMessages = () =>
       Array.from({ length: 5 }, (_, i) =>
@@ -143,13 +143,12 @@ describe('ChannelPreview', () => {
       ]),
     ]);
 
-    // v10: `client.queryChannels()` returns the raw API response; `queryChannelsAndHydrate()` is
-    // the one that hydrates and returns `Channel[]`.
+    // `client.queryChannels()` returns the raw API response; `queryChannelsAndHydrate()` hydrates
+    // and returns `Channel[]`.
     [c0, c1] = await client.queryChannelsAndHydrate({}, {});
   });
 
   it('should mark channel as read, when set as active channel', async () => {
-    // Mock the countUnread function on channel, to return 10.
     seedUnreadCount(c0, 10);
 
     const { getByTestId, rerender } = renderComponent(
@@ -159,7 +158,6 @@ describe('ChannelPreview', () => {
       },
       render,
     );
-    // Wait for list of channels to load in DOM.
     await expectUnreadCountToBe(getByTestId, 10);
 
     renderComponent(
@@ -173,8 +171,7 @@ describe('ChannelPreview', () => {
     await expectUnreadCountToBe(getByTestId, 0);
   });
 
-  // `channelUpdateCount` used to force a re-read of `countUnread()`. The badge subscribes to the
-  // channel's read state now, so it follows along without being told to.
+  // The badge subscribes to the channel's read state, so it follows along without a forced update.
   it('follows the channel unread count with no forced update', async () => {
     seedUnreadCount(c0, 100);
     const { getByTestId } = renderComponent({ activeChannel: c1, channel: c0 }, render);
@@ -200,7 +197,7 @@ describe('ChannelPreview', () => {
       seedUnreadCount(c0, 3);
     });
 
-    // still the leading value - the burst has not been flushed yet
+    // Still the leading value: the burst has not been flushed yet.
     expect(getByTestId('unread-count')).toHaveTextContent('1');
 
     await expectUnreadCountToBe(getByTestId, 3);
@@ -220,7 +217,7 @@ describe('ChannelPreview', () => {
       },
       render,
       {
-        // Stub the action buttons — their default needs a DialogManager not present in this harness.
+        // Stub the action buttons: their default needs a DialogManager not present in this harness.
         ChannelListItemActionButtons: () => null,
         // Use the real ChannelListItemUI so it reads SummarizedMessagePreview from the context.
         ChannelListItemUI: DefaultChannelListItemUI,
@@ -566,7 +563,7 @@ describe('ChannelPreview', () => {
 
   describe('notification.mark_read', () => {
     // Mark-all-read names no channel. The client fans the reset across its active channels, and
-    // only when the event says nothing is left unread - `unread_channels > 0` means some other
+    // only when the event says nothing is left unread: `unread_channels > 0` means some other
     // channel still is, so zeroing every one of them would be wrong.
     it('should set unread count to 0 when everything was marked read', async () => {
       const unreadCount = getRandomInt(1, 10);
@@ -671,7 +668,6 @@ describe('ChannelPreview', () => {
     });
   });
 
-  // https://github.com/GetStream/stream-chat-react/issues/3264
   // Marking a channel read emits two independent events for the reading user: `message.read`
   // (channel-scoped) and `notification.mark_read` (personal). Only the former resets
   // `channel.state.unreadCount`, so the badge has to reach 0 whichever arrives first.
@@ -738,7 +734,7 @@ describe('ChannelPreview', () => {
       await expectUnreadCountToBe(screen.getByTestId, 5);
     });
 
-    // The stand-in a channel with read events disabled gets instead of a server read.
+    // `markReadLocally()` stands in for a server read on a channel with read events disabled.
     it('clears the badge on a local read', async () => {
       await renderUnreadChannelPreview();
 
@@ -802,8 +798,8 @@ describe('ChannelPreview', () => {
     it("should set unread count from client's unread count state for active channel", async () => {
       const unreadCount = 0;
       const activeChannel = c1;
-      // countUnread() is deliberately NOT stubbed: the event updates channel.state.unreadCount, and
-      // reading it back is what this test asserts
+      // `countUnread()` is not stubbed: the event updates `channel.state.unreadCount`, and this
+      // test asserts reading it back.
       renderComponent(
         {
           activeChannel,
@@ -829,8 +825,8 @@ describe('ChannelPreview', () => {
       const unreadCount = 0;
       const channelInPreview = c0;
       const activeChannel = c1;
-      // countUnread() is deliberately NOT stubbed: the event updates channel.state.unreadCount, and
-      // reading it back is what this test asserts
+      // `countUnread()` is not stubbed: the event updates `channel.state.unreadCount`, and this
+      // test asserts reading it back.
       renderComponent(
         {
           activeChannel,
@@ -1040,7 +1036,7 @@ describe('ChannelPreview', () => {
         await renderComponent({ channel, client, componentOverrides });
         await waitFor(() => {
           const avatarImages = screen.getAllByTestId(AVATAR_IMG_TEST_ID);
-          // With overflowCount set (5 members > 4), GroupAvatar shows 2 avatars + "+N" badge
+          // With more than 4 members (5 here), `GroupAvatar` shows 2 avatars and a "+N" badge.
           expect(avatarImages).toHaveLength(2);
           avatarImages.forEach((img, i) => {
             expect(img).toHaveAttribute('src', channelState.members[i].user.image);

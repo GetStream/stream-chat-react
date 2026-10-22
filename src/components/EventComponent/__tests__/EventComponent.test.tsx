@@ -67,7 +67,7 @@ describe('EventComponent', () => {
     expect(span).toBeInTheDocument();
     expect(span).toHaveTextContent('system event');
 
-    // No line dividers or date section in the new structure
+    // No line dividers or date section.
     expect(
       systemMsg.querySelector('.str-chat__message--system__line'),
     ).not.toBeInTheDocument();
@@ -99,7 +99,7 @@ describe('EventComponent', () => {
     });
     const systemMsg = screen.getByTestId(SYSTEM_MSG_TEST_ID);
     expect(systemMsg).toHaveTextContent('a system message');
-    // Component no longer renders timestamps
+    // Timestamps are not rendered.
     expect(
       systemMsg.querySelector('.str-chat__message--system__date'),
     ).not.toBeInTheDocument();

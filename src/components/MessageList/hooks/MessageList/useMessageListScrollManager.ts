@@ -32,38 +32,23 @@ export type UseMessageListScrollManagerParams = {
   suppressAutoscroll?: boolean;
 };
 
-// Tracks how the current older-page pagination cycle should restore the viewport
-// once messages are prepended. The mode is chosen when loading starts and cleared
-// after the prepend has been handled.
-//
-// Modes:
-// - `idle`: there is no active older-page restoration strategy
-// - `preserve-anchor`: pagination started near the top, so restore the captured
-//   anchor message to its previous viewport offset
+// How the current older-page pagination cycle restores the viewport once messages are prepended.
+// Chosen when loading starts, reset to `idle` after the prepend is handled. `preserve-anchor`: it
+// started near the top, so restore the captured anchor (a message row `id` and its `offsetTop` from
+// the container's top edge) to its previous offset after the prepend shifts the DOM down.
 type OlderPaginationState =
   | { anchor: null; mode: 'idle' }
   | { anchor: { id: string; offsetTop: number }; mode: 'preserve-anchor' };
 
 const IDLE_OLDER_PAGINATION: OlderPaginationState = { anchor: null, mode: 'idle' };
 
-// An "anchor" is the currently visible message row we want to keep visually pinned
-// to the same spot in the viewport while older messages are inserted above it.
-// It stores:
-// - `id`: which rendered message row should stay stable
-// - `offsetTop`: how far that row sits from the top edge of the scroll container
-//
-// After a prepend, the DOM shifts downward. Restoring the anchor means finding the
-// same message row again and correcting scrollTop until it returns to that offset.
-
-// When all previous messages appear at the start of the new array, the growth
-// happened at the bottom of the list.
+// All previous messages appear at the start of the new array: the list grew at the bottom.
 const messageIdsMatchAsPrefix = (
   prevMessages: LocalMessage[],
   newMessages: LocalMessage[],
 ) => prevMessages.every((message, index) => message.id === newMessages[index]?.id);
 
-// When all previous messages appear at the end of the new array, the growth
-// happened at the top of the list.
+// All previous messages appear at the end of the new array: the list grew at the top.
 const messageIdsMatchAsSuffix = (
   prevMessages: LocalMessage[],
   newMessages: LocalMessage[],
@@ -123,22 +108,15 @@ const getMessageListChange = (
 };
 
 /**
- * Coordinates scroll-position preservation when the rendered message array changes.
+ * Preserves the scroll position when the rendered messages change. Older-page prepends keep the
+ * message the user was looking at in place, wherever near the top loading started (the very top
+ * included). Appends auto-scroll only when the user was near the bottom or sent the message. A
+ * window switch to the newest messages shows the bottom of the list, unless a jump positions it; a
+ * switch to an older window is left to the jump that caused it. Any other growth (overlapping
+ * pages) skips the prepend heuristics, as the old and new arrays are not one contiguous list.
  *
- * The hook distinguishes these cases:
- * 1. Older-page pagination prepends messages at the top of the list.
- *    This path keeps the message the user was looking at in place, wherever near
- *    the top they were when pagination started (the very top included).
- * 2. Newer messages append to the bottom of the list.
- *    This path preserves normal chat behavior by auto-scrolling only when the
- *    user was already near the bottom or the appended message is the user's own.
- * 3. Window switches: another stretch of the channel replaces the rendered one.
- *    Nothing the user was looking at remains, so a switch to the newest messages
- *    shows the bottom of the list, unless a jump is positioning the list itself.
- *    A switch to an older window is left to the jump that caused it.
- * 4. Overlapping page switches.
- *    These intentionally bypass prepend heuristics because the old and new arrays
- *    are not comparable as a single contiguous list.
+ * @returns Scroll handler that records the container's `scrollTop` and, while an anchored
+ * older-page load is in flight, refreshes the anchor from `getLatestAnchor`.
  */
 export function useMessageListScrollManager(params: UseMessageListScrollManagerParams) {
   const {
@@ -179,8 +157,8 @@ export function useMessageListScrollManager(params: UseMessageListScrollManagerP
     };
 
     if (disableScrollManagement) {
-      // Even while management is disabled we still refresh the cached list shape,
-      // so the next enabled render compares against the most recent DOM state.
+      // While disabled, still refresh the cached list shape so the next enabled render compares
+      // against the latest DOM state.
       rememberRenderedState(scrollContainerMeasures());
       return;
     }
@@ -195,13 +173,11 @@ export function useMessageListScrollManager(params: UseMessageListScrollManagerP
     const finishedLoadingOlder = !loadingMore && previousLoadingMoreRef.current;
 
     if (startedLoadingOlder) {
-      // Read the live DOM scroll position instead of the cached ref so we get
-      // the correct value even when scrollToBottom() has been called but the
-      // async scroll event hasn't updated the ref yet (common on initial mount).
+      // Read the live DOM scroll position, not the cached ref: `scrollToBottom()` may have run
+      // before the async scroll event updated the ref (common on initial mount).
       const liveMeasures = scrollContainerMeasures();
-      // When the container doesn't overflow yet (e.g. content hasn't reached its
-      // final height due to font loading) the scroll position is meaningless, so
-      // there is no viewport to preserve.
+      // Without overflow (e.g. content not at its final height yet due to font loading) the scroll
+      // position is meaningless, so there is no viewport to preserve.
       const hasOverflow = liveMeasures.scrollHeight > liveMeasures.offsetHeight;
       // Loading that starts away from the top (e.g. newer messages) prepends nothing.
       const isNearTop = liveMeasures.scrollTop < loadMoreScrollThreshold;
@@ -212,8 +188,8 @@ export function useMessageListScrollManager(params: UseMessageListScrollManagerP
         : IDLE_OLDER_PAGINATION;
     }
 
-    // Evaluate bottom proximity from the previous render, before any new content
-    // changes the list height and invalidates the prior bottom distance.
+    // Evaluate bottom proximity from the previous render, before new content changes the list
+    // height.
     const wasAtBottom =
       prevMeasures.scrollHeight - prevMeasures.offsetHeight - scrollTop.current <
       scrolledUpThreshold;
@@ -221,9 +197,8 @@ export function useMessageListScrollManager(params: UseMessageListScrollManagerP
     if (typeof prevMessages !== 'undefined') {
       const messageListChange = getMessageListChange(prevMessages, newMessages);
 
-      // A clean prepend means older messages were inserted ahead of the current
-      // viewport. Keep the anchor captured when loading started in place, then
-      // clear the mode for the next pagination cycle.
+      // A clean prepend: older messages were inserted ahead of the viewport. Keep the anchor
+      // captured when loading started in place, then reset the mode.
       if (messageListChange === 'older-prepended') {
         const preservedAnchor =
           olderPaginationState.current.mode === 'preserve-anchor' &&
@@ -234,22 +209,20 @@ export function useMessageListScrollManager(params: UseMessageListScrollManagerP
         if (preservedAnchor) {
           restoreAnchor(preservedAnchor);
         } else if (scrollTop.current < loadMoreScrollThreshold) {
-          // Fallback for prepends when there is no stable DOM anchor to restore.
-          // This is less accurate than anchor restoration, but still avoids a full
-          // jump by compensating for the inserted page height.
+          // No stable DOM anchor to restore: compensate for the inserted page height, which is
+          // less accurate than anchor restoration but still avoids a full jump.
           const listHeightDelta = newMeasures.scrollHeight - prevMeasures.scrollHeight;
           onScrollBy(listHeightDelta);
         }
 
         olderPaginationState.current = IDLE_OLDER_PAGINATION;
       }
-      // A clean append means the list grew downward. Preserve the usual chat
-      // semantics: auto-scroll only for self-sent messages or when the user was
-      // already close enough to bottom.
+      // A clean append: the list grew downward. Auto-scroll only for self-sent messages or when
+      // the user was already near the bottom.
       else if (messageListChange === 'newer-appended') {
         if (justReachedLatestMessageSet) {
-          // Merging into the latest page is handled by dedicated logic higher up.
-          // Returning here avoids undoing that behavior with a normal append scroll.
+          // Merging into the latest page is handled by dedicated logic higher up; returning
+          // avoids undoing it with a normal append scroll.
           rememberRenderedState(newMeasures);
           return;
         }
@@ -262,16 +235,15 @@ export function useMessageListScrollManager(params: UseMessageListScrollManagerP
           showNewMessages();
         }
       }
-      // Nothing the user was looking at is rendered any more (e.g. a reconnect across a
-      // gap replaced the loaded messages with the newest page). Left alone, scrollTop would
-      // land on an arbitrary spot, usually the top, which also loads an older page. The
-      // newest messages are read from the bottom. A jump to a message positions the list
-      // itself through the message-focus signal, and a switch to an older window is left
-      // to the jump that shows it.
+      // A window switch: nothing the user was looking at is rendered any more (e.g. a reconnect
+      // across a gap replaced the loaded messages with the newest page). Left alone, `scrollTop`
+      // would land on an arbitrary spot, usually the top, which also loads an older page. The
+      // newest messages are read from the bottom. A jump positions the list itself through the
+      // message-focus signal, and a switch to an older window is left to the jump that shows it.
       else if (messageListChange === 'window-switched') {
         const showsNewestMessages = !hasMoreNewer;
-        // A focus signal outlives its jump (it clears a while after the message is seen), so
-        // only one whose message this window renders is positioning the list.
+        // A focus signal outlives its jump (it clears a while after the message is seen), so only
+        // one whose message this window renders positions the list.
         const isJumpTargetRendered =
           !!focusedMessageId &&
           newMessages.some((message) => message.id === focusedMessageId);
@@ -282,12 +254,12 @@ export function useMessageListScrollManager(params: UseMessageListScrollManagerP
 
         olderPaginationState.current = IDLE_OLDER_PAGINATION;
       }
-      // An overlapping page switch: the old and new arrays are not comparable as a
-      // single contiguous list, so avoid applying prepend heuristics.
+      // Neither a pure prepend, a pure append nor a window switch (e.g. overlapping pages): skip
+      // the prepend heuristics.
       else if (messageListChange === 'grew-otherwise') {
         olderPaginationState.current = IDLE_OLDER_PAGINATION;
       }
-      // message list length didn't grow, but check if last message had reaction/reply update
+      // The list did not grow, but the last message may have a new reaction or reply.
       else {
         const hasNewReactions =
           lastPrevMessage?.latest_reactions?.length !==
@@ -299,18 +271,14 @@ export function useMessageListScrollManager(params: UseMessageListScrollManagerP
         }
 
         if (finishedLoadingOlder) {
-          // Clear any older-page mode when the request ends without increasing the
-          // rendered list size, so the next pagination cycle starts from a clean slate.
+          // Reset the older-page mode when the request ends without growing the rendered list, so
+          // the next pagination cycle starts clean.
           olderPaginationState.current = IDLE_OLDER_PAGINATION;
         }
       }
     }
 
     rememberRenderedState(newMeasures);
-    // MERGE-RECONCILE: deps are the UNION of master's anchor-based scroll params and
-    // PR #2909's suppressAutoscroll (exhaustive-deps is disabled, so extra deps are safe).
-    // The scroll logic here (master) and useScrollLocationLogic (PR base) diverged;
-    // verify the two scroll paths cooperate rather than double-manage scrolling.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     captureAnchor,
@@ -336,10 +304,9 @@ export function useMessageListScrollManager(params: UseMessageListScrollManagerP
       getLatestAnchor &&
       olderPaginationState.current.mode === 'preserve-anchor'
     ) {
-      // Keep the anchor fresh while the request is in flight so restoration matches
-      // the latest viewport position if the user keeps scrolling before data arrives.
-      // The getter keeps normal scroll events cheap by avoiding DOM anchor capture
-      // unless anchor preservation is actually active.
+      // Keep the anchor fresh while the request is in flight, so restoration matches the latest
+      // viewport if the user keeps scrolling. The getter avoids a DOM anchor capture on every
+      // scroll event unless anchor preservation is active.
       const latestAnchor = getLatestAnchor();
       if (!latestAnchor) return;
 

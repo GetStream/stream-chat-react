@@ -1,11 +1,7 @@
 import type { Channel } from 'stream-chat';
 import { convertDateToTimestamp } from '../generator/time';
 
-/**
- * Returns the api response for markRead api
- *
- * api - /read
- */
+/** Returns a response body for the `/read` endpoint, not wrapped in `mockedApiResponse`. */
 export const markReadApi = (channel: Channel) => ({
   duration: '0.01s',
   event: {

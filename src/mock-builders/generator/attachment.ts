@@ -66,7 +66,7 @@ export const generateLocalImageUploadAttachmentData = (
 export const generateFileAttachment = (a: Partial<Attachment> = {}) =>
   ({
     asset_url: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf',
-    // v10: attachment-specific fields (file_size, mime_type, …) live under `custom`.
+    // attachment-specific fields (file_size, mime_type, ...) live under `custom`
     custom: { file_size: 1337, mime_type: 'application/pdf' },
     title: nanoid() + '.pdf',
     type: 'file',
@@ -105,7 +105,7 @@ export const generateVoiceRecordingAttachment = (a: Partial<Attachment> = {}) =>
   ({
     asset_url:
       'https://us-east.stream-io-cdn.com/102398/attachments/874e23e5-0746-4af7-a16e-d522a657d9e3.audio_recording_Mon_Feb_05_16_21_34_PST_2024?Expires=1708388555&Signature=DS4G5nHBTV5CgOEOKEBfnqQ-ThAYWhavSejBYXXKxXPzyYeB5siKq5CHCfLj7K8RSU2ISYRjUNBpvVbVpCTohsS5hxbss0ccdZrDGli1w5mchMU7J5CVuW~EXJs0Kzchoa0D4xBwnelX6SSC5hLJ8zLa-hDVfGylvbwk9wbV2iZps0OC~NxrySPafi8tY~rVM0RKwyv9AJyFtXreASWmuVY3uI7GXdVY3YWHmxKGQ5HA7ctGJ1nbQYWC07B-mgWKavjvhpIgRP0st1hVKQO6AwPA9hKhaQUnDkwIeYs~8FtmRBUKUxGCGcagJjTVRkj3nyHoPI-3HMvINYjxvBRLGQ__&Key-Pair-Id=APKAIHG36VEWPDULE23Q',
-    // v10: voice-recording fields (duration, file_size, mime_type, waveform_data) live under `custom`.
+    // voice-recording fields (duration, file_size, mime_type, waveform_data) live under `custom`
     custom: {
       duration: 43.007999420166016,
       file_size: 67940,

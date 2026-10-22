@@ -7,21 +7,21 @@ export type PropsWithChildrenOnly = PropsWithChildren<Record<never, never>>;
 export type CustomMessageType = 'channel.intro' | 'message.date';
 
 export type PaginatorProps = {
-  /** callback to load the next page */
+  /** Loads the next page. */
   loadNextPage: () => void;
-  /** indicates if there is a next page to load */
+  /** Whether there is a next page to load. */
   hasNextPage?: boolean;
-  /** indicates if there is a previous page to load */
+  /** Whether there is a previous page to load. */
   hasPreviousPage?: boolean;
-  /** indicates whether a loading request is in progress */
+  /** Whether a loading request is in progress. */
   isLoading?: boolean;
-  /** The loading indicator to use */
+  /** Loading indicator to use. */
   LoadingIndicator?: React.ComponentType<LoadingIndicatorProps>;
-  /** callback to load the previous page */
+  /** Loads the previous page. */
   loadPreviousPage?: () => void;
-  /** display the items in opposite order */
+  /** Whether to display the items in opposite order. */
   reverse?: boolean;
-  /** Offset from when to start the loadNextPage call */
+  /** Offset from which `loadNextPage` is called. */
   threshold?: number;
 };
 
@@ -30,8 +30,6 @@ export interface IconProps {
 }
 
 export type Dimensions = { height?: string; width?: string };
-
-// export type ChannelUnreadUiState = Omit<ValuesType<StreamChannelState['read']>, 'user'>;
 
 export type Readable<T> = {
   [key in keyof T]: T[key];

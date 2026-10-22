@@ -57,7 +57,6 @@ describe('usePinnedMessagesCount', () => {
     setItems([makePinnedMessage('message-1'), makePinnedMessage('message-2')]);
     expect(result.current).toBe(2);
 
-    // A pinned message is removed.
     setItems([makePinnedMessage('message-2')]);
     expect(result.current).toBe(1);
   });

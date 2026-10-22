@@ -13,24 +13,13 @@ type SlotEntitySourceMap = {
 type SlotEntitySourceByKind<TKind extends SlotEntityKind> = SlotEntitySourceMap[TKind];
 
 type UseSlotEntityOptions<TKind extends SlotEntityKind> = {
-  /**
-   * Entity kind to resolve from ChatView slot bindings.
-   */
+  /** Entity kind to resolve from the slot bindings. */
   kind: TKind;
-  /**
-   * Optional explicit slot to inspect.
-   *
-   * - when provided: only that slot is checked
-   * - when omitted: slots are checked in active view order (`availableSlots`)
-   */
+  /** Only this slot is checked. Defaults to every slot of the view, in `availableSlots` order. */
   slot?: SlotName;
   /**
-   * Optional explicit view to read slots from.
-   *
-   * - when omitted: the **active** view's slots are read
-   * - when provided: that view's slots are read regardless of which view is active
-   *   (its layout state is retained across view switches). Useful for cross-view
-   *   concerns like URL sync that must not clear when another view is focused.
+   * View whose slots are read, even when another view is active. Defaults to the active view.
+   * Needed by state that must not clear on a view switch, such as URL sync.
    */
   view?: ChatView;
 };
@@ -49,20 +38,8 @@ const isEntityOfKind = <TKind extends SlotEntityKind>(
 ): entity is Extract<ChatViewEntityBinding, { kind: TKind }> => entity?.kind === kind;
 
 /**
- * Resolves the `source` of the first matching ChatView entity binding.
- *
- * Behavior:
- * 1. Read active-view slot topology/bindings via `useLayoutViewState()`.
- * 2. Build candidate slots:
- *    - `[slot]` when explicit `slot` is provided
- *    - `availableSlots` order when `slot` is omitted
- * 3. Return `entity.source` for the first binding whose `kind` matches.
- * 4. Return `undefined` when no match exists.
- *
- * Why this exists:
- * - Keeps slot-to-entity lookup consistent and centralized for ChatView-aware
- *   components (e.g. `ChannelSlot`, `ThreadSlot`).
- * - Preserves type safety by narrowing returned `source` based on `kind`.
+ * Resolves the `source` of the first slot binding of the given kind, or `undefined` when none
+ * matches.
  *
  * @example
  * ```tsx
@@ -79,7 +56,7 @@ const isEntityOfKind = <TKind extends SlotEntityKind>(
  * @example
  * ```tsx
  * const list = useSlotEntity({ kind: 'channelList', slot: 'list' });
- * // list is { view?: ChatView } | undefined
+ * // list is Record<string, never> | undefined
  * ```
  */
 export const useSlotEntity = <TKind extends SlotEntityKind>({
@@ -102,17 +79,15 @@ export const useSlotEntity = <TKind extends SlotEntityKind>({
 };
 
 /**
- * Like {@link useSlotEntity}, but resolves the source of the **topmost layer** on a slot (the last
- * entry of `slotLayers[slot]`) rather than its base binding — when that layer's `kind` matches.
+ * Like {@link useSlotEntity}, but resolves the source of the topmost layer of a slot (the last
+ * entry of `slotLayers[slot]`) instead of its base binding, when that layer's `kind` matches.
  *
- * Layers stack above the base binding and cover it while it stays mounted (see
- * `ChatViewNavigation.pushLayer`). Read the base with `useSlotEntity`/`useSlotChannel`/… and the
- * overlay on top with this hook, then render the overlay covering the base.
+ * A layer never replaces the base binding, which {@link useSlotEntity} keeps returning.
  *
  * @example
  * ```tsx
  * const profile = useSlotTopLayerEntity({ kind: 'userProfile', slot: 'main-thread' });
- * // profile is { userId } | undefined — present while a userProfile layer covers the slot
+ * // profile is { userId } | undefined, present while a userProfile layer covers the slot
  * ```
  */
 export const useSlotTopLayerEntity = <TKind extends SlotEntityKind>({
@@ -136,11 +111,11 @@ export const useSlotTopLayerEntity = <TKind extends SlotEntityKind>({
 };
 
 /**
- * Resolves **every** matching ChatView entity binding as `{ slot, source }` pairs
- * (in active-view `availableSlots` order, or only `slot` when provided).
+ * Resolves every slot binding of the given kind as `{ slot, source }` pairs, in `availableSlots`
+ * order.
  *
- * Prefer this over `useSlotEntity` when several slots can hold the same kind (e.g.
- * two channels side by side) — it never collapses the set to "the first match".
+ * Prefer it over `useSlotEntity` when several slots can hold the same kind, such as two channels
+ * side by side.
  *
  * @example
  * ```tsx
@@ -174,10 +149,8 @@ export const useSlotEntities = <TKind extends SlotEntityKind>({
 };
 
 /**
- * Convenience wrapper for `useSlotEntity({ kind: 'channel' })` — the channel in a
- * single slot. Pass `slot` to be precise; omitting it returns the first channel slot
- * (only meaningful for a single-channel workspace). For multiple channels, use
- * `useSlotChannels`.
+ * The channel in `slot`. Without `slot` it is the channel of the first slot holding one, which only
+ * suits a single-channel workspace; use {@link useSlotChannels} for several.
  *
  * @example
  * ```tsx
@@ -188,9 +161,8 @@ export const useSlotChannel = (options?: { slot?: SlotName; view?: ChatView }) =
   useSlotEntity({ kind: 'channel', slot: options?.slot, view: options?.view });
 
 /**
- * Every slot currently holding a channel, as `{ channel, slot }` pairs. Robust for
- * side-by-side channels — the caller renders one panel per entry (and, for a
- * single-channel workspace, gets an array of length ≤ 1).
+ * Every slot currently holding a channel, as `{ channel, slot }` pairs: one panel to render per
+ * entry.
  *
  * @example
  * ```tsx
@@ -206,7 +178,7 @@ export const useSlotChannels = (options?: { slot?: SlotName; view?: ChatView }) 
   );
 
 /**
- * Convenience wrapper for `useSlotEntity({ kind: 'thread' })`.
+ * The thread in `slot`, or in the first slot holding one when `slot` is omitted.
  *
  * @example
  * ```tsx
@@ -217,8 +189,8 @@ export const useSlotThread = (options?: { slot?: SlotName; view?: ChatView }) =>
   useSlotEntity({ kind: 'thread', slot: options?.slot, view: options?.view });
 
 /**
- * Every slot currently holding a thread, as `{ thread, slot }` pairs — the thread
- * analog of `useSlotChannels`. The caller renders one thread panel per entry.
+ * Every slot currently holding a thread, as `{ thread, slot }` pairs: one panel to render per
+ * entry.
  *
  * @example
  * ```tsx

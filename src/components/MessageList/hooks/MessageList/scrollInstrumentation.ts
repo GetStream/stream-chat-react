@@ -1,23 +1,10 @@
-// Kept as a reusable manual-profiling helper for future scroll investigations.
-// The scroll hooks intentionally do not call this by default; temporarily wrap
-// the target code path with `measureScrollWork(...)` when profiling is needed.
-//
-// Re-enable procedure:
-// 1. Import `measureScrollWork` into the hook or helper you want to profile.
-// 2. Wrap the target expression or callback, for example:
-//    `measureScrollWork('message-list-scroll:capture-anchor', () => capture())`, e.g.:
-// const messagesAddedToTop = measureScrollWork('message-list-scroll:classify-prepend', () =>
-//   messageIdsMatchAsSuffix(prevMessages, newMessages),
-// );
-// const messagesAddedToBottom = measureScrollWork(
-//   'message-list-scroll:classify-append',
-//   () => messageIdsMatchAsPrefix(prevMessages, newMessages),
-// );
-// 3. In the browser console, enable collection with:
-//    `window.__STREAM_MESSAGE_LIST_SCROLL_PERF__ = { enabled: true, entries: [] }`
-// 4. Reproduce the interaction, then inspect
-//    `window.__STREAM_MESSAGE_LIST_SCROLL_PERF__.entries`.
-// 5. Remove the temporary call sites again after the profiling pass.
+// Manual profiling helper that the scroll hooks do not call. To use it, wrap the code under
+// investigation, e.g. `measureScrollWork('message-list-scroll:capture-anchor', () => capture())`,
+// enable collection in the browser console with
+// `window.__STREAM_MESSAGE_LIST_SCROLL_PERF__ = { enabled: true, entries: [] }`, reproduce the
+// interaction and read `window.__STREAM_MESSAGE_LIST_SCROLL_PERF__.entries`. Remove the temporary
+// call sites afterwards.
+
 type ScrollPerfEntry = {
   duration: number;
   name: string;

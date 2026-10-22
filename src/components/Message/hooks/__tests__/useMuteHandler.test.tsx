@@ -13,16 +13,9 @@ import {
 } from '../../../../mock-builders';
 import type { LocalMessage, MessageResponse, UserMuteResponse } from 'stream-chat';
 
-// MERGE-RECONCILE (test migration): PR #2909's useMuteHandler no longer reads mutes from the
-// removed ChannelStateContext (it reads `client.mutedUsersStore`) and receives `notify` via a
-// `notifications` param instead of ChannelActionContext. It also swallows API errors and
-// notifies rather than rejecting. Wrapper reduced to <ChatProvider> (the hook does not use a
-// channel); mute state is seeded via `client.mutedUsersStore`; failure tests assert `notify`.
-
 const alice = generateUser({ name: 'alice' });
 const bob = generateUser({ name: 'bob' });
-// v10 moved user mute/unmute onto `client.moderation`, as the symmetric generated pair
-// `mute({ target_ids })` / `unmute({ target_ids })`.
+// The hook mutes and unmutes through `client.moderation` with `{ target_ids }`.
 const mute = vi.fn();
 const unmute = vi.fn();
 const notify = vi.fn();

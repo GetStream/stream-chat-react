@@ -109,8 +109,8 @@ const MemoizedMessage = React.memo(
 ) as typeof MessageWithContext;
 
 /**
- * The Message component is a context provider which implements all the logic required for rendering
- * an individual message. The actual UI of the message is delegated via the Message prop on Channel.
+ * Provides the logic and handlers of a single message through `MessageContext` and renders
+ * `ComponentContext.MessageUI`, which defaults to `MessageUI`.
  */
 export const Message = (props: MessageProps) => {
   const {
@@ -124,12 +124,6 @@ export const Message = (props: MessageProps) => {
     sortReactions,
   } = props;
 
-  // MERGE-RECONCILE: master removed PR #2909's per-action notification-getter props
-  // (getDeleteMessageErrorNotification, getFetchReactionsErrorNotification, etc.) and the
-  // `notify` bridge; the merged handler hooks emit errors via client.notifications
-  // internally. Handlers are called with `(message)` only (master's canonical style).
-  // The per-action custom error/success message API is a dropped PR feature — re-graft if
-  // custom notification text is required.
   const handleAction = useActionHandler(message);
   const handleReaction = useReactionHandler(message);
   const userRoles = useUserRole(message, disableQuotedMessages);

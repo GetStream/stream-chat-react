@@ -8,27 +8,17 @@ import { useMutationObserver } from '../../UtilityComponents/hooks/useMutationOb
 const OPTION_SELECTOR = '[role="option"]';
 
 /**
- * Announces how many items are listed in the search results — and, when the list is fully loaded,
- * folds the "all results loaded" end-of-list status into that SAME announcement.
+ * Announces how many `[role="option"]` elements are listed in `containerRef`, whatever the result
+ * source. Once every active source is fully loaded, the "all results loaded" status joins the same
+ * announcement so that it cannot supersede the count.
  *
- * The count is taken from the rendered options (`[role="option"]`) in `containerRef`, observed with
- * {@link useMutationObserver} — so it is source-agnostic (works across channels/messages/users and
- * any custom result component) and reflects exactly what the user sees. Delivery goes through the
- * shared {@link useInteractionAnnouncements} registry (`search.resultCount`), which debounces the
- * value so it lands once results settle (after the screen reader's typing echo) instead of on every
- * change.
+ * The announcement goes through the debounced `search.resultCount` interaction and is made only
+ * when the count or the loaded status changes, so an in-place update of a result row is not
+ * repeated. Becoming inactive cancels a pending announcement.
  *
- * `allResultsLoaded` is derived (when the announcement fires) from the active sources' latest state:
- * true only when every active source has no next page and is not loading. Carrying it in the count
- * message — rather than as a separate live-region announcement — keeps the end-of-list status from
- * competing with (and superseding) the count.
- *
- * The observer fires on every subtree mutation, but the announcement is made only when the
- * `count`/`allResultsLoaded` SIGNATURE changes — so an in-place action (e.g. muting a channel in a
- * result, which re-renders the row without changing the count) does not re-announce. It also bails
- * while inactive: gated on `active` (an in-progress search with a query) so it never fires during
- * presearch, and the pending (debounced) count is cancelled — and the signature reset — when search
- * is exited, so a stale count is not spoken after the results are gone.
+ * @param containerRef - Element that contains the result options.
+ * @param active - Whether to observe and announce, e.g. only while a search query is present.
+ * @param activeSources - Sources whose pagination state decides whether all results are loaded.
  */
 export const useAnnounceSearchResultCount = (
   containerRef: RefObject<HTMLElement | null>,
@@ -50,7 +40,7 @@ export const useAnnounceSearchResultCount = (
           return !hasNext && !isLoading;
         });
 
-      // Announce only when the meaningful state changes, not on every re-render of a result row.
+      // Skip mutations that change neither value, such as a result row re-rendering in place.
       const signature = `${count}|${allResultsLoaded}`;
       if (signature === lastSignatureRef.current) return;
       lastSignatureRef.current = signature;

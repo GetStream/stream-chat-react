@@ -13,15 +13,14 @@ export type BadgeVariant =
 export type BadgeSize = 'xs' | 'sm' | 'md' | 'lg' | null;
 
 export type BadgeProps = ComponentProps<'div'> & {
-  /** Visual variant mapping to design tokens */
   variant?: BadgeVariant;
-  /** Size preset (typography and padding) */
+  /** Size preset for typography and padding. Defaults to `'md'`. */
   size?: BadgeSize;
 };
 
 /**
- * Compact pill/circle badge for counts and labels.
- * Uses design tokens: --badge-bg-*, --badge-text-*, --badge-border.
+ * Compact pill or circle badge for counts and labels, colored by the `--str-chat__badge-bg-*`,
+ * `--str-chat__badge-text*` and `--str-chat__badge-border` tokens.
  */
 export const Badge = ({
   children,

@@ -16,14 +16,11 @@ const unreadStateSnapshotSelector = (state: UnreadSnapshotState) => ({
 });
 
 /**
- * Controls the logic when an `UnreadMessagesNotification` component should be shown.
- * In virtualized message list there is no notion of being scrolled below or above `UnreadMessagesSeparator`.
- * Therefore, the `UnreadMessagesNotification` component is rendered based on timestamps.
- * If the there are unread messages in the channel and the `VirtualizedMessageList` renders
- * messages created later than the last read message in the channel, then the
- * `UnreadMessagesNotification` component is rendered. This is an approximate equivalent to being
- * scrolled below the `UnreadMessagesNotification` component.
- * @param showAlways
+ * Decides when `UnreadMessagesNotification` is shown in the virtualized list, which has no unread
+ * separator to scroll past. With unread messages, it shows when every rendered message was created
+ * after the last read time, which approximates being scrolled past the separator.
+ *
+ * @param showAlways - Also show when every rendered message is older than the last read time.
  */
 export const useUnreadMessagesNotificationVirtualized = ({
   showAlways,
@@ -42,8 +39,7 @@ export const useUnreadMessagesNotificationVirtualized = ({
       const lastRenderedMessage = renderedMessages.slice(-1)[0];
       if (!(firstRenderedMessage && lastRenderedMessage)) return;
 
-      // All three are wire timestamps, directly comparable. Building `Date`s here produced NaN,
-      // so the notification never appeared.
+      // All three are raw timestamps compared as-is; building `Date`s from them gives NaN.
       const firstRenderedMessageTime =
         (firstRenderedMessage as LocalMessage).created_at ?? 0;
       const lastRenderedMessageTime =

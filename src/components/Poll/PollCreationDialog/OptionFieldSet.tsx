@@ -27,13 +27,11 @@ const pollComposerStateSelector = (state: PollComposerState) => ({
   options: state.data.options,
 });
 
-// Option pickup/drop/removed confirmations go through the shared {@link useInteractionAnnouncements}
-// registry (poll.optionPickedUp / poll.optionDropped / poll.optionRemoved), while the one-shot
-// "controls are now available" cue uses {@link useSettledAnnouncement}. Both ultimately deliver via
-// `useAriaLiveAnnouncer`, which routes to the modal {@link AriaLiveOutlet} the poll-creation dialog
-// mounts (the Modal/Dialog system renders an outlet inside the active `aria-modal` subtree). Screen
-// readers suppress live regions outside an active aria-modal container, so the modal outlet keeps
-// these announcements in scope.
+/**
+ * Option inputs of the poll creation dialog, with reorder and removal. Announcements are delivered
+ * through the modal `AriaLiveOutlet`, because screen readers ignore live regions outside the active
+ * `aria-modal` container.
+ */
 export const OptionFieldSet = () => {
   const { pollComposer } = useMessageComposerController();
   const { errors, options } = useStateStore(
@@ -102,9 +100,7 @@ export const OptionFieldSet = () => {
         options: nextOptions,
       });
 
-      // Confirm the removal, naming the option by its text (or its positional fallback). The
-      // registry maps this to a polite message so it queues behind the focus move to the next field
-      // (below) instead of interrupting it.
+      // Polite, so it queues behind the focus move to the next field instead of interrupting it.
       announceInteraction('poll.optionRemoved', {
         option: labelForOption(removedOption, removedOptionIndex + 1),
       });
@@ -166,12 +162,8 @@ export const OptionFieldSet = () => {
       pollComposer.updateFields({ options: nextOptions });
 
       pendingFocusIndexRef.current = targetIndex;
-      // No live-region announcement here on purpose. Once the focus moves to
-      // the active option's new handle (in the layout effect below), VoiceOver
-      // will speak that handle's aria-label, which already encodes the option
-      // text and the new position ("Reorder 'option B' at position 1 of 3").
-      // Emitting an additional polite "moved to position" message would just
-      // duplicate that information.
+      // No announcement: the layout effect below focuses the new handle, and its aria-label
+      // already carries the option text and position.
     },
     [activeOptionId, pollComposer],
   );
@@ -185,19 +177,10 @@ export const OptionFieldSet = () => {
 
   const draggable = options.length > 1;
 
-  // The reorder handle and remove button only exist once there are 2+ options. Conveying that uses
-  // two complementary mechanisms:
-  //
-  // 1. A persistent affordance: each option input's `aria-describedby` points at the hidden text
-  //    below, so the description is part of the field's accessible name/description (read on focus,
-  //    and again whenever the screen reader re-reads the field). Correct in the a11y tree and read
-  //    by screen readers that voice descriptions (e.g. NVDA).
-  // 2. A spoken cue: VoiceOver does NOT reliably speak `aria-describedby` ("hints" are often delayed
-  //    or disabled), so additionally announce availability once via a polite live region. Announcing
-  //    it at the exact 1→2 moment fails — the screen reader re-reads the focused option field when
-  //    the list mutates, and that read-out supersedes any live message at any priority. So the cue
-  //    is deferred until the option list goes idle (keyed on `options`), landing in a calm moment.
-  //    See `useSettledAnnouncement`.
+  // The reorder handle and remove button exist only with 2+ options. Each input's
+  // `aria-describedby` points at hidden text saying so, but VoiceOver does not reliably speak
+  // descriptions, so a polite cue is also announced once. It waits for `options` to go idle: the
+  // screen reader re-reads the focused field when the list mutates, which supersedes live messages.
   const optionsHintId = useStableId();
 
   useSettledAnnouncement(announce, {
@@ -277,7 +260,7 @@ export const OptionFieldSet = () => {
                 trailing={
                   draggable ? (
                     <RemoveOptionButton
-                      // Name each button by its option so SR users can tell the rows apart.
+                      // Named after its option so screen reader users can tell the rows apart.
                       aria-label={t(
                         'poll.optionFieldSet.removeOption.ariaLabel',
                         'Remove option: {{ option }}',

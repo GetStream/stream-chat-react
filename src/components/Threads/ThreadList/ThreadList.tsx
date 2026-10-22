@@ -72,10 +72,8 @@ export const ThreadList = ({ virtuosoProps }: ThreadListProps) => {
 
   const resetByThreadId = useThreadHighlighting(client.threads);
 
-  // Keyboard roving for the thread list (a `role="listbox"` of `role="option"` rows, no row actions
-  // → ArrowUp/Down/Home/End only). The list is virtualized, so only a window of rows exists in the
-  // DOM at a time; `useVirtualizedListboxKeyboardNavigation` indexes into the full `threads` array
-  // and drives Virtuoso's `scrollIntoView` to bring off-window rows into existence before focusing.
+  // The list is virtualized, so keyboard navigation indexes into the full `threads` array and uses
+  // Virtuoso's `scrollIntoView` to render off-window rows before focusing them.
   const virtuosoRef = useRef<VirtuosoHandle>(null);
   const scrollerRef = useRef<HTMLElement | null>(null);
 
@@ -93,7 +91,8 @@ export const ThreadList = ({ virtuosoProps }: ThreadListProps) => {
 
   useThreadList();
 
-  // Only the first load shows the placeholder; a reload keeps the loaded threads until the new ones land.
+  // Only the first load shows the placeholder; a reload keeps the loaded threads until new ones
+  // land.
   if (isLoading && !threads.length) {
     return (
       <div className='str-chat__thread-list-container'>

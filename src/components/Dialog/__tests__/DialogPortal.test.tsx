@@ -168,8 +168,8 @@ describe('DialogPortal', () => {
   });
 
   it('stays open on Escape when closeOnEscape is false', async () => {
-    // A long-lived panel kept open while the user works elsewhere dismisses only through its own
-    // close control. Symmetric with `closeOnClickOutside`.
+    // For a long-lived panel that closes only through its own close control; the counterpart of
+    // `closeOnClickOutside`.
     render(
       <DialogManagerProvider>
         <DialogFixture

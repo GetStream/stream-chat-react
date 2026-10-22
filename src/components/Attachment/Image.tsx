@@ -5,9 +5,7 @@ import type { GalleryItem } from '../Gallery/GalleryContext';
 
 export type ImageProps = GalleryItem;
 
-/**
- * Display image with tap-to-expand modal gallery.
- */
+/** Image attachment that opens in a modal gallery on click. */
 export const ImageComponent = (galleryItem: ImageProps) => {
   const { ModalGallery = DefaultModalGallery } = useComponentContext();
 

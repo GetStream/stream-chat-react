@@ -15,8 +15,7 @@ export const NameField = () => {
   const { t } = useTranslationContext();
   const { pollComposer } = useMessageComposerController();
   const { error, name } = useStateStore(pollComposer.state, pollComposerStateSelector);
-  // Keyed on the stable validation code rather than on the English sentence `stream-chat` produced.
-  // Matching on prose meant a copy edit in the LLC silently stopped the translation from applying.
+  // Keyed on the validation code: the English `message` from `stream-chat` may be reworded.
   const knownValidationErrors = useMemo<
     Partial<Record<PollComposerValidationCode, string>>
   >(
@@ -30,9 +29,8 @@ export const NameField = () => {
   );
 
   return (
-    // `data-autofocus` marks this as the dialog's default field. Initial focus stays on the dialog
-    // surface so the SR announces the dialog identity/description; pressing Enter on the surface
-    // then moves focus here (see GlobalModal's keydown handling) so the user can start typing.
+    // `data-autofocus` marks the dialog's default field. Initial focus stays on the dialog surface
+    // so screen readers announce the dialog; Enter there moves focus here (see GlobalModal).
     <TextInput
       className='str-chat__form__input-field__value'
       data-autofocus

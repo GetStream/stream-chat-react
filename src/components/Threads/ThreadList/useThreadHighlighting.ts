@@ -2,17 +2,13 @@ import { useEffect, useRef, useState } from 'react';
 import type { ThreadManager } from 'stream-chat';
 
 /**
- * The threads to flash as newly arrived, as a map of id to a callback that ends the flash.
+ * Threads to flash as newly arrived, as a map of thread ID to a callback that ends the flash.
  *
- * Arrival is taken from the manager's `unseenThreadIds`, which is appended to only when a thread
- * the list does not hold receives a message. Diffing the threads array instead would call every
- * thread that merely *appeared* new -- so the whole first page would flash on load, and so would
- * each page while scrolling, neither of which is an arrival.
- *
- * The ids have to be remembered as they are reported, because `reload()` clears `unseenThreadIds`
- * once it has put those threads into the list: by the time they are on screen the manager no longer
- * calls them unseen. The list (`paginator.state`) and `unseenThreadIds` (`state`) live in different
- * stores, and remembering the ids makes the order their updates land in irrelevant.
+ * Arrival comes from the manager's `unseenThreadIds` (appended to only when a thread the list does
+ * not hold receives a message), not from diffing the list, which would flash the whole first page
+ * on load and every page while scrolling. IDs are remembered when reported because `reload()`
+ * clears `unseenThreadIds` once it has put those threads into the list, and the two stores update
+ * in either order.
  */
 export const useThreadHighlighting = (threadManager: ThreadManager) => {
   const [threadsToHighlight, setThreadsToHighlight] = useState<
@@ -38,8 +34,7 @@ export const useThreadHighlighting = (threadManager: ThreadManager) => {
 
         arrived.forEach(({ id }) => awaitingArrival.current.delete(id));
 
-        // Merged, not replaced: a second arrival while the first is still flashing must not cut
-        // the first one short.
+        // Merged, not replaced, so a second arrival does not cut the first flash short.
         setThreadsToHighlight((current) => {
           const next = { ...current };
           for (const { id } of arrived) {

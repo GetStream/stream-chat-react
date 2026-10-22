@@ -12,17 +12,20 @@ import { useThreadContext } from '../Threads';
 import { useComponentContextIcons } from '../../context';
 
 export type MessageStatusProps = {
-  /* Custom component to render when message is considered delivered, not read. The default UI renders MessageDeliveredIcon and a tooltip with string 'Delivered'. */
+  /** Replaces the delivered (not read) status: a double check with a 'Delivered' tooltip. */
   MessageDeliveredStatus?: React.ComponentType;
-  /* Custom component to render when message is considered delivered and read. The default UI renders the last reader's Avatar and a tooltip with string readers' names. */
+  /**
+   * Replaces the read status: a double check with a tooltip listing the readers, plus the reader
+   * count when more than one other member has read the message.
+   */
   MessageReadStatus?: React.ComponentType;
-  /* Custom component to render when message is considered as being the in the process of delivery. The default UI renders a clock icon and a tooltip with string 'Sending...'. */
+  /** Replaces the sending status: a clock icon with a 'Sending...' tooltip. */
   MessageSendingStatus?: React.ComponentType;
-  /* Custom component to render when message is considered created on the server, but not delivered. The default UI renders MessageSentIcon and a tooltip with string 'Sent'. */
+  /** Replaces the sent (on the server, not delivered) status: a check with a 'Sent' tooltip. */
   MessageSentStatus?: React.ComponentType;
-  /* Message type string to be added to CSS class names. */
+  /** Used in the `str-chat__message-${messageType}-status` class names. Defaults to 'simple'. */
   messageType?: string;
-  /* Allows to customize the username(s) that appear on the message status tooltip */
+  /** Maps users to the names shown in the read-by tooltip. Defaults to user name or ID. */
   tooltipUserNameMapper?: TooltipUsernameMapper;
 };
 
@@ -53,11 +56,9 @@ const UnMemoizedMessageStatus = (props: MessageStatusProps) => {
   const deliveredOnlyToMe =
     deliveredTo?.length === 1 && deliveredTo[0].id === client.user?.id;
   const sending = message.status === 'sending';
-  // Delivery and read state comes from the other members' timestamp cursors
-  // (`MessageReceiptsTracker.deliveredForMessage` returns everyone whose cursor is at or past
-  // this message's `created_at`), not from the message itself. A message that never reached the
-  // server still carries a locally stamped `created_at`, so without this guard it is reported as
-  // delivered — a double tick on a message nobody received.
+  // Delivery and read state come from other members' cursors, which can be past a failed
+  // message's locally stamped `created_at`, so the `failed` guard keeps it from showing as
+  // delivered or read.
   const failed = message.status === 'failed';
   const read = !failed && !!(readBy?.length && !justReadByMe && !threadInstance);
   const delivered =

@@ -10,13 +10,13 @@ export type DownloadButtonProps = {
   className?: string;
   /** Suggested filename for the `download` attribute (not the HTML `title` tooltip). */
   suggestedFileName?: string;
-  /** Native browser tooltip; defaults to translated “Download Attachment”. */
+  /** Native browser tooltip. Defaults to the translated "Download Attachment". */
   tooltipTitle?: string;
 };
 
 /**
- * Icon download control for {@link Audio} and {@link FileAttachment} rows.
- * (BaseImage defines its own small download link when `showDownloadButtonOnError` is used.)
+ * Icon button that downloads an attachment asset. Renders nothing without an `assetUrl` or when
+ * the URL is unsafe (`sanitizeUrl` turns it into `about:blank`).
  */
 export const DownloadButton = ({
   assetUrl,
@@ -28,7 +28,7 @@ export const DownloadButton = ({
   const { t } = useTranslationContext();
   if (!assetUrl) return null;
   const href = sanitizeUrl(assetUrl);
-  if (!href) return null;
+  if (href === 'about:blank') return null;
 
   return (
     <a

@@ -8,11 +8,7 @@ import {
 } from './hooks/useLatestMessagePreview';
 import { useComponentContextIcons } from '../../context';
 
-/**
- * Props for {@link SummarizedMessagePreview}. Override the component via `ComponentContext`
- * (`<Chat>`/`<Channel>` prop `SummarizedMessagePreview`) to customize how a channel-list item renders
- * the preview of its latest message.
- */
+/** Props of {@link SummarizedMessagePreview} and of a `ComponentContext` override of it. */
 export type SummarizedMessagePreviewProps = UseLatestMessagePreviewParams;
 
 export const SummarizedMessagePreview = ({

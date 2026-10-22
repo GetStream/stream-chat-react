@@ -7,9 +7,8 @@ const MessageComposerControllerContext = React.createContext<
 >(undefined);
 
 /**
- * Supplies the composer a `MessageComposer` below it edits, in place of the thread's or channel's own.
- * For a composition the integrator owns - editing a message inline, for instance - where the default
- * composer is the wrong one to write into.
+ * Supplies the composer that components below it write to, in place of the thread's or channel's
+ * own. Use it for a composition the integrator owns, such as editing a message inline.
  */
 export const MessageComposerControllerProvider = ({
   children,

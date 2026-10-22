@@ -29,10 +29,9 @@ const createWrapper = (client) =>
 describe('useIsChannelMuted', () => {
   it('does not throw when the channel has not been initialized (watched) yet', async () => {
     const client = await getTestClientWithUser(clientUser);
-    // A channel that was never watched/queried is not initialized; the imperative
-    // channel.muteStatus() this hook used to call throws `_checkInitialized` on such a
-    // channel and crashed the app when it was rendered in the ChannelList (issue #2474).
-    // Reading the reactive `muteStatus` slice is safe instead.
+    // A channel that was never watched is not initialized, and the imperative
+    // `channel.muteStatus()` throws `_checkInitialized` on it. The reactive `muteStatus` slice is
+    // safe to read.
     const channel = client.channelManager.ensure({
       id: 'never-watched-channel',
       type: 'messaging',
@@ -75,10 +74,9 @@ describe('useIsChannelMuted', () => {
     await channel.watch();
 
     expect(channel.initialized).toBe(true);
-    // Once the client is disconnected (e.g. client.disconnectUser()), the channel stays
-    // initialized but is flagged pending disposal, and channel.getClient() throws on it —
-    // which the imperative channel.muteStatus() went through, crashing the ChannelListItem
-    // render (#2393 failure class). The reactive slice is readable regardless.
+    // Once the client is disconnected (e.g. `client.disconnectUser()`), the channel stays
+    // initialized but is flagged pending disposal, and `channel.getClient()` throws on it, as the
+    // imperative `channel.muteStatus()` does. The reactive slice is readable regardless.
     channel.state.partialNext({ pendingDisposal: true });
 
     const { result } = renderHook(() => useIsChannelMuted(channel), {
@@ -105,7 +103,7 @@ describe('useIsChannelMuted', () => {
     expect(result.current.muted).toBe(false);
 
     // The client fans `mutedChannels` out to each active channel's `muteStatus` slice, which is
-    // what the hook subscribes to — no `client.on` listener of its own any more.
+    // what the hook subscribes to; the hook has no `client.on` listener of its own.
     act(() =>
       client.dispatchEvent(
         fromPartial<Event>({

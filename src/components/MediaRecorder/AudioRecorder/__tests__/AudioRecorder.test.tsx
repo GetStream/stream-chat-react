@@ -1,7 +1,6 @@
-// MERGE-RECONCILE (test migration): import the package barrel first so it evaluates in its
-// natural order (components then context). MessageComposer's send/update hooks import
-// `useChannel` from this root barrel; importing a deep component path first would trigger a
-// partial circular re-entry that leaves `useChannel` undefined under Vitest.
+// Import the package barrel first so it evaluates in its natural order (components, then context).
+// MessageComposer's send/update hooks import `useChannel` from this barrel, and a deep component
+// import first causes a partial circular re-entry that leaves `useChannel` undefined in Vitest.
 import '../../../..';
 import React from 'react';
 import {
@@ -69,11 +68,9 @@ vi.spyOn(HTMLDivElement.prototype, 'getBoundingClientRect').mockReturnValue(
   fromPartial<DOMRect>({ width: 120 }),
 );
 
-// MERGE-RECONCILE (test migration): channel state/actions moved onto the stream-chat client,
-// so the removed ChannelState/ChannelAction/Chat/Component providers are replaced by the
-// real <Chat>/<Channel> tree. A caller may pass an already-initialized channel/client (with
-// preset composer text/attachments) via `channelStateCtx.channel` / `chatCtx.client`;
-// otherwise a fresh pair is created. Custom component overrides pass through <Channel> props.
+// Renders a real <Chat>/<Channel> tree. A caller may pass an initialized channel and client (e.g.
+// with preset composer text or attachments) via `channelStateCtx.channel` / `chatCtx.client`;
+// otherwise a fresh pair is created. `componentCtx` is applied through `WithComponents`.
 const renderComponent = async ({
   channelStateCtx,
   chatCtx,
@@ -149,9 +146,8 @@ describe('MessageInput', () => {
     (navigator as any).mediaDevices = {
       getUserMedia: vi.fn().mockResolvedValue({}),
     };
-    // Reset the permissions query each test: vi.clearAllMocks() clears call history but keeps
-    // mock implementations, so a persistent mockResolvedValue set by the permission tests would
-    // otherwise leak a 'denied' status into later tests.
+    // vi.clearAllMocks() keeps mock implementations, so a `mockResolvedValue` set by the permission
+    // tests would leak a 'denied' status into later tests; reset the permissions query each time.
     (navigator as any).permissions = { query: vi.fn() };
   });
   afterEach(() => {
@@ -182,7 +178,7 @@ describe('MessageInput', () => {
   });
 
   it('does not render start recording button when message input contains text', async () => {
-    // In v14, the recording button is hidden when content is present (send button shows instead)
+    // The recording button is hidden when content is present (the send button shows instead).
     const {
       channels: [channel],
       client,
@@ -194,7 +190,7 @@ describe('MessageInput', () => {
   });
 
   it('does not render start recording button when message input contains attachments', async () => {
-    // In v14, the recording button is hidden when content is present (send button shows instead)
+    // The recording button is hidden when content is present (the send button shows instead).
     const {
       channels: [channel],
       client,
@@ -226,7 +222,7 @@ describe('MessageInput', () => {
   });
 
   it('does not render start recording button when voiceRecording attachment already present', async () => {
-    // In v14, the recording button is hidden when content is present
+    // The recording button is hidden when content is present.
     const {
       channels: [channel],
       client,
@@ -267,8 +263,7 @@ describe('MessageInput', () => {
       });
 
       if (state === MediaRecordingState.PAUSED) {
-        // In v14, there's a toggle button (pause/resume) without a specific test ID.
-        // Click the toggle button (has class str-chat__audio_recorder__toggle-recording-button)
+        // The pause/resume toggle has no test ID, so it is selected by class.
         const toggleBtn = container.querySelector(
           '.str-chat__audio_recorder__toggle-recording-button',
         );
@@ -323,7 +318,7 @@ describe('MessageInput', () => {
   });
 
   it('uploads the recording on completion and schedules submit when multiple async messages disabled', async () => {
-    // Enable auto-emit so MediaRecorderMock.stop() triggers dataavailable like a real browser
+    // Auto-emit makes MediaRecorderMock.stop() trigger `dataavailable` like a real browser.
     MediaRecorderMock.autoEmitDataOnStop = true;
     const {
       channels: [channel],
@@ -341,14 +336,12 @@ describe('MessageInput', () => {
       chatCtx: { client },
     });
 
-    // Start recording
     fireEvent.click(screen.getByTestId(START_RECORDING_AUDIO_BUTTON_TEST_ID));
     await waitFor(() => {
       expect(screen.getByTestId(AUDIO_RECORDER_TEST_ID)).toBeInTheDocument();
     });
 
-    // Complete recording — this calls recorder.stop() which triggers dataavailable via our mock,
-    // then uploads the attachment
+    // Stopping triggers `dataavailable` through the mock, which uploads the attachment.
     fireEvent.click(screen.getByTestId(AUDIO_RECORDER_STOP_BTN_TEST_ID));
 
     await waitFor(() => {
@@ -378,13 +371,11 @@ describe('MessageInput', () => {
       props: { asyncMessagesMultiSendEnabled: true },
     });
 
-    // Start recording
     fireEvent.click(screen.getByTestId(START_RECORDING_AUDIO_BUTTON_TEST_ID));
     await waitFor(() => {
       expect(screen.getByTestId(AUDIO_RECORDER_TEST_ID)).toBeInTheDocument();
     });
 
-    // Complete recording — uploads but should NOT submit when multi-send is enabled
     fireEvent.click(screen.getByTestId(AUDIO_RECORDER_STOP_BTN_TEST_ID));
 
     await waitFor(() => {

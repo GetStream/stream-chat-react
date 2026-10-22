@@ -121,7 +121,7 @@ export const PollOptionSelector = ({
           ? (event) => {
               if (event.key !== 'Enter' && event.key !== ' ') return;
               event.preventDefault();
-              // a held key would otherwise toggle the vote on every auto-repeat
+              // a held key would toggle the vote on every auto-repeat
               if (event.repeat) return;
               toggleVote();
             }

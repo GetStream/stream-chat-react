@@ -698,7 +698,7 @@ describe('plusPlusToEmphasis', () => {
     );
     expect(screen.getByText('inserted', { selector: 'ins' })).toBeInTheDocument();
     expect(screen.getByText('++not++', { selector: 'code' })).toBeInTheDocument();
-    // link text exists; its inner text shouldn't be transformed
+    // The link text is left untransformed.
     expect(screen.getByRole('link', { name: 'x' })).toBeInTheDocument();
   });
 
@@ -709,7 +709,7 @@ describe('plusPlusToEmphasis', () => {
     );
     expect(screen.queryByText('inserted', { selector: 'ins' })).not.toBeInTheDocument();
     expect(screen.getByText('++not++', { selector: 'code' })).toBeInTheDocument();
-    // link text exists; its inner text shouldn't be transformed
+    // The link text is left untransformed.
     expect(screen.getByRole('link', { name: 'x' })).toBeInTheDocument();
   });
 });

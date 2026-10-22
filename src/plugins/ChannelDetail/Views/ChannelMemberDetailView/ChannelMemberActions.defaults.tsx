@@ -16,8 +16,8 @@ import {
   useComponentContextIcons,
   useModalContext,
   useTranslationContext,
+  useWorkspaceNavigation,
 } from '../../../../context';
-import { useChatViewNavigation } from '../../../SlotLayout';
 import { useStableCallback } from '../../../../utils';
 import { useStateStore } from '../../../../store';
 import { Alert } from '../../../../components/Dialog';
@@ -179,8 +179,8 @@ const useChannelMemberActionFilterState = () => {
   const isCurrentUser = targetUserId === client.user?.id;
 
   return {
-    // Blocking is a personal, per-user action (client.blockUser/unBlockUser),
-    // independent of channel moderation capabilities like 'ban-channel-members'.
+    // Blocking is a personal, per-user action (`client.blockUser`), independent of channel
+    // moderation capabilities like 'ban-channel-members'.
     canBlockUser: !isCurrentUser && !!targetUserId,
     canMuteUser: !isCurrentUser && !!targetUserId,
     canRemoveUser:
@@ -219,7 +219,7 @@ export const useBaseChannelMemberActionSetFilter = (
 
 const SendDirectMessageAction = () => {
   const { channelManager, client } = useChatContext();
-  const { open } = useChatViewNavigation();
+  const { openChannel } = useWorkspaceNavigation();
   const { close } = useModalContext();
   const { channel } = useChannelDetailContext();
   const { addNotification } = useNotificationApi();
@@ -238,15 +238,13 @@ const SendDirectMessageAction = () => {
         },
         type: channel.type,
       });
-      // the stored instance, if another one took the DM's cid while the watch was in flight
+      // The stored instance, which differs from `directMessageChannel` if another instance took the
+      // DM's `cid` while the watch was in flight.
       const dm = await directMessageChannel.ensureWatched();
-      // Selection is one navigation model: open the DM into a layout slot, then route it into
-      // the channel list(s) that should own it so it appears without a full re-query.
-      open({
-        key: dm.cid ?? undefined,
-        kind: 'channel',
-        source: dm,
-      });
+      // Open the DM in the workspace (a `ChatView` slot, or whatever a custom
+      // `WorkspaceNavigationProvider` does), then ingest it into the channel list(s) that should
+      // own it so it appears without a re-query.
+      openChannel(dm);
       channelManager.ingestChannel(dm);
       close();
     } catch (error) {
@@ -271,7 +269,7 @@ const SendDirectMessageAction = () => {
     close,
     channelManager,
     isSending,
-    open,
+    openChannel,
     t,
     targetUserId,
   ]);
@@ -332,9 +330,8 @@ const UserMuteAction = () => {
             }),
           )
           .catch((error) => {
-            // Reconcile to the truth source rather than a hard-coded value: with
-            // the debounced request, optimistic state may have flipped multiple
-            // times, so a fixed boolean can land on the wrong state.
+            // Resync with the source of truth: the debounced request may follow several optimistic
+            // flips, so a fixed boolean could be wrong.
             setOptimisticUserMuted(userMuted);
             return addNotification({
               context: { channel },

@@ -15,11 +15,11 @@ export const wordMimeTypes = [
   'application/msword-template',
   // .docx
   'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-  // .dotx (no test)
+  // .dotx
   'application/vnd.openxmlformats-officedocument.wordprocessingml.template',
   // .docm
   'application/vnd.ms-word.document.macroEnabled.12',
-  // .dotm (no test)
+  // .dotm
   'application/vnd.ms-word.template.macroEnabled.12',
 
   // LibreOffice/OpenOffice Writer
@@ -29,8 +29,7 @@ export const wordMimeTypes = [
   'application/vnd.oasis.opendocument.text-template',
   // .fodt
   'application/vnd.oasis.opendocument.text-flat-xml',
-  // .uot
-  // NOTE: firefox doesn't know mimetype so maybe ignore
+  // No entry for .uot: Firefox does not know its MIME type.
 ];
 
 export const excelMimeTypes = [
@@ -39,20 +38,20 @@ export const excelMimeTypes = [
   // TODO: maybe more data files
 
   // Microsoft Excel
-  // .xls .xlt .xla (no test for .xla)
+  // .xls .xlt .xla
   'application/vnd.ms-excel',
   // .xlsx
   'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-  // .xltx (no test)
+  // .xltx
   'application/vnd.openxmlformats-officedocument.spreadsheetml.template',
   // .xlsm
   'application/vnd.ms-excel.sheet.macroEnabled.12',
-  // .xltm (no test)
+  // .xltm
   'application/vnd.ms-excel.template.macroEnabled.12',
-  // .xlam (no test)
+  // .xlam
   'application/vnd.ms-excel.addin.macroEnabled.12',
-  // .xlsb (no test)
-  'application/vnd.ms-excel.addin.macroEnabled.12',
+  // .xlsb
+  'application/vnd.ms-excel.sheet.binary.macroEnabled.12',
 
   // LibreOffice/OpenOffice Calc
   // .ods
@@ -61,17 +60,16 @@ export const excelMimeTypes = [
   'application/vnd.oasis.opendocument.spreadsheet-template',
   // .fods
   'application/vnd.oasis.opendocument.spreadsheet-flat-xml',
-  // .uos
-  // NOTE: firefox doesn't know mimetype so maybe ignore
+  // No entry for .uos: Firefox does not know its MIME type.
 ];
 
 export const powerpointMimeTypes = [
-  // Microsoft Word
-  // .ppt .pot .pps .ppa (no test for .ppa)
+  // Microsoft PowerPoint
+  // .ppt .pot .pps .ppa
   'application/vnd.ms-powerpoint',
   // .pptx
   'application/vnd.openxmlformats-officedocument.presentationml.presentation',
-  // .potx (no test)
+  // .potx
   'application/vnd.openxmlformats-officedocument.presentationml.template',
   // .ppsx
   'application/vnd.openxmlformats-officedocument.presentationml.slideshow',
@@ -84,21 +82,20 @@ export const powerpointMimeTypes = [
   // .ppsm
   'application/vnd.ms-powerpoint.slideshow.macroEnabled.12',
 
-  // LibreOffice/OpenOffice Writer
+  // LibreOffice/OpenOffice Impress
   // .odp
   'application/vnd.oasis.opendocument.presentation',
   // .otp
   'application/vnd.oasis.opendocument.presentation-template',
   // .fodp
   'application/vnd.oasis.opendocument.presentation-flat-xml',
-  // .uop
-  // NOTE: firefox doesn't know mimetype so maybe ignore
+  // No entry for .uop: Firefox does not know its MIME type.
 ];
 
 export const archiveFileTypes = [
   // .zip
   'application/zip',
-  // .z7
+  // .7z
   'application/x-7z-compressed',
   // .ar
   'application/x-archive',
@@ -116,7 +113,7 @@ export const archiveFileTypes = [
   'application/x-lz4',
   // .tar.lzma
   'application/x-lzma',
-  // .tar.lzo (no test)
+  // .tar.lzo
   'application/x-lzop',
   // .tar.xz
   'application/x-xz',
@@ -146,7 +143,7 @@ export const codeFileTypes = [
   'text/x-c++src',
   // .rb
   'application/x-ruby',
-  // .rust
+  // .rs
   'text/rust',
   // .java
   'text/x-java',
@@ -163,7 +160,7 @@ export const codeFileTypes = [
 ];
 
 export const mimeTypeToExtensionMap: Record<string, string> = {
-  // Application types (sorted alphabetically)
+  // Grouped by top-level type, each group sorted alphabetically.
   'application/epub+zip': 'epub',
   'application/gzip': 'gz',
   'application/java-archive': 'jar',
@@ -181,6 +178,7 @@ export const mimeTypeToExtensionMap: Record<string, string> = {
   'application/vnd.mozilla.xul+xml': 'xul',
   'application/vnd.ms-excel': 'xls',
   'application/vnd.ms-excel.addin.macroEnabled.12': 'xlam',
+  'application/vnd.ms-excel.sheet.binary.macroEnabled.12': 'xlsb',
   'application/vnd.ms-excel.sheet.macroEnabled.12': 'xlsm',
   'application/vnd.ms-excel.template.macroEnabled.12': 'xltm',
   'application/vnd.ms-fontobject': 'eot',
@@ -246,7 +244,6 @@ export const mimeTypeToExtensionMap: Record<string, string> = {
   'application/xml': 'xml',
   'application/zip': 'zip',
 
-  // Audio types
   'audio/aac': 'aac',
   'audio/flac': 'flac',
   'audio/midi': 'midi',
@@ -262,13 +259,11 @@ export const mimeTypeToExtensionMap: Record<string, string> = {
   'audio/x-ms-wma': 'wma',
   'audio/x-wav': 'wav',
 
-  // Font types
   'font/otf': 'otf',
   'font/ttf': 'ttf',
   'font/woff': 'woff',
   'font/woff2': 'woff2',
 
-  // Image types
   'image/apng': 'apng',
   'image/avif': 'avif',
   'image/bmp': 'bmp',
@@ -283,7 +278,6 @@ export const mimeTypeToExtensionMap: Record<string, string> = {
   'image/webp': 'webp',
   'image/x-icon': 'ico',
 
-  // Text types
   'text/calendar': 'ics',
   'text/css': 'css',
   'text/csv': 'csv',
@@ -323,7 +317,6 @@ export const mimeTypeToExtensionMap: Record<string, string> = {
   'text/xml': 'xml',
   'text/yaml': 'yaml',
 
-  // Video types
   'video/3gpp': '3gp',
   'video/3gpp2': '3g2',
   'video/mp2t': 'ts',

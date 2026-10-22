@@ -4,8 +4,8 @@ import React, { forwardRef, useCallback, useMemo } from 'react';
 import type { ComputeItemKey, VirtuosoProps } from 'react-virtuoso';
 import { Virtuoso } from 'react-virtuoso';
 
-// Wraps the virtualized item list so views can attach padding/spacing to a
-// stable class instead of reaching into Virtuoso's internal markup.
+// Wraps the virtualized item list so views can attach padding to a stable class instead of
+// Virtuoso's internal markup.
 const VirtualizedListContent = forwardRef<HTMLDivElement, ComponentProps<'div'>>(
   function VirtualizedListContent({ className, ...props }, ref) {
     return (
@@ -37,12 +37,7 @@ export type VirtualizedListProps<T> = {
   virtuosoProps?: VirtuosoProps<T, unknown>;
 };
 
-/**
- * Thin wrapper around `react-virtuoso`'s `Virtuoso` for the simple,
- * append-only, flat lists used across the ChannelDetail views. It keeps the
- * call sites declarative (data + itemContent + empty/footer slots) and hides
- * the infinite-scroll wiring.
- */
+/** Wrapper around `react-virtuoso`'s `Virtuoso` for simple, append-only, flat lists. */
 export const VirtualizedList = <T,>({
   className,
   computeItemKey,

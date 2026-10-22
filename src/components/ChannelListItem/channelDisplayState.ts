@@ -15,9 +15,9 @@ export type ChannelDisplayState = {
 };
 
 /**
- * Selects {@link ChannelDisplayState} from `channel.state`. The client replaces a member when that
- * user is updated, and `channel.data` changes on `channel.updated`, so a subscription with this
- * selector re-derives the display info only for the channels that changed.
+ * Selects {@link ChannelDisplayState} from `channel.state`. The client replaces a member when its
+ * user updates, and `channel.data` changes on `channel.updated`, so subscribers re-derive the
+ * display info only for the channels that changed.
  */
 export const channelDisplayStateSelector = (
   state: ChannelDataState & MembersState,

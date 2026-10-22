@@ -11,6 +11,7 @@ import {
 import { ChatView } from '../ChatView';
 import { LayoutController } from '../layoutController/LayoutController';
 import { createChatViewSlotBinding } from '../slotBinding';
+import { useIsInThemeScope } from '../../../context/ThemeScopeContext';
 
 const renderSelector = async (selectorProps?: any) => {
   const client = await getTestClientWithUser();
@@ -63,6 +64,40 @@ const renderSelectorWithPanels = async (selectorProps?: any) => {
   );
 };
 
+describe('ChatView theme scope', () => {
+  afterEach(cleanup);
+
+  it('tells its content it already renders inside the str-chat theme scope', async () => {
+    const client = await getTestClientWithUser();
+    const ThemeScopeProbe = () => (
+      <div data-in-theme-scope={String(useIsInThemeScope())} data-testid='probe' />
+    );
+
+    render(
+      <ChatProvider
+        value={{
+          client,
+          getAppSettings: vi.fn(),
+          mutes: [],
+          searchController: fromPartial({}),
+          theme: 'messaging light',
+          useImageFlagEmojisOnWindows: false,
+        }}
+      >
+        <TranslationProvider value={mockTranslationContextValue()}>
+          <ChatView>
+            <ThemeScopeProbe />
+          </ChatView>
+        </TranslationProvider>
+      </ChatProvider>,
+    );
+
+    const probe = screen.getByTestId('probe');
+    expect(probe).toHaveAttribute('data-in-theme-scope', 'true');
+    expect(probe.closest('.str-chat')).toHaveClass('str-chat__chat-view');
+  });
+});
+
 describe('ChatView.Selector', () => {
   afterEach(() => {
     cleanup();
@@ -114,24 +149,24 @@ describe('ChatView.Selector', () => {
     expect(nav).toContainElement(channelsButton);
     expect(nav).toContainElement(threadsButton);
 
-    // The current view's button is marked aria-current="true" (generic "current item" —
-    // not "page", since the SDK may be embedded in a larger host UI), not aria-pressed.
+    // The current view's button has aria-current="true", not aria-pressed, and not "page": a host
+    // UI embedding the SDK may own the page.
     expect(channelsButton).toHaveAttribute('aria-current', 'true');
     expect(threadsButton).not.toHaveAttribute('aria-current');
     expect(channelsButton).not.toHaveAttribute('aria-pressed');
 
-    // ChatView is a switcher between two independent surfaces, not a WAI-ARIA Tabs widget.
+    // The views are independent surfaces, not a WAI-ARIA Tabs widget.
     expect(screen.queryByRole('tablist')).toBeNull();
     expect(screen.queryByRole('tab')).toBeNull();
     expect(screen.queryByRole('tabpanel')).toBeNull();
 
-    // The active view container is a plain div with a stable id and no landmark role.
+    // The active view container is a plain div with a stable ID and no landmark role.
     const channelsPanel = screen.getByTestId('channels-panel-content').parentElement;
     expect(channelsPanel).not.toHaveAttribute('role');
     expect(channelsPanel).not.toHaveAttribute('aria-labelledby');
     expect(channelsPanel?.id).toMatch(/str-chat__chat-view-.*-panel-channels$/);
 
-    // The inactive view is not rendered.
+    // Only the active view renders.
     expect(screen.queryByTestId('threads-panel-content')).toBeNull();
   });
 

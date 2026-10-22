@@ -67,8 +67,8 @@ type TextNode = {
   value: string;
 };
 
-// Mention matches may end at the end of the string, before whitespace,
-// or before common trailing punctuation that should stay outside the mention node.
+// A mention match ends at the end of the string, before whitespace, or before trailing
+// punctuation, which stays outside the mention node.
 const MENTION_TRAILING_BOUNDARY = String.raw`(?=$|\s|[!,.?;:'")\]}])`;
 
 const isUserMentionEntity = (
@@ -76,7 +76,13 @@ const isUserMentionEntity = (
 ): entity is Extract<RenderTextMentionEntity, { mentionType: 'user' }> =>
   entity.mentionType === 'user';
 
-// Mention display text is the exact substring found in the message text and wrapped by the mention renderer.
+/**
+ * Returns the display texts, without the leading `@`, that match the entity in message text.
+ * Roles and user groups match by name or ID, other entities by name falling back to ID.
+ *
+ * @param entity - Mention entity to resolve.
+ * @returns Display texts the mention renderer wraps.
+ */
 export const getMentionDisplayTexts = (entity: RenderTextMentionEntity) => {
   if (entity.mentionType === 'user') {
     return [entity.name || entity.id].filter(Boolean);
@@ -223,13 +229,9 @@ export const mentionsMarkdownPluginFromLookup =
     const transform = (tree: HastTree) => {
       if (!mentionReplacements.length || !mentionsRegex) return;
 
-      // handles special cases of mentions where the mention display text
-      // looks like an e-mail-like token
-      // Remark GFM translates all e-mail-like text nodes to links creating
-      // two separate child nodes "@" and "your.name@as.email" instead of
-      // keeping it as one text node with value "@your.name@as.email"
-      // this piece finds these two separated nodes and merges them together
-      // before "replace" function takes over
+      // Remark GFM turns e-mail-like text into links, so a mention such as "@your.name@as.email"
+      // arrives as a text ending in "@" followed by a mailto link. For a known mention, drop that
+      // "@" and replace the link with a text node holding the mention text before `replace` runs.
       if (mentionDisplayTextSet.size) {
         visit(
           tree,
@@ -243,11 +245,8 @@ export const mentionsMarkdownPluginFromLookup =
 
             if (
               textNode.type === 'text' &&
-              // text value has to have @ sign at the end of the string
-              // and no other characters except whitespace can precede it
-              // valid cases:   "text @", "@", " @"
-              // invalid cases: "text@", "@text",
-              /.?\s?@$|^@$/.test(textNode.value) &&
+              // The text node has to end with the `@` that starts the mention.
+              textNode.value.endsWith('@') &&
               nextChildHref?.startsWith('mailto:')
             ) {
               const newTextValue = textNode.value.replace(/@$/, '');

@@ -11,9 +11,8 @@ import { Button } from './Button';
 import { useThreadContext } from '../Threads/ThreadContext';
 import { useCloseThread } from '../Threads/hooks/useCloseThread';
 
-// The header these buttons sit in belongs to the thread in context when there is one (a thread
-// panel), otherwise to the channel in context. The list headers share the slots too and have
-// neither, so there the buttons render nothing.
+// The header these buttons sit in belongs to the thread in context, else to the channel in context.
+// List headers share the slots and have neither, so the buttons render nothing there.
 
 /**
  * Steps back from the channel or thread whose header renders it: removes it from its panel,
@@ -59,8 +58,7 @@ const CloseThreadButton = () => {
   // Closes in the panel it renders in; `useCloseThread` passes that panel along.
   const closeThread = useCloseThread();
 
-  // Hidden for the threads view's primary thread, which is the main panel — you switch views
-  // rather than close it.
+  // Hidden for the threads view's primary thread: that panel is left by switching views.
   if (!isThreadDismissable(thread?.id, panel)) return null;
 
   return (

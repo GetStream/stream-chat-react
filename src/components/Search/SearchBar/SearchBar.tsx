@@ -30,10 +30,9 @@ export const SearchBar = () => {
   const queriesInProgress = useSearchQueriesInProgress(searchController);
 
   const [input, setInput] = useState<HTMLInputElement | null>(null);
-  // Was the most recent pointerdown inside the search widget? Used to disambiguate a blur with a
-  // null `relatedTarget`: browsers report `null` both when focus genuinely leaves the widget AND
-  // when the user presses a non-focusable descendant (the search icon, wrapper padding). Only the
-  // former should collapse search.
+  // Whether the latest pointerdown landed inside the widget. A blur with a null `relatedTarget`
+  // means either focus left the widget or a non-focusable descendant (icon, padding) was pressed;
+  // only the first should collapse search.
   const pointerDownInsideRef = useRef(false);
   const { isActive, searchQuery } = useStateStore(
     searchController.state,
@@ -46,7 +45,7 @@ export const SearchBar = () => {
         event.target as Node | null,
       );
     };
-    // Capture so it runs before the input's blur, regardless of where the press landed.
+    // Capture phase, so it runs before the input's blur.
     document.addEventListener('pointerdown', handlePointerDown, true);
     return () => {
       document.removeEventListener('pointerdown', handlePointerDown, true);
@@ -58,8 +57,7 @@ export const SearchBar = () => {
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
         searchController.exit();
-        // Keep focus on the search input (it no longer re-activates search on focus), so the user
-        // can keep navigating from a known place rather than having focus drop to the body.
+        // Keep focus on the input rather than letting it drop to the body.
         input.focus();
       }
     };
@@ -85,18 +83,13 @@ export const SearchBar = () => {
           data-testid='search-input'
           disabled={disabled}
           onBlur={({ relatedTarget }) => {
-            // Exit search only when focus leaves the search widget entirely. Moving focus to a
-            // control inside it — the results list, the source filter buttons, the clear button,
-            // or the Cancel/exit button — is not "leaving search", so it must not collapse it (the
-            // Cancel button exits via its own activation, per WCAG 3.2.1). This matches the
-            // documented contract ("clear on every click outside the search") independent of
-            // whether the input currently holds a query — an empty input is not activated, so the
-            // previous value check only ever suppressed the exit while a query was present.
+            // Exit only when focus leaves the widget. Moving to a control inside it (results,
+            // filter buttons, clear, Cancel) must not collapse search; Cancel exits through its own
+            // activation (WCAG 3.2.1).
             if (!exitSearchOnInputBlur) return;
             const focusMovedInside = !!containerRef.current?.contains(relatedTarget);
             // A null relatedTarget also occurs when a non-focusable element inside the widget is
-            // pressed; the preceding pointerdown tells us it was an in-widget interaction, which
-            // must not collapse search.
+            // pressed; the preceding pointerdown tells the two cases apart.
             const pressedInside = relatedTarget === null && pointerDownInsideRef.current;
             pointerDownInsideRef.current = false;
             if (!focusMovedInside && !pressedInside) {
@@ -104,9 +97,9 @@ export const SearchBar = () => {
             }
           }}
           onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
-            // Activate search on user input — NOT on focus (WCAG 3.2.1: focusing a control must not
-            // change context). `search()` runs against the active sources, so activation has to
-            // happen here; `activate()` is idempotent once already active.
+            // Activate on input, not on focus (WCAG 3.2.1: focusing a control must not change
+            // context). `search()` runs against the active sources, so activate first; `activate()`
+            // is idempotent.
             if (event.target.value) {
               searchController.activate();
               searchController.search(event.target.value);
@@ -126,7 +119,7 @@ export const SearchBar = () => {
             circular
             className='str-chat__search-bar__clear-button'
             data-testid='clear-input-button'
-            disabled={queriesInProgress.length > 0} // prevent user from clearing the input while query is in progress and avoid out-of-sync UX
+            disabled={queriesInProgress.length > 0} // no clearing while a query is in progress
             onClick={() => {
               searchController.clear();
               input?.focus();
@@ -147,8 +140,7 @@ export const SearchBar = () => {
           data-testid='search-bar-button'
           onClick={() => {
             searchController.exit();
-            // Return focus to the search input so navigation can continue from there (focusing it
-            // no longer re-activates search — see RW19).
+            // Return focus to the input so navigation continues from there.
             input?.focus();
           }}
           size='sm'

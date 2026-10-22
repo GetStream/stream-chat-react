@@ -12,7 +12,6 @@ import { requireContext } from './requireContext';
 
 type CSSClasses =
   | 'chat'
-  | 'chatContainer'
   | 'channel'
   | 'channelList'
   | 'message'
@@ -26,21 +25,18 @@ export type CustomClasses = Partial<Record<CSSClasses, string>>;
 
 export type ChatContextValue = {
   /**
-   * The client's `ChannelManager` (`client.channelManager`) — used to query and manage channels
-   * across one or more channel lists (the channel-list data source + cross-list ownership). The
-   * lists themselves are registered on it by the application
-   * (`client.channelManager.insertPaginator({ paginator })`); the SDK creates none.
+   * The client's `ChannelManager`, which queries and manages channels across channel lists. The
+   * application registers its lists with `client.channelManager.insertPaginator({ paginator })`;
+   * the SDK creates none.
    */
   channelManager: ChannelManager;
   getAppSettings: () => ReturnType<StreamChat['getAppSettings']> | null;
   /** Users muted by the current user. */
   mutes: Array<UserMuteResponse>;
-  /** Instance of SearchController class that allows to control all the search operations. */
+  /** Controls all search operations. */
   searchController: SearchController;
   useImageFlagEmojisOnWindows: boolean;
-  /**
-   * Object through which custom classes can be set for main container components of the SDK.
-   */
+  /** Class names for the main container components of the SDK. */
   customClasses?: CustomClasses;
 } & Partial<Pick<ChatProps, 'isMessageAIGenerated'>> &
   Required<Pick<ChatProps, 'theme' | 'client'>>;

@@ -55,9 +55,8 @@ vi.mock('stream-chat', async (importOriginal) => {
 vi.mock('../../../../../context');
 vi.mock('../../../../../store');
 
-// Render react-virtuoso's GroupedVirtuoso synchronously: jsdom has no layout,
-// so the real component would window down to zero items. The stub renders each
-// group header followed by its items, plus the empty/footer slots.
+// Renders GroupedVirtuoso synchronously: jsdom has no layout, so the real component would window
+// down to zero items. Each group header is followed by its items, plus the empty/footer slots.
 vi.mock('react-virtuoso', () => ({
   GroupedVirtuoso: ({
     components = {},
@@ -75,8 +74,8 @@ vi.mock('react-virtuoso', () => ({
   }) => {
     const { EmptyPlaceholder, Footer } = components;
     const totalItems = groupCounts.reduce((sum, count) => sum + count, 0);
-    // `itemContent` receives the flat item index (0-based across items,
-    // excluding group headers), mirroring GroupedVirtuoso.
+    // `itemContent` receives the flat item index (0-based, excluding group headers), as in
+    // GroupedVirtuoso.
     let itemIndex = 0;
     return (
       <div data-testid='grouped-virtuoso'>
@@ -117,7 +116,7 @@ const messages: MessageResponse[] = [
     attachments: [
       {
         asset_url: 'https://cdn.test/financial-report-Q1-2026.pdf',
-        // v10: file_size/mime_type live under `attachment.custom`.
+        // file_size and mime_type live under `attachment.custom`.
         custom: { file_size: 4 * 1024 * 1024, mime_type: 'application/pdf' },
         title: 'financial-report-Q1-2026.pdf',
         type: 'file',

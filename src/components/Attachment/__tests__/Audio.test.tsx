@@ -57,9 +57,8 @@ vi.spyOn(console, 'error').mockImplementationOnce((...errorOrTextorArg: any[]) =
   originalConsoleError(...errorOrTextorArg);
 });
 
-// v10: duration / file_size / mime_type live under `attachment.custom`, not at the
-// top level of Attachment. The default attachment intentionally carries no mime_type so
-// that the AudioPlayer's canPlayType() probe does not reject it in jsdom.
+// `duration`, `file_size` and `mime_type` live under `attachment.custom`. The default attachment
+// carries no mime_type so the AudioPlayer's canPlayType() probe does not reject it in jsdom.
 const generatedAudioAttachment = generateAudioAttachment();
 const audioAttachment = {
   ...generatedAudioAttachment,
@@ -195,11 +194,11 @@ describe('Audio', () => {
     expect(playButton()).toBeInTheDocument();
     expect(pauseButton()).not.toBeInTheDocument();
     vi.spyOn(HTMLAudioElement.prototype, 'play').mockImplementationOnce(
-      () => new Promise(() => {}), // never resolves — simulates stalled playback
+      () => new Promise(() => {}), // never resolves: simulates stalled playback
     );
 
-    // Fire the click synchronously. Do NOT wrap in act() — the mocked play()
-    // never resolves, so act() would block waiting for the async work to finish.
+    // Fire the click synchronously: the mocked play() never resolves, so wrapping it in act()
+    // would block waiting for it.
     fireEvent.click(playButton());
 
     // Advance past the 2000ms safety timeout inside AudioPlayer
@@ -220,7 +219,7 @@ describe('Audio', () => {
     renderComponent({ og: audioAttachment });
 
     vi.spyOn(HTMLAudioElement.prototype, 'play').mockImplementationOnce(
-      () => new Promise(() => {}), // never resolves — simulates stalled playback
+      () => new Promise(() => {}), // never resolves: simulates stalled playback
     );
     const pauseSpy = vi
       .spyOn(HTMLAudioElement.prototype, 'pause')
@@ -228,7 +227,7 @@ describe('Audio', () => {
         throw new Error('');
       });
 
-    // Fire the click synchronously — play() never resolves, so act() would block.
+    // Fire the click synchronously: play() never resolves, so act() would block.
     fireEvent.click(playButton());
 
     vi.advanceTimersByTime(2001);
@@ -238,7 +237,6 @@ describe('Audio', () => {
       expect(pauseSpy).toHaveBeenCalled();
     });
 
-    // After the error, the play button should be shown (not pause)
     expect(playButton()).toBeInTheDocument();
     expect(pauseButton()).not.toBeInTheDocument();
 
@@ -294,9 +292,9 @@ describe('Audio', () => {
 
   it('differentiates between in thread and in channel audio player', async () => {
     const message = generateMessage();
-    // In v14 a thread player is distinguished from a channel player by the presence of a
-    // Thread instance (useThreadContext), not the message-context `threadList` flag, so the
-    // thread widget is wrapped in a ThreadProvider to give it a distinct requester namespace.
+    // A thread player is told apart from a channel player by a Thread instance (useThreadContext),
+    // not the message-context `threadList` flag, so the thread widget gets a ThreadProvider to
+    // have its own requester namespace.
     render(
       <WithAudioPlayback>
         <MessageProvider value={mockMessageContext({ message })}>
@@ -311,9 +309,9 @@ describe('Audio', () => {
     );
     expect(screen.queryAllByTestId('play-audio')).toHaveLength(2);
 
-    // Two players sharing one audio element: starting the second hands the element over and pauses
-    // the first, so exactly one widget shows as playing. Were both widgets backed by the *same*
-    // player -- the bug this guards against -- they would show the same state as each other.
+    // Two players share one audio element: starting the second hands the element over and pauses
+    // the first, so exactly one widget shows as playing. If both widgets shared one player, they
+    // would show the same state.
     await fireEvent.click(screen.queryAllByTestId('play-audio')[0]);
     await fireEvent.click(screen.queryAllByTestId('play-audio')[0]);
 

@@ -8,7 +8,7 @@ import {
 export const ChannelListHeader = () => {
   const { t } = useTranslationContext();
   const { HeaderEndContent } = useComponentContext();
-  // A channel is "active" when one is open in the workspace (mirrors ThreadListHeader).
+  // `HeaderEndContent` renders only while a channel is open in the workspace.
   const hasActiveChannel = useWorkspaceNavigation().openChannels.length > 0;
   return (
     <div className='str-chat__channel-list__header'>

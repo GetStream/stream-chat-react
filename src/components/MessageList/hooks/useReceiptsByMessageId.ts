@@ -31,17 +31,11 @@ const refOf = (message: LocalMessage): MsgRef => ({
 });
 
 /**
- * Expands the tracker's cursor buckets into "who has this message" for each rendered message.
- *
- * The tracker stores one entry per user — the message their cursor stopped on. The question the UI
- * asks is the other way round: everyone at or past a given message. Those two differ, and reading
- * the buckets as though they were the answer is what made an older message report less than a newer
- * one, which cannot happen to a cursor that only moves forward.
- *
- * Derived in one reverse pass rather than a query per message, because each answer is the next one
- * plus that message's bucket. Messages with no cursor on them — most of them — keep the array
- * identity of the message after them, so the number of allocations follows the number of readers
- * rather than the length of the list.
+ * Expands the tracker's cursor buckets into everyone at or past each rendered message. A bucket
+ * holds only the users whose cursor stopped on that message, so a message's answer is its bucket
+ * plus every newer one. Computed in one reverse pass; a message whose bucket adds nobody reuses the
+ * array of the message after it, so allocations scale with the number of readers, not the list
+ * length.
  */
 const expandBuckets = ({
   buckets,

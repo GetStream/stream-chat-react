@@ -35,20 +35,19 @@ export type ChannelMembersHeaderActionItem = {
   placement: ChannelMembersHeaderActionPlacement;
   type: ChannelMembersHeaderActionType;
   /**
-   * Optional visibility gate for app-defined actions. Apps that add their own
-   * actions are responsible for their permission checks here (the predicate
-   * receives the `channel` so it can read `own_capabilities`). The SDK's own
-   * actions are gated internally and do not rely on this.
+   * Visibility gate for app-defined actions, which are responsible for their own permission checks
+   * (the predicate receives the `channel` to read `own_capabilities`). The SDK's own actions are
+   * gated internally.
    */
   filter?: (ctx: { channel: Channel }) => boolean;
 };
 
 /**
- * First-pass filter applied by {@link DefaultHeaderActions}. The SDK's own
- * actions are gated internally by capability — `addMembers` requires
- * `update-channel-members`; any other action is shown by default. App-defined
- * actions may further narrow visibility via their own `filter` predicate (which
- * is what an app should use to gate, e.g., a custom member-removal action).
+ * Drops header actions the user cannot use: `addMembers` requires `update-channel-members`, and an
+ * action's own `filter` predicate must pass. Applied by {@link DefaultHeaderActions}.
+ *
+ * @param channelMembersHeaderActionSet - Actions to filter.
+ * @returns The actions to show.
  */
 export const useBaseChannelMembersHeaderActionSetFilter = (
   channelMembersHeaderActionSet: ChannelMembersHeaderActionItem[],

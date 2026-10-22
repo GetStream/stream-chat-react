@@ -53,10 +53,9 @@ export type SuggestionListProps = Partial<{
   containerClassName?: string;
   focusedItemIndex: number;
   /**
-   * Id applied to the listbox element. The controlling combobox (the composer textarea)
-   * points its `aria-controls`/`aria-activedescendant` at this id and at the derived
-   * per-option ids (`{listboxId}-option-{index}`), so the value must be shared between
-   * the textarea and this list. When omitted, a stable id is generated locally.
+   * ID of the listbox element. The textarea's `aria-controls` and `aria-activedescendant` point at
+   * it and at the option IDs (`{listboxId}-option-{index}`), so the textarea and the list must
+   * share it. Defaults to a generated stable ID.
    */
   listboxId?: string;
   setFocusedItemIndex: (index: number) => void;
@@ -89,11 +88,13 @@ export const defaultComponents: Record<
 } as const;
 
 /**
- * Whether the suggestion listbox should be considered shown for a given source.
- * For command suggestions the list is suppressed when every command is disabled.
- * Shared with {@link TextareaComposer} so the textarea's `aria-controls`/
- * `aria-activedescendant` are only set while the listbox is actually rendered
- * (otherwise they would reference a non-existent element).
+ * Whether the suggestion listbox is shown for a source: command suggestions are hidden when every
+ * command is disabled. Shared with `TextareaComposer` so its `aria-controls` and
+ * `aria-activedescendant` are set only while the listbox is rendered.
+ *
+ * @param params.commands - Commands of the channel.
+ * @param params.type - Type of the active search source.
+ * @returns False for the `commands` source when no command is enabled, otherwise true.
  */
 export const hasEnabledCommandSuggestions = ({
   commands,
@@ -149,7 +150,8 @@ export const SuggestionList = ({
     allowFlip: false,
     offset: 8,
     placement: 'top-start',
-    // For top placements, the cross-axis is X; we need this to allow flipping the list to the right when it overflows the right edge.
+    // For top placements the cross axis is Y: with flipping off, this shifts the list back into
+    // view vertically when it overflows the top edge.
     shiftOptions: { crossAxis: true },
   });
 
@@ -159,10 +161,8 @@ export const SuggestionList = ({
 
   const contextMenuItems = useMemo<ContextMenuItemComponent[]>(() => {
     if (!component) return [];
-    // Render in the search source's own order — the SDK already orders results (commands by
-    // prefix-match relevance, then alphabetically), so we neither re-sort here nor in the composer's
-    // Enter handler; both index into the same `searchSource.items`, keeping the highlighted option
-    // and the inserted one in sync.
+    // Rendered in the search source's own order, which the composer's Enter handler also indexes,
+    // so the highlighted option is the inserted one.
     return (items ?? []).map((item, i) => {
       const Item: ContextMenuItemComponent = ({ ...props }: ContextMenuItemProps) => (
         <AutocompleteSuggestionItem
@@ -252,11 +252,9 @@ export const SuggestionList = ({
     commandSuggestionsEnabled
   );
 
-  // A single localized label per suggestion type, used BOTH as the listbox's aria-label and
-  // in the count announcement ("5 Command Suggestions") — one source of truth, no second key.
-  // NOTE: the type strings must match the SDK search-source `type` values exactly — `commands`
-  // and `mentions` are plural, but the emoji source (EmojiSearchSource) uses the singular
-  // `emoji`. A mismatch silently falls through to the generic "Suggestions" label.
+  // One label per suggestion type, used as the listbox's aria-label and in the count announcement.
+  // The cases must match the search source `type` values: `commands` and `mentions` are plural, but
+  // the emoji source uses the singular `emoji`. A mismatch falls through to the generic label.
   const suggestionMenuLabel = useMemo(() => {
     switch (suggestions?.searchSource.type) {
       case 'commands':
@@ -279,14 +277,10 @@ export const SuggestionList = ({
     }
   }, [suggestions?.searchSource.type, t]);
 
-  // Announce the visible result count to assistive technology whenever the menu appears or the
-  // result set changes as the query filters. We depend on `items` (not just its length) so the
-  // count re-announces on every genuine re-filter even when the number is unchanged — e.g. emoji
-  // results are capped at a constant N, so without this the user would type and hear nothing
-  // after the first announcement. `announceInteraction('suggestions.count')` debounces (300ms),
-  // so continuous typing collapses to a single announcement once the user pauses; it no longer
-  // dedupes unchanged values (that policy moved here, where "did the results actually change?"
-  // is knowable). We deliberately do not announce while the list is hidden (count 0 / closed).
+  // Announces the result count when the menu appears and on every re-filter. It depends on `items`,
+  // not their number, because emoji results are capped at a constant count and typing would
+  // otherwise go silent. `suggestions.count` debounces for 500 ms, so continuous typing yields one
+  // announcement. Nothing is announced while the list is hidden.
   useEffect(() => {
     if (!showSuggestionsList) return;
     announceInteraction('suggestions.count', {

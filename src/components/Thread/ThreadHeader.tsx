@@ -24,11 +24,11 @@ const threadStateSelector = ({ parentMessage, replyCount }: ThreadState) => ({
 });
 const textComposerTypingSelector = ({ typing }: TextComposerState) => ({ typing });
 
-/** Fallback when channel has no display title: parent message author (name only). */
+/** Name of the parent message author, if it has one. */
 const displayNameFromParentMessage = (message: LocalMessage): string | undefined =>
   message.user?.name ?? undefined;
 
-/** Subtitle: replyCount, threadDisplayName, defaultSubtitle (name · reply count), and when typing also TypingIndicatorHeader. */
+/** Shows the reply count after the thread name; typing activity in the thread replaces it. */
 const ThreadHeaderSubtitle = ({
   replyCount,
   threadDisplayName,
@@ -78,18 +78,16 @@ const ThreadHeaderSubtitle = ({
 
 export type ThreadHeaderProps = {
   /**
-   * Rendered at the end of the header, after the avatar. Defaults to
-   * `WorkspaceNavigationCloseButton`, the close button of a panel that can be dismissed; a component
-   * passed here replaces it, and can render the button itself to keep it.
+   * Rendered at the end of the header. Defaults to `WorkspaceNavigationCloseButton`; a component
+   * passed here replaces it and can render that button to keep it.
    */
   EndContent?: React.ComponentType;
   /**
-   * Rendered at the start of the header. Defaults to `WorkspaceNavigationBackButton`, the back
-   * button of a panel stacked over other content; a component passed here replaces it, and can
-   * render the button itself to keep it.
+   * Rendered at the start of the header. Defaults to `WorkspaceNavigationBackButton`; a component
+   * passed here replaces it and can render that button to keep it.
    */
   StartContent?: React.ComponentType;
-  /** Override the thread display title */
+  /** Overrides the name shown before the reply count in the subtitle. */
   overrideTitle?: string;
 };
 
@@ -108,7 +106,7 @@ export const ThreadHeader = ({
 
   const replyCount = replyCountThreadInstance ?? 0;
 
-  // Subtitle: channel display title, with override and fallback to the parent message author
+  // Falls back from the override to the channel display title, then the parent message author.
   const threadDisplayName =
     overrideTitle ??
     channelDisplayTitle ??

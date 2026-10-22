@@ -3,7 +3,7 @@ import type { ComponentProps, ReactNode } from 'react';
 import React from 'react';
 
 export type FieldErrorProps = ComponentProps<'div'> & {
-  /** Error message (string or custom content e.g. icon + text) */
+  /** Error message or custom content, e.g. an icon with text. */
   text?: ReactNode;
 };
 

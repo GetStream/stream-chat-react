@@ -6,11 +6,7 @@ import { useMentionsHandler } from '../useMentionsHandler';
 import { generateMessage, generateUser } from '../../../../mock-builders';
 import { convertDateToTimestamp } from '../../../../mock-builders';
 
-// MERGE-RECONCILE (test migration): the master merge removed ChannelActionContext.
-// `useMentionsHandler` no longer reads `onMentionsClick`/`onMentionsHover` from context —
-// both handlers are supplied through the hook's `customMentionHandler` argument. The wrapper
-// that used to provide them via <ChannelActionProvider> is gone; the default handlers are now
-// passed directly as the second argument instead.
+// Both handlers are supplied through the hook's `customMentionHandler` (second) argument.
 
 const onMentionsClickMock = vi.fn();
 const onMentionsHoverMock = vi.fn();

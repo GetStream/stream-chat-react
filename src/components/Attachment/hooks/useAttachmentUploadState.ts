@@ -12,35 +12,26 @@ import { useStateStore } from '../../../store';
 
 export type AttachmentUploadState = {
   /**
-   * `true` once every byte has been handed to the socket but the server has not answered yet.
-   *
-   * Browser upload progress measures bytes *written to the connection*, not bytes the server
-   * acknowledged, so it reaches 100% the instant the request body is flushed — then the
-   * connection sits idle while the CDN ingests the file and the response travels back. On a
-   * large file over a slow link that dead zone is long, and a bar parked at 100% claims the
-   * upload is done when nothing is confirmed. Nothing measurable is happening during it, so the
-   * honest rendering is indeterminate.
+   * `true` once every byte has been sent but the server has not answered yet. Browser upload
+   * progress counts bytes written to the connection, so it reaches 100% before the server
+   * confirms; the indicator is indeterminate in that window.
    */
   uploadConfirmationPending: boolean;
-  /**
-   * `true` only while `client.uploadManager` holds a live record for at least one of the
-   * attachments — i.e. a request really is in flight right now.
-   */
+  /** `true` only while `client.uploadManager` holds a live record for one of the attachments. */
   isUploading: boolean;
   /**
-   * 0–100 while uploading and the transfer length is known; `undefined` otherwise. For several
-   * attachments this is their mean, so a gallery shows one combined bar.
+   * 0-100 while uploading and the transfer length is known, `undefined` otherwise. For several
+   * attachments, their mean.
    */
   progress?: number;
 };
 
-/** Sentinel for "no live record for this id" inside the joined selector key. */
+/** Marks an ID without a live record in the joined selector key. */
 const NO_RECORD = '-';
 
 /**
- * `UploadRecord.uploadConfirmationPending` was added in stream-chat v9.51 — see the field's docs there.
- * Widened locally so this SDK still compiles against an older resolved `stream-chat`, in which
- * case the flag is absent and {@link useAttachmentsUploadState} infers it instead.
+ * `UploadRecord` with `uploadConfirmationPending` optional, for a `stream-chat` older than v9.51
+ * whose records lack it; {@link useAttachmentsUploadState} then infers it.
  */
 type UploadRecordWithConfirmationPending = {
   uploadConfirmationPending?: boolean;
@@ -53,25 +44,18 @@ const emptyUploadState: AttachmentUploadState = {
 };
 
 /**
- * Reports whether a request for any of these attachments is in flight *right now*, and how far
- * along it is.
+ * Reports whether a request for any of the attachments is in flight right now, and how far along
+ * it is.
  *
- * The source of truth is `client.uploadManager`, which holds a record only for the lifetime of
- * the request. That has two consequences worth knowing:
+ * The source of truth is `client.uploadManager`, which holds a record only while the request runs.
+ * Attachments returned by the API have no `localMetadata`, so they never match and the upload UI
+ * stays off for sent messages. A pending `localMetadata.uploadState` only selects candidates: a
+ * message that outlives its request (aborted upload, `disconnectUser`, a stale state from an
+ * offline store) shows no progress because it has no live record. `localMetadata.uploadProgress`
+ * is only a fallback for the progress number.
  *
- * 1. **The UI is opt-in by construction.** An integration that never hands still-uploading
- *    attachments to a message never has a message referencing a live record, so none of the
- *    upload-progress UI ever renders — no config flag needed. Attachments returned by the API
- *    carry no `localMetadata` at all and can never match.
- *
- * 2. **No phantom progress.** A message can outlive its request — the upload was aborted,
- *    `disconnectUser` called `uploadManager.reset()`, or the message was rehydrated from an
- *    offline store with a stale `localMetadata.uploadState`. Keying off the frozen state would
- *    leave such an attachment showing an indeterminate spinner forever; keying off the live
- *    record makes it self-healing.
- *
- * `localMetadata.uploadProgress` is only a fallback for the progress *number*, never for
- * deciding whether an upload is running.
+ * @param attachments - Attachments to track. Ones that are not pending uploads are ignored.
+ * @returns The combined upload state of the attachments.
  */
 export const useAttachmentsUploadState = (
   attachments: (Attachment | LocalAttachment | SharedLocationResponse | undefined)[],
@@ -87,9 +71,9 @@ export const useAttachmentsUploadState = (
 
   const selector = useCallback(
     (state: UploadManagerState) => ({
-      // One joined string rather than an array: useStateStore shallow-compares the selected
-      // keys, and a fresh array would compare unequal on every store update.
-      // Per id: `-` when there is no live record, else `<progress>:<uploadConfirmationPending>`.
+      // A joined string rather than an array: useStateStore shallow-compares the selected keys,
+      // so a fresh array would never compare equal. Per ID: `-` without a live record, else
+      // `<progress>:<uploadConfirmationPending>`.
       recordsKey: pendingIdsKey
         .split(',')
         .map((id) => {
@@ -117,8 +101,7 @@ export const useAttachmentsUploadState = (
 
   if (!pending.length) return emptyUploadState;
 
-  // A record exists only while the request runs — that, not the message payload, is what
-  // "uploading" means here.
+  // A record exists only while the request runs: that, not the message payload, means "uploading".
   const entries = (recordsKey?.split(',') ?? []).map((entry, index) => {
     if (entry === NO_RECORD) return undefined;
 
@@ -128,10 +111,8 @@ export const useAttachmentsUploadState = (
 
     return {
       progress,
-      // Prefer the explicit signal from `UploadRecord.uploadConfirmationPending`. It is absent
-      // when the resolved `stream-chat` predates it, so fall back to inferring the same thing:
-      // the record is still live, therefore 100% can only mean "all bytes sent, confirmation
-      // still pending".
+      // Prefer the explicit `UploadRecord.uploadConfirmationPending`. Without it the record is
+      // still live, so 100% can only mean all bytes are sent and confirmation is pending.
       uploadConfirmationPending:
         reportedAwaiting === ''
           ? progress !== undefined && progress >= 100
@@ -165,15 +146,6 @@ export const useAttachmentUploadState = (
 ): AttachmentUploadState =>
   useAttachmentsUploadState(useMemo(() => [attachment], [attachment]));
 
-/**
- * Whether an attachment is in the window where every byte has been sent but the server has not
- * confirmed — read straight off `localMetadata`.
- *
- * This is the composer-side counterpart to {@link useAttachmentsUploadState}: for an attachment
- * still held by the composer, `AttachmentManager` mirrors the live `UploadRecord` into
- * `localMetadata`, so no store subscription is needed. On a *message* the mirrored value is a
- * frozen snapshot, which is why the message side reads the record instead.
- *
- * Falls back to inferring the window from a 100% reading when `uploadConfirmationPending` is absent,
- * i.e. against a resolved `stream-chat` older than v9.51.
- */
+// The composer side reads the flag `AttachmentManager` mirrors into `localMetadata`, through
+// `isUploadConfirmationPending` from `stream-chat`. On a message that mirrored value is a frozen
+// snapshot, which is why `useAttachmentsUploadState` reads the live record instead.

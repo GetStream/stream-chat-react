@@ -6,6 +6,7 @@ import { ChannelPaginator } from 'stream-chat';
 
 import { Chat } from '../../Chat';
 import { ChannelList } from '../ChannelList';
+import { ThemeScopeProvider } from '../../../context/ThemeScopeContext';
 import { getTestClientWithUser } from '../../../mock-builders';
 
 const setupClient = async () => {
@@ -28,6 +29,34 @@ const renderList = (client: StreamChat, paginator: ChannelPaginator) => {
 describe('ChannelList', () => {
   afterEach(cleanup);
 
+  it('brings a layout-neutral theme scope when rendered on its own', async () => {
+    const { client } = await setupClient();
+    const paginator = new ChannelPaginator({ client, id: 'channels:a' });
+    paginator.setItems({ isLastPage: true, valueOrFactory: [] });
+
+    const { container } = renderList(client, paginator);
+
+    const scope = container.firstElementChild;
+    expect(scope).toHaveClass('str-chat', 'messaging', 'light', 'str-chat__theme-scope');
+  });
+
+  it('adds no theme scope inside an existing one', async () => {
+    const { client } = await setupClient();
+    const paginator = new ChannelPaginator({ client, id: 'channels:a' });
+    paginator.setItems({ isLastPage: true, valueOrFactory: [] });
+    client.channelManager.insertPaginator({ paginator });
+
+    const { container } = render(
+      <Chat client={client}>
+        <ThemeScopeProvider>
+          <ChannelList paginator={paginator} />
+        </ThemeScopeProvider>
+      </Chat>,
+    );
+
+    expect(container.querySelector('.str-chat')).not.toBeInTheDocument();
+  });
+
   it('queries the first page of a list that has never been queried', async () => {
     const { client, queryChannels } = await setupClient();
     const paginator = new ChannelPaginator({ client, id: 'channels:a' });
@@ -41,7 +70,7 @@ describe('ChannelList', () => {
   it('does not query a list that already has a loaded page', async () => {
     const { client, queryChannels } = await setupClient();
     const paginator = new ChannelPaginator({ client, id: 'channels:a' });
-    // a loaded but empty page — e.g. a catch-all list seeded so it never auto-queries
+    // A loaded but empty page, e.g. a catch-all list seeded so it never auto-queries.
     paginator.setItems({ isLastPage: true, valueOrFactory: [] });
 
     renderList(client, paginator);
@@ -57,9 +86,8 @@ describe('ChannelList', () => {
     renderList(client, paginator);
     await waitFor(() => expect(queryChannels).toHaveBeenCalledTimes(1));
 
-    // what `client.disconnectUser()` does to every registered list: the loaded channels belong to
-    // the user that is going away. The paginator outlives the component, so a mount-only query
-    // would leave the list empty forever.
+    // Mirrors `client.disconnectUser()`, which resets every registered list. The paginator outlives
+    // the component, so a mount-only query would leave the list empty forever.
     act(() => {
       client.channelManager.resetPaginatorStates();
     });

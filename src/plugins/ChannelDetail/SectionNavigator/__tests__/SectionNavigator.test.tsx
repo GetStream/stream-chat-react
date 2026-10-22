@@ -193,8 +193,8 @@ describe('SectionNavigator', () => {
     const overlay = () => container.querySelector(OVERLAY_SELECTOR);
 
     expect(screen.getByText('layout inline')).toBeInTheDocument();
-    // The overlay stays mounted in inline layout so it can animate; closed
-    // state is signalled by the absence of the `--open` modifier.
+    // The overlay stays mounted in inline layout so it can animate; closed is the absence of the
+    // `--open` modifier.
     expect(overlay()).toBeInTheDocument();
     expect(overlay()).not.toHaveClass(OVERLAY_OPEN_CLASS);
 

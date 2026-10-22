@@ -7,8 +7,7 @@ import { useStateStore } from '../../store';
 import type { InfiniteScrollPaginatorProps } from './InfiniteScrollPaginator';
 import { InfiniteScrollPaginator } from './InfiniteScrollPaginator';
 
-/** Minimal structural view of a paginator this component reads — avoids coupling
- * to `BasePaginator`'s generic variance (items only need an optional `id` for keys). */
+/** Structural view of a paginator, to avoid coupling to `BasePaginator`'s generic variance. */
 type PaginatorLike<TItem> = {
   hasMoreHead: boolean;
   hasMoreTail: boolean;
@@ -35,10 +34,8 @@ type InfiniteScrollWithComponentsComponent = <TItem extends { id?: string }>(
 ) => React.ReactNode;
 
 /**
- * Renders any paginator-backed list with pluggable indicator/item components,
- * driven by the paginator's reactive `state`. Used by the ChannelManager-driven
- * channel list. `forwardRef` so callers can put the scroll root's DOM node to use
- * (e.g. the channel list marks it `role="listbox"` and drives keyboard roving off it).
+ * Renders a paginator-backed list with pluggable indicator and item components, driven by the
+ * paginator's `state`. The ref points to the scroll root element.
  */
 export const InfiniteScrollWithComponents = forwardRef(
   function InfiniteScrollWithComponents<TItem extends { id?: string }>(

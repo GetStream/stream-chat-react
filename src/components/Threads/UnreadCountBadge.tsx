@@ -10,10 +10,8 @@ export const UnreadCountBadge = ({
   count: number;
   position?: 'top-right' | 'bottom-right' | 'bottom-left' | 'top-left';
 }>) => (
-  // The wrapper stays in the a11y tree so arbitrary `children` remain exposed. Only the numeric
-  // badge is hidden: it duplicates a count the consumer must already convey via an accessible name
-  // (e.g. the threads selector button's aria-label includes the unread count), so exposing it would
-  // announce the number twice.
+  // Only the badge is hidden from assistive tech, because the consumer already conveys the count
+  // in an accessible name (e.g. the threads selector's `aria-label`) and it would be read twice.
   <div className='str-chat__unread-count-badge-container'>
     {children}
     {count > 0 && (

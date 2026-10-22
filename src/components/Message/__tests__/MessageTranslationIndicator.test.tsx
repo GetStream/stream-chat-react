@@ -7,12 +7,9 @@ import type { StreamTFunction } from '../../../i18n/types';
 import { mockMessageContext } from '../../../mock-builders';
 import { MessageTranslationIndicator } from '../MessageTranslationIndicator';
 
-/**
- * Rendered against a real `Streami18n`, not a mocked `t`.
- *
- * The behaviour under test is what i18next does with a `language.*` key it has no entry for, so a mock
- * that echoes the default back would pass either way.
- */
+// Rendered against a real `Streami18n`, not a mocked `t`: the behavior under test is what i18next
+// does with a `language.*` key it has no entry for, and a mock echoing the default would pass
+// either way.
 const renderIndicator = async (sourceLanguage: string) => {
   const i18n = new Streami18n({ logger: () => {} });
   const { t, tDateTimeParser } = await i18n.init();
@@ -47,11 +44,9 @@ describe('MessageTranslationIndicator', () => {
     expect(screen.getByText('Translated from German')).toBeInTheDocument();
   });
 
-  /**
-   * `message.i18n.language` is server data; the `language.*` catalog is generated when the SDK is built.
-   * A language the translation API learns after this release therefore has no entry, and i18next echoes
-   * the key back — so without the miss-detection this rendered "Translated from language.xx".
-   */
+  // `message.i18n.language` is server data, so it can name a language missing from the catalog;
+  // i18next then echoes the key back, and without the fallback the indicator would read
+  // "Translated from language.xx".
   it('falls back to the bare code for a language it has no name for', async () => {
     await renderIndicator('xx');
 

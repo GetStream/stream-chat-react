@@ -43,8 +43,7 @@ export const makeItemsRenderedHandler = (
 type CommonVirtuosoComponentProps = {
   context?: VirtuosoContext;
 };
-// using 'display: inline-block'
-// traps CSS margins of the item elements, preventing incorrect item measurements
+// `display: inline-block` traps the items' CSS margins, preventing incorrect item measurements.
 export const Item = ({ context, ...props }: ItemProps & CommonVirtuosoComponentProps) => {
   if (!context) return <></>;
 
@@ -84,7 +83,8 @@ export const EmptyPlaceholder = ({ context }: CommonVirtuosoComponentProps) => {
   const thread = useThreadContext();
   const isThreadList = !!thread;
   const { EmptyStateIndicator = DefaultEmptyStateIndicator } = useComponentContext();
-  // prevent showing that there are no messages if there actually are messages (for some reason virtuoso decides to render empty placeholder first, even though it has the totalCount prop > 0)
+  // Virtuoso can render the empty placeholder first even when `totalCount` > 0, so hide it while
+  // there are messages.
   if (
     typeof context?.processedMessages !== 'undefined' &&
     context.processedMessages.length > 0
@@ -142,7 +142,8 @@ export const messageRenderer = (
 
   const message = messageList[streamMessageIndex];
 
-  if (!message || isIntroMessage(message)) return <div style={{ height: '1px' }}></div>; // returning null or zero height breaks the virtuoso
+  // Virtuoso breaks on null or zero height.
+  if (!message || isIntroMessage(message)) return <div style={{ height: '1px' }}></div>;
 
   if (isDateSeparatorMessage(message)) {
     return DateSeparator ? (

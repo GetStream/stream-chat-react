@@ -25,8 +25,8 @@ export type ChannelMembersHeaderActionsProps = {
 };
 
 /**
- * Built-in modes are rendered by `ChannelMembersView` itself. Any other string
- * is treated as a custom mode and rendered from the injected `modeViews` registry.
+ * `browse` and `memberDetail` are rendered by `ChannelMembersView` itself. Any other string,
+ * including the built-in `add`, is rendered from the `modeViews` registry.
  */
 export type ChannelMembersViewMode = 'add' | 'browse' | 'memberDetail' | (string & {});
 
@@ -36,29 +36,22 @@ export type ChannelMembersModeController = {
 };
 
 export type ChannelMembersModeViewProps = {
-  /**
-   * Navigation surface for the mode. Call `modeController.setMode('browse')` to
-   * return to the list, or any other mode key to transition between modes.
-   */
+  /** Switches modes, e.g. `modeController.setMode('browse')` returns to the list. */
   modeController: ChannelMembersModeController;
 };
 
 export type ChannelMembersViewModeDescriptor = {
   /** Body rendered below the section header for this mode. */
   Body: React.ComponentType<ChannelMembersModeViewProps>;
-  /**
-   * Header title for this mode. A component (rather than a string) so it can pull
-   * whatever it needs from context/hooks — member count, translation, etc.
-   */
+  /** Header title for this mode. A component so it can use context and hooks. */
   Title: React.ComponentType;
 };
 
 /** Registry of modes, keyed by the mode string passed to `setMode`. */
 export type ChannelMembersViewModes = Record<string, ChannelMembersViewModeDescriptor>;
 
-// `browse` (the default list) and `memberDetail` (selection-driven, renders its
-// own header) are handled by ChannelMembersView directly; every other mode —
-// built-in `add` or app-provided — is resolved from the mode-view registry.
+// `browse` (the default list) and `memberDetail` (selection-driven, renders its own header) are
+// handled by ChannelMembersView directly; every other mode is resolved from the mode-view registry.
 const RESERVED_MODES: ChannelMembersViewMode[] = ['browse', 'memberDetail'];
 
 const isReservedMode = (mode: ChannelMembersViewMode) => RESERVED_MODES.includes(mode);
@@ -113,8 +106,8 @@ export const ChannelMembersView = ({
     }
   }, []);
 
-  // Fall back to the browse list if an unknown mode becomes active (e.g. the app
-  // stops providing the mode's descriptor while it is selected).
+  // Fall back to the browse list if an unknown mode becomes active, e.g. the app stops providing
+  // the descriptor of the selected mode.
   useEffect(() => {
     if (!isReservedMode(mode) && !modeViews[mode]) {
       setViewMode('browse');

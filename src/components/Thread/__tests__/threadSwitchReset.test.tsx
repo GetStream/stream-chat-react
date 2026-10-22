@@ -1,9 +1,8 @@
 // What survives a thread change and what does not.
 //
-// `Thread` used to key its whole subtree on the thread, so a switch destroyed everything below it,
-// including parts that hold no per-thread state. The reset now lives where the state does: the
-// message list keys itself on what it renders -- the thread when there is one, the channel
-// otherwise -- while the surrounding subtree is re-rendered rather than rebuilt.
+// The message list keys itself on what it renders (the thread when there is one, the channel
+// otherwise), so a switch rebuilds the list and its scroll state while the surrounding subtree is
+// re-rendered, not rebuilt.
 //
 // Companion file: ../../MessageList/__tests__/messageSourceKey.test.ts, for the key itself.
 
@@ -19,9 +18,9 @@ import { initClientWithChannels } from '../../../mock-builders';
 
 import type { Channel as ChannelType, StreamChat, Thread } from 'stream-chat';
 
-// The list element, not the panel: the panel is rendered above the message list's key so the
-// notification area it holds survives a switch, which makes it a poor witness to the rebuild. This
-// one is inside the key, and it is what carries the scroll state the key exists to reset.
+// The list element, not the panel: the panel sits above the message list's key, so the
+// notification area it holds survives a switch and cannot witness the rebuild. The list element
+// carries the scroll state the key resets.
 const messageListElement = () => document.querySelector('.str-chat__message-list');
 
 const renderThread = ({
@@ -53,8 +52,8 @@ const setup = async () => {
     ],
   });
 
-  // Two threads of the SAME channel -- the case a channel-scoped key cannot tell apart. Each needs
-  // a real paginator, since that is what the list reads.
+  // Two threads of the same channel, which a channel-scoped key cannot tell apart. Each needs a
+  // real paginator because the list reads it.
   const threadA = fromPartial<Thread>({
     id: 'parent-a',
     messageComposer: channel.messageComposer,

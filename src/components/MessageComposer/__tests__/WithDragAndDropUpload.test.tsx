@@ -1,5 +1,5 @@
-// Import the root barrel first so the module graph initialises in the same order as in the app
-// (see the note in MessageInput.test.tsx).
+// Import the root barrel first so the module graph initializes in the app's order (see
+// MessageInput.test.tsx).
 import '../../..';
 import React, { useEffect } from 'react';
 import { act, fireEvent, render, screen } from '@testing-library/react';
@@ -22,7 +22,7 @@ const dropFile = (file: File, element: Element) =>
 
 const file = () => new File(['content'], 'note.txt', { type: 'text/plain' });
 
-/** Stands in for the MessageComposerProvider, which is what registers drop handlers in the app. */
+/** Stands in for `MessageComposerProvider`, which registers drop handlers in the app. */
 const DropSubscriber = ({ onDrop }: { onDrop: (files: File[]) => void }) => {
   const { subscribeToDrop } = useDragAndDropUploadContext();
 
@@ -36,7 +36,7 @@ const setup = async () => {
     channels: [channel],
     client,
   } = await initClientWithChannels({
-    // the dropzone is disabled in direct mode unless uploads are permitted
+    // In direct mode the dropzone is disabled unless uploads are permitted.
     channelsData: [{ channel: { own_capabilities: ['upload-file'] } }],
   });
   const uploadFiles = vi
@@ -48,7 +48,7 @@ const setup = async () => {
 
 const dropOnRoot = async () => {
   const dropped = file();
-  // async act: the direct-mode onDrop (attachmentManager.uploadFiles) returns a promise
+  // The direct-mode `onDrop` (`attachmentManager.uploadFiles`) returns a promise, so use async act.
   await act(async () => {
     await dropFile(dropped, screen.getByTestId('subscriber').parentElement!);
   });
@@ -77,7 +77,7 @@ describe('WithDragAndDropUpload', () => {
 
     const dropped = await dropOnRoot();
 
-    // react-dropzone invokes onDrop as (acceptedFiles, fileRejections, event)
+    // react-dropzone calls `onDrop` as (acceptedFiles, fileRejections, event).
     expect(uploadFiles).toHaveBeenCalledTimes(1);
     expect(uploadFiles.mock.calls[0][0]).toEqual([dropped]);
     expect(queuedHandler).not.toHaveBeenCalled();
@@ -102,5 +102,27 @@ describe('WithDragAndDropUpload', () => {
 
     expect(queuedHandler).toHaveBeenCalledWith([dropped]);
     expect(uploadFiles).not.toHaveBeenCalled();
+  });
+
+  it('keeps the className and style of a nested instance', async () => {
+    const { channel, client } = await setup();
+
+    await act(async () => {
+      await render(
+        <Chat client={client}>
+          <Channel channel={channel}>
+            <WithDragAndDropUpload>
+              <WithDragAndDropUpload className='nested' style={{ color: 'red' }}>
+                <div data-testid='nested-child' />
+              </WithDragAndDropUpload>
+            </WithDragAndDropUpload>
+          </Channel>
+        </Chat>,
+      );
+    });
+
+    const nested = screen.getByTestId('nested-child').parentElement;
+    expect(nested).toHaveClass('nested');
+    expect(nested).toHaveStyle({ color: 'rgb(255, 0, 0)' });
   });
 });

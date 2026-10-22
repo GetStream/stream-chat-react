@@ -12,14 +12,14 @@ import type { ReactionResponse } from 'stream-chat';
 import { useComponentContextIcons } from '../../context';
 
 export type ReactionSelectorProps = {
-  /** Override dialog id used by the selector popover. */
+  /** Dialog ID of the selector popover. Defaults to the ID from `ReactionSelector.getDialogId`. */
   dialogId?: string;
-  /** Function that adds/removes a reaction on a message (overrides the function stored in `MessageContext`) */
+  /** Adds or removes a reaction on the message. Defaults to the `MessageContext` handler. */
   handleReaction?: (
     reactionType: string,
     event: React.BaseSyntheticEvent,
   ) => Promise<void>;
-  /** An array of the own reaction objects to distinguish own reactions visually */
+  /** Own reactions, whose types show as pressed. Defaults to the message's own reactions. */
   own_reactions?: ReactionResponse[];
 };
 

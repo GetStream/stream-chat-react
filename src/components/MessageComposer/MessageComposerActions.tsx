@@ -21,11 +21,8 @@ import type { AIState, MessageComposerState, TextComposerState } from 'stream-ch
 import { useStateStore } from '../../store';
 import { useInertWhenHidden } from '../Accessibility';
 
-// `AIStates` is imported from its owner rather than through the `../AIStateIndicator` barrel: that
-// barrel participates in an import cycle, which would leave the re-exported binding uninitialized
-// while this module-scope const evaluates.
-// Widened to `AIState` deliberately: `AIStates` is a literal-typed const, so an inferred array of
-// its members would reject the wide `AIState` that `useAIState` returns.
+// Typed as `AIState[]` because an inferred array of the literal-typed `AIStates` members would
+// reject the wide `AIState` that `useAIState` returns.
 const STOPPABLE_AI_STATES: readonly AIState[] = [AIStates.Thinking, AIStates.Generating];
 
 const messageComposerStateSelector = ({ editedMessage }: MessageComposerState) => ({
@@ -59,12 +56,8 @@ export const MessageComposerActions = () => {
   );
 
   const contentIsEmpty = useMessageContentIsEmpty();
-  /**
-   * This bit here is needed to make sure that we can get rid of the default behaviour
-   * if need be. Essentially, this allows us to pass StopAIGenerationButton={null} and
-   * completely circumvent the default logic if it's not what we want. We need it as a
-   * prop because there is no other trivial way to override the SendMessage button otherwise.
-   */
+  // Only `undefined` falls back to the default, so a `StopAIGenerationButton: null` override
+  // removes the stop button.
   const StopAIGenerationButton =
     StopAIGenerationButtonOverride === undefined
       ? DefaultStopAIGenerationButton
@@ -79,7 +72,8 @@ export const MessageComposerActions = () => {
   const shouldDisplayStopAIGeneration =
     STOPPABLE_AI_STATES.includes(aiState) && !!StopAIGenerationButton;
 
-  const recordingEnabled = !!(recordingController.recorder && navigator.mediaDevices); // account for requirement on iOS as per this bug report: https://bugs.webkit.org/show_bug.cgi?id=252303
+  // Accounts for an iOS requirement, see https://bugs.webkit.org/show_bug.cgi?id=252303
+  const recordingEnabled = !!(recordingController.recorder && navigator.mediaDevices);
 
   let content = SendButton ? (
     <SendButton sendMessage={submitMessageFn} />
@@ -110,9 +104,8 @@ export const AdditionalMessageComposerActions = () => {
     messageComposer.textComposer.state,
     textComposerStateSelector,
   );
-  // The additional actions are visually hidden via a CSS transition while a
-  // command is active; keep them removed from the a11y tree and tab order
-  // without setting `display: none` (which would kill the transition).
+  // Hidden by a CSS transition while a command is active. Inert keeps them out of the a11y tree
+  // and tab order without `display: none`, which would break the transition.
   const inertProps = useInertWhenHidden(!!command, { setHiddenAttribute: false });
 
   return (

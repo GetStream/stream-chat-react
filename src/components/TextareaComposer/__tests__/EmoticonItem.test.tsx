@@ -27,7 +27,6 @@ describe('EmoticonItem', () => {
     });
 
     const { container } = render(Component);
-    // Component now renders via EmojiContextMenuButton (a <button>)
     const button = container.querySelector('button.str-chat__emoji-item');
     expect(button).toBeInTheDocument();
     expect(button).toHaveClass('str-chat__context-menu__button');

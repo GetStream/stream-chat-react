@@ -54,9 +54,8 @@ const DialogManagerProviderContext = React.createContext<
 
 type DialogManagerProviderProps = PropsWithChildren<{
   /**
-   * Manager-level outside click policy.
-   * When `true`, clicking overlay or outside overlay-covered area closes all dialogs
-   * in this manager. When `false`, outside clicks do not dismiss dialogs.
+   * Closes open dialogs on a click on the overlay or outside it, unless a dialog sets its own.
+   * Defaults to `true`.
    */
   closeOnClickOutside?: boolean;
   portalDestinationProps?: DialogPortalDestinationProps;
@@ -64,7 +63,8 @@ type DialogManagerProviderProps = PropsWithChildren<{
 }>;
 
 /**
- * Creates/provides a dialog manager and its portal destination.
+ * Provides a dialog manager and its portal destination. With `id` the manager is registered under
+ * it until unmount, otherwise it is local to the provider.
  */
 export const DialogManagerProvider = ({
   children,
@@ -86,7 +86,7 @@ export const DialogManagerProvider = ({
     };
   }, [closeOnClickOutside, id]);
 
-  // temporarily do not render until a new dialog manager is created
+  // Renders nothing while the manager registered under `id` is being (re)created.
   if (!dialogManager) return null;
 
   return (
@@ -140,8 +140,13 @@ const getManagerFromStore = ({
 };
 
 /**
- * Retrieves the nearest dialog manager or searches for the dialog manager by dialog manager id or dialog id.
- * Dialog id will take precedence over dialog manager id if both are provided and dialog manager is found by dialog id.
+ * Resolves a registered dialog manager by `dialogManagerId` (which must hold `dialogId` when both
+ * are given) or by `dialogId` alone. Falls back to the nearest `DialogManagerProvider`'s manager
+ * and throws when none resolves.
+ *
+ * @param params.dialogId - ID of a dialog the manager holds.
+ * @param params.dialogManagerId - ID of a registered dialog manager.
+ * @returns The context value holding the resolved `dialogManager`.
  */
 export const useDialogManager = ({
   dialogId,

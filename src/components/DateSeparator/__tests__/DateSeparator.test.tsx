@@ -33,7 +33,6 @@ describe('DateSeparator', () => {
     expect(separator).toBeInTheDocument();
     expect(separator).toHaveClass('str-chat__date-separator');
     expect(separator).toHaveAttribute('data-date', date.toISOString());
-    // The formatted date should be displayed inside a child div
     const dateDiv = separator.querySelector('.str-chat__date-separator-date');
     expect(dateDiv).toBeInTheDocument();
     expect(dateDiv.textContent).toBeTruthy();
@@ -179,7 +178,6 @@ describe('DateSeparator', () => {
       const { container: centerContainer } = render(renderWithPosition('center'));
       const { container: defaultContainer } = render(renderWithPosition());
 
-      // All positions now render the same simplified structure
       for (const container of [
         rightContainer,
         leftContainer,
@@ -195,7 +193,7 @@ describe('DateSeparator', () => {
         expect(dateDiv).toBeInTheDocument();
         expect(dateDiv).toHaveTextContent(dateMock);
 
-        // No <hr> elements in the new structure
+        // No <hr> elements.
         expect(separator.querySelector('hr')).not.toBeInTheDocument();
       }
     });

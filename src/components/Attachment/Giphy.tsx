@@ -37,10 +37,8 @@ export const Giphy = ({ attachment }: GiphyAttachmentProps) => {
   const imageUrl = imageDescriptors && imageDescriptors.imageUrl;
   const title = imageDescriptors && imageDescriptors.title;
   const resolvedImageUrl = attachmentConfiguration?.url || imageUrl;
-  // For giphy attachments `imageDescriptors.alt`/`title` may both resolve to a raw
-  // media URL (Giphy payloads rarely carry a human title), which is useless to
-  // screen-reader users. Prefer a real, non-URL title; otherwise fall back to a
-  // localized generic label instead of exposing the URL as the accessible name.
+  // `imageDescriptors.title` may be a raw media URL (Giphy payloads rarely carry a human title),
+  // which is useless as an accessible name. Use a non-URL title, else a localized generic label.
   const descriptiveTitle = getGiphyDescriptiveTitle(title);
   const accessibleName = descriptiveTitle
     ? t('attachment.giphy.animatedGif.withTitle.ariaLabel', 'Animated GIF: {{ title }}', {

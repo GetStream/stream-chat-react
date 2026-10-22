@@ -18,7 +18,7 @@ type AttachmentPreviewableInGallery =
   | LinkPreview
   | Attachment;
 
-/** Fields shared with gallery items for image/video preview from an attachment. */
+/** Image and video fields shared with gallery items. */
 export type BaseImageDescriptor = {
   alt?: string;
   dimensions?: Dimensions;
@@ -29,7 +29,14 @@ export type BaseImageDescriptor = {
 };
 
 /**
- * Maps an attachment (or link preview) to image/video URLs and metadata for {@link BaseImage} or the gallery.
+ * Maps an attachment or link preview to the image and video fields that {@link BaseImage} and the
+ * gallery render.
+ *
+ * @param attachment - Attachment or link preview to describe.
+ * @param options.giphyVersionName - Key of `attachment.giphy` that supplies the `alt` and
+ * dimensions of a Giphy attachment.
+ * @returns The descriptor, or undefined when the attachment is not an image, video, Giphy or link
+ * preview.
  */
 export const toBaseImageDescriptors = (
   attachment: AttachmentPreviewableInGallery,

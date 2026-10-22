@@ -142,7 +142,7 @@ describe('SwitchField', () => {
     );
 
     fireEvent.click(screen.getByRole('switch'));
-    // The description must NOT leak into the announced name.
+    // The description must not leak into the announced name.
     expect(announce).toHaveBeenLastCalledWith('Limit votes per person enabled', {
       priority: 'polite',
     });

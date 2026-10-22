@@ -5,10 +5,8 @@ type UseMessageSetKeyParams = {
   messages?: LocalMessage[];
 };
 
+/** Key for the Virtuoso list, renewed when the list jumps to a new location. */
 export const useMessageSetKey = ({ messages }: UseMessageSetKeyParams) => {
-  /**
-   * Logic to update the key of the virtuoso component when the list jumps to a new location.
-   */
   const [messageSetKey, setMessageSetKey] = useState(+new Date());
   const firstMessageId = useRef<string | undefined>(undefined);
 

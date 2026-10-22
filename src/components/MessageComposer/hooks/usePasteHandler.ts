@@ -9,9 +9,8 @@ export const usePasteHandler = () => {
       (async (event) => {
         const { items } = event.clipboardData;
         event.preventDefault();
-        // Get a promise for the plain text in case no files are
-        // found. This needs to be done here because chrome cleans
-        // up the DataTransferItems after resolving of a promise.
+        // Start reading the plain text (inserted instead of uploading files) before awaiting:
+        // Chrome clears the DataTransferItems once a promise resolves.
         let plainTextPromise: Promise<string> | undefined = undefined;
         for (let i = 0; i < items.length; i++) {
           const item = items[i];

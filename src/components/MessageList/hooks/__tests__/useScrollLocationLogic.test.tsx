@@ -8,14 +8,10 @@ import { getTestClientWithUser, mockChatContext } from '../../../../mock-builder
 
 import type { LocalMessage, StreamChat } from 'stream-chat';
 
-/**
- * Regression cover for the viewport jumping to the newest message when a window the user had
- * jumped to (a search result deep in history) merges into the live head.
- *
- * The merge shows up here as `hasMoreNewer` flipping true -> false while messages are appended
- * below the loaded window. The user is reading where they jumped; nothing about that transition
- * asks for the viewport to move.
- */
+// Regression cover for the viewport jumping to the newest message when a window the user jumped to
+// (a search result deep in history) merges into the live head. The merge shows up as
+// `hasMoreNewer` flipping true -> false while messages are appended below the loaded window; the
+// viewport must not move for it.
 
 let client: StreamChat;
 
@@ -158,7 +154,7 @@ describe('useScrollLocationLogic', () => {
   });
 
   describe('older page prepended', () => {
-    // The anchor message sits at the top of the viewport (100 px from the list's top edge) when
+    // The anchor message sits at the top of the list's viewport (both rects start at 100) when
     // loading starts. After the prepend its layout offset inside the list is `ANCHOR_CONTENT_TOP`.
     const ANCHOR_CONTENT_TOP = 520;
     const ANCHOR_ID = '25';
@@ -189,8 +185,8 @@ describe('useScrollLocationLogic', () => {
       const anchorElement = {
         dataset: { messageId: ANCHOR_ID },
         getBoundingClientRect: () => {
-          // Exact until the older page lands (that is when the anchor is captured). Afterwards iOS
-          // WebKit can still report pre-scroll geometry, so every read differs.
+          // Exact until the older page lands; the anchor is captured before that. Afterwards every
+          // read differs, as iOS WebKit can still report pre-scroll geometry.
           const pageLanded = (element as { scrollHeight: number }).scrollHeight > 600;
           const top =
             unstableRects && pageLanded

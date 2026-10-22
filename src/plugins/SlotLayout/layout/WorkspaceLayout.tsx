@@ -14,9 +14,8 @@ export type WorkspaceLayoutSlot = {
 export type WorkspaceLayoutProps = {
   navRail?: ReactNode;
   /**
-   * The slots, each with what it shows. While none has anything to show (no slots, or no content
-   * in any: `null`, `undefined` or a boolean), {@link ChatViewEmptyPlaceholder} is shown in their
-   * place.
+   * The slots, each with what it shows. {@link ChatViewEmptyPlaceholder} replaces them while none
+   * has content (`null`, `undefined` and booleans count as none).
    */
   slots: WorkspaceLayoutSlot[];
 };

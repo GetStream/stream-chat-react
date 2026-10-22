@@ -4,11 +4,11 @@ import { useComponentContext } from '../../context/ComponentContext';
 import { useTranslationContext } from '../../context/TranslationContext';
 
 export type NewMessageNotificationProps = {
-  /** Pre-computed label text (passed to custom override) */
+  /** Label computed from `newMessageCount`; passed to a custom `NewMessageNotification`. */
   label?: string;
-  /** Controls the notification display */
+  /** Renders nothing when falsy. */
   showNotification?: boolean;
-  /** Number of new messages since user scrolled up (optional; when provided shows "{{count}} new messages") */
+  /** Number of new messages since the user scrolled up. The label shows it when above 0. */
   newMessageCount?: number;
 };
 

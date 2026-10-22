@@ -16,13 +16,13 @@ export type SwitchFieldProps = Omit<
   PropsWithChildren<ComponentProps<'input'>>,
   'children'
 > & {
-  /** Main label content when title/description are not used */
+  /** Label content, ignored when `title` is set. */
   children?: ReactNode;
-  /** Optional description line below title */
+  /** Description line below the title. Rendered only with `title`. */
   description?: string;
-  /** Class applied to the root div element of the SwitchField component */
+  /** Class applied to the root element. */
   fieldClassName?: string;
-  /** Optional title line */
+  /** Title line. Replaces `children` as the label. */
   title?: string;
 };
 
@@ -48,8 +48,7 @@ export const SwitchField = ({
   const switchId = id ?? `str-chat__switch-field-${generatedSwitchId}`;
   const switchLabelId = `${switchId}-label`;
   const inputRef = useRef<HTMLInputElement | null>(null);
-  // Read the announcer optionally: a SwitchField may render outside an announcer provider (e.g. in
-  // isolation), where it simply stays silent rather than warning.
+  // Optional: a SwitchField can render outside an announcer provider, where it stays silent.
   const announce = useContext(AriaLiveAnnouncerContext)?.announce;
   const { t } = useTranslationContext();
 
@@ -58,21 +57,16 @@ export const SwitchField = ({
   const isOn = isControlled ? checked : uncontrolledChecked;
   const isReadOnly = isControlled && onChange === undefined;
 
-  // When no title/aria-label is provided, SwitchField can still be named by a caller-supplied
-  // child element id via aria-labelledby.
+  // Without a title or `aria-label`, the ID of a caller-supplied child element can name the switch.
   const childElement = isValidElement<{ id?: string }>(children) ? children : undefined;
   const childLabelId = childElement?.props.id;
-  // Accessible-name precedence:
-  // 1) explicit aria-labelledby prop
-  // 2) explicit aria-label prop
-  // 3) generated title label id (title path)
-  // 4) caller-supplied child id (children path)
+  // Accessible name precedence: `aria-labelledby`, `aria-label`, the generated title label ID,
+  // then the child element ID.
   const resolvedAriaLabelledBy =
     ariaLabelledBy ?? (!ariaLabel ? (title ? switchLabelId : childLabelId) : undefined);
 
-  // Name the toggled setting for the announcement: prefer the explicit title/aria-label; otherwise
-  // fall back to the text of the aria-labelledby target (its title row, when present, so the
-  // description is not read out as part of the name).
+  // The announcement names the setting by `title`, then `aria-label`, then the text of the
+  // `aria-labelledby` target (its title row when present, so the description is not read as name).
   const resolveAnnouncementName = () => {
     if (title) return title;
     if (ariaLabel) return ariaLabel;
@@ -155,8 +149,8 @@ export type SwitchProps = Omit<ComponentProps<'input'>, 'type'> & {
   on?: boolean;
   onSwitchClick?: MouseEventHandler<HTMLDivElement>;
   /**
-   * Renders the switch as a visual-only indicator when another element owns interaction.
-   * Example: a button row with a trailing switch indicator must not render an input inside the button.
+   * Renders only the visual switch, without an input, for when another element owns interaction
+   * (e.g. a button row, which cannot contain an input).
    */
   presentation?: boolean;
   switchRef?: React.RefObject<HTMLInputElement | null>;
@@ -191,7 +185,7 @@ export const Switch = ({
 );
 
 export type SwitchFieldLabelProps = ComponentProps<'label'> & {
-  /** Adds className str-chat__form__switch-field__label--as-error to the root */
+  /** Adds the `str-chat__form__switch-field__label--as-error` class to the root. */
   asError?: boolean;
   title?: string;
   description?: string;

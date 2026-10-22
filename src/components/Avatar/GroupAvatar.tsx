@@ -10,7 +10,7 @@ export type GroupAvatarMember = {
 };
 
 export type GroupAvatarProps = {
-  /** List of members to show as avatars; at most 2 when there's more than 4 members, otherwise 4. Defaults to [] when omitted. */
+  /** Members to show. With more than 4, the first 2 render plus a `+N` badge. Defaults to `[]`. */
   displayMembers?: GroupAvatarMember[];
   size: '2xl' | 'xl' | 'lg' | (string & {}) | null;
   badgeSize?: BadgeSize;
@@ -18,8 +18,8 @@ export type GroupAvatarProps = {
 } & ComponentPropsWithoutRef<'div'>;
 
 /**
- * Avatar component to display multiple users' avatars in a group.
- * Renders a single Avatar if fewer than 2 members. Otherwise, renders up to 2 avatars (when overflowCount is set) or 4, plus an optional +N badge.
+ * Avatar for several users: a single `Avatar` for fewer than 2 members, otherwise up to 4 avatars,
+ * or 2 plus a `+N` badge when there are more than 4 members.
  */
 export const GroupAvatar = ({
   badgeSize,

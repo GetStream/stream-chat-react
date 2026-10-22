@@ -9,7 +9,7 @@ type UseLastDeliveredDataParams = {
   lastOwnMessage?: LocalMessage;
 };
 
-/** Who has received each rendered message — see {@link useReceiptsByMessageId}. */
+/** Who has received each rendered message. See {@link useReceiptsByMessageId}. */
 export const useLastDeliveredData = (
   props: UseLastDeliveredDataParams,
 ): Record<string, UserResponse[]> =>

@@ -46,14 +46,11 @@ const createDefaultNotificationDisplayFilter =
     const targetPanels = getNotificationTargetPanels(notification);
 
     if (targetPanels.includes('modal')) {
-      // While a modal is open, keep modal-tagged notifications inside it (not behind it).
+      // While a modal is open, modal-tagged notifications stay inside it.
       if (modalManagerHasOpenDialog) return panel === 'modal';
-      // The modal that emitted this notification has since closed — a common shape is a dialog that
-      // closes optimistically and only then emits a confirmation (e.g. "Poll sent"). Its `modal`
-      // NotificationList is already unmounted, so without a fallback the notification would be a
-      // dead letter (announced by the aria-live announcer, but rendered nowhere). Fall back to its
-      // other target panel(s): panel routing has already matched `panel` to one of the
-      // notification's targets, so any non-`modal` panel reaching here is a valid home.
+      // The emitting modal has closed (e.g. a dialog that closes before its confirmation arrives),
+      // so its `modal` list is unmounted and the notification would render nowhere. Fall back to
+      // its other target panels; `panel` is already one of the notification's targets.
       return panel !== 'modal';
     }
 
@@ -87,32 +84,26 @@ const ModalNotificationConfiguration = ({
 };
 
 export type ChatProps = {
-  /** The StreamChat client object */
+  /** The Stream Chat client. */
   client: StreamChat;
-  /** Object containing custom CSS classnames to override the library's default container CSS */
+  /** Custom class names that replace the default container class names. */
   customClasses?: CustomClasses;
-  /** Instance of Stream i18n */
+  /** Translation instance. */
   i18nInstance?: Streami18n;
-  /** Instance of SearchController class that allows to control all the search operations. */
+  /** Search controller. Defaults to one that searches channels, users and messages. */
   searchController?: SearchController;
-  /** Controls whether a notification can be displayed by a NotificationList. */
+  /** Controls whether a notification can be displayed by a `NotificationList`. */
   notificationDisplayFilter?: NotificationDisplayFilter;
-  /** Used for injecting className/s to the Channel and ChannelList components */
+  /** Class names added to root elements such as `Channel`. Defaults to `messaging light`. */
   theme?: string;
   /**
-   * Windows 10 does not support country flag emojis out of the box. It chooses to render these emojis as characters instead. Stream
-   * Chat can override this behavior by loading a custom web font that will render images instead (PNGs or SVGs depending on the platform).
-   * Set this prop to true if you want to use these custom emojis for Windows users.
-   *
-   * Note: requires importing `stream-chat-react/css/v2/emoji-replacement.css` style sheet
+   * Renders country flag emojis as images for Windows users, whose platform shows them as letters.
+   * Defaults to false. Requires the `stream-chat-react/css/emoji-replacement.css` style sheet.
    */
   useImageFlagEmojisOnWindows?: boolean;
 } & Partial<Pick<MessageContextValue, 'isMessageAIGenerated'>>;
 
-/**
- * Wrapper component for a StreamChat application. Chat needs to be placed around any other chat components
- * as it provides the ChatContext.
- */
+/** Provides the chat context to the Stream Chat components below it. */
 export const Chat = (props: PropsWithChildren<ChatProps>) => {
   const {
     children,
@@ -143,10 +134,8 @@ export const Chat = (props: PropsWithChildren<ChatProps>) => {
     [client, customChannelSearchController],
   );
 
-  // The controller created here is this component's to release: its configuration subscription, and
-  // a channel search's hold on its results in the channel store. One passed in belongs to the app.
-  // Disposing in the cleanup is safe under StrictMode, whose second mount of the same instance
-  // takes everything back through `registerSubscriptions()`.
+  // Only a controller created here is disposed; a passed-in one belongs to the app. StrictMode's
+  // remount is safe because `registerSubscriptions()` takes back what `dispose()` released.
   useEffect(() => {
     if (customChannelSearchController) return;
     searchController.registerSubscriptions();

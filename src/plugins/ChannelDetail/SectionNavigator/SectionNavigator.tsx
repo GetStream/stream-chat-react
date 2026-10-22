@@ -166,8 +166,8 @@ export const SectionNavigator = ({
     setHistory((history) => (history.length > 1 ? history.slice(0, -1) : history));
   }, []);
 
-  // The drawer overlay only exists in inline layout; close it whenever we leave
-  // inline so it cannot linger after a resize to a wider layout.
+  // The drawer overlay only exists in inline layout; close it on leaving inline so it does not
+  // linger after a resize to a wider layout.
   useEffect(() => {
     if (!isInlineLayout) setIsNavigationOpen(false);
   }, [isInlineLayout]);

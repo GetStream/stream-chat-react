@@ -15,16 +15,13 @@ const getOffsetFromDocument = (element: HTMLElement) => {
 };
 
 // Distance of `element`'s top edge from the top of `container`'s scrollable content. Built from
-// `offsetTop`, which is layout-based and unaffected by the container's current scroll position,
-// so the result is the same whether or not the container has scrolled yet.
+// `offsetTop`, which ignores the container's scroll position.
 const getOffsetWithin = (element: HTMLElement, container: HTMLElement) =>
   getOffsetFromDocument(element) - getOffsetFromDocument(container) - container.clientTop;
 
-// iOS WebKit keeps a touch fling ("momentum scroll") animating after the finger lifts, and that
-// animation overrides programmatic scroll positions every frame, pulling the list away from the
-// position we just restored. Hiding the overflow ends the fling. The scrollbar is an overlay on
-// iOS, so toggling it does not shift the layout. `-webkit-touch-callout` is only supported by iOS
-// WebKit, which keeps this off desktop browsers, where the toggle could change the layout width.
+// A touch fling on iOS WebKit overrides programmatic scroll positions every frame; hiding the
+// overflow ends it. The scrollbar is an overlay there, so the toggle does not shift the layout.
+// `-webkit-touch-callout` is iOS-only, which keeps the toggle off desktop browsers.
 const supportsMomentumScrolling = () =>
   typeof CSS !== 'undefined' && !!CSS.supports?.('-webkit-touch-callout', 'none');
 
@@ -48,7 +45,7 @@ export type UseScrollLocationLogicParams = {
   hasMoreNewer: boolean;
   listElement: HTMLElement | null;
   loadMoreScrollThreshold: number;
-  /** Indicates whether a page load is currently in progress. */
+  /** Whether a page load is in progress. */
   loadingMore?: boolean;
   suppressAutoscroll?: boolean;
   messages?: LocalMessage[];
@@ -78,14 +75,10 @@ export const useScrollLocationLogic = (params: UseScrollLocationLogicParams) => 
   const isRestoringOlderAnchorRef = useRef(false);
   const anchorRestoreCleanupRef = useRef<(() => void) | null>(null);
 
-  // `hasMoreNewer` turning false means the loaded window just reached the live head — typically
-  // because the user scrolled down out of a window they had jumped to (a search result deep in
-  // history) and the page bridging the gap arrived.
-  //
-  // The viewport must not move for that. The user is reading where they jumped to, and the merged
-  // page lands *below* them; treating the merge like a mount (or like a newly received message at
-  // the head) teleports them to the newest message. Both autoscroll paths below are suppressed for
-  // this one render, and the ref is advanced afterwards so only the transition itself counts.
+  // `hasMoreNewer` turning false means the loaded window just reached the live head, e.g. the page
+  // bridging a jump (a search result deep in history) arrived. The viewport must not move: the
+  // merged page lands below the reader, and treating it like a mount or a new message would
+  // teleport them to the newest message. Both autoscroll paths below skip this one render.
   const previousHasMoreNewer = useRef(hasMoreNewer);
   const justReachedLatestMessageSet = previousHasMoreNewer.current && !hasMoreNewer;
 
@@ -96,8 +89,7 @@ export const useScrollLocationLogic = (params: UseScrollLocationLogicParams) => 
     const listTop = listRect.top;
     const listBottom = listRect.bottom;
     const listCenter = listTop + listRect.height / 2;
-    // Older-page pagination should track the top edge, while the generic
-    // “keep this viewport stable” case works better from the center.
+    // Older-page pagination anchors to the top edge, every other case to the center.
     const preferTopEdgeAnchor =
       loadingMore || listElement.scrollTop < loadMoreScrollThreshold;
     const messageElements = Array.from(
@@ -170,8 +162,7 @@ export const useScrollLocationLogic = (params: UseScrollLocationLogicParams) => 
 
       isRestoringOlderAnchorRef.current = true;
 
-      // Held until the restore settles, because the fling would otherwise reclaim the position on
-      // every frame we do not write it.
+      // Held until the restore settles: the fling would reclaim the position on frames we skip.
       let resumeScrolling: (() => void) | undefined;
 
       const applyAnchor = () => {
@@ -182,10 +173,9 @@ export const useScrollLocationLogic = (params: UseScrollLocationLogicParams) => 
         );
         if (!anchorElement) return true;
 
-        // The target is absolute and derived from layout (`offsetTop` ignores scroll), so
-        // re-applying it is idempotent. A relative `scrollBy` correction measured from
-        // `getBoundingClientRect` oscillates on iOS WebKit, where the geometry read in the
-        // frame after a scroll still reflects the pre-scroll position.
+        // The absolute target comes from layout (`offsetTop` ignores scroll), so re-applying it is
+        // idempotent. A relative `scrollBy` correction oscillates on iOS WebKit, where geometry
+        // read in the frame after a scroll still reflects the old position.
         const targetScrollTop =
           getOffsetWithin(anchorElement, listElement) - anchor.offsetTop;
 
@@ -234,8 +224,8 @@ export const useScrollLocationLogic = (params: UseScrollLocationLogicParams) => 
       stableFrameCount = applyAnchor() ? 1 : 0;
       queueNextFrame();
 
-      // Late media/layout updates can still move the anchor after the first
-      // correction, so restart the settle check when the list resizes.
+      // Late media or layout changes can move the anchor again, so a resize restarts the settle
+      // check.
       if (typeof ResizeObserver !== 'undefined') {
         resizeObserver = new ResizeObserver(() => {
           stableFrameCount = 0;
@@ -260,10 +250,8 @@ export const useScrollLocationLogic = (params: UseScrollLocationLogicParams) => 
     [],
   );
 
-  // `behavior` is optional so callers opt into animation: the initial-mount and streaming
-  // "keep pinned to bottom" autoscroll below call it with no argument and stay instant (which is
-  // what keeps pagination position-preservation correct), while an interactive scroll-to-latest
-  // passes `{ behavior }` for a smooth (or reduced-motion `auto`) scroll.
+  // Callers opt into animation with `{ behavior }`. The autoscroll paths below pass nothing and
+  // stay instant, which keeps pagination position preservation correct.
   const scrollToBottom = useCallback(
     (options?: { behavior?: ScrollBehavior }) => {
       if (
@@ -287,9 +275,8 @@ export const useScrollLocationLogic = (params: UseScrollLocationLogicParams) => 
   useLayoutEffect(() => {
     if (listElement) {
       setWrapperRect(listElement.getBoundingClientRect());
-      // `hasMoreNewer` is a dependency so a list that mounts before its first page resolves still
-      // autoscrolls once it does. That makes this run on *every* change of it, including the merge
-      // into the live head, which must leave the viewport alone.
+      // `hasMoreNewer` is a dependency so a list mounted before its first page still autoscrolls
+      // once it resolves. That also runs on the merge into the live head, which must not scroll.
       if (!justReachedLatestMessageSet) scrollToBottom();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -338,8 +325,8 @@ export const useScrollLocationLogic = (params: UseScrollLocationLogicParams) => 
     suppressAutoscroll,
   });
 
-  // Declared after the two autoscroll layout effects and the scroll manager's own, so all three
-  // observe the transition before it is consumed.
+  // Declared after the autoscroll layout effects and the scroll manager's, so all of them see the
+  // transition before it is consumed.
   useLayoutEffect(() => {
     previousHasMoreNewer.current = hasMoreNewer;
   }, [hasMoreNewer]);

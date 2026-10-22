@@ -6,6 +6,7 @@ import { Button } from '../Button';
 import {
   ModalContext,
   useChatContext,
+  useComponentContext,
   useComponentContextIcons,
   useTranslationContext,
 } from '../../context';
@@ -50,10 +51,11 @@ const GalleryTimestamp = ({ createdAt }: Pick<GalleryItem, 'createdAt'>) => {
 
 export const GalleryHeader = ({ currentItem }: GalleryHeaderProps) => {
   const { IconArrowDownCircle, IconXmark } = useComponentContextIcons();
+  const { MessageTimestamp } = useComponentContext();
   const { t } = useTranslationContext();
   const { client } = useChatContext();
   const modalContext = useContext(ModalContext);
-  const { createdAt, user } = currentItem;
+  const { createdAt, message, user } = currentItem;
 
   const headerTitle =
     (!!user?.id && user.id === client.userID && t('common.you.label', 'You')) ||
@@ -77,7 +79,14 @@ export const GalleryHeader = ({ currentItem }: GalleryHeaderProps) => {
       <div aria-hidden='true' className='str-chat__gallery__header-spacer' />
       <div className='str-chat__gallery__header-meta'>
         <div className='str-chat__gallery__title'>{headerTitle}</div>
-        <GalleryTimestamp createdAt={createdAt} />
+        {MessageTimestamp && message ? (
+          <MessageTimestamp
+            customClass='str-chat__gallery__timestamp'
+            message={message}
+          />
+        ) : (
+          <GalleryTimestamp createdAt={createdAt} />
+        )}
       </div>
       <div className='str-chat__gallery__header-actions'>
         {downloadUrl ? (

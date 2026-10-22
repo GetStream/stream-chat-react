@@ -23,7 +23,7 @@ const modalDialogManagerStateSelector = ({
     : Object.values(dialogsById).some((dialog) => dialog.isOpen),
 });
 
-/** Tag used for full-width system banners (e.g. connection status). Excluded from `NotificationList` by default. */
+/** Tag of full-width system banners (e.g. connection status), which `NotificationList` excludes. */
 export const SYSTEM_NOTIFICATION_TAG = 'system' as const;
 
 export const hasSystemNotificationTag = (notification: Notification) =>
@@ -41,12 +41,12 @@ export type NotificationIncidentDescriptor = {
 };
 
 export type AddNotificationParams = {
-  /** Optional interactive actions rendered by the notification component. */
+  /** Interactive actions rendered by the notification component. */
   actions?: NotificationAction[];
   /**
-   * Overrides the aria-live priority the notification is announced with. Defaults to severity-based
-   * (`error` → `assertive`, otherwise `polite`). Set `assertive` for a confirmation that should be
-   * heard promptly rather than queued behind a competing announcement (e.g. a focus change).
+   * Overrides the aria-live priority the notification is announced with. Defaults to `assertive`
+   * for `error` severity and `polite` otherwise. Use `assertive` for a confirmation that should be
+   * heard promptly instead of queued behind a competing announcement (e.g. a focus change).
    */
   ariaLive?: AriaLivePriority;
   /** Arbitrary context metadata stored in `origin.context`. */
@@ -68,23 +68,21 @@ export type AddNotificationParams = {
   /** Structured descriptor of the incident this notification reports on. */
   incident?: NotificationIncidentDescriptor;
   /**
-   * Optional machine-readable notification type identifier (domain:entity:operation:status).
-   * Used by notification consumers to route behavior, including translation lookup
-   * via notification-type registries.
-   * When omitted, `type` is generated from `incident` if `incident` is provided.
+   * Machine-readable type identifier (`domain:entity:operation:status`), used by consumers to route
+   * behavior, including translation lookup. Generated from `incident` when omitted and `incident`
+   * is provided.
    */
   type?: string;
 };
 
 /**
- * Same shape as {@link AddNotificationParams} except `targetPanels` is omitted — system
- * banners are global and do not receive `target:*` panel tags (they are filtered by the
- * `system` tag for `NotificationList` vs banner UIs).
+ * {@link AddNotificationParams} without `targetPanels`: system banners are global and get the
+ * `system` tag instead of `target:*` panel tags.
  */
 export type AddSystemNotificationParams = Omit<AddNotificationParams, 'targetPanels'>;
 
 export type AddNotification = (params: AddNotificationParams) => void;
-/** Returns the notification id (for removal / timeouts). */
+/** Returns the notification ID, for removal and timeouts. */
 export type AddSystemNotification = (params: AddSystemNotificationParams) => string;
 export type RemoveNotification = (id: string) => void;
 export type StartNotificationTimeout = (id: string) => void;
@@ -250,9 +248,8 @@ export const useNotificationApi = (): NotificationApi => {
     [client],
   );
 
-  // Starting is the manager's to make idempotent: a caller that cannot know whether the countdown
-  // is already running -- a component that remounts, a second view of the same notification --
-  // would otherwise hand it another full lifetime and lose the original deadline.
+  // Idempotency lives in the manager: a caller that cannot know whether the countdown is already
+  // running (e.g. a remounted component) would otherwise reset the notification's deadline.
   const ensureNotificationTimeout: EnsureNotificationTimeout = useCallback(
     (id) => {
       client.notifications.ensureTimeout(id);

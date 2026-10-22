@@ -1,7 +1,6 @@
-// Import the package barrel first so it evaluates in its natural order (components
-// then context). MessageComposer's send/update hooks import `useChannel` from this
-// root barrel; importing a deep component path first would trigger a partial circular
-// re-entry that leaves `useChannel` undefined under Vitest.
+// Import the package barrel first so it evaluates in its natural order (components, then
+// context). MessageComposer's send/update hooks import `useChannel` from this root barrel, and
+// a deep component import first would re-enter it and leave `useChannel` undefined under Vitest.
 import '../../..';
 import React from 'react';
 import type {
@@ -126,13 +125,14 @@ const defaultChatContext = fromPartial<ChatContextValue>({
 
 const cooldown = 30;
 const filename = 'some.txt';
-const fileUploadUrl = 'http://www.getstream.io'; // real url, because ImageAttachmentPreview will try to load the image
+// A real URL, because ImageAttachmentPreview tries to load the image.
+const fileUploadUrl = 'http://www.getstream.io';
 
 const getImage = () => new File(['SectionContent'], filename, { type: 'image/png' });
 const getFile = (name = filename): File =>
   new File(['SectionContent'], name, { type: 'text/plain' });
 
-// Polyfill DOMRect for jsdom
+// jsdom does not provide DOMRect.
 if (typeof globalThis.DOMRect === 'undefined') {
   // @ts-expect-error -- partial DOMRect polyfill for jsdom
   globalThis.DOMRect = class DOMRect {
@@ -160,7 +160,7 @@ if (typeof globalThis.DOMRect === 'undefined') {
   };
 }
 
-// Patch getComputedStyle to return an iterable CSSStyleDeclaration (jsdom lacks Symbol.iterator)
+// Makes getComputedStyle return an iterable CSSStyleDeclaration; jsdom lacks `Symbol.iterator`.
 const origGetComputedStyle = window.getComputedStyle;
 window.getComputedStyle = function (element: Element, pseudoElt?: string | null) {
   // jsdom does not implement pseudo-element computed styles.
@@ -180,12 +180,9 @@ window.getComputedStyle = function (element: Element, pseudoElt?: string | null)
 const sendMessageMock = vi.fn();
 
 /**
- * Registers the interception the removed `doSendMessageRequest` prop used to provide.
- *
- * Declarative registration is the replacement for the per-component props: one place, no mount-order
- * arbitration. The adapter below is what the deleted hook did internally — call the spy, and fall back
- * to the real send when it returns nothing, so tests that only assert *that* a send was intercepted keep
- * working without stubbing a whole response.
+ * Registers a `sendMessageRequest` handler that calls `sendMessageMock`. When the mock returns
+ * nothing, the handler falls back to the real send, so tests that only assert a send was
+ * intercepted need not stub a whole response.
  */
 const registerSendInterceptor = (client, channel) =>
   client.config.set({
@@ -226,13 +223,11 @@ function dropFile(file: File, formElement: Element) {
 const initQuotedMessagePreview = async (message: { text?: string }) => {
   await waitFor(() => expect(screen.queryByText(message.text)).not.toBeInTheDocument());
 
-  // Open the message actions dropdown
   const actionsButton = await screen.findByTestId('message-actions-toggle-button');
   await act(() => {
     fireEvent.click(actionsButton);
   });
 
-  // Click the Quote button in the dropdown
   const quoteButton = await screen.findByText(/^Quote Reply$/i);
   await waitFor(() => expect(quoteButton).toBeInTheDocument());
 
@@ -311,7 +306,7 @@ const renderComponent = async ({
             })}
           >
             <AriaLiveAnnouncerProvider>
-              {/* Mirrors what the <Chat> component provides; this harness uses raw ChatProvider. */}
+              {/* Mirrors what <Chat> provides; this harness uses a raw ChatProvider. */}
               <AriaLiveOutlet />
               <DialogManagerProvider id='message-input-test-dialog-manager'>
                 <Channel channel={channel} {...channelProps}>
@@ -427,7 +422,6 @@ const renderWithActiveCooldown = async ({
     customUser: user,
   });
 
-  // Set cooldown active via the channel's cooldownTimer state
   channel.cooldownTimer.state.next(
     fromPartial<CooldownTimerState>({ cooldownRemaining: cooldown }),
   );
@@ -586,7 +580,7 @@ describe(`MessageInputFlat`, () => {
       customChannel,
       customClient,
     });
-    // Manually trigger link preview state so the previews section renders
+    // Seeds the link preview state so the previews section renders.
     await act(() => {
       const scrapedData = generateScrapedDataAttachment(
         fromPartial<LinkPreview>({
@@ -617,7 +611,7 @@ describe(`MessageInputFlat`, () => {
       const clipboardEvent = new Event('paste', {
         bubbles: true,
       });
-      // set `clipboardData`. Mock DataTransfer object
+      // Mocks `clipboardData` with a DataTransfer-like object.
       clipboardEvent['clipboardData'] = {
         items: [
           {
@@ -662,7 +656,7 @@ describe(`MessageInputFlat`, () => {
       const clipboardEvent = new Event('paste', {
         bubbles: true,
       });
-      // set `clipboardData`. Mock DataTransfer object
+      // Mocks `clipboardData` with a DataTransfer-like object.
       clipboardEvent['clipboardData'] = {
         items: [
           {
@@ -706,7 +700,7 @@ describe(`MessageInputFlat`, () => {
     it('Should upload an image when it is dropped on the dropzone', async () => {
       const { customChannel, customClient, uploadImageSpy } = await setup();
       const { container } = await renderComponent({ customChannel, customClient });
-      // drop on the form input. Technically could be dropped just outside of it as well, but the input should always work.
+      // Drops on the form input; a drop just outside it works too, but the input must work.
       const formElement = await screen.findByPlaceholderText(inputPlaceholder);
       const file = getImage();
       await act(() => {
@@ -724,7 +718,7 @@ describe(`MessageInputFlat`, () => {
     it('Should upload, display and link to a file when it is dropped on the dropzone', async () => {
       const { customChannel, customClient } = await setup();
       const { container } = await renderComponent({ customChannel, customClient });
-      // drop on the form input. Technically could be dropped just outside of it as well, but the input should always work.
+      // Drops on the form input; a drop just outside it works too, but the input must work.
       const formElement = await screen.findByPlaceholderText(inputPlaceholder);
 
       await act(() => {
@@ -953,7 +947,7 @@ describe(`MessageInputFlat`, () => {
       const image = getImage();
 
       const clipboardEvent = new Event('paste', { bubbles: true });
-      // set `clipboardData`. Mock DataTransfer object
+      // Mocks `clipboardData` with a DataTransfer-like object.
       clipboardEvent['clipboardData'] = {
         items: [
           { getAsFile: () => file, kind: 'file' },
@@ -984,7 +978,7 @@ describe(`MessageInputFlat`, () => {
         customClient,
       });
 
-      // drop on the form input. Technically could be dropped just outside of it as well, but the input should always work.
+      // Drops on the form input; a drop just outside it works too, but the input must work.
       const formElement = await screen.findByPlaceholderText(inputPlaceholder);
       const file = getImage();
 
@@ -1027,10 +1021,8 @@ describe(`MessageInputFlat`, () => {
     });
 
     it('clears the composer before the send request resolves', async () => {
-      // Regression: the composer used to be cleared only after awaiting the send round-trip, which
-      // opened a window where a fast follow-up keystroke/submit raced with the late clear (dropped
-      // or un-cleared messages when typing and submitting in quick succession). The clear must
-      // happen optimistically, before the send is awaited.
+      // Regression guard: the composer is cleared optimistically, before the send is awaited, so
+      // a fast follow-up keystroke or submit cannot race with a late clear.
       const { customChannel, customClient } = await setup();
       let resolveSend: () => void = () => undefined;
       sendMessageMock.mockImplementationOnce(
@@ -1050,9 +1042,7 @@ describe(`MessageInputFlat`, () => {
 
       await act(() => submit());
 
-      // The send request is dispatched but still pending (never resolved yet). The composer must
-      // already be empty — with the pre-fix ordering it would stay 'race-guard' until the send
-      // resolved.
+      // The send request is dispatched but still pending. The composer must already be empty.
       await waitFor(() => expect(sendMessageMock).toHaveBeenCalled());
       await waitFor(() => expect(textarea.value).toBe(''));
 
@@ -1092,12 +1082,10 @@ describe(`MessageInputFlat`, () => {
       await axeNoViolations(container);
     });
 
-    it('sends through a custom request handler, replacing the default send (successor to the removed overrideSubmitHandler prop)', async () => {
-      // `overrideSubmitHandler` was removed; overriding the send is now done through `Channel`'s
-      // `doSendMessageRequest`, which registers a `send` handler on `channel.messageOperations`
-      // (`configState.requestHandlers.sendMessageRequest`). `messageOperations.send` uses that
-      // handler instead of the default `channel.sendMessage`, and — because the handler resolves a
-      // response — the default request is never made.
+    it('sends through a custom request handler, replacing the default send', async () => {
+      // `channel.messageOperations.send` uses the `sendMessageRequest` handler registered in
+      // `registerSendInterceptor` instead of the default `channel.sendMessage`. The handler
+      // resolves a response, so the default request is never made.
       const { customChannel, customClient } = await setup();
       const sendMessageSpy = vi.spyOn(customChannel, 'sendMessage');
       const messageText = 'via-custom-handler';
@@ -1123,7 +1111,7 @@ describe(`MessageInputFlat`, () => {
           {},
         ),
       );
-      // Its resolved response replaces the default send — channel.sendMessage is never called.
+      // Its resolved response replaces the default send, so `channel.sendMessage` is never called.
       expect(sendMessageSpy).not.toHaveBeenCalled();
     });
 
@@ -1153,14 +1141,14 @@ describe(`MessageInputFlat`, () => {
         customChannel,
         customClient,
       });
-      // drop on the form input. Technically could be dropped just outside of it as well, but the input should always work.
+      // Drops on the form input; a drop just outside it works too, but the input must work.
       const formElement = await screen.findByPlaceholderText(inputPlaceholder);
       const file = getImage();
       await act(async () => {
         await dropFile(file, formElement);
       });
 
-      // wait for image uploading to complete before trying to send the message
+      // Wait for the image upload to complete before sending the message.
 
       await waitFor(() => expect(uploadImageSpy).toHaveBeenCalled());
 
@@ -1330,9 +1318,8 @@ describe(`MessageInputFlat`, () => {
       });
     });
 
-    // The suggestion list also contains broadcast mentions (e.g. @channel, @here)
-    // injected by the SDK, so assert every mentionable member is listed rather
-    // than matching the raw item count.
+    // The list also contains SDK-injected broadcast mentions (e.g. @channel, @here), so assert
+    // that every mentionable member is listed instead of matching the raw item count.
     const mentionableMembers = Object.values(customChannel.state.members)
       .map((member) => member.user)
       .filter((mentionUser) => mentionUser && mentionUser.id !== customClient.userID);
@@ -1496,8 +1483,8 @@ describe(`MessageInputFlat`, () => {
       });
     });
 
-    // The suggestion list also contains broadcast mentions (e.g. @channel, @here),
-    // so target the user suggestion explicitly instead of the first item.
+    // The list also contains broadcast mentions (e.g. @channel, @here), so target the user
+    // suggestion explicitly instead of the first item.
     await waitFor(() => {
       expect(
         document.querySelector(`.str-chat__suggestion-list-item[title="${mentionName}"]`),
@@ -1525,8 +1512,8 @@ describe(`MessageInputFlat`, () => {
     expect(results).toHaveNoViolations();
   });
 
-  // RW9b: the composer textarea is wired to the suggestion list as an
-  // aria-activedescendant autocomplete (textarea cannot be role="combobox").
+  // The textarea is wired to the suggestion list as an aria-activedescendant autocomplete (a
+  // textarea cannot be role="combobox").
   it('wires the textarea to the suggestion listbox via aria-controls/aria-activedescendant', async () => {
     const scrollIntoView = Element.prototype.scrollIntoView;
     // eslint-disable-next-line vitest/prefer-spy-on
@@ -1561,8 +1548,8 @@ describe(`MessageInputFlat`, () => {
     expect(listboxId).toBeTruthy();
     expect(textarea).toHaveAttribute('aria-controls', listboxId);
 
-    // No active option is advertised on mere filtering — otherwise the SR would re-read the
-    // auto-reset first option on every keystroke. It appears only once the user navigates.
+    // Filtering alone advertises no active option, or the SR would re-read the auto-reset first
+    // option on every keystroke. It appears only once the user navigates.
     expect(textarea).not.toHaveAttribute('aria-activedescendant');
 
     await act(async () => {
@@ -1598,7 +1585,7 @@ describe(`MessageInputFlat`, () => {
 
     const formElement = await screen.findByPlaceholderText(inputPlaceholder);
 
-    // the component does not check whether there are items to be displayed
+    // The SDK does not check whether there are items to display before rendering the custom list.
     expect(await screen.findByText('Suggestion List')).toBeInTheDocument();
 
     await act(() => {
@@ -1676,16 +1663,16 @@ describe(`MessageInputFlat`, () => {
     const STABLE_LABEL = 'Message input';
     const USER_SELECTED = 'User selected: mention-name';
 
-    // RW13: the textarea must name itself explicitly so it never inherits an
-    // ancestor name (e.g. the ChatView "Channels, tab panel").
+    // The textarea names itself explicitly so it never inherits an ancestor's name (e.g. a
+    // "Channels, tab panel" label).
     it('exposes the placeholder as an explicit aria-label while empty', async () => {
       await renderComponent();
       const input = await screen.findByPlaceholderText(inputPlaceholder);
       expect(input).toHaveAttribute('aria-label', inputPlaceholder);
     });
 
-    // RW10: once the field has content the accessible name must NOT be the
-    // (potentially stale/templated) placeholder, but a stable label.
+    // Once the field has content, the accessible name is a stable label, not the potentially
+    // stale or templated placeholder.
     it('switches to a stable explicit aria-label once the field has content', async () => {
       const { channel } = await renderComponent();
       const input = await screen.findByPlaceholderText(inputPlaceholder);
@@ -1701,8 +1688,8 @@ describe(`MessageInputFlat`, () => {
       expect(input).not.toHaveAttribute('aria-label', inputPlaceholder);
     });
 
-    // RW10: the command-specific placeholder template must not become the
-    // accessible name once real content is present.
+    // The command-specific placeholder template does not become the accessible name once real
+    // content is present.
     it('does not use the command placeholder template as the name when content exists', async () => {
       const giphyCommand = fromPartial<Command>({
         args: '[text]',
@@ -1741,7 +1728,7 @@ describe(`MessageInputFlat`, () => {
       });
     });
 
-    // RW10: announce a one-shot selection confirmation when a user is picked.
+    // A one-shot selection confirmation is announced when a user is picked.
     it('announces a confirmation once when a user mention is selected', async () => {
       const { channel } = await renderComponent();
       await screen.findByPlaceholderText(inputPlaceholder);
@@ -1755,7 +1742,7 @@ describe(`MessageInputFlat`, () => {
       });
     });
 
-    // RW10: unrelated state changes must not re-fire the selection announcement.
+    // Unrelated state changes do not re-fire the selection announcement.
     it('does not re-announce a selection on subsequent unrelated state changes', async () => {
       const { channel } = await renderComponent();
       await screen.findByPlaceholderText(inputPlaceholder);
@@ -1778,7 +1765,7 @@ describe(`MessageInputFlat`, () => {
         channel.messageComposer.textComposer.upsertMentionedUser(mentionUser);
       });
 
-      // exactly one occurrence — no double announce
+      // Exactly one occurrence, so no double announcement.
       const occurrences = getPoliteLiveRegion().textContent?.match(
         new RegExp(USER_SELECTED.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g'),
       );
@@ -2069,8 +2056,8 @@ describe(`MessageInputFlat`, () => {
       });
     };
 
-    // The send button and the Enter key are two ways to submit, and both have to save an edit -
-    // sending it would post a new message under the id of the one being edited.
+    // The send button and the Enter key are two ways to submit, and both have to save an edit:
+    // sending it would post a new message under the ID of the one being edited.
     it.each([
       [
         'the Enter key',
@@ -2110,21 +2097,17 @@ describe(`MessageInputFlat`, () => {
       await renderComponent();
       const textarea = await screen.findByPlaceholderText(inputPlaceholder);
 
-      // Type some text before editing
       await act(() => {
         fireEvent.change(textarea, { target: { value: 'my draft message' } });
       });
       expect(textarea).toHaveValue('my draft message');
 
-      // Enter edit mode on the rendered message
       await enterEditMode();
 
-      // Textarea should now show the edited message's text
       await waitFor(() => {
         expect(textarea).toHaveValue(mainListMessage.text);
       });
 
-      // Cancel edit via the dismiss button
       const cancelButton = await screen.findByTestId(
         'quoted-message-preview-dismiss-btn',
       );
@@ -2132,7 +2115,6 @@ describe(`MessageInputFlat`, () => {
         fireEvent.click(cancelButton);
       });
 
-      // Original draft text should be restored
       await waitFor(() => {
         expect(textarea).toHaveValue('my draft message');
       });
@@ -2226,8 +2208,8 @@ describe(`MessageInputFlat`, () => {
         ).not.toBeInTheDocument();
       });
 
-      // RW9b: with the listbox suppressed, the textarea must not advertise a
-      // dangling aria-controls/aria-activedescendant pointing at a missing element.
+      // With the listbox suppressed, the textarea advertises no dangling
+      // aria-controls/aria-activedescendant pointing at a missing element.
       expect(textarea).not.toHaveAttribute('aria-controls');
       expect(textarea).not.toHaveAttribute('aria-activedescendant');
 

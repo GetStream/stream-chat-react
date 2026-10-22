@@ -12,12 +12,12 @@ export type VoiceRecordingPreviewProps<CustomLocalMetadata = Record<string, unkn
   UploadAttachmentPreviewProps<LocalVoiceRecordingAttachment<CustomLocalMetadata>>;
 
 export type VoiceRecordingPreviewSlotProps = {
-  /** Custom UI component for each voice recording preview in the slot; defaults to AudioAttachmentPreview */
+  /** Component rendering the voice recording preview. Defaults to `AudioAttachmentPreview`. */
   VoiceRecordingPreview?: ComponentType<VoiceRecordingPreviewProps>;
 };
 
 /**
- * Dedicated slot for voice recording preview(s), rendered apart from the main attachment preview list
+ * Shows the first voice recording attachment apart from the main attachment preview list.
  */
 export const VoiceRecordingPreviewSlot = ({
   VoiceRecordingPreview = AudioAttachmentPreview,

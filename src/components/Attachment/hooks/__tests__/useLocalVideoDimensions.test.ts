@@ -2,11 +2,8 @@ import { act, renderHook, waitFor } from '@testing-library/react';
 
 import { useLocalVideoDimensions } from '../useLocalVideoDimensions';
 
-/**
- * jsdom never loads media, so the probe element is stubbed: every `<video>` created records
- * itself and its metadata event is fired by hand. That also lets the tests count how many media
- * elements the hook creates, which is the resource it has to be careful with.
- */
+// jsdom never loads media, so every `<video>` the hook creates is recorded and its metadata event
+// is fired by hand. That also lets the tests count the media elements the hook creates.
 const createdProbes: HTMLVideoElement[] = [];
 // Captured once, before any spy exists: `restoreMocks` reinstalls the spy per test, and binding
 // inside `beforeEach` would capture the previous spy and recurse.
@@ -71,7 +68,7 @@ describe('useLocalVideoDimensions', () => {
 
     await waitFor(() => expect(createdProbes).toHaveLength(3));
     // Drain the queue: it is shared process-wide, so a probe left pending here would hold up
-    // every later test in this file — which is exactly the behaviour the timeout exists for.
+    // every later test in this file.
     act(() => settleProbe(createdProbes[2], 640, 360));
   });
 

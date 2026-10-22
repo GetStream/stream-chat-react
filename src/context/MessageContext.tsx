@@ -18,99 +18,103 @@ import type { RenderTextFunction } from '../components/Message/renderText';
 import { requireContext } from './requireContext';
 
 export type MessageContextValue = {
-  /** Function to send an action in a Channel */
+  /** Sends a message action. A returned message is ingested; otherwise the local one is removed. */
   handleAction: ActionHandlerReturnType;
-  /** Function to delete a message in a Channel */
   handleDelete: (options?: DeleteMessageOptions) => Promise<void> | void;
-  /** Function to fetch the message reactions */
+  /** Fetches the message reactions, optionally of one type and sorted. */
   handleFetchReactions: (
     reactionType?: ReactionType,
     sort?: SortParamRequest[],
   ) => Promise<Array<ReactionResponse>>;
-  /** Function to flag a message in a Channel */
   handleFlag: ReactEventHandler;
-  /** Function to mark message and the messages that follow it as unread in a Channel */
+  /** Marks the message and the messages that follow it as unread. */
   handleMarkUnread: ReactEventHandler;
-  /** Function to mute a user in a Channel */
   handleMute: ReactEventHandler;
-  /** Function to open a thread for the message (routed through ChatView navigation) */
+  /** Opens the message's thread: the `openThread` prop of `Message`, else ChatView navigation. */
   handleOpenThread: ReactEventHandler;
-  /** Function to pin a Message in a Channel */
   handlePin: ReactEventHandler;
-  /** Function to post a reaction on a Message */
   handleReaction: (
     reactionType: string,
     event: React.BaseSyntheticEvent,
   ) => Promise<void>;
-  /** Function to resend a failed message */
   handleRetry: (message: LocalMessage) => Promise<void> | void;
-  /** Function that returns whether the Message belongs to the current user */
   isMyMessage: () => boolean;
-  /** The message object */
   message: LocalMessage;
-  /** Handler function for a click event on an @mention in Message */
+  /** Click handler for an @mention in the message. */
   onMentionsClickMessage: ReactEventHandler;
-  /** Handler function for a hover event on an @mention in Message */
+  /** Hover handler for an @mention in the message. */
   onMentionsHoverMessage: ReactEventHandler;
-  /** Handler function for a click event on the user that posted the Message */
+  /** Click handler for the user who posted the message. */
   onUserClick: ReactEventHandler;
-  /** Handler function for a hover event on the user that posted the Message */
+  /** Hover handler for the user who posted the message. */
   onUserHover: ReactEventHandler;
-  /** Call this function to keep message list scrolled to the bottom when the scroll height increases, e.g. an element appears below the last message (only used in the `VirtualizedMessageList`) */
-  autoscrollToBottom?: () => void;
-  /** Message component configuration prop. If true, picking a reaction from the `ReactionSelector` component will close the selector */
-  closeReactionSelectorOnClick?: boolean;
-  /** An array of user IDs that have confirmed the message delivery to their device */
-  deliveredTo?: UserResponse[];
-  /** If true, the message is the last one in a group sent by a specific user (only used in the `VirtualizedMessageList`) */
-  endOfGroup?: boolean;
-  /** If true, the message is the first one in a group sent by a specific user (only used in the `VirtualizedMessageList`) */
-  firstOfGroup?: boolean;
-  /** Override the default formatting of the date. This is a function that has access to the original date object, returns a string  */
-  formatDate?: (date: Date) => string;
-  /** If true, group messages sent by each user (only used in the `VirtualizedMessageList`) */
-  groupedByUser?: boolean;
-  /** A list of styles to apply to this message, ie. top, bottom, single */
-  groupStyles?: GroupStyle[];
-  /** Whether to highlight and focus the message on load */
-  highlighted?: boolean;
-  /** Whether the threaded message is the first in the thread list */
-  initialMessage?: boolean;
   /**
-   * A factory function that determines whether a message is AI generated or not.
+   * Keeps the message list scrolled to the bottom when the scroll height grows, e.g. when an
+   * element appears below the last message. Only used in the `VirtualizedMessageList`.
    */
+  autoscrollToBottom?: () => void;
+  /** If true, picking a reaction in the `ReactionSelector` closes the selector. */
+  closeReactionSelectorOnClick?: boolean;
+  /** Users that have confirmed the message delivery to their device. */
+  deliveredTo?: UserResponse[];
+  /** If true, the message ends a group from one user (adds `virtual-message__wrapper--end`). */
+  endOfGroup?: boolean;
+  /** If true, the message starts a group from one user (adds `virtual-message__wrapper--first`). */
+  firstOfGroup?: boolean;
+  /** Overrides the date formatting. Receives the original date and returns a string. */
+  formatDate?: (date: Date) => string;
+  /** If true, messages from one user are grouped, with metadata only on the last of a group. */
+  groupedByUser?: boolean;
+  /** Styles to apply to this message, e.g. top, bottom, single. */
+  groupStyles?: GroupStyle[];
+  /** Whether to highlight the message. The message lists set it on the focused message. */
+  highlighted?: boolean;
+  /** Whether the message is the thread's parent shown at the top of the thread. */
+  initialMessage?: boolean;
+  /** Whether a message is AI generated. */
   isMessageAIGenerated?: (message: LocalMessage) => boolean;
-  /** Latest own message in currently displayed message set. */
+  /** Latest own message in the currently displayed message set. */
   lastOwnMessage?: LocalMessage;
-  /** Latest message id on current channel */
+  /** ID of the last rendered message with status `received`. */
   lastReceivedId?: string | null;
-  /** DOMRect object for parent MessageList component */
+  /** DOMRect of the parent MessageList wrapper. */
   messageListRect?: DOMRect;
-  /** Sort options to provide to a reactions query */
+  /** Sort options for the reactions query. */
   reactionDetailsSort?: SortParamRequest[];
-  /** A list of users that have read this Message */
+  /**
+   * Users that have read this message. Only filled for the last own message unless
+   * `returnAllReadData` is set.
+   */
   readBy?: UserResponse[];
-  /** When set, shows the sender avatar in a grid layout. Values: true | 'incoming' | 'outgoing'. */
+  /**
+   * Which messages use the grid layout with an avatar column. Defaults to `'incoming'`.
+   * - `true`: incoming and outgoing messages
+   * - `'incoming'`: only messages from other users
+   * - `'outgoing'`: only own messages
+   * - `false`: none
+   */
   showAvatar?: boolean | 'incoming' | 'outgoing';
-  /** Custom function to render message text content, defaults to the renderText function: [utils](https://github.com/GetStream/stream-chat-react/blob/master/src/utils.tsx) */
+  /** Custom function to render the message text. Defaults to `renderText`. */
   renderText?: RenderTextFunction;
-  /** Keep track of read receipts for each message sent by the user. When disabled, only the last own message delivery / read status is rendered. */
+  /**
+   * If true, delivery and read receipts are tracked for every own message, otherwise only for the
+   * last one.
+   */
   returnAllReadData?: boolean;
-  /** Comparator function to sort reactions, defaults to chronological order */
+  /** Comparator to sort reactions. Defaults to first reaction time if both have one, else type. */
   sortReactions?: ReactionsComparator;
-  /** If true, the Message is rendered inside a thread's reply list */
+  /** If true, the message is rendered inside a thread's reply list. */
   threadList?: boolean;
-  /** render HTML instead of markdown. Posting HTML is only allowed server-side */
+  /**
+   * Renders `message.html` instead of the Markdown text. Posting HTML is allowed server-side only.
+   */
   unsafeHTML?: boolean;
   /**
-   * User-specific view for translated messages: which text to show.
-   * - `'original'`: show `message.text` (source language).
-   * - `'translated'`: show the translation for the **current user language** (from
-   *   `useTranslationContext().userLanguage`), i.e. `message.i18n[userLanguage + '_text']`
-   *   or fallback to `message.text` when missing. Resolved via `getTranslatedMessageText`.
+   * Which text a translated message shows, for this user only: `'original'` is `message.text`,
+   * `'translated'` is the translation for the user language, falling back to `message.text`.
    */
   translationView?: 'original' | 'translated';
-  /** Set whether this message shows original or translated text (user-specific, does not change message data). */
+  /** Sets whether this message shows the original or translated text, for this user only. */
   setTranslationView?: (view: 'original' | 'translated') => void;
 };
 

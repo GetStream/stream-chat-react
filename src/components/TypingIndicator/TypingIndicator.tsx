@@ -34,17 +34,12 @@ const threadParentMessageSelector = ({ parentMessage }: ThreadState) => ({
 });
 
 export type TypingIndicatorProps = {
-  /** When false, the indicator is not rendered (e.g. when list is not scrolled to bottom). Omit or true to show when typing. */
+  /** Whether the message list is scrolled to the latest message. Defaults to `true`. */
   isMessageListScrolledToBottom?: boolean;
-  /** Scrolls the message list to the latest message; invoked when a typing indicator appears. */
+  /** Called when the indicator appears while the list is scrolled to the latest message. */
   scrollToBottom?: () => void;
 };
 
-/**
- * TypingIndicator shows avatars of users currently typing and a bubble with animated dots.
- * Renders only for other participants (never the current user), only when scrolled to the latest
- * message if `isMessageListScrolledToBottom` is provided. It must be a child of Channel component.
- */
 const UnMemoizedTypingIndicator = (props: TypingIndicatorProps) => {
   const { isMessageListScrolledToBottom = true, scrollToBottom } = props;
 
@@ -139,6 +134,11 @@ const UnMemoizedTypingIndicator = (props: TypingIndicatorProps) => {
   );
 };
 
+/**
+ * Avatars and animated dots for the other users typing in the channel, or in the thread when one
+ * is in context. Renders nothing when typing events are disabled or when
+ * `isMessageListScrolledToBottom` is false. Must render inside a `Channel` or a `Thread`.
+ */
 export const TypingIndicator = React.memo(
   UnMemoizedTypingIndicator,
 ) as typeof UnMemoizedTypingIndicator;

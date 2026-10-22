@@ -1,5 +1,5 @@
 import { createContext, useContext } from 'react';
-import type { UserResponse } from 'stream-chat';
+import type { LocalMessage, UserResponse } from 'stream-chat';
 
 import { requireContext } from '../../context/requireContext';
 import { toBaseImageDescriptors } from '../BaseImage';
@@ -11,6 +11,8 @@ export type GalleryItem = Omit<BaseImageProps, 'src'> & {
   createdAt?: string | Date;
   dimensions?: Dimensions;
   imageUrl?: string;
+  /** Message the media was shared in; passed to a `ComponentContext.MessageTimestamp` override. */
+  message?: LocalMessage;
   /** User who shared the media; drives the gallery header title. */
   user?: UserResponse;
   videoThumbnailUrl?: string;
@@ -18,8 +20,8 @@ export type GalleryItem = Omit<BaseImageProps, 'src'> & {
 };
 
 /**
- * Maps an attachment (or link preview) to gallery item fields.
- * Delegates to {@link toBaseImageDescriptors}.
+ * Maps an attachment or link preview to gallery item fields. Takes the same arguments as
+ * {@link toBaseImageDescriptors}.
  */
 export const toGalleryItemDescriptors = (
   ...args: Parameters<typeof toBaseImageDescriptors>
@@ -31,27 +33,21 @@ export const toGalleryItemDescriptors = (
   | undefined => toBaseImageDescriptors(...args);
 
 export type GalleryContextValue = {
-  /** Whether clicking the empty gallery background should request close */
+  /** Whether clicking the empty gallery background requests close. */
   closeOnBackgroundClick: boolean;
-  /** Currently displayed item index */
   currentIndex: number;
-  /** Currently displayed item */
   currentItem: GalleryItem;
-  /** Navigate to a specific index */
+  /** Ignores indexes outside the item range. */
   goToIndex: (index: number) => void;
-  /** Navigate to the next item */
+  /** Does nothing at the last item. */
   goToNext: () => void;
-  /** Navigate to the previous item */
+  /** Does nothing at the first item. */
   goToPrevious: () => void;
-  /** Whether there is a next item */
   hasNext: boolean;
-  /** Whether there is a previous item */
   hasPrevious: boolean;
-  /** Total number of items */
   itemCount: number;
-  /** All items in the gallery */
   items: GalleryItem[];
-  /** Request closing the gallery viewer */
+  /** The default `GalleryUI` prefers the enclosing modal's `close` over this handler. */
   onRequestClose?: () => void;
 };
 

@@ -7,23 +7,14 @@ export const useUserRole = (message: LocalMessage, disableQuotedMessages?: boole
   const { client } = useChatContext();
   const channelCapabilities = useChannelCapabilities({ cid: channel.cid });
 
-  /**
-   * @deprecated as it relies on `membership.role` check which is already deprecated and shouldn't be used anymore.
-   * `isAdmin` will be removed in future release. See `channelCapabilities`.
-   */
+  /** @deprecated Relies on the deprecated `membership.role`. Use `channelCapabilities` instead. */
   const isAdmin =
     client.user?.role === 'admin' || channel.state.membership.role === 'admin';
 
-  /**
-   * @deprecated as it relies on `membership.role` check which is already deprecated and shouldn't be used anymore.
-   * `isOwner` will be removed in future release. See `channelCapabilities`.
-   */
+  /** @deprecated Relies on the deprecated `membership.role`. Use `channelCapabilities` instead. */
   const isOwner = channel.state.membership.role === 'owner';
 
-  /**
-   * @deprecated as it relies on `membership.role` check which is already deprecated and shouldn't be used anymore.
-   * `isModerator` will be removed in future release. See `channelCapabilities`.
-   */
+  /** @deprecated Relies on the deprecated `membership.role`. Use `channelCapabilities` instead. */
   const isModerator =
     client.user?.role === 'channel_moderator' ||
     channel.state.membership.role === 'channel_moderator' ||

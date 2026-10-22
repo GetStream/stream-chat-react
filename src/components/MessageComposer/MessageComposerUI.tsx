@@ -124,8 +124,7 @@ const MessageComposerPreviews = () => {
       {location && (
         <GeolocationPreview
           location={location}
-          // It is not possible to nullify shared_location field so we do not show a preview when editing
-          // to prevent a user from wanting to remove the location
+          // `shared_location` cannot be nullified, so there is no remove action while editing.
           remove={
             messageComposer.editedMessage
               ? undefined
@@ -138,7 +137,7 @@ const MessageComposerPreviews = () => {
 };
 
 export const MessageComposerUI = () => {
-  // a message is present only while editing
+  // A message context is only present while editing a message.
   const { message } = useContext(MessageContext) ?? {};
   const { recordingController } = useMessageComposerContext();
   const messageComposerController = useMessageComposerController();

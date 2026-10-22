@@ -23,8 +23,7 @@ import {
 import { getMemberDisplayName } from '../ChannelMembersView/ChannelMembersView.utils';
 
 export type ChannelMemberDetailProps = SectionNavigatorSectionContentProps & {
-  /** The member whose details are shown. Required — the view is always opened
-   * for a specific, selected member. */
+  /** The member whose details are shown. */
   member: ChannelMemberResponse;
   channelMemberActionSet?: ChannelMemberActionItem[];
   onBack?: () => void;

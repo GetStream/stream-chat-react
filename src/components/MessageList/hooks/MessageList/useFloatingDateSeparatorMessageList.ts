@@ -19,8 +19,8 @@ export type UseFloatingDateSeparatorMessageListResult = {
 };
 
 /**
- * For non-virtualized MessageList: keeps the floating date synced with the
- * separator currently pinned to the top boundary of the list viewport.
+ * Keeps the floating date in sync with the last date separator at or above the top of the list
+ * viewport, for the non-virtualized `MessageList`.
  */
 export const useFloatingDateSeparatorMessageList = ({
   listElement,
