@@ -959,7 +959,7 @@ To open threads without `ChatView`, also override `openThread` (a target is a `T
 - User impact: compile error reading `channelsQueryState` from `useChatContext()`; `undefined` in JS. `Channel` no longer renders a loading or error state for the channel-list query.
 - Old API:
   - `ChatContextValue.channelsQueryState` (`{ queryInProgress, error, setQueryInProgress, setError }`)
-- Replacement: the query state of a channel list is the `ChannelPaginator`'s own state: `useChannelPaginatorState(paginator)` returns `{ channels, hasNext, hasPrev, isLoading, lastQueryError }` (main entry). `ChannelList` reports `lastQueryError` through `client.notifications.addError(...)` itself.
+- Replacement: the query state of a channel list is the `ChannelPaginator`'s own state: `useChannelPaginatorState(paginator)` returns `{ channels, hasMoreHead, hasMoreTail, isLoading, lastQueryError }` (main entry); `hasMoreTail` says whether `paginator.toTail()` has another page to load. `ChannelList` reports `lastQueryError` through `client.notifications.addError(...)` itself.
 - Evidence:
   - `release-v14:src/context/ChatContext.tsx:30-33`; `release-v14:src/components/Channel/Channel.tsx:181-207` (`Channel` rendered `LoadingIndicator` / `LoadingErrorIndicator` from it)
   - `master:src/context/ChatContext.tsx:27-46`; `master:src/components/ChannelList/hooks/useChannelPaginatorState.ts:5-29`; `master:src/components/ChannelList/ChannelList.tsx:77-83`
@@ -1612,7 +1612,7 @@ Note: these slots are generic "paginated list" slots; in v15 only `ChannelList` 
 - User impact: compile error (`TS2339 Property 'channels'/'setChannels' does not exist on type 'ChannelListContextValue'`); `undefined` in JS. The context is now provided by `ChannelLists` (so `ChannelNavigation`), not by a standalone `ChannelList`.
 - Old API:
   - `ChannelListContextValue.channels`, `.hasNextPage`, `.loadNextPage()`, `.setChannels`
-- Replacement: `useChannelListContext().paginator` (optional; the primary registered `ChannelPaginator`). Read with `useChannelPaginatorState(paginator)` (`channels`, `hasNext`, ...), load more with `paginator.toTail()` (`next()` is `@deprecated` in stream-chat v10), mutate with `paginator.setItems({ valueOrFactory })` (per the field's doc); to add a channel to the matching lists, `client.channelManager.ingestChannel(channel)`.
+- Replacement: `useChannelListContext().paginator` (optional; the primary registered `ChannelPaginator`). Read with `useChannelPaginatorState(paginator)` (`channels`, `hasMoreTail`, ...), load more with `paginator.toTail()` (`next()` is removed in stream-chat v10), mutate with `paginator.setItems({ valueOrFactory })` (per the field's doc); to add a channel to the matching lists, `client.channelManager.ingestChannel(channel)`.
 - Evidence:
   - `release-v14:src/context/ChannelListContext.tsx:11-23`
   - `master:src/context/ChannelListContext.tsx:6-14`; `master:src/components/ChannelList/ChannelLists.tsx:29-36`

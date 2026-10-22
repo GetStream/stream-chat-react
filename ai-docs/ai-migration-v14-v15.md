@@ -218,14 +218,14 @@ export const useChatParts = (client: StreamChat, i18nInstance?: Streami18n) => {
 
 ### `ChatContext` fields
 
-| v14 `useChatContext()` field   | v15                                                                                                                                                                                                                                                                                        |
-| ------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `channel` (the active channel) | Inside the channel subtree: `useChannel()`. Elsewhere: `useWorkspaceNavigation().openChannels`, or `useSlotChannel({ slot })` from `stream-chat-react/slot-layout`. See [section 4](#4-selecting-channels-and-opening-threads-workspace-navigation).                                       |
-| `setActiveChannel`             | `useWorkspaceNavigation().openChannel(channel, { event })`. See [section 4](#4-selecting-channels-and-opening-threads-workspace-navigation).                                                                                                                                               |
-| `channelsQueryState`           | The channel list's own query state: `useChannelPaginatorState(paginator)` returns `{ channels, hasNext, hasPrev, isLoading, lastQueryError }`. `ChannelList` reports `lastQueryError` through `client.notifications`.                                                                      |
-| `latestMessageDatesByChannels` | Slow-mode cooldown: `useCooldownRemaining()` or `useStateStore(channel.cooldownTimer.state, selector)`. The channel's latest message: `channel.messagePaginator.aggregateState` (`latestMessage`). When the current user last posted: not available; track it from `message.new` yourself. |
-| `mutes`                        | Unchanged, but typed `UserMuteResponse[]` (was `Mute[]`).                                                                                                                                                                                                                                  |
-| `getAppSettings`               | Returns `ReturnType<StreamChat['getAppSettings']>`.                                                                                                                                                                                                                                        |
+| v14 `useChatContext()` field   | v15                                                                                                                                                                                                                                                                                             |
+| ------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `channel` (the active channel) | Inside the channel subtree: `useChannel()`. Elsewhere: `useWorkspaceNavigation().openChannels`, or `useSlotChannel({ slot })` from `stream-chat-react/slot-layout`. See [section 4](#4-selecting-channels-and-opening-threads-workspace-navigation).                                            |
+| `setActiveChannel`             | `useWorkspaceNavigation().openChannel(channel, { event })`. See [section 4](#4-selecting-channels-and-opening-threads-workspace-navigation).                                                                                                                                                    |
+| `channelsQueryState`           | The channel list's own query state: `useChannelPaginatorState(paginator)` returns `{ channels, hasMoreHead, hasMoreTail, isLoading, lastQueryError }`; `hasMoreTail` says whether `paginator.toTail()` has another page. `ChannelList` reports `lastQueryError` through `client.notifications`. |
+| `latestMessageDatesByChannels` | Slow-mode cooldown: `useCooldownRemaining()` or `useStateStore(channel.cooldownTimer.state, selector)`. The channel's latest message: `channel.messagePaginator.aggregateState` (`latestMessage`). When the current user last posted: not available; track it from `message.new` yourself.      |
+| `mutes`                        | Unchanged, but typed `UserMuteResponse[]` (was `Mute[]`).                                                                                                                                                                                                                                       |
+| `getAppSettings`               | Returns `ReturnType<StreamChat['getAppSettings']>`.                                                                                                                                                                                                                                             |
 
 `latestMessageDatesByChannels` never held the channel's latest message date: it was filtered to the current user's own messages, to compute slow-mode cooldown, a job `channel.cooldownTimer` now owns. `channelsQueryState` used to drive a loading and error state inside `Channel`; `Channel` renders none now (see [section 5](#channel-requires-channel-and-renders-no-placeholder-loading-or-error-state)).
 
@@ -987,14 +987,14 @@ These hit apps that never passed the props, because they were v14 defaults:
   } from 'stream-chat-react';
 
   export const ButtonPagedList = ({ paginator }: { paginator: ChannelPaginator }) => {
-    const { channels, hasNext, isLoading } = useChannelPaginatorState(paginator);
+    const { channels, hasMoreTail, isLoading } = useChannelPaginatorState(paginator);
     // `undefined` means "never queried": on mount, and again after `disconnectUser` resets the list.
     useEffect(() => {
       if (channels === undefined) void paginator.toTail();
     }, [channels, paginator]);
     return (
       <LoadMorePaginator
-        hasNextPage={hasNext}
+        hasNextPage={hasMoreTail}
         isLoading={isLoading}
         loadNextPage={() => paginator.toTail()}
       >
@@ -1066,8 +1066,8 @@ The context now carries `paginator` (optional; the primary registered `ChannelPa
 | v14              | v15                                                                                                                              |
 | ---------------- | -------------------------------------------------------------------------------------------------------------------------------- |
 | `channels`       | `useChannelPaginatorState(paginator).channels`                                                                                   |
-| `hasNextPage`    | `useChannelPaginatorState(paginator).hasNext`                                                                                    |
-| `loadNextPage()` | `paginator.toTail()` (`next()` is `@deprecated` in `stream-chat` v10)                                                            |
+| `hasNextPage`    | `useChannelPaginatorState(paginator).hasMoreTail`                                                                                |
+| `loadNextPage()` | `paginator.toTail()` (`next()` is removed in `stream-chat` v10)                                                                  |
 | `setChannels`    | `paginator.setItems({ valueOrFactory })`; to add a channel to the matching lists, `client.channelManager.ingestChannel(channel)` |
 
 ```tsx
@@ -1320,7 +1320,7 @@ export const ChannelPanel = ({ channel }: { channel: StreamChannel }) => (
 
 `ChannelStateContext`, `ChannelActionContext`, their providers, `useChannelStateContext`, `useChannelActionContext`, and the `ChannelState`, `ChannelNotifications`, `MarkReadWrapperOptions` and `RetrySendMessage` types are removed.
 
-The message paginator has two ends: the **tail** is the oldest loaded message, the **head** the newest. `toTail()` loads older messages and `toHead()` newer ones. `next()` / `prev()` and `hasNext` / `hasPrev` are deprecated aliases in `stream-chat` v10; do not use them.
+The message paginator has two ends: the **tail** is the oldest loaded message, the **head** the newest. `toTail()` loads older messages and `toHead()` newer ones. `next()` / `prev()` and `hasNext` / `hasPrev` are removed in `stream-chat` v10; use `toTail()` / `toHead()` and `hasMoreTail` / `hasMoreHead`.
 
 **Reading state** (was `useChannelStateContext`):
 
