@@ -5,13 +5,7 @@ import type { Channel, LocalMessage, StreamChat } from 'stream-chat';
 import {
   ChannelStateProvider,
   MessageProvider,
-  SpokenTextProvider,
   TranslationProvider,
-} from '../../../context';
-import type {
-  HeardTextFunction,
-  HeardTextProgress,
-  SpokenTextSubscribe,
 } from '../../../context';
 import {
   generateMessage,
@@ -20,8 +14,13 @@ import {
   mockMessageContext,
   mockTranslationContextValue,
 } from '../../../mock-builders';
-import { SpokenMessageText } from '../SpokenMessageText';
-import type { SpokenMessageTextProps } from '../SpokenMessageText';
+import { SpokenMessageText, SpokenTextProvider } from '..';
+import type {
+  HeardTextFunction,
+  HeardTextProgress,
+  SpokenMessageTextProps,
+  SpokenTextSubscribe,
+} from '..';
 
 const TEXT = 'Hello there, how can I help you today?';
 const FRAME_MS = 16;

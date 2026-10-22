@@ -12,5 +12,4 @@ export * from './useUserHandler';
 export * from './useUserRole';
 export * from './useReactionsFetcher';
 export * from './useMessageTextStreaming';
-export * from './useHeardText';
 export * from './useMessageReminder';

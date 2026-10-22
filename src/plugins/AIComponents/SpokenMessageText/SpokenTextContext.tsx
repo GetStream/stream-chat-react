@@ -61,6 +61,9 @@ export const SpokenTextContext = createContext<SpokenTextContextValue | undefine
  *
  * @example
  * ```tsx
+ * import { MessageList, WithComponents } from 'stream-chat-react';
+ * import { SpokenMessageText, SpokenTextProvider } from 'stream-chat-react/ai-components';
+ *
  * <SpokenTextProvider
  *   heard={(message, now) => session.speech.heard(message, now)}
  *   subscribe={(listener) => session.speech.subscribe(listener)}

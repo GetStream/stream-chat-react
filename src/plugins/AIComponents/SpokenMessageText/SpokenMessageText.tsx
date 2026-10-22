@@ -1,10 +1,10 @@
 import React, { useEffect } from 'react';
 
-import { MessageText } from './MessageText';
-import type { StreamedMessageTextProps } from './StreamedMessageText';
-import { StreamedMessageText } from './StreamedMessageText';
-
-import { useChannelStateContext, useMessageContext } from '../../context';
+import { MessageText } from '../../../components/Message/MessageText';
+import type { StreamedMessageTextProps } from '../../../components/Message/StreamedMessageText';
+import { StreamedMessageText } from '../../../components/Message/StreamedMessageText';
+import { useChannelStateContext } from '../../../context/ChannelStateContext';
+import { useMessageContext } from '../../../context/MessageContext';
 import { useHeardText } from './hooks/useHeardText';
 
 export type SpokenMessageTextProps = StreamedMessageTextProps;
@@ -15,6 +15,9 @@ export type SpokenMessageTextProps = StreamedMessageTextProps;
  * `StreamedMessageText` component slot:
  *
  * ```tsx
+ * import { Channel, Chat, MessageList, WithComponents } from 'stream-chat-react';
+ * import { SpokenMessageText, SpokenTextProvider } from 'stream-chat-react/ai-components';
+ *
  * // The voice backend stamps each reply message with the turn it belongs to, and
  * // the voice session reports how much of each turn has been played back. A Stream
  * // Agents session (`@stream-io/calypso`) reads the turn off the message itself.

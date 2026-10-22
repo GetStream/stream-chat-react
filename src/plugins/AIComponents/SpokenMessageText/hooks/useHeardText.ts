@@ -1,9 +1,9 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import type { LocalMessage } from 'stream-chat';
 
-import type { HeardTextFunction } from '../../../context/SpokenTextContext';
-import { useSpokenTextContext } from '../../../context/SpokenTextContext';
-import { useStableCallback } from '../../../utils/useStableCallback';
+import type { HeardTextFunction } from '../SpokenTextContext';
+import { useSpokenTextContext } from '../SpokenTextContext';
+import { useStableCallback } from '../../../../utils/useStableCallback';
 
 const DEFAULT_SPOKEN_TEXT_HISTORY_THRESHOLD_MS = 10_000;
 
