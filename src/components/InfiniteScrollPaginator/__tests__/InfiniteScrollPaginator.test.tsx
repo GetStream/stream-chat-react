@@ -141,17 +141,19 @@ describe('InfiniteScrollPaginator', () => {
     expect(loadNextOnScrollToTop).not.toHaveBeenCalled();
   });
 
-  it('does not run a check left for the end of the interval with a replaced loader', () => {
+  it('runs a check left for the end of the interval with a replaced loader', () => {
     const { loadNextOnScrollToTop, replaceLoader, root } = renderPaginator();
+    const replacedLoader = vi.fn();
 
     scrollTo(root, 90);
     scrollTo(root, 60);
-    replaceLoader(vi.fn());
+    replaceLoader(replacedLoader);
     act(() => {
       vi.advanceTimersByTime(INTERVAL_MS);
     });
 
     expect(loadNextOnScrollToTop).toHaveBeenCalledTimes(1);
+    expect(replacedLoader).toHaveBeenCalledTimes(1);
   });
 
   it.each([true, false])(

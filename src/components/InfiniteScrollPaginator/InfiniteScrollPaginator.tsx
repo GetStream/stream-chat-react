@@ -4,6 +4,7 @@ import type { PropsWithChildren } from 'react';
 import { forwardRef } from 'react';
 import React, { useCallback, useEffect, useMemo, useRef } from 'react';
 import { DEFAULT_LOAD_PAGE_SCROLL_THRESHOLD } from '../../constants/limits';
+import { useStableCallback } from '../../utils/useStableCallback';
 
 // Prevents Chrome hangups, see:
 // https://stackoverflow.com/questions/47524205/random-high-content-download-time-in-chrome/47684257#47684257
@@ -125,39 +126,27 @@ export const InfiniteScrollPaginator = forwardRef(function InfiniteScrollPaginat
   const rootRef = useRef<HTMLElement | null>(null);
   const childRef = useRef<HTMLDivElement | null>(null);
 
-  // Reports the distances and loads the next page at an edge, at most once per interval (the first
-  // call at once, the latest one when the interval ends). The loaders guard against being called
-  // while a page loads.
+  // Reports the distances and loads the next page at an edge, with the props of the latest render.
+  // The loaders guard against being called while a page loads.
+  const checkEdges = useStableCallback(() => {
+    const distances = getDistancesToEdges(rootRef.current, childRef.current);
+    if (!distances) return;
+
+    listenToScroll?.(distances.distanceFromBottom, distances.distanceFromTop, threshold);
+
+    const { nearBottom, nearTop } = getEdgesWithinThreshold(distances, threshold);
+    if (nearTop) loadNextOnScrollToTop?.();
+    if (nearBottom) loadNextOnScrollToBottom?.();
+  });
+
+  // Runs the check at most once per interval (the first call at once, the latest one when the
+  // interval ends). New callback props do not restart the interval: a check left for its end runs
+  // with them.
   const checkDistanceToEdges = useMemo(
-    () =>
-      throttle(
-        () => {
-          const distances = getDistancesToEdges(rootRef.current, childRef.current);
-          if (!distances) return;
-
-          listenToScroll?.(
-            distances.distanceFromBottom,
-            distances.distanceFromTop,
-            threshold,
-          );
-
-          const { nearBottom, nearTop } = getEdgesWithinThreshold(distances, threshold);
-          if (nearTop) loadNextOnScrollToTop?.();
-          if (nearBottom) loadNextOnScrollToBottom?.();
-        },
-        loadNextDebounceMs,
-        { leading: true, trailing: true },
-      ),
-    [
-      listenToScroll,
-      loadNextDebounceMs,
-      loadNextOnScrollToBottom,
-      loadNextOnScrollToTop,
-      threshold,
-    ],
+    () => throttle(checkEdges, loadNextDebounceMs, { leading: true, trailing: true }),
+    [checkEdges, loadNextDebounceMs],
   );
 
-  // A check left for the end of the interval belongs to the props it was created with.
   useEffect(() => () => checkDistanceToEdges.cancel(), [checkDistanceToEdges]);
 
   const edgesWithinThresholdRef = useRef(NO_EDGE_WITHIN_THRESHOLD);
