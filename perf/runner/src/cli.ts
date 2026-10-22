@@ -1,6 +1,11 @@
 import { parseArgs } from 'node:util';
 
 import { check } from './check.ts';
+import { compareResults } from './compare.ts';
+import { report } from './report.ts';
+import { RUN_SCENARIOS } from './scenarios/index.ts';
+import { reusesSeed, SETS } from './sets.ts';
+import { checkContract, readPin, updatePin } from './contract.ts';
 import { BUILDS, CHANNEL_TYPES, COLUMNS, LISTS } from './config.ts';
 import { renders } from './renders.ts';
 import { run } from './run.ts';
@@ -18,8 +23,13 @@ const USAGE = [
   '  perf run <scenario> [--build dev|prod] [--column chrome-desktop|chrome-4x]',
   '    [--type messaging|livestream] [--list standard|virtualized] [-n N] [--no-seed]',
   '    [--no-verify] [--headless]',
-  '  perf renders <scenario> --record|--replay [--build profiling|dev]',
+  '  perf run --set nightly|signoff|channel-list|message-list|leaks|desktop [-n N] …',
+  '  perf renders <scenario> --record|--replay [--build profiling|dev] [--offline]',
+  '    [--baseline write|check]',
   '    [--list standard|virtualized] [--runs N] [--rebuild] [--seed] [--ground-truth]',
+  '  perf contract [--update]',
+  '  perf compare',
+  '  perf report',
   '  perf check ml-08-oldest [--list standard|virtualized] [--seed] [--no-verify] [--headless]',
 ].join('\n');
 
@@ -55,12 +65,48 @@ const main = async () => {
       runs: { default: '1', type: 'string' },
       seed: { type: 'boolean' },
       type: { multiple: true, type: 'string' },
+      update: { default: false, type: 'boolean' },
+      offline: { default: false, type: 'boolean' },
+      baseline: { type: 'string' },
+      set: { type: 'string' },
       verify: { default: true, type: 'boolean' },
     },
   });
   const [command, id] = positionals;
-  if (!id) throw new Error(USAGE);
+  const needsId =
+    !['contract', 'compare', 'report'].includes(command) &&
+    !(command === 'run' && values.set);
+  if (!id && needsId) throw new Error(USAGE);
   const lists = pick('list', values.list, LISTS);
+
+  if (command === 'run' && values.set) {
+    const set = SETS[values.set];
+    if (!set)
+      throw new Error(`no set '${values.set}' (have: ${Object.keys(SETS).join(', ')})`);
+    const iterations = Number(values.iterations);
+    for (const [index, setId] of set.ids.entries()) {
+      console.log(`\n### ${values.set} ${index + 1}/${set.ids.length}: ${setId}`);
+      await run({
+        builds: set.builds ?? pick('build', values.build, BUILDS) ?? ['prod'],
+        columns: set.columns ??
+          pick(
+            'column',
+            values.column,
+            Object.keys(COLUMNS) as Array<keyof typeof COLUMNS>,
+          ) ?? ['chrome-desktop'],
+        headless: values.headless,
+        id: setId,
+        iterations,
+        lists,
+        seed: (values.seed ?? true) && !reusesSeed(set.ids, index),
+        types:
+          set.types?.filter((t) => RUN_SCENARIOS[setId].types.includes(t)) ??
+          pick('type', values.type, CHANNEL_TYPES),
+        verify: values.verify,
+      });
+    }
+    return;
+  }
 
   if (command === 'run') {
     const iterations = Number(values.iterations);
@@ -96,7 +142,12 @@ const main = async () => {
     }
     await renders({
       build,
+      baseline:
+        values.baseline === 'write' || values.baseline === 'check'
+          ? values.baseline
+          : null,
       groundTruth: values['ground-truth'],
+      offline: values.offline,
       id,
       lists,
       mode: values.record ? 'record' : 'replay',
@@ -104,6 +155,39 @@ const main = async () => {
       runs: Number(values.runs),
       seed: values.seed ?? false,
     });
+    return;
+  }
+
+  if (command === 'report') {
+    console.log(`  report written: ${report()}`);
+    return;
+  }
+
+  if (command === 'compare') {
+    // The nightly check: rows of the last 12 h against the 7-day median before them.
+    const { alerts, compared, latest } = compareResults();
+    console.log(`  ${latest} recent rows, ${compared.length} with history`);
+    for (const a of alerts) {
+      console.log(
+        `  ✗ ${a.key}: ${a.value} ${a.unit} vs 7-day median ${a.baseline} (+${Math.round(a.change * 100)}%)`,
+      );
+    }
+    if (alerts.length) process.exit(1);
+    return;
+  }
+
+  if (command === 'contract') {
+    // `perf contract --update`: re-pin chatperf's registry (a deliberate change), then check.
+    if (values.update) {
+      const pin = updatePin();
+      console.log(
+        `pinned chatperf ${pin.chatperfCommit}: ${pin.scenarios.length} scenarios`,
+      );
+    }
+    const problems = checkContract(readPin().scenarios);
+    for (const p of problems) console.log(`  ✗ ${p}`);
+    if (problems.length) process.exit(1);
+    console.log('  ✓ the scenario files agree with the pinned chatperf registry');
     return;
   }
 

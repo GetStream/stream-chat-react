@@ -12,4 +12,5 @@ skills-lock.json
 
 # perf harness data: recorded event fixtures and run results (generated, not hand-edited)
 perf/runner/fixtures/
+perf/runner/contract/
 perf/runner/results/
