@@ -1,0 +1,42 @@
+name: Perf nightly
+
+# The nightly regression run (WEB-SCENARIOS.md §7): the nightly set against the live test app, on
+# the dedicated perf machine only. That machine holds chatperf (CHATPERF_DIR), Ruby, and the test
+# app's credentials in its own environment (~/.config/chatperf/env); none of them are GitHub
+# secrets. Results accumulate in PERF_RESULTS_DIR outside the checkout, and `perf compare` fails
+# the job when a row is more than 15 % worse than its 7-day median.
+
+on:
+  schedule:
+    - cron: '0 2 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: perf-nightly
+  cancel-in-progress: false
+
+jobs:
+  nightly:
+    runs-on: [self-hosted, perf-nightly]
+    timeout-minutes: 240
+    env:
+      PERF_RESULTS_DIR: ${{ vars.PERF_RESULTS_DIR }}
+      CHATPERF_DIR: ${{ vars.CHATPERF_DIR }}
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: ./.github/actions/setup-node
+
+      - run: yarn build
+
+      - name: Nightly set
+        shell: bash
+        run: |
+          set -a; source ~/.config/chatperf/env; set +a
+          yarn workspace @stream-io/react-perf-runner perf run --set nightly -n 5
+
+      - name: Compare with the last 7 days
+        run: yarn workspace @stream-io/react-perf-runner perf compare
