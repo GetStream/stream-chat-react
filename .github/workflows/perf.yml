@@ -1,0 +1,55 @@
+name: Perf
+
+# The web performance harness's PR checks (perf/README.md). Neither job talks to a Stream app or
+# needs a secret, so both also run for pull requests from forks:
+#   - contract: the runner's scenario files against the pinned chatperf registry
+#   - renders: M-RENDERS replayed from recorded fixtures against their recorded backend; fails if
+#     untargeted rows per commit rise above the baseline committed from master
+
+on:
+  pull_request:
+    types:
+      - opened
+      - reopened
+      - synchronize
+    paths:
+      - 'src/**'
+      - 'perf/**'
+      - 'package.json'
+      - 'yarn.lock'
+      - '.github/workflows/perf.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  contract:
+    runs-on: ubuntu-latest
+    name: Scenario contract
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: ./.github/actions/setup-node
+
+      - run: yarn workspace @stream-io/react-perf-runner test
+
+  renders:
+    runs-on: ubuntu-latest
+    name: Render gate (ML-09, ML-11, CL-07, ML-08)
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: ./.github/actions/setup-node
+
+      - name: Build the SDK (the perf host consumes dist/)
+        run: yarn build
+
+      - name: Install Chromium
+        run: yarn workspace @stream-io/react-perf-runner exec playwright install --with-deps chromium
+
+      - name: Replay the fixtures
+        run: |
+          for id in ml-09 ml-11 cl-07 ml-08; do
+            yarn workspace @stream-io/react-perf-runner perf renders "$id" \
+              --replay --offline --build profiling --baseline check
+          done

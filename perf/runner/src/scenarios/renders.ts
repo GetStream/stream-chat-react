@@ -47,6 +47,16 @@ export const RENDER_SCENARIOS: Record<string, RenderScenario> = {
     openChannel: { cid: 'messaging:perf-ml-01', title: 'ML-01' },
     replayStart: 'same-seed',
   },
+  // 5 new messages/s while the reader sits at the bottom: appends, and whether existing rows
+  // re-render for a message that isn't theirs.
+  'ml-08': {
+    dataset: { scenario: 'ml-01', seedArgs: ['seed', 'ml-01', '--yes'] },
+    id: 'ml-08',
+    live: ['ml-08', '--rate', '5', '--duration', '60', ...COUNTDOWN],
+    lists: ['standard', 'virtualized'],
+    openChannel: { cid: 'messaging:perf-ml-01', title: 'ML-01' },
+    replayStart: 'same-seed',
+  },
   // 2 channel.updated events/s across visible channels, at the top of the channel list.
   'cl-07': {
     dataset: {

@@ -5,7 +5,15 @@ import { chromium, type Page } from 'playwright';
 
 import { chatperf, live, userToken } from './chatperf.ts';
 import { type Build, startHost } from './host.ts';
+import { resultsDir } from './results.ts';
 import { RENDER_SCENARIOS, type RenderScenario } from './scenarios/renders.ts';
+import {
+  OFFLINE_API_KEY,
+  offlineToken,
+  recordWorld,
+  serveWorld,
+  type World,
+} from './world.ts';
 
 // `perf renders <id>`: M-RENDERS for one scenario (WEB-SCENARIOS.md §1.5).
 //   --record   run the scenario's chatperf live storm, count renders, save the events as a fixture
@@ -14,7 +22,17 @@ import { RENDER_SCENARIOS, type RenderScenario } from './scenarios/renders.ts';
 
 const runnerDir = resolve(import.meta.dirname, '..');
 const fixturePath = (id: string) => resolve(runnerDir, 'fixtures', `${id}.json`);
-const resultsDir = resolve(runnerDir, 'results');
+const baselinePath = resolve(runnerDir, 'fixtures', 'baseline.json');
+
+/** Untargeted message (or channel) rows per commit, per scenario and list: what the PR gate holds. */
+type Baseline = Record<string, Record<string, { median: number; max: number }>>;
+const readBaseline = (): Baseline => {
+  try {
+    return JSON.parse(readFileSync(baselinePath, 'utf8')) as Baseline;
+  } catch {
+    return {};
+  }
+};
 
 const SETTLE_MS = 1500;
 
@@ -28,6 +46,13 @@ export type RendersOptions = {
   seed: boolean;
   /** Validation only: also count message UI slot renders directly (?ground_truth=1). */
   groundTruth: boolean;
+  /**
+   * Replay against the fixture's recorded backend (world.ts): no Stream app, no credentials, no
+   * chatperf. What the PR render gate runs.
+   */
+  offline: boolean;
+  /** 'write': store this replay's counts as the baseline; 'check': fail if they exceed it. */
+  baseline: 'write' | 'check' | null;
 };
 
 const openScenario = async (page: Page, scenario: RenderScenario) => {
@@ -80,17 +105,23 @@ export const renders = async (options: RendersOptions) => {
       `no render scenario '${options.id}' (have: ${Object.keys(RENDER_SCENARIOS).join(', ')})`,
     );
   }
-  const apiKey = process.env.STREAM_KEY;
+  if (options.offline && options.mode !== 'replay')
+    throw new Error('--offline is for --replay');
+  const apiKey = options.offline ? OFFLINE_API_KEY : process.env.STREAM_KEY;
   if (!apiKey) throw new Error('STREAM_KEY is not set (source your chatperf env first)');
 
+  // Offline, the recorded world IS the starting state: nothing to seed.
   const seedFirst =
-    options.seed || (options.mode === 'replay' && scenario.replayStart === 'fresh-seed');
+    !options.offline &&
+    (options.seed ||
+      (options.mode === 'replay' && scenario.replayStart === 'fresh-seed'));
   if (seedFirst) {
     console.log(`seeding ${scenario.dataset.scenario} …`);
     await chatperf(scenario.dataset.seedArgs);
   }
 
-  const token = await userToken();
+  const token = options.offline ? offlineToken('qatest1') : await userToken();
+  const counts: Record<string, Array<{ median: number; max: number }>> = {};
   const host = await startHost(options.build, { rebuild: options.rebuild });
   mkdirSync(resultsDir, { recursive: true });
   const stamp = new Date().toISOString().replace(/[:.]/g, '-');
@@ -107,6 +138,21 @@ export const renders = async (options: RendersOptions) => {
           viewport: { height: 900, width: 1440 },
         });
         const page = await context.newPage();
+        const fixtureOnDisk =
+          options.mode === 'replay'
+            ? (JSON.parse(readFileSync(fixturePath(scenario.id), 'utf8')) as {
+                world?: World;
+              })
+            : null;
+        if (options.offline) {
+          if (!fixtureOnDisk?.world) {
+            throw new Error(
+              `${scenario.id}'s fixture has no recorded backend: re-record it`,
+            );
+          }
+          await serveWorld(page, fixtureOnDisk.world);
+        }
+        const world = options.mode === 'record' ? recordWorld(page) : null;
         await page.goto(
           `${host.origin}/?api_key=${apiKey}&token=${token}&user_id=qatest1&list=${list}&type=messaging${options.groundTruth ? '&ground_truth=1' : ''}`,
         );
@@ -140,10 +186,13 @@ export const renders = async (options: RendersOptions) => {
           // One fixture per scenario: the last recording wins, so a re-record replaces it.
           mkdirSync(resolve(runnerDir, 'fixtures'), { recursive: true });
           // Compact: fixtures are committed, and indentation roughly doubled their size.
-          writeFileSync(fixturePath(scenario.id), JSON.stringify(fixture));
+          writeFileSync(fixturePath(scenario.id), JSON.stringify({ ...fixture, world }));
           extra.fixtureEvents = fixture.events.length;
         } else {
-          const fixture = JSON.parse(readFileSync(fixturePath(scenario.id), 'utf8'));
+          // The events only: the recorded backend (if any) is served, not dispatched.
+          const { world: _world, ...fixture } = JSON.parse(
+            readFileSync(fixturePath(scenario.id), 'utf8'),
+          );
           // Fixed cadence: the fixture's own mean spacing, the same on every replay.
           const intervalMs = fixture.durationMs / Math.max(1, fixture.events.length);
           await page.evaluate(() => window.__perf!.renders.start());
@@ -161,6 +210,12 @@ export const renders = async (options: RendersOptions) => {
 
         const label = `${scenario.id} ${list} ${options.mode} #${run}`;
         summarise(label, summary);
+        const untargeted = (
+          scenario.openChannel
+            ? summary.untargetedMessageRowsPerCommit
+            : summary.untargetedChannelRowsPerCommit
+        ) as { median: number; max: number };
+        (counts[list] ??= []).push(untargeted);
         writeFileSync(
           resolve(
             resultsDir,
@@ -186,5 +241,41 @@ export const renders = async (options: RendersOptions) => {
   } finally {
     await browser?.close();
     host.stop();
+  }
+
+  if (options.baseline) {
+    const baseline = readBaseline();
+    const worst = (list: string) => ({
+      max: Math.max(...counts[list].map((c) => c.max)),
+      median: Math.max(...counts[list].map((c) => c.median)),
+    });
+    if (options.baseline === 'write') {
+      baseline[scenario.id] = Object.fromEntries(
+        Object.keys(counts).map((l) => [l, worst(l)]),
+      );
+      writeFileSync(baselinePath, `${JSON.stringify(baseline, null, 1)}\n`);
+      console.log(
+        `  baseline for ${scenario.id} written: ${JSON.stringify(baseline[scenario.id])}`,
+      );
+      return;
+    }
+    const failures: string[] = [];
+    for (const list of Object.keys(counts)) {
+      const now = worst(list);
+      const was = baseline[scenario.id]?.[list];
+      if (!was) {
+        failures.push(
+          `${scenario.id} ${list}: no baseline (run --baseline write on main)`,
+        );
+      } else if (now.median > was.median || now.max > was.max) {
+        failures.push(
+          `${scenario.id} ${list}: untargeted rows per commit rose to median ${now.median}, max ` +
+            `${now.max} (baseline: median ${was.median}, max ${was.max})`,
+        );
+      }
+    }
+    for (const f of failures) console.log(`  ✗ ${f}`);
+    if (failures.length) throw new Error(`render gate failed (${failures.length})`);
+    console.log(`  ✓ ${scenario.id}: untargeted rows per commit within the baseline`);
   }
 };
