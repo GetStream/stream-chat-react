@@ -64,27 +64,43 @@ export const run = async (options: RunOptions) => {
   const lists: Array<ListImplementation | '-'> = scenario.lists
     ? (options.lists ?? ['standard', 'virtualized'])
     : ['-'];
+  // Validation only (e.g. PERF_HOST_PARAMS='leak=messages'): extra host URL parameters for the
+  // deliberate-failure checks. Every row says so.
+  const validationParams = process.env.PERF_HOST_PARAMS ?? '';
   // The prod bundle is rebuilt once per run, so a run always measures the working tree.
   let prodBuilt = false;
+
+  const seeds = (
+    Array.isArray(scenario.dataset.seed[0])
+      ? scenario.dataset.seed
+      : [scenario.dataset.seed]
+  ) as string[][];
+  const seedAll = async (typeArgs: string[]) => {
+    for (const seed of seeds) await chatperf([...seed, ...typeArgs]);
+  };
 
   // Channel type outermost: seeding one type wipes the other (chatperf isolation).
   for (const type of types) {
     const typeArgs = ['--channel-type', type];
     if (options.seed) {
-      console.log(`seeding ${scenario.dataset.verify} (${type}) …`);
-      await chatperf([...scenario.dataset.seed, ...typeArgs]);
+      console.log(`seeding ${scenario.dataset.verify ?? scenario.id} (${type}) …`);
+      await seedAll(typeArgs);
     }
     // Gate: the backend must hold exactly the dataset before anything is measured. Skipped only
     // for a later run of a batch, whose dataset the batch's own live runs have changed.
-    if (options.verify) await chatperf(['verify', scenario.dataset.verify, ...typeArgs]);
+    if (options.verify && scenario.dataset.verify) {
+      await chatperf(['verify', scenario.dataset.verify, ...typeArgs]);
+    }
     // 'per-iteration' datasets: the data the next iteration needs is used up by this one.
     let datasetFresh = true;
     const reseed = async () => {
       if (scenario.dataset.reseed !== 'per-iteration' || datasetFresh) return;
       // Validation only: keep the used-up dataset, so the scenario's own check must fail.
       if (process.env.PERF_GATE_CHECK_STALE === '1') return;
-      await chatperf([...scenario.dataset.seed, ...typeArgs]);
-      await chatperf(['verify', scenario.dataset.verify, ...typeArgs]);
+      await seedAll(typeArgs);
+      if (scenario.dataset.verify) {
+        await chatperf(['verify', scenario.dataset.verify, ...typeArgs]);
+      }
     };
 
     for (const build of options.builds) {
@@ -99,7 +115,8 @@ export const run = async (options: RunOptions) => {
           for (const list of lists) {
             const url =
               `${host.origin}/?api_key=${apiKey}&token=${token}&user_id=qatest1` +
-              `&list=${list === '-' ? 'virtualized' : list}&type=${type}`;
+              `&list=${list === '-' ? 'virtualized' : list}&type=${type}` +
+              (validationParams ? `&${validationParams}` : '');
             const measurements: Measurement[] = [];
             let reused: Iteration | undefined;
 
@@ -109,7 +126,7 @@ export const run = async (options: RunOptions) => {
               datasetFresh = false;
               if (scenario.context === 'fresh') {
                 iteration = await newIteration(browser, column);
-                await iteration.page.goto(url);
+                if (!scenario.selfNavigate) await iteration.page.goto(url);
               } else {
                 if (!reused) {
                   // Warm-up load, not measured: fills the HTTP cache this scenario is about.
@@ -177,6 +194,7 @@ export const run = async (options: RunOptions) => {
                 : ('' as const),
               notes: [
                 options.headless ? 'headless' : '',
+                validationParams ? `VALIDATION ${validationParams}` : '',
                 options.verify ? '' : 'verify skipped (later run of a batch)',
                 scenario.dataset.reseed ? `reseed: ${scenario.dataset.reseed}` : '',
                 discarded.length ? `discarded ${discarded.length} (gates)` : '',
@@ -201,6 +219,22 @@ export const run = async (options: RunOptions) => {
               unstable: isUnstable(judged, scenario.unit),
             };
             const csv = appendRow(row);
+            for (const also of scenario.alsoRows ?? []) {
+              const alsoValues = kept.map((m) => Number(m.extra?.[also.key]));
+              appendRow({
+                ...row,
+                median: round(median(alsoValues)),
+                metric: also.metric,
+                scenario: also.id,
+                spread: round(spread(alsoValues) * 100) / 100,
+                unit: also.unit,
+                unstable: isUnstable(alsoValues, also.unit),
+              });
+              console.log(
+                `  ${also.id} (same run): ${round(median(alsoValues))} ${also.unit} — ` +
+                  `iterations ${alsoValues.map((v) => round(v)).join(' / ')}`,
+              );
+            }
             writeRun(`run-${scenario.id}-${build}-${type}-${list}-${column}-${stamp}`, {
               measurements,
               row,

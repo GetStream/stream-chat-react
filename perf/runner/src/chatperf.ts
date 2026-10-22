@@ -9,7 +9,7 @@ import { resolve } from 'node:path';
 // Its credentials (STREAM_KEY / STREAM_SECRET) and Ruby come from the environment it inherits.
 
 const repoRoot = resolve(import.meta.dirname, '../../..');
-const chatperfDir =
+export const chatperfDir =
   process.env.CHATPERF_DIR ?? resolve(repoRoot, '../stream-chat-perf-cli');
 const chatperfCmd = process.env.CHATPERF_CMD ?? 'bundle exec bin/chatperf';
 

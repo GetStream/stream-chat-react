@@ -1,6 +1,7 @@
 import type { Page } from 'playwright';
 
 import { gesture, REST_MS, scrollerRect } from '../input.ts';
+import { LIVE } from './live-specs.ts';
 import { storm, stormMeasurement, type StormResult } from '../storm.ts';
 import type { RunScenario } from './run.ts';
 
@@ -46,12 +47,28 @@ const rowsChanged = async (
 ) => {
   await page.waitForTimeout(ROWS_GRACE_MS);
   const rows = await page.evaluate(() => window.__perf!.channels.stopWatchingRows());
+  // A row that left and is back at the end must still exist: a deleted channel never returns (CL-09).
+  const listed = new Set(await page.evaluate(() => window.__perf!.channels.listCids()));
+  const returned = [...new Set(rows.removedCids)].filter((cid) => listed.has(cid));
+  const existing = new Set(
+    await page.evaluate((c) => window.__perf!.channels.existingCids(c), returned),
+  );
+  const ghosts = returned.filter((cid) => !existing.has(cid));
+  if (ghosts.length) {
+    result.gates.push(
+      `deleted-stayed-gone: ${ghosts.length} deleted channel(s) are back: ${ghosts[0]}`,
+    );
+  }
   if ((expect.removed && !rows.removed) || (expect.added && !rows.added)) {
     result.gates.push(
       `rows-changed: ${rows.removed} rows left and ${rows.added} joined the list during the window`,
     );
   }
-  return { rowsAdded: rows.added, rowsRemoved: rows.removed };
+  return {
+    rowsAdded: rows.added,
+    rowsRemoved: rows.removed,
+    rowsReturned: returned.length,
+  };
 };
 
 export const cl06: RunScenario = {
@@ -71,9 +88,8 @@ export const cl06: RunScenario = {
     if (top < MIDDLE_ROW)
       throw new Error(`could not scroll to the middle (top row ${top})`);
     const result = await storm({
-      args: ['cl-06', '--rate', '3'],
       cdp,
-      durationS: 60,
+      live: LIVE['cl-06'],
       metric: 'M-FRAMES',
       page,
       type,
@@ -96,9 +112,8 @@ export const cl07: RunScenario = {
   measure: async ({ cdp, page, type }) => {
     await page.evaluate(() => window.__perf!.ready());
     const result = await storm({
-      args: ['cl-07', '--rate', '2'],
       cdp,
-      durationS: 60,
+      live: LIVE['cl-07'],
       metric: 'M-CPU',
       page,
       type,
@@ -120,9 +135,8 @@ export const cl08: RunScenario = {
     await page.evaluate(() => window.__perf!.ready());
     await page.evaluate(() => window.__perf!.channels.watchRows());
     const result = await storm({
-      args: ['cl-08', '--rate', '1'],
       cdp,
-      durationS: 60,
+      live: LIVE['cl-08'],
       metric: 'M-FRAMES',
       page,
       type,
@@ -151,9 +165,8 @@ export const cl09: RunScenario = {
     await page.evaluate(() => window.__perf!.ready());
     await page.evaluate(() => window.__perf!.channels.watchRows());
     const result = await storm({
-      args: ['cl-09', '--rate', '1'],
       cdp,
-      durationS: 60,
+      live: LIVE['cl-09'],
       metric: 'M-FRAMES',
       page,
       type,

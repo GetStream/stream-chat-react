@@ -37,7 +37,18 @@ export type RunScenario = {
    * receipts, CL-08's ordering, CL-09's deletes), so the runner re-seeds and verifies before every
    * iteration after the first.
    */
-  dataset: { seed: string[]; verify: string; reseed?: 'per-batch' | 'per-iteration' };
+  dataset: {
+    /** One chatperf seed command, or several in order (later ones with --no-isolate). */
+    seed: string[] | string[][];
+    /** The scenario `chatperf verify` checks; absent when there is nothing to verify (WB-03). */
+    verify?: string;
+    reseed?: 'per-batch' | 'per-iteration';
+  };
+  /**
+   * Further rows read off the same iterations (SK-02 is SK-01's run, measuring CPU): each takes its
+   * value from every kept measurement's `extra[key]`.
+   */
+  alsoRows?: Array<{ id: string; metric: Metric; unit: string; key: string }>;
   types: ChannelType[];
   /** true: run once per list implementation. false: the list isn't on screen. */
   lists: boolean;
@@ -46,6 +57,8 @@ export type RunScenario = {
    * 'reload': one context, the first load unmeasured, then a reload per iteration (warm HTTP cache).
    */
   context: 'fresh' | 'reload';
+  /** true: `measure` loads the URL itself (WB-03 traces the load from before navigation). */
+  selfNavigate?: boolean;
   /** Runs the window and reads the number, after the page has loaded the URL. */
   measure: (ctx: MeasureContext) => Promise<Measurement>;
 };

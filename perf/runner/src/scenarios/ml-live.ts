@@ -2,6 +2,7 @@ import type { Page } from 'playwright';
 
 import { live } from '../chatperf.ts';
 import type { ChannelType } from '../config.ts';
+import { LIVE, liveArgs } from './live-specs.ts';
 import { storm, stormMeasurement } from '../storm.ts';
 import { mlCid } from './ml-15.ts';
 import type { RunScenario } from './run.ts';
@@ -37,15 +38,11 @@ const ML01 = { seed: ['seed', 'ml-01', '--yes'], verify: 'ml-01' };
  * posting 30 fresh messages with the channel open: chatperf's window (the newest 25 live messages)
  * is then exactly what's on screen.
  */
-const TOP_UP = 30;
+const TOP_UP = LIVE['ml-10-top-up'].count;
 const topUp = async (page: Page, cid: string, type: ChannelType) => {
   await page.evaluate((c) => window.__perf!.live.startDelivery(c), cid);
   const run = live([
-    'ml-08',
-    '--count',
-    String(TOP_UP),
-    '--rate',
-    '10',
+    ...liveArgs(LIVE['ml-10-top-up']),
     '--countdown',
     '0',
     '--no-isolate',
@@ -75,9 +72,8 @@ export const ml09: RunScenario = {
   measure: async ({ cdp, page, type }) => {
     await openNewest(page, mlCid(type));
     const result = await storm({
-      args: ['ml-09', '--rate', '16'],
       cdp,
-      durationS: 30,
+      live: LIVE['ml-09'],
       metric: 'M-CPU',
       page,
       type,
@@ -99,9 +95,8 @@ export const ml10: RunScenario = {
     await openNewest(page, mlCid(type));
     await topUp(page, mlCid(type), type);
     const result = await storm({
-      args: ['ml-10', '--rate', '4'],
       cdp,
-      durationS: 60,
+      live: LIVE['ml-10'],
       metric: 'M-FRAMES',
       page,
       type,
@@ -121,9 +116,8 @@ export const ml11: RunScenario = {
   measure: async ({ cdp, page, type }) => {
     await openNewest(page, mlCid(type));
     const result = await storm({
-      args: ['ml-11', '--rate', '4'],
       cdp,
-      durationS: 60,
+      live: LIVE['ml-11'],
       metric: 'M-CPU',
       page,
       type,
@@ -149,9 +143,8 @@ export const ml12: RunScenario = {
     const readers = () => page.evaluate((c) => window.__perf!.readers(c), ML12_CID);
     const before = await readers();
     const result = await storm({
-      args: ['ml-12', '--rate', '2'],
       cdp,
-      durationS: 60,
+      live: LIVE['ml-12'],
       metric: 'M-FRAMES',
       page,
       type,

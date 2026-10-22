@@ -1,4 +1,5 @@
 import { gesture, REST_MS, scrollerRect } from '../input.ts';
+import { LIVE } from './live-specs.ts';
 import { storm, stormMeasurement } from '../storm.ts';
 import { openNewest } from './ml-live.ts';
 import { mlCid } from './ml-15.ts';
@@ -16,8 +17,6 @@ import type { RunScenario } from './run.ts';
 // Validation only (PERF_GATE_CHECK_OFFLINE=1): the browser goes offline 20 s into the window for
 // 10 s. live-delivered must discard the iteration.
 
-const RATE = 5;
-const DURATION_S = 60;
 /** How far up the scrolled-up variant sits: loaded messages newer than the top visible row. */
 const SCROLLED_UP_ROWS = 50;
 /** After chatperf finishes, how long the last messages get to arrive over the WebSocket. */
@@ -51,7 +50,7 @@ const flood = (variant: 'bottom' | 'scrolled-up'): RunScenario => ({
 
     await page.evaluate((c) => window.__perf!.live.startDelivery(c), cid);
     const result = await storm({
-      args: ['ml-08', '--rate', String(RATE)],
+      live: LIVE[variant === 'bottom' ? 'ml-08' : 'ml-08-scrolled-up'],
       cdp,
       duringWindow:
         process.env.PERF_GATE_CHECK_OFFLINE === '1'
@@ -62,7 +61,6 @@ const flood = (variant: 'bottom' | 'scrolled-up'): RunScenario => ({
               await context.setOffline(false);
             }
           : undefined,
-      durationS: DURATION_S,
       metric: 'M-FRAMES',
       page,
       type,

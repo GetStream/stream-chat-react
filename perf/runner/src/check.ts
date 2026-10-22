@@ -1,3 +1,4 @@
+import { LIVE, liveArgs } from './scenarios/live-specs.ts';
 import { launchBrowser, newIteration } from './browser.ts';
 import { chatperf, live, userToken } from './chatperf.ts';
 import type { ListImplementation } from './config.ts';
@@ -13,8 +14,6 @@ import { mlCid } from './scenarios/ml-15.ts';
 // looking at disappears from under them. Yes = a finding for the SDK team, with the marker.
 
 const CAP = 230;
-const RATE = 5;
-const DURATION_S = 60;
 const MAX_GESTURES = 80;
 /** How often the watched message is looked up during the flood. A check, so reading is allowed. */
 const SAMPLE_MS = 2000;
@@ -87,11 +86,7 @@ export const check = async (options: CheckOptions) => {
       );
 
       const storm = live([
-        'ml-08',
-        '--rate',
-        String(RATE),
-        '--duration',
-        String(DURATION_S),
+        ...liveArgs(LIVE['ml-08-oldest']),
         '--countdown',
         '3',
         '--no-isolate',

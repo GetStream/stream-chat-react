@@ -11,7 +11,24 @@ declare global {
       back: (cid: string) => Promise<void>;
       messages: {
         oldestLoaded: (cid: string) => boolean;
+        paginatorFlags: (cid: string) => {
+          hasMoreHead: boolean;
+          hasMoreTail: boolean;
+          isLoading: boolean;
+          items: number;
+        };
         loadedMarkers: (cid: string) => number[];
+        loadedCount: (cid: string) => number;
+        replyCount: (cid: string, text: string) => number | null;
+        bottomVisibleMarker: () => number | null;
+        kindsInDom: (
+          checks: Array<{
+            kind: string;
+            marker: number;
+            selector: string;
+            afterMarker?: boolean;
+          }>,
+        ) => string[];
         newestMarker: (cid: string) => string;
         viewPosition: (cid: string) => {
           fromBottomPx: number | null;
@@ -39,7 +56,44 @@ declare global {
           addedCids: string[];
           removedCids: string[];
         };
+        unreadCounts: () => Record<string, number>;
+        listCids: () => string[];
+        existingCids: (cids: string[]) => Promise<string[]>;
       };
+      openThread: (
+        cid: string,
+        parentText: string,
+        expectText: string,
+      ) => Promise<{ trigger: number; settled: number; durationMs: number }>;
+      keyInteractions: (fromMs: number) => {
+        durations: number[];
+        interactionCount: number | null;
+      };
+      hidden: {
+        countChanges: () => void;
+        changeCount: () => number;
+        settleAfterVisible: (
+          expectText: string,
+          timeoutMs?: number,
+        ) => Promise<{ trigger: number; settled: number; durationMs: number }>;
+      };
+      settleList: (
+        expectText: string,
+        timeoutMs?: number,
+      ) => Promise<{ trigger: number; settled: number; durationMs: number }>;
+      wsHealthy: () => boolean;
+      jumpTarget: (
+        cid: string,
+        route: 'quote' | 'pinned',
+        text: string,
+      ) => Promise<string>;
+      jumpTo: (
+        cid: string,
+        messageId: string,
+      ) => Promise<{ trigger: number; settled: number; durationMs: number }>;
+      switchChannels: (
+        cids: string[],
+      ) => Promise<Array<{ cid: string; durationMs: number }>>;
       readers: (cid: string) => { readers: number; sentAt: number | null };
       idle: (ms: number) => Promise<number>;
       live: {

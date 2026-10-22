@@ -4,6 +4,7 @@ import { live, type LiveFinished } from './chatperf.ts';
 import { metrics } from './collect.ts';
 import type { ChannelType } from './config.ts';
 import { frameStats, startFrameTrace, type FrameStats } from './frames.ts';
+import { liveArgs, type LiveSpec } from './scenarios/live-specs.ts';
 
 // The window every live scenario shares (WEB-PLAN.md §6.6): start `chatperf live`, open the window on
 // its `go`, idle for the run's duration with nothing running in the page, then read chatperf's
@@ -51,9 +52,8 @@ export type StormOptions = {
   cdp: CDPSession;
   type: ChannelType;
   metric: 'M-FRAMES' | 'M-CPU';
-  /** `chatperf live` arguments: the scenario id and its canonical rate. */
-  args: string[];
-  durationS: number;
+  /** The `chatperf live` command (scenarios/live-specs.ts); its duration is the window's. */
+  live: LiveSpec;
   /** `--no-isolate` (default): storm the dataset the batch seeded. false: chatperf isolates. */
   isolate?: boolean;
   /** Runs on `go`, beside the window (the offline gate check). */
@@ -76,10 +76,9 @@ export const storm = async (options: StormOptions): Promise<StormResult> => {
   // The floor comes first, with the starting screen open and nothing being sent.
   const floor = metric === 'M-CPU' ? await cpuOver(page, cdp, IDLE_FLOOR_MS) : undefined;
 
+  const durationS = options.live.duration!;
   const run = live([
-    ...options.args,
-    '--duration',
-    String(options.durationS),
+    ...liveArgs(options.live),
     '--countdown',
     String(COUNTDOWN_S),
     ...(options.isolate ? [] : ['--no-isolate']),
@@ -95,7 +94,7 @@ export const storm = async (options: StormOptions): Promise<StormResult> => {
   let frames: FrameStats | undefined;
   let cpu: Cpu | undefined;
   let windowLagMs: number;
-  const ms = options.durationS * 1000;
+  const ms = durationS * 1000;
   const side = options.duringWindow?.() ?? Promise.resolve();
   if (metric === 'M-FRAMES') {
     const stopTrace = await startFrameTrace(page.context().browser()!);
@@ -133,7 +132,7 @@ export const storm = async (options: StormOptions): Promise<StormResult> => {
     frames,
     gates,
     windowLagMs,
-    windowS: options.durationS,
+    windowS: durationS,
   };
 };
 

@@ -12,7 +12,7 @@ export const TRACE_CATEGORIES = ['disabled-by-default-devtools.timeline.frame'];
 
 import type { Browser, CDPSession } from 'playwright';
 
-type TraceEvent = {
+export type TraceEvent = {
   name: string;
   ph: string;
   pid: number;
@@ -90,14 +90,37 @@ export const frameStats = (events: TraceEvent[]): FrameStats => {
  * The stream is read in chunks and scanned event by event; only the events frameStats needs
  * (PipelineReporter, process names) are kept, so memory stays bounded however long the window is.
  */
-export const startFrameTrace = async (browser: Browser) => {
-  const cdp: CDPSession = await browser.newBrowserCDPSession();
+export const startFrameTrace = (browser: Browser) =>
+  startTrace(
+    browser,
+    TRACE_CATEGORIES,
+    (text) => text.includes('"PipelineReporter"') || text.includes('"process_name"'),
+  );
+
+/**
+ * A streamed trace of `categories`, keeping only the events `keep` accepts (it sees each event's raw
+ * JSON text, so it can filter by name without parsing everything).
+ */
+export const startTrace = async (
+  browser: Browser,
+  categories: string[],
+  keep: (text: string) => boolean,
+) => startTraceOn(await browser.newBrowserCDPSession(), categories, keep);
+
+/** The minimum a CDP connection needs for tracing: Playwright's CDPSession, or raw CDP (WB-01). */
+export type TraceCdp = Pick<CDPSession, 'send' | 'once' | 'detach'>;
+
+export const startTraceOn = async (
+  cdp: TraceCdp,
+  categories: string[],
+  keep: (text: string) => boolean,
+) => {
   const complete = new Promise<{ stream: string }>((resolve) => {
     cdp.once('Tracing.tracingComplete', (e) => resolve(e as { stream: string }));
   });
   await cdp.send('Tracing.start', {
     traceConfig: {
-      includedCategories: TRACE_CATEGORIES,
+      includedCategories: categories,
       // Never stop recording when the buffer fills: a full buffer would silently drop frames.
       recordMode: 'recordAsMuchAsPossible',
     },
@@ -109,9 +132,7 @@ export const startFrameTrace = async (browser: Browser) => {
     const { stream } = await complete;
     const kept: TraceEvent[] = [];
     const scan = eventScanner((text) => {
-      if (text.includes('"PipelineReporter"') || text.includes('"process_name"')) {
-        kept.push(JSON.parse(text));
-      }
+      if (keep(text)) kept.push(JSON.parse(text));
     });
     for (;;) {
       const chunk = (await cdp.send('IO.read', { handle: stream, size: 1 << 20 })) as {
