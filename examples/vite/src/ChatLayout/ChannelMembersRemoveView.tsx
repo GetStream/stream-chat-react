@@ -91,7 +91,7 @@ export const ChannelMembersRemoveView = ({
     const memberCount = selectedMemberUserIds.length;
 
     try {
-      await channel.removeMembers(selectedMemberUserIds);
+      await channel.removeMembers({ members: selectedMemberUserIds });
       addNotification({
         context: { channel },
         emitter: 'ChannelMembersRemoveView',
