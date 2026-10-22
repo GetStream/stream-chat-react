@@ -1,3 +1,9 @@
+## [14.14.1](https://github.com/GetStream/stream-chat-react/compare/v14.14.0...v14.14.1) (2026-10-22)
+
+### Bug Fixes
+
+* **ai-components:** replace SpokenMessageText with a standalone useHeardText hook ([#3344](https://github.com/GetStream/stream-chat-react/issues/3344)) ([ad16506](https://github.com/GetStream/stream-chat-react/commit/ad16506e2bd363d580553637c030bf2b4f30534c)), closes [#3343](https://github.com/GetStream/stream-chat-react/issues/3343) [GetStream/getstream.io#761](https://github.com/GetStream/getstream.io/issues/761) [#3343](https://github.com/GetStream/stream-chat-react/issues/3343) [#3339](https://github.com/GetStream/stream-chat-react/issues/3339)
+
 ## [14.14.0](https://github.com/GetStream/stream-chat-react/compare/v14.13.3...v14.14.0) (2026-10-22)
 
 ### Features
