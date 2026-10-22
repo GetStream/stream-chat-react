@@ -13,6 +13,7 @@ export * from './MessageListContext';
 export * from './MessageTranslationViewContext';
 export * from './ModalContext';
 export * from './PollContext';
+export * from './SpokenTextContext';
 export * from './TranslationContext';
 export * from './TypingContext';
 export * from './VirtualizedMessageListContext';

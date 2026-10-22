@@ -14,6 +14,7 @@ export * from './MessageTranslationIndicator';
 export * from './QuotedMessage';
 export * from './ReminderNotification';
 export * from './renderText';
+export * from './SpokenMessageText';
 export * from './StreamedMessageText';
 export * from './types';
 export * from './utils';
