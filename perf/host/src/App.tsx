@@ -20,11 +20,14 @@ import {
   Slot,
 } from 'stream-chat-react/slot-layout';
 
+import { setChannelState } from './channels';
 import type { PerfHostConfig } from './config';
 import { tapClientEvents } from './events';
 import { GroundTruthMessageUI } from './groundTruth';
 import { enableGroundTruth } from './renders';
 import { trackChannelListReady } from './marks';
+import { setMessagesClient } from './messages';
+import { NavigationBridge } from './navigation';
 import { flushLongTasks, observeClient } from './observers';
 
 // A deliberately boring chat page: SDK defaults only, one channel list, no customisation. Whatever
@@ -66,6 +69,7 @@ const createSlotRenderers = (config: PerfHostConfig): ChatViewSlotRenderers => {
 
 const Workspace = () => (
   <>
+    <NavigationBridge />
     <ChannelNavigation />
     <div className='perf-host__slots'>
       <Slot slot='left' />
@@ -126,6 +130,8 @@ export const App = ({ config }: { config: PerfHostConfig }) => {
     const cancelReadyTracker = trackChannelListReady(paginator, flushLongTasks);
     const stopObservingClient = observeClient(client);
     tapClientEvents(client);
+    setMessagesClient(client);
+    setChannelState(client, paginator);
     if (config.groundTruth) enableGroundTruth();
 
     window.__perfHost = {

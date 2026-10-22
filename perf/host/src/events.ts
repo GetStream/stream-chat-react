@@ -1,5 +1,6 @@
 import type { StreamChat } from 'stream-chat';
 
+import { noteLiveEvent } from './live';
 import { noteEvent, type TouchingEvent } from './renders';
 
 // Recording and replay of the events the client receives, so a render count can be reproduced
@@ -35,13 +36,14 @@ let recording: { cid: string | null; events: FixtureEvent[]; start: number } | n
   null;
 let replaying = false;
 
-/** Wraps `client.dispatchEvent` once: every event feeds the render counter, and the recorder. */
+/** Wraps `client.dispatchEvent` once: every event feeds the render counter, live delivery, and the recorder. */
 export const tapClientEvents = (target: StreamChat) => {
   if (client === target) return;
   client = target;
   const dispatch = target.dispatchEvent;
   target.dispatchEvent = (event) => {
     noteEvent(event as TouchingEvent);
+    noteLiveEvent(event);
     if (recording && !replaying && !NOT_RECORDED.has(event.type)) {
       recording.events.push({
         dt: performance.now() - recording.start,

@@ -139,7 +139,8 @@ export const renders = async (options: RendersOptions) => {
           extra = { achievedPct: result.achievedPct, discard: result.discard };
           // One fixture per scenario: the last recording wins, so a re-record replaces it.
           mkdirSync(resolve(runnerDir, 'fixtures'), { recursive: true });
-          writeFileSync(fixturePath(scenario.id), JSON.stringify(fixture, null, 1));
+          // Compact: fixtures are committed, and indentation roughly doubled their size.
+          writeFileSync(fixturePath(scenario.id), JSON.stringify(fixture));
           extra.fixtureEvents = fixture.events.length;
         } else {
           const fixture = JSON.parse(readFileSync(fixturePath(scenario.id), 'utf8'));

@@ -50,45 +50,79 @@ export const userToken = async (user = 'qatest1') => {
   return token;
 };
 
+export type LiveFinished = {
+  achieved_ratio: number | null;
+  sent: number;
+  failed: number;
+  skipped: number;
+  /** Seconds from the first event slot to the last. */
+  elapsed: number;
+  discard: boolean;
+  by_type: Record<string, { sent: number; failed: number; skipped: number }>;
+};
+
 export type LiveRun = {
-  /** Resolves when the countdown prints GO and events start. */
-  go: Promise<void>;
-  /** Resolves when the run ends, with what chatperf reported. */
+  /** Resolves when events start (`go`), with chatperf's wall-clock ms; null if the run ended first. */
+  go: Promise<number | null>;
+  /** Resolves when the run ends, with chatperf's verdict. */
   done: Promise<{
     code: number | null;
     output: string;
+    /** `finished` from --events-json; null if chatperf died before reporting. */
+    finished: LiveFinished | null;
     achievedPct: number | null;
     discard: boolean;
   }>;
 };
 
-/** `chatperf live …`, with the countdown's GO observed as it is printed: chatperf reports on stderr, which Ruby never buffers. */
+type LiveEvent =
+  | { event: 'go'; t: number }
+  | ({ event: 'finished'; t: number } & LiveFinished);
+
+/**
+ * `chatperf live … --events-json`: chatperf prints `{"event":"go",…}` as events start and
+ * `{"event":"finished",…}` with its verdict, on stderr (unbuffered), beside its human output.
+ */
 export const live = (args: string[]): LiveRun => {
-  const child = start(['live', ...args]);
+  const child = start(['live', ...args, '--events-json']);
   let output = '';
-  let seenGo: () => void = () => {};
-  const go = new Promise<void>((r) => {
+  let finished: LiveFinished | null = null;
+  let seenGo: (t: number | null) => void = () => {};
+  const go = new Promise<number | null>((r) => {
     seenGo = r;
   });
-  const onData = (d: Buffer) => {
-    output += d;
-    if (/^GO\s*$/m.test(output)) seenGo();
+  // One line buffer per stream, so a chunk of one can't split a line of the other.
+  const reader = () => {
+    let pending = '';
+    return (d: Buffer) => {
+      output += d;
+      pending += d;
+      const lines = pending.split('\n');
+      pending = lines.pop() ?? '';
+      for (const line of lines) {
+        if (!line.startsWith('{"event"')) continue;
+        const event = JSON.parse(line) as LiveEvent;
+        if (event.event === 'go') seenGo(event.t);
+        else finished = event;
+      }
+    };
   };
-  child.stdout.on('data', onData);
-  child.stderr.on('data', onData);
+  child.stdout.on('data', reader());
+  child.stderr.on('data', reader());
   const done = new Promise<Awaited<LiveRun['done']>>((resolveDone, fail) => {
     child.on('error', fail);
     child.on('exit', (code) => {
-      const achieved = output.match(/achieved (?:only )?(\d+)% of the requested rate/);
+      const ratio = finished?.achieved_ratio;
       resolveDone({
-        achievedPct: achieved ? Number(achieved[1]) : null,
+        achievedPct: ratio == null ? null : Math.round(ratio * 100),
         code,
-        discard: /DISCARD this measurement/.test(output),
+        discard: finished?.discard ?? true,
+        finished,
         output,
       });
     });
   });
   // A run that dies before GO must not leave the caller waiting on it forever.
-  void done.then(() => seenGo());
+  void done.then(() => seenGo(null));
   return { done, go };
 };

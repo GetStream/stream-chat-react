@@ -28,6 +28,11 @@ const observe = (
   return observer;
 };
 
+// The default Resource Timing buffer holds 250 entries. The dev build loads hundreds of modules as
+// separate requests, which fills it before the channel query runs, and the network/client split then
+// has nothing to read (measured 2026-10-21: no split at all on dev). Plenty of room instead.
+performance.setResourceTimingBufferSize(10_000);
+
 observe('long-animation-frame', loaf);
 // 16 ms is the API's minimum; key events are what M-INP reads.
 observe('event', events, { durationThreshold: 16 });
