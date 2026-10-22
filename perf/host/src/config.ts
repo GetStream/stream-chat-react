@@ -21,6 +21,10 @@ export type PerfHostConfig = {
   pageSize: number;
   /** Validation only: count message UI slot renders directly (adds a component to every row). */
   groundTruth: boolean;
+  /** Validation only: a deliberate leak, to prove M-MEM catches one (roadmap step 15). */
+  leak: 'messages' | 'detached' | null;
+  /** Validation only: event types the client never sees, to prove a gate catches ignored events. */
+  dropEvents: string[];
 };
 
 /** The livestream message cap the protocol pins (WEB-SCENARIOS.md §1.2b); messaging is uncapped. */
@@ -36,6 +40,8 @@ const KNOWN_PARAMS = new Set([
   'type',
   'cap',
   'page_size',
+  'leak',
+  'drop_events',
 ]);
 
 export class ConfigError extends Error {}
@@ -101,6 +107,10 @@ export const parseConfig = (search: string): PerfHostConfig => {
     cap,
     capIsCanonical: cap === canonicalCap,
     groundTruth: params.get('ground_truth') === '1',
+    leak: params.has('leak')
+      ? oneOf('leak', params.get('leak'), ['messages', 'detached'] as const)
+      : null,
+    dropEvents: (params.get('drop_events') ?? '').split(',').filter(Boolean),
     pageSize:
       pageSizeParam === null
         ? DEFAULT_PAGE_SIZE

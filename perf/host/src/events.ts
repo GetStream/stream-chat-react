@@ -35,6 +35,13 @@ let client: StreamChat | undefined;
 let recording: { cid: string | null; events: FixtureEvent[]; start: number } | null =
   null;
 let replaying = false;
+let dropped = new Set<string>();
+
+/** Validation only: event types swallowed before the SDK sees them (`?drop_events=`). */
+export const dropEvents = (types: string[]) => {
+  dropped = new Set(types);
+  if (types.length) console.warn('[perf-host] VALIDATION: dropping events', types);
+};
 
 /** Wraps `client.dispatchEvent` once: every event feeds the render counter, live delivery, and the recorder. */
 export const tapClientEvents = (target: StreamChat) => {
@@ -42,6 +49,7 @@ export const tapClientEvents = (target: StreamChat) => {
   client = target;
   const dispatch = target.dispatchEvent;
   target.dispatchEvent = (event) => {
+    if (dropped.has(event.type)) return;
     noteEvent(event as TouchingEvent);
     noteLiveEvent(event);
     if (recording && !replaying && !NOT_RECORDED.has(event.type)) {

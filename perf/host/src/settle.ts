@@ -10,12 +10,21 @@ import { mark, MARKS } from './marks';
 // waiting itself is never counted.
 
 export const QUIET_MS = 1000;
-const WATCHED = '.str-chat__channel, .str-chat__thread';
+/** The default region: the open channel and thread views. OF-02/03 watch the channel list instead. */
+export const VIEW = '.str-chat__channel, .str-chat__thread';
+export const CHANNEL_LIST = '.str-chat__channel-list';
 const LOADING = '.str-chat__loading-indicator, .str-chat__loading-channel';
 const MESSAGE = '.str-chat__li, .str-chat__message';
 
-const rendered = (text: string) =>
-  [...document.querySelectorAll(MESSAGE)].some((el) => el.textContent?.includes(text));
+// The expected text anywhere in the open channel or thread view: a message marker ("[2000]"), or the
+// channel's name in its header (a channel switch, where the previous channel's rows are still
+// mounted until the new one renders). '' means any message row.
+const rendered = (text: string, watched: string) =>
+  text === ''
+    ? !!document.querySelector(MESSAGE)
+    : [...document.querySelectorAll(watched)].some((el) =>
+        el.textContent?.includes(text),
+      );
 
 export type SettleResult = {
   /** When the trigger happened (performance.now()). */
@@ -28,7 +37,7 @@ export type SettleResult = {
 export const settle = (
   trigger: number,
   expectText: string,
-  { timeoutMs = 30_000 }: { timeoutMs?: number } = {},
+  { timeoutMs = 30_000, watched = VIEW }: { timeoutMs?: number; watched?: string } = {},
 ) =>
   new Promise<SettleResult>((resolve, reject) => {
     let last = trigger;
@@ -38,7 +47,7 @@ export const settle = (
       for (const record of records) {
         const node =
           record.target instanceof Element ? record.target : record.target.parentElement;
-        if (node?.closest(WATCHED)) {
+        if (node?.closest(watched)) {
           last = performance.now();
           return;
         }
@@ -55,7 +64,7 @@ export const settle = (
       if (
         now - last >= QUIET_MS &&
         !document.querySelector(LOADING) &&
-        rendered(expectText)
+        rendered(expectText, watched)
       ) {
         observer.disconnect();
         mark(MARKS.settled, last);
@@ -67,7 +76,7 @@ export const settle = (
         reject(
           new Error(
             `not settled within ${timeoutMs} ms: ` +
-              (rendered(expectText)
+              (rendered(expectText, watched)
                 ? 'still changing or loading'
                 : `"${expectText}" never rendered`),
           ),

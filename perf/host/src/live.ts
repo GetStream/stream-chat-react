@@ -17,12 +17,14 @@ let delivery: { cid: string; markers: Set<number> } | null = null;
 
 /** Called from the client-event tap for every event the client receives. */
 export const noteLiveEvent = (event: MessageNewEvent) => {
-  if (!delivery || event.type !== 'message.new' || event.cid !== delivery.cid) return;
+  if (!delivery || event.type !== 'message.new') return;
+  if (delivery.cid !== '*' && event.cid !== delivery.cid) return;
   const m = event.message?.text?.match(LIVE_MARKER);
   const n = m ? Number(m[1]) : 0;
   if (n >= FIRST_LIVE) delivery.markers.add(n);
 };
 
+/** `cid`, or '*' for live messages in any channel (OF-02's burst across 20). */
 export const startDelivery = (cid: string) => {
   delivery = { cid, markers: new Set() };
 };

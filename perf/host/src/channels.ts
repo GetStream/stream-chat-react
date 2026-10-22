@@ -74,3 +74,31 @@ export const readersOfNewestOwn = (cid: string) => {
   ).length;
   return { readers, sentAt };
 };
+
+/** Unread counts of the loaded channel-list rows, from SDK state (`channel.state.unreadCount`). */
+export const unreadCounts = () =>
+  Object.fromEntries(
+    (paginator?.state.getLatestValue().items ?? []).map((channel) => [
+      channel.cid,
+      channel.state.unreadCount,
+    ]),
+  );
+
+/** The cids of the channel list's loaded rows, in list order (SDK state). */
+export const listCids = () =>
+  (paginator?.state.getLatestValue().items ?? []).map((channel) => channel.cid);
+
+/** Which of `cids` still exist on the server (CL-09: a deleted channel must never come back). */
+export const existingCids = async (cids: string[]) => {
+  if (!client || !cids.length) return [];
+  // The raw API call (v10 ChatApi): no client state is touched, nothing is watched.
+  const response = await client.queryChannels({
+    filter_conditions: { cid: { $in: cids } },
+    limit: 30,
+    state: false,
+    watch: false,
+  });
+  return response.channels
+    .map((c) => c.channel?.cid)
+    .filter((cid): cid is string => !!cid);
+};

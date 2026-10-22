@@ -22,7 +22,8 @@ import {
 
 import { setChannelState } from './channels';
 import type { PerfHostConfig } from './config';
-import { tapClientEvents } from './events';
+import { dropEvents, tapClientEvents } from './events';
+import { installLeak } from './leaks';
 import { GroundTruthMessageUI } from './groundTruth';
 import { enableGroundTruth } from './renders';
 import { trackChannelListReady } from './marks';
@@ -133,6 +134,8 @@ export const App = ({ config }: { config: PerfHostConfig }) => {
     setMessagesClient(client);
     setChannelState(client, paginator);
     if (config.groundTruth) enableGroundTruth();
+    if (config.leak) installLeak(config.leak, client);
+    dropEvents(config.dropEvents);
 
     window.__perfHost = {
       build: __PERF_BUILD__,
@@ -151,6 +154,8 @@ export const App = ({ config }: { config: PerfHostConfig }) => {
       messagePaginatorConfig: client.config.getConfig('messagePaginator') ?? {},
       virtuoso: SDK_VIRTUOSO_DEFAULTS,
       strictMode: import.meta.env.DEV,
+      ...(config.leak ? { VALIDATION_leak: config.leak } : {}),
+      ...(config.dropEvents.length ? { VALIDATION_dropEvents: config.dropEvents } : {}),
     });
     setReady(true);
 

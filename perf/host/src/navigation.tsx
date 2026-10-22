@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import type { Channel } from 'stream-chat';
+import type { Channel, LocalMessage, Thread } from 'stream-chat';
 import { useChatContext, useWorkspaceNavigation } from 'stream-chat-react';
 
 // Lets window.__perf open and close channels through the SDK's own workspace navigation — the same
@@ -9,6 +9,11 @@ type Navigation = {
   open: (cid: string) => void;
   close: (cid: string) => void;
   isOpen: (cid: string) => boolean;
+  /** Opens the thread of `message` the way a "N replies" click does. */
+  openThread: (cid: string, message: LocalMessage) => void;
+  closeThread: () => void;
+  /** The most recently opened thread, if any. */
+  thread: () => Thread | undefined;
 };
 
 let navigation: Navigation | undefined;
@@ -34,6 +39,9 @@ export const NavigationBridge = () => {
       close: (cid) => nav.closeChannel(cid),
       isOpen: (cid) => nav.isChannelActive(cid),
       open: (cid) => nav.openChannel(channelFor(cid)),
+      openThread: (cid, message) => nav.openThread({ channel: channelFor(cid), message }),
+      closeThread: () => nav.closeThread(nav.openThreads.at(-1)?.id),
+      thread: () => nav.openThreads.at(-1),
     };
     return () => {
       navigation = undefined;

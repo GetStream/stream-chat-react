@@ -1,5 +1,7 @@
 import type { StreamChat } from 'stream-chat';
 
+import { getNavigation } from './navigation';
+
 // Message-list state the runner needs, read from the SDK rather than the DOM (WEB-PLAN.md §5.5):
 // whether the oldest page is loaded, which markers are loaded, and whether prepending an older page
 // kept the reader's place.
@@ -9,7 +11,13 @@ export const setMessagesClient = (c: StreamChat) => {
   client = c;
 };
 
+/** `cid`, or 'thread' for the open thread's replies (both lists read the same paginators, F7). */
 const paginatorOf = (cid: string) => {
+  if (cid === 'thread') {
+    const thread = getNavigation().thread();
+    if (!thread) throw new Error('no thread is open');
+    return thread.messagePaginator;
+  }
   const channel = client?.channelManager.get(cid);
   if (!channel) throw new Error(`${cid} is not loaded`);
   return channel.messagePaginator;
@@ -26,6 +34,51 @@ const markerOf = (text: string | undefined) => {
 export const oldestLoaded = (cid: string) => {
   const state = paginatorOf(cid).state.getLatestValue();
   return state.hasMoreTail === false && !state.isLoading;
+};
+
+/** The paginator's raw flags (evidence for a discarded run, and diagnostics). */
+export const paginatorFlags = (cid: string) => {
+  const s = paginatorOf(cid).state.getLatestValue();
+  return {
+    hasMoreHead: s.hasMoreHead,
+    hasMoreTail: s.hasMoreTail,
+    isLoading: s.isLoading,
+    items: (s.items ?? []).length,
+  };
+};
+
+/** Loaded main-list messages, with or without a marker (a deleted message has none). */
+export const loadedCount = (cid: string) =>
+  (paginatorOf(cid).state.getLatestValue().items ?? []).length;
+
+/**
+ * For each check, whether the row carrying `marker` is in the DOM and contains `selector`
+ * (ML-07's kinds-rendered gate). A row is found by its marker text, or, for `afterMarker`, as the
+ * row right after that marker's row (a deleted message keeps no text).
+ */
+export type KindCheck = {
+  kind: string;
+  marker: number;
+  selector: string;
+  afterMarker?: boolean;
+};
+export const kindsInDom = (checks: KindCheck[]) => {
+  // The standard list renders a system message outside any `.str-chat__li` row.
+  const rows = [
+    ...document.querySelectorAll<HTMLElement>(
+      '.str-chat__li, .str-chat__message--system',
+    ),
+  ].filter((el) => el.matches('.str-chat__li') || !el.closest('.str-chat__li'));
+  const found: string[] = [];
+  for (const check of checks) {
+    const text = `[${String(check.marker).padStart(4, '0')}]`;
+    const index = rows.findIndex((row) => row.textContent?.includes(text));
+    if (index < 0) continue;
+    const row = check.afterMarker ? rows[index + 1] : rows[index];
+    if (row?.querySelector(check.selector) || row?.matches(check.selector))
+      found.push(check.kind);
+  }
+  return found;
 };
 
 /** The `[NNNN]` markers of the loaded messages, oldest first. */
@@ -97,6 +150,21 @@ export const markerState = (cid: string, marker: number) => {
   return { loaded, onScreen };
 };
 
+/** The marker of the message row at the bottom of the message list's viewport (WB-02). */
+export const bottomVisibleMarker = (): number | null => {
+  const scroller = document.querySelector('[data-perf-scroller]') as HTMLElement | null;
+  if (!scroller) return null;
+  const r = scroller.getBoundingClientRect();
+  for (const dy of [8, 40, 80, 120, 200]) {
+    const row = document
+      .elementFromPoint(r.x + r.width / 2, r.bottom - dy)
+      ?.closest('.str-chat__li, [data-item-index]');
+    const marker = markerOf(row?.textContent ?? undefined);
+    if (marker !== null) return marker;
+  }
+  return null;
+};
+
 export type AnchorRecord = {
   before: number | null;
   after: number | null;
@@ -131,4 +199,13 @@ export const stopAnchors = () => {
   stopWatching?.();
   stopWatching = undefined;
   return anchors;
+};
+
+/** The reply count of the loaded message in `cid` whose text contains `text` (TH-02's parent). */
+export const replyCount = (cid: string, text: string) => {
+  const items = (paginatorOf(cid).state.getLatestValue().items ?? []) as Array<{
+    text?: string;
+    reply_count?: number;
+  }>;
+  return items.find((m) => m.text?.includes(text))?.reply_count ?? null;
 };

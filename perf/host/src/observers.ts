@@ -87,3 +87,23 @@ export const recordings = () => ({
   log: [...log],
   longTasks: flushLongTasks().map(toJSON),
 });
+
+/**
+ * Key interactions since `fromMs` (M-INP, WEB-SCENARIOS.md §1.5): Event Timing entries grouped by
+ * interactionId, each interaction's duration being its longest entry. Event Timing reports only
+ * entries of 16 ms or more, so `interactionCount` (all interactions so far) says how many were
+ * faster than that.
+ */
+export const keyInteractions = (fromMs: number) => {
+  const byId = new Map<number, number>();
+  for (const e of events as Array<PerformanceEntry & { interactionId?: number }>) {
+    if (!e.interactionId || e.startTime < fromMs || !e.name.startsWith('key')) continue;
+    byId.set(e.interactionId, Math.max(byId.get(e.interactionId) ?? 0, e.duration));
+  }
+  return {
+    durations: [...byId.values()],
+    interactionCount:
+      (performance as Performance & { interactionCount?: number }).interactionCount ??
+      null,
+  };
+};
