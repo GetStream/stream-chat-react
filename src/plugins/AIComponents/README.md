@@ -1,6 +1,6 @@
 # AI components (`stream-chat-react/ai-components`)
 
-AI-first building blocks for Stream Chat: a message composer with attachments and speech-to-text, a Markdown renderer with syntax highlighting and Chart.js support, a typewriter-style streaming message, a message text revealed at the pace a voice agent speaks it, and an "AI is thinking" indicator.
+AI-first building blocks for Stream Chat: a message composer with attachments and speech-to-text, a Markdown renderer with syntax highlighting and Chart.js support, a typewriter-style streaming message, a hook that reveals text at the pace a voice agent speaks it, and an "AI is thinking" indicator.
 
 These components used to ship as the separate package `@stream-io/chat-react-ai`. They now live in `stream-chat-react` behind the optional entry point `stream-chat-react/ai-components`, with a stylesheet at `stream-chat-react/css/ai-components.css`. The main entry point (`stream-chat-react`) never imports from this plugin, so apps that do not use it pay nothing for it.
 
@@ -29,10 +29,9 @@ Load `ai-components.css` in addition to `stream-chat-react/css/index.css`.
 
 From `stream-chat-react/ai-components`:
 
-- Components: `AIMarkdown`, `AIMessageComposer` (with the static sub-components `FileInput`, `TextInput`, `SpeechToTextButton`, `SubmitButton`, `ModelSelect`, `AttachmentPreview`, `AttachmentPreview.Item`), `StreamingMessage`, `AIStateIndicator`, `VoiceWave`, `VoiceGlow`, `SpokenMessageText`, `SpokenTextProvider`
-- Hooks: `useAttachments`, `useText`, `useIsDisabled`, `useAIMessageComposerContext`, `useSpeechToText`, `useAudioLevel`, `useSpokenTextContext`, `useHeardText`
-- Contexts: `SpokenTextContext`
-- Types: `AIMessageComposerStore`, `StreamingMessageRef`, `UseMessageTextStreamingProps`, `ToolComponentProps`, `UseSpeechToTextOptions`, `VoiceAgentState`, `VoiceGlowRendering`, `VoiceVisualizationProps`, `VoiceWaveProps`, `VoiceGlowProps`, `SpokenMessageTextProps`, `SpokenTextContextValue`, `SpokenTextProviderProps`, `HeardTextProgress`, `HeardTextFunction`, `SpokenTextSubscribe`, `UseHeardTextParams`, `UseHeardTextResult`
+- Components: `AIMarkdown`, `AIMessageComposer` (with the static sub-components `FileInput`, `TextInput`, `SpeechToTextButton`, `SubmitButton`, `ModelSelect`, `AttachmentPreview`, `AttachmentPreview.Item`), `StreamingMessage`, `AIStateIndicator`, `VoiceWave`, `VoiceGlow`
+- Hooks: `useAttachments`, `useText`, `useIsDisabled`, `useAIMessageComposerContext`, `useSpeechToText`, `useAudioLevel`, `useHeardText`
+- Types: `AIMessageComposerStore`, `StreamingMessageRef`, `UseMessageTextStreamingProps`, `ToolComponentProps`, `UseSpeechToTextOptions`, `VoiceAgentState`, `VoiceGlowRendering`, `VoiceVisualizationProps`, `VoiceWaveProps`, `VoiceGlowProps`, `HeardTextProgress`, `HeardTextFunction`, `HeardTextSubscribe`, `UseHeardTextParams`, `UseHeardTextResult`
 
 `useMessageTextStreaming` is not exported from here; import it from the main entry point (`stream-chat-react`).
 
@@ -392,66 +391,6 @@ function AIResponse({ text }) {
 }
 ```
 
-### `SpokenMessageText`
-
-Reveals an AI reply's text at the pace the user hears it, for apps that talk to a voice AI agent. With `isMessageAIGenerated`, the default `StreamedMessageText` types the reply as fast as the model writes it into the channel, which runs far ahead of the agent's voice. `SpokenMessageText` is a drop-in replacement for the `StreamedMessageText` component slot of `stream-chat-react` (same props, `StreamedMessageTextProps`) and is paced by a `SpokenTextProvider`.
-
-The SDK does not depend on any voice SDK. The app passes the speech progress as a plain function:
-
-- `heard(message, now)` returns `{ chars, done }`: how many characters of `message.text` the user has heard by `now` (a `performance.now()` timestamp), and whether the speech for the message has finished. `chars` counts Unicode code points (`Array.from(text).length`), not UTF-16 code units. Return `undefined` for messages that are not spoken, and `{ chars: 0, done: false }` for a spoken reply whose audio has not started yet.
-- `subscribe(listener)` (optional) registers a change listener and returns an unsubscribe function.
-
-Behaviour:
-
-- While the speech for a message is in progress, the component samples `heard` on every animation frame and stops when the speech is done or the component unmounts. `subscribe` wakes it up when the source changes.
-- It shows the first `floor(chars)` code points of the text and never moves backwards. Emoji and other astral characters are never split.
-- It shows the full text once `done` is `true` and the message is no longer generating (the `generating` custom field is falsy), for messages created more than `historyThresholdMs` (default 10 s) before mount, and after an `ai_indicator.stop` event (the user stopped the response).
-- Without a provider, or when `heard` returns `undefined`, it renders the default `StreamedMessageText` unchanged.
-- The text renders through `MessageText`, so markdown, `renderText` and the class names (`str-chat__message-text`) are the same as with `StreamedMessageText`. It needs no extra stylesheet.
-
-#### `SpokenTextProvider` props
-
-| Name                 | Type                                                                                    | Required | Description                                                               |
-| -------------------- | --------------------------------------------------------------------------------------- | -------- | ------------------------------------------------------------------------- |
-| `heard`              | `(message: LocalMessage, now: number) => { chars: number; done: boolean } \| undefined` | yes      | Speech progress of a message, see above.                                  |
-| `subscribe`          | `(listener: () => void) => () => void`                                                  | no       | Change notifications from the speech progress source.                     |
-| `historyThresholdMs` | `number`                                                                                | no       | Messages older than this at mount are shown in full. Defaults to `10000`. |
-
-Keep `heard` and `subscribe` referentially stable (for example with `useCallback`): a new identity restarts the pacing of every rendered `SpokenMessageText`.
-
-#### Example
-
-```tsx
-import { useCallback } from 'react';
-import type { LocalMessage } from 'stream-chat';
-import { Channel, Chat, MessageList, WithComponents } from 'stream-chat-react';
-import { SpokenMessageText, SpokenTextProvider } from 'stream-chat-react/ai-components';
-
-function VoiceAgentConversation({ channel, client, session }) {
-  // the voice session reports how much of each reply has been played back
-  const heard = useCallback(
-    (message: LocalMessage, now: number) => session.speech.heard(message, now),
-    [session],
-  );
-  const subscribe = useCallback(
-    (listener: () => void) => session.speech.subscribe(listener),
-    [session],
-  );
-
-  return (
-    <Chat client={client} isMessageAIGenerated={(message) => !!message.ai_generated}>
-      <Channel channel={channel}>
-        <SpokenTextProvider heard={heard} subscribe={subscribe}>
-          <WithComponents overrides={{ StreamedMessageText: SpokenMessageText }}>
-            <MessageList />
-          </WithComponents>
-        </SpokenTextProvider>
-      </Channel>
-    </Chat>
-  );
-}
-```
-
 ### `AIMessageComposer.SpeechToTextButton`
 
 A button for voice input using the Web Speech API, with a built-in microphone icon. It is a static sub-component of `AIMessageComposer` (not a named export) and must be rendered inside an `AIMessageComposer`: it writes the recognized transcript to the composer's text input through the composer context.
@@ -639,34 +578,61 @@ function VoiceInput() {
 
 ### `useHeardText`
 
-The hook behind `SpokenMessageText`, for building a custom paced message text. Reads the nearest `SpokenTextProvider`.
+Reveals a text at the pace the user hears it spoken, for apps that talk to a voice AI agent: the agent's reply is written into the chat as the model generates it, far ahead of the agent's voice. The hook is standalone (React only, no chat SDK imports) and takes the speech progress from the app as a plain function, so it works with any voice backend.
+
+```ts
+type HeardTextProgress = { chars: number; done: boolean };
+type HeardTextFunction = (now: number) => HeardTextProgress | undefined;
+type HeardTextSubscribe = (listener: () => void) => () => void;
+
+const useHeardText: (params: UseHeardTextParams) => UseHeardTextResult;
+```
+
+`heard(now)` returns how many characters of the text the user has heard by `now` (a `performance.now()` timestamp) and whether the speech for it has finished. `chars` counts Unicode code points (`Array.from(text).length`), not UTF-16 code units. Return `undefined` when the text is not paced, and `{ chars: 0, done: false }` for a spoken text whose audio has not started yet.
 
 #### Props
 
-| Name      | Type           | Required | Description                                     |
-| --------- | -------------- | -------- | ----------------------------------------------- |
-| `message` | `LocalMessage` | yes      | The message whose text is revealed.             |
-| `text`    | `string`       | no       | The text to reveal. Defaults to `message.text`. |
+| Name         | Type                 | Required | Description                                                                                                              |
+| ------------ | -------------------- | -------- | ------------------------------------------------------------------------------------------------------------------------ |
+| `text`       | `string`             | yes      | The full text to reveal.                                                                                                 |
+| `heard`      | `HeardTextFunction`  | yes      | The speech progress of `text`.                                                                                           |
+| `subscribe`  | `HeardTextSubscribe` | no       | Change notifications from the speech progress source; each one makes the hook check `heard` again.                       |
+| `generating` | `boolean`            | no       | `true` while the text is still being written. The full text is revealed once `heard` reports `done` and this is falsy.   |
+| `live`       | `boolean`            | no       | Defaults to `true`. `false` reveals the full text at once, for example for a message loaded from history. Read at mount. |
 
 #### Returns
 
-| Name        | Type         | Description                                                                                             |
-| ----------- | ------------ | ------------------------------------------------------------------------------------------------------- |
-| `heardText` | `string`     | The part of the text the user has heard (the full text when not paced).                                 |
-| `isPaced`   | `boolean`    | `false` without a provider or when `heard` returned `undefined`; render your default text in that case. |
-| `skip`      | `() => void` | Reveal the full text from now on.                                                                       |
+| Name        | Type         | Description                                                                        |
+| ----------- | ------------ | ---------------------------------------------------------------------------------- |
+| `heardText` | `string`     | The part of the text the user has heard (the full text when not paced).            |
+| `isPaced`   | `boolean`    | `false` when `heard` returned `undefined`; `heardText` is then the full text.      |
+| `skip`      | `() => void` | Reveal the full text from now on, for example when the user stops the AI response. |
+
+Behaviour:
+
+- It reveals the first `floor(chars)` code points of `text` and never moves backwards. Emoji and other astral characters are never split.
+- While the text is paced and its speech is not done, it samples `heard` on every animation frame, and stops when the speech is done or the component unmounts. `subscribe` notifications and changes of `text` or `generating` make it check again.
+- If `heard` returns `undefined` at first and a value later, the reveal continues from the length already shown.
+- `heard` and `subscribe` are read through refs: passing new functions on every render (inline arrow functions) does not restart the pacing. `subscribe` is called once and unsubscribed on unmount.
 
 #### Example
 
 ```tsx
-import { MessageText } from 'stream-chat-react';
 import { useHeardText } from 'stream-chat-react/ai-components';
 
-function PacedText({ message }) {
-  const { heardText } = useHeardText({ message });
-  return <MessageText message={{ ...message, text: heardText }} />;
+function SpokenReply({ generating, session, text, turnId }) {
+  const { heardText } = useHeardText({
+    generating,
+    heard: (now) => session.speech.heard(turnId, now),
+    subscribe: (listener) => session.speech.subscribe(listener),
+    text,
+  });
+
+  return <p>{heardText}</p>;
 }
 ```
+
+A drop-in for the `StreamedMessageText` component slot of `stream-chat-react`, built on this hook, is shown in the docs.
 
 ### `useAudioLevel`
 
