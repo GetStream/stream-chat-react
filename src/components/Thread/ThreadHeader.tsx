@@ -4,13 +4,12 @@ import { useChannel } from '../../context';
 import { useTranslationContext } from '../../context/TranslationContext';
 import { useStateStore } from '../../store';
 import { useChannelPreviewInfo } from '../ChannelListItem/hooks/useChannelPreviewInfo';
-import { useMessageComposerController } from '../MessageComposer/hooks/useMessageComposerController';
 import { TypingIndicatorHeader } from '../TypingIndicator/TypingIndicatorHeader';
 import { useThreadContext } from '../Threads';
 import { useChatContext } from '../../context/ChatContext';
 
 import type { EventPayload, LocalMessage } from 'stream-chat';
-import type { TextComposerState, ThreadState } from 'stream-chat';
+import type { ChannelStateData, ThreadState } from 'stream-chat';
 import { WorkspaceNavigationBackButton, WorkspaceNavigationCloseButton } from '../Button';
 import type { ChannelConfig } from 'stream-chat';
 
@@ -22,7 +21,7 @@ const threadStateSelector = ({ parentMessage, replyCount }: ThreadState) => ({
   parentMessage,
   replyCount,
 });
-const textComposerTypingSelector = ({ typing }: TextComposerState) => ({ typing });
+const channelTypingSelector = ({ typing }: ChannelStateData) => ({ typing });
 
 /** Name of the parent message author, if it has one. */
 const displayNameFromParentMessage = (message: LocalMessage): string | undefined =>
@@ -40,14 +39,14 @@ const ThreadHeaderSubtitle = ({
 }) => {
   const { t } = useTranslationContext();
   const channel = useChannel();
-  const { typingEventsEnabled } =
-    useStateStore(channel?.configState, typingEventsStateSelector) ?? {};
+  const { typingEventsEnabled } = useStateStore(
+    channel.configState,
+    typingEventsStateSelector,
+  );
   const threadInstance = useThreadContext();
   const parentId = threadInstance?.id;
   const { client } = useChatContext();
-  const messageComposer = useMessageComposerController();
-  const { typing = {} } =
-    useStateStore(messageComposer.textComposer?.state, textComposerTypingSelector) ?? {};
+  const { typing } = useStateStore(channel.state, channelTypingSelector);
   const typingInThread = (Object.values(typing) as EventPayload<'typing.start'>[]).filter(
     ({ parent_id, user }) => user?.id !== client.user?.id && parent_id === parentId,
   );

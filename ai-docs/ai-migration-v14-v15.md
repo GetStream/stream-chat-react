@@ -1407,7 +1407,7 @@ export const LoadOlder = () => {
 
 ### `TypingContext` is removed
 
-`TypingContext`, `TypingContextValue`, `TypingProvider` and `useTypingContext` are removed. Subscribe to the channel's own store: `typing` is `Record<string, Event>` keyed by user id. The non-reactive snapshot is `channel.state.typing`. The SDK's own `TypingIndicator` reads the composer's `textComposer.state.typing` and filters by `parent_id` for threads.
+`TypingContext`, `TypingContextValue`, `TypingProvider` and `useTypingContext` are removed. Subscribe to the channel's own store: `typing` is `Record<string, Event>` keyed by user id. The non-reactive snapshot is `channel.state.typing`. The SDK's own `TypingIndicator`, `TypingIndicatorHeader`, `ChannelHeader` and `ThreadHeader` read this slice and filter it by `parent_id` for threads. The text composer keeps no copy: `TextComposerState` has no `typing` in `stream-chat` v10, so a custom indicator written against a v15 release candidate that read `messageComposer.textComposer.state` reads `channel.state` instead, in a thread too.
 
 ```tsx
 // v14
@@ -2336,6 +2336,27 @@ export const DeleteForMe = () => {
 - `GeolocationPreviewProps.location`, `useAttachmentsForPreview().location`: `StaticLocationPreview`.
 - `LinkPreviewCard.linkPreview`: `LinkPreview` extends the v10 `Attachment`, whose `custom` is required.
 - Attachment previews and the recorder's voice recording: `duration`, `file_size`, `mime_type` and `waveform_data` moved under `attachment.custom` (custom `AttachmentPreviewList` parts; `recordingController.recording.custom.duration` / `.custom.waveform_data`).
+
+**Calls that replacements of the default components make:** the defaults call these `stream-chat` v10 methods with one request object. A custom component that makes the same call with bare values fails to compile.
+
+- Poll creation fields (custom `NameField`, `OptionFieldSet`, `MultipleAnswersField` or switches): `pollComposer.updateFields({ data: { name } })`; errors your field produces go in the same object, `updateFields({ data, injectedFieldErrors })`. Was `updateFields({ name })` / `updateFields(data, errors)`.
+- Member actions (leave channel, add or remove members): `channel.addMembers({ members: userIds })`, `channel.removeMembers({ members: userIds })`. Was `addMembers(userIds)`.
+- Flagging a message: `client.moderation.flagMessage({ message_id: message.id })`. Was `client.flagMessage(message.id)`.
+- Fetching a thread to open it: `client.getThreadAndHydrate({ message_id: parentId }, { watch: true })`, which returns the `Thread` already registered in `client.threads` when there is one. Was `client.getThread(parentId, options)`.
+
+```tsx
+import { useChannel, useChatContext } from 'stream-chat-react';
+
+export const LeaveChannelButton = () => {
+  const channel = useChannel();
+  const { client } = useChatContext();
+  if (!client.userID) return null;
+  const userId = client.userID;
+  return (
+    <button onClick={() => channel.removeMembers({ members: [userId] })}>Leave</button>
+  );
+};
+```
 
 Other `stream-chat` v10 type changes an app may hit (the attachment `Action` type requires `text` and `type`, `unBlockUser` → `unblockUser`, `ReminderResponse` → `ReminderResponseData`, `User` no longer accepting `name` / `image` (type user data as `ClientUser`), channel `members` as `{ user_id }` objects, `ChannelState.messages` replaced by `channel.messagePaginator`) are documented in `stream-chat`'s own migration notes.
 

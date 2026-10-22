@@ -544,7 +544,7 @@ describe('<Message /> component', () => {
 
     await context.handleFlag(mouseEventMock);
 
-    expect(flagMessage).toHaveBeenCalledWith(message.id);
+    expect(flagMessage).toHaveBeenCalledWith({ message_id: message.id });
   });
 
   it('should throw when flagging a message fails', async () => {
@@ -564,7 +564,7 @@ describe('<Message /> component', () => {
 
     await expect(context.handleFlag(mouseEventMock)).rejects.toThrow('flag failed');
 
-    expect(flagMessage).toHaveBeenCalledWith(message.id);
+    expect(flagMessage).toHaveBeenCalledWith({ message_id: message.id });
   });
 
   it('should allow user to retry sending a message', async () => {

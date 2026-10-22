@@ -2,8 +2,8 @@ import React, { useEffect, useMemo } from 'react';
 import clsx from 'clsx';
 import type {
   ChannelConfig,
+  ChannelStateData,
   EventPayload,
-  TextComposerState,
   ThreadState,
 } from 'stream-chat';
 
@@ -27,7 +27,7 @@ const typingEventsStateSelector = ({ typingEvents }: ChannelConfig) => ({
   typingEventsEnabled: typingEvents.enabled,
 });
 
-const textComposerTypingSelector = ({ typing }: TextComposerState) => ({ typing });
+const channelTypingSelector = ({ typing }: ChannelStateData) => ({ typing });
 
 const threadParentMessageSelector = ({ parentMessage }: ThreadState) => ({
   parentMessage,
@@ -54,8 +54,7 @@ const UnMemoizedTypingIndicator = (props: TypingIndicatorProps) => {
   );
   const { client } = useChatContext();
   const { t } = useTranslationContext();
-  const { typing = {} } =
-    useStateStore(messageComposer.textComposer?.state, textComposerTypingSelector) ?? {};
+  const { typing } = useStateStore(messageComposer.channel.state, channelTypingSelector);
   const thread = useThreadContext();
   const isThreadList = !!thread;
   const { parentMessage } =

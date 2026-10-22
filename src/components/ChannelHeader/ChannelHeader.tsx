@@ -6,16 +6,15 @@ import { useChannelHeaderOnlineStatus } from './hooks/useChannelHeaderOnlineStat
 import { useChannelPreviewInfo } from '../ChannelListItem/hooks/useChannelPreviewInfo';
 import { useChannel, useChatContext } from '../../context';
 import { WorkspaceNavigationBackButton, WorkspaceNavigationCloseButton } from '../Button';
-import { useMessageComposerController } from '../MessageComposer/hooks/useMessageComposerController';
 import { useStateStore } from '../../store';
 
-import type { ChannelConfig, EventPayload, TextComposerState } from 'stream-chat';
+import type { ChannelConfig, ChannelStateData, EventPayload } from 'stream-chat';
 
 const typingEventsStateSelector = ({ typingEvents }: ChannelConfig) => ({
   typingEventsEnabled: typingEvents.enabled,
 });
 
-const textComposerTypingSelector = ({ typing }: TextComposerState) => ({ typing });
+const channelTypingSelector = ({ typing }: ChannelStateData) => ({ typing });
 
 const ChannelHeaderSubtitle = () => {
   const channel = useChannel();
@@ -24,9 +23,7 @@ const ChannelHeaderSubtitle = () => {
     typingEventsStateSelector,
   );
   const { client } = useChatContext();
-  const messageComposer = useMessageComposerController();
-  const { typing = {} } =
-    useStateStore(messageComposer.textComposer?.state, textComposerTypingSelector) ?? {};
+  const { typing } = useStateStore(channel.state, channelTypingSelector);
   const onlineStatusText = useChannelHeaderOnlineStatus();
   const typingInChannel = (
     Object.values(typing) as EventPayload<'typing.start' | 'typing.stop'>[]

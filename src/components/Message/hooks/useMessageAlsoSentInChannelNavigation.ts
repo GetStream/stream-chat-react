@@ -72,9 +72,10 @@ export const useMessageAlsoSentInChannelNavigation =
 
       if (!targetThread) {
         try {
-          const fetchedThread = await client.getThreadAndHydrate(parentId, {
-            watch: true,
-          });
+          const fetchedThread = await client.getThreadAndHydrate(
+            { message_id: parentId },
+            { watch: true },
+          );
           // An instance registered while the request was in flight (e.g. by a thread list query)
           // wins, so there is only one live instance per thread.
           targetThread = client.threads.get(parentId) ?? fetchedThread;

@@ -597,7 +597,7 @@ const RemoveUserAction = () => {
 
     try {
       setRemoveMemberInProgress(true);
-      await channel.removeMembers([targetUserId]);
+      await channel.removeMembers({ members: [targetUserId] });
       addNotification({
         context: { channel },
         emitter: 'ChannelMemberDetail',

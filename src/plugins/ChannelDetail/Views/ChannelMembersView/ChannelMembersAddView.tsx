@@ -235,7 +235,7 @@ export const ChannelMembersAddView = ({
 
     setIsSaving(true);
     try {
-      await channel.addMembers(selectedUserIds);
+      await channel.addMembers({ members: selectedUserIds });
       addNotification({
         context: { channel },
         emitter: 'ChannelMembersView',

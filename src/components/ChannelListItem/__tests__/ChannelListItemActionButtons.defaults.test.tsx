@@ -454,7 +454,7 @@ describe('ChannelListItemActionButtons defaults', () => {
       });
 
       await waitFor(() => {
-        expect(channel.removeMembers).toHaveBeenCalledWith([alice.id]);
+        expect(channel.removeMembers).toHaveBeenCalledWith({ members: [alice.id] });
         expect(addSpy).toHaveBeenCalledWith(
           expect.objectContaining({
             message: 'Left channel',

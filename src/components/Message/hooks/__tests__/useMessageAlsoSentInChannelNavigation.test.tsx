@@ -167,7 +167,10 @@ describe('useMessageAlsoSentInChannelNavigation', () => {
       const result = renderNavigation();
       await result.current.viewReplyInThread('reply-1', 'parent-1');
 
-      expect(mocks.getThreadAndHydrate).toHaveBeenCalledWith('parent-1', { watch: true });
+      expect(mocks.getThreadAndHydrate).toHaveBeenCalledWith(
+        { message_id: 'parent-1' },
+        { watch: true },
+      );
       expect(mocks.openThread).toHaveBeenCalledWith(fetched);
       expect(fetched.messagePaginator.jumpToMessage).toHaveBeenCalledWith('reply-1');
     });

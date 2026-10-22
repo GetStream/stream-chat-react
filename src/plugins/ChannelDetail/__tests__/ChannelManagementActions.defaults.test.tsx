@@ -445,7 +445,7 @@ describe('DefaultChannelManagementActions', () => {
       await Promise.resolve();
     });
 
-    expect(mocks.removeMembers).toHaveBeenCalledWith(['own-user']);
+    expect(mocks.removeMembers).toHaveBeenCalledWith({ members: ['own-user'] });
     expect(mocks.close).toHaveBeenCalledTimes(1);
     expect(mocks.addNotification).toHaveBeenCalledWith(
       expect.objectContaining({

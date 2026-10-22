@@ -777,7 +777,7 @@ describe('<MessageSimple />', () => {
     fireEvent.click(getByText('View'));
     await waitFor(() =>
       expect(getThreadSpy).toHaveBeenCalledWith(
-        parentMessage.id,
+        { message_id: parentMessage.id },
         expect.objectContaining({ watch: true }),
       ),
     );
