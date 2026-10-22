@@ -1,7 +1,7 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
 
-import { AIMessageComposer, AIStateIndicator } from '..';
+import { AIMessageComposer, AIStateIndicator, VoiceGlow, VoiceWave } from '..';
 import { TranslationProvider } from '../../../context';
 import en from '../../../i18n/en.json';
 import {
@@ -41,6 +41,31 @@ describe('AI components i18n', () => {
       </TranslationProvider>,
     );
     expect(container.textContent).toMatch(/^T:/);
+  });
+
+  it('translates the voice visualization names and states', () => {
+    const translate = vi.fn(
+      (key: string, options?: { state?: string }) =>
+        `T:${key}${options?.state ? `|${options.state}` : ''}`,
+    );
+    render(
+      <TranslationProvider
+        value={{
+          t: translate as never,
+          tDateTimeParser: (() => null) as never,
+          userLanguage: 'en',
+        }}
+      >
+        <VoiceWave state='speaking' />
+        <VoiceGlow state='idle' />
+      </TranslationProvider>,
+    );
+    expect(
+      screen.getByRole('img', { name: 'T:aria/Voice agent: {{ state }}|T:Speaking' }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('img', { name: 'T:aria/Voice agent: {{ state }}|T:Ready' }),
+    ).toBeInTheDocument();
   });
 
   it('renders real English values for aria keys (no aria/ prefix)', () => {

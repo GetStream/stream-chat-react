@@ -1,0 +1,116 @@
+.ai-demo-voice-mode {
+  position: absolute;
+  inset: 0;
+  z-index: 20;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 2rem 1.5rem;
+  background-color: var(--ai-demo-bg-primary);
+  color: var(--ai-demo-text-primary);
+
+  &__stage {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    width: 100%;
+    max-width: 640px;
+    min-height: 0;
+  }
+
+  &__glow {
+    width: min(28rem, 80vw, 55vh);
+    height: min(28rem, 80vw, 55vh);
+  }
+
+  &__status {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 600;
+  }
+
+  &__caption {
+    margin: 0;
+    min-height: 3em;
+    max-height: 6em;
+    overflow: hidden;
+    color: var(--ai-demo-text-secondary);
+    font-size: 0.9375rem;
+    line-height: 1.5;
+    text-align: center;
+    display: -webkit-box;
+    -webkit-line-clamp: 4;
+    -webkit-box-orient: vertical;
+  }
+
+  // The wave is about 84% as long as its box's shorter side, so its box is square. The empty
+  // space above and below the line overlaps its neighbours, which the wave lets clicks through.
+  &__wave {
+    --ai-demo-voice-wave-size: min(18rem, 100%, 32vh);
+    flex-shrink: 0;
+    width: var(--ai-demo-voice-wave-size);
+    height: var(--ai-demo-voice-wave-size);
+    margin-block: calc(var(--ai-demo-voice-wave-size) * -0.3);
+  }
+
+  &__controls {
+    display: flex;
+    gap: 1rem;
+  }
+
+  &__button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 3.5rem;
+    height: 3.5rem;
+    border: none;
+    border-radius: 9999px;
+    background-color: var(--ai-demo-bg-tertiary);
+    color: var(--ai-demo-text-primary);
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+
+    &:hover:not(:disabled) {
+      background-color: var(--ai-demo-border);
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--ai-demo-accent);
+      outline-offset: 2px;
+    }
+
+    &:disabled {
+      cursor: not-allowed;
+      opacity: 0.5;
+    }
+
+    &[aria-pressed='true'] {
+      background-color: var(--ai-demo-text-primary);
+      color: var(--ai-demo-bg-primary);
+    }
+
+    &--end {
+      background-color: #e5484d;
+      color: #ffffff;
+
+      &:hover:not(:disabled) {
+        background-color: #c93c40;
+      }
+    }
+
+    .material-symbols-rounded {
+      font-size: 1.75rem;
+    }
+  }
+}
+
+.ai-demo-voice-mode-button .material-symbols-rounded {
+  font-size: 1.5rem;
+  line-height: 1;
+}

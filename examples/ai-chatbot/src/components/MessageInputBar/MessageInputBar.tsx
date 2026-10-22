@@ -3,44 +3,26 @@
 import { AIMessageComposer } from 'stream-chat-react/ai-components';
 import { useEffect, useState } from 'react';
 import {
-  type Channel,
   isImageFile,
   type LocalUploadAttachment,
   type UploadRequestFn,
 } from 'stream-chat';
 import {
   useAttachmentsForPreview,
-  useChannelActionContext,
   useChannelStateContext,
   useChatContext,
   useMessageComposerController,
 } from 'stream-chat-react';
-import { startAiAgent, summarizeConversation } from '@/components/api';
-import {
-  checkRateLimit,
-  formatTimeRemaining,
-  recordMessage,
-} from '@/components/rateLimitUtils';
+import { checkRateLimit, formatTimeRemaining } from '@/components/rateLimitUtils';
+import { availableModels, useSendAIMessage } from '@/components/useSendAIMessage';
+import { VoiceModeButton } from '@/components/VoiceMode';
 import './MessageInputBar.scss';
-
-const isWatchedByAI = (channel: Channel) =>
-  Object.keys(channel.state.watchers).some((watcher) => watcher.startsWith('ai-bot'));
-
-const availableModels = [
-  { platform: 'openai', value: 'gpt-5.4-mini', label: 'GPT-5.4 mini' },
-  { platform: 'openai', value: 'gpt-5.4-nano', label: 'GPT-5.4 nano' },
-  {
-    platform: 'gemini',
-    value: 'gemini-flash-latest',
-    label: 'Gemini Flash (latest)',
-  },
-] as const;
 
 export const MessageInputBar = () => {
   const { client } = useChatContext();
-  const { updateMessage, sendMessage } = useChannelActionContext();
   const { channel } = useChannelStateContext();
   const composer = useMessageComposerController();
+  const sendAIMessage = useSendAIMessage();
 
   const { attachments } = useAttachmentsForPreview();
   const [selectedPlatformModel, setSelectedPlatformModel] = useState<string>();
@@ -124,46 +106,14 @@ export const MessageInputBar = () => {
           const platformModel = formData.get('platform-model');
           setSelectedPlatformModel(platformModel as string);
 
-          composer.textComposer.setText(message as string);
-
-          const composedData = await composer.compose();
-
-          if (!composedData) return;
-
-          target.reset();
-          composer.clear();
-
-          updateMessage(composedData?.localMessage);
-
-          if (!channel.initialized) {
-            await channel.watch();
-          }
-
-          const [platform, model] = (platformModel as string).split('|');
-
-          if (!isWatchedByAI(channel)) {
-            await startAiAgent(channel, model, platform);
-          }
-
-          await sendMessage(composedData);
-
-          // Record message after successful send
-          recordMessage(channel.id!);
+          const sent = await sendAIMessage({
+            onComposed: () => target.reset(),
+            platformModel: platformModel as string,
+            text: message as string,
+          });
 
           // Update rate limit state
-          const newState = checkRateLimit(channel.id!);
-          setRateLimitState(newState);
-
-          if (typeof channel.data?.summary !== 'string' || !channel.data.summary.length) {
-            const summary = await summarizeConversation(message as string).catch(() => {
-              console.warn('Failed to summarize conversation');
-              return null;
-            });
-
-            if (typeof summary === 'string' && summary.length > 0) {
-              await channel.update({ summary });
-            }
-          }
+          if (sent) setRateLimitState(checkRateLimit(channel.id!));
         }}
       >
         <AIMessageComposer.AttachmentPreview>
@@ -200,6 +150,7 @@ export const MessageInputBar = () => {
           <div style={{ display: 'flex', gap: '.25rem', alignItems: 'center' }}>
             <AIMessageComposer.FileInput name='attachments' />
             <AIMessageComposer.SpeechToTextButton />
+            <VoiceModeButton />
             <AIMessageComposer.ModelSelect
               name='platform-model'
               value={selectedPlatformModel}
