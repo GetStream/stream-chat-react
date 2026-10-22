@@ -1,3 +1,10 @@
+## [14.14.0](https://github.com/GetStream/stream-chat-react/compare/v14.13.3...v14.14.0) (2026-10-22)
+
+### Features
+
+* **ai-components:** add VoiceWave and VoiceGlow voice-agent visualizations ([#3339](https://github.com/GetStream/stream-chat-react/issues/3339)) ([da6f72f](https://github.com/GetStream/stream-chat-react/commit/da6f72ffbab4d9a9049a3f64cfa16cdc22123fa6)), closes [GetStream/stream-chat-android#6848](https://github.com/GetStream/stream-chat-android/issues/6848) [GetStream/stream-chat-android#6849](https://github.com/GetStream/stream-chat-android/issues/6849) [GetStream/stream-chat-android#6851](https://github.com/GetStream/stream-chat-android/issues/6851) [GetStream/stream-chat-swift#4338](https://github.com/GetStream/stream-chat-swift/issues/4338)
+* **Message:** add SpokenMessageText for voice-paced AI message text ([#3343](https://github.com/GetStream/stream-chat-react/issues/3343)) ([22abe90](https://github.com/GetStream/stream-chat-react/commit/22abe90c69624a388cb5fe85bc93d3d4339dcaf1)), closes [GetStream/Vision-Agents#1128](https://github.com/GetStream/Vision-Agents/issues/1128)
+
 ## [14.13.3](https://github.com/GetStream/stream-chat-react/compare/v14.13.2...v14.13.3) (2026-10-21)
 
 ### Bug Fixes
