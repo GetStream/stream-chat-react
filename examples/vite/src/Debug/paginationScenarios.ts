@@ -1683,6 +1683,8 @@ export class ScenarioRun {
   readonly state: StateStore<ScenarioRunState>;
   private before: WindowsView;
   private busy = false;
+  /** A disposed run starts no step and watches none; a step already running finishes alone. */
+  private disposed = false;
   private keepGoing = false;
   private poll?: ReturnType<typeof setInterval>;
 
@@ -1714,6 +1716,7 @@ export class ScenarioRun {
 
   /** Also lets the server answer at once again, so a run left at a release step leaves nothing held. */
   dispose() {
+    this.disposed = true;
     this.keepGoing = false;
     this.stopPolling();
     this.context.backend.setHoldAnswers(false);
@@ -1732,7 +1735,7 @@ export class ScenarioRun {
 
   /** A `youDo` step already done is only judged; otherwise Step does it for you if it can. */
   private async runCurrent() {
-    if (this.busy || this.isFinished) return;
+    if (this.disposed || this.busy || this.isFinished) return;
     const index = this.state.getLatestValue().current;
     const step = this.scenario.steps[index];
     this.busy = true;
@@ -1794,6 +1797,7 @@ export class ScenarioRun {
 
   /** Notes the state the step starts from; a step waiting for you is watched until you are done. */
   private enter(index: number) {
+    if (this.disposed) return;
     this.before = windowsOf(this.context.channel);
     const step = this.scenario.steps[index];
     if (!step?.youDo) return;
