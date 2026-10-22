@@ -122,6 +122,14 @@ $ai-tokens: (
     null,
     hsla(220, 14%, 30%, 0.15),
   ),
+  'voice-color': (
+    '--str-chat__accent-primary',
+    #005fff,
+  ),
+  'voice-backdrop': (
+    '--str-chat__background-core-elevation-0',
+    #ffffff,
+  ),
 );
 
 @function ai-token($name) {
