@@ -289,7 +289,7 @@ describe('ChannelPreview', () => {
         const message =
           eventType === 'message.new'
             ? generateMessage()
-            : c0.messagePaginator.headmostItem;
+            : c0.messagePaginator.latestMessage;
         await act(async () => {
           await dispatcher(client, message, c0);
         });
@@ -422,8 +422,8 @@ describe('ChannelPreview', () => {
         expect(getByTestId('channel-id')).toBeInTheDocument();
       });
 
-      const lastMessage = c0.messagePaginator.headmostItem;
-      const penultimateMessage = c0.messagePaginator.headItems.slice(-2)[0];
+      const lastMessage = c0.messagePaginator.latestMessage;
+      const penultimateMessage = c0.messagePaginator.anchoredHeadItems.slice(-2)[0];
       await act(async () => {
         await dispatcher(client, penultimateMessage, c0);
       });
@@ -555,7 +555,7 @@ describe('ChannelPreview', () => {
         expect(lastMessagePreviews.length).toBe(2);
         expect(lastMessagePreviews[0]).toHaveTextContent(deletedMessageText);
         expect(lastMessagePreviews[1]).toHaveTextContent(
-          c1.messagePaginator.headmostItem.text,
+          c1.messagePaginator.latestMessage!.text,
         );
       });
     });

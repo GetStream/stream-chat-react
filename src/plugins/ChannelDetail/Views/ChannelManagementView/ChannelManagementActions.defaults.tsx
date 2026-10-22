@@ -639,7 +639,7 @@ const LeaveChannelAction = () => {
 
     try {
       setLeaveChannelInProgress(true);
-      await channel.removeMembers([client.userID]);
+      await channel.removeMembers({ members: [client.userID] });
       addNotification({
         context: { channel },
         emitter: 'ChannelManagementView',

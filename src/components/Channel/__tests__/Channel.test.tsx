@@ -364,7 +364,7 @@ describe('Channel', () => {
       await renderComponent({ channel, chatClient });
 
       const querySpy = vi.spyOn(channel, 'query');
-      const prevSpy = vi.spyOn(channel.messagePaginator, 'prev');
+      const toHeadSpy = vi.spyOn(channel.messagePaginator, 'toHead');
       channel.state.partialNext({ pendingDisposal: true });
 
       await act(async () => {
@@ -372,7 +372,7 @@ describe('Channel', () => {
         await Promise.resolve();
       });
 
-      expect(prevSpy).not.toHaveBeenCalled();
+      expect(toHeadSpy).not.toHaveBeenCalled();
       expect(querySpy).not.toHaveBeenCalled();
     });
   });
@@ -793,7 +793,7 @@ describe('Channel', () => {
         await renderComponent({ channel, chatClient });
 
         await waitFor(() => {
-          expect(channel.messagePaginator.headItems[0]?.user?.name).toBe(user.name);
+          expect(channel.messagePaginator.items?.[0]?.user?.name).toBe(user.name);
         });
 
         await act(() => {
@@ -804,7 +804,7 @@ describe('Channel', () => {
         // `client._updateUserMessageReferences` and `reflectUserUpdate`), which `MessageList`
         // reads.
         await waitFor(() => {
-          expect(channel.messagePaginator.headItems[0]?.user?.name).toBe(
+          expect(channel.messagePaginator.items?.[0]?.user?.name).toBe(
             updatedAttribute.name,
           );
         });

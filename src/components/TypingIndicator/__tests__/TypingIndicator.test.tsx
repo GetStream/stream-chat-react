@@ -27,22 +27,18 @@ const makeStore = (value: unknown) => ({
   subscribeWithSelector: () => () => null,
 });
 
-// In thread mode the typing users come from the thread's own `messageComposer.textComposer` state,
-// the parent message from `thread.state`, and the channel config from `messageComposer.channel`,
-// so the thread stub carries a composer that references the real channel.
-const makeThread = (
-  parentMessageId?: string,
-  typing: Record<string, unknown> = {},
-  channel?: any,
-) =>
+// In thread mode the typing users come from the channel's `state`, filtered by `parent_id` against
+// the thread's `id` (its parent message's id), and the channel from `messageComposer.channel`, so
+// the thread stub carries a composer that references the real channel.
+const makeThread = (parentMessageId?: string, channel?: any) =>
   parentMessageId
     ? {
+        id: parentMessageId,
         messageComposer: {
           channel,
           contextType: 'thread',
           registerSubscriptions: () => () => null,
           tag: `thread-${parentMessageId}`,
-          textComposer: { state: makeStore({ typing }) },
         },
         state: makeStore({ parentMessage: { id: parentMessageId } }),
       }
@@ -58,7 +54,7 @@ async function renderComponent(
     client,
   } = await initClientWithChannels({ customUser: me });
   const channel = value.channel || defaultChannel;
-  channel.messageComposer.textComposer.typing = typing;
+  channel.state.typing = typing;
   const channelConfig = value.channelConfig ?? channel.serverConfig;
 
   client.channelServerConfigsStore.partialNext({
@@ -71,7 +67,7 @@ async function renderComponent(
     <ChatProvider value={{ client } as any}>
       <ChannelInstanceProvider value={{ channel } as any}>
         <ComponentProvider value={{} as any}>
-          <ThreadProvider thread={makeThread(threadParentId, typing, channel) as any}>
+          <ThreadProvider thread={makeThread(threadParentId, channel) as any}>
             <TypingIndicator />
           </ThreadProvider>
         </ComponentProvider>
@@ -102,7 +98,7 @@ describe('TypingIndicator', () => {
       channels: [channel],
       client,
     } = await initClientWithChannels();
-    channel.messageComposer.textComposer.typing = {};
+    channel.state.typing = {};
     const { container } = render(
       <ChatProvider value={{ client } as any}>
         <ChannelInstanceProvider value={{ channel } as any}>

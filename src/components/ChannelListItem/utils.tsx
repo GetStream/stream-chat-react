@@ -95,7 +95,7 @@ const getLatestMessagePreviewParts = (
   // A supplied message keeps the preview consistent with the other parts derived from it.
   const latestMessage =
     latestMessageArg ??
-    channel.messagePaginator.aggregateState.getLatestValue().lastMessage ??
+    channel.messagePaginator.aggregateState.getLatestValue().latestMessage ??
     undefined;
 
   const previewTextToRender =

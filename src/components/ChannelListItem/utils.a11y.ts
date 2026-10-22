@@ -27,7 +27,7 @@ export type ChannelListItemLabelData = {
   isMessageAIGenerated?: ChatContextValue['isMessageAIGenerated'];
   /**
    * The channel's latest message. When omitted, {@link composeChannelListItemAccessibleLabel} uses
-   * the `lastMessage` of `channel.messagePaginator.aggregateState`, so every part describes the
+   * the `latestMessage` of `channel.messagePaginator.aggregateState`, so every part describes the
    * same message.
    */
   latestMessage?: LocalMessage;
@@ -207,7 +207,7 @@ export const composeChannelListItemAccessibleLabel = (
       ...data,
       latestMessage:
         data.latestMessage ??
-        data.channel.messagePaginator.aggregateState.getLatestValue().lastMessage ??
+        data.channel.messagePaginator.aggregateState.getLatestValue().latestMessage ??
         undefined,
     },
     defaultChannelListItemLabelParts,

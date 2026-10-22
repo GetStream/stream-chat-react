@@ -64,7 +64,7 @@ describe('useHandleFlag custom hook', () => {
       .mockResolvedValue(fromPartial({}));
     const handleFlag = await renderUseHandleFlagHook(message);
     await handleFlag(mouseEventMock);
-    expect(flagSpy).toHaveBeenCalledWith(message.id);
+    expect(flagSpy).toHaveBeenCalledWith({ message_id: message.id });
   });
 
   it('should throw when flagging fails', async () => {
@@ -74,6 +74,6 @@ describe('useHandleFlag custom hook', () => {
       .mockRejectedValue(new Error('flag failed'));
     const handleFlag = await renderUseHandleFlagHook(message);
     await expect(handleFlag(mouseEventMock)).rejects.toThrow('flag failed');
-    expect(flagSpy).toHaveBeenCalledWith(message.id);
+    expect(flagSpy).toHaveBeenCalledWith({ message_id: message.id });
   });
 });

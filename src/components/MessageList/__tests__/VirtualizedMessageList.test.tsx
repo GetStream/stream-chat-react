@@ -1,8 +1,9 @@
 import React, { act } from 'react';
-import { cleanup, render, type RenderResult } from '@testing-library/react';
+import { cleanup, render, type RenderResult, screen } from '@testing-library/react';
 import { nanoid } from 'nanoid';
 
 import {
+  dispatchMessageNewEvent,
   generateChannel,
   generateMember,
   generateMessage,
@@ -22,7 +23,7 @@ import { ThreadProvider } from '../../Threads';
 
 import { StateStore } from '@stream-io/state-store';
 import { fromPartial } from '@total-typescript/shoehorn';
-import type { Thread, ThreadState } from 'stream-chat';
+import type { LocalMessage, Thread, ThreadState } from 'stream-chat';
 
 const threadWithParentMessage = () =>
   fromPartial<Thread>({
@@ -368,6 +369,104 @@ describe('VirtualizedMessageList', () => {
 
         expect(props.atBottomThreshold).not.toBe(100);
         expect(props.atBottomThreshold).toBe(props.atTopThreshold);
+      });
+    });
+
+    // Virtuoso cannot measure anything under jsdom, so "scrolled up" is reported through the
+    // at-bottom callback VML hands it, the same way Virtuoso reports it in a browser.
+    describe('NewMessageNotification', () => {
+      const NEW_MESSAGE_NOTIFICATION_TEST_ID = 'message-notification';
+      const SCROLL_TO_LATEST_MESSAGE_TEST_ID = 'scroll-to-latest-message-button';
+
+      const scrollUp = () =>
+        act(() => {
+          virtuosoProps[virtuosoProps.length - 1].atBottomStateChange(false);
+        });
+
+      const renderListWithChannel = async () => {
+        // The file-wide nanoid mock collapses generated ids, so the ones events rely on are explicit.
+        const user = generateUser({ id: 'other-user' });
+        const mockedChannel = generateChannel({
+          channel: { id: 'notification-channel' },
+          members: [generateMember({ user })],
+          // Fewer than a page, so the loaded window is the latest one.
+          messages: Array.from({ length: 5 }, (_v, i) =>
+            generateMessage({ id: `notification-msg-${i}`, user }),
+          ),
+        });
+        const client = await getTestClientWithUser({ id: 'id' });
+        useMockedApis(client, [getOrCreateChannelApi(mockedChannel)]); // eslint-disable-line react-hooks/rules-of-hooks
+        const channel = client.channelManager.ensure({
+          id: mockedChannel.channel.id,
+          type: 'messaging',
+        });
+        await channel.watch();
+
+        await act(() => {
+          render(
+            <Chat client={client}>
+              <Channel channel={channel}>
+                <VirtualizedMessageList />
+              </Channel>
+            </Chat>,
+          );
+        });
+
+        return { channel, client, mockedChannel, user };
+      };
+
+      it('is not shown for a scrolled-up window older than the latest messages', async () => {
+        const { channel } = await renderListWithChannel();
+
+        scrollUp();
+        act(() => {
+          channel.messagePaginator.state.partialNext({ hasMoreHead: true });
+        });
+
+        expect(screen.getByTestId(SCROLL_TO_LATEST_MESSAGE_TEST_ID)).toBeInTheDocument();
+        expect(
+          screen.queryByTestId(NEW_MESSAGE_NOTIFICATION_TEST_ID),
+        ).not.toBeInTheDocument();
+      });
+
+      it('is not shown when the window is replaced by the latest messages while scrolled up', async () => {
+        const { channel, user } = await renderListWithChannel();
+
+        scrollUp();
+        act(() => {
+          channel.messagePaginator.setItems({
+            isFirstPage: true,
+            isLastPage: true,
+            valueOrFactory: Array.from({ length: 5 }, (_v, i) =>
+              fromPartial<LocalMessage>(generateMessage({ id: `latest-msg-${i}`, user })),
+            ),
+          });
+        });
+
+        expect(
+          screen.queryByTestId(NEW_MESSAGE_NOTIFICATION_TEST_ID),
+        ).not.toBeInTheDocument();
+      });
+
+      it('is shown when a message from another user arrives while scrolled up', async () => {
+        const { channel, client, mockedChannel, user } = await renderListWithChannel();
+
+        scrollUp();
+        expect(
+          screen.queryByTestId(NEW_MESSAGE_NOTIFICATION_TEST_ID),
+        ).not.toBeInTheDocument();
+
+        act(() => {
+          dispatchMessageNewEvent(
+            client,
+            generateMessage({ cid: channel.cid, id: 'arrived-msg', user }),
+            mockedChannel.channel,
+          );
+        });
+
+        expect(
+          await screen.findByTestId(NEW_MESSAGE_NOTIFICATION_TEST_ID),
+        ).toBeInTheDocument();
       });
     });
 

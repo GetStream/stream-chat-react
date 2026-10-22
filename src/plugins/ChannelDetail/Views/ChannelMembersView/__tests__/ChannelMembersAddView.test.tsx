@@ -154,7 +154,7 @@ describe('ChannelMembersAddView', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Add 2 members' }));
 
     await waitFor(() => {
-      expect(channel.addMembers).toHaveBeenCalledWith(['user-2', 'user-3']);
+      expect(channel.addMembers).toHaveBeenCalledWith({ members: ['user-2', 'user-3'] });
       expect(setMode).toHaveBeenCalledWith('browse');
     });
   });
@@ -206,7 +206,9 @@ describe('ChannelMembersAddView', () => {
 
     fireEvent.click(screen.getByRole('button', { name: /Add \d+ members?/ }));
 
-    await waitFor(() => expect(channel.addMembers).toHaveBeenCalledWith(['user-2']));
+    await waitFor(() =>
+      expect(channel.addMembers).toHaveBeenCalledWith({ members: ['user-2'] }),
+    );
 
     expect(
       screen.queryByRole('button', { name: /Add \d+ members?/ }),

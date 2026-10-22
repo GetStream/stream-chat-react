@@ -59,7 +59,7 @@ export const MultipleAnswersField = () => {
         id='enforce_unique_vote'
         onChange={(e) => {
           setVoteLimitEnabled(false);
-          pollComposer.updateFields({ enforce_unique_vote: !e.target.checked });
+          pollComposer.updateFields({ data: { enforce_unique_vote: !e.target.checked } });
         }}
         title={t('poll.multipleAnswersField.multipleVotes.title', 'Multiple Votes')}
       />
@@ -72,7 +72,7 @@ export const MultipleAnswersField = () => {
           onChange={(event) => {
             const nextVoteLimitEnabled = event.target.checked;
             setVoteLimitEnabled(nextVoteLimitEnabled);
-            pollComposer.updateFields({ max_votes_allowed: '2' });
+            pollComposer.updateFields({ data: { max_votes_allowed: '2' } });
             if (!nextVoteLimitEnabled) return;
             requestAnimationFrame(() => {
               maxVotesInputRef.current?.focus();
@@ -116,14 +116,14 @@ export const MultipleAnswersField = () => {
                           ),
                         }
                       : undefined;
-                  pollComposer.updateFields(
-                    {
+                  pollComposer.updateFields({
+                    data: {
                       max_votes_allowed: nativeFieldValidation
                         ? pollComposer.max_votes_allowed
                         : raw,
                     },
-                    nativeFieldValidation,
-                  );
+                    injectedFieldErrors: nativeFieldValidation,
+                  });
                 }}
                 ref={maxVotesInputRef}
                 value={max_votes_allowed ?? ''}

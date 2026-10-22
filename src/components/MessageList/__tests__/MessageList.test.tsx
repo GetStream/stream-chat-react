@@ -180,7 +180,7 @@ const renderComponent = ({
   const channel = channelProps?.channel as ChannelType | undefined;
   if (channel) {
     const messages = (msgListProps?.messages ??
-      channel.messagePaginator.headItems) as unknown as LocalMessage[];
+      channel.messagePaginator.anchoredHeadItems) as unknown as LocalMessage[];
     seedPaginator(channel, messages ?? []);
   }
   const messageList = (
@@ -2115,5 +2115,100 @@ describe('MessageList notification area', () => {
       expect(screen.queryByTestId('notification-list')).not.toBeInTheDocument();
       expect(client.notifications.notifications).toHaveLength(1);
     });
+  });
+});
+
+// The "New Messages!" pill is for messages that arrived while the reader was scrolled up. Reading a
+// window older than the latest messages (e.g. after a jump) is the scroll-to-latest button's job.
+describe('MessageList NewMessageNotification', () => {
+  const NEW_MESSAGE_NOTIFICATION_TEST_ID = 'message-notification';
+  const SCROLL_TO_LATEST_MESSAGE_TEST_ID = 'scroll-to-latest-message-button';
+
+  let chatClient: StreamChat;
+  let channel: ChannelType;
+
+  const windowChannelData = generateChannel({
+    members: [generateMember({ user: user1 }), generateMember({ user: user2 })],
+    messages: Array.from({ length: 5 }, (_, index) =>
+      generateMessage({ id: `window-${index}`, text: `window-${index}`, user: user1 }),
+    ),
+  });
+
+  // jsdom has no layout, so give the list a scrollable box and scroll it away from the bottom. The
+  // list reports "scrolled up" only on leaving the bottom, hence the scroll to the bottom first.
+  const scrollUp = () => {
+    const listElement = screen.getByTestId('reverse-infinite-scroll');
+    Object.defineProperties(listElement, {
+      offsetHeight: { configurable: true, value: 250 },
+      scrollHeight: { configurable: true, value: 1000 },
+      scrollTop: { configurable: true, value: 0, writable: true },
+    });
+    fireEvent.scroll(listElement, { target: { scrollTop: 750 } });
+    fireEvent.scroll(listElement, { target: { scrollTop: 0 } });
+  };
+
+  const renderList = async ({ hasMoreNewer }: { hasMoreNewer: boolean }) => {
+    channel.messagePaginator.state.partialNext({ hasMoreHead: hasMoreNewer });
+    render(
+      <Chat client={chatClient}>
+        <Channel channel={channel}>
+          <MessageList />
+        </Channel>
+      </Chat>,
+    );
+    await screen.findByText('window-4');
+  };
+
+  beforeEach(async () => {
+    chatClient = await getTestClientWithUser({ id: 'vishal' });
+    useMockedApis(chatClient, [getOrCreateChannelApi(windowChannelData)]);
+    channel = chatClient.channelManager.ensure({
+      id: windowChannelData.channel.id,
+      type: 'messaging',
+    });
+    await channel.watch();
+    vi.spyOn(channel, 'markRead').mockResolvedValue(fromPartial(markReadApi(channel)));
+  });
+
+  afterEach(() => {
+    cleanup();
+    vi.restoreAllMocks();
+  });
+
+  it('is not shown for a scrolled-up window older than the latest messages', async () => {
+    await renderList({ hasMoreNewer: true });
+
+    act(() => scrollUp());
+
+    expect(screen.getByTestId(SCROLL_TO_LATEST_MESSAGE_TEST_ID)).toBeInTheDocument();
+    expect(
+      screen.queryByTestId(NEW_MESSAGE_NOTIFICATION_TEST_ID),
+    ).not.toBeInTheDocument();
+  });
+
+  it('is shown when a message from another user arrives while scrolled up', async () => {
+    await renderList({ hasMoreNewer: false });
+
+    act(() => scrollUp());
+    expect(
+      screen.queryByTestId(NEW_MESSAGE_NOTIFICATION_TEST_ID),
+    ).not.toBeInTheDocument();
+
+    act(() =>
+      dispatchMessageNewEvent(
+        chatClient,
+        generateMessage({
+          cid: channel.cid,
+          id: 'arrived',
+          text: 'arrived',
+          user: user2,
+        }),
+        windowChannelData.channel,
+      ),
+    );
+
+    expect(
+      await screen.findByTestId(NEW_MESSAGE_NOTIFICATION_TEST_ID),
+    ).toBeInTheDocument();
   });
 });

@@ -181,6 +181,47 @@ describe('useMarkRead', () => {
       expect(markRead).toHaveBeenCalledTimes(0);
     });
 
+    it('should not mark channel read when only a system message that does not count as the last message follows the last read one', async () => {
+      const user = generateUser();
+      const messages = [
+        generateMessage({ created_at: convertDateToTimestamp(new Date(1)) }),
+        generateMessage({
+          created_at: convertDateToTimestamp(new Date(2)),
+          type: 'system',
+        }),
+      ];
+      const channelData = {
+        channel: {
+          config: { read_events: true, skip_last_msg_update_for_system_msgs: true },
+        },
+        messages,
+        read: [
+          {
+            last_read: convertDateToTimestamp(new Date(1).toISOString()),
+            last_read_message_id: messages[0].id,
+            unread_messages: 0,
+            user,
+          },
+        ],
+      };
+      const {
+        channels: [channel],
+        client,
+      } = await initClientWithChannels({ channelsData: [channelData], customUser: user });
+
+      const { markRead } = await render({
+        channel,
+        client,
+        params: shouldMarkReadParams,
+      });
+      if (scenario === visibilityChangeScenario) {
+        await act(() => {
+          document.dispatchEvent(new Event('visibilitychange'));
+        });
+      }
+      expect(markRead).toHaveBeenCalledTimes(0);
+    });
+
     it('should not mark empty channel read', async () => {
       const channelData = emptyChannelData();
       const {

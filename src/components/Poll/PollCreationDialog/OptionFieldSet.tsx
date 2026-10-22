@@ -79,7 +79,9 @@ export const OptionFieldSet = () => {
   const onSetNewOrder = useCallback(
     (newOrder: number[]) => {
       const prevOptions = pollComposer.options;
-      pollComposer.updateFields({ options: newOrder.map((index) => prevOptions[index]) });
+      pollComposer.updateFields({
+        data: { options: newOrder.map((index) => prevOptions[index]) },
+      });
     },
     [pollComposer],
   );
@@ -96,9 +98,7 @@ export const OptionFieldSet = () => {
       if (removedOptionIndex === -1) return;
       const [removedOption] = nextOptions.splice(removedOptionIndex, 1);
 
-      pollComposer.updateFields({
-        options: nextOptions,
-      });
+      pollComposer.updateFields({ data: { options: nextOptions } });
 
       // Polite, so it queues behind the focus move to the next field instead of interrupting it.
       announceInteraction('poll.optionRemoved', {
@@ -159,7 +159,7 @@ export const OptionFieldSet = () => {
       const nextOptions = [...pollComposer.options];
       const [moved] = nextOptions.splice(currentIndex, 1);
       nextOptions.splice(targetIndex, 0, moved);
-      pollComposer.updateFields({ options: nextOptions });
+      pollComposer.updateFields({ data: { options: nextOptions } });
 
       pendingFocusIndexRef.current = targetIndex;
       // No announcement: the layout effect below focuses the new handle, and its aria-label
@@ -241,7 +241,7 @@ export const OptionFieldSet = () => {
                 }}
                 onChange={(e) => {
                   pollComposer.updateFields({
-                    options: { index: i, text: e.target.value },
+                    data: { options: { index: i, text: e.target.value } },
                   });
                 }}
                 onKeyUp={(event) => {

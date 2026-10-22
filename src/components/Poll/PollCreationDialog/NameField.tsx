@@ -48,7 +48,7 @@ export const NameField = () => {
         pollComposer.handleFieldBlur('name');
       }}
       onChange={(e) => {
-        pollComposer.updateFields({ name: e.target.value });
+        pollComposer.updateFields({ data: { name: e.target.value } });
       }}
       placeholder={t('poll.nameField.askQuestion.placeholder', 'Ask a Question')}
       type='text'

@@ -51,7 +51,7 @@ export type ChannelListItemProps = {
   className?: string;
   /**
    * Message previewed by the item. Defaults to the channel's latest message
-   * (`channel.messagePaginator.aggregateState.lastMessage`); a search result passes the matched
+   * (`channel.messagePaginator.aggregateState.latestMessage`); a search result passes the matched
    * message instead.
    */
   previewedMessage?: LocalMessage;
@@ -70,8 +70,8 @@ export const useChannelListItemContext = () =>
     'ChannelListItemUI',
   );
 
-const lastMessageSelector = ({ lastMessage }: MessagePaginatorAggregateState) => ({
-  lastMessage: lastMessage ?? undefined,
+const latestMessageSelector = ({ latestMessage }: MessagePaginatorAggregateState) => ({
+  latestMessage: latestMessage ?? undefined,
 });
 
 export const ChannelListItem = (props: ChannelListItemProps) => {
@@ -88,11 +88,11 @@ export const ChannelListItem = (props: ChannelListItemProps) => {
   });
   const membership = useChannelMembershipState(channel);
 
-  const { lastMessage: trackedLastMessage } = useStateStore(
+  const { latestMessage: trackedLatestMessage } = useStateStore(
     channel.messagePaginator.aggregateState,
-    lastMessageSelector,
+    latestMessageSelector,
   );
-  const previewedMessage = props.previewedMessage ?? trackedLastMessage;
+  const previewedMessage = props.previewedMessage ?? trackedLatestMessage;
 
   const { messageDeliveryStatus } = useMessageDeliveryStatus({
     channel,

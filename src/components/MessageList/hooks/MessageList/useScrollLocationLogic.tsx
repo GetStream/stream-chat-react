@@ -37,6 +37,11 @@ const stopMomentumScrolling = (element: HTMLElement) => {
 };
 
 export type UseScrollLocationLogicParams = {
+  /**
+   * The ID of the message a jump is bringing into view (the paginator's message-focus signal).
+   * A switch to a window that renders it is positioned by the jump.
+   */
+  focusedMessageId?: string;
   hasMoreNewer: boolean;
   listElement: HTMLElement | null;
   loadMoreScrollThreshold: number;
@@ -49,6 +54,7 @@ export type UseScrollLocationLogicParams = {
 
 export const useScrollLocationLogic = (params: UseScrollLocationLogicParams) => {
   const {
+    focusedMessageId,
     hasMoreNewer,
     listElement,
     loadingMore = false,
@@ -297,15 +303,14 @@ export const useScrollLocationLogic = (params: UseScrollLocationLogicParams) => 
     captureAnchor,
     // Another adjustment while the anchor is being restored would fight it for the position.
     disableScrollManagement: isRestoringOlderAnchorRef.current,
+    focusedMessageId,
+    hasMoreNewer,
     justReachedLatestMessageSet,
     loadingMore,
     loadMoreScrollThreshold,
     messages,
     onScrollBy: (scrollBy) => {
       listElement?.scrollBy({ top: scrollBy });
-    },
-    onScrollToTop: () => {
-      listElement?.scrollTo({ top: 0 });
     },
     restoreAnchor,
 

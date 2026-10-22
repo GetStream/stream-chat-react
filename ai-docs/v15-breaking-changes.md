@@ -349,7 +349,7 @@ export const LoadOlder = () => {
 - User impact: compile error on import (`TS2305`). Custom typing indicators and headers that read `typing` from context have to subscribe to the channel's own store.
 - Old API:
   - `TypingContext`, `TypingContextValue`, `TypingProvider`, `useTypingContext`
-- Replacement: `useStateStore(channel.state, ({ typing }: ChannelStateData) => ({ typing }))`, with `channel` from `useChannel()`. `channel.state` is a `StateStore<ChannelStateData>` in `stream-chat` v10, and `typing` is `Record<string, Event>` keyed by user id. The non-reactive snapshot is `channel.state.typing`. The SDK's own `TypingIndicator` reads the composer's `textComposer.state.typing` and filters by `parent_id` for threads.
+- Replacement: `useStateStore(channel.state, ({ typing }: ChannelStateData) => ({ typing }))`, with `channel` from `useChannel()`. `channel.state` is a `StateStore<ChannelStateData>` in `stream-chat` v10, and `typing` is `Record<string, Event>` keyed by user id. The non-reactive snapshot is `channel.state.typing`. The SDK's own `TypingIndicator`, `TypingIndicatorHeader`, `ChannelHeader` and `ThreadHeader` read this slice and filter it by `parent_id` for threads; `stream-chat` v10 keeps no `typing` in `TextComposerState`.
 - Related (merged from the message-area draft):
   - the `typing_events` gate moved from `ChannelStateContext.channelConfig` to `useStateStore(channel.configState, (c: ChannelConfig) => ({ enabled: c.typingEvents.enabled }))`
   - for thread-scoped indicators, compare `parent_id` with the parent message from `useStateStore(useThreadContext()?.state, (s: ThreadState) => ({ parentMessage: s.parentMessage }))`
@@ -357,7 +357,7 @@ export const LoadOlder = () => {
   - `release-v14:src/context/TypingContext.tsx:6,10,14,25` exported `TypingContextValue`, `TypingContext`, `TypingProvider`, `useTypingContext`; `release-v14:src/context/index.ts:17` re-exported it
   - `master:src/context/index.ts` no `TypingContext` (file deleted)
   - `stream-chat@10.0.0-rc.22` `dist/types/channel_state.d.ts:51-52` `TypingUsersState = { typing: Record<string, Event> }`, `:169` part of `ChannelStateData`, `:177` `class ChannelState extends StateStore<ChannelStateData>`
-  - `master:src/components/TypingIndicator/TypingIndicator.tsx:61-62` reads `typing` from `messageComposer.textComposer.state`
+  - `master:src/components/TypingIndicator/TypingIndicator.tsx`, `TypingIndicatorHeader.tsx`, `ChannelHeader/ChannelHeader.tsx` and `Thread/ThreadHeader.tsx` read `typing` from `channel.state` (`stream-chat` 98a298dc removed the text composer's copy)
   - commit: `99cbe6704 feat: migrate components from ChannelActionContext, ChannelStateContext to StateStore instances` (PR #3237), body: "The `TypingContext` provider path was removed from the `Channel` runtime."
   - corpus: `docs/02-ui-components__04-channel__01-channel__3.tsx:7`, `docs/02-ui-components__04-channel__02-channel_header__3.tsx:7`, `docs/03-ui-cookbook__05-message-composer__07-typing_indicator__1.tsx:8`, `docs/03-ui-cookbook__09-channel_header__1.tsx:8` (`TS2305`)
 - Docs impact:
@@ -959,7 +959,7 @@ To open threads without `ChatView`, also override `openThread` (a target is a `T
 - User impact: compile error reading `channelsQueryState` from `useChatContext()`; `undefined` in JS. `Channel` no longer renders a loading or error state for the channel-list query.
 - Old API:
   - `ChatContextValue.channelsQueryState` (`{ queryInProgress, error, setQueryInProgress, setError }`)
-- Replacement: the query state of a channel list is the `ChannelPaginator`'s own state: `useChannelPaginatorState(paginator)` returns `{ channels, hasNext, hasPrev, isLoading, lastQueryError }` (main entry). `ChannelList` reports `lastQueryError` through `client.notifications.addError(...)` itself.
+- Replacement: the query state of a channel list is the `ChannelPaginator`'s own state: `useChannelPaginatorState(paginator)` returns `{ channels, hasMoreHead, hasMoreTail, isLoading, lastQueryError }` (main entry); `hasMoreTail` says whether `paginator.toTail()` has another page to load. `ChannelList` reports `lastQueryError` through `client.notifications.addError(...)` itself.
 - Evidence:
   - `release-v14:src/context/ChatContext.tsx:30-33`; `release-v14:src/components/Channel/Channel.tsx:181-207` (`Channel` rendered `LoadingIndicator` / `LoadingErrorIndicator` from it)
   - `master:src/context/ChatContext.tsx:27-46`; `master:src/components/ChannelList/hooks/useChannelPaginatorState.ts:5-29`; `master:src/components/ChannelList/ChannelList.tsx:77-83`
@@ -980,7 +980,7 @@ To open threads without `ChatView`, also override `openThread` (a target is a `T
   - `useChat()` return field `latestMessageDatesByChannels`
 - Replacement:
   - slow-mode cooldown: `useCooldownRemaining()` (main entry) or `useStateStore(channel.cooldownTimer.state, selector)`
-  - the channel's latest message: `channel.messagePaginator.aggregateState` (`lastMessage`), via `useStateStore`
+  - the channel's latest message: `channel.messagePaginator.aggregateState` (`latestMessage`), via `useStateStore`
   - when the current user last posted: none - track it from `message.new` yourself
 - Evidence:
   - `release-v14:src/context/ChatContext.tsx:35`; `release-v14:src/components/Chat/hooks/useChat.ts:40,133-135,140`
@@ -1612,7 +1612,7 @@ Note: these slots are generic "paginated list" slots; in v15 only `ChannelList` 
 - User impact: compile error (`TS2339 Property 'channels'/'setChannels' does not exist on type 'ChannelListContextValue'`); `undefined` in JS. The context is now provided by `ChannelLists` (so `ChannelNavigation`), not by a standalone `ChannelList`.
 - Old API:
   - `ChannelListContextValue.channels`, `.hasNextPage`, `.loadNextPage()`, `.setChannels`
-- Replacement: `useChannelListContext().paginator` (optional; the primary registered `ChannelPaginator`). Read with `useChannelPaginatorState(paginator)` (`channels`, `hasNext`, ...), load more with `paginator.toTail()` (`next()` is `@deprecated` in stream-chat v10), mutate with `paginator.setItems({ valueOrFactory })` (per the field's doc); to add a channel to the matching lists, `client.channelManager.ingestChannel(channel)`.
+- Replacement: `useChannelListContext().paginator` (optional; the primary registered `ChannelPaginator`). Read with `useChannelPaginatorState(paginator)` (`channels`, `hasMoreTail`, ...), load more with `paginator.toTail()` (`next()` is removed in stream-chat v10), mutate with `paginator.setItems({ valueOrFactory })` (per the field's doc); to add a channel to the matching lists, `client.channelManager.ingestChannel(channel)`.
 - Evidence:
   - `release-v14:src/context/ChannelListContext.tsx:11-23`
   - `master:src/context/ChannelListContext.tsx:6-14`; `master:src/components/ChannelList/ChannelLists.tsx:29-36`
@@ -1656,7 +1656,7 @@ const { paginator } = useChannelListContext();
   - `ChannelListItemTimestampProps.lastMessage`
   - `ChannelList.getLatestMessagePreview` (BC-028)
 - Replacement:
-  - `lastMessage` -> `previewedMessage` (on `ChannelListItemUIProps` and `ChannelListItemTimestamp`). `ChannelListItem` also takes `previewedMessage` to preview a specific message; it defaults to `channel.messagePaginator.aggregateState.lastMessage`.
+  - `lastMessage` -> `previewedMessage` (on `ChannelListItemUIProps` and `ChannelListItemTimestamp`). `ChannelListItem` also takes `previewedMessage` to preview a specific message; it defaults to `channel.messagePaginator.aggregateState.latestMessage`.
   - `latestMessagePreview` / `getLatestMessagePreview` -> render `<SummarizedMessagePreview latestMessage={previewedMessage} ... />`, or override the `SummarizedMessagePreview` slot via `WithComponents` (`SummarizedMessagePreviewProps` = `{ latestMessage, messageDeliveryStatus, participantCount }`). The `getLatestMessagePreview` / `getLatestMessagePreviewText` utilities are still exported (only their `t` / `userLanguage` types changed). Apps that relied on the v14 default `getLatestMessagePreview` (`defaultGetLatestMessagePreview`) keep a preview with no change: the default `ChannelListItemUI` renders the `SummarizedMessagePreview` slot.
   - `setActiveChannel` / `watchers` -> `useWorkspaceNavigation().openChannel(channel, { event })` or the `onSelect` prop (BC-013).
   - `channelUpdateCount` / `key`: none needed; the item subscribes to the channel's stores.
@@ -3101,7 +3101,7 @@ const hasFr = i18n.registeredLanguages.has('fr');
 - Status: confirmed
 - Area: message rendering (LLC-typed props)
 - User impact: compile errors and runtime differences in custom components and handlers that build or read these values. The React APIs are unchanged; the `stream-chat` v10 types they reference changed.
-- Old API -> v15 (representative, all verified in diff.md):
+- Old API -> v15 (representative):
   - Reaction sort: `reactionDetailsSort` (on `Message`, `MessageList`, `VirtualizedMessageList`, `MessageContext`, `MessageReactions`, `MessageReactionsDetail`, `VirtuosoContext`), `MessageReactionsDetail.sort`, and the `sort` argument of `handleFetchReactions` / `useReactionsFetcher`: `ReactionSort` -> `SortParamRequest[]` (`[{ field: 'created_at', direction: -1 }]`). `ReactionSort` no longer exists in `stream-chat`.
   - Delete options: `MessageContext.handleDelete` / `useDeleteHandler` options: `{ deleteForMe?, hardDelete? }` -> `{ delete_for_me?, hard? }`
   - Mutes: `isUserMuted(message, mutes)`: `Mute[]` -> `UserMuteResponse[]` (`target` is optional)
@@ -3110,6 +3110,9 @@ const hasFr = i18n.registeredLanguages.has('fr');
   - Location: `Attachment.attachments`, `AttachmentContainerProps.attachment`, `Geolocation.location`, `GeolocationContainer.location`, `GeolocationAttachmentMapPlaceholderProps.location`: `SharedLocationResponse` -> `SharedLocationResponseData`. A location entry no longer has `type`, `latitude` or `longitude` on the union.
   - Polls: `PollOptionSelector.option` `PollOption` -> `PollOptionResponseData`; `PollVote.vote`, `PollVoteListing.votes`, `usePollOptionVotesPagination().votes`, `usePollAnswerPagination().answers` -> `PollVoteResponseData`
   - Messages: `EventComponent.message`, `RenderedMessage` fields (`created_at` / `updated_at` / `pinned_at` / `deleted_at` are `TimestampNS`; `args`, `before_message_send_failed`, `channel`, `command_info`, `moderation_details` removed; `user` and `text` now required), `RenderTextMentionEntity` (follows `UserResponse`: `username`, `anon`, `shadow_banned`, `privacy_settings`, `push_notifications`, `notifications_muted`, `channel_last_read_at` removed)
+  - Member calls in custom leave-channel or member actions: `channel.addMembers(userIds)` / `channel.removeMembers(userIds)` -> `channel.addMembers({ members: userIds })` / `channel.removeMembers({ members: userIds })`, as the defaults call them (`master:src/components/ChannelListItem/ChannelListItemActionButtons.defaults.tsx`, `master:src/plugins/ChannelDetail/Views/ChannelManagementView/ChannelManagementActions.defaults.tsx`, `.../ChannelMemberDetailView/ChannelMemberActions.defaults.tsx`, `.../ChannelMembersView/ChannelMembersAddView.tsx`)
+  - Flagging in a custom flag action: `client.flagMessage(message.id)` -> `client.moderation.flagMessage({ message_id: message.id })`, as `master:src/components/Message/hooks/useFlagHandler.ts` calls it
+  - Fetching a thread to open: `client.getThread(parentId, options)` -> `client.getThreadAndHydrate({ message_id: parentId }, { watch: true })`, which returns the `Thread` already registered in `client.threads` when there is one (`master:src/components/Message/hooks/useMessageAlsoSentInChannelNavigation.ts`)
   - Calendar props: `calendar` / `calendarFormats` on `DateSeparator`, `EventComponent`, `MessageTimestamp`, `MessageEditedIndicator`, `TimestampProps` were widened (`boolean | null`, `string | Record`). Not breaking for callers; listed for completeness.
 - Replacement: build and read values with the v10 shapes above. For dates, see BC-056 and the TIMESTAMP section of the guide.
 - Evidence:
@@ -3164,6 +3167,7 @@ export const DeleteForMe = () => {
   - `GeolocationPreviewProps.location`, `useAttachmentsForPreview().location`: `StaticLocationPayload` → `StaticLocationPreview`
   - `LinkPreviewCard.linkPreview`: `LinkPreview` now extends the v10 `Attachment`, whose `custom` field is required
   - Attachment previews and the voice recording built by the recorder: `duration`, `file_size`, `mime_type` and `waveform_data` moved under `attachment.custom`. This affects custom `AttachmentPreviewList` slot components that read them, and `recordingController.recording.duration` / `.waveform_data`, which are now `recordingController.recording.custom.duration` / `.custom.waveform_data`.
+  - Custom poll-creation fields: `pollComposer.updateFields({ name })` / `updateFields(data, errors)` -> `pollComposer.updateFields({ data: { name } })` / `updateFields({ data, injectedFieldErrors: errors })`, as `master:src/components/Poll/PollCreationDialog/` (`NameField`, `OptionFieldSet`, `MultipleAnswersField`, `PollCreationDialog`) calls it
 - Replacement: type custom parts with the v15 prop types. Read the moved attachment fields from `attachment.custom`. Pass complete `Command` objects.
 - Evidence:
   - `release-v14:src/components/TextareaComposer/SuggestionList/CommandItem.tsx:9` → `master:...:9` (`entity: Command`)

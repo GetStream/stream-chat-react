@@ -75,10 +75,12 @@ async function renderComponent({
   channelData,
   channelType = 'messaging',
   props,
+  typing,
 }: {
   channelData?: Partial<ChannelResponse> & Record<string, unknown>;
   channelType?: string;
   props?: ChannelHeaderProps;
+  typing?: ChannelType['state']['typing'];
 } = {}) {
   client = await getTestClientWithUser(user1);
   testChannel1 = generateChannel({ ...defaultChannelState, channel: channelData });
@@ -90,6 +92,7 @@ async function renderComponent({
     type: channelType,
   });
   await channel.query();
+  if (typing) channel.state.typing = typing;
 
   return renderComponentBase({ channel, client, props });
 }
@@ -182,6 +185,31 @@ describe('ChannelHeader', () => {
       expect(
         container.querySelector('.str-chat__channel-header__data__subtitle'),
       ).toBeInTheDocument();
+    });
+  });
+
+  describe('typing', () => {
+    it('shows the typing indicator while another user types in the channel', async () => {
+      await renderComponent({
+        typing: { [user2.id]: fromPartial({ type: 'typing.start', user: user2 }) },
+      });
+
+      expect(await screen.findByTestId('typing-indicator-header')).toBeInTheDocument();
+    });
+
+    it('ignores typing in a thread and by the current user', async () => {
+      await renderComponent({
+        typing: {
+          [user1.id]: fromPartial({ type: 'typing.start', user: user1 }),
+          [user2.id]: fromPartial({
+            parent_id: 'parent-message',
+            type: 'typing.start',
+            user: user2,
+          }),
+        },
+      });
+
+      expect(screen.queryByTestId('typing-indicator-header')).not.toBeInTheDocument();
     });
   });
 

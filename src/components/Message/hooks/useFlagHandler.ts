@@ -19,6 +19,6 @@ export const useFlagHandler = (message?: LocalMessage): ReactEventHandler => {
       return;
     }
 
-    await client.moderation.flagMessage(message.id);
+    await client.moderation.flagMessage({ message_id: message.id });
   };
 };

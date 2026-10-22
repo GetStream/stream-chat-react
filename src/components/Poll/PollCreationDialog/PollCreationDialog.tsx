@@ -60,7 +60,7 @@ export const PollCreationDialog = ({ close }: PollCreationDialogProps) => {
               id='voting_visibility'
               onChange={(e) =>
                 pollComposer.updateFields({
-                  voting_visibility: e.target.checked ? 'anonymous' : 'public',
+                  data: { voting_visibility: e.target.checked ? 'anonymous' : 'public' },
                 })
               }
               title={t('poll.creationDialog.anonymousPoll.title', 'Anonymous Poll')}
@@ -74,7 +74,7 @@ export const PollCreationDialog = ({ close }: PollCreationDialogProps) => {
               id='allow_user_suggested_options'
               onChange={(e) =>
                 pollComposer.updateFields({
-                  allow_user_suggested_options: e.target.checked,
+                  data: { allow_user_suggested_options: e.target.checked },
                 })
               }
               title={t('poll.actions.suggestOption.label', 'Suggest an Option')}
@@ -87,7 +87,7 @@ export const PollCreationDialog = ({ close }: PollCreationDialogProps) => {
               )}
               id='allow_answers'
               onChange={(e) =>
-                pollComposer.updateFields({ allow_answers: e.target.checked })
+                pollComposer.updateFields({ data: { allow_answers: e.target.checked } })
               }
               title={t('poll.addCommentPrompt.addComment.label', 'Add a Comment')}
             />

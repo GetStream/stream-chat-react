@@ -9,8 +9,8 @@ import { InfiniteScrollPaginator } from './InfiniteScrollPaginator';
 
 /** Structural view of a paginator, to avoid coupling to `BasePaginator`'s generic variance. */
 type PaginatorLike<TItem> = {
-  hasNext: boolean;
-  hasPrev: boolean;
+  hasMoreHead: boolean;
+  hasMoreTail: boolean;
   state: StateStore<PaginatorState<TItem>>;
 };
 
@@ -60,8 +60,8 @@ export const InfiniteScrollWithComponents = forwardRef(
     }));
     const isLoadingFirstPage = items === undefined;
     const isEmpty = items?.length === 0;
-    const topEndReached = hasReachedTop?.(paginator) ?? !paginator.hasPrev;
-    const bottomEndReached = hasReachedBottom?.(paginator) ?? !paginator.hasNext;
+    const topEndReached = hasReachedTop?.(paginator) ?? !paginator.hasMoreHead;
+    const bottomEndReached = hasReachedBottom?.(paginator) ?? !paginator.hasMoreTail;
 
     if (isLoadingFirstPage) return <FirstPageLoadingIndicator />;
     if (isEmpty) return <EmptyListIndicator />;

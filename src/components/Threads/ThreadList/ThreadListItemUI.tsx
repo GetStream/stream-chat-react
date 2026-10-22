@@ -76,7 +76,7 @@ export const ThreadListItemUI = ({
   // `aggregateState` advances on every ingest; the pagination `state` does not emit for a reply
   // that lands outside the active interval.
   const latestReplySelector = useCallback(
-    (state: MessagePaginatorAggregateState) => ({ latestReply: state.lastMessage }),
+    (state: MessagePaginatorAggregateState) => ({ latestReply: state.latestMessage }),
     [],
   );
 

@@ -1,0 +1,276 @@
+/* Fits a laptop screen beside the message list; content wraps and scrolls vertically, so nothing
+   (long ids, flag chips) may widen the dialog past its width. */
+.app__pagination-scenarios-dialog__shell {
+  display: flex;
+  flex-direction: column;
+  width: min(600px, calc(100vw - 32px));
+  max-height: min(85vh, 900px);
+}
+
+/* Three bands: the intro and the test channel row on top, the scroll area in the middle, the
+   docked sections at the bottom. The top never shrinks; when the dialog reaches its max-height,
+   the middle gives up height first, down to its minimum, then the docked sections, down to
+   their titles. */
+.app__pagination-scenarios {
+  min-width: 0;
+  overflow-x: hidden;
+  overflow-wrap: anywhere;
+
+  > * {
+    flex: none;
+  }
+}
+
+/* Shrink weight 100 against the docked sections' 1: flex shrinks in proportion to weight times
+   content height, and this weight makes the middle take nearly all of it. */
+.app__pagination-scenarios__scroll-area {
+  display: flex;
+  flex: 1 100 auto;
+  flex-direction: column;
+  gap: 8px;
+  min-height: 96px;
+  overflow-y: auto;
+}
+
+/* Scrolls inside its own cap under a sticky title, so opening it never pushes the dialog
+   taller. */
+.app__pagination-scenarios__docked {
+  flex: 0 1 auto;
+  /* The title's line plus the section's padding and border: shrinking stops at the title. */
+  min-height: calc(1lh + 10px);
+  max-height: min(18vh, 200px);
+  padding-top: 0;
+  overflow-y: auto;
+
+  > summary {
+    position: sticky;
+    top: 0;
+    padding-top: 4px;
+    background: var(--str-chat__background-core-elevation-1);
+  }
+
+  /* One scroll container: the log is capped by the section, not again by itself. */
+  > .app__composer-inspector__json {
+    max-height: none;
+  }
+}
+
+.app__pagination-scenarios__intro {
+  line-height: 1.45;
+
+  summary {
+    cursor: pointer;
+  }
+
+  p {
+    margin: 4px 0 0;
+  }
+}
+
+.app__pagination-scenarios__wrap {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.app__pagination-scenarios__toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  margin: 4px 0;
+}
+
+.app__pagination-scenarios__number {
+  width: 72px;
+}
+
+.app__pagination-scenarios__id {
+  width: auto;
+  flex: 1;
+  min-width: 160px;
+}
+
+/* ---- scenario groups and cards ---- */
+
+.app__pagination-scenarios__group {
+  margin: 4px 0;
+}
+
+.app__pagination-scenarios__group-title {
+  cursor: pointer;
+  font-weight: 600;
+  user-select: none;
+}
+
+.app__pagination-scenarios__cards {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 6px 0;
+  padding: 0;
+  list-style: none;
+}
+
+.app__pagination-scenarios__card {
+  padding: 6px 8px;
+  border: 1px solid var(--str-chat__border-core-default, rgb(0 0 0 / 12%));
+  border-radius: 6px;
+}
+
+.app__pagination-scenarios__card-title {
+  cursor: pointer;
+
+  > * + * {
+    margin-inline-start: 6px;
+  }
+}
+
+.app__pagination-scenarios__badge {
+  display: inline-block;
+  padding: 0 6px;
+  border-radius: 999px;
+  background: rgb(0 0 0 / 6%);
+  font-size: 11px;
+  white-space: nowrap;
+}
+
+.app__pagination-scenarios__warning {
+  background: color-mix(in srgb, #d97706 18%, transparent);
+  color: #92400e;
+}
+
+.app__pagination-scenarios__warning {
+  margin: 4px 0;
+  padding: 4px 6px;
+  border-radius: 4px;
+}
+
+.app__pagination-scenarios__facts {
+  display: grid;
+  grid-template-columns: max-content minmax(0, 1fr);
+  gap: 2px 8px;
+  margin: 6px 0;
+
+  dt {
+    font-weight: 600;
+    opacity: 0.7;
+  }
+
+  dd {
+    margin: 0;
+  }
+}
+
+.app__pagination-scenarios__steps {
+  margin: 4px 0;
+  padding-inline-start: 20px;
+}
+
+.app__pagination-scenarios__step {
+  padding: 2px 4px;
+  border-radius: 4px;
+}
+
+.app__pagination-scenarios__step--next {
+  outline: 1px dashed var(--str-chat__accent-primary, #005fff);
+}
+
+.app__pagination-scenarios__step--done {
+  opacity: 0.75;
+}
+
+.app__pagination-scenarios__step--running,
+.app__pagination-scenarios__step--yourTurn {
+  background: color-mix(
+    in srgb,
+    var(--str-chat__accent-primary, #005fff) 12%,
+    transparent
+  );
+  font-weight: 600;
+}
+
+.app__pagination-scenarios__step--failed {
+  color: #b91c1c;
+}
+
+.app__pagination-scenarios__your-turn {
+  font-weight: 400;
+}
+
+.app__pagination-scenarios__checks {
+  margin: 2px 0;
+  padding: 0;
+  list-style: none;
+  font-weight: 400;
+}
+
+.app__pagination-scenarios__check--ok {
+  color: #15803d;
+}
+
+.app__pagination-scenarios__check--fail {
+  color: #b91c1c;
+}
+
+/* ---- windows (paginator inspector) ---- */
+
+.app__paginator-inspector__window {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding: 4px 8px;
+  border: 1px solid var(--str-chat__border-core-default, rgb(0 0 0 / 12%));
+  border-radius: 6px;
+}
+
+.app__paginator-inspector__window--read {
+  border-color: var(--str-chat__accent-primary, #005fff);
+  background: color-mix(
+    in srgb,
+    var(--str-chat__accent-primary, #005fff) 8%,
+    transparent
+  );
+}
+
+.app__paginator-inspector__window-name {
+  font-weight: 600;
+}
+
+.app__paginator-inspector__windows {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+/* Tail to head, top to bottom, like the message list. */
+.app__paginator-inspector__ends {
+  display: grid;
+  grid-template-columns: max-content minmax(0, 1fr);
+  align-items: center;
+  gap: 2px 8px;
+}
+
+.app__paginator-inspector__end {
+  display: contents;
+
+  > .app__composer-inspector__flag {
+    justify-self: start;
+  }
+}
+
+.app__paginator-inspector__hint {
+  opacity: 0.7;
+}
+
+.app__pagination-scenarios__windows {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-top: 6px;
+  padding-top: 6px;
+  border-top: 1px solid var(--str-chat__border-core-default, rgb(0 0 0 / 12%));
+}
+
+.app__paginator-inspector__id {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+}

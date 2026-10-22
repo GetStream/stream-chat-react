@@ -562,7 +562,7 @@ describe('ChannelPreview utils', () => {
         generateChannel({ messages: [generateMessage({ text: 'x', user: bob })] }),
       );
       const latestMessage =
-        channel.messagePaginator.aggregateState.getLatestValue().lastMessage;
+        channel.messagePaginator.aggregateState.getLatestValue().latestMessage;
 
       const label = composeChannelListItemAccessibleLabel(
         {

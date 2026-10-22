@@ -19,6 +19,8 @@ import type {
   Thread,
 } from 'stream-chat';
 
+import { SCENARIO_CHANNEL_CID } from '../Debug/scenarioChannel';
+
 /**
  * Full-workspace URL sync for the vite example.
  *
@@ -188,7 +190,10 @@ const writeWorkspaceToUrl = (encoded: string, mode: 'push' | 'replace') => {
 // waited for the list to settle (see `waitForChannelList`), that instance is `initialized`, so the
 // bound `<Channel>` skips its own watch — no duplicate `/query`. A channel absent from every loaded
 // page is returned unwatched and `<Channel>` watches it (the necessary, non-redundant fetch).
+// The pagination scenarios' test channel is never restored: it exists only in the tab that made
+// it, and watching it for real would create it on the server.
 const resolveChannel = (client: StreamChat, cid: string): Channel | undefined => {
+  if (cid === SCENARIO_CHANNEL_CID) return undefined;
   const colon = cid.indexOf(':');
   const type = cid.slice(0, colon);
   const id = cid.slice(colon + 1);

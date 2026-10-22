@@ -259,7 +259,7 @@ const useLeaveAction = (): ChannelActionBehavior => {
   const toggle = async () => {
     try {
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      await channel.removeMembers([client.userID!]);
+      await channel.removeMembers({ members: [client.userID!] });
       addNotification({
         context: { channel },
         emitter: ChannelListItemActionButtons.name,

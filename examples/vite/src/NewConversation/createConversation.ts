@@ -46,7 +46,8 @@ const createOnFirstSend = (
       } as ChannelMemberResponse,
     ]),
   );
-  channel.messagePaginator.seedFirstPageSync([], channel.messagePaginator.pageSize);
+  // an empty first page, shorter than a page: loaded, with nothing older to ask the server for
+  channel.messagePaginator.placeExternalQueryPage([], channel.messagePaginator.pageSize);
   const { requestHandlers } = channel.configState.getLatestValue();
   channel.configState.partialNext({
     requestHandlers: {

@@ -5,16 +5,18 @@ import { useStateStore } from '../../../store';
 export type ChannelPaginatorView = {
   /** The channels currently loaded by pagination, in server order. */
   channels: ChannelPaginatorState['items'];
-  hasNext: boolean;
-  hasPrev: boolean;
+  /** More channels exist before the first loaded one, loaded with `paginator.toHead()`. */
+  hasMoreHead: boolean;
+  /** More channels exist after the last loaded one, loaded with `paginator.toTail()`. */
+  hasMoreTail: boolean;
   isLoading: boolean;
   lastQueryError?: Error;
 };
 
 const selector = (state: ChannelPaginatorState): ChannelPaginatorView => ({
   channels: state.items,
-  hasNext: state.hasMoreTail,
-  hasPrev: state.hasMoreHead,
+  hasMoreHead: state.hasMoreHead,
+  hasMoreTail: state.hasMoreTail,
   isLoading: state.isLoading,
   lastQueryError: state.lastQueryError,
 });

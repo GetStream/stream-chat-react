@@ -16,6 +16,10 @@ import { useStateStore } from '../../store';
 export type ChannelListProps = {
   /** Paginator that supplies the channels of this list. */
   paginator: ChannelPaginator;
+  /**
+   * The minimum interval, in milliseconds, between two checks of the scroll position for loading
+   * the next page (`InfiniteScrollPaginator`'s `loadNextDebounceMs`).
+   */
   loadMoreDebounceMs?: number;
   loadMoreThresholdPx?: number;
 };
