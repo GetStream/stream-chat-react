@@ -5,23 +5,16 @@ import { useTranslationContext } from '../../context/TranslationContext';
 import { useStateStore } from '../../store';
 import { useChannelPreviewInfo } from '../ChannelListItem/hooks/useChannelPreviewInfo';
 import { TypingIndicatorHeader } from '../TypingIndicator/TypingIndicatorHeader';
+import { useTypingUsers } from '../TypingIndicator/hooks/useTypingUsers';
 import { useThreadContext } from '../Threads';
-import { useChatContext } from '../../context/ChatContext';
 
-import type { EventPayload, LocalMessage } from 'stream-chat';
-import type { ChannelStateData, ThreadState } from 'stream-chat';
+import type { LocalMessage, ThreadState } from 'stream-chat';
 import { WorkspaceNavigationBackButton, WorkspaceNavigationCloseButton } from '../Button';
-import type { ChannelConfig } from 'stream-chat';
-
-const typingEventsStateSelector = ({ typingEvents }: ChannelConfig) => ({
-  typingEventsEnabled: typingEvents.enabled,
-});
 
 const threadStateSelector = ({ parentMessage, replyCount }: ThreadState) => ({
   parentMessage,
   replyCount,
 });
-const channelTypingSelector = ({ typing }: ChannelStateData) => ({ typing });
 
 /** Name of the parent message author, if it has one. */
 const displayNameFromParentMessage = (message: LocalMessage): string | undefined =>
@@ -39,18 +32,8 @@ const ThreadHeaderSubtitle = ({
 }) => {
   const { t } = useTranslationContext();
   const channel = useChannel();
-  const { typingEventsEnabled } = useStateStore(
-    channel.configState,
-    typingEventsStateSelector,
-  );
   const threadInstance = useThreadContext();
-  const parentId = threadInstance?.id;
-  const { client } = useChatContext();
-  const { typing } = useStateStore(channel.state, channelTypingSelector);
-  const typingInThread = (Object.values(typing) as EventPayload<'typing.start'>[]).filter(
-    ({ parent_id, user }) => user?.id !== client.user?.id && parent_id === parentId,
-  );
-  const hasTyping = typingEventsEnabled !== false && typingInThread.length > 0;
+  const hasTyping = useTypingUsers(channel, threadInstance?.id).length > 0;
   const replyCountText = t('common.replyCount.label', {
     count: replyCount ?? 0,
     defaultValue_one: '1 reply',

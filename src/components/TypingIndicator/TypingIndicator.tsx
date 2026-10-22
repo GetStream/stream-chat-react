@@ -1,37 +1,16 @@
 import React, { useEffect, useMemo } from 'react';
 import clsx from 'clsx';
-import type {
-  ChannelConfig,
-  ChannelStateData,
-  EventPayload,
-  ThreadState,
-} from 'stream-chat';
-
 import { AvatarStack as DefaultAvatarStack } from '../Avatar';
 import { extractDisplayInfo as defaultExtractDisplayInfo } from '../Avatar/utils';
 import { TypingIndicatorDots } from './TypingIndicatorDots';
 import { VisuallyHidden } from '../VisuallyHidden';
 import { useMessageComposerController } from '../MessageComposer/hooks/useMessageComposerController';
 import { useThreadContext } from '../Threads/ThreadContext';
-import {
-  useChatContext,
-  useComponentContext,
-  useTranslationContext,
-} from '../../context';
-import { useStateStore } from '../../store';
+import { useComponentContext, useTranslationContext } from '../../context';
 
 import { useDebouncedTypingActive } from './hooks/useDebouncedTypingActive';
+import { useTypingUsers } from './hooks/useTypingUsers';
 import { getTypingStatusMessage } from './utils/getTypingStatusMessage';
-
-const typingEventsStateSelector = ({ typingEvents }: ChannelConfig) => ({
-  typingEventsEnabled: typingEvents.enabled,
-});
-
-const channelTypingSelector = ({ typing }: ChannelStateData) => ({ typing });
-
-const threadParentMessageSelector = ({ parentMessage }: ThreadState) => ({
-  parentMessage,
-});
 
 export type TypingIndicatorProps = {
   /** Whether the message list is scrolled to the latest message. Defaults to `true`. */
@@ -48,36 +27,9 @@ const UnMemoizedTypingIndicator = (props: TypingIndicatorProps) => {
     extractDisplayInfo = defaultExtractDisplayInfo,
   } = useComponentContext();
   const messageComposer = useMessageComposerController();
-  const { typingEventsEnabled } = useStateStore(
-    messageComposer.channel.configState,
-    typingEventsStateSelector,
-  );
-  const { client } = useChatContext();
   const { t } = useTranslationContext();
-  const { typing } = useStateStore(messageComposer.channel.state, channelTypingSelector);
   const thread = useThreadContext();
-  const isThreadList = !!thread;
-  const { parentMessage } =
-    useStateStore(thread?.state, threadParentMessageSelector) ?? {};
-
-  const typingEntries = Object.values(typing) as EventPayload<
-    'typing.start' | 'typing.stop'
-  >[];
-
-  const typingInChannel = !isThreadList
-    ? typingEntries.filter(
-        ({ parent_id, user }) => user?.id !== client.user?.id && !parent_id,
-      )
-    : [];
-
-  const typingInThread = isThreadList
-    ? typingEntries.filter(
-        ({ parent_id, user }) =>
-          user?.id !== client.user?.id && parent_id === parentMessage?.id,
-      )
-    : [];
-
-  const typingUsers = isThreadList ? typingInThread : typingInChannel;
+  const typingUsers = useTypingUsers(messageComposer.channel, thread?.id);
   const { displayUsers } = useDebouncedTypingActive(typingUsers);
   const showIndicator = displayUsers.length > 0;
   const typingAnnouncement = useMemo(
@@ -94,7 +46,7 @@ const UnMemoizedTypingIndicator = (props: TypingIndicatorProps) => {
     if (showIndicator && isMessageListScrolledToBottom) scrollToBottom?.();
   }, [scrollToBottom, isMessageListScrolledToBottom, showIndicator]);
 
-  if (typingEventsEnabled === false || !showIndicator || !isMessageListScrolledToBottom) {
+  if (!showIndicator || !isMessageListScrolledToBottom) {
     return null;
   }
 

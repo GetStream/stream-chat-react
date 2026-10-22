@@ -2,33 +2,16 @@ import React from 'react';
 
 import { type ChannelAvatarProps, ChannelAvatar as DefaultAvatar } from '../Avatar';
 import { TypingIndicatorHeader } from '../TypingIndicator/TypingIndicatorHeader';
+import { useTypingUsers } from '../TypingIndicator/hooks/useTypingUsers';
 import { useChannelHeaderOnlineStatus } from './hooks/useChannelHeaderOnlineStatus';
 import { useChannelPreviewInfo } from '../ChannelListItem/hooks/useChannelPreviewInfo';
-import { useChannel, useChatContext } from '../../context';
+import { useChannel } from '../../context';
 import { WorkspaceNavigationBackButton, WorkspaceNavigationCloseButton } from '../Button';
-import { useStateStore } from '../../store';
-
-import type { ChannelConfig, ChannelStateData, EventPayload } from 'stream-chat';
-
-const typingEventsStateSelector = ({ typingEvents }: ChannelConfig) => ({
-  typingEventsEnabled: typingEvents.enabled,
-});
-
-const channelTypingSelector = ({ typing }: ChannelStateData) => ({ typing });
 
 const ChannelHeaderSubtitle = () => {
   const channel = useChannel();
-  const { typingEventsEnabled } = useStateStore(
-    channel.configState,
-    typingEventsStateSelector,
-  );
-  const { client } = useChatContext();
-  const { typing } = useStateStore(channel.state, channelTypingSelector);
   const onlineStatusText = useChannelHeaderOnlineStatus();
-  const typingInChannel = (
-    Object.values(typing) as EventPayload<'typing.start' | 'typing.stop'>[]
-  ).filter(({ parent_id, user }) => user?.id !== client.user?.id && !parent_id);
-  const hasTyping = typingEventsEnabled !== false && typingInChannel.length > 0;
+  const hasTyping = useTypingUsers(channel).length > 0;
 
   if (!hasTyping && !onlineStatusText) return null;
 

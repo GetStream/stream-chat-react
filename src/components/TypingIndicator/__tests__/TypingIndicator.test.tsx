@@ -27,12 +27,13 @@ const makeStore = (value: unknown) => ({
   subscribeWithSelector: () => () => null,
 });
 
-// In thread mode the typing users come from the channel's `state` (filtered by `parent_id`), the
-// parent message from `thread.state`, and the channel from `messageComposer.channel`, so the thread
-// stub carries a composer that references the real channel.
+// In thread mode the typing users come from the channel's `state`, filtered by `parent_id` against
+// the thread's `id` (its parent message's id), and the channel from `messageComposer.channel`, so
+// the thread stub carries a composer that references the real channel.
 const makeThread = (parentMessageId?: string, channel?: any) =>
   parentMessageId
     ? {
+        id: parentMessageId,
         messageComposer: {
           channel,
           contextType: 'thread',
