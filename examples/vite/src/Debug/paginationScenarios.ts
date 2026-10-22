@@ -2,7 +2,18 @@ import { StateStore } from '@stream-io/state-store';
 import type { Channel } from 'stream-chat';
 
 import type { FakeChannelBackend } from './fakeChannelBackend';
-import { ingestUnsentMessage } from './fakeChannelBackend';
+import { ingestSendResponse, ingestUnsentMessage } from './fakeChannelBackend';
+import { simulatedMessageId as sim } from './fakeTimeline';
+import type { MessageOffset } from './messageListOnScreen';
+import {
+  distanceFromBottom,
+  offsetOfMessage,
+  readMessageListOverlay,
+  scrollListBy,
+  SETTLE_TIMEOUT_MS,
+  settledMessageList,
+  topmostVisibleMessage,
+} from './messageListOnScreen';
 import type { WindowsView } from './paginatorWindows';
 import {
   describeWindows,
@@ -39,7 +50,8 @@ export type CheckResult = { ok: boolean; text: string };
 /** What a check reads: the windows when its step started and now. */
 export type CheckInput = ScenarioContext & { before: WindowsView; now: WindowsView };
 
-export type ScenarioCheck = (input: CheckInput) => CheckResult;
+/** Most checks read the state at once; one that reads the screen waits for the list to settle. */
+export type ScenarioCheck = (input: CheckInput) => CheckResult | Promise<CheckResult>;
 
 export type ScenarioStep = {
   label: string;
@@ -65,6 +77,7 @@ export const scenarioGroups = [
   { id: 'deletes', title: 'Offline deletes' },
   { id: 'jumps', title: 'Jumps & stale head' },
   { id: 'own', title: 'Own messages & empty channel' },
+  { id: 'screen', title: 'On screen: the message list' },
 ] as const;
 
 export type ScenarioGroup = (typeof scenarioGroups)[number]['id'];
@@ -254,6 +267,35 @@ const unsentInHeadWindow: ScenarioCheck = (input) => {
   );
 };
 
+/** All `count` of your unsent messages are in the head window, where "jump to latest" shows them. */
+const unsentKeptInHeadWindow =
+  (count: number): ScenarioCheck =>
+  (input) => {
+    const unsent = unsentIds(input);
+    const inHeadWindow = unsent.filter((id) => windowWith(input.now, id)?.headLoaded);
+    return verdict(
+      inHeadWindow.length === count,
+      `Your ${count === 1 ? 'unsent message is' : `${count} unsent messages are`} still there, in the head window`,
+      `Of your ${count} unsent messages ${unsent.length} are left, ${inHeadWindow.length} in the head window`,
+    );
+  };
+
+/** You see the head window, and your newest message is at its bottom. */
+const yourMessageAtTheBottom: ScenarioCheck = ({ channel, now }) => {
+  const range = rangeOf(now.read?.messageIds);
+  const bottomId = lastOf(now.read?.messageIds);
+  const isYours =
+    !!bottomId &&
+    channel.messagePaginator.getItem(bottomId)?.user?.id === channel.getClient().userID;
+  return verdict(
+    isYours && !!now.read?.headLoaded,
+    `You see the head window (${range}) with your message at the bottom`,
+    isYours
+      ? `Your message is at the bottom of ${range}, which is not the head window`
+      : `You see ${range}, without your message at the bottom`,
+  );
+};
+
 const storedNotRead =
   (messageId: (context: ScenarioContext) => string | undefined): ScenarioCheck =>
   (input) => {
@@ -275,6 +317,77 @@ const oneRequestWaiting: ScenarioCheck = ({ backend }) => {
     'Only one request waits: the second tap was ignored',
     `${pending.length} requests wait; expected one`,
   );
+};
+
+/**
+ * The newest messages are stored as the head window while you read another one, which can load
+ * newer messages up to it.
+ */
+const headStoredNotRead: ScenarioCheck = (input) => {
+  const head = input.now.windows.find((window) => window.headLoaded);
+  const headId = headIdOf(input);
+  const range = rangeOf(head?.messageIds);
+  const isStored = !!head && !head.isRead && lastOf(head.messageIds) === headId;
+  return verdict(
+    isStored && !!input.now.read?.canLoadHeadwards,
+    `The newest messages are stored as the head window (${range}); the window you read can load newer up to it`,
+    !head
+      ? `No head window ending at ${shortId(headId)} is stored`
+      : head.isRead
+        ? `The head window (${range}) is shown: you were moved off your window`
+        : isStored
+          ? 'The window you read cannot load newer messages'
+          : `The head window (${range}) does not end at the head ${shortId(headId)}`,
+  );
+};
+
+const notLoaded =
+  (messageId: (context: ScenarioContext) => string): ScenarioCheck =>
+  (input) => {
+    const id = messageId(input);
+    const home = windowWith(input.now, id);
+    return verdict(
+      !home,
+      `${shortId(id)} is not loaded`,
+      `${shortId(id)} is still loaded (${rangeOf(home?.messageIds)})`,
+    );
+  };
+
+/**
+ * The window you read is a window of its own, apart from the head window: the setup a reconnect
+ * across a gap is meant to find. Fails when the list has joined the two before the reconnect.
+ */
+const readsWindowApartFromHead: ScenarioCheck = ({ now }) => {
+  const head = now.windows.find((window) => window.headLoaded);
+  const isApart = !!now.read && !!head && !now.read.headLoaded && now.read.id !== head.id;
+  return verdict(
+    isApart,
+    `You read ${rangeOf(now.read?.messageIds)}, a window apart from the head window (${rangeOf(head?.messageIds)})`,
+    now.read?.headLoaded
+      ? `The window you read (${rangeOf(now.read.messageIds)}) is the head window: the setup needs a separate one`
+      : `No head window is loaded beside the window you read (${rangeOf(now.read?.messageIds)})`,
+  );
+};
+
+const windowCount =
+  (count: number): ScenarioCheck =>
+  ({ now }) =>
+    verdict(
+      now.windows.length === count,
+      `${count} window${count === 1 ? '' : 's'} loaded`,
+      `${now.windows.length} windows loaded (${now.windows.map((window) => rangeOf(window.messageIds)).join(', ')}); expected ${count}`,
+    );
+
+/**
+ * How many queries the last jump to the latest sent, counted when it landed: loads the message
+ * list runs by itself once it shows the landed window are not the jump's.
+ */
+const queriesSentByJump = new WeakMap<FakeChannelBackend, number>();
+
+const sentNoRequest: ScenarioCheck = ({ backend }) => {
+  const sent = queriesSentByJump.get(backend);
+  if (sent === undefined) return verdict(false, '', 'The step noted no request count');
+  return verdict(!sent, 'The jump sent no request', `The jump sent ${sent} request(s)`);
 };
 
 const noNewWindow: ScenarioCheck = ({ before, now }) =>
@@ -313,14 +426,172 @@ const loadedOlderPage: ScenarioCheck = (input) => {
   );
 };
 
+// ---- checks of the message list on screen ----------------------------------------------------
+
+/** Within this many px two positions on screen count as the same: layout rounds to sub-pixels. */
+const SCREEN_TOLERANCE_PX = 2;
+
+/** Says what a check wanted to read, so two checks of one step never fail with the same text. */
+const notOnScreen = (what: string) => `${what}: the message list is not on screen`;
+
+/** Added to a failure seen while the list was still moving. */
+const stillMovingNote = (settled: boolean) =>
+  settled ? '' : ` (the list was still moving after ${SETTLE_TIMEOUT_MS / 1000} s)`;
+
+/** Your unread count as the channel's read state holds it, which the scroll-to-latest button shows. */
+const yourUnreadCountInChannel = (channel: Channel) => {
+  const userId = channel.getClient().userID;
+  return userId ? channel.state.read[userId]?.unread_messages : undefined;
+};
+
+/** Once the list has settled, it is scrolled up from its bottom: the newest messages are out of sight. */
+const listScrolledUp: ScenarioCheck = async () => {
+  const { list, settled } = await settledMessageList();
+  if (!list) return verdict(false, '', notOnScreen('Scrolling up'));
+  const distance = Math.round(distanceFromBottom(list));
+  return verdict(
+    settled && distance > SCREEN_TOLERANCE_PX,
+    `The list is ${distance} px above its bottom`,
+    settled
+      ? `The list is ${distance} px above its bottom: it did not scroll up`
+      : `The list is ${distance} px above its bottom${stillMovingNote(settled)}`,
+  );
+};
+
+/** Once the list has settled, it rests at its bottom, on the newest messages. */
+const listRestsAtBottom: ScenarioCheck = async () => {
+  const { list, settled } = await settledMessageList();
+  if (!list) return verdict(false, '', notOnScreen('Where the list rests'));
+  const distance = Math.round(distanceFromBottom(list));
+  const position = `scrollTop ${Math.round(list.scrollTop)} of ${list.scrollHeight - list.clientHeight}`;
+  return verdict(
+    settled && distance <= SCREEN_TOLERANCE_PX,
+    'The list rests at the bottom, on the newest messages',
+    settled
+      ? `The list rests ${distance} px above the bottom (${position})`
+      : `The list is ${distance} px above the bottom (${position})${stillMovingNote(settled)}`,
+  );
+};
+
+/** The scroll-to-latest button shows your unread count in the channel, and the server agrees. */
+const scrollToLatestShowsUnreadCount: ScenarioCheck = async ({ backend, channel }) => {
+  const { list, settled } = await settledMessageList();
+  if (!list) return verdict(false, '', notOnScreen('The scroll-to-latest button'));
+  const { scrollToLatestCount: shown, scrollToLatestShown } =
+    readMessageListOverlay(list);
+  const inChannel = yourUnreadCountInChannel(channel);
+  const onServer = backend.yourUnreadCount;
+  return verdict(
+    settled &&
+      scrollToLatestShown &&
+      typeof inChannel === 'number' &&
+      shown === inChannel &&
+      inChannel === onServer,
+    `The scroll-to-latest button shows ${shown}, your unread count in the channel and on the server`,
+    scrollToLatestShown
+      ? `The scroll-to-latest button shows ${shown ?? 'no number'}; your unread count is ${inChannel ?? 'unknown'} in the channel, ${onServer ?? 'unknown'} on the server${stillMovingNote(settled)}`
+      : `The scroll-to-latest button is not shown${stillMovingNote(settled)}`,
+  );
+};
+
+/** The "New Messages!" pill counts your unread messages in the channel, as the button does. */
+const newMessagesPillShowsUnreadCount: ScenarioCheck = async ({ channel }) => {
+  const { list, settled } = await settledMessageList();
+  if (!list) return verdict(false, '', notOnScreen('The "New Messages!" pill'));
+  const { newMessagesPill, newMessagesPillCount } = readMessageListOverlay(list);
+  const inChannel = yourUnreadCountInChannel(channel);
+  return verdict(
+    settled &&
+      !!newMessagesPill &&
+      typeof inChannel === 'number' &&
+      newMessagesPillCount === inChannel,
+    `The "New Messages!" pill says "${newMessagesPill}", your unread count in the channel`,
+    newMessagesPill
+      ? `The "New Messages!" pill says "${newMessagesPill}"; your unread count in the channel is ${inChannel ?? 'unknown'}${stillMovingNote(settled)}`
+      : `The "New Messages!" pill is not shown${stillMovingNote(settled)}`,
+  );
+};
+
+/** What scrolling up until older messages load saw, for the checks of that step. */
+type OlderLoadSeen = {
+  /**
+   * The topmost message you could see while the older page loaded, and where it was then: the
+   * loading indicator above the messages is already shown.
+   */
+  anchor?: MessageOffset;
+  /** Where that message is once the older page landed and the list settled. */
+  anchorOffsetAfter?: number;
+  /** Why nothing could be measured. */
+  problem?: string;
+  /** Unset when loading had started before the first scroll. */
+  scrollTopAtLoad?: number;
+  settled?: boolean;
+};
+
+const olderLoadsSeen = new WeakMap<FakeChannelBackend, OlderLoadSeen>();
+
+/**
+ * The list asked for older messages before you reached its top. Also reports why the step could
+ * not measure, which the other checks of the step then leave out.
+ */
+const olderLoadStartedBeforeTop: ScenarioCheck = ({ backend }) => {
+  const seen = olderLoadsSeen.get(backend);
+  if (!seen) return verdict(false, '', 'The step noted nothing');
+  if (seen.problem) return verdict(false, '', seen.problem);
+  if (seen.scrollTopAtLoad === undefined) {
+    return verdict(false, '', 'Older messages were already loading before you scrolled');
+  }
+  const scrollTop = Math.round(seen.scrollTopAtLoad);
+  return verdict(
+    scrollTop > 0,
+    `Older messages started loading ${scrollTop} px before the top of the list`,
+    'Older messages started loading only once you reached the top of the list (scrollTop 0)',
+  );
+};
+
+/** e.g. "37 px above the top of the list" */
+const describeOffset = (offset: number) => {
+  const px = Math.round(offset);
+  return px < 0
+    ? `${-px} px above the top of the list`
+    : `${px} px below the top of the list`;
+};
+
+/** The message you were looking at stays where it was on screen when the older page lands above it. */
+const placeKeptAcrossOlderLoad: ScenarioCheck = ({ backend }) => {
+  const seen = olderLoadsSeen.get(backend);
+  const anchor = seen?.anchor;
+  if (!seen || seen.problem || !anchor) {
+    return verdict(false, '', 'Where you were looking could not be measured');
+  }
+  const { anchorOffsetAfter, settled = false } = seen;
+  if (anchorOffsetAfter === undefined) {
+    return verdict(
+      false,
+      '',
+      `${anchor.id}, the topmost message you saw, is no longer shown`,
+    );
+  }
+  const moved = Math.round(anchorOffsetAfter - anchor.offset);
+  return verdict(
+    settled && Math.abs(moved) <= SCREEN_TOLERANCE_PX,
+    `${anchor.id}, the topmost message you saw, stayed in place (its top ${describeOffset(anchor.offset)})`,
+    `${anchor.id}, the topmost message you saw, moved ${moved} px: its top went from ${describeOffset(anchor.offset)} to ${describeOffset(anchorOffsetAfter)}${stillMovingNote(settled)}`,
+  );
+};
+
 // ---- steps -----------------------------------------------------------------------------------
 
-/** Seeds `count` messages (or `count` pages) and reloads the channel on them, online, nothing held. */
+/**
+ * Seeds `count` messages (or `count` pages) on the server and opens the channel on them, online,
+ * nothing held: the channel loads its newest page only.
+ */
 const seed = (count: number, unit: 'messages' | 'pages' = 'messages'): ScenarioStep => ({
+  checks: [opensAtNewestPage],
   label:
     unit === 'pages'
-      ? `Seed ${count} pages of messages (${count * 100} at the default page size) and load the channel`
-      : `Seed ${count} messages and load the channel`,
+      ? `Seed ${count} pages of messages on the server (${count * 100} at the default page size), then open the channel: it loads its newest page`
+      : `Seed ${count} messages on the server, then open the channel: it loads its newest page`,
   run: async ({ backend, channel }) => {
     backend.setHoldAnswers(false);
     backend.setOnline(true);
@@ -335,15 +606,63 @@ const goOffline: ScenarioStep = {
 };
 
 /**
+ * Opening a seeded channel loads only its newest page: one window, the server's newest `pageSize`
+ * messages (all of them in a channel that fits one page). At a page size below the default, the
+ * message list may load older pages to fill the screen, so more is accepted there.
+ */
+const opensAtNewestPage: ScenarioCheck = ({ backend, channel, now }) => {
+  const serverIds = backend.timeline.map((message) => message.id);
+  const loadedIds = now.windows.flatMap((window) => window.messageIds);
+  if (!serverIds.length) {
+    return verdict(
+      !loadedIds.length,
+      'The channel opened empty',
+      `The empty channel shows ${rangeOf(loadedIds)}`,
+    );
+  }
+  const newestPage = serverIds.slice(-pageSizeOf(channel));
+  const shown = now.windows.length === 1 ? now.windows[0].messageIds : [];
+  const isNewestRun =
+    shown.length > 0 &&
+    shown.every((id, index) => id === serverIds[serverIds.length - shown.length + index]);
+  const mayFillScreen = pageSizeOf(channel) < backend.defaultPageSize;
+  const holdsNewestPage = isNewestRun && shown.length === newestPage.length;
+  const holdsMore = isNewestRun && shown.length > newestPage.length;
+  return verdict(
+    holdsNewestPage || (holdsMore && mayFillScreen),
+    holdsNewestPage
+      ? `The channel opened at its newest page: ${rangeOf(shown)} (${shown.length} of ${serverIds.length} messages)`
+      : `The channel opened at its newest page (${rangeOf(newestPage)}); the list loaded older messages to fill the screen (${rangeOf(shown)})`,
+    now.windows.length !== 1
+      ? `${now.windows.length} windows loaded (${now.windows.map((window) => rangeOf(window.messageIds)).join(', ')}); expected one, the newest page ${rangeOf(newestPage)}`
+      : holdsMore
+        ? `${rangeOf(shown)} loaded (${shown.length} of ${serverIds.length} messages), more than the newest page (${rangeOf(newestPage)}): the list loaded older pages by itself`
+        : `${rangeOf(shown)} loaded; expected the newest page ${rangeOf(newestPage)}`,
+  );
+};
+
+/** Scrolling the list down would load newer messages until the window you read joins the head. */
+const DONT_SCROLL_BEFORE_RECONNECT =
+  " Don't scroll the list before the reconnect: scrolling down loads newer messages until your window joins the head window.";
+
+/** Going offline, after checking the jumped-to windows are still apart (`count` windows loaded). */
+const goOfflineWindowsApart = (count: number): ScenarioStep => ({
+  ...goOffline,
+  checks: [readsWindowApartFromHead, windowCount(count)],
+});
+
+/**
  * More messages than a reload asks for — it asks for as many as the head window holds, at least a
- * page — so the reload's page at the head cannot reach the loaded messages.
+ * page — so the reload's page at the head cannot reach the loaded messages. Your unsent messages in
+ * the head window (a few at most here) are left out of the count, so a full page still makes 110.
  */
 const gapArrives: ScenarioStep = {
   label: '110 messages arrive while you are offline (no events reach you)',
   run: ({ backend, channel, log }) => {
-    const gap =
-      Math.max(channel.messagePaginator.anchoredHeadItems.length, pageSizeOf(channel)) +
-      10;
+    const serverMessagesInHeadWindow = channel.messagePaginator.anchoredHeadItems.filter(
+      (message) => !isUnsent(channel, message.id),
+    ).length;
+    const gap = Math.max(serverMessagesInHeadWindow, pageSizeOf(channel)) + 10;
     backend.addMessages(gap);
     log(`${gap} messages sent, head ${backend.newestMessage?.id}`);
   },
@@ -426,6 +745,27 @@ const scrollToTail = (checks: ScenarioCheck[] = []): ScenarioStep => ({
   youDo: 'Scroll the message list up until nothing more loads.',
 });
 
+const scrollToHead = (checks: ScenarioCheck[] = []): ScenarioStep => ({
+  checks,
+  isDone: ({ channel }) => !!windowsOf(channel).read?.headLoaded,
+  label: 'Scroll down to the head (load more headwards until nothing more loads)',
+  run: ({ channel }) => loadToTheEnd(channel, 'head'),
+  youDo: 'Scroll the message list down until nothing more loads.',
+});
+
+/** Counts the requests the jump sends until it lands, so `sentNoRequest` can judge them. */
+const jumpToLatest = (checks?: ScenarioCheck[]): ScenarioStep => ({
+  checks,
+  label: 'Jump to the latest message',
+  run: async ({ backend, channel, log }) => {
+    queriesSentByJump.delete(backend);
+    const before = backend.receivedQueries.length;
+    const landed = await channel.messagePaginator.jumpToTheLatestMessage();
+    queriesSentByJump.set(backend, backend.receivedQueries.length - before);
+    log(`jump to the latest: ${landed ? 'landed' : 'did not land'}`);
+  },
+});
+
 const liveMessagesArrive: ScenarioStep = {
   label: '3 live messages arrive (online, with events)',
   run: ({ backend }) => backend.addMessages(3),
@@ -481,6 +821,49 @@ const queueReplaysOnReconnect: ScenarioStep = {
   },
 };
 
+/** More messages than a page, sent while offline: they all wait in the queue. */
+const QUEUED_SENDS = 30;
+
+const sendManyWhileOffline: ScenarioStep = {
+  label: `You send ${QUEUED_SENDS} messages while offline: they wait in the queue (sending)`,
+  run: ({ channel, log }) => {
+    for (let index = 0; index < QUEUED_SENDS; index++)
+      ingestUnsentMessage(channel, 'sending');
+    log(`queued ${QUEUED_SENDS} sends`);
+  },
+};
+
+/** More messages from others than the reload asks for (the 55 the head window then holds), while offline. */
+const manyArriveFromOthers: ScenarioStep = {
+  label: '120 messages from others arrive while you are offline (no events reach you)',
+  run: ({ backend }) => backend.addMessages(120),
+};
+
+const queuedSends = (channel: Channel) =>
+  (channel.messagePaginator.items ?? []).filter(
+    (message) => message.status === 'sending',
+  );
+
+/**
+ * The queue replays every send, in order, before anything else: the server stores them after the
+ * messages you missed. With `events`, each confirmation also arrives as `message.new`, which
+ * restores the channel's interrupted watch (its newest page holds only your sends); without, only
+ * the send responses confirm them, as when the socket is not back yet.
+ */
+const queueReplaysAll = (events: boolean, checks?: ScenarioCheck[]): ScenarioStep => ({
+  checks,
+  label: events
+    ? 'Reconnect: the queue sends them all first (each confirmation also arrives as an event)'
+    : 'The queue sends them all first, before the socket is back (only the send responses confirm them)',
+  run: ({ backend, channel }) => {
+    backend.setOnline(events);
+    for (const queued of queuedSends(channel)) {
+      const stored = backend.acceptQueuedMessage(queued);
+      if (!events) ingestSendResponse(channel, stored);
+    }
+  },
+});
+
 const openChannel: ScenarioStep = {
   isDone: ({ channel }) => channel.active,
   label: 'Open the test channel in the app',
@@ -488,11 +871,135 @@ const openChannel: ScenarioStep = {
   youDo: 'Open the test channel in the app and look at what it shows.',
 };
 
+const yourSendFails: ScenarioStep = {
+  label: 'A message you send fails',
+  run: ({ channel }) => ingestUnsentMessage(channel, 'failed'),
+};
+
+const yourSendHangs: ScenarioStep = {
+  label: 'Another message you send stays sending (its request hangs)',
+  run: ({ channel }) => ingestUnsentMessage(channel, 'sending'),
+};
+
+/** A send as the device makes it: your message shows at once, as sending. */
+const youSendAMessage = (checks?: ScenarioCheck[]): ScenarioStep => ({
+  checks,
+  label: 'You send a message (it shows as sending)',
+  run: ({ channel }) => ingestUnsentMessage(channel, 'sending'),
+});
+
+const serverConfirmsYourMessage = (checks?: ScenarioCheck[]): ScenarioStep => ({
+  checks,
+  label: 'The server confirms it (its message.new arrives)',
+  run: ({ backend, channel }) => {
+    const sending = channel.messagePaginator.items?.find(
+      (message) => message.status === 'sending',
+    );
+    if (sending) backend.acceptQueuedMessage(sending);
+  },
+});
+
+/**
+ * A jump to sim-011, which opens a window of its own apart from the head window; needs a channel
+ * of at least 300 messages.
+ */
+const jumpToUnloadedWindow = jump(
+  'Jump to sim-011 (not loaded: it opens a window of its own)',
+  unloadedMessageId,
+  {
+    checks: [readingAround(unloadedMessageId), readsWindowApartFromHead, windowCount(2)],
+    wait: true,
+  },
+);
+
+/**
+ * A reconnect across a gap while you read the sim-011 window: you stay on it, the old head window
+ * (sim-201–sim-300) is dropped and the newest page is stored as the head window.
+ */
+const reconnectKeepsJumpedWindow = reconnect('reload', [
+  readingAround(unloadedMessageId),
+  headStoredNotRead,
+  windowCount(2),
+  notLoaded(() => sim(250)),
+  oneHeadWindow,
+  noGapGluedShut,
+]);
+
+/** Far enough from the bottom that the list counts as scrolled up, near enough to load nothing. */
+const SCROLL_UP_A_BIT_PX = 400;
+
+const scrollUpABit = (label: string): ScenarioStep => ({
+  checks: [listScrolledUp],
+  label: `${label} (${SCROLL_UP_A_BIT_PX} px), off the newest messages`,
+  run: async () => {
+    const { list } = await settledMessageList();
+    if (!list) throw new Error(notOnScreen('Scrolling up'));
+    scrollListBy(list, -SCROLL_UP_A_BIT_PX);
+  },
+});
+
+/** One scroll of a wheel, and the pause before the next. */
+const SCROLL_STEP_PX = 150;
+const SCROLL_STEP_MS = 100;
+/** How long, at the top of the list, to wait for a load to start before calling it missing. */
+const LOAD_AT_TOP_GRACE_MS = 1000;
+
+/**
+ * Scrolls up as you would, a step at a time, until the list asks for older messages. Their answer
+ * is held while the list shows the loading indicator, and the place you look at is noted then, so
+ * the check compares it with the place once the page has landed.
+ */
+const scrollUpUntilOlderLoad = (checks: ScenarioCheck[]): ScenarioStep => ({
+  checks,
+  label: `Scroll up ${SCROLL_STEP_PX} px at a time, as you would, until older messages load`,
+  run: async ({ backend }) => {
+    const seen: OlderLoadSeen = {};
+    olderLoadsSeen.set(backend, seen);
+    const { list } = await settledMessageList();
+    if (!list) {
+      seen.problem = notOnScreen('Scrolling up');
+      return;
+    }
+    backend.setHoldAnswers(true);
+    const isLoading = () => backend.state.getLatestValue().pending.length > 0;
+    let lastScroll: { scrollTop: number } | undefined;
+    while (!isLoading() && list.scrollTop > 0) {
+      scrollListBy(list, -SCROLL_STEP_PX);
+      // noted before anything the scroll starts can render
+      lastScroll = { scrollTop: list.scrollTop };
+      await sleep(SCROLL_STEP_MS);
+    }
+    for (
+      let waited = 0;
+      !isLoading() && waited < LOAD_AT_TOP_GRACE_MS;
+      waited += SCROLL_STEP_MS
+    )
+      await sleep(SCROLL_STEP_MS);
+    if (!isLoading()) {
+      seen.problem =
+        'Nothing loaded: you reached the top of the list and no older messages were asked for';
+      return;
+    }
+    seen.scrollTopAtLoad = lastScroll?.scrollTop;
+    // while the page loads: the loading indicator above the messages is what you see now
+    const loading = await settledMessageList();
+    seen.anchor = loading.list ? topmostVisibleMessage(loading.list) : undefined;
+    backend.setHoldAnswers(false);
+    const after = await settledMessageList();
+    seen.settled = after.settled;
+    seen.anchorOffsetAfter =
+      seen.anchor && after.list ? offsetOfMessage(after.list, seen.anchor.id) : undefined;
+  },
+  whenDone: ({ backend }) => backend.setHoldAnswers(false),
+});
+
 /** The steps, checks and helpers the scenarios of other files are built from (`rnScenarios.ts`). */
 const sharedParts = {
   goOffline,
+  opensAtNewestPage,
   isUnsent,
   jump,
+  jumpToLatest,
   liveAtTheBottom,
   liveMessageArrives,
   loadToTheEnd,
@@ -505,9 +1012,16 @@ const sharedParts = {
   reconnect,
   reconnectWithSlowReload,
   seed,
+  sentNoRequest,
+  serverConfirmsYourMessage,
   stillReading,
   stopsAtTail,
+  unsentKeptInHeadWindow,
   verdict,
+  youSendAMessage,
+  yourMessageAtTheBottom,
+  yourSendFails,
+  yourSendHangs,
 };
 
 export type SharedScenarioParts = typeof sharedParts;
@@ -552,24 +1066,26 @@ export const scenarios: Scenario[] = [
   },
   {
     bugPrevented:
-      'Being left on an old window while the newest messages pile up unseen, or the gap glued shut.',
+      'Being pulled off the window you jumped to by a reconnect, the old head window kept beside the new one, or the gap glued shut.',
     checks: [readsHead, oneHeadWindow, noGapGluedShut],
     group: 'reconnect',
     id: 'gap-while-reading-away-from-head',
     lookFor:
-      'After the reconnect the list shows the newest messages (sim-311–sim-410), not sim-011; the window you jumped to is gone.',
+      'After the jump two windows are loaded: the one around sim-011 (shown) and the head window sim-201–sim-300. After the reconnect you still see the sim-011 window; sim-201–sim-300 is gone and the newest messages (sim-311–sim-410) are stored as the head window; "jump to latest" then shows them without a request.' +
+      DONT_SCROLL_BEFORE_RECONNECT,
     precondition: 'open',
-    rule: 'A reconnect across a gap shows the newest messages, also after a jump; the window you jumped to is dropped.',
+    rule: 'A reconnect across a gap keeps you on the window you jumped to, drops the old head window and stores the newest page as the head window; "jump to latest" shows it.',
     situation:
-      'You jumped to sim-011, far from the head; you go offline, messages arrive, and you reconnect.',
+      'You jump to sim-011, into a window of its own far from the head window (sim-201–sim-300); you go offline, 110 messages arrive, you reconnect, then jump to the latest.',
     steps: [
       seed(3, 'pages'),
-      jump('Jump to sim-011', unloadedMessageId, { wait: true }),
-      goOffline,
+      jumpToUnloadedWindow,
+      goOfflineWindowsApart(2),
       gapArrives,
-      reconnect('reload'),
+      reconnectKeepsJumpedWindow,
+      jumpToLatest([sentNoRequest, readsHead]),
     ],
-    title: 'Same, after jumping far from the head (to sim-011)',
+    title: 'Jumped into another window, then a reconnect brings a new head',
   },
   {
     bugPrevented: 'Opening the channel shows a stale window far from the head.',
@@ -799,7 +1315,9 @@ export const scenarios: Scenario[] = [
       'A 60-message channel opens at its newest 25 (sim-036–sim-060); you wrote the last 10. You go offline, others send 20, and you reconnect: the reload of 25 holds your sim-056–sim-060 and the 20 new ones.',
     steps: [
       {
-        label: 'Seed 60 messages, the newest 10 from you, and load the channel',
+        checks: [opensAtNewestPage],
+        label:
+          'Seed 60 messages on the server, the newest 10 from you, then open the channel: it loads its newest page',
         run: async ({ backend }) => {
           backend.setHoldAnswers(false);
           backend.setOnline(true);
@@ -816,6 +1334,321 @@ export const scenarios: Scenario[] = [
       reconnect('reload', [stillReading, noGapGluedShut, noDuplicates]),
     ],
     title: 'Reconnect when the reload shares only your own messages',
+  },
+  {
+    bugPrevented:
+      'The 120 messages you missed hidden for good: the newest page after the queue replays holds only your sends, which were already loaded, so it looks connected and glues the gap shut.',
+    checks: [readsHead, noGapGluedShut, noDuplicates],
+    group: 'own',
+    id: 'many-queued-sends-restored-watch',
+    lookFor:
+      'After the queue replays, the windows never join sim-060 to your sends; after the reload the newest messages end with your 30, each once, and scrolling up loads the missed ones.',
+    pageSize: 25,
+    precondition: 'open',
+    rule: 'Messages the queue sent while you missed others prove nothing about what lies below them: a newest page made only of them is still past a gap.',
+    situation: `You're at the head of a 60-message channel (sim-036–sim-060, page size 25). Offline you send ${QUEUED_SENDS} messages (queued) and others send 120. On reconnect the queue sends yours first; their events restore the channel's watch, whose newest page of 25 is only your sends; then the channel reloads.`,
+    steps: [
+      seed(60),
+      goOffline,
+      sendManyWhileOffline,
+      manyArriveFromOthers,
+      queueReplaysAll(true, [noGapGluedShut, noDuplicates]),
+      reconnect('reload'),
+    ],
+    title:
+      'More than a page queued offline while more than a page arrives (watch restored)',
+  },
+  {
+    bugPrevented:
+      'The 120 messages you missed hidden for good: the reload looks connected through your sends.',
+    checks: [readsHead, noGapGluedShut, noDuplicates],
+    group: 'own',
+    id: 'many-queued-sends-reload',
+    lookFor:
+      'After the reload the newest messages end with your 30, each once; nothing joins sim-060 to them, and scrolling up loads the missed ones.',
+    pageSize: 25,
+    precondition: 'open',
+    rule: 'Messages the queue sent while you missed others prove nothing about what lies below them; the reload, which asks for as many messages as the head window holds, still sees the gap.',
+    situation: `As above, but the queue sends your ${QUEUED_SENDS} before the socket is back, so only the send responses confirm them; then the channel reloads.`,
+    steps: [
+      seed(60),
+      goOffline,
+      sendManyWhileOffline,
+      manyArriveFromOthers,
+      // Sends confirmed by their responses sit after sim-060 until a page shows what lies between.
+      queueReplaysAll(false, [noDuplicates]),
+      reconnect('reload'),
+    ],
+    title: 'More than a page queued offline while more than a page arrives (reload)',
+  },
+  {
+    bugPrevented:
+      'Being pulled off the window you read by a reconnect, the deleted sim-250 coming back, or the window you read glued to the newest page across the gap.',
+    checks: [
+      readsHead,
+      oneHeadWindow,
+      noGapGluedShut,
+      noDuplicates,
+      notLoaded(() => sim(250)),
+    ],
+    group: 'reconnect',
+    id: 'gap-keeps-jumped-window-with-offline-delete',
+    lookFor:
+      'After the jump two windows are loaded: the one around sim-005 (shown) and the head window sim-201–sim-300. After the reconnect you still see the sim-005 window, sim-010 included: the window you read is not refreshed, so a message deleted while offline stays there until it is loaded again (accepted). sim-201–sim-300 is gone and the newest messages, up to sim-410, are stored as the head window. Scrolling down loads the messages after your window, without sim-250, until it joins them.' +
+      DONT_SCROLL_BEFORE_RECONNECT,
+    precondition: 'open',
+    rule: 'A reconnect across a gap keeps you on the window you jumped to, as it was, and stores the newest page as the head window; the old head window is dropped. Loading newer from your window fetches what lies between, until it joins the head window.',
+    situation:
+      'You jump to sim-005, into a window of its own in a 300-message channel (the head window is sim-201–sim-300). While you are offline the server hard-deletes sim-010 (in the window you read) and sim-250 (in the head window), and 110 messages arrive; you reconnect, then scroll down to the head.',
+    steps: [
+      seed(3, 'pages'),
+      jump('Jump to sim-005 (not loaded: it opens a window of its own)', () => sim(5), {
+        checks: [readingAround(() => sim(5)), readsWindowApartFromHead, windowCount(2)],
+        wait: true,
+      }),
+      goOfflineWindowsApart(2),
+      {
+        label: 'The server hard-deletes sim-010 and sim-250 (no event)',
+        run: ({ backend }) => {
+          backend.hardDelete(sim(10));
+          backend.hardDelete(sim(250));
+        },
+      },
+      gapArrives,
+      reconnect('reload', [
+        readingAround(() => sim(5)),
+        headStoredNotRead,
+        windowCount(2),
+        notLoaded(() => sim(250)),
+      ]),
+      scrollToHead(),
+    ],
+    title:
+      'Jumped into another window, offline delete and more than a page missed, reconnect, scroll down',
+  },
+  {
+    bugPrevented:
+      'A stale head window left on screen after a reconnect across a gap, the old head window kept beside the new one, or the gap glued shut.',
+    checks: [readsHead, oneHeadWindow, noGapGluedShut, noDuplicates],
+    group: 'reconnect',
+    id: 'gap-after-jump-within-head',
+    lookFor:
+      'After the jump you still read the head window sim-201–sim-300, now around sim-250: one window. After the reconnect the list shows the newest messages (sim-311–sim-410) in place of it; sim-201–sim-300 is gone, and scrolling up loads the missed ones.',
+    precondition: 'open',
+    rule: 'A jump inside the head window keeps you on the head window, so a reconnect across a gap replaces it with the newest page and shows it.',
+    situation:
+      'You jump to sim-250, inside the loaded head window (sim-201–sim-300); you go offline, 110 messages arrive, and you reconnect.',
+    steps: [
+      seed(3, 'pages'),
+      jump('Jump to sim-250 (already loaded, in the head window)', () => sim(250), {
+        checks: [readingAround(() => sim(250)), readsHead, windowCount(1)],
+        wait: true,
+      }),
+      goOffline,
+      gapArrives,
+      reconnect('reload', [readsHead, windowCount(1), notLoaded(() => sim(250))]),
+      scrollToTail([noGapGluedShut, noDuplicates]),
+    ],
+    title: 'Jumped within the head window, then a reconnect brings a new head',
+  },
+  {
+    bugPrevented:
+      'Your message landing in the stored head window while you stay on the window you jumped to, so it looks as if it was never sent; or the window you jumped to dropped by the send.',
+    checks: [oneHeadWindow, noGapGluedShut, noDuplicates],
+    group: 'own',
+    id: 'own-send-after-gap-on-kept-window',
+    lookFor:
+      'After the reconnect you still see the sim-011 window, with the newest messages (sim-311–sim-410) stored as the head window. Right after you send, the list shows sim-311–sim-410 with your message at the bottom; it stays there once confirmed, and the sim-011 window stays stored.' +
+      DONT_SCROLL_BEFORE_RECONNECT,
+    precondition: 'open',
+    rule: 'Every message you send shows the head window, with your message at the bottom, also when a reconnect across a gap stored it while you read a window you jumped to; that window stays loaded.',
+    situation:
+      'You jump to sim-011, into a window of its own far from the head window; you go offline, 110 messages arrive and you reconnect, which keeps you on the sim-011 window. Then you send a message, and the server confirms it.',
+    steps: [
+      seed(3, 'pages'),
+      jumpToUnloadedWindow,
+      goOfflineWindowsApart(2),
+      gapArrives,
+      reconnectKeepsJumpedWindow,
+      youSendAMessage([
+        yourMessageAtTheBottom,
+        storedNotRead(unloadedMessageId),
+        windowCount(2),
+      ]),
+      serverConfirmsYourMessage([
+        yourMessageAtTheBottom,
+        readsHead,
+        storedNotRead(unloadedMessageId),
+        windowCount(2),
+      ]),
+    ],
+    title: 'You send a message on the window a reconnect kept you on',
+  },
+  {
+    bugPrevented:
+      "The live message attached to the window you read, across the messages between it and the head; or you pulled off your window by someone else's message.",
+    checks: [oneHeadWindow, noGapGluedShut, noDuplicates],
+    group: 'reconnect',
+    id: 'live-message-after-gap-on-kept-window',
+    lookFor:
+      'After the reconnect you still see the sim-011 window, with sim-311–sim-410 stored as the head window. When sim-411 arrives nothing moves: it joins the stored head window (sim-311–sim-411), and "jump to latest" would show it.' +
+      DONT_SCROLL_BEFORE_RECONNECT,
+    precondition: 'open',
+    rule: "A live message goes to the head window, stored while you read a window you jumped to; someone else's message never moves you.",
+    situation:
+      'You jump to sim-011, into a window of its own far from the head window; you go offline, 110 messages arrive and you reconnect, which keeps you on the sim-011 window. Then a live message from someone else arrives.',
+    steps: [
+      seed(3, 'pages'),
+      jumpToUnloadedWindow,
+      goOfflineWindowsApart(2),
+      gapArrives,
+      reconnectKeepsJumpedWindow,
+      {
+        ...liveMessageArrives,
+        checks: [
+          stillReading,
+          readingAround(unloadedMessageId),
+          headStoredNotRead,
+          windowCount(2),
+        ],
+      },
+    ],
+    title: 'A live message on the window a reconnect kept you on',
+  },
+  {
+    bugPrevented:
+      'Your unsent messages lost when the reconnect drops the old head window, or shown in the window you jumped to, among old messages.',
+    checks: [unsentKeptInHeadWindow(2), noDuplicates],
+    group: 'own',
+    id: 'unsent-messages-while-on-kept-window',
+    lookFor:
+      'Your failed message joins the head window (sim-201–sim-300), not the sim-011 window you read: it carries the device clock, newer than every loaded message. Your sending message then shows the head window. Back on the sim-011 window, after the reconnect sim-201–sim-300 is gone and both your messages are in the newest messages stored as the head window.' +
+      DONT_SCROLL_BEFORE_RECONNECT,
+    precondition: 'open',
+    rule: "An unsent message sorts by the device's clock, so it joins the head window, never a window you jumped to; a reconnect across a gap keeps it in the head window it stores.",
+    situation:
+      'You jump to sim-011, into a window of its own far from the head window. A message you send fails, and another stays sending (which shows the head window); you jump back to sim-011, go offline, more than a page of messages arrives, and you reconnect.',
+    steps: [
+      seed(3, 'pages'),
+      jumpToUnloadedWindow,
+      {
+        ...yourSendFails,
+        checks: [readingAround(unloadedMessageId), unsentKeptInHeadWindow(1)],
+      },
+      {
+        ...yourSendHangs,
+        checks: [
+          yourMessageAtTheBottom,
+          unsentKeptInHeadWindow(2),
+          storedNotRead(unloadedMessageId),
+        ],
+      },
+      jump('Jump back to sim-011 (stored: lands at once)', unloadedMessageId, {
+        checks: [
+          readingAround(unloadedMessageId),
+          readsWindowApartFromHead,
+          windowCount(2),
+          unsentKeptInHeadWindow(2),
+        ],
+        wait: true,
+      }),
+      goOfflineWindowsApart(2),
+      gapArrives,
+      reconnectKeepsJumpedWindow,
+    ],
+    title: 'Unsent messages while you read a window you jumped to, then a gap',
+  },
+  {
+    bugPrevented:
+      'Being pulled off the window you read by a reconnect, or stale windows kept beside it: nothing brought them up to date, so a message deleted meanwhile would come back with them.',
+    checks: [oneHeadWindow, noGapGluedShut, noDuplicates],
+    group: 'reconnect',
+    id: 'gap-with-three-windows',
+    lookFor:
+      'After the second jump three windows are loaded: around sim-011, around sim-350 (shown) and the head window sim-501–sim-600. After the reconnect only two are left: the sim-350 window, still shown, and the newest messages (sim-611–sim-710) stored as the head window. "Jump to latest" then shows them without a request.' +
+      DONT_SCROLL_BEFORE_RECONNECT,
+    precondition: 'open',
+    rule: 'A reconnect across a gap keeps you on the window you read and stores the newest page as the head window; every other window is dropped.',
+    situation:
+      'In a 600-message channel you jump to sim-011, then to sim-350: each opens a window of its own, apart from the head window sim-501–sim-600. You go offline, 110 messages arrive, you reconnect, then jump to the latest.',
+    steps: [
+      seed(6, 'pages'),
+      jumpToUnloadedWindow,
+      jump(
+        'Jump to sim-350 (not loaded either: it opens a third window)',
+        () => sim(350),
+        {
+          checks: [
+            readingAround(() => sim(350)),
+            readsWindowApartFromHead,
+            storedNotRead(unloadedMessageId),
+            windowCount(3),
+          ],
+          wait: true,
+        },
+      ),
+      goOfflineWindowsApart(3),
+      gapArrives,
+      reconnect('reload', [
+        readingAround(() => sim(350)),
+        headStoredNotRead,
+        windowCount(2),
+        notLoaded(() => sim(11)),
+        notLoaded(() => sim(550)),
+        oneHeadWindow,
+        noGapGluedShut,
+      ]),
+      jumpToLatest([sentNoRequest, readsHead]),
+    ],
+    title: 'Three windows loaded, then a reconnect brings a new head',
+  },
+  {
+    bugPrevented:
+      'The button counting only the messages that arrived as events (3) while the pill counts all you missed (113); or the list left at the top of the newest page after the reconnect instead of at its bottom.',
+    checks: [readsHead, noDuplicates],
+    group: 'screen',
+    id: 'screen-unread-count-after-gap',
+    lookFor:
+      'After the reconnect the list rests at the bottom of the newest messages (sim-111–sim-210). After you scroll up and 3 arrive, the scroll-to-latest button shows 113 and the pill says "113 new messages".',
+    precondition: 'open',
+    rule: 'After a reconnect across a gap the list rests at the bottom; the scroll-to-latest button shows your unread count in the channel (the missed messages and the live ones), and the "New Messages!" pill the same.',
+    situation:
+      'A 100-message channel, all read; you scroll up a bit, go offline, 110 messages arrive, and you reconnect. You scroll up a bit again and 3 live messages arrive. (The test channel never marks anything read, so resting at the bottom after the reconnect does not clear the count, as it would in a real channel.)',
+    steps: [
+      seed(100),
+      scrollUpABit('Scroll the list up a bit'),
+      goOffline,
+      gapArrives,
+      reconnect('reload', [readsHead, listRestsAtBottom]),
+      scrollUpABit('Scroll up a bit again'),
+      {
+        ...liveMessagesArrive,
+        checks: [scrollToLatestShowsUnreadCount, newMessagesPillShowsUnreadCount],
+      },
+    ],
+    title: 'Unread count on the scroll-to-latest button after a gap',
+  },
+  {
+    bugPrevented:
+      'The list jumping to the top of the newly loaded page (and from there loading yet another), or loading only once you hit the very top, so scrolling stalls.',
+    checks: [noDuplicates, noGapGluedShut],
+    group: 'screen',
+    id: 'screen-older-page-keeps-place',
+    lookFor:
+      'While you scroll up from the bottom of sim-201–sim-300, sim-101–sim-200 starts loading before the list reaches its top and the loading indicator shows above the messages; when the page lands, the message at the top of the list stays where it was while it loaded.',
+    precondition: 'open',
+    rule: 'Loading older messages starts before you reach the top of the list, and keeps the message you were looking at in place when the page lands above it.',
+    situation:
+      'A 300-message channel opens at its newest 100 (sim-201–sim-300); you scroll up step by step, as with a wheel, until older messages load.',
+    steps: [
+      seed(3, 'pages'),
+      scrollUpUntilOlderLoad([
+        olderLoadStartedBeforeTop,
+        placeKeptAcrossOlderLoad,
+        loadedOlderPage,
+      ]),
+    ],
+    title: 'Scrolling up loads older messages and keeps your place',
   },
 ];
 
@@ -951,8 +1784,9 @@ export class ScenarioRun {
       now: windowsOf(this.context.channel),
     };
     this.context.log(`  windows after step ${index + 1}: ${describeWindows(input.now)}`);
+    const judged = await Promise.all(checks.map((check) => check(input)));
     const results = [...this.state.getLatestValue().results];
-    results[index] = checks.map((check) => check(input));
+    results[index] = judged;
     this.state.partialNext({ current: index + 1, error: undefined, results });
     this.setStatus(index, 'done');
     this.enter(index + 1);

@@ -24,8 +24,8 @@ import type {
 } from './paginationScenarios';
 import {
   numberedTitle,
-  ScenarioRun,
   scenarioGroups,
+  ScenarioRun,
   scenarios,
 } from './paginationScenarios';
 import { PaginatorInspector, PaginatorWindows } from './PaginatorInspector';
@@ -152,10 +152,11 @@ const Intro = () => (
 const Checks = ({ results }: { results: CheckResult[] | undefined }) =>
   results?.length ? (
     <ul className='app__pagination-scenarios__checks'>
-      {results.map(({ ok, text }) => (
+      {/* a step's checks and the scenario's are judged together, so a text can repeat */}
+      {results.map(({ ok, text }, index) => (
         <li
           className={`app__pagination-scenarios__check--${ok ? 'ok' : 'fail'}`}
-          key={text}
+          key={`${index}. ${text}`}
         >
           {ok ? '✓' : '✗'} {text}
         </li>
@@ -251,7 +252,8 @@ const ScenarioCard = ({
         <ol className='app__pagination-scenarios__steps'>
           {scenario.steps.map((step, index) => (
             <StepItem
-              key={step.label}
+              // a scenario may repeat a step, e.g. loading older twice
+              key={`${index}. ${step.label}`}
               results={results[index]}
               status={
                 runState && index === current && statuses[index] === 'todo'

@@ -1,7 +1,6 @@
 import type { Channel, MessageFocusReason } from 'stream-chat';
 
 import type { FakeChannelBackend, ReceivedQuery } from './fakeChannelBackend';
-import { ingestUnsentMessage } from './fakeChannelBackend';
 import { sequenceOf, simulatedMessageId } from './fakeTimeline';
 import type {
   Scenario,
@@ -9,6 +8,7 @@ import type {
   ScenarioStep,
   SharedScenarioParts,
 } from './paginationScenarios';
+import type { WindowsView } from './paginatorWindows';
 import { lastOf, rangeOf, windowWith } from './paginatorWindows';
 
 /**
@@ -83,6 +83,7 @@ export const rnScenarios = ({
   goOffline,
   isUnsent,
   jump,
+  jumpToLatest,
   liveAtTheBottom,
   liveMessageArrives,
   loadToTheEnd,
@@ -90,20 +91,44 @@ export const rnScenarios = ({
   noGapGluedShut,
   noGhosts,
   oneHeadWindow,
+  opensAtNewestPage,
   readingAround,
   readsHead,
   reconnect,
   reconnectWithSlowReload,
   seed,
+  sentNoRequest,
+  serverConfirmsYourMessage,
   stillReading,
   stopsAtTail,
+  unsentKeptInHeadWindow,
   verdict,
+  youSendAMessage,
+  yourMessageAtTheBottom,
+  yourSendFails,
+  yourSendHangs,
 }: SharedScenarioParts): Scenario[] => {
   /** The ids of the messages the server has, in the window you see. */
   const serverIdsShown = (channel: Channel, ids: string[] | undefined) =>
     (ids ?? []).filter((id) => !isUnsent(channel, id));
 
   // ---- checks --------------------------------------------------------------------------------
+
+  /** The server's messages from `sim-first` to `sim-last`, in order. */
+  const serverIdsBetween = (backend: FakeChannelBackend, first: number, last: number) =>
+    backend.timeline
+      .map((message) => message.id)
+      .filter((id) => {
+        const sequence = sequenceOf(id) ?? 0;
+        return sequence >= first && sequence <= last;
+      });
+
+  /** The simulated messages (`sim-…`) in the window you see; your own messages are left out. */
+  const simIdsShown = (view: WindowsView) =>
+    (view.read?.messageIds ?? []).filter((id) => sequenceOf(id) !== undefined);
+
+  const isSameRun = (ids: string[], expected: string[]) =>
+    ids.length === expected.length && ids.every((id, index) => id === expected[index]);
 
   /**
    * The simulated messages (`sim-…`) in the window you see are exactly the server's from
@@ -113,50 +138,35 @@ export const rnScenarios = ({
   const reads =
     (first: number, last: number): ScenarioCheck =>
     ({ backend, now }) => {
-      const expected = backend.timeline
-        .map((message) => message.id)
-        .filter((id) => {
-          const sequence = sequenceOf(id) ?? 0;
-          return sequence >= first && sequence <= last;
-        });
-      const shown = (now.read?.messageIds ?? []).filter(
-        (id) => sequenceOf(id) !== undefined,
-      );
-      const isExact =
-        shown.length === expected.length &&
-        shown.every((id, index) => id === expected[index]);
+      const expected = serverIdsBetween(backend, first, last);
+      const shown = simIdsShown(now);
       const range = `${sim(first)}–${sim(last)}`;
       return verdict(
-        isExact,
+        isSameRun(shown, expected),
         `You see ${range} (${expected.length} messages)`,
         `You see ${rangeOf(shown)} (${shown.length} messages); expected the server's ${range} (${expected.length})`,
       );
     };
 
   /**
-   * Like {@link reads}, but the list may also have loaded older messages by itself (a reader near
-   * the top of a short window): you see the server's messages from `first` or earlier up to `last`,
-   * with nothing missing in between.
+   * Like {@link reads}, but the window you see may also hold older messages: ones the list loaded
+   * by itself (a reader near the top of a short window), or a window you jumped to that it joined,
+   * which no reload brought up to date. From `sim-first` on it holds exactly the server's messages
+   * up to `sim-last`; what is older is not judged.
    */
   const readsAtLeast =
     (first: number, last: number): ScenarioCheck =>
     ({ backend, now }) => {
-      const shown = (now.read?.messageIds ?? []).filter(
-        (id) => sequenceOf(id) !== undefined,
-      );
-      const serverIds = backend.timeline
-        .map((message) => message.id)
-        .filter((id) => sequenceOf(id) !== undefined);
-      const start = serverIds.indexOf(shown[0]);
-      const isUnbrokenServerRun =
-        start >= 0 && shown.every((id, index) => serverIds[start + index] === id);
-      const startsAtOrBefore = (sequenceOf(shown[0]) ?? Infinity) <= first;
-      const endsAt = sequenceOf(shown[shown.length - 1]) === last;
+      const expected = serverIdsBetween(backend, first, last);
+      const shown = simIdsShown(now);
+      const fromFirst = shown.filter((id) => (sequenceOf(id) ?? 0) >= first);
       const range = `${sim(first)}–${sim(last)}`;
       return verdict(
-        isUnbrokenServerRun && startsAtOrBefore && endsAt,
-        `You see ${rangeOf(shown)}, which holds the server's ${range} with nothing missing`,
-        `You see ${rangeOf(shown)} (${shown.length} messages); expected the server's ${range}, or more older messages, with nothing missing`,
+        isSameRun(fromFirst, expected),
+        fromFirst.length < shown.length
+          ? `You see ${rangeOf(shown)}: the server's ${range} (${expected.length} messages), after older ones`
+          : `You see ${range} (${expected.length} messages)`,
+        `You see ${rangeOf(shown)}; from ${sim(first)} on, ${rangeOf(fromFirst)} (${fromFirst.length} messages); expected the server's ${range} (${expected.length}), after any older ones`,
       );
     };
 
@@ -246,21 +256,6 @@ export const rnScenarios = ({
       );
     };
 
-  /** All `count` of your unsent messages are in the head window, where "jump to latest" shows them. */
-  const unsentKeptInHeadWindow =
-    (count: number): ScenarioCheck =>
-    ({ channel, now }) => {
-      const unsent = now.windows
-        .flatMap((window) => window.messageIds)
-        .filter((id) => isUnsent(channel, id));
-      const inHeadWindow = unsent.filter((id) => windowWith(now, id)?.headLoaded);
-      return verdict(
-        inHeadWindow.length === count,
-        `Your ${count} unsent messages are still there, in the head window`,
-        `Of your ${count} unsent messages ${unsent.length} are left, ${inHeadWindow.length} in the head window`,
-      );
-    };
-
   /** The jump in this step focused `sim-sequence`, for the reason given. */
   const focused =
     (sequence: number, reason: MessageFocusReason): ScenarioCheck =>
@@ -277,26 +272,11 @@ export const rnScenarios = ({
       );
     };
 
-  /** You see the head window, and your newest message is at its bottom. */
-  const yourMessageAtTheBottom: ScenarioCheck = ({ channel, now }) => {
-    const range = rangeOf(now.read?.messageIds);
-    const bottomId = lastOf(now.read?.messageIds);
-    const isYours =
-      !!bottomId &&
-      channel.messagePaginator.getItem(bottomId)?.user?.id === channel.getClient().userID;
-    return verdict(
-      isYours && !!now.read?.headLoaded,
-      `You see the head window (${range}) with your message at the bottom`,
-      isYours
-        ? `Your message is at the bottom of ${range}, which is not the head window`
-        : `You see ${range}, without your message at the bottom`,
-    );
-  };
-
   // ---- steps ---------------------------------------------------------------------------------
 
   const seedWithUnread = (count: number, unread: number): ScenarioStep => ({
-    label: `Seed ${count} messages, the newest ${unread} unread for you, and load the channel`,
+    checks: [opensAtNewestPage],
+    label: `Seed ${count} messages on the server, the newest ${unread} unread for you, then open the channel: it loads its newest page`,
     run: async ({ backend }) => {
       backend.setHoldAnswers(false);
       backend.setOnline(true);
@@ -326,15 +306,6 @@ export const rnScenarios = ({
 
   const jumpTo = (sequence: number, checks?: ScenarioCheck[]): ScenarioStep =>
     jump(`Jump to ${sim(sequence)}`, () => sim(sequence), { checks, wait: true });
-
-  const jumpToLatest = (checks?: ScenarioCheck[]): ScenarioStep => ({
-    checks,
-    label: 'Jump to the latest message',
-    run: async ({ channel, log }) => {
-      const landed = await channel.messagePaginator.jumpToTheLatestMessage();
-      log(`jump to the latest: ${landed ? 'landed' : 'did not land'}`);
-    },
-  });
 
   const jumpToFirstUnread = (checks?: ScenarioCheck[]): ScenarioStep => ({
     checks,
@@ -388,33 +359,6 @@ export const rnScenarios = ({
     checks,
     label: 'The held answer arrives (the server answers at once again)',
     run: ({ backend }) => backend.setHoldAnswers(false),
-  });
-
-  const yourSendFails: ScenarioStep = {
-    label: 'A message you send fails',
-    run: ({ channel }) => ingestUnsentMessage(channel, 'failed'),
-  };
-
-  const yourSendHangs: ScenarioStep = {
-    label: 'Another message you send stays sending (its request hangs)',
-    run: ({ channel }) => ingestUnsentMessage(channel, 'sending'),
-  };
-
-  const youSendAMessage = (checks?: ScenarioCheck[]): ScenarioStep => ({
-    checks,
-    label: 'You send a message (it shows as sending)',
-    run: ({ channel }) => ingestUnsentMessage(channel, 'sending'),
-  });
-
-  const serverConfirmsYourMessage = (checks?: ScenarioCheck[]): ScenarioStep => ({
-    checks,
-    label: 'The server confirms it (its message.new arrives)',
-    run: ({ backend, channel }) => {
-      const sending = channel.messagePaginator.items?.find(
-        (message) => message.status === 'sending',
-      );
-      if (sending) backend.acceptQueuedMessage(sending);
-    },
   });
 
   // ---- scenarios -----------------------------------------------------------------------------
@@ -507,7 +451,7 @@ export const rnScenarios = ({
         missedWhileOffline(60),
         reconnect('reload', [reads(94, 120), readsHead, unsentKeptInHeadWindow(2)]),
         loadNewer([noRequest]),
-        jumpToLatest([noRequest, readsHead]),
+        jumpToLatest([sentNoRequest, readsHead]),
         loadOlder(),
         loadOlder([reads(44, 120)]),
       ],
@@ -626,11 +570,11 @@ export const rnScenarios = ({
     rnScenario({
       bugPrevented:
         'The 5 new messages missing after the jump, or the deleted sim-050 shown again.',
-      checks: [deletedNotLoaded(50), oneHeadWindow],
+      checks: [deletedNotLoaded(50), oneHeadWindow, noGapGluedShut],
       group: 'deletes',
       id: 'rn-d3-deleted-in-stored-and-jumped-windows',
       lookFor:
-        'After the jump sim-036–sim-065 without sim-050. Known limitation: sim-010 stays in the window you jumped to, as the reload refreshes only the newest messages.',
+        'After the jump sim-036–sim-065 without sim-050 (older messages may also show, if the list loaded them). Known limitation: sim-010 stays in the window you jumped to, as the reload refreshes only the newest messages.',
       precondition: 'open',
       rule: 'The reload brings the 5 new messages into the head window and removes sim-050 from it; you stay where you were until you jump.',
       situation:
@@ -642,7 +586,7 @@ export const rnScenarios = ({
         deletedWhileOffline(50, 10),
         missedWhileOffline(5),
         reconnect('reload', [readingAround(() => sim(5))]),
-        jumpToLatest([reads(36, 65), readsHead]),
+        jumpToLatest([readsAtLeast(36, 65), readsHead]),
       ],
       title:
         'Deletes in the stored and the jumped-to window, 5 new, reconnect, jump (RN D3)',
@@ -710,7 +654,7 @@ export const rnScenarios = ({
           noRequest,
           reads(36, 60),
         ]),
-        jumpToLatest([noRequest, reads(36, 60)]),
+        jumpToLatest([sentNoRequest, reads(36, 60)]),
       ],
       title: 'Open with 10 unread, the first unread loaded, jump to the latest (RN S2a)',
     }),
@@ -733,7 +677,7 @@ export const rnScenarios = ({
           readingAround(() => sim(21)),
         ]),
         loadNewer([readsMarkedHead, noEmptyRequest]),
-        jumpToLatest([noRequest, readsHead]),
+        jumpToLatest([sentNoRequest, readsHead]),
       ],
       title:
         'Open with 40 unread, the first unread not loaded, jump, load newer (RN S2b)',
@@ -754,7 +698,7 @@ export const rnScenarios = ({
         seed(60),
         jumpTo(5, [readingAround(() => sim(5))]),
         loadNewer([readsMarkedHead, reads(1, 60), noEmptyRequest]),
-        jumpToLatest([noRequest, reads(1, 60)]),
+        jumpToLatest([sentNoRequest, reads(1, 60)]),
       ],
       title:
         'Jump to an old message, load newer until joined, jump to the latest (RN S3, H5-W3)',
@@ -766,7 +710,7 @@ export const rnScenarios = ({
       group: 'jumps',
       id: 'rn-s8-live-while-jumped',
       lookFor:
-        'You stay on the window around sim-005 while the 2 arrive; the jump shows sim-036–sim-062 with no request.',
+        'You stay on the window around sim-005 while the 2 arrive; the jump shows sim-036–sim-062 (older messages may also show, if the list loaded them) with no request.',
       precondition: 'open',
       rule: 'Live messages go to the head window, stored while you read elsewhere; jumping to the latest shows it.',
       situation:
@@ -775,7 +719,7 @@ export const rnScenarios = ({
         seed(60),
         jumpTo(5),
         liveMessages(2, [readingAround(() => sim(5))]),
-        jumpToLatest([reads(36, 62), readsHead, noRequest]),
+        jumpToLatest([readsAtLeast(36, 62), readsHead, sentNoRequest]),
       ],
       title: 'Live messages while jumped away, then jump to the latest (RN S8)',
     }),
@@ -795,7 +739,7 @@ export const rnScenarios = ({
         goOffline,
         missedWhileOffline(10),
         loadOlder([reads(11, 60)]),
-        jumpToLatest([noRequest, reads(11, 60)]),
+        jumpToLatest([sentNoRequest, reads(11, 60)]),
         reconnect('reload', [reads(11, 70), readsHead]),
       ],
       title: 'Socket drops, 10 new, load older, jump to the latest, reconnect (RN S13)',
@@ -817,7 +761,7 @@ export const rnScenarios = ({
         missedWhileOffline(40),
         loadOlder([reads(11, 60)]),
         loadNewer([noRequest]),
-        jumpToLatest([noRequest, reads(11, 60)]),
+        jumpToLatest([sentNoRequest, reads(11, 60)]),
         reconnect('reload', [reads(11, 100), readsHead]),
       ],
       title: 'Socket drops, 40 new, load older and newer, jump, reconnect (RN S13b)',
@@ -863,20 +807,20 @@ export const rnScenarios = ({
         leaveChannel,
         liveMessages(3),
         openInApp([readingAround(() => sim(5))]),
-        jumpToLatest([reads(36, 63), readsHead, noRequest]),
+        jumpToLatest([reads(36, 63), readsHead, sentNoRequest]),
       ],
       title: 'Leave while jumped, 3 live messages, open again, jump (RN S14)',
     }),
     rnScenario({
       bugPrevented:
-        'The jump landing on the stale sim-036–sim-060 after the reconnect, with the newest hidden.',
+        'Being pulled off the window you jumped to by the reconnect, or the jump landing on the stale sim-036–sim-060.',
       checks: [oneHeadWindow, noGapGluedShut],
       group: 'jumps',
       id: 'rn-s14b-leave-while-jumped-then-gap',
       lookFor:
-        'After the reconnect sim-066–sim-090, the window around sim-005 dropped; the jump sends nothing.',
+        'After the reconnect you still see the window around sim-005; the newest sim-066–sim-090 are stored as the head window in place of the old one. The list may load newer messages from your window by itself until it joins them. The jump shows the head window and sends nothing.',
       precondition: 'open',
-      rule: 'A reconnect reload that connects to nothing loaded replaces the windows and shows the newest page, also when you were reading a window you jumped to.',
+      rule: 'A reconnect reload that connects to nothing loaded stores the newest page as the head window in place of the old one; you stay on the window you jumped to until you jump to the latest.',
       situation:
         'You jump to sim-005 in a 60-message channel and leave it; the app goes to the background (offline) and 30 messages arrive; you open the channel again, the app reconnects, and you jump to the latest. (React Native watches the channel again when it opens; this app leaves that to the reconnect.)',
       steps: [
@@ -886,8 +830,9 @@ export const rnScenarios = ({
         goOffline,
         missedWhileOffline(30),
         openInApp(),
-        reconnect('reload', [reads(66, 90), readsHead, oldWindowDropped(5)]),
-        jumpToLatest([noRequest, reads(66, 90)]),
+        reconnect('reload', [readingAround(() => sim(5)), oneHeadWindow, noGapGluedShut]),
+        // the list may have loaded newer messages from your window until it joined the head window
+        jumpToLatest([sentNoRequest, readsAtLeast(66, 90), readsHead]),
       ],
       title:
         'Leave while jumped, 30 missed in the background, open again, reconnect (RN S14b)',

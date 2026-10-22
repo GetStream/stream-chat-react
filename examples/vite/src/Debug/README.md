@@ -127,8 +127,8 @@ never restores the test channel: watching it for real would create it on the ser
 How to use it:
 
 1. Open a group (Basics, Reconnect & gaps, Offline deletes, Jumps & stale head, Own messages &
-   empty channel), then a scenario card. Cards are numbered once across all groups, so a number
-   names the same scenario wherever it is shown. A card says, in four lines, the **Situation**, the
+   empty channel, On screen), then a scenario card. Cards are numbered once across all groups, so
+   a number names the same scenario wherever it is shown. A card says, in four lines, the **Situation**, the
    **Rule** the SDK must keep, what to **Look for** on screen and the **Bug it prevents**. A
    scenario opens or closes the test channel in the app as it needs (the badge says which).
 2. **Step** runs the next step (outlined) and **Run all** runs them all, stopping at a step that
@@ -147,6 +147,15 @@ size, 25, so their ids read as on that page: a 60-message channel opens at sim-0
 expected results follow the SDK's current rules, not the page's, which were recorded on an older
 build. Their steps run by themselves, so **Run all** goes through without you, and their checks
 can count the requests a step sent (the fake backend logs every query it receives).
+
+**On screen: the message list** holds the scenarios whose checks read the list as shown rather
+than the paginator: where it rests after a reconnect, the number on the scroll-to-latest button and
+the "New Messages!" pill, and whether loading older messages keeps your place. They need the test
+channel open in the app and scroll it themselves (150–400 px steps, each with a scroll event). A
+screen check first waits for the list to settle — the same scroll position, height and numbers for
+half a second — and fails, saying what it saw, if it is still moving after 5 s
+(`messageListOnScreen.ts`). Keep the app's tab in front while they run: a background tab slows
+its timers and scroll handling.
 
 **Held answers**: a race scenario holds the server's answer on purpose, so you have time to do
 the second action (another jump, another tap, a live message) before the first request finishes.
@@ -185,6 +194,8 @@ Code layout:
   (passed in, as `paginationScenarios.ts` lists them), plus the steps and checks only they use.
 - `paginatorWindows.ts` — reads the windows in plain words; shared by the inspector and the
   checks, so both describe the same state.
+- `messageListOnScreen.ts` — reads the channel's message list from the page for the screen checks:
+  its scroll position, its topmost visible message, its buttons and their numbers.
 - `scenarioChannel.ts` — creates the local test channel and shows it in the app or takes it away.
 - `windowChangeLog.ts` — logs every change of the windows with the SDK calls that made it.
 

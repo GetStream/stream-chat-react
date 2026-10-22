@@ -275,6 +275,11 @@ export class FakeChannelBackend {
     };
   }
 
+  /** How many messages are unread for you on the server; `undefined` while no read position is set. */
+  get yourUnreadCount() {
+    return this.yourReadState()?.unread_messages;
+  }
+
   /**
    * Moves your read position on the server back: the newest `count` messages are unread, and so is
    * every message sent after this. Seeding marks everything read again.
@@ -374,6 +379,7 @@ export class FakeChannelBackend {
     });
     this.state.partialNext({ timeline: [...this.timeline, message] });
     if (this.state.getLatestValue().online) this.dispatchMessageNew(message);
+    return message;
   }
 
   /** Removes a message, by default the newest, with no event: a hard delete an offline client missed. */
@@ -461,3 +467,10 @@ export const ingestUnsentMessage = (channel: Channel, status: 'failed' | 'sendin
   channel.messagePaginator.ingestItem(message);
   return message;
 };
+
+/** What a send's response does on the device: the server's copy replaces the unsent message. */
+export const ingestSendResponse = (channel: Channel, message: MessageResponse) =>
+  channel.messagePaginator.ingestItem({
+    ...formatMessage(message),
+    status: 'received',
+  } as LocalMessage);
