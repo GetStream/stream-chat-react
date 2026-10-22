@@ -1,0 +1,46 @@
+/* A fixed layout so layout cost is the same on every run: channel list | channel | thread.
+   Run at the protocol's 1440×900 window (WEB-SCENARIOS.md §1.2b). */
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+}
+
+#root {
+  display: flex;
+}
+
+.str-chat__channel-list {
+  flex: 0 0 320px;
+  width: 320px;
+}
+
+.perf-host__slots {
+  display: flex;
+  flex: 1 1 auto;
+  min-width: 0;
+  height: 100%;
+}
+
+/* The channel takes what is left; a thread opened beside it gets a fixed 400px. */
+.perf-host__slots > .str-chat__chat-view__slot:not(:empty) {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.perf-host__slots
+  > .str-chat__chat-view__slot:not(:empty)
+  + .str-chat__chat-view__slot:not(:empty) {
+  flex: 0 0 400px;
+}
+
+.perf-host__error,
+.perf-host__loading {
+  margin: 2rem;
+  font-family: system-ui, sans-serif;
+}

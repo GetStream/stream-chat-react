@@ -1,0 +1,19 @@
+{
+  "name": "@stream-io/react-perf-runner",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "engines": {
+    "node": ">=22.18"
+  },
+  "scripts": {
+    "perf": "node src/cli.ts",
+    "typecheck": "tsc -b",
+    "test": "node --test src/*.test.ts"
+  },
+  "devDependencies": {
+    "@types/node": "^24.13.3",
+    "playwright": "1.60.0",
+    "typescript": "^6.0.3"
+  }
+}
