@@ -212,7 +212,7 @@ describe('ChatView built-in workspace layout empty state', () => {
       initialState: { activeView, availableSlots: ['slot1', 'slot2'] },
     });
     if (bindChannel) {
-      const channel = client.channelManager.ensure({ id: 'general', type: 'messaging' });
+      const channel = client.channel('messaging', 'general');
       layoutController.bind(
         'slot1',
         createChatViewSlotBinding({ key: channel.cid, kind: 'channel', source: channel }),

@@ -346,7 +346,7 @@ describe('Chat', () => {
       // The search results and the threads view replace the channel list, and the lists must keep
       // receiving events meanwhile.
       const client = await getTestClientWithUser({ id: 'user_x' });
-      const channel = client.channelManager.ensure({ id: 'routed', type: 'messaging' });
+      const channel = client.channel('messaging', 'routed');
       const ingestChannel = vi.spyOn(client.channelManager, 'ingestChannel');
       const channelUpdated = () =>
         client.dispatchEvent({

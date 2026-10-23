@@ -245,10 +245,7 @@ describe('SearchResultItem Components', () => {
       });
       const { id, type } = messageResponseData.channel;
       const jumpToMessage = vi
-        .spyOn(
-          client.channelManager.ensure({ id, type }).messagePaginator,
-          'jumpToMessage',
-        )
+        .spyOn(client.channel(type, id).messagePaginator, 'jumpToMessage')
         .mockResolvedValue(true);
 
       await act(() => {
@@ -272,7 +269,7 @@ describe('SearchResultItem Components', () => {
         SearchResultItemComponent,
       });
       const { id, type } = messageResponseData.channel;
-      const channel = client.channelManager.ensure({ id, type });
+      const channel = client.channel(type, id);
       channel.state.partialNext({ initialized: false });
       const calls: string[] = [];
       vi.spyOn(channel, 'watch').mockImplementation(() => {
@@ -467,7 +464,7 @@ describe('SearchResultItem Components', () => {
         SearchResultItemComponent,
         userData: user,
       });
-      const stored = client.channelManager.ensure({ id: 'stored-dm', type: 'messaging' });
+      const stored = client.channel('messaging', 'stored-dm');
       const watch = vi.spyOn(Channel.prototype, 'watch').mockResolvedValue(stored);
 
       await act(() => {

@@ -38,7 +38,7 @@ describe('SendDirectMessage action', () => {
   const renderAction = (created: Channel) => {
     vi.mocked(useChatContext).mockReturnValue({
       channelManager: { ingestChannel },
-      client: { channelManager: { ensure: () => created }, userID: 'user-me' },
+      client: { channel: () => created, userID: 'user-me' },
     } as unknown as ReturnType<typeof useChatContext>);
     render(
       <ChannelDetailProvider channel={fromPartial<Channel>({ type: 'messaging' })}>

@@ -48,10 +48,7 @@ export async function createClientWithChannel({
 
   const client = existingClient || (await getTestClientWithUser({ id: users[0].id }));
   useMockedApis(client, [getOrCreateChannelApi(mockedChannel)]); // eslint-disable-line react-hooks/rules-of-hooks
-  const channel = client.channelManager.ensure({
-    id: mockedChannel['id'],
-    type: 'messaging',
-  });
+  const channel = client.channel('messaging', mockedChannel['id']);
   await channel.watch();
 
   return { channel, client, users };
@@ -73,10 +70,10 @@ export const initChannelFromData = async ({
 
   // eslint-disable-next-line react-hooks/rules-of-hooks
   useMockedApis(client, [getOrCreateChannelApi(mockedChannelData)]);
-  const channel = client.channelManager.ensure({
-    id: mockedChannelData.channel.id,
-    type: mockedChannelData.channel.type,
-  });
+  const channel = client.channel(
+    mockedChannelData.channel.type,
+    mockedChannelData.channel.id,
+  );
   await channel.watch();
   // Written to the client's store, which `channel.serverConfig` reads and `channel.config` is
   // derived from; stubbing an accessor would leave `channel.config` stale. Keyed by cid: a

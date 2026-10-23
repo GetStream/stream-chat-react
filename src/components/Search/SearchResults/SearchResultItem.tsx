@@ -208,11 +208,8 @@ export const UserSearchResultItem = ({ item, onSelect }: UserSearchResultItemPro
         onSelect(event);
         return;
       }
-      const newChannel = channelManager.ensure({
-        data: {
-          members: [{ user_id: client.userId as string }, { user_id: item.id }],
-        },
-        type: directMessagingChannelType,
+      const newChannel = client.channel(directMessagingChannelType, {
+        members: [{ user_id: client.userId as string }, { user_id: item.id }],
       });
       // The event is forwarded so an `openChannel` override can honor ⌘/ctrl-click.
       openChannel(newChannel, { event });

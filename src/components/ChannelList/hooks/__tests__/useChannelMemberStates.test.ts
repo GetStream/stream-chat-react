@@ -13,7 +13,7 @@ const member = (id: string) => ({
 describe('channel member state hooks', () => {
   it('useChannelMembersState follows members applied without an event, such as a query response', async () => {
     const client = await getTestClientWithUser({ id: 'ann' });
-    const channel = client.channelManager.ensure({ id: 'dm', type: 'messaging' });
+    const channel = client.channel('messaging', 'dm');
     const { result } = renderHook(() => useChannelMembersState(channel));
     expect(result.current).toEqual({});
 
@@ -29,7 +29,7 @@ describe('channel member state hooks', () => {
 
   it('useChannelMembershipState follows the membership applied without an event', async () => {
     const client = await getTestClientWithUser({ id: 'ann' });
-    const channel = client.channelManager.ensure({ id: 'dm', type: 'messaging' });
+    const channel = client.channel('messaging', 'dm');
     const { result } = renderHook(() => useChannelMembershipState(channel));
 
     act(() => {

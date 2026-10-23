@@ -38,9 +38,7 @@ const seededPaginator = (client: StreamChat, id: string) => {
   const paginator = new ChannelPaginator({ client, id });
   paginator.setItems({
     isLastPage: true,
-    valueOrFactory: [
-      client.channelManager.ensure({ id: id.replace(':', '-'), type: 'messaging' }),
-    ],
+    valueOrFactory: [client.channel('messaging', id.replace(':', '-'))],
   });
   return paginator;
 };
