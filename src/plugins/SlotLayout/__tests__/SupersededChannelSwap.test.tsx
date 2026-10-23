@@ -15,8 +15,8 @@ describe('SupersededChannelSwap', () => {
 
   beforeEach(async () => {
     client = await getTestClientWithUser({ id: 'ann' });
-    previous = client.channelManager.ensure({ id: 'previous', type: 'messaging' });
-    successor = client.channelManager.ensure({ id: 'successor', type: 'messaging' });
+    previous = client.channel('messaging', 'previous');
+    successor = client.channel('messaging', 'successor');
     layoutController = new LayoutController({
       initialState: { availableSlots: ['slot1'] },
     });
@@ -43,9 +43,8 @@ describe('SupersededChannelSwap', () => {
     );
 
   it('binds the slot again under the real cid once a channel created from members gets it', () => {
-    const created = client.channelManager.ensure({
-      data: { members: [{ user_id: 'ann' }, { user_id: 'bob' }] },
-      type: 'messaging',
+    const created = client.channel('messaging', {
+      members: [{ user_id: 'ann' }, { user_id: 'bob' }],
     });
     const temporaryCid = created.cid;
     layoutController.bind(
@@ -109,7 +108,7 @@ describe('SupersededChannelSwap', () => {
   });
 
   it('keeps a binding the slot got after its channel was superseded', () => {
-    const other = client.channelManager.ensure({ id: 'other', type: 'messaging' });
+    const other = client.channel('messaging', 'other');
     renderSwap();
 
     // The slot is bound to another channel before the swap's effect runs.
@@ -125,11 +124,10 @@ describe('SupersededChannelSwap', () => {
   });
 
   it('keeps a binding the slot got before its channel took its real cid', () => {
-    const created = client.channelManager.ensure({
-      data: { members: [{ user_id: 'ann' }, { user_id: 'bob' }] },
-      type: 'messaging',
+    const created = client.channel('messaging', {
+      members: [{ user_id: 'ann' }, { user_id: 'bob' }],
     });
-    const other = client.channelManager.ensure({ id: 'other', type: 'messaging' });
+    const other = client.channel('messaging', 'other');
     layoutController.bind(
       'slot1',
       createChatViewSlotBinding({ key: created.cid, kind: 'channel', source: created }),

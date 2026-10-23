@@ -214,25 +214,19 @@ const App = () => {
     if (!client) return;
 
     const initChannel = async () => {
-      const channel = client.channelManager.ensure({
-        data: {
-          members: [userId],
-          // custom channel fields live under `custom` since v10
-          custom: {
-            image: 'https://getstream.io/random_png/?name=react-v14',
-            name: 'Talk about React',
-          },
+      const channel = client.channel('messaging', 'react-tutorial', {
+        members: [userId],
+        // custom channel fields live under `custom` since v10
+        custom: {
+          image: 'https://getstream.io/random_png/?name=react-v14',
+          name: 'Talk about React',
         },
-        id: 'react-tutorial',
-        type: 'messaging',
       });
 
       // `Channel` binds a channel to its subtree; it does not query one, so initializing is the
-      // caller's job. The cached instance may already be loaded, so query only when it is not --
-      // and when a query is needed, `channel.ensureWatched()` de-duplicates calls that overlap in time.
-      if (!channel.initialized) {
-        await channel.ensureWatched();
-      }
+      // caller's job. `channel.watch()` sends nothing for a channel already watched and loaded, and
+      // joins a watch in flight, so a re-run of this effect still sends one request at most.
+      await channel.watch();
       setIsReady(true);
     };
 

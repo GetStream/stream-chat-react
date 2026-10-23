@@ -185,7 +185,7 @@ const writeWorkspaceToUrl = (encoded: string, mode: 'push' | 'replace') => {
 
 // ---- resolve: token → live binding (async) ------------------------------------------------------
 
-// `client.channelManager.ensure()` returns the stored instance for that cid (the same one the
+// `client.channel()` returns the stored instance for that cid (the same one the
 // channel-list query watches), or builds one when none is stored. When the caller has already
 // waited for the list to settle (see `waitForChannelList`), that instance is `initialized`, so the
 // bound `<Channel>` skips its own watch — no duplicate `/query`. A channel absent from every loaded
@@ -197,7 +197,7 @@ const resolveChannel = (client: StreamChat, cid: string): Channel | undefined =>
   const colon = cid.indexOf(':');
   const type = cid.slice(0, colon);
   const id = cid.slice(colon + 1);
-  return type && id ? client.channelManager.ensure({ id, type }) : undefined;
+  return type && id ? client.channel(type, id) : undefined;
 };
 
 /**
@@ -229,14 +229,10 @@ const resolveBinding = async (
       // `membership`, mute status etc. aren't loaded yet. Ownership resolution (`ingestChannel`
       // → `matchesFilter`) reads exactly that state, so ingesting now would only match the
       // empty-filter fallback list (`channels:opened`), never `channels:default`. Watch first so
-      // the channel is classified into its real owning list. Already-initialized channels
-      // (paginator-first / warm Back-Forward) skip this — and this is the same single watch
-      // `<Channel>` would otherwise issue, just moved earlier, so it stays a single `/query`.
-      // Through `ensureWatched()`, so a `?focus=` entry naming this same channel shares this one
-      // watch instead of racing a second one.
-      if (!channel.initialized) {
-        await channel.ensureWatched().catch(() => undefined);
-      }
+      // the channel is classified into its real owning list. `watch()` sends nothing for a channel
+      // already watched and loaded (paginator-first / warm Back-Forward), and a `?focus=` entry
+      // naming this same channel joins this watch instead of racing a second one.
+      await channel.watch().catch(() => undefined);
       return { binding: { key: channel.cid, kind: 'channel', source: channel }, channel };
     }
     case 'thread': {
@@ -262,9 +258,9 @@ const resolveBinding = async (
 
       const channel = resolveChannel(client, parentMessage.cid);
       if (!channel) return undefined;
-      // Same watch the bound `<Channel>` would issue (see the channel case) — moved earlier so the
-      // thread's channel config, members and read state are loaded when the panel renders.
-      if (!channel.initialized) await channel.watch().catch(() => undefined);
+      // The same watch as in the channel case, so the thread's channel config, members and read
+      // state are loaded when the panel renders.
+      await channel.watch().catch(() => undefined);
 
       // Through `ensure()`, so the thread is registered with the `ThreadManager` and receives
       // events. It starts stale only when the parent has replies, and `<Thread>` loads it then.
@@ -377,7 +373,7 @@ export const WorkspaceUrlSync = () => {
 
   // Resolve a parsed workspace by entity id and apply it to the controller in ONE atomic write.
   //
-  // Resolution is paginator-first (see `resolveBinding`): channels come from `client.channelManager.ensure()`
+  // Resolution is paginator-first (see `resolveBinding`): channels come from `client.channel()`
   // and threads from `client.threads.get()`, both populated by the list paginators. Entities
   // already paginated are reused with NO network round-trip — so navigating Back/Forward between
   // already-visited workspaces (which keeps those paginators warm, unlike a reload) fetches nothing.

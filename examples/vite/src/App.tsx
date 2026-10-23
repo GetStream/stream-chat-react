@@ -388,9 +388,10 @@ const App = () => {
   }, [chatClient]);
 
   // `?focus=<cid>:<messageId>` (repeatable) — open each named channel at the message it names.
-  // `jumpToMessage` loads the window and leaves a focus signal on the channel's paginator; the
-  // signal's countdown only starts once a message list has actually rendered it, so running this
-  // before the layout has mounted is fine — the highlight is still there when the list appears.
+  // `jumpToMessage` loads the page around the message and the channel state in one request, which
+  // also watches the channel (`watchChannel`), and leaves a focus signal on the channel's
+  // paginator. The signal's countdown only starts once a message list has rendered it, so running
+  // this before the layout has mounted is fine: the highlight is still there when the list appears.
   useEffect(() => {
     if (!chatClient) return;
 
@@ -399,15 +400,12 @@ const App = () => {
 
     targets.forEach(({ cid, messageId }) => {
       const separatorIndex = cid.indexOf(':');
-      const channel = chatClient.channelManager.ensure({
-        id: cid.slice(separatorIndex + 1),
-        type: cid.slice(0, separatorIndex),
-      });
+      const channel = chatClient.channel(
+        cid.slice(0, separatorIndex),
+        cid.slice(separatorIndex + 1),
+      );
 
-      void (async () => {
-        if (!channel.initialized) await channel.ensureWatched();
-        await channel.messagePaginator.jumpToMessage(messageId);
-      })();
+      void channel.messagePaginator.jumpToMessage(messageId, { watchChannel: true });
     });
   }, [chatClient]);
 

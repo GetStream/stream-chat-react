@@ -27,7 +27,7 @@ const NAME = 'Pagination scenarios (local)';
  * server does not have it.
  */
 export const ensureScenarioChannel = async (client: StreamChat) => {
-  const channel = client.channelManager.ensure({ id: ID, type: TYPE });
+  const channel = client.channel(TYPE, ID);
   channel.data = { ...channel.data, custom: { ...channel.data?.custom, name: NAME } };
   // You are its member, as in the channels you open from the list; the fake backend's answers
   // carry the channel's members on.

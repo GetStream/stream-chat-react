@@ -209,10 +209,7 @@ describe('MessageList', () => {
   beforeEach(async () => {
     chatClient = await getTestClientWithUser({ id: 'vishal' });
     useMockedApis(chatClient, [getOrCreateChannelApi(mockedChannelData)]);
-    channel = chatClient.channelManager.ensure({
-      id: mockedChannelData['id'],
-      type: 'messaging',
-    });
+    channel = chatClient.channel('messaging', mockedChannelData['id']);
     await channel.watch();
 
     markReadMock = vi
@@ -2089,10 +2086,7 @@ describe('MessageList notification area', () => {
     it('stays on screen when the channel being opened is still bootstrapping', async () => {
       const { channelA, client } = await setup();
       // Never watched: `Channel` renders it without querying, so the switch commits immediately.
-      const bootstrapping = client.channelManager.ensure({
-        id: 'never-watched',
-        type: 'messaging',
-      });
+      const bootstrapping = client.channel('messaging', 'never-watched');
 
       const { rerender } = render(renderChannel(client, channelA));
       raise(client);
@@ -2162,10 +2156,7 @@ describe('MessageList NewMessageNotification', () => {
   beforeEach(async () => {
     chatClient = await getTestClientWithUser({ id: 'vishal' });
     useMockedApis(chatClient, [getOrCreateChannelApi(windowChannelData)]);
-    channel = chatClient.channelManager.ensure({
-      id: windowChannelData.channel.id,
-      type: 'messaging',
-    });
+    channel = chatClient.channel('messaging', windowChannelData.channel.id);
     await channel.watch();
     vi.spyOn(channel, 'markRead').mockResolvedValue(fromPartial(markReadApi(channel)));
   });

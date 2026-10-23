@@ -32,10 +32,7 @@ describe('useIsChannelMuted', () => {
     // A channel that was never watched is not initialized, and the imperative
     // `channel.muteStatus()` throws `_checkInitialized` on it. The reactive `muteStatus` slice is
     // safe to read.
-    const channel = client.channelManager.ensure({
-      id: 'never-watched-channel',
-      type: 'messaging',
-    });
+    const channel = client.channel('messaging', 'never-watched-channel');
 
     expect(channel.initialized).toBe(false);
 
@@ -50,10 +47,7 @@ describe('useIsChannelMuted', () => {
     const client = await getTestClientWithUser(clientUser);
     const mockedChannel = generateChannel();
     useMockedApis(client, [getOrCreateChannelApi(mockedChannel)]);
-    const channel = client.channelManager.ensure({
-      id: mockedChannel.channel.id,
-      type: 'messaging',
-    });
+    const channel = client.channel('messaging', mockedChannel.channel.id);
     await channel.watch();
 
     const { result } = renderHook(() => useIsChannelMuted(channel), {
@@ -67,10 +61,7 @@ describe('useIsChannelMuted', () => {
     const client = await getTestClientWithUser(clientUser);
     const mockedChannel = generateChannel();
     useMockedApis(client, [getOrCreateChannelApi(mockedChannel)]);
-    const channel = client.channelManager.ensure({
-      id: mockedChannel.channel.id,
-      type: 'messaging',
-    });
+    const channel = client.channel('messaging', mockedChannel.channel.id);
     await channel.watch();
 
     expect(channel.initialized).toBe(true);
@@ -90,10 +81,7 @@ describe('useIsChannelMuted', () => {
     const client = await getTestClientWithUser(clientUser);
     const mockedChannel = generateChannel();
     useMockedApis(client, [getOrCreateChannelApi(mockedChannel)]);
-    const channel = client.channelManager.ensure({
-      id: mockedChannel.channel.id,
-      type: 'messaging',
-    });
+    const channel = client.channel('messaging', mockedChannel.channel.id);
     await channel.watch();
 
     const { result } = renderHook(() => useIsChannelMuted(channel), {

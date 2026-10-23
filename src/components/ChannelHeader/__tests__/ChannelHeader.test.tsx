@@ -86,11 +86,7 @@ async function renderComponent({
   testChannel1 = generateChannel({ ...defaultChannelState, channel: channelData });
   /* eslint-disable-next-line react-hooks/rules-of-hooks */
   useMockedApis(client, [getOrCreateChannelApi(testChannel1)]);
-  const channel = client.channelManager.ensure({
-    data: channelData,
-    id: testChannel1.channel.id,
-    type: channelType,
-  });
+  const channel = client.channel(channelType, testChannel1.channel.id, channelData);
   await channel.query();
   if (typing) channel.state.typing = typing;
 
@@ -225,10 +221,7 @@ describe('ChannelHeader', () => {
       client = await getTestClientWithUser(user1);
       testChannel1 = generateChannel({ ...defaultChannelState });
       useMockedApis(client, [getOrCreateChannelApi(testChannel1)]);
-      const channel = client.channelManager.ensure({
-        id: testChannel1.channel.id,
-        type: 'messaging',
-      });
+      const channel = client.channel('messaging', testChannel1.channel.id);
       await channel.query();
 
       renderComponentBase({
@@ -252,10 +245,7 @@ describe('ChannelHeader', () => {
       testChannel1 = generateChannel({ ...defaultChannelState });
       /* eslint-disable-next-line react-hooks/rules-of-hooks */
       useMockedApis(client, [getOrCreateChannelApi(testChannel1)]);
-      const channel = client.channelManager.ensure({
-        id: testChannel1.channel.id,
-        type: 'messaging',
-      });
+      const channel = client.channel('messaging', testChannel1.channel.id);
       await channel.query();
 
       render(

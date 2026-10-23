@@ -82,7 +82,8 @@ export const openOneToOne = async (
      * Dev switch: `false` skips the lookup, so an existing 1:1 that isn't loaded yet is opened as a
      * local channel. Once that 1:1 is loaded meanwhile (by scrolling the channel list to it, or an
      * event), the server answers the local channel's first query with its cid, and the loaded
-     * instance supersedes the local one. A 1:1 already loaded is returned by `ensure` itself.
+     * instance supersedes the local one. A 1:1 already loaded is returned by `client.channel()`
+     * itself.
      */
     lookUpExisting = true,
   }: { lookUpExisting?: boolean } = {},
@@ -105,14 +106,11 @@ export const openOneToOne = async (
   const existing = candidates.find((channel) => channel.id?.startsWith('!members-'));
   if (existing) return { channel: existing, existed: true };
 
-  const channel = client.channelManager.ensure({
-    data: {
-      custom: withoutEmpty(details),
-      members: memberIds.map((user_id) => ({ user_id })),
-    },
-    type: CHANNEL_TYPE,
+  const channel = client.channel(CHANNEL_TYPE, {
+    custom: withoutEmpty(details),
+    members: memberIds.map((user_id) => ({ user_id })),
   });
-  // `ensure` returns a loaded 1:1 with these members rather than a new local channel
+  // `client.channel()` returns a loaded 1:1 with these members rather than a new local channel
   if (!channel.isProvisional) return { channel, existed: true };
   createOnFirstSend(channel, client, [other]);
   return { channel, existed: false };
@@ -129,17 +127,11 @@ export const createGroup = async (
   others: UserResponse[],
   details: ConversationDetails,
 ): Promise<OpenedConversation> => {
-  const channel = client.channelManager.ensure({
-    data: {
-      custom: withoutEmpty(details),
-      members: [client.userId as string, ...others.map(({ id }) => id)].map(
-        (user_id) => ({
-          user_id,
-        }),
-      ),
-    },
-    id: crypto.randomUUID(),
-    type: CHANNEL_TYPE,
+  const channel = client.channel(CHANNEL_TYPE, crypto.randomUUID(), {
+    custom: withoutEmpty(details),
+    members: [client.userId as string, ...others.map(({ id }) => id)].map((user_id) => ({
+      user_id,
+    })),
   });
   await channel.watch();
   return { channel, existed: false };

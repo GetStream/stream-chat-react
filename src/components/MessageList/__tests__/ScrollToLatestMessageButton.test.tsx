@@ -100,7 +100,7 @@ const requeryWithOwnUnreadCount = async (unreadCount: number) => {
     ),
   ]);
   await act(async () => {
-    await channel.watch();
+    await channel.reload();
   });
 };
 
