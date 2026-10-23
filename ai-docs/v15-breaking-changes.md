@@ -842,7 +842,7 @@ A threads view is declared the same way (a `{ id: 'threads', slots: [...] }` lay
   - Without `ChatView`: hold the open channel in your own state and provide `WorkspaceNavigationProvider` (main entry) with an object built from `defaultWorkspaceNavigation`, overriding at least `openChannel`, `isChannelActive` and `openChannels` (and `openThread` / `openThreads` / `isThreadActive` if you render threads). Alternatively pass `onSelect` to `ChannelListItem` / search result items.
   - Reading "the active channel": inside the channel subtree use `useChannel()`; elsewhere `useWorkspaceNavigation().openChannels` (main entry) or `useSlotChannel({ slot })` (`slot-layout`).
   - Opening a channel programmatically: `useWorkspaceNavigation().openChannel(channel)`; to also list it without a re-query, `client.channelManager.ingestChannel(channel)` (stream-chat).
-  - The `watchers` argument: query the channel yourself (`channel.ensureWatched({ watchers: { limit } })` or `channel.query(...)`, stream-chat) before opening it.
+  - The `watchers` argument: query the channel yourself (`channel.watch({ watchers: { limit } })` or `channel.query(...)`, stream-chat) before opening it.
 - Evidence:
   - `release-v14:src/context/ChatContext.tsx:45-49` (`setActiveChannel`), `:54` (`channel?: Channel`); `release-v14:src/components/Chat/hooks/useChat.ts:116-131,137-144`
   - `master:src/context/ChatContext.tsx:27-46` (no `channel` / `setActiveChannel`); `master:src/components/Chat/hooks/useChat.ts:68-71`
@@ -1160,11 +1160,11 @@ import {
   - `ChannelProps.initializeOnMount?: boolean` (default `true`: `Channel` called `channel.watch()`)
   - `ChannelProps.channelQueryOptions?: ChannelQueryOptions`
   - `getChannel({ client, channel?, id?, members?, options?, type? })`
-- Replacement: initialize the channel before handing it to `Channel`. App code that already calls `await channel.watch(options)` on a channel created by id needs no change (`client.channel()` and `channel.watch()` keep their roles; `client.channel()` is shorthand for `client.channelManager.ensure({ type, id, data })`). A members-only channel (`client.channel(type, { members })`) must be rendered from the instance `ensureWatched()` resolves with: the created instance can be superseded by a stored instance for the server-assigned cid (`supersededBy`, `watchStatus: NotWatching`, no events). Code that relied on `Channel` to watch adds the call: `channel.watch(options)`, or `await channel.ensureWatched(options)` (stream-chat; sends nothing for an already-watched channel and joins an in-flight watch with the same options). Channels delivered by `ChannelList` arrive watched. v10 also changed the input shape (`members` as `{ user_id }` objects, custom fields under `custom`); that part is a type change only.
+- Replacement: initialize the channel before handing it to `Channel`. App code that already calls `await channel.watch(options)` on a channel created by id needs no change (`client.channel()` and `channel.watch()` keep their roles; `client.channel()` is shorthand for `client.channelManager.ensure({ type, id, data })`). A members-only channel (`client.channel(type, { members })`) must be rendered from the instance `watch()` resolves with: the created instance can be superseded by a stored instance for the server-assigned cid (`supersededBy`, `watchStatus: NotWatching`, no events). Code that relied on `Channel` to watch adds the call: `await channel.watch(options)` (stream-chat; sends nothing for a channel already watched and loaded and joins an in-flight watch with the same options). Channels delivered by `ChannelList` arrive watched. v10 also changed the input shape (`members` as `{ user_id }` objects, custom fields under `custom`); that part is a type change only.
 - Evidence:
   - `release-v14:src/components/Channel/Channel.tsx:107,141`; `release-v14:src/utils/getChannel.ts:34`
   - `master:src/components/Channel/Channel.tsx:17-23` (prop doc: "Initialize it before passing it in; `Channel` does not query"); `master:src/utils/getChannel.ts` removed
-  - `node_modules/stream-chat/dist/types/channel.d.ts:747` (`ensureWatched(options?: ChannelGetOrCreateRequest): Promise<Channel>`); `node_modules/stream-chat/dist/types/ChannelManager.d.ts:157` (`ensure`)
+  - `node_modules/stream-chat/dist/types/channel.d.ts` (`watch(options?: ChannelGetOrCreateRequest, requestOptions?: StreamRequestOptions): Promise<Channel>`); `node_modules/stream-chat/dist/types/ChannelManager.d.ts:157` (`ensure`)
   - commits: `088c795c1` (PR #3286); `a41eed56f feat!: replace StreamChat.activeChannels with entity item index for loaded channels` (PR #3310, removes `getChannel`)
   - corpus: `docs/02-ui-components__05-channel-list__02-channel_list_context__2.tsx:11` TS2724 (`getChannel`)
 - Docs impact:
@@ -1189,12 +1189,12 @@ const channel = await client.channelManager
     data: { members: [{ user_id: userId }, { user_id: otherUserId }] },
     type: 'messaging',
   })
-  .ensureWatched({ messages: { limit: 30 } });
+  .watch({ messages: { limit: 30 } });
 
 <Channel channel={channel}>{/* ... */}</Channel>;
 ```
 
-`ensureWatched` takes stream-chat's `ChannelGetOrCreateRequest` (`messages`, `members`, `watchers`, `presence`, `state`, `watch`, `data`, ...), and `data.members` is `ChannelMemberRequest[]` (`{ user_id }` objects) in stream-chat v10 (LLC change; the React SDK builds DMs the same way, `SearchResultItem.tsx:222`).
+`watch` takes stream-chat's `ChannelGetOrCreateRequest` (`messages`, `members`, `watchers`, `presence`, `state`, `watch`, `data`, ...), and `data.members` is `ChannelMemberRequest[]` (`{ user_id }` objects) in stream-chat v10 (LLC change; the React SDK builds DMs the same way, `SearchResultItem.tsx:222`).
 
 ---
 
@@ -1211,7 +1211,7 @@ After (v15):
 ```ts
 const channel = await client.channelManager
   .ensure({ id: 'general', type: 'messaging' })
-  .ensureWatched();
+  .watch();
 ```
 
 ### BC-021: `Channel` no longer writes `document.title`; `activeUnreadHandler` was removed
@@ -1933,15 +1933,15 @@ const CustomThreadHeader = () => {
 - Status: confirmed
 - Area: search
 - User impact: silent.
-  - stream-chat v10 queries channel results (and the channels message search fetches) with `watch: false`. The SDK result items watch on open (`ensureWatched()`, or `jumpToMessage(id, { watchChannel: true })` for messages). A custom search result component that only opened the channel now opens an unwatched channel (no events, possibly empty).
+  - stream-chat v10 queries channel results (and the channels message search fetches) with `watch: false`. The SDK result items watch on open (`watch()`, or `jumpToMessage(id, { watchChannel: true })` for messages). A custom search result component that only opened the channel now opens an unwatched channel (no events, possibly empty).
   - default result items call `openChannel` (workspace navigation: no-op outside `ChatView`, BC-013) and `client.channelManager.ingestChannel(channel)` instead of `setActiveChannel` + `ChannelListContext.setChannels`.
   - selecting a message result jumps with `channel.messagePaginator.jumpToMessage(...)`; `Channel` no longer performs the jump (BC-027). The "jumped here" marker reads `messagePaginator.messageFocusSignal`, not `SearchController._internalState.focusedMessage`.
 - Old API:
   - default `ChannelSearchResultItem` / `MessageSearchResultItem` / `UserSearchResultItem` behavior
-- Replacement: in a custom result component, call `channel.ensureWatched()` (or `jumpToMessage(id, { watchChannel: true })`) when opening; open via `useWorkspaceNavigation().openChannel(channel, { event })`. The default items gained an optional `onSelect` prop that replaces their selection handler.
+- Replacement: in a custom result component, call `channel.watch()` (or `jumpToMessage(id, { watchChannel: true })`) when opening; open via `useWorkspaceNavigation().openChannel(channel, { event })`. The default items gained an optional `onSelect` prop that replaces their selection handler.
 - Evidence:
   - `release-v14:src/components/Search/SearchResults/SearchResultItem.tsx:23-30,45-74,99-114`
-  - `master:src/components/Search/SearchResults/SearchResultItem.tsx:66-105` (`ChannelSearchResultItem`: `openChannel`, `ensureWatched`, `ingestChannel`), `:117-180` (`MessageSearchResultItem`: `jumpToMessage(item.id, { watchChannel: true })`), `:199-243`
+  - `master:src/components/Search/SearchResults/SearchResultItem.tsx:66-105` (`ChannelSearchResultItem`: `openChannel`, `watch`, `ingestChannel`), `:117-180` (`MessageSearchResultItem`: `jumpToMessage(item.id, { watchChannel: true })`), `:199-243`
   - commit: `a41eed56f` (PR #3310; "BREAKING CHANGE: channel search results ... are no longer watched; a custom search result component watches the channel when it is opened"); `088c795c1` (PR #3286)
 - Docs impact:
   - `02-ui-components/05-channel-list/05-channel_search.md`, `02-ui-components/05-channel-list/08-advanced-search.md`, `03-ui-cookbook/02-channel-list/02-channel_search.md`

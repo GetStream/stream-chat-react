@@ -9,7 +9,7 @@ Every breaking change confirmed in [`ai-docs/v15-breaking-changes.md`](https://g
 Never rely on training knowledge. The v14 surface is heavily represented in pretraining data and will mislead you. Before writing any code, verify against the user's installed packages:
 
 1. `node_modules/stream-chat-react/dist/types/index.d.ts`: the public React type surface (props, override keys, hook signatures). Entry points other than the root have their own folders: `dist/types/plugins/SlotLayout/` for `stream-chat-react/slot-layout`, and so on.
-2. `node_modules/stream-chat/dist/types/index.d.ts`: the core client types. `Channel` (`channel.d.ts`: `messagePaginator`, `messageOperations`, `configState`, `ensureWatched`), `ChannelManager.d.ts`, `thread.d.ts`, `pagination/paginators/`, `messageOperations/types.d.ts`.
+2. `node_modules/stream-chat/dist/types/index.d.ts`: the core client types. `Channel` (`channel.d.ts`: `messagePaginator`, `messageOperations`, `configState`, `watch`), `ChannelManager.d.ts`, `thread.d.ts`, `pagination/paginators/`, `messageOperations/types.d.ts`.
 3. `node_modules/stream-chat-react/package.json`: the `exports` map and peer dependencies.
 
 Rule: before claiming a symbol, prop or method exists, or writing a replacement snippet, grep the installed `.d.ts` and read the current signature. Do not reconstruct it from memory.
@@ -59,15 +59,15 @@ These compile cleanly, or are ignored in plain JS, and change behavior at runtim
 | A thread renders below the channel instead of beside it, or a panel collapses to a narrow column                                           | The channel no longer contains a flex row, and `ChatView` slots are `flex: 1 1 0` siblings                                                                   | Make your container a row; size panels by slot ([section 19](#panel-layout))                                                                                    |
 | A channel name or image renders empty                                                                                                      | `name` / `image` are custom data in `stream-chat` v10: `channel.data.custom.name`                                                                            | Read `custom` ([section 17](#17-other-stream-chat-v10-data-shapes))                                                                                             |
 | A held channel throws "pending disposal" after logout or a user switch                                                                     | `disconnectUser()` disposes the user's channels                                                                                                              | Drop held channels on disconnect ([section 4](#without-chatview))                                                                                               |
-| A channel renders empty, with no error, and gets no new messages                                                                           | `Channel` no longer watches the channel                                                                                                                      | Watch it first: keep `channel.watch()`, or `ensureWatched()` ([section 5](#channel-no-longer-watches-the-channel))                                              |
-| A direct message the app just created renders, but new messages never arrive                                                               | The created members-only instance was superseded by the store's instance for the same cid                                                                    | Render the instance `ensureWatched()` resolves with ([section 5](#channel-no-longer-watches-the-channel))                                                       |
+| A channel renders empty, with no error, and gets no new messages                                                                           | `Channel` no longer watches the channel                                                                                                                      | Watch it first: `channel.watch()` ([section 5](#channel-no-longer-watches-the-channel))                                                                         |
+| A direct message the app just created renders, but new messages never arrive                                                               | The created members-only instance was superseded by the store's instance for the same cid                                                                    | Render the instance `watch()` resolves with ([section 5](#channel-no-longer-watches-the-channel))                                                               |
 | After a failed send, the composer is empty instead of holding the text and attachments                                                     | The composer is released before the request and nothing is put back                                                                                          | Nothing to do; the failed message is retried from the list ([section 13](#a-failed-send-or-edit-no-longer-restores-the-composer))                               |
 | A component that rendered blank outside its provider now throws                                                                            | Required context hooks throw instead of warning and returning `{}`                                                                                           | Render it inside the provider ([section 10](#required-context-hooks-throw-outside-their-provider))                                                              |
 | A standalone `<Message>` (a preview, a pinned-message card) throws                                                                         | `Message` needs a channel in context                                                                                                                         | Wrap it in `ChannelInstanceProvider` ([section 12](#a-standalone-message-needs-a-channel-in-context))                                                           |
 | The channel is not marked read                                                                                                             | Mark-read moved from `Channel` mount to the message list                                                                                                     | Render a message list, or mark read yourself ([section 5](#markreadonmount-is-removed-the-list-marks-read))                                                     |
 | The tab title no longer shows `(3) Title`                                                                                                  | `Channel` no longer writes `document.title`                                                                                                                  | Write it in app code ([section 5](#channel-no-longer-writes-documenttitle))                                                                                     |
 | Mount effects in a channel's children stop re-running when the channel changes                                                             | `Channel` no longer remounts its subtree per channel                                                                                                         | Depend on the `channel` instance ([section 5](#channel-lifecycle-activation-no-remount-no-reload-no-search-jump))                                               |
-| Search results open unwatched, empty channels in a custom result component                                                                 | Search results are no longer watched                                                                                                                         | `ensureWatched()` on open ([section 4](#search-results))                                                                                                        |
+| Search results open unwatched, empty channels in a custom result component                                                                 | Search results are no longer watched                                                                                                                         | `watch()` on open ([section 4](#search-results))                                                                                                                |
 | Translations or overrides stop applying; non-English UI renders English                                                                    | Keys renamed, non-English dictionaries removed                                                                                                               | Rename keys, register dictionaries ([section 18](#18-i18n))                                                                                                     |
 | CSS on `.str-chat__main-panel`, `.str-chat__container`, `.str-chat__channel-list-inner` or `.str-chat__thread--virtualized` stops applying | Those wrappers and classes are gone                                                                                                                          | Retarget ([section 19](#19-css-and-markup))                                                                                                                     |
 | Plain JS: `useCreateChatClient({ options })` stops applying `baseURL` and other settings                                                   | `options` was renamed to `config`                                                                                                                            | [Section 2](#usecreatechatclient-options--config)                                                                                                               |
@@ -652,11 +652,11 @@ export const App = ({ client, userId }: { client: StreamChat; userId: string }) 
 
 - `useWorkspaceNavigation().openChannel(channel)`.
 - To also add it to the matching channel lists without a re-query: `client.channelManager.ingestChannel(channel)`.
-- v14's `setActiveChannel(channel, watchers)` `watchers` argument: watch the channel yourself before opening it with the same options, `await channel.watch({ watchers: { limit: 10 } })` (or `ensureWatched(...)`, which skips the request when the channel is already watched).
+- v14's `setActiveChannel(channel, watchers)` `watchers` argument: watch the channel yourself before opening it with the same options, `await channel.watch({ watchers: { limit: 10 } })` (it sends nothing when the channel is already watched and loaded).
 
 ### Search results
 
-- `stream-chat` v10 queries channel search results with `watch: false`. The SDK's result items watch on open (`ensureWatched()`, or `jumpToMessage(id, { watchChannel: true })` for a message result). **A custom search result component that only opens the channel now opens an unwatched channel**: no events, possibly empty. Call `channel.ensureWatched()` when opening.
+- `stream-chat` v10 queries channel search results with `watch: false`. The SDK's result items watch on open (`watch()`, or `jumpToMessage(id, { watchChannel: true })` for a message result). **A custom search result component that only opens the channel now opens an unwatched channel**: no events, possibly empty. Call `channel.watch()` when opening.
 - Default result items call `openChannel` and `client.channelManager.ingestChannel(channel)` instead of `setActiveChannel` and `ChannelListContext.setChannels`.
 - Selecting a message result jumps with `channel.messagePaginator.jumpToMessage(...)`. The "jumped here" marker reads `messagePaginator.messageFocusSignal`, not `SearchController._internalState.focusedMessage`.
 
@@ -717,12 +717,12 @@ What to change depends on whether the app already watched the channel, and on wh
 
 - **Channels from `ChannelList` or any `queryChannels` call arrive watched.** Nothing changes for them.
 - **The app already watches a channel it created by id** (`client.channel(type, id)` + `await channel.watch()`): **nothing changes.** `client.channel(...)` and `channel.watch(options)` still exist with the same roles; `client.channel()` is shorthand for `client.channelManager.ensure({ type, id, data })`. Do not rewrite these calls. The only edit at such call sites is the `stream-chat` v10 input shape ([below](#channel-input-shape)).
-- **Members-only channels** (`client.channel(type, { members })`, no id, as most "start a direct message" flows create): keep `client.channel()`, but **render the instance `ensureWatched()` resolves with**, not the one you created. The created instance is provisional until the server assigns the id, and the client may already hold a channel with that id (event routing can store it while the request is in flight). The store then keeps its own instance and marks yours superseded (`state.supersededBy` set, `watchStatus: NotWatching`), and yours receives no events. `ensureWatched()` resolves with the surviving instance; `watch()` resolves with the response, so code that keeps the created instance renders a channel that silently stops updating. `ChatView` swaps superseded channels in its slots, so this bites when the app holds the channel itself.
-- **The app relied on `Channel` to watch** (rendered an instance it never watched, possibly with `channelQueryOptions`): watch it before rendering. `await channel.watch(options)` works. `await channel.ensureWatched(options)` is the better fit where the call can repeat, such as an effect: it sends nothing for a channel already watched and joins an in-flight watch with the same options, so an effect that runs twice still sends one query. `channel.watch()` always sends its request. `ensureWatched()` resolves with the channel.
+- **Members-only channels** (`client.channel(type, { members })`, no id, as most "start a direct message" flows create): keep `client.channel()`, but **render the instance `watch()` resolves with**, not the one you created. The created instance is provisional until the server assigns the id, and the client may already hold a channel with that id (event routing can store it while the request is in flight). The store then keeps its own instance and marks yours superseded (`state.supersededBy` set, `watchStatus: NotWatching`), and yours receives no events. `watch()` resolves with the surviving instance, so code that keeps the created instance renders a channel that silently stops updating. `ChatView` swaps superseded channels in its slots, so this bites when the app holds the channel itself.
+- **The app relied on `Channel` to watch** (rendered an instance it never watched, possibly with `channelQueryOptions`): watch it before rendering: `await channel.watch(options)`. It fits where the call can repeat, such as an effect: it sends nothing for a channel already watched and loaded and joins an in-flight watch with the same options, so an effect that runs twice still sends one query. It resolves with the channel; refresh a watched channel with `channel.reload()`.
 - **`channelQueryOptions`** → pass them to that watch call (`ChannelGetOrCreateRequest`: `messages`, `members`, `watchers`, `presence`, `state`, `watch`, `data`, ...).
-- **`getChannel({ client, id, type })`** → `await client.channel(type, id).ensureWatched()`.
+- **`getChannel({ client, id, type })`** → `await client.channel(type, id).watch()`.
 
-A members-only channel the app already watched: keep `client.channel()`, take the instance from `ensureWatched()`, and fix the member shape:
+A members-only channel the app already watched: keep `client.channel()`, take the instance from `watch()`, and fix the member shape:
 
 ```tsx
 // v14
@@ -735,7 +735,7 @@ setActiveChannel(channel);
 // v15
 const channel = await client
   .channel('messaging', { members: [{ user_id: userId }, { user_id: otherUserId }] })
-  .ensureWatched(); // the surviving instance; the created one can be superseded
+  .watch(); // the surviving instance; the created one can be superseded
 openChannel(channel); // useWorkspaceNavigation(), section 4
 ```
 
@@ -755,7 +755,7 @@ const channel = client.channel('messaging', 'general');
 ```tsx
 // v15, before rendering
 const channel = client.channel('messaging', 'general');
-await channel.ensureWatched({ messages: { limit: 30 } }); // or channel.watch(...)
+await channel.watch({ messages: { limit: 30 } });
 
 <Channel channel={channel}>{/* ... */}</Channel>;
 ```
@@ -767,7 +767,7 @@ const channel = await getChannel({ client, id: 'general', type: 'messaging' });
 
 ```ts
 // v15
-const channel = await client.channel('messaging', 'general').ensureWatched();
+const channel = await client.channel('messaging', 'general').watch();
 ```
 
 <a id="channel-input-shape"></a>

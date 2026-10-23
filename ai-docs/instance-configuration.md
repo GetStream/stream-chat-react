@@ -120,7 +120,7 @@ does differ, so the per-parent slices override the shared one field by field.
 
 ### `pageSize` is not the initial query's `messages.limit`
 
-`channel.ensureWatched({ messages: { limit: 30 } })` sizes the **initial** channel query, which the code
+`channel.watch({ messages: { limit: 30 } })` sizes the **initial** channel query, which the code
 that opens the channel now sends (`<Channel>` no longer queries, and its `channelQueryOptions` prop is
 removed). The paginator's `pageSize` sizes **every subsequent page** — what a scroll-up fetches. They
 are different numbers and you usually want both:
@@ -130,7 +130,7 @@ chatClient.config.set({ channel: { messagePaginator: { pageSize: 50 } } });
 
 const channel = await chatClient.channelManager
   .ensure({ id: 'general', type: 'messaging' })
-  .ensureWatched({ messages: { limit: 30 } });
+  .watch({ messages: { limit: 30 } });
 
 <Channel channel={channel}>…</Channel>;
 ```
