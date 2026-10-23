@@ -188,10 +188,12 @@ const readsHead: ScenarioCheck = (input) =>
 
 /**
  * Every window's server messages are one unbroken run of the server's timeline: no window spans
- * messages that were never loaded, which would hide them for good.
+ * messages that were never loaded, which would hide them for good. Shadowed messages are left out
+ * of the run, as the list leaves them out of its windows.
  */
 const noGapGluedShut: ScenarioCheck = ({ backend, channel, now }) => {
-  const position = new Map(backend.timeline.map((message, index) => [message.id, index]));
+  const shownTimeline = backend.timeline.filter((message) => !message.shadowed);
+  const position = new Map(shownTimeline.map((message, index) => [message.id, index]));
   const glued = now.windows.find((window) => {
     const positions = window.messageIds
       .filter((id) => !isUnsent(channel, id))
@@ -309,6 +311,26 @@ const storedNotRead =
         : `The page with ${shortId(id)} is not loaded`,
     );
   };
+
+/**
+ * The window you jumped to is not taken for the head, and can load both newer and older messages:
+ * the server has more on both sides of it.
+ */
+const jumpedWindowHasMoreBothWays: ScenarioCheck = ({ now }) => {
+  const read = now.read;
+  const range = rangeOf(read?.messageIds);
+  const cannotLoad = [
+    !read?.canLoadHeadwards && 'newer',
+    !read?.canLoadTailwards && 'older',
+  ].filter(Boolean);
+  return verdict(
+    !!read && !read.headLoaded && !cannotLoad.length,
+    `The window you jumped to (${range}) can load newer and older messages, and is not taken for the head`,
+    read?.headLoaded
+      ? `The window you jumped to (${range}) is taken for the head, though the server has newer messages`
+      : `The window you jumped to (${range}) cannot load ${cannotLoad.join(' or ')} messages, though the server has them`,
+  );
+};
 
 const oneRequestWaiting: ScenarioCheck = ({ backend }) => {
   const { pending } = backend.state.getLatestValue();
@@ -1649,6 +1671,42 @@ export const scenarios: Scenario[] = [
       ]),
     ],
     title: 'Scrolling up loads older messages and keeps your place',
+  },
+  {
+    bugPrevented:
+      'The window you jumped to taken for the newest messages: two windows claim the head, and scrolling down from it loads nothing.',
+    checks: [readsHead, oneHeadWindow, noGapGluedShut, noDuplicates],
+    group: 'jumps',
+    id: 'jump-with-hidden-newer-messages',
+    lookFor:
+      'After the jump, the inspector shows the window around sim-150 (sim-101–sim-197) without the head mark and with more to load both ways; sim-301–sim-400 stays the only head window. Scrolling down loads newer pages until the two join.',
+    pageSize: 100,
+    precondition: 'open',
+    rule: 'Messages the list hides still count as messages the server returned: a jump page with hidden messages at its newer end still has newer messages beyond it.',
+    situation:
+      'A 400-message channel opens at its newest 100 (sim-301–sim-400). Moderation has shadowed sim-198–sim-200. You jump to sim-150: its page is sim-101–sim-200, and the list hides its newest 3.',
+    steps: [
+      seed(4, 'pages'),
+      {
+        label:
+          'Shadow sim-198–sim-200 on the server: it still returns them, flagged, and the list hides them',
+        run: ({ backend }) => backend.shadow([sim(198), sim(199), sim(200)]),
+      },
+      jump(
+        'Jump to sim-150 (not loaded: its page is sim-101–sim-200, the newest 3 hidden)',
+        () => sim(150),
+        {
+          checks: [
+            readingAround(() => sim(150)),
+            jumpedWindowHasMoreBothWays,
+            oneHeadWindow,
+          ],
+          wait: true,
+        },
+      ),
+      scrollToHead(),
+    ],
+    title: 'Jump to a message whose page has hidden newer messages',
   },
 ];
 
