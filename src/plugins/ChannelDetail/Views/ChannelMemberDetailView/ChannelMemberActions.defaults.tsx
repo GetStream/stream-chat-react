@@ -240,7 +240,7 @@ const SendDirectMessageAction = () => {
       });
       // The stored instance, which differs from `directMessageChannel` if another instance took the
       // DM's `cid` while the watch was in flight.
-      const dm = await directMessageChannel.ensureWatched();
+      const dm = await directMessageChannel.watch();
       // Open the DM in the workspace (a `ChatView` slot, or whatever a custom
       // `WorkspaceNavigationProvider` does), then ingest it into the channel list(s) that should
       // own it so it appears without a re-query.

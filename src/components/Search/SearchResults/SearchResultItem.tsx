@@ -87,7 +87,7 @@ export const ChannelSearchResultItem = ({
       // honor ⌘/ctrl-click.
       openChannel(item, { event });
       // Neither channel search nor `Channel` watches, so watch here to receive the channel events.
-      item.ensureWatched().catch((error) =>
+      item.watch().catch((error) =>
         reportLoadFailed({
           channel: item,
           client,
@@ -155,22 +155,19 @@ export const MessageSearchResultItem = ({
       if (!current || current.pendingDisposal) return;
       openChannel(current, { event });
       channelManager.ingestChannel(current);
-      void (async () => {
-        // Load a never-loaded channel first, through the watch shared by anything opening it: a
-        // first page landing after the jump would move the list off the message.
-        if (!current.initialized) await current.ensureWatched();
-        // `watchChannel` also watches a stored but unwatched channel (e.g. one a thread created),
-        // so it receives its events.
-        await current.messagePaginator.jumpToMessage(item.id, { watchChannel: true });
-      })().catch((error) =>
-        reportLoadFailed({
-          channel: current,
-          client,
-          emitter: 'MessageSearchResultItem',
-          error,
-          t,
-        }),
-      );
+      // One request loads the page around the message and the channel state, and watches a
+      // channel not watched yet (e.g. one a thread created), so it receives its events.
+      current.messagePaginator
+        .jumpToMessage(item.id, { watchChannel: true })
+        .catch((error) =>
+          reportLoadFailed({
+            channel: current,
+            client,
+            emitter: 'MessageSearchResultItem',
+            error,
+            t,
+          }),
+        );
     },
     [cid, item, openChannel, channelManager, client, onSelect, t],
   );
@@ -219,9 +216,9 @@ export const UserSearchResultItem = ({ item, onSelect }: UserSearchResultItemPro
       });
       // The event is forwarded so an `openChannel` override can honor ⌘/ctrl-click.
       openChannel(newChannel, { event });
-      newChannel.ensureWatched().then(
+      newChannel.watch().then(
         // Listed only once the watch gives a new DM its ID, since lists refuse a channel without
-        // one. `ensureWatched()` resolves with the stored instance if another took that ID
+        // one. `watch()` resolves with the stored instance if another took that ID
         // meanwhile.
         (channel) => channelManager.ingestChannel(channel),
         (error) =>
