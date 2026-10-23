@@ -84,13 +84,11 @@ const App = () => {
       // `Channel` binds a channel to its subtree; it does not query one. Whoever supplies the
       // channel initializes it.
       //
-      // `client.channelManager.ensure()` returns the stored instance for this cid, so a re-run of this effect
-      // can hand back a channel that is already loaded -- query only when it is not. When a query
-      // is needed, `channel.ensureWatched()` de-duplicates concurrent calls for the same channel, so two
-      // overlapping runs still produce a single request.
-      if (!channel.initialized) {
-        await channel.ensureWatched();
-      }
+      // `client.channelManager.ensure()` returns the stored instance for this cid, so a re-run of
+      // this effect can hand back a channel that is already loaded. `channel.watch()` sends nothing
+      // for a channel already watched and loaded, and joins a watch in flight, so two overlapping
+      // runs still produce a single request.
+      await channel.watch();
 
       setChannel(channel);
     };

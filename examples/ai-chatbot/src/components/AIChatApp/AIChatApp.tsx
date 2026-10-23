@@ -93,7 +93,7 @@ const ChatContent = ({
 
   // Load initial channel from URL on mount. `Channel` no longer queries the channel it is given,
   // so it is watched here first. `channelManager.ensure()` returns the stored instance for the cid,
-  // and `ensureWatched()` de-duplicates concurrent watches of it.
+  // and `watch()` sends nothing for it once watched and loaded, and joins a watch in flight.
   useEffect(() => {
     if (initialChannelId && client && !channel) {
       const loadChannel = async () => {
@@ -101,9 +101,7 @@ const ChatContent = ({
           id: initialChannelId,
           type: 'messaging',
         });
-        if (!targetChannel.initialized) {
-          await targetChannel.ensureWatched();
-        }
+        await targetChannel.watch();
         setActiveChannel(targetChannel);
       };
       loadChannel().catch((err) => {
