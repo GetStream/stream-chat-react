@@ -18,6 +18,7 @@ import {
 import { useStateStore } from '../../store';
 import { Checkbox } from '../Form';
 import { useChannelCapabilities } from '../Channel/hooks/useChannelCapabilities';
+import { usePollTextTranslation } from './hooks';
 
 type AmountBarProps = {
   amount: number;
@@ -69,6 +70,7 @@ export const PollOptionSelector = ({
   const { t } = useTranslationContext();
   const channelCapabilities = useChannelCapabilities({ cid: channel.cid });
   const { message } = useMessageContext();
+  const translate = usePollTextTranslation();
   const {
     AvatarStack = DefaultAvatarStack,
     extractDisplayInfo = defaultExtractDisplayInfo,
@@ -132,7 +134,9 @@ export const PollOptionSelector = ({
     >
       {canCastVote && <Checkbox checked={isSelected} />}
       <div className='str-chat__poll-option-data'>
-        <p className='str-chat__poll-option-text'>{option.text}</p>
+        <p className='str-chat__poll-option-text'>
+          {translate(option.text, option.text_i18n)}
+        </p>
         <div className='str-chat__poll-option-votes'>
           {displayAvatarCount && voting_visibility === 'public' && (
             <div className='str-chat__poll-option-voters'>
