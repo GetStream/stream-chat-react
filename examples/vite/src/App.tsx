@@ -400,10 +400,10 @@ const App = () => {
 
     targets.forEach(({ cid, messageId }) => {
       const separatorIndex = cid.indexOf(':');
-      const channel = chatClient.channelManager.ensure({
-        id: cid.slice(separatorIndex + 1),
-        type: cid.slice(0, separatorIndex),
-      });
+      const channel = chatClient.channel(
+        cid.slice(0, separatorIndex),
+        cid.slice(separatorIndex + 1),
+      );
 
       void channel.messagePaginator.jumpToMessage(messageId, { watchChannel: true });
     });

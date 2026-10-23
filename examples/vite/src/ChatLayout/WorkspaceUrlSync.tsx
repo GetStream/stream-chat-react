@@ -185,7 +185,7 @@ const writeWorkspaceToUrl = (encoded: string, mode: 'push' | 'replace') => {
 
 // ---- resolve: token → live binding (async) ------------------------------------------------------
 
-// `client.channelManager.ensure()` returns the stored instance for that cid (the same one the
+// `client.channel()` returns the stored instance for that cid (the same one the
 // channel-list query watches), or builds one when none is stored. When the caller has already
 // waited for the list to settle (see `waitForChannelList`), that instance is `initialized`, so the
 // bound `<Channel>` skips its own watch — no duplicate `/query`. A channel absent from every loaded
@@ -197,7 +197,7 @@ const resolveChannel = (client: StreamChat, cid: string): Channel | undefined =>
   const colon = cid.indexOf(':');
   const type = cid.slice(0, colon);
   const id = cid.slice(colon + 1);
-  return type && id ? client.channelManager.ensure({ id, type }) : undefined;
+  return type && id ? client.channel(type, id) : undefined;
 };
 
 /**
@@ -373,7 +373,7 @@ export const WorkspaceUrlSync = () => {
 
   // Resolve a parsed workspace by entity id and apply it to the controller in ONE atomic write.
   //
-  // Resolution is paginator-first (see `resolveBinding`): channels come from `client.channelManager.ensure()`
+  // Resolution is paginator-first (see `resolveBinding`): channels come from `client.channel()`
   // and threads from `client.threads.get()`, both populated by the list paginators. Entities
   // already paginated are reused with NO network round-trip — so navigating Back/Forward between
   // already-visited workspaces (which keeps those paginators warm, unlike a reload) fetches nothing.
