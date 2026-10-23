@@ -716,7 +716,7 @@ export const Main = ({ activeChannel }: { activeChannel?: StreamChannel }) =>
 What to change depends on whether the app already watched the channel, and on whether the channel has an id:
 
 - **Channels from `ChannelList` or any `queryChannels` call arrive watched.** Nothing changes for them.
-- **The app already watches a channel it created by id** (`client.channel(type, id)` + `await channel.watch()`): **nothing changes.** `client.channel(...)` and `channel.watch(options)` still exist with the same roles; `client.channel()` is shorthand for `client.channelManager.ensure({ type, id, data })`. Do not rewrite these calls. The only edit at such call sites is the `stream-chat` v10 input shape ([below](#channel-input-shape)).
+- **The app already watches a channel it created by id** (`client.channel(type, id)` + `await channel.watch()`): **nothing changes.** `client.channel(...)` and `channel.watch(options)` still exist with the same roles; `client.channel()` is the public way to get a channel (it calls the internal `channelManager.ensure()`). Do not rewrite these calls. The only edit at such call sites is the `stream-chat` v10 input shape ([below](#channel-input-shape)).
 - **Members-only channels** (`client.channel(type, { members })`, no id, as most "start a direct message" flows create): keep `client.channel()`, but **render the instance `watch()` resolves with**, not the one you created. The created instance is provisional until the server assigns the id, and the client may already hold a channel with that id (event routing can store it while the request is in flight). The store then keeps its own instance and marks yours superseded (`state.supersededBy` set, `watchStatus: NotWatching`), and yours receives no events. `watch()` resolves with the surviving instance, so code that keeps the created instance renders a channel that silently stops updating. `ChatView` swaps superseded channels in its slots, so this bites when the app holds the channel itself.
 - **The app relied on `Channel` to watch** (rendered an instance it never watched, possibly with `channelQueryOptions`): watch it before rendering: `await channel.watch(options)`. It fits where the call can repeat, such as an effect: it sends nothing for a channel already watched and loaded and joins an in-flight watch with the same options, so an effect that runs twice still sends one query. It resolves with the channel; refresh a watched channel with `channel.reload()`.
 - **`channelQueryOptions`** → pass them to that watch call (`ChannelGetOrCreateRequest`: `messages`, `members`, `watchers`, `presence`, `state`, `watch`, `data`, ...).
@@ -772,7 +772,7 @@ const channel = await client.channel('messaging', 'general').watch();
 
 <a id="channel-input-shape"></a>
 
-**Channel input shape (`stream-chat` v10).** The third argument of `client.channel()` (and `data` of `channelManager.ensure()`) is `ChannelInput`. `members` is `ChannelMemberRequest[]`, `{ user_id }` objects instead of an id list, and custom fields such as `name` go under `custom` (`{ custom: { name } }`). Plain ids now fail to compile (`TS2769`), though the API still accepts them at runtime (checked with `stream-chat@10.0.0-rc.22`), so this is a type fix, not a behavior change.
+**Channel input shape (`stream-chat` v10).** The third argument of `client.channel()` is `ChannelInput`. `members` is `ChannelMemberRequest[]`, `{ user_id }` objects instead of an id list, and custom fields such as `name` go under `custom` (`{ custom: { name } }`). Plain ids now fail to compile (`TS2769`), though the API still accepts them at runtime (checked with `stream-chat@10.0.0-rc.22`), so this is a type fix, not a behavior change.
 
 [`examples/vite`](https://github.com/GetStream/stream-chat-react/tree/master/examples/vite) and the tutorial steps show the full flow.
 
@@ -1840,7 +1840,7 @@ rather than a count of `message.new` events received while scrolled up.
 
 `Message` resolves its channel with `useChannel()`, which throws when there is no `Channel`, `Thread` or `ChannelInstanceProvider` ancestor. In v14 the missing contexts only warned. Wrapping a preview `<Message>` in `ChannelStateProvider` / `ChannelActionProvider` no longer compiles.
 
-- Wrap it in `<ChannelInstanceProvider value={{ channel }}>`, with any real `stream-chat` `Channel` (for example `client.channelManager.ensure({ id, type })`), or render it inside `<Channel>` / `<Thread>`. [`examples/vite/src/AppSettings/tabs/Reactions/ReactionsTab.tsx`](https://github.com/GetStream/stream-chat-react/blob/master/examples/vite/src/AppSettings/tabs/Reactions/ReactionsTab.tsx) is the reference.
+- Wrap it in `<ChannelInstanceProvider value={{ channel }}>`, with any real `stream-chat` `Channel` (for example `client.channel(type, id)`), or render it inside `<Channel>` / `<Thread>`. [`examples/vite/src/AppSettings/tabs/Reactions/ReactionsTab.tsx`](https://github.com/GetStream/stream-chat-react/blob/master/examples/vite/src/AppSettings/tabs/Reactions/ReactionsTab.tsx) is the reference.
 - `highlighted` is no longer derived from `ChannelStateContext.highlightedMessageId`. Pass `highlighted` yourself (`MessageProps.highlighted?: boolean`).
 
 ```tsx
@@ -1856,7 +1856,7 @@ export const MessagePreview = ({
 }) => (
   <ChannelInstanceProvider
     value={{
-      channel: client.channelManager.ensure({ id: 'preview', type: 'messaging' }),
+      channel: client.channel('messaging', 'preview'),
     }}
   >
     <Message message={message} />
@@ -2440,7 +2440,7 @@ A panel your layout renders without `<Slot>` (for example a `ThreadSlot` placed 
 
 ## 20. Tests
 
-**Mock real stores.** `channel.state` is a `StateStore` now, so a plain-object mock crashes the `useStateStore` hooks with `getLatestValue is not a function`. Build a real channel (`client.channelManager.ensure(...)`) and seed state on it. Build a `Thread` mock from a real `client.threads` instance too.
+**Mock real stores.** `channel.state` is a `StateStore` now, so a plain-object mock crashes the `useStateStore` hooks with `getLatestValue is not a function`. Build a real channel (`client.channel(...)`) and seed state on it. Build a `Thread` mock from a real `client.threads` instance too.
 
 | v14 mock                          | v15                                                                       |
 | --------------------------------- | ------------------------------------------------------------------------- |

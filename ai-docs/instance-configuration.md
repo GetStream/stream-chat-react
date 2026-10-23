@@ -45,7 +45,7 @@ export const App = () => (
 ```
 
 **Not in an effect.** Some configuration is read once when an instance is constructed, and channels
-are constructed by `client.channelManager.ensure()` / `client.queryChannels()` — which an app typically calls before
+are constructed by `client.channel()` / `client.queryChannels()` — which an app typically calls before
 or during the same commit that mounts `<Chat>`. Registering from `useEffect` runs after that, so those
 values would arrive too late for instances that already exist.
 
@@ -128,8 +128,8 @@ are different numbers and you usually want both:
 ```tsx
 chatClient.config.set({ channel: { messagePaginator: { pageSize: 50 } } });
 
-const channel = await chatClient.channelManager
-  .ensure({ id: 'general', type: 'messaging' })
+const channel = await chatClient
+  .channel('messaging', 'general')
   .watch({ messages: { limit: 30 } });
 
 <Channel channel={channel}>…</Channel>;

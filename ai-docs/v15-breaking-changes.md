@@ -1160,7 +1160,7 @@ import {
   - `ChannelProps.initializeOnMount?: boolean` (default `true`: `Channel` called `channel.watch()`)
   - `ChannelProps.channelQueryOptions?: ChannelQueryOptions`
   - `getChannel({ client, channel?, id?, members?, options?, type? })`
-- Replacement: initialize the channel before handing it to `Channel`. App code that already calls `await channel.watch(options)` on a channel created by id needs no change (`client.channel()` and `channel.watch()` keep their roles; `client.channel()` is shorthand for `client.channelManager.ensure({ type, id, data })`). A members-only channel (`client.channel(type, { members })`) must be rendered from the instance `watch()` resolves with: the created instance can be superseded by a stored instance for the server-assigned cid (`supersededBy`, `watchStatus: NotWatching`, no events). Code that relied on `Channel` to watch adds the call: `await channel.watch(options)` (stream-chat; sends nothing for a channel already watched and loaded and joins an in-flight watch with the same options). Channels delivered by `ChannelList` arrive watched. v10 also changed the input shape (`members` as `{ user_id }` objects, custom fields under `custom`); that part is a type change only.
+- Replacement: initialize the channel before handing it to `Channel`. App code that already calls `await channel.watch(options)` on a channel created by id needs no change (`client.channel()` and `channel.watch()` keep their roles; `client.channel()` is the public way to get a channel; it calls the internal `channelManager.ensure()`). A members-only channel (`client.channel(type, { members })`) must be rendered from the instance `watch()` resolves with: the created instance can be superseded by a stored instance for the server-assigned cid (`supersededBy`, `watchStatus: NotWatching`, no events). Code that relied on `Channel` to watch adds the call: `await channel.watch(options)` (stream-chat; sends nothing for a channel already watched and loaded and joins an in-flight watch with the same options). Channels delivered by `ChannelList` arrive watched. v10 also changed the input shape (`members` as `{ user_id }` objects, custom fields under `custom`); that part is a type change only.
 - Evidence:
   - `release-v14:src/components/Channel/Channel.tsx:107,141`; `release-v14:src/utils/getChannel.ts:34`
   - `master:src/components/Channel/Channel.tsx:17-23` (prop doc: "Initialize it before passing it in; `Channel` does not query"); `master:src/utils/getChannel.ts` removed
@@ -1184,11 +1184,8 @@ const channel = client.channel('messaging', { members: [userId, otherUserId] });
 After (v15):
 
 ```tsx
-const channel = await client.channelManager
-  .ensure({
-    data: { members: [{ user_id: userId }, { user_id: otherUserId }] },
-    type: 'messaging',
-  })
+const channel = await client
+  .channel('messaging', { members: [{ user_id: userId }, { user_id: otherUserId }] })
   .watch({ messages: { limit: 30 } });
 
 <Channel channel={channel}>{/* ... */}</Channel>;
@@ -1209,9 +1206,7 @@ const channel = await getChannel({ client, id: 'general', type: 'messaging' });
 After (v15):
 
 ```ts
-const channel = await client.channelManager
-  .ensure({ id: 'general', type: 'messaging' })
-  .watch();
+const channel = await client.channel('messaging', 'general').watch();
 ```
 
 ### BC-021: `Channel` no longer writes `document.title`; `activeUnreadHandler` was removed
@@ -2590,7 +2585,7 @@ export const Stop = ({ channel }: { channel: Channel }) => {
 - Old API:
   - `<ChannelActionProvider><ChannelStateProvider><Message … /></…></…>`, or `<Message>` with no channel context
   - implicit `highlighted` from `useChannelStateContext().highlightedMessageId`
-- Replacement: wrap it in `<ChannelInstanceProvider value={{ channel }}>` (any real `stream-chat` `Channel`, e.g. `client.channelManager.ensure({ id, type })`), or render it inside `<Channel channel={…}>` / `<Thread thread={…}>`. Pass `highlighted` explicitly when needed (`MessageProps.highlighted?: boolean`).
+- Replacement: wrap it in `<ChannelInstanceProvider value={{ channel }}>` (any real `stream-chat` `Channel`, e.g. `client.channel(type, id)`), or render it inside `<Channel channel={…}>` / `<Thread thread={…}>`. Pass `highlighted` explicitly when needed (`MessageProps.highlighted?: boolean`).
 - Evidence:
   - `master:src/context/useChannel.ts` throws when neither a thread nor `ChannelInstanceContext` supplies a channel
   - `master:src/components/Message/hooks/useOpenThreadHandler.ts:16` and `master:src/components/Message/hooks/useRetryHandler.ts:11` call `useChannel()` during every `Message` render
