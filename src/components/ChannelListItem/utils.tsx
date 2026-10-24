@@ -12,6 +12,7 @@ import type { TranslationContextValue } from '../../context/TranslationContext';
 import type { PluggableList } from 'unified';
 import { htmlToTextPlugin, imageToLink, plusPlusToEmphasis } from '../Message';
 import { isMessageDeleted } from '../Message/utils';
+import { getPollTextTranslation } from '../Poll/utils/translations';
 import remarkGfm from 'remark-gfm';
 import { extractDisplayInfo } from '../Avatar/utils';
 
@@ -125,6 +126,9 @@ const getLatestMessagePreviewParts = (
   }
 
   if (poll) {
+    // Previews have no original/translated toggle: they always show the user's language.
+    const pollName = getPollTextTranslation(poll.name_i18n, userLanguage) ?? poll.name;
+
     if (!poll.vote_count) {
       const createdBy =
         poll.created_by?.id === channel.getClient().userID
@@ -134,10 +138,10 @@ const getLatestMessagePreviewParts = (
         isUserMessageText: false,
         kind: 'poll',
         latestMessage,
-        pollName: poll.name,
+        pollName,
         text: t('📊 {{createdBy}} created: {{ pollName}}', {
           createdBy,
-          pollName: poll.name,
+          pollName,
         }),
       };
     } else {
@@ -152,9 +156,10 @@ const getLatestMessagePreviewParts = (
           isUserMessageText: false,
           kind: 'poll',
           latestMessage,
-          pollName: poll.name,
+          pollName,
           text: t('📊 {{votedBy}} voted: {{pollOptionText}}', {
-            pollOptionText: option.text,
+            pollOptionText:
+              getPollTextTranslation(option.text_i18n, userLanguage) ?? option.text,
             votedBy:
               latestVote?.user?.id === channel.getClient().userID
                 ? t('You')
