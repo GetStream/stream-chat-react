@@ -26,6 +26,12 @@ describe('AI components stylesheet token contract', () => {
     expect(css).toContain(
       'var(--str-chat__ai-table-header-bg, var(--str-chat__background-core-surface-subtle, #f8f9fa))',
     );
+    expect(css).toContain(
+      'var(--str-chat__ai-voice-color, var(--str-chat__accent-primary, #005fff))',
+    );
+    expect(css).toContain(
+      'var(--str-chat__ai-voice-backdrop, var(--str-chat__background-core-elevation-0, #ffffff))',
+    );
   });
 
   it('uses no colour literal outside a var() fallback (so SCR dark mode applies)', () => {
@@ -101,6 +107,47 @@ describe('AI components stylesheet accessibility', () => {
     expect(css).toMatch(
       /\.str-chat__ai-message-composer__form:focus-within[^{]*\{[^}]*border-color/,
     );
+  });
+
+  it('restores a visible focus indicator on a focusable voice visualization', () => {
+    expect(css).toMatch(
+      /\.str-chat__ai-voice-visualization:focus-visible[^{]*\{[^}]*outline:\s*2px solid var\(--str-chat__border-utility-focused/,
+    );
+  });
+
+  it('lets the pointer through voice visualizations except on the shape', () => {
+    expect(css).toMatch(
+      /\.str-chat__ai-voice-visualization\s*\{[^}]*pointer-events:\s*none/,
+    );
+    expect(css).toMatch(
+      /\.str-chat__ai-voice-visualization__hit\s*\{[^}]*pointer-events:\s*auto/,
+    );
+  });
+
+  it('fades voice visualizations in without a transition under reduced motion', () => {
+    const reduced = css
+      .split('@media (prefers-reduced-motion: reduce)')
+      .slice(1)
+      .join('');
+    expect(reduced).toMatch(
+      /\.str-chat__ai-voice-visualization__canvas\s*\{[^}]*transition:\s*none/,
+    );
+    expect(reduced).toMatch(
+      /\.str-chat__ai-voice-glow__level\s*\{[^}]*transition:\s*none/,
+    );
+  });
+
+  it('animates the CSS voice glow only through transform and opacity', () => {
+    const keyframes = [
+      ...css.matchAll(/@keyframes str-ai-glow-[a-z-]+\s*\{([\s\S]*?)\n\}/g),
+    ];
+    expect(keyframes.length).toBeGreaterThan(10);
+    for (const [, body] of keyframes) {
+      const properties = [...body.matchAll(/([a-z-]+)\s*:/g)].map(([, name]) => name);
+      expect(properties.every((name) => name === 'transform' || name === 'opacity')).toBe(
+        true,
+      );
+    }
   });
 
   it('disables the state indicator animations for reduced motion', () => {

@@ -1,7 +1,7 @@
 # AI chatbot example
 
 A Next.js chatbot built with `stream-chat-react` and its `stream-chat-react/ai-components` entry point
-(streaming messages, AI state indicator, AI message composer). Styles come from
+(streaming messages, AI state indicator, AI message composer, voice agent visualizations). Styles come from
 `stream-chat-react/css/ai-components.css`.
 
 ## Getting started
@@ -32,5 +32,11 @@ expose `POST /start-ai-agent` and `POST /summarize`, as called from `src/compone
 - **Token signing.** The server signs the user token itself, in `src/app/createUserToken.ts` (HS256), because `stream-chat` v10 is a client-side SDK with no server-side `createToken`. For production, use one of Stream's server SDKs instead.
 - **One copy of `@stream-io/state-store`.** The example keeps `installConfig.hoistingLimits: workspaces`, so the app installs its own `stream-chat` and `@stream-io/state-store` while the linked `stream-chat-react` workspace resolves the copies at the repository root. `stream-chat`, `@stream-io/i18n` and `stream-chat-react` hand each other store instances, so exactly one copy of `@stream-io/state-store` must be loaded. The app dedupes `stream-chat` and `@stream-io/state-store` through the Turbopack `resolveAlias` in `next.config.ts` plus the matching `paths` in `tsconfig.json`.
 - **Sidebar pagination.** The sidebar uses infinite scroll: v15's `ChannelList` has no load-more button.
+
+## Voice mode
+
+The waveform button in the composer opens voice mode: a hands-free conversation in which the AI agent is shown as a `VoiceGlow` and your microphone as a `VoiceWave`. It listens to you, sends what you said, and reads the answer aloud before listening again.
+
+It needs a browser with the Web Speech API's `SpeechRecognition` (Chrome, Edge or Safari; the button is hidden elsewhere) and access to the microphone. Reading answers aloud uses `speechSynthesis`; where it is missing, the answer is only shown in the chat.
 
 See [implementation.md](./implementation.md) for implementation notes.
