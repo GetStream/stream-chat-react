@@ -15,9 +15,14 @@ export type HeardTextProgress = {
 
 /**
  * Returns how much of the text the user has heard by `now` (a `performance.now()`
- * timestamp). Return `undefined` when the text is not paced (not spoken, or not known
- * to the voice source yet); return `{ chars: 0, done: false }` for a spoken text whose
- * audio has not started yet.
+ * timestamp).
+ *
+ * Return `undefined` only for a text that is not spoken at all: the full text is then
+ * shown, and the reveal never moves back past what has been shown. A text that will be
+ * spoken but whose audio has not started, or that the voice source does not know yet,
+ * must return `{ chars: 0, done: false }`, or it is shown in full before it is heard.
+ *
+ * Also called during render, so keep it free of side effects.
  */
 export type HeardTextFunction = (now: number) => HeardTextProgress | undefined;
 
@@ -39,10 +44,16 @@ export type UseHeardTextParams = {
   generating?: boolean;
   /**
    * Defaults to `true`. `false` reveals the full text at once, for example for a message
-   * loaded from history. Read once, when the hook mounts.
+   * loaded from history. Read when the hook mounts and when `text` is replaced by a
+   * different text, not on every change.
    */
   live?: boolean;
-  /** Optional change notifications from the speech progress source. */
+  /**
+   * Optional change notifications from the speech progress source. Without it, `heard`
+   * is only checked again while the text is paced and its speech is not done, and when
+   * `text` or `generating` change. Subscribed once; to switch to another source, remount
+   * the component (for example with a `key`).
+   */
   subscribe?: HeardTextSubscribe;
 };
 
@@ -56,11 +67,20 @@ export type UseHeardTextResult = {
 };
 
 type PacingState = {
-  /** Number of code points revealed. Never decreases. */
+  /** Number of code points revealed. Never decreases while the text continues. */
   count: number;
   isPaced: boolean;
   /** No more ticking is needed until the inputs change or the source notifies. */
   settled: boolean;
+};
+
+/** The reveal of one text. Starts over when the text is replaced by a different text. */
+type RevealState = PacingState & {
+  /** `live` as read when the reveal started. */
+  live: boolean;
+  skipped: boolean;
+  /** The text `count` refers to. */
+  text: string;
 };
 
 const now = () =>
@@ -121,15 +141,49 @@ const sample = ({
     return { count: Math.max(previousCount, textLength), isPaced: true, settled: true };
   }
 
-  const heardChars = Number.isFinite(progress.chars)
-    ? Math.max(0, Math.floor(progress.chars))
-    : 0;
+  // `+Infinity` means the whole text has been heard; NaN, negative and non-numeric
+  // counts mean nothing has
+  const flooredChars = Math.floor(progress.chars);
+  const heardChars = flooredChars > 0 ? flooredChars : 0;
 
   return {
     count: Math.max(previousCount, Math.min(heardChars, textLength)),
     isPaced: true,
     settled: progress.done,
   };
+};
+
+const startReveal = ({
+  generating,
+  heard,
+  live,
+  text,
+  textLength,
+}: {
+  generating: boolean;
+  heard: HeardTextFunction;
+  live: boolean;
+  text: string;
+  textLength: number;
+}): RevealState => ({
+  ...sample({ generating, heard, live, previousCount: 0, skipped: false, textLength }),
+  live,
+  skipped: false,
+  text,
+});
+
+/**
+ * Whether `text` continues the reveal of `previous.text`: it extends or truncates the part
+ * already shown. Anything else (the next reply rendered by the same component) is a new
+ * text, whose reveal must not start from the length shown for the previous one.
+ */
+const continuesReveal = (previous: RevealState, text: string) => {
+  const offsets = getCodePointOffsets(previous.text);
+  const shown = previous.text.slice(
+    0,
+    offsets[Math.min(previous.count, offsets.length - 1)],
+  );
+  return text.startsWith(shown) || shown.startsWith(text);
 };
 
 const noop = () => undefined;
@@ -141,20 +195,24 @@ const noop = () => undefined;
  * backend and has no dependency on the chat SDK.
  *
  * - Reveals the first `floor(chars)` Unicode code points of `text` (emoji and other
- *   astral characters are never split) and never moves backwards.
+ *   astral characters are never split) and never moves backwards while `text` grows or
+ *   is truncated. When `text` is replaced by a different text (the next reply rendered
+ *   by the same component), the reveal starts over: the length shown, `skip()` and
+ *   `live` are reset.
  * - While the text is paced and its speech is not done, samples `heard` on every
  *   animation frame (a 16 ms timeout without `requestAnimationFrame`). It stops ticking
  *   when the speech is done or the component unmounts; `subscribe` notifications, and
  *   changes of `text` or `generating`, make it check again.
  * - Reveals the full text once `heard` reports `done` and `generating` is falsy, when
- *   `live` is `false` at mount, and after `skip()`.
+ *   `live` is `false`, and after `skip()`.
  * - When `heard` returns `undefined`, `isPaced` is `false` and `heardText` is the full
  *   text. If it becomes paced later, the reveal continues from the length already shown.
  *
  * `heard` and `subscribe` are read through refs, so passing new function identities on
  * every render (inline arrow functions) does not restart the pacing. `subscribe` is
  * called once on mount (and again only if it goes from absent to present) and its
- * unsubscribe function runs on unmount.
+ * unsubscribe function runs on unmount; to switch to another speech source, remount the
+ * component. `heard` is also called during render, so keep it free of side effects.
  *
  * @example
  * ```tsx
@@ -186,20 +244,22 @@ export const useHeardText = ({
   const subscribeRef = useRef(subscribe);
   subscribeRef.current = subscribe;
 
-  const [isLive] = useState(live);
-  const [skipped, setSkipped] = useState(false);
-  const [pacingState, setPacingState] = useState<PacingState>(() =>
-    sample({
-      generating,
-      heard,
-      live: isLive,
-      previousCount: 0,
-      skipped,
-      textLength,
-    }),
+  const [revealState, setRevealState] = useState<RevealState>(() =>
+    startReveal({ generating, heard, live, text, textLength }),
   );
-  const pacingStateRef = useRef(pacingState);
+  let reveal = revealState;
+  if (revealState.text !== text) {
+    // Updated during render so that the new text never renders with the previous reveal.
+    reveal = continuesReveal(revealState, text)
+      ? { ...revealState, count: Math.min(revealState.count, textLength), text }
+      : startReveal({ generating, heard, live, text, textLength });
+    setRevealState(reveal);
+  }
+  const revealRef = useRef(reveal);
+  revealRef.current = reveal;
   const wakeRef = useRef<() => void>(noop);
+
+  const { live: isLive, skipped } = reveal;
 
   useEffect(() => {
     let cancelFrame: (() => void) | undefined;
@@ -209,7 +269,7 @@ export const useHeardText = ({
       cancelFrame = undefined;
       if (disposed) return;
 
-      const previous = pacingStateRef.current;
+      const previous = revealRef.current;
       const next = sample({
         generating,
         heard: heardRef.current,
@@ -224,8 +284,9 @@ export const useHeardText = ({
         next.isPaced !== previous.isPaced ||
         next.settled !== previous.settled
       ) {
-        pacingStateRef.current = next;
-        setPacingState(next);
+        const updated = { ...previous, ...next };
+        revealRef.current = updated;
+        setRevealState(updated);
       }
 
       if (!next.settled) cancelFrame = scheduleFrame(tick);
@@ -249,13 +310,16 @@ export const useHeardText = ({
     return subscribeRef.current?.(() => wakeRef.current());
   }, [hasSubscribe]);
 
-  const skip = useCallback(() => setSkipped(true), []);
+  const skip = useCallback(
+    () => setRevealState((previous) => ({ ...previous, skipped: true })),
+    [],
+  );
 
   return {
-    heardText: pacingState.isPaced
-      ? text.slice(0, codePointOffsets[Math.min(pacingState.count, textLength)])
+    heardText: reveal.isPaced
+      ? text.slice(0, codePointOffsets[Math.min(reveal.count, textLength)])
       : text,
-    isPaced: pacingState.isPaced,
+    isPaced: reveal.isPaced,
     skip,
   };
 };
