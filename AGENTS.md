@@ -448,6 +448,8 @@ The **pre-commit hook** runs `lint-staged`: eslint (`--max-warnings 0`) on stage
 
 Follow `.github/pull_request_template.md` (Goal / Implementation details / UI Changes). Keep PRs small and focused; include tests.
 
+**Linear ticket required.** Before opening a PR, find the Linear ticket for the work (or create one in the `REACT` team) and put its ID in the PR title or PR body, e.g. `Ticket: https://linear.app/stream/issue/REACT-123`. A Claude Code PreToolUse hook (`.claude/hooks/require-linear-ticket.sh`) blocks `gh pr create` and MCP PR-creation tools unless a `REACT-…` ID appears in the PR title or PR body. The branch name does not count. If `LINEAR_API_KEY` is set, it also checks that the ticket exists.
+
 - [ ] `yarn lint-fix` passed
 - [ ] `yarn test` passed
 - [ ] `yarn types` passed (and no new errors from `yarn types:tests`)
