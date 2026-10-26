@@ -1,5 +1,6 @@
 import type { Page } from 'playwright';
 
+import { requestsBetween } from '../collect.ts';
 import { historyScroll } from '../history.ts';
 import { LIVE } from './live-specs.ts';
 import { storm, stormMeasurement } from '../storm.ts';
@@ -62,7 +63,9 @@ export const th03: RunScenario = {
   lists: true,
   measure: async ({ page }) => {
     const result = await openChannelAndThread(page);
-    return { value: result.durationMs };
+    // Whether opening the thread fetches its replies (ML-15's open fetches nothing, F22).
+    const requests = await requestsBetween(page, 'perf:thread-open', 'perf:settled');
+    return { extra: { requests }, value: result.durationMs };
   },
   metric: 'M-SETTLE',
   types: ['messaging'],

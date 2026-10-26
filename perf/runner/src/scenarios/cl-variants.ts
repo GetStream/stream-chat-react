@@ -62,7 +62,7 @@ export const listPass = async (
         .filter(
           (e) =>
             e.startTime >= (since as number) &&
-            new RegExp(pattern as string).test(e.name),
+            new RegExp(pattern as string).test(new URL(e.name).pathname),
         ).length,
     [startedAt, QUERY_CHANNELS.source] as const,
   );

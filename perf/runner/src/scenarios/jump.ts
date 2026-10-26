@@ -39,7 +39,28 @@ const route = (id: string, kind: 'quote' | 'pinned', target: number): RunScenari
       : [
           `jump-landed: ${marker} is ${landed.loaded ? 'loaded but not on screen' : 'not loaded'}`,
         ];
-    return { extra: { requests }, gates, value: result.durationMs };
+    // Where the view landed, for a jump that missed: the top row, the distance from the newest end,
+    // and what the paginator holds around the target.
+    const view = await page.evaluate((c) => window.__perf!.messages.viewPosition(c), cid);
+    const markers = await page.evaluate(
+      (c) => window.__perf!.messages.loadedMarkers(c),
+      cid,
+    );
+    const flags = await page.evaluate(
+      (c) => window.__perf!.messages.paginatorFlags(c),
+      cid,
+    );
+    return {
+      extra: {
+        flags,
+        landed,
+        loadedRange: [markers[0], markers.at(-1)],
+        requests,
+        view,
+      },
+      gates,
+      value: result.durationMs,
+    };
   },
   metric: 'M-SETTLE',
   types: ['messaging', 'livestream'],
