@@ -1,7 +1,7 @@
 import React, { type ReactNode } from 'react';
 import { render, screen } from '@testing-library/react';
 
-import { AIMessageComposer, AIStateIndicator } from '..';
+import { AIMessageComposer, AIStateIndicator, VoiceGlow, VoiceWave } from '..';
 import { Item } from '../AIMessageComposer/AttachmentPreview';
 import { TranslationProvider } from '../../../context';
 import { mockT } from '../../../mock-builders/translator';
@@ -94,6 +94,26 @@ describe('AI components accessibility', () => {
       </WithEnglish>,
     );
     expect(screen.getByRole('button', { name: 'Retry upload' })).toBeInTheDocument();
+  });
+
+  it('voice visualizations have no axe violations and are named with their state', async () => {
+    const { container } = render(
+      <WithEnglish>
+        <VoiceWave state='listening' />
+        <VoiceGlow state='thinking' />
+        <VoiceGlow rendering='css' state='speaking' />
+      </WithEnglish>,
+    );
+    expect(await axe(container)).toHaveNoViolations();
+    expect(
+      screen.getByRole('img', { name: 'Voice agent: Listening' }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('img', { name: 'Voice agent: Thinking' }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('img', { name: 'Voice agent: Speaking' }),
+    ).toBeInTheDocument();
   });
 
   it('announces the AI state politely', () => {

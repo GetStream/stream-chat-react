@@ -91,6 +91,9 @@
   --str-chat__ai-syntax-error: #f87171;
   --str-chat__ai-syntax-whitespace: hsla(0, 0%, 100%, 0.1);
 
+  /* VoiceWave and VoiceGlow sit on the demo's background, not the SDK theme's */
+  --str-chat__ai-voice-backdrop: var(--ai-demo-bg-primary);
+
   color-scheme: dark;
   color: var(--ai-demo-text-primary);
   background-color: var(--ai-demo-bg-primary);
