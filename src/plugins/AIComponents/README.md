@@ -588,17 +588,17 @@ type HeardTextSubscribe = (listener: () => void) => () => void;
 const useHeardText: (params: UseHeardTextParams) => UseHeardTextResult;
 ```
 
-`heard(now)` returns how many characters of the text the user has heard by `now` (a `performance.now()` timestamp) and whether the speech for it has finished. `chars` counts Unicode code points (`Array.from(text).length`), not UTF-16 code units. Return `undefined` when the text is not paced, and `{ chars: 0, done: false }` for a spoken text whose audio has not started yet.
+`heard(now)` returns how many characters of the text the user has heard by `now` (a `performance.now()` timestamp) and whether the speech for it has finished. `chars` counts Unicode code points (`Array.from(text).length`), not UTF-16 code units; `Infinity` means the whole text. Return `undefined` only for a text that is not spoken at all. A text that will be spoken but whose audio has not started, or that the voice source does not know yet, must return `{ chars: 0, done: false }`: while `heard` returns `undefined` the full text is shown, and the reveal never moves back past what has been shown. `heard` is also called during render, so keep it free of side effects.
 
 #### Props
 
-| Name         | Type                 | Required | Description                                                                                                              |
-| ------------ | -------------------- | -------- | ------------------------------------------------------------------------------------------------------------------------ |
-| `text`       | `string`             | yes      | The full text to reveal.                                                                                                 |
-| `heard`      | `HeardTextFunction`  | yes      | The speech progress of `text`.                                                                                           |
-| `subscribe`  | `HeardTextSubscribe` | no       | Change notifications from the speech progress source; each one makes the hook check `heard` again.                       |
-| `generating` | `boolean`            | no       | `true` while the text is still being written. The full text is revealed once `heard` reports `done` and this is falsy.   |
-| `live`       | `boolean`            | no       | Defaults to `true`. `false` reveals the full text at once, for example for a message loaded from history. Read at mount. |
+| Name         | Type                 | Required | Description                                                                                                            |
+| ------------ | -------------------- | -------- | ---------------------------------------------------------------------------------------------------------------------- |
+| `text`       | `string`             | yes      | The full text to reveal.                                                                                               |
+| `heard`      | `HeardTextFunction`  | yes      | The speech progress of `text`.                                                                                         |
+| `subscribe`  | `HeardTextSubscribe` | no       | Change notifications from the speech progress source; each one makes the hook check `heard` again. See below.          |
+| `generating` | `boolean`            | no       | `true` while the text is still being written. The full text is revealed once `heard` reports `done` and this is falsy. |
+| `live`       | `boolean`            | no       | Defaults to `true`. `false` reveals the full text at once, for example for a message loaded from history. See below.   |
 
 #### Returns
 
@@ -610,10 +610,11 @@ const useHeardText: (params: UseHeardTextParams) => UseHeardTextResult;
 
 Behaviour:
 
-- It reveals the first `floor(chars)` code points of `text` and never moves backwards. Emoji and other astral characters are never split.
-- While the text is paced and its speech is not done, it samples `heard` on every animation frame, and stops when the speech is done or the component unmounts. `subscribe` notifications and changes of `text` or `generating` make it check again.
+- It reveals the first `floor(chars)` code points of `text` and never moves backwards while `text` grows or is truncated. Emoji and other astral characters are never split.
+- When `text` is replaced by a different text (the next reply rendered by the same component), the reveal starts over: the length shown and `skip()` are reset, and `live` is read again. `live` is otherwise read only at mount.
+- While the text is paced and its speech is not done, it samples `heard` on every animation frame, and stops when the speech is done or the component unmounts. `subscribe` notifications and changes of `text` or `generating` make it check again. Without `subscribe`, nothing else does: pass it when `heard` can change after the speech is done, or start returning a value after returning `undefined`.
 - If `heard` returns `undefined` at first and a value later, the reveal continues from the length already shown.
-- `heard` and `subscribe` are read through refs: passing new functions on every render (inline arrow functions) does not restart the pacing. `subscribe` is called once and unsubscribed on unmount.
+- `heard` and `subscribe` are read through refs: passing new functions on every render (inline arrow functions) does not restart the pacing. `subscribe` is called once and unsubscribed on unmount; to switch to another speech source, remount the component (for example with a `key`).
 
 #### Example
 
