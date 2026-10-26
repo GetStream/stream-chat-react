@@ -1,4 +1,4 @@
-import { readFileSync, writeFileSync } from 'node:fs';
+import { readdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 
 import { parseCsv, type Row } from './compare.ts';
@@ -11,7 +11,9 @@ import { resultsDir } from './results.ts';
 
 const latestRows = (rows: Row[]) => {
   const byKey = new Map<string, Row>();
-  for (const row of rows) {
+  // Deliberate-failure runs (PERF_HOST_PARAMS, the gate checks) prove a check works; they are
+  // never a configuration's number.
+  for (const row of rows.filter((r) => !r.notes.includes('VALIDATION'))) {
     const key = ['scenario', 'build', 'channel_type', 'list', 'column', 'metric']
       .map((k) => row[k])
       .join(' ');
@@ -71,8 +73,12 @@ const DELTAS: Array<[string, string, string]> = [
 ];
 
 export const report = () => {
+  // rows.csv, plus any file moved aside when a column was added (oldest first, so the latest wins).
+  const files = readdirSync(resultsDir)
+    .filter((f) => /^rows(-before-.*)?\.csv$/.test(f))
+    .sort((a, b) => (a === 'rows.csv' ? 1 : b === 'rows.csv' ? -1 : a.localeCompare(b)));
   const rows = latestRows(
-    parseCsv(readFileSync(resolve(resultsDir, 'rows.csv'), 'utf8')),
+    files.flatMap((f) => parseCsv(readFileSync(resolve(resultsDir, f), 'utf8'))),
   );
   const prodDesktop = rows.filter(
     (r) => r.build === 'prod' && r.column === 'chrome-desktop',

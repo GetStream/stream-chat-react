@@ -72,7 +72,9 @@ export const compare = (
 ) => {
   const windowStart = now - windowHours * 3_600_000;
   const historyStart = windowStart - historyDays * 86_400_000;
-  const dated = rows.filter((r) => r.recorded_at && r.median !== '');
+  const dated = rows.filter(
+    (r) => r.recorded_at && r.median !== '' && !r.notes?.includes('VALIDATION'),
+  );
   const latest = dated.filter((r) => Date.parse(r.recorded_at) >= windowStart);
   const alerts: Alert[] = [];
   const compared: string[] = [];

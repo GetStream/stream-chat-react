@@ -67,6 +67,14 @@ export const run = async (options: RunOptions) => {
   // Validation only (e.g. PERF_HOST_PARAMS='leak=messages'): extra host URL parameters for the
   // deliberate-failure checks. Every row says so.
   const validationParams = process.env.PERF_HOST_PARAMS ?? '';
+  // Every deliberate-failure switch marks the row, so reports and comparisons can skip it.
+  const switches = Object.keys(process.env).filter((k) =>
+    /^PERF_(GATE_CHECK_|AUTOMATION_CHECK)/.test(k),
+  );
+  const validationNote =
+    validationParams || switches.length
+      ? `VALIDATION ${[validationParams, ...switches].filter(Boolean).join(' ')}`
+      : '';
   // The prod bundle is rebuilt once per run, so a run always measures the working tree.
   let prodBuilt = false;
 
@@ -194,7 +202,7 @@ export const run = async (options: RunOptions) => {
                 : ('' as const),
               notes: [
                 options.headless ? 'headless' : '',
-                validationParams ? `VALIDATION ${validationParams}` : '',
+                validationNote,
                 options.verify ? '' : 'verify skipped (later run of a batch)',
                 scenario.dataset.reseed ? `reseed: ${scenario.dataset.reseed}` : '',
                 discarded.length ? `discarded ${discarded.length} (gates)` : '',
