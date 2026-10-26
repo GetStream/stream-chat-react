@@ -15,7 +15,7 @@ import {
 } from 'stream-chat-react';
 import { checkRateLimit, formatTimeRemaining } from '@/components/rateLimitUtils';
 import { availableModels, useSendAIMessage } from '@/components/useSendAIMessage';
-import { VoiceModeButton } from '@/components/VoiceMode';
+import { useVoiceMode, VoiceModeButton } from '@/components/VoiceMode';
 import './MessageInputBar.scss';
 
 export const MessageInputBar = () => {
@@ -23,6 +23,7 @@ export const MessageInputBar = () => {
   const channel = useChannel();
   const composer = useMessageComposerController();
   const sendAIMessage = useSendAIMessage();
+  const { isOpen: isVoiceModeOpen } = useVoiceMode();
 
   const { attachments } = useAttachmentsForPreview();
   const [selectedPlatformModel, setSelectedPlatformModel] = useState<string>();
@@ -36,7 +37,8 @@ export const MessageInputBar = () => {
     remainingMessages: 10,
   });
 
-  // Check rate limit when channel changes or on mount
+  // Check rate limit on mount, when the channel changes and when voice mode opens or closes
+  // (voice mode records its sends too)
   useEffect(() => {
     if (!channel?.id) return;
 
@@ -49,7 +51,7 @@ export const MessageInputBar = () => {
 
     const interval = setInterval(updateRateLimit, 60000);
     return () => clearInterval(interval);
-  }, [channel?.id]);
+  }, [channel?.id, isVoiceModeOpen]);
 
   useEffect(() => {
     if (!composer) return;

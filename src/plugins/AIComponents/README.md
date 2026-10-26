@@ -201,7 +201,7 @@ The last three are core `stream-chat-react` keys that the components reuse, so a
 
 If you already use `stream-chat-react/ai-components` on v14 (shipped from 14.13.0; `VoiceWave`, `VoiceGlow` and `useAudioLevel` from 14.14.0), the component API is identical on v15: same exports, props, class names and theming contract. Only the i18n keys changed. v14 used the English sentence (or an `aria/…` string) as the key; v15 uses namespaced keys. If you registered translations for these components, rename them with the table above or with `ai-docs/i18n-v15-key-map.json`. If you never translated them, there is nothing to do.
 
-v15 bundles English only. If your app runs in another language and relied on the translations 14.13 shipped for these components, those strings now fall back to English on v15 until you register translations yourself with `i18n.registerTranslation(lang, dict)`. The v14 values live in the 14.x `src/i18n/*.json` files of the 14.13.0 release (for example `git show v14.13.0:src/i18n/de.json`); map the keys with the table above or `ai-docs/i18n-v15-key-map.json`.
+v15 bundles English only. If your app runs in another language and relied on the translations v14 shipped for these components, those strings now fall back to English on v15 until you register translations yourself with `i18n.registerTranslation(lang, dict)`. The v14 values live in the 14.x `src/i18n/*.json` files; the voice keys first appear in 14.14.0, so read them from that release or later (for example `git show v14.14.0:src/i18n/de.json`); map the keys with the table above or `ai-docs/i18n-v15-key-map.json`.
 
 ## Theming
 

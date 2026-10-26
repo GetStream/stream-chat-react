@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallback } from 'react';
-import type { Channel } from 'stream-chat';
+import type { Channel, MessageComposer } from 'stream-chat';
 import { useChannel, useMessageComposerController } from 'stream-chat-react';
 import { startAiAgent, summarizeConversation } from '@/components/api';
 import { recordMessage } from '@/components/rateLimitUtils';
@@ -27,25 +27,31 @@ type SendAIMessageOptions = {
   platformModel?: string;
   /** Called once the composer has taken the message (it was sent or failed to send). */
   onComposed?: () => void;
+  /**
+   * The composer to send through. Defaults to the one the message composer UI is bound to; voice
+   * mode passes its own, so a spoken turn neither replaces the typed draft nor sends its attachments.
+   */
+  composer?: MessageComposer;
 };
 
 /**
  * Sends a message to the AI agent: creates a new conversation on the server, starts the agent on
  * the channel if it isn't watching yet, sends the message (with any attachments), records it
- * against the rate limit and gives a new conversation its summary. Shared by the composer and
- * voice mode.
+ * against the rate limit and gives a new conversation its summary in the background. Shared by
+ * the composer and voice mode.
  *
- * Resolves to whether a message was sent.
+ * Resolves to whether a message was sent, as soon as it was: the summary never delays or fails it.
  */
 export const useSendAIMessage = () => {
   const channel = useChannel();
-  const composer = useMessageComposerController();
+  const boundComposer = useMessageComposerController();
 
   return useCallback(
     async ({
       text,
       platformModel = defaultPlatformModel,
       onComposed,
+      composer = boundComposer,
     }: SendAIMessageOptions) => {
       composer.textComposer.setText(text);
 
@@ -75,18 +81,17 @@ export const useSendAIMessage = () => {
       recordMessage(channel.id!);
 
       if (!channel.data?.custom?.summary) {
-        const summary = await summarizeConversation(text).catch(() => {
-          console.warn('Failed to summarize conversation');
-          return null;
-        });
-
-        if (typeof summary === 'string' && summary.length > 0) {
-          await channel.update({ data: { custom: { summary } } });
-        }
+        summarizeConversation(text)
+          .then((summary) =>
+            typeof summary === 'string' && summary.length > 0
+              ? channel.update({ data: { custom: { summary } } })
+              : undefined,
+          )
+          .catch(() => console.warn('Failed to summarize conversation'));
       }
 
       return true;
     },
-    [channel, composer],
+    [boundComposer, channel],
   );
 };

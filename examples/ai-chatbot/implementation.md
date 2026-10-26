@@ -344,7 +344,7 @@ examples/ai-chatbot/
 
 ### 18. **useSendAIMessage.ts**
 
-- The send path shared by `MessageInputBar` and voice mode: creates a new conversation with `channel.ensureWatched()`, starts the AI agent when it is not watching yet, sends through `composer.send()` (with attachments), records the message against the rate limit and summarizes a new conversation
+- The send path shared by `MessageInputBar` and voice mode: creates a new conversation with `channel.ensureWatched()`, starts the AI agent when it is not watching yet, sends through `composer.send()` (with attachments), records the message against the rate limit and summarizes a new conversation in the background (the summary never delays or fails the send)
 - Also holds `availableModels`, `defaultPlatformModel` and `isWatchedByAI`
 
 ### 19. **VoiceMode**
@@ -354,9 +354,9 @@ A hands-free conversation with the agent, built on `VoiceGlow`, `VoiceWave`, `us
 - `VoiceModeButton` sits in the composer next to the dictation button and appears only where the browser has `SpeechRecognition` (Chrome, Edge, Safari)
 - `VoiceModeProvider` (in `ChatContainer`) holds whether voice mode is open; `VoiceMode` is mounted inside `Channel` only while open, so the microphone is released when it closes
 - The overlay shows a large `VoiceGlow` for the agent and a `VoiceWave` for the user's microphone, fed by `useAudioLevel` on the `getUserMedia` stream
-- `useVoiceConversation` runs the turn loop: listen (dictation ends on silence), send through `useSendAIMessage`, wait for the agent's `ai_indicator` events, read the finished answer aloud with `speechSynthesis` (markdown stripped, code skipped), then listen again
+- `useVoiceConversation` runs the turn loop: listen (dictation ends on silence), send through `useSendAIMessage` with a `MessageComposer` of its own (so a spoken turn leaves the typed draft and its attachments alone), wait for the agent's `ai_indicator` events, read the finished answer aloud with `speechSynthesis` (markdown stripped, code skipped), then listen again
 - Voice agent state: `connecting` while the microphone is requested or the agent is being started, `listening` during the user's turn, `thinking` while the agent works, `speaking` while the answer is read aloud, `idle` when paused or stopped
-- Pause/resume and end buttons; Escape closes it; the rate limit and a denied microphone stop it with a message
+- Pause/resume and end buttons; Escape closes it; the rate limit, a failed send and a denied microphone stop it with a message; closing it refreshes the composer's rate-limit banner
 - `--str-chat__ai-voice-backdrop` is set to the demo background in `index.scss`, so the visualizations pick their light or dark look from the demo theme rather than the SDK theme
 
 ---

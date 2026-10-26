@@ -1,7 +1,7 @@
 'use client';
 
-import { useCallback, useEffect, useRef, useState } from 'react';
-import { AIStates, type Channel } from 'stream-chat';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { AIStates, type Channel, MessageComposer } from 'stream-chat';
 import { useAIState, useChannel, useChatContext } from 'stream-chat-react';
 import {
   useAudioLevel,
@@ -54,12 +54,13 @@ export const toSpeech = (markdown: string) =>
     .trim()
     .slice(0, MAX_SPOKEN_LENGTH);
 
+/**
+ * The agent's answer, when it is the channel's latest message. Read from `latestMessage`, which
+ * follows the newest message whatever window of the list is showing, and keeps up with its edits.
+ */
 const lastAgentMessage = (channel: Channel, userId?: string) => {
-  const messages = channel.messagePaginator.state.getLatestValue().items ?? [];
-  for (let i = messages.length - 1; i >= 0; i--) {
-    if (messages[i].user?.id !== userId) return messages[i];
-  }
-  return undefined;
+  const latest = channel.messagePaginator.latestMessage;
+  return latest && latest.user?.id !== userId ? latest : undefined;
 };
 
 /**
@@ -71,6 +72,17 @@ export const useVoiceConversation = () => {
   const channel = useChannel();
   const { aiState } = useAIState(channel);
   const sendAIMessage = useSendAIMessage();
+  // Spoken turns go through a composer of their own, so they leave the typed draft and its
+  // attachments alone. It is never registered, so it keeps no draft of its own.
+  const voiceComposer = useMemo(
+    () =>
+      new MessageComposer({
+        client,
+        compositionContext: channel,
+        config: { drafts: { enabled: false } },
+      }),
+    [channel, client],
+  );
 
   const [phase, setPhase] = useState<VoicePhase>('starting');
   const [mic, setMic] = useState<MediaStream | null>(null);
@@ -161,9 +173,13 @@ export const useVoiceConversation = () => {
       setReply('');
       setAgentStarting(!isWatchedByAI(channel));
       setPhase('waiting');
-      sendAIMessage({ text }).catch(() => fail('Your message could not be sent.'));
+      sendAIMessage({ composer: voiceComposer, text })
+        .then((sent) => {
+          if (!sent) fail('Your message could not be sent.');
+        })
+        .catch(() => fail('Your message could not be sent.'));
     },
-    [channel, client.userID, fail, sendAIMessage],
+    [channel, client.userID, fail, sendAIMessage, voiceComposer],
   );
 
   // A turn ends when recognition stops: send what was said, or listen again after silence.
