@@ -79,9 +79,13 @@ export const serveWorld = async (page: Page, world: World) => {
   const greeting = world.ws[0];
   if (!greeting) throw new Error('the fixture holds no WebSocket greeting: re-record it');
   const healthCheck = JSON.stringify({ ...JSON.parse(greeting), type: 'health.check' });
-  await page.routeWebSocket(STREAM, (ws) => {
-    ws.send(greeting);
-    // The client sends health checks; answer each the way the server does.
-    ws.onMessage(() => ws.send(healthCheck));
-  });
+  // A function, not the regex: routeWebSocket matches a RegExp against the whole URL string.
+  await page.routeWebSocket(
+    (url) => STREAM.test(url.hostname),
+    (ws) => {
+      ws.send(greeting);
+      // The client sends health checks; answer each the way the server does.
+      ws.onMessage(() => ws.send(healthCheck));
+    },
+  );
 };
