@@ -91,6 +91,12 @@ const hiddenTab = (hide: boolean, durationS: number): RunScenario => ({
         await new Promise((r) => setTimeout(r, 100));
       }
       await evaluate(page, 'window.__perf.ready()');
+      const visibleAtStart = await evaluate<string>(page, 'document.visibilityState');
+      if (visibleAtStart !== 'visible') {
+        throw new Error(
+          `WB-01's page is ${visibleAtStart} before the run: bring its window forward`,
+        );
+      }
       await evaluate(
         page,
         `window.__perf.openChannel(${JSON.stringify(cid)}, window.__perf.messages.newestMarker(${JSON.stringify(cid)}))`,

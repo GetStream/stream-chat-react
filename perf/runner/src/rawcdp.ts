@@ -99,6 +99,9 @@ export const launchRaw = async (port = 9333): Promise<RawBrowser> => {
       `--user-data-dir=${userDataDir}`,
       '--no-first-run',
       '--no-default-browser-check',
+      // A window other apps cover counts as hidden on macOS and stops rendering, before the run
+      // ever hides the tab itself (Playwright passes the same flag). Hiding the TAB still throttles.
+      '--disable-backgrounding-occluded-windows',
       '--window-size=1440,900',
       'about:blank',
     ],
