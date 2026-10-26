@@ -15,6 +15,7 @@ import { MessageBubble } from '../MessageBubble';
 import { MessageInputBar } from '../MessageInputBar';
 import { AIStateIndicator } from '../AIStateIndicator';
 import { TopNavBar } from '../TopNavBar';
+import { VoiceMode, VoiceModeProvider } from '../VoiceMode';
 import './ChatContainer.scss';
 
 interface ChatContainerProps {
@@ -44,14 +45,17 @@ export const ChatContainer = ({ onToggleSidebar }: ChatContainerProps) => {
           MessageComposerUI: MessageInputBar,
         }}
       >
-        {channel && (
-          <Channel channel={channel}>
-            <TopNavBar onToggleSidebar={onToggleSidebar} />
-            <MessageList />
-            <AIStateIndicator />
-            <MessageComposer focus />
-          </Channel>
-        )}
+        <VoiceModeProvider>
+          {channel && (
+            <Channel channel={channel}>
+              <TopNavBar onToggleSidebar={onToggleSidebar} />
+              <MessageList />
+              <AIStateIndicator />
+              <MessageComposer focus />
+              <VoiceMode />
+            </Channel>
+          )}
+        </VoiceModeProvider>
       </WithComponents>
     </div>
   );

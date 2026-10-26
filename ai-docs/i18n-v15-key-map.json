@@ -1,6 +1,6 @@
 {
   "$comment": "Migration table: natural-language translation key (v14) -> namespaced key (v15). Hand-reviewed; nothing regenerates it. Integrators who passed translationsForLanguage/registerTranslation dictionaries keyed on the old strings should use this to rename their keys. See ai-docs/i18n-v15-migration.md.",
-  "count": 621,
+  "count": 627,
   "keys": {
     "aria/Active": {
       "key": "a11y.accessibleLabel.active.ariaLabel",
@@ -184,6 +184,30 @@
     },
     "Working my magic": {
       "key": "aiComponents.stateIndicator.workingMyMagic.text",
+      "prose": true
+    },
+    "Connecting": {
+      "key": "aiComponents.voiceVisualization.connecting.text",
+      "prose": true
+    },
+    "Listening": {
+      "key": "aiComponents.voiceVisualization.listening.text",
+      "prose": true
+    },
+    "Ready": {
+      "key": "aiComponents.voiceVisualization.ready.text",
+      "prose": true
+    },
+    "Speaking": {
+      "key": "aiComponents.voiceVisualization.speaking.text",
+      "prose": true
+    },
+    "Thinking": {
+      "key": "aiComponents.voiceVisualization.thinking.text",
+      "prose": true
+    },
+    "aria/Voice agent: {{ state }}": {
+      "key": "aiComponents.voiceVisualization.voiceAgent.ariaLabel",
       "prose": true
     },
     "Generating...": {
