@@ -1,0 +1,38 @@
+{
+ "ml-09": {
+  "standard": {
+   "max": 24,
+   "median": 0
+  },
+  "virtualized": {
+   "max": 7,
+   "median": 0
+  }
+ },
+ "ml-11": {
+  "standard": {
+   "max": 0,
+   "median": 0
+  },
+  "virtualized": {
+   "max": 0,
+   "median": 0
+  }
+ },
+ "cl-07": {
+  "virtualized": {
+   "max": 0,
+   "median": 0
+  }
+ },
+ "ml-08": {
+  "standard": {
+   "max": 322,
+   "median": 170
+  },
+  "virtualized": {
+   "max": 7,
+   "median": 5
+  }
+ }
+}
