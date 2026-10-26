@@ -72,7 +72,7 @@ describe('useHeardText', () => {
     expect(result.current.heardText).toBe(TEXT.slice(0, 4));
   });
 
-  it('treats non-finite and negative counts as nothing heard', () => {
+  it('treats NaN, negative and non-numeric counts as nothing heard', () => {
     let progress: HeardTextProgress = { chars: Number.NaN, done: false };
     const { result } = renderHeardText({ heard: () => progress, text: TEXT });
     expect(result.current.heardText).toBe('');
@@ -80,6 +80,23 @@ describe('useHeardText', () => {
     progress = { chars: -3, done: false };
     advance(FRAME_MS);
     expect(result.current.heardText).toBe('');
+
+    progress = { chars: Number.NEGATIVE_INFINITY, done: false };
+    advance(FRAME_MS);
+    expect(result.current.heardText).toBe('');
+
+    // a JS caller returning no count at all
+    progress = { done: false } as unknown as HeardTextProgress;
+    advance(FRAME_MS);
+    expect(result.current.heardText).toBe('');
+  });
+
+  it('treats an infinite count as the whole text heard', () => {
+    const { result } = renderHeardText({
+      heard: () => ({ chars: Number.POSITIVE_INFINITY, done: false }),
+      text: TEXT,
+    });
+    expect(result.current).toMatchObject({ heardText: TEXT, isPaced: true });
   });
 
   it('never moves the reveal backwards', () => {
@@ -288,6 +305,73 @@ describe('useHeardText', () => {
 
     advance(FRAME_MS * 5);
     expect(result.current.heardText).toBe(TEXT);
+  });
+
+  describe('when the text is replaced by a different text', () => {
+    const NEXT_TEXT = 'Sure, here is the forecast for tomorrow.';
+
+    it('starts a new reveal instead of carrying over the length already shown', () => {
+      let progress: HeardTextProgress = { chars: 100, done: false };
+      const heard: HeardTextFunction = () => progress;
+      const { rerender, result } = renderHeardText({ heard, text: TEXT });
+      expect(result.current.heardText).toBe(TEXT);
+
+      // the next reply, whose audio has not started yet
+      progress = { chars: 0, done: false };
+      rerender({ heard, text: NEXT_TEXT });
+      expect(result.current).toMatchObject({ heardText: '', isPaced: true });
+
+      progress = { chars: 4, done: false };
+      advance(FRAME_MS);
+      expect(result.current.heardText).toBe('Sure');
+    });
+
+    it('starts a new reveal after the previous text was shown unpaced', () => {
+      let progress: HeardTextProgress | undefined = undefined;
+      const heard: HeardTextFunction = () => progress;
+      const { rerender, result } = renderHeardText({ heard, text: TEXT });
+      expect(result.current).toMatchObject({ heardText: TEXT, isPaced: false });
+
+      progress = { chars: 2, done: false };
+      rerender({ heard, text: NEXT_TEXT });
+      expect(result.current).toMatchObject({ heardText: 'Su', isPaced: true });
+    });
+
+    it('clears a previous skip', () => {
+      const heard: HeardTextFunction = () => ({ chars: 3, done: false });
+      const { rerender, result } = renderHeardText({ heard, text: TEXT });
+      act(() => result.current.skip());
+      expect(result.current.heardText).toBe(TEXT);
+
+      rerender({ heard, text: NEXT_TEXT });
+      expect(result.current.heardText).toBe('Sur');
+    });
+
+    it('reads live again for the new text', () => {
+      const heard: HeardTextFunction = () => ({ chars: 3, done: false });
+      const { rerender, result } = renderHeardText({ heard, live: false, text: TEXT });
+      expect(result.current.heardText).toBe(TEXT);
+
+      rerender({ heard, live: true, text: NEXT_TEXT });
+      expect(result.current.heardText).toBe('Sur');
+    });
+
+    it('keeps the reveal when the text is truncated, and does not reuse the cut length', () => {
+      let progress: HeardTextProgress = { chars: 12, done: false };
+      const heard: HeardTextFunction = () => progress;
+      const { rerender, result } = renderHeardText({ heard, text: TEXT });
+      expect(result.current.heardText).toBe(TEXT.slice(0, 12));
+
+      // e.g. the reply was cut short when the user stopped it
+      rerender({ heard, text: TEXT.slice(0, 8) });
+      expect(result.current.heardText).toBe(TEXT.slice(0, 8));
+
+      // growing again from the truncated text continues from 8, not from 12
+      progress = { chars: 3, done: false };
+      rerender({ heard, text: `${TEXT.slice(0, 8)} again and again` });
+      advance(FRAME_MS);
+      expect(result.current.heardText).toBe(TEXT.slice(0, 8));
+    });
   });
 
   describe('with emoji and other astral characters', () => {
