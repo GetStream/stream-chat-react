@@ -389,6 +389,19 @@ export class FakeChannelBackend {
     });
   }
 
+  /**
+   * Shadows messages, as moderation does: the server still returns them, flagged `shadowed`, and the
+   * message list leaves them out. No event.
+   */
+  shadow(ids: string[]) {
+    const shadowed = new Set(ids);
+    this.state.partialNext({
+      timeline: this.timeline.map((message) =>
+        shadowed.has(message.id) ? { ...message, shadowed: true } : message,
+      ),
+    });
+  }
+
   /** Empties the timeline, with no event. */
   truncate() {
     this.state.partialNext({ timeline: [] });
