@@ -1,7 +1,7 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
 
-import { AIMessageComposer, AIStateIndicator } from '..';
+import { AIMessageComposer, AIStateIndicator, VoiceGlow, VoiceWave } from '..';
 import { Item } from '../AIMessageComposer/AttachmentPreview';
 import { TranslationProvider } from '../../../context';
 import {
@@ -112,6 +112,37 @@ describe('AI components i18n', () => {
       });
       expect([...seen].sort()).toEqual([...STATE_INDICATOR_KEYS].sort());
     });
+
+    it('uses the v15 keys for the voice visualization names and states', () => {
+      const translate = vi.fn((key: string, ...rest: unknown[]) => {
+        const options = rest.find((arg) => typeof arg === 'object') as
+          | { state?: string }
+          | undefined;
+        return `T:${key}${options?.state ? `|${options.state}` : ''}`;
+      });
+      render(
+        <TranslationProvider
+          value={{
+            t: translate as never,
+            tDateTimeParser: (() => null) as never,
+            userLanguage: 'en',
+          }}
+        >
+          <VoiceWave state='speaking' />
+          <VoiceGlow state='idle' />
+        </TranslationProvider>,
+      );
+      expect(
+        screen.getByRole('img', {
+          name: 'T:aiComponents.voiceVisualization.voiceAgent.ariaLabel|T:aiComponents.voiceVisualization.speaking.text',
+        }),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByRole('img', {
+          name: 'T:aiComponents.voiceVisualization.voiceAgent.ariaLabel|T:aiComponents.voiceVisualization.ready.text',
+        }),
+      ).toBeInTheDocument();
+    });
   });
 
   describe('without a provider (inline English defaults)', () => {
@@ -136,6 +167,21 @@ describe('AI components i18n', () => {
       );
       expect(screen.getByPlaceholderText('Ask a question...')).toBeInTheDocument();
       expect(container.textContent).toContain('Thinking really hard');
+    });
+
+    it('renders the English voice visualization names', () => {
+      render(
+        <>
+          <VoiceWave state='listening' />
+          <VoiceGlow state='connecting' />
+        </>,
+      );
+      expect(
+        screen.getByRole('img', { name: 'Voice agent: Listening' }),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByRole('img', { name: 'Voice agent: Connecting' }),
+      ).toBeInTheDocument();
     });
   });
 });

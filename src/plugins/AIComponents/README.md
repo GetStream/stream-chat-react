@@ -1,6 +1,6 @@
 # AI components (`stream-chat-react/ai-components`)
 
-AI-first building blocks for Stream Chat: a message composer with attachments and speech-to-text, a Markdown renderer with syntax highlighting and Chart.js support, a typewriter-style streaming message and an "AI is thinking" indicator.
+AI-first building blocks for Stream Chat: a message composer with attachments and speech-to-text, a Markdown renderer with syntax highlighting and Chart.js support, a typewriter-style streaming message, a hook that reveals text at the pace a voice agent speaks it, and an "AI is thinking" indicator.
 
 These components used to ship as the separate package `@stream-io/chat-react-ai`. They now live in `stream-chat-react` behind the optional entry point `stream-chat-react/ai-components`, with a stylesheet at `stream-chat-react/css/ai-components.css`. The main entry point (`stream-chat-react`) never imports from this plugin, so apps that do not use it pay nothing for it.
 
@@ -31,9 +31,9 @@ Load `ai-components.css` in addition to `stream-chat-react/css/index.css`.
 
 From `stream-chat-react/ai-components`:
 
-- Components: `AIMarkdown`, `AIMessageComposer` (with the static sub-components `FileInput`, `TextInput`, `SpeechToTextButton`, `SubmitButton`, `ModelSelect`, `AttachmentPreview`, `AttachmentPreview.Item`), `StreamingMessage`, `AIStateIndicator`
-- Hooks: `useAttachments`, `useText`, `useIsDisabled`, `useAIMessageComposerContext`, `useSpeechToText`
-- Types: `AIMessageComposerStore`, `StreamingMessageRef`, `UseMessageTextStreamingProps`, `ToolComponentProps`, `UseSpeechToTextOptions`
+- Components: `AIMarkdown`, `AIMessageComposer` (with the static sub-components `FileInput`, `TextInput`, `SpeechToTextButton`, `SubmitButton`, `ModelSelect`, `AttachmentPreview`, `AttachmentPreview.Item`), `StreamingMessage`, `AIStateIndicator`, `VoiceWave`, `VoiceGlow`
+- Hooks: `useAttachments`, `useText`, `useIsDisabled`, `useAIMessageComposerContext`, `useSpeechToText`, `useAudioLevel`, `useHeardText`
+- Types: `AIMessageComposerStore`, `StreamingMessageRef`, `UseMessageTextStreamingProps`, `ToolComponentProps`, `UseSpeechToTextOptions`, `VoiceAgentState`, `VoiceGlowRendering`, `VoiceVisualizationProps`, `VoiceWaveProps`, `VoiceGlowProps`, `HeardTextProgress`, `HeardTextFunction`, `HeardTextSubscribe`, `UseHeardTextParams`, `UseHeardTextResult`
 
 `useMessageTextStreaming` is not exported from here; import it from the main entry point (`stream-chat-react`).
 
@@ -185,6 +185,12 @@ Every key the components use:
 | `aiComponents.stateIndicator.summoningMyInnerGenius.text`     | Summoning my inner genius      | `Summoning my inner genius`      |
 | `aiComponents.stateIndicator.thinkingReallyHard.text`         | Thinking really hard           | `Thinking really hard`           |
 | `aiComponents.stateIndicator.workingMyMagic.text`             | Working my magic               | `Working my magic`               |
+| `aiComponents.voiceVisualization.connecting.text`             | Connecting                     | `Connecting`                     |
+| `aiComponents.voiceVisualization.listening.text`              | Listening                      | `Listening`                      |
+| `aiComponents.voiceVisualization.ready.text`                  | Ready                          | `Ready`                          |
+| `aiComponents.voiceVisualization.speaking.text`               | Speaking                       | `Speaking`                       |
+| `aiComponents.voiceVisualization.thinking.text`               | Thinking                       | `Thinking`                       |
+| `aiComponents.voiceVisualization.voiceAgent.ariaLabel`        | Voice agent: {{ state }}       | `aria/Voice agent: {{ state }}`  |
 | `messageComposer.sendButton.send.ariaLabel` (core)            | Send                           | `aria/Send`                      |
 | `fileUpload.uploadButton.fileUpload.ariaLabel` (core)         | File upload                    | `aria/File upload`               |
 | `common.retryUpload.ariaLabel` (core)                         | Retry upload                   | `aria/Retry upload`              |
@@ -193,9 +199,9 @@ The last three are core `stream-chat-react` keys that the components reuse, so a
 
 ## Migrating from `stream-chat-react` v14
 
-If you already use `stream-chat-react/ai-components` on v14 (shipped from 14.13.0), the component API is identical on v15: same exports, props, class names and theming contract. Only the i18n keys changed. v14 used the English sentence (or an `aria/…` string) as the key; v15 uses namespaced keys. If you registered translations for these components, rename them with the table above or with `ai-docs/i18n-v15-key-map.json`. If you never translated them, there is nothing to do.
+If you already use `stream-chat-react/ai-components` on v14 (shipped from 14.13.0; `VoiceWave`, `VoiceGlow` and `useAudioLevel` from 14.14.0), the component API is identical on v15: same exports, props, class names and theming contract. Only the i18n keys changed. v14 used the English sentence (or an `aria/…` string) as the key; v15 uses namespaced keys. If you registered translations for these components, rename them with the table above or with `ai-docs/i18n-v15-key-map.json`. If you never translated them, there is nothing to do.
 
-v15 bundles English only. If your app runs in another language and relied on the translations 14.13 shipped for these components, those strings now fall back to English on v15 until you register translations yourself with `i18n.registerTranslation(lang, dict)`. The v14 values live in the 14.x `src/i18n/*.json` files of the 14.13.0 release (for example `git show v14.13.0:src/i18n/de.json`); map the keys with the table above or `ai-docs/i18n-v15-key-map.json`.
+v15 bundles English only. If your app runs in another language and relied on the translations v14 shipped for these components, those strings now fall back to English on v15 until you register translations yourself with `i18n.registerTranslation(lang, dict)`. The v14 values live in the 14.x `src/i18n/*.json` files; the voice keys first appear in 14.14.0, so read them from that release or later (for example `git show v14.14.0:src/i18n/de.json`); map the keys with the table above or `ai-docs/i18n-v15-key-map.json`.
 
 ## Theming
 
@@ -226,6 +232,8 @@ Precedence for every token except the code palette is: your `--str-chat__ai-*` o
 | `table-text`               | table cell text                                         | `text-secondary`                  | `#495057`        |
 | `scrollbar-track`          | attachment list scrollbar track                         | `background-core-surface-subtle`  | `#f1f1f1`        |
 | `scrollbar-thumb`          | attachment list scrollbar thumb                         | `border-core-default`             | `#ddd`           |
+| `voice-color`              | `VoiceWave` / `VoiceGlow` color when `colors` is unset  | `accent-primary`                  | `#005fff`        |
+| `voice-backdrop`           | what `VoiceWave` / `VoiceGlow` sit on (light or dark)   | `background-core-elevation-0`     | `#ffffff`        |
 | `syntax-*`                 | code palette (see below)                                | none                              | built-in palette |
 
 The code palette tokens are `--str-chat__ai-syntax-text`, `-selection-bg`, `-comment`, `-punctuation`, `-number`, `-keyword`, `-tag`, `-string`, `-function`, `-cyan`, `-error` and `-whitespace`.
@@ -332,6 +340,73 @@ import { AIMarkdown } from 'stream-chat-react/ai-components';
 function MessageContent({ content }) {
   return <AIMarkdown>{content}</AIMarkdown>;
 }
+```
+
+### `VoiceWave` and `VoiceGlow`
+
+Two animated visualizations of a voice agent, the web counterparts of `AIVoiceWave` and `AIVoiceGlow` in the Android and iOS AI components, with the same motion. `VoiceWave` is a single string carrying a wave packet that erupts with speech; `VoiceGlow` is a soft globe whose color masses orbit inside it and swell with speech.
+
+Both draw on a `<canvas>` inside a `div` with `role="img"` and an accessible name such as "Voice agent: Speaking". They have no size of their own and draw in the middle of the box they are given (`VoiceWave` about 80% as wide as the shorter side, `VoiceGlow` about half), so size them with CSS. The defaults are `width: 100%; height: 8rem` for the wave and `12rem` square for the glow. The wave's line is as thick as on Android and iOS, 0.6% of the shorter side and never under 1.5 device pixels, and drawn at the screen's own density up to 3x; the soft glow is drawn at 1x, which looks the same at a fraction of the cost.
+
+#### Props
+
+| Name           | Type                                                                | Required | Description                                                                                                                                                                                                                       |
+| -------------- | ------------------------------------------------------------------- | -------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `state`        | `'idle' \| 'connecting' \| 'listening' \| 'thinking' \| 'speaking'` | yes      | What the agent is doing. The states differ only in motion, never in color, and a change eases from one motion into the next.                                                                                                      |
+| `colors`       | `string[]`                                                          | no       | One to five CSS colors, flowing through the shape. Past five are ignored. When omitted or empty, `--str-chat__ai-voice-color` is used, which follows the SDK accent color.                                                        |
+| `expressivity` | `number`                                                            | no       | From 0 to 2: how far and how fast it moves. Defaults to 1.                                                                                                                                                                        |
+| `audioLevel`   | `() => number \| null \| undefined`                                 | no       | The level of whoever is talking, from 0 to 1, read once a frame, so a level changing many times a second re-renders nothing. Returning `null` (or omitting it) animates speech on its own.                                        |
+| `rendering`    | `'auto' \| 'css'`                                                   | no       | `VoiceGlow` only. `auto` (default) draws with a WebGL shader and falls back to `css` when WebGL is unavailable or its context is lost; `css` builds the glow from CSS gradients animated by the browser's compositor (see below). |
+
+Any other `div` prop (`className`, `style`, event handlers, ...) is passed to the root. Only the shape takes the pointer, as on iOS: the globe (within 0.32 of the shorter side from the centre) or the string. Elsewhere in the box, clicks and hovers reach whatever is behind it. On the shape, pointer events are watched and never stopped: a tap bounces it and a hovering mouse or pen ripples it, while your own `onClick` on the root or a parent still fires.
+
+Behavior:
+
+- The animation runs only while the element is on screen and the tab is visible.
+- Every WebGL glow on a page draws with one shared WebGL context, so the shader compiles once and a page with many glows stays under the browser's limit on live contexts.
+- It fades in over 0.3 s once its first frame is drawn (instantly with reduced motion), so it never flashes empty while a shader compiles.
+- With `prefers-reduced-motion: reduce`, the motion slows to a crawl and taps and hover are ignored.
+- The palette and the light or dark look follow the theme (`--str-chat__ai-voice-color` and `--str-chat__ai-voice-backdrop`), re-read about once a second, so a theme switch needs no prop.
+- `VoiceWave` moves as on Android and iOS, smoothed for speech: its height rises quickly and settles slowly, its syllables swing it a little less, and as it grows its crests spread out rather than steepen into spikes. While idle, connecting or thinking it is the native wave exactly.
+
+`rendering='css'`, also the fallback when WebGL is unavailable, composes the glow the way the shader does, as gradients that are painted once and animated only through `transform` and `opacity`, so the browser's compositor runs the motion. It keeps moving while the main thread is busy (for example while a long answer streams in), needs no canvas or WebGL, and runs no script per frame unless `audioLevel` is given. It lacks the shader's fine marbling and its second, fainter riding mass: a tap bounces the glow and sends out a ring instead of a ripple, and a hovering pointer does nothing. Off screen, its animations pause. It needs `@property`, container query units and `color-mix()` (Chrome 111, Safari 16.4, Firefox 128 and later).
+
+- Under SSR the markup is rendered and drawing starts after hydration.
+
+#### Example
+
+```tsx
+import { useEffect, useState } from 'react';
+import {
+  useAudioLevel,
+  type VoiceAgentState,
+  VoiceGlow,
+  VoiceWave,
+} from 'stream-chat-react/ai-components';
+
+const VoiceAgent = ({ state }: { state: VoiceAgentState }) => {
+  const [mic, setMic] = useState<MediaStream | null>(null);
+  const micLevel = useAudioLevel(mic);
+
+  useEffect(() => {
+    let stream: MediaStream | undefined;
+    navigator.mediaDevices.getUserMedia({ audio: true }).then((granted) => {
+      stream = granted;
+      setMic(granted);
+    });
+    return () => stream?.getTracks().forEach((track) => track.stop());
+  }, []);
+
+  return (
+    <>
+      <VoiceGlow colors={['#005fff', '#7c3aed']} state={state} />
+      <VoiceWave
+        audioLevel={state === 'listening' ? micLevel : undefined}
+        state={state}
+      />
+    </>
+  );
+};
 ```
 
 ### `StreamingMessage`
@@ -542,6 +617,75 @@ function VoiceInput() {
   );
 }
 ```
+
+### `useHeardText`
+
+Reveals a text at the pace the user hears it spoken, for apps that talk to a voice AI agent: the agent's reply is written into the chat as the model generates it, far ahead of the agent's voice. The hook is standalone (React only, no chat SDK imports) and takes the speech progress from the app as a plain function, so it works with any voice backend.
+
+```ts
+type HeardTextProgress = { chars: number; done: boolean };
+type HeardTextFunction = (now: number) => HeardTextProgress | undefined;
+type HeardTextSubscribe = (listener: () => void) => () => void;
+
+const useHeardText: (params: UseHeardTextParams) => UseHeardTextResult;
+```
+
+`heard(now)` returns how many characters of the text the user has heard by `now` (a `performance.now()` timestamp) and whether the speech for it has finished. `chars` counts Unicode code points (`Array.from(text).length`), not UTF-16 code units; `Infinity` means the whole text. Return `undefined` only for a text that is not spoken at all. A text that will be spoken but whose audio has not started, or that the voice source does not know yet, must return `{ chars: 0, done: false }`: while `heard` returns `undefined` the full text is shown, and the reveal never moves back past what has been shown. `heard` is also called during render, so keep it free of side effects.
+
+#### Props
+
+| Name         | Type                 | Required | Description                                                                                                            |
+| ------------ | -------------------- | -------- | ---------------------------------------------------------------------------------------------------------------------- |
+| `text`       | `string`             | yes      | The full text to reveal.                                                                                               |
+| `heard`      | `HeardTextFunction`  | yes      | The speech progress of `text`.                                                                                         |
+| `subscribe`  | `HeardTextSubscribe` | no       | Change notifications from the speech progress source; each one makes the hook check `heard` again. See below.          |
+| `generating` | `boolean`            | no       | `true` while the text is still being written. The full text is revealed once `heard` reports `done` and this is falsy. |
+| `live`       | `boolean`            | no       | Defaults to `true`. `false` reveals the full text at once, for example for a message loaded from history. See below.   |
+
+#### Returns
+
+| Name        | Type         | Description                                                                        |
+| ----------- | ------------ | ---------------------------------------------------------------------------------- |
+| `heardText` | `string`     | The part of the text the user has heard (the full text when not paced).            |
+| `isPaced`   | `boolean`    | `false` when `heard` returned `undefined`; `heardText` is then the full text.      |
+| `skip`      | `() => void` | Reveal the full text from now on, for example when the user stops the AI response. |
+
+Behaviour:
+
+- It reveals the first `floor(chars)` code points of `text` and never moves backwards while `text` grows or is truncated. Emoji and other astral characters are never split.
+- When `text` is replaced by a different text (the next reply rendered by the same component), the reveal starts over: the length shown and `skip()` are reset, and `live` is read again. `live` is otherwise read only at mount.
+- While the text is paced and its speech is not done, it samples `heard` on every animation frame, and stops when the speech is done or the component unmounts. `subscribe` notifications and changes of `text` or `generating` make it check again. Without `subscribe`, nothing else does: pass it when `heard` can change after the speech is done, or start returning a value after returning `undefined`.
+- If `heard` returns `undefined` at first and a value later, the reveal continues from the length already shown.
+- `heard` and `subscribe` are read through refs: passing new functions on every render (inline arrow functions) does not restart the pacing. `subscribe` is called once and unsubscribed on unmount; to switch to another speech source, remount the component (for example with a `key`).
+
+#### Example
+
+```tsx
+import { useHeardText } from 'stream-chat-react/ai-components';
+
+function SpokenReply({ generating, session, text, turnId }) {
+  const { heardText } = useHeardText({
+    generating,
+    heard: (now) => session.speech.heard(turnId, now),
+    subscribe: (listener) => session.speech.subscribe(listener),
+    text,
+  });
+
+  return <p>{heardText}</p>;
+}
+```
+
+A drop-in for the `StreamedMessageText` component slot of `stream-chat-react`, built on this hook, is shown in the docs.
+
+### `useAudioLevel`
+
+Reads the live level of a `MediaStream`'s audio (a microphone from `getUserMedia({ audio: true })`, or a remote track) for the `audioLevel` prop of `VoiceWave` and `VoiceGlow`.
+
+```ts
+const useAudioLevel: (stream: MediaStream | null | undefined) => () => number | null;
+```
+
+It returns a stable getter that measures the level when called, from 0 to 1, so nothing re-renders as the level changes. It measures over the last 2048 samples (about 43 ms at 48 kHz), a few pitch periods of a voice, so the level holds steady through a vowel. The getter returns `null` while there is no stream or no Web Audio support. The audio graph is torn down when the stream changes and on unmount; the stream's tracks are left running, since they belong to you.
 
 ## Examples
 
