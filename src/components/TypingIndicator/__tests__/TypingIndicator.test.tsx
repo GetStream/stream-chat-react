@@ -221,7 +221,7 @@ describe('TypingIndicator', () => {
         channel: { config: fromPartial<ChannelConfigWithInfo>({ typing_events: true }) },
       });
       useMockedApis(client, [getOrCreateChannelApi(ch)]);
-      channel = client.channelManager.ensure({ id: ch.id, type: 'messaging' });
+      channel = client.channel('messaging', ch.id);
       await channel.watch();
     });
 

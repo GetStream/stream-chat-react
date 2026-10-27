@@ -111,7 +111,7 @@ async function renderComponent({
     });
     // eslint-disable-next-line react-hooks/rules-of-hooks
     useMockedApis(client, [getOrCreateChannelApi(channelData)]);
-    channel = client.channelManager.ensure({ id: channelData.channel.id, type });
+    channel = client.channel(type, channelData.channel.id);
     await channel.watch();
     client.channelServerConfigsStore.partialNext({
       configs: { ...client.channelServerConfigs, [channel.cid]: config as never },

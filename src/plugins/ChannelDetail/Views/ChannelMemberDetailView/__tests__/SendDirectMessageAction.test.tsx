@@ -38,7 +38,7 @@ describe('SendDirectMessage action', () => {
   const renderAction = (created: Channel) => {
     vi.mocked(useChatContext).mockReturnValue({
       channelManager: { ingestChannel },
-      client: { channelManager: { ensure: () => created }, userID: 'user-me' },
+      client: { channel: () => created, userID: 'user-me' },
     } as unknown as ReturnType<typeof useChatContext>);
     render(
       <ChannelDetailProvider channel={fromPartial<Channel>({ type: 'messaging' })}>
@@ -72,8 +72,7 @@ describe('SendDirectMessage action', () => {
 
   it('opens and lists the direct message once it is watched', async () => {
     const created = fromPartial<Channel>({ cid: 'messaging:dm' });
-    (created as { ensureWatched: () => Promise<Channel> }).ensureWatched = () =>
-      Promise.resolve(created);
+    (created as { watch: () => Promise<Channel> }).watch = () => Promise.resolve(created);
     renderAction(created);
 
     await act(async () => {
@@ -88,9 +87,8 @@ describe('SendDirectMessage action', () => {
   it('opens and lists the stored instance when the direct message was superseded during its watch', async () => {
     const stored = fromPartial<Channel>({ cid: 'messaging:dm' });
     const created = fromPartial<Channel>({ cid: 'messaging:dm', supersededBy: stored });
-    // as stream-chat does: `ensureWatched()` resolves with the instance that superseded it
-    (created as { ensureWatched: () => Promise<Channel> }).ensureWatched = () =>
-      Promise.resolve(stored);
+    // as stream-chat does: `watch()` resolves with the instance that superseded it
+    (created as { watch: () => Promise<Channel> }).watch = () => Promise.resolve(stored);
     renderAction(created);
 
     await act(async () => {

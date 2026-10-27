@@ -56,10 +56,9 @@ export const useSendAIMessage = () => {
       composer.textComposer.setText(text);
 
       // A new conversation exists only locally until now; `Channel` no longer creates it.
-      // Both setup steps run before `send()`, so a failure here leaves the draft untouched.
-      if (!channel.initialized) {
-        await channel.ensureWatched();
-      }
+      // `watch()` sends nothing for a conversation already watched and loaded. Both setup steps
+      // run before `send()`, so a failure here leaves the draft untouched.
+      await channel.watch();
 
       const [platform, model] = platformModel.split('|');
 

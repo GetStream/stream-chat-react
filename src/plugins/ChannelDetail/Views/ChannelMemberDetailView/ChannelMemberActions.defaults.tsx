@@ -232,15 +232,12 @@ const SendDirectMessageAction = () => {
 
     setIsSending(true);
     try {
-      const directMessageChannel = client.channelManager.ensure({
-        data: {
-          members: [client.userID, targetUserId].map((user_id) => ({ user_id })),
-        },
-        type: channel.type,
+      const directMessageChannel = client.channel(channel.type, {
+        members: [client.userID, targetUserId].map((user_id) => ({ user_id })),
       });
       // The stored instance, which differs from `directMessageChannel` if another instance took the
       // DM's `cid` while the watch was in flight.
-      const dm = await directMessageChannel.ensureWatched();
+      const dm = await directMessageChannel.watch();
       // Open the DM in the workspace (a `ChatView` slot, or whatever a custom
       // `WorkspaceNavigationProvider` does), then ingest it into the channel list(s) that should
       // own it so it appears without a re-query.

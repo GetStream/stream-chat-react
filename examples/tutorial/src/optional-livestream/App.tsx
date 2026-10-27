@@ -41,24 +41,19 @@ const App = () => {
     if (!chatClient) return;
 
     const initChannel = async () => {
-      const spaceChannel = chatClient.channelManager.ensure({
-        data: {
-          // custom channel fields live under `custom` since v10
-          custom: {
-            image: 'https://goo.gl/Zefkbx',
-            name: 'SpaceX launch discussion',
-          },
+      const spaceChannel = chatClient.channel('livestream', 'spacex', {
+        // custom channel fields live under `custom` since v10
+        custom: {
+          image: 'https://goo.gl/Zefkbx',
+          name: 'SpaceX launch discussion',
         },
-        id: 'spacex',
-        type: 'livestream',
       });
 
       // `Channel` binds a channel to its subtree; it does not query one, so initializing is the
-      // caller's job. The cached instance may already be loaded, so query only when it is not --
-      // and when a query is needed, `channel.ensureWatched()` de-duplicates calls that overlap in time.
-      if (!spaceChannel.initialized) {
-        await spaceChannel.ensureWatched();
-      }
+      // caller's job. `spaceChannel.watch()` sends nothing for a channel already watched and
+      // loaded, and joins a watch in flight, so a re-run of this effect still sends one request at
+      // most.
+      await spaceChannel.watch();
       setChannel(spaceChannel);
     };
 

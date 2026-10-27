@@ -181,24 +181,18 @@ const App = () => {
     if (!client) return;
 
     const initChannel = async () => {
-      const channel = client.channelManager.ensure({
-        data: {
-          members: [userId],
-          custom: {
-            image: 'https://getstream.io/random_png/?name=products',
-            name: 'Product recommendations',
-          },
+      const channel = client.channel('messaging', 'react-tutorial-products', {
+        members: [userId],
+        custom: {
+          image: 'https://getstream.io/random_png/?name=products',
+          name: 'Product recommendations',
         },
-        id: 'react-tutorial-products',
-        type: 'messaging',
       });
 
       // `Channel` binds a channel to its subtree; it does not query one, so initializing is the
-      // caller's job. The cached instance may already be loaded, so query only when it is not --
-      // and when a query is needed, `channel.ensureWatched()` de-duplicates calls that overlap in time.
-      if (!channel.initialized) {
-        await channel.ensureWatched();
-      }
+      // caller's job. `channel.watch()` sends nothing for a channel already watched and loaded, and
+      // joins a watch in flight, so a re-run of this effect still sends one request at most.
+      await channel.watch();
 
       // messages are no longer kept on channel.state — the paginator owns the list
       const hasProductMessage = (channel.messagePaginator.items ?? []).some((message) =>

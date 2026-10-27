@@ -114,10 +114,7 @@ async function createChannel(empty = false) {
   });
   const client = await getTestClientWithUser({ id: 'id' });
   useMockedApis(client, [getOrCreateChannelApi(mockedChannel)]); // eslint-disable-line react-hooks/rules-of-hooks
-  const channel = client.channelManager.ensure({
-    id: mockedChannel.channel.id,
-    type: 'messaging',
-  });
+  const channel = client.channel('messaging', mockedChannel.channel.id);
   await channel.watch();
 
   return { channel, client };
@@ -251,10 +248,7 @@ describe('VirtualizedMessageList', () => {
       });
       const client = await getTestClientWithUser({ id: 'id' });
       useMockedApis(client, [getOrCreateChannelApi(mockedChannel)]); // eslint-disable-line react-hooks/rules-of-hooks
-      const channel = client.channelManager.ensure({
-        id: mockedChannel.channel.id,
-        type: 'messaging',
-      });
+      const channel = client.channel('messaging', mockedChannel.channel.id);
       await channel.watch();
       // With newer pages still to load, scrollToBottom jumps to the latest message set instead of
       // scrolling, so pin it to the branch that targets a Virtuoso index.
@@ -396,10 +390,7 @@ describe('VirtualizedMessageList', () => {
         });
         const client = await getTestClientWithUser({ id: 'id' });
         useMockedApis(client, [getOrCreateChannelApi(mockedChannel)]); // eslint-disable-line react-hooks/rules-of-hooks
-        const channel = client.channelManager.ensure({
-          id: mockedChannel.channel.id,
-          type: 'messaging',
-        });
+        const channel = client.channel('messaging', mockedChannel.channel.id);
         await channel.watch();
 
         await act(() => {

@@ -344,7 +344,7 @@ examples/ai-chatbot/
 
 ### 18. **useSendAIMessage.ts**
 
-- The send path shared by `MessageInputBar` and voice mode: creates a new conversation with `channel.ensureWatched()`, starts the AI agent when it is not watching yet, sends through `composer.send()` (with attachments), records the message against the rate limit and summarizes a new conversation in the background (the summary never delays or fails the send)
+- The send path shared by `MessageInputBar` and voice mode: creates a new conversation with `channel.watch()`, starts the AI agent when it is not watching yet, sends through `composer.send()` (with attachments), records the message against the rate limit and summarizes a new conversation in the background (the summary never delays or fails the send)
 - Also holds `availableModels`, `defaultPlatformModel` and `isWatchedByAI`
 
 ### 19. **VoiceMode**
