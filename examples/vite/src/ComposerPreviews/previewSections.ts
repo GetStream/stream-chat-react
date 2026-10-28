@@ -33,7 +33,8 @@ export const PREVIEW_SECTION_INFO: Record<
   },
   poll: {
     label: 'Poll',
-    removes: 'The Poll option in the attachment selector.',
+    removes:
+      'The Poll option in the attachment selector. While shown, the poll dialog attaches the poll to the message instead of sending it.',
   },
   quotedMessage: {
     label: 'Quoted message',

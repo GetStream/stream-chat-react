@@ -101,6 +101,7 @@ import {
   ConfigurableComposerPreviews,
   ConfigurableStartRecordingAudioButton,
 } from './ComposerPreviews/ConfigurableComposerPreviews.tsx';
+import { ConfigurablePollCreationDialogControls } from './ComposerPreviews/ConfigurablePollCreationDialogControls.tsx';
 import { StreamDebugHandles } from './Debug';
 import {
   installUploadHarness,
@@ -702,6 +703,7 @@ const App = () => {
         MessageActions: ConfigurableMessageActions,
         AttachmentSelector: CommandModeAttachmentSelector,
         MessageComposerPreviews: ConfigurableComposerPreviews,
+        PollCreationDialogControls: ConfigurablePollCreationDialogControls,
         StartRecordingAudioButton: ConfigurableStartRecordingAudioButton,
         MessageUI: InlineEditableMessage,
         ...messageUiOverrides,
