@@ -7,18 +7,7 @@ import type {
 
 import { useChatContext } from '../../../context';
 import { useStateStore } from '../../../store';
-
-export type UseScheduledMessagesParams = {
-  cid?: string;
-  parentId?: string;
-};
-
-export type ScheduledMessagesSnapshot = {
-  isDisabled: boolean;
-  isLoaded: boolean;
-  isLoading: boolean;
-  scheduledMessages: ScheduledMessageResponse[];
-};
+import type { ScheduledMessagesSnapshot, UseScheduledMessagesParams } from '../types';
 
 const byScheduledAt = (a: ScheduledMessageResponse, b: ScheduledMessageResponse) =>
   Date.parse(a.scheduled_at) - Date.parse(b.scheduled_at) || a.id.localeCompare(b.id);

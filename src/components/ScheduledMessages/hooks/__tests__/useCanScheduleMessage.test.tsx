@@ -5,10 +5,8 @@ import { fromPartial } from '@total-typescript/shoehorn';
 import { MessageComposer } from 'stream-chat';
 import type { LocationComposerState, StreamChat } from 'stream-chat';
 
-import {
-  SCHEDULE_MESSAGE_CAPABILITY,
-  useCanScheduleMessage,
-} from '../useCanScheduleMessage';
+import { SCHEDULE_MESSAGE_CAPABILITY } from '../../constants';
+import { useCanScheduleMessage } from '../useCanScheduleMessage';
 import { ChannelStateProvider, ChatProvider } from '../../../../context';
 import { MessageComposerControllerProvider } from '../../../MessageComposer';
 import {
