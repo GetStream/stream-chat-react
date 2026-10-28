@@ -2,11 +2,7 @@
   {
     "file": "stream-chat-css-chat-ui-screenshot.png",
     "recipe": "base",
-    "query": {
-      "look": "sdk",
-      "channel": "docs-v15-cb-design",
-      "thread": "docs-v15-ck-design-4"
-    },
+    "query": { "channel": "docs-v15-cb-design", "thread": "docs-v15-ck-design-4" },
     "waitFor": ".str-chat__thread-container .str-chat__message-list",
     "settleMs": 1500
   },
@@ -26,11 +22,7 @@
   {
     "file": "stream-chat-css-dark-ui-screenshot.png",
     "variant": "sdk-dark",
-    "query": {
-      "look": "sdk",
-      "channel": "docs-v15-cb-design",
-      "thread": "docs-v15-ck-design-4"
-    },
+    "query": { "channel": "docs-v15-cb-design", "thread": "docs-v15-ck-design-4" },
     "waitFor": ".str-chat__thread-container .str-chat__message-list",
     "settleMs": 1500
   },

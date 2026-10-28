@@ -10,7 +10,7 @@
  *
  * A shot in shots.json:
  *   file      output file name (PNG)
- *   recipe    recipe id, or "base" for the SDK's default look; defaults to the folder's recipe
+ *   recipe    recipe id, or "base" for the base app alone; defaults to the folder's recipe
  *   variant   recipe variant (file name before .recipe.tsx); defaults to "default"
  *   query     extra URL parameters, e.g. { "channel": "...", "thread": "..." }
  *   viewport  { width, height }; defaults to the 1280×720 frame

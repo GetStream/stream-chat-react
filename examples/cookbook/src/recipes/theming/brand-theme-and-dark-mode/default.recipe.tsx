@@ -1,7 +1,10 @@
 import type { RecipeConfig } from '../../../base/recipe';
+import { loadFont } from './loadFont';
 import './theme.css';
 
-// The light theme: the base app's own look, which this recipe's theme.css sets.
+loadFont();
+
+// The light theme, from theme.css.
 const recipe: RecipeConfig = {};
 
 export default recipe;

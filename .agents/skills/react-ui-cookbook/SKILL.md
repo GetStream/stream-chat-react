@@ -16,12 +16,15 @@ style rules, and is shot in one frame with one cast. The runnable code lives her
 
 ## The look
 
-- **Theme:** the cookbook theme, shown on the UI › Customizing › Theming docs page (source:
-  `src/recipes/theming/brand-theme-and-dark-mode/theme.css`, which the base app loads for every
-  recipe): a violet accent (`#7C3AED`) on lavender-tinted surfaces, soft violet bubbles (`#875DD0`)
-  with white text, links and mentions for the user's own messages, white ones for everyone
-  else's, 20px bubbles, 16–20px cards, pill-shaped buttons and inputs, Plus Jakarta Sans, and soft
-  violet-tinted shadows. Change the look only there, never in another recipe. Recipes are shot in the light theme; only the Theming recipe adds dark
+- **Theme:** the SDK's default theme, light, with its default font: the base app loads no theme
+  of its own, and no recipe changes the theme's colors or font. A recipe's CSS reads the
+  `--str-chat__*` tokens, so it follows whatever theme an app sets. Only the Theming recipe
+  (`src/recipes/theming/brand-theme-and-dark-mode/`, shown on the UI › Customizing › Theming docs
+  page) loads a theme, from its own variants: `theme.css`, a green brand theme in light and dark
+  (an emerald accent, `#047857`, on green-tinted surfaces, solid green own bubbles, `#1a7f5a`,
+  with white text, links and mentions, rounder bubbles and cards, Plus Jakarta Sans and soft
+  green-tinted shadows), with every text at 4.5:1 and every border and icon at 3:1. Change the
+  green theme only there. Recipes are shot in the light theme; only the Theming recipe adds dark
   shots.
 - **Frame:** desktop 1280×720 at DPR 1 (`ChatView`: channel list 320px on the left, the open
   channel in the middle, a thread on the right when the recipe needs one). Phone recipes use

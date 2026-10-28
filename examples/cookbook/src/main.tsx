@@ -29,16 +29,6 @@ const RecipeIndex = () => (
 );
 
 const start = async () => {
-  // The cookbook's look is the theme the Theming › Brand theme and dark mode recipe builds.
-  // `?look=sdk` leaves it out, for screenshots of the SDK's own default look.
-  if (params.get('look') !== 'sdk') {
-    const [{ loadFont }] = await Promise.all([
-      import('./recipes/theming/brand-theme-and-dark-mode/loadFont'),
-      import('./recipes/theming/brand-theme-and-dark-mode/theme.css'),
-    ]);
-    loadFont();
-  }
-
   // No `?recipe=` shows the list of recipes; `?recipe=base` is the base app on its own.
   if (!recipeId) return root.render(<RecipeIndex />);
 

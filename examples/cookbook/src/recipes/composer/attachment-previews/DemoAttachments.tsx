@@ -8,7 +8,7 @@ import { useChatContext } from 'stream-chat-react';
  * them. Nothing is uploaded or sent.
  */
 
-// Gradient tiles in the cookbook's violets, drawn locally so no image is fetched.
+// Gradient tiles in the SDK's default blues, drawn locally so no image is fetched.
 const drawTile = async (from: string, to: string) => {
   const canvas = document.createElement('canvas');
   canvas.width = canvas.height = 96;
@@ -50,9 +50,9 @@ const silentWav = () => {
 const buildAttachments = (kind: string): Promise<LocalAttachment[]> => {
   if (kind === 'images') {
     const tiles = [
-      ['#c4b5fd', '#7c3aed', 'finished', undefined],
-      ['#ddd6fe', '#a78bfa', 'finished', undefined],
-      ['#ede9fe', '#8b5cf6', 'uploading', 60],
+      ['#a5c5ff', '#005fff', 'finished', undefined],
+      ['#c3d9ff', '#4586ff', 'finished', undefined],
+      ['#e3edff', '#78a8ff', 'uploading', 60],
     ] as const;
     return Promise.all(
       tiles.map(async ([from, to, uploadState, uploadProgress], index) => {

@@ -48,7 +48,7 @@ const ActiveThread = () => {
 
 /**
  * The app every recipe starts from: `Chat`, `ChatView` with the channel list, the open channel, a
- * thread beside it and the side panel after them, in the cookbook's theme. A recipe changes it
+ * thread beside it and the side panel after them, in the SDK's default theme. A recipe changes it
  * through `RecipeConfig`.
  */
 export const BaseApp = ({ recipe }: { recipe: RecipeConfig }) => {

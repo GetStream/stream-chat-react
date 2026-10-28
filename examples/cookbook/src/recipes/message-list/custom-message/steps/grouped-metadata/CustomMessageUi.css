@@ -46,12 +46,6 @@
     margin: 0;
   }
 
-  /* The SDK colors mentions with the accent, which the user's own violet bubble would hide. */
-  .cookbook-message-ui--mine .str-chat__message-mention {
-    color: var(--str-chat__chat-text-outgoing);
-    text-decoration: underline;
-  }
-
   .cookbook-message-ui__metadata {
     display: none;
     align-items: baseline;
