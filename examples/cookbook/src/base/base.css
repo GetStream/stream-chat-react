@@ -9,6 +9,7 @@
 @import 'modern-normalize/modern-normalize.css' layer(modern-normalize);
 @import 'stream-chat-react/dist/css/index.css' layer(stream);
 @import 'stream-chat-react/dist/css/channel-detail.css' layer(stream);
+@import 'stream-chat-react/dist/css/ai-components.css' layer(stream);
 
 /* The base app: the Quick start's layout.css, in the 1280×720 frame screenshots are taken in. */
 @layer cookbook-base {

@@ -1,0 +1,52 @@
+@layer stream-overrides {
+  /* A strip under the channel header: the glow, the status, the microphone's wave and End. */
+  .cookbook-voice-panel {
+    /* What the glow and the wave sit on, so they pick their light or dark look from it. */
+    --str-chat__ai-voice-backdrop: var(--str-chat__background-core-surface-subtle);
+
+    display: flex;
+    align-items: center;
+    gap: var(--str-chat__spacing-md);
+    padding-inline-end: var(--str-chat__spacing-lg);
+    border-block-end: 1px solid var(--str-chat__border-core-default);
+    background: var(--str-chat__background-core-surface-subtle);
+  }
+
+  /*
+   * Both draw in the middle of their box: the glow's globe about half as wide as the box, the
+   * wave's string about 84% as wide as its shorter side.
+   */
+  .cookbook-voice-panel__glow,
+  .cookbook-voice-panel__wave {
+    flex: none;
+    width: 128px;
+    height: 128px;
+  }
+
+  .cookbook-voice-panel__text {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .cookbook-voice-panel__name {
+    margin: 0;
+    color: var(--str-chat__text-secondary);
+    font: var(--str-chat__font-caption-default);
+  }
+
+  .cookbook-voice-panel__status {
+    margin: 0;
+    color: var(--str-chat__text-primary);
+    font: var(--str-chat__font-heading-sm);
+  }
+
+  /* Read by screen readers only: the panel shows the state on screen. */
+  .cookbook-voice-announcement {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+}
