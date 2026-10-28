@@ -1,4 +1,5 @@
 import React from 'react';
+import type { Channel } from 'stream-chat';
 
 import { type ChannelAvatarProps, ChannelAvatar as DefaultAvatar } from '../Avatar';
 import { TypingIndicatorHeader } from '../TypingIndicator/TypingIndicatorHeader';
@@ -8,7 +9,24 @@ import { useChannelPreviewInfo } from '../ChannelListItem/hooks/useChannelPrevie
 import { useChannel } from '../../context';
 import { WorkspaceNavigationBackButton, WorkspaceNavigationCloseButton } from '../Button';
 
-const ChannelHeaderSubtitle = () => {
+export type ChannelHeaderTitleProps = {
+  /** The channel the header belongs to. */
+  channel: Channel;
+  /** The title to show: the `title` passed to `ChannelHeader`, else the channel display name. */
+  displayTitle?: string;
+};
+
+/** Default title of `ChannelHeader`: the display title in a `div`. */
+export const ChannelHeaderTitle = ({ displayTitle }: ChannelHeaderTitleProps) => (
+  <div className='str-chat__channel-header__data__title'>{displayTitle}</div>
+);
+
+/**
+ * Default subtitle of `ChannelHeader`, for the channel in context. Shows the typing indicator while
+ * other users type, otherwise the online status from `useChannelHeaderOnlineStatus`, and
+ * transitions between the two. Renders nothing when there is neither.
+ */
+export const ChannelHeaderSubtitle = () => {
   const channel = useChannel();
   const onlineStatusText = useChannelHeaderOnlineStatus();
   const hasTyping = useTypingUsers(channel).length > 0;
@@ -41,6 +59,11 @@ export type ChannelHeaderProps = {
    * passed here replaces it and can render that button to keep it.
    */
   StartContent?: React.ComponentType;
+  /**
+   * Replaces the title. Defaults to `ChannelHeaderTitle`. Receives the channel and its display
+   * title, so it can render the title as a button, for example. The subtitle stays below it.
+   */
+  Title?: React.ComponentType<ChannelHeaderTitleProps>;
   /** Overrides the channel image. */
   image?: string;
   /** Overrides the channel title. */
@@ -54,6 +77,7 @@ export const ChannelHeader = (props: ChannelHeaderProps) => {
     EndContent = WorkspaceNavigationCloseButton,
     image: overrideImage,
     StartContent = WorkspaceNavigationBackButton,
+    Title = ChannelHeaderTitle,
     title: overrideTitle,
   } = props;
 
@@ -70,7 +94,7 @@ export const ChannelHeader = (props: ChannelHeaderProps) => {
         <StartContent />
       </div>
       <div className='str-chat__channel-header__data'>
-        <div className='str-chat__channel-header__data__title'>{displayTitle}</div>
+        <Title channel={channel} displayTitle={displayTitle} />
         <ChannelHeaderSubtitle />
       </div>
       <div className='str-chat__channel-header__end'>

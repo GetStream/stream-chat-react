@@ -2,7 +2,7 @@ import React from 'react';
 import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { fromPartial } from '@total-typescript/shoehorn';
 
-import { ChannelHeader } from '../ChannelHeader';
+import { ChannelHeader, ChannelHeaderSubtitle } from '../ChannelHeader';
 
 import { Channel } from '../../Channel';
 import { Chat } from '../../Chat';
@@ -32,7 +32,7 @@ import type {
   UserResponse,
 } from 'stream-chat';
 import type { ComponentContextValue } from '../../../context';
-import type { ChannelHeaderProps } from '../ChannelHeader';
+import type { ChannelHeaderProps, ChannelHeaderTitleProps } from '../ChannelHeader';
 import type { GenerateChannelOptions } from '../../../mock-builders/generator/channel';
 
 const AVATAR_IMG_TEST_ID = 'avatar-img';
@@ -583,6 +583,97 @@ describe('ChannelHeader', () => {
           expect(img).toHaveAttribute('src', channelState.members[i].user?.image);
         });
       });
+    });
+  });
+
+  describe('Title prop', () => {
+    it('renders the display title in the default title element', async () => {
+      const { container } = await renderComponent({
+        channelData: channelCustom({ name: 'test-channel-1' }),
+      });
+
+      await waitFor(() => {
+        const titleEl = container.querySelector('.str-chat__channel-header__data__title');
+        expect(titleEl?.tagName).toBe('DIV');
+        expect(titleEl).toHaveTextContent('test-channel-1');
+      });
+    });
+
+    it('renders the Title passed to it in place of the default title', async () => {
+      const onClick = vi.fn();
+      const receivedProps: ChannelHeaderTitleProps[] = [];
+      const Title = (titleProps: ChannelHeaderTitleProps) => {
+        receivedProps.push(titleProps);
+        return (
+          <button
+            className='str-chat__channel-header__data__title'
+            onClick={onClick}
+            type='button'
+          >
+            {titleProps.displayTitle}
+          </button>
+        );
+      };
+
+      const { container } = await renderComponent({
+        channelData: { ...channelCustom({ name: 'test-channel-1' }), member_count: 5 },
+        props: { Title, title: 'Custom Title' },
+      });
+
+      const button = await screen.findByRole('button', { name: 'Custom Title' });
+      fireEvent.click(button);
+      expect(onClick).toHaveBeenCalledTimes(1);
+      expect(receivedProps.at(-1)).toEqual({
+        channel: expect.objectContaining({ cid: `messaging:${testChannel1.channel.id}` }),
+        displayTitle: 'Custom Title',
+      });
+      expect(
+        container.querySelectorAll('.str-chat__channel-header__data__title'),
+      ).toHaveLength(1);
+      // The subtitle stays below the replaced title.
+      expect(
+        container.querySelector('.str-chat__channel-header__data__subtitle'),
+      ).toBeInTheDocument();
+      expect(await axe(container)).toHaveNoViolations();
+    });
+  });
+
+  describe('ChannelHeaderSubtitle', () => {
+    const renderSubtitle = async (watchers: UserResponse[]) => {
+      client = await getTestClientWithUser(user1);
+      testChannel1 = generateChannel({
+        ...defaultChannelState,
+        channel: { member_count: 2 },
+      });
+      /* eslint-disable-next-line react-hooks/rules-of-hooks */
+      useMockedApis(client, [getOrCreateChannelApi(testChannel1)]);
+      const channel = client.channel('messaging', testChannel1.channel.id);
+      await channel.query();
+      channel.state.watchers = Object.fromEntries(
+        watchers.map((user) => [user.id, user]),
+      );
+
+      return render(
+        <Chat client={client}>
+          <Channel channel={channel}>
+            <ChannelHeaderSubtitle />
+          </Channel>
+        </Chat>,
+      );
+    };
+
+    it('shows Online for a direct message whose other member is watching', async () => {
+      const { container } = await renderSubtitle([user2]);
+
+      expect(await screen.findByText('Online')).toBeInTheDocument();
+      expect(await axe(container)).toHaveNoViolations();
+    });
+
+    it('shows Offline for a direct message whose other member is not watching', async () => {
+      const { container } = await renderSubtitle([user1]);
+
+      expect(await screen.findByText('Offline')).toBeInTheDocument();
+      expect(await axe(container)).toHaveNoViolations();
     });
   });
 });
