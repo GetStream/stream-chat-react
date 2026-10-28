@@ -34,17 +34,47 @@
     min-width: 0;
     flex: 1;
     height: 100%;
-
-    .str-chat__poll-preview__data__title,
-    .str-chat__poll-preview__data__subtitle {
-      @include utils.ellipsis-text();
-    }
+    gap: 2px;
 
     .str-chat__poll-preview__data__title {
+      @include utils.ellipsis-text();
       font: var(--str-chat__font-metadata-emphasis);
     }
-    .str-chat__poll-preview__data__subtitle {
+
+    .str-chat__poll-preview__data__options {
+      display: flex;
+      gap: var(--str-chat__spacing-xxs);
+      min-width: 0;
       font: var(--str-chat__font-metadata-default);
+    }
+
+    .str-chat__poll-preview__data__options-count {
+      flex-shrink: 0;
+      color: var(--str-chat__text-primary);
+    }
+
+    // A poll holds up to 100 options; only the first few are named and the line still ellipsizes.
+    .str-chat__poll-preview__data__options-list {
+      @include utils.ellipsis-text();
+      min-width: 0;
+      color: var(--str-chat__text-secondary);
+    }
+
+    .str-chat__poll-preview__data__settings {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--str-chat__spacing-xxs);
+      margin: 2px 0 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .str-chat__poll-preview__data__setting {
+      padding: 0 var(--str-chat__spacing-xs);
+      border-radius: var(--str-chat__radius-max);
+      background-color: var(--str-chat__background-core-overlay-light);
+      font: var(--str-chat__font-metadata-default);
+      white-space: nowrap;
     }
   }
 }

@@ -418,7 +418,18 @@ export type TranslationCatalog = {
   'messageComposer.geolocationPreview.removeLocationAttachment.ariaLabel': 'Remove location attachment';
   'messageComposer.geolocationPreview.sharedLocation.title': 'Shared location';
   'messageComposer.icons.attachFiles.text': 'Attach files';
+  'messageComposer.pollPreview.anonymous.text': 'Anonymous';
+  'messageComposer.pollPreview.comments.text': 'Comments';
+  'messageComposer.pollPreview.listedOptions.withMore.text_one': '{{ options }} and {{ count }} more';
+  'messageComposer.pollPreview.listedOptions.withMore.text_other': '{{ options }} and {{ count }} more';
+  'messageComposer.pollPreview.maxVotes.text_one': 'Up to {{ count }} vote';
+  'messageComposer.pollPreview.maxVotes.text_other': 'Up to {{ count }} votes';
+  'messageComposer.pollPreview.multipleVotes.text': 'Multiple votes';
+  'messageComposer.pollPreview.optionCount.text_one': '{{ count }} option';
+  'messageComposer.pollPreview.optionCount.text_other': '{{ count }} options';
   'messageComposer.pollPreview.removePoll.ariaLabel': 'Remove poll';
+  'messageComposer.pollPreview.settings.ariaLabel': 'Poll settings';
+  'messageComposer.pollPreview.suggestOptions.text': 'Others can add options';
   'messageComposer.quotedMessagePreview.cancelReply.ariaLabel': 'Cancel Reply';
   'messageComposer.quotedMessagePreview.files.label_one': '{{ count }} file';
   'messageComposer.quotedMessagePreview.files.label_other': '{{ count }} files';

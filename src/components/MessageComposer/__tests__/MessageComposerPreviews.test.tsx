@@ -1,5 +1,5 @@
 import React from 'react';
-import { act, cleanup, fireEvent, render, screen } from '@testing-library/react';
+import { act, cleanup, fireEvent, render, screen, within } from '@testing-library/react';
 import { fromPartial } from '@total-typescript/shoehorn';
 import type { Attachment, Channel as ChannelType, StreamChat } from 'stream-chat';
 import { LinkPreviewStatus } from 'stream-chat';
@@ -224,9 +224,47 @@ describe('MessageComposerPreviews', () => {
       const pollPreview = screen.getByTestId('poll-preview');
       expect(container.querySelector(`.${PREVIEWS_CLASS}`)).toContainElement(pollPreview);
       expect(pollPreview).toHaveTextContent(poll.name);
-      expect(pollPreview).toHaveTextContent(
-        poll.options.map(({ text }) => text).join(', '),
+      // The default generated poll: 4 options, up to 2 votes, public, comments on.
+      expect(pollPreview).toHaveTextContent('4 options');
+      expect(pollPreview).toHaveTextContent('A, B, C and 1 more');
+      expect(
+        within(screen.getByRole('list', { name: 'Poll settings' }))
+          .getAllByRole('listitem')
+          .map((item) => item.textContent),
+      ).toEqual(['Up to 2 votes', 'Comments']);
+    });
+
+    it('names only the first options of a long poll and reflects its settings', async () => {
+      const { channel, client } = await setup();
+      const poll = cachePoll(
+        client,
+        generatePoll({
+          allow_answers: false,
+          allow_user_suggested_options: true,
+          enforce_unique_vote: true,
+          id: 'long-poll',
+          options: Array.from({ length: 99 }, (_, index) => ({
+            id: `option-${index}`,
+            text: `Option ${index + 1}`,
+          })),
+          voting_visibility: 'anonymous',
+        }),
       );
+      await renderPreviews({ channel, client });
+
+      await act(() => {
+        channel.messageComposer.state.partialNext({ pollId: poll.id });
+      });
+
+      const pollPreview = screen.getByTestId('poll-preview');
+      expect(pollPreview).toHaveTextContent('99 options');
+      expect(pollPreview).toHaveTextContent('Option 1, Option 2, Option 3 and 96 more');
+      expect(pollPreview).not.toHaveTextContent('Option 4');
+      expect(
+        within(screen.getByRole('list', { name: 'Poll settings' }))
+          .getAllByRole('listitem')
+          .map((item) => item.textContent),
+      ).toEqual(['Anonymous', 'Others can add options']);
     });
 
     it('fetches a poll that is not cached', async () => {
