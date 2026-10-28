@@ -2178,6 +2178,47 @@ export const App = ({ children }: { children: React.ReactNode }) => (
 - `isVisible` sees only the state above, so a preview that depends on something else must read it inside its `Component` and return `null`. To drive visibility from app state, put it in `messageComposer.customDataManager.setCustomData(...)` and read `customData`.
 - `EditedMessagePreview`, `GeolocationPreview` and `PollPreview` are now exported from the root.
 
+The default poll creation dialog sends the poll as soon as it is created, so the poll preview only shows a poll created elsewhere. To have the dialog attach the poll to the message being composed instead, replace its footer through the new `PollCreationDialogControls` slot (`PollCreationDialogControls` and `PollCreationDialogControlsProps` are exported) and call `createPoll()` without `send()`:
+
+```tsx
+import {
+  type PollCreationDialogControlsProps,
+  Prompt,
+  useMessageComposerController,
+  WithComponents,
+} from 'stream-chat-react';
+
+const AttachPollControls = ({ close }: PollCreationDialogControlsProps) => {
+  const messageComposer = useMessageComposerController();
+
+  return (
+    <Prompt.Footer>
+      <Prompt.FooterControls>
+        <Prompt.FooterControlsButtonSecondary onClick={close} type='button'>
+          Cancel
+        </Prompt.FooterControlsButtonSecondary>
+        <Prompt.FooterControlsButtonPrimary
+          onClick={async () => {
+            // The poll waits in `messageComposer.state.pollId` and goes out with the message.
+            await messageComposer.createPoll();
+            close();
+          }}
+          type='submit'
+        >
+          Attach poll
+        </Prompt.FooterControlsButtonPrimary>
+      </Prompt.FooterControls>
+    </Prompt.Footer>
+  );
+};
+
+export const App = ({ children }: { children: React.ReactNode }) => (
+  <WithComponents overrides={{ PollCreationDialogControls: AttachPollControls }}>
+    {children}
+  </WithComponents>
+);
+```
+
 ---
 
 ## 14. Request handlers

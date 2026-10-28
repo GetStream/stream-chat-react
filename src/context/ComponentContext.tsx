@@ -38,6 +38,7 @@ import {
   type NotificationListProps,
   type NotificationProps,
   type PinIndicatorProps,
+  type PollCreationDialogControlsProps,
   type PollCreationDialogProps,
   type PollOptionSelectorProps,
   type QuotedMessagePreviewProps,
@@ -257,6 +258,12 @@ export type ComponentContextValue = {
   PollContent?: React.ComponentType;
   /** Contents of the poll creation dialog. */
   PollCreationDialog?: React.ComponentType<PollCreationDialogProps>;
+  /**
+   * Footer of the poll creation dialog. The default cancels, or creates the poll and sends it at
+   * once. Calling `messageComposer.createPoll()` without `send()` instead leaves the poll in the
+   * composer (`state.pollId`) to go out with the next message.
+   */
+  PollCreationDialogControls?: React.ComponentType<PollCreationDialogControlsProps>;
   /** Poll header in a message. */
   PollHeader?: React.ComponentType;
   /** Poll option selector. */
