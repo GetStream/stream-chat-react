@@ -154,13 +154,21 @@ alone, and no parameter lists every recipe.
 
 Every recipe page has the same shape:
 
-1. What it builds, with the main screenshot right after the intro.
+1. What it builds: a one- or two-sentence intro, then the features in a note: `<Admonition
+   type="note">` that opens with the bold line **What you'll build**, then one short bullet per
+   feature: what the user gets, never how it's done (the steps cover that). Then the main
+   screenshot, captioned **Preview**.
 2. Which level it uses, from the Overview's order: restyle, replace one part, compose, or change
    behaviour in the state layer.
 3. "Start from the base app", linking to the Overview.
 4. The steps, each with its code and, where it helps, a screenshot next to it.
 5. How it works.
 6. Related pages.
+
+Every screenshot has a caption: a short bold line right above the image, **Preview** for the main
+one and a few words saying what the image shows for the others (the site can't render image
+captions below an image). Each captioned screenshot sits between two horizontal rules (`---`, with a
+blank line on each side); consecutive screenshots share the rule between them.
 
 A component and its stylesheet go in one `<Tabs>` block, the code tab labelled `React` and the
 stylesheet tab `CSS`, each with its `title` (see the Pin indicator page).
