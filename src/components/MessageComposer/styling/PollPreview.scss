@@ -1,0 +1,50 @@
+@use '../../../styling/utils';
+
+.str-chat__poll-preview {
+  position: relative;
+  width: 100%;
+  min-width: 0;
+  display: flex;
+  align-items: start;
+  justify-content: space-around;
+  gap: var(--str-chat__spacing-xs);
+  padding-inline: var(--str-chat__spacing-xs) var(--str-chat__spacing-sm);
+  padding-block: var(--str-chat__spacing-xs);
+  background-color: var(--str-chat__chat-bg-outgoing);
+  border-radius: var(--str-chat__message-bubble-radius-attachment);
+
+  .str-chat__poll-preview-image {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--str-chat__background-core-overlay-light);
+    width: 40px;
+    height: 40px;
+
+    .str-chat__icon {
+      width: 20px;
+      height: 20px;
+    }
+  }
+
+  .str-chat__poll-preview__data {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    min-width: 0;
+    flex: 1;
+    height: 100%;
+
+    .str-chat__poll-preview__data__title,
+    .str-chat__poll-preview__data__subtitle {
+      @include utils.ellipsis-text();
+    }
+
+    .str-chat__poll-preview__data__title {
+      font: var(--str-chat__font-metadata-emphasis);
+    }
+    .str-chat__poll-preview__data__subtitle {
+      font: var(--str-chat__font-metadata-default);
+    }
+  }
+}

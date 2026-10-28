@@ -1,5 +1,6 @@
 // todo: should we have img dimensions determined by semantic variables?
 .str-chat__location-preview-image,
+.str-chat__poll-preview-image,
 .str-chat__link-preview-card .str-chat__image-placeholder,
 .str-chat__attachment-preview__thumbnail {
   border-radius: var(--str-chat__radius-md);

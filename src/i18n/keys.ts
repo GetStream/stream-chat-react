@@ -418,6 +418,7 @@ export type TranslationCatalog = {
   'messageComposer.geolocationPreview.removeLocationAttachment.ariaLabel': 'Remove location attachment';
   'messageComposer.geolocationPreview.sharedLocation.title': 'Shared location';
   'messageComposer.icons.attachFiles.text': 'Attach files';
+  'messageComposer.pollPreview.removePoll.ariaLabel': 'Remove poll';
   'messageComposer.quotedMessagePreview.cancelReply.ariaLabel': 'Cancel Reply';
   'messageComposer.quotedMessagePreview.files.label_one': '{{ count }} file';
   'messageComposer.quotedMessagePreview.files.label_other': '{{ count }} files';

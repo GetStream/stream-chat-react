@@ -190,6 +190,11 @@ export type ComponentContextValue = {
    * overriding one icon leaves the rest intact. Read with `useComponentContextIcons`.
    */
   icons?: IconSlots;
+  /**
+   * Previews above the composer's textarea. The default renders `defaultMessageComposerPreviewSet`;
+   * render `MessageComposerPreviews` with your own `messageComposerPreviewSet` to change it.
+   */
+  MessageComposerPreviews?: React.ComponentType;
   /** How the message composer renders. */
   MessageComposerUI?: React.ComponentType<MessageComposerProps>;
   /** Link previews in the message composer. */
@@ -244,6 +249,8 @@ export type ComponentContextValue = {
    */
   MessageAlsoSentInChannelIndicator?: React.ComponentType;
   PinIndicator?: React.ComponentType<PinIndicatorProps>;
+  /** Preview of the poll the message composer holds (`messageComposer.state.pollId`). */
+  PollPreview?: React.ComponentType;
   /** Poll actions in a message. */
   PollActions?: React.ComponentType;
   /** Poll rendering in a message. */

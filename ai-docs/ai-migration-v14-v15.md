@@ -2132,6 +2132,52 @@ export const ComposerPreviews = ({ children }: { children: ReactNode }) => (
 );
 ```
 
+### New: composer previews are a configurable set, with a poll preview
+
+Not a break. The previews above the composer's textarea (`.str-chat__message-composer-previews`) come from `MessageComposerPreviews`, which renders a `messageComposerPreviewSet` the way `MessageActions` renders a `messageActionSet`. Each item names itself with a `type`, renders a `Component` without props, and shows while `isVisible(state)` holds. `state` (`MessageComposerPreviewState`) carries the composer's `attachments`, `customData`, `editedMessage`, `linkPreviews` (loading or loaded), `location`, `pollId` and `quotedMessage`. The preview area renders when any item is visible.
+
+`defaultMessageComposerPreviewSet` keeps v14's previews in v14's order (`editedMessage`, `quotedMessage`, `voiceRecording`, `attachments`, `linkPreviews`, `location`) and adds `poll`. The poll preview shows while `messageComposer.state.pollId` holds a poll created with `messageComposer.createPoll()` and not sent yet, and not while editing. It shows the poll's question and options (fetching a poll missing from `client.polls`, e.g. one restored from a draft), and its remove button detaches the poll from the composer. Replace it through the `PollPreview` component slot.
+
+Filter, reorder or extend the default set, then install it with the `MessageComposerPreviews` slot:
+
+```tsx
+import {
+  defaultMessageComposerPreviewSet,
+  MessageComposerPreviews,
+  type MessageComposerPreviewSetItem,
+  useMessageComposerController,
+  WithComponents,
+} from 'stream-chat-react';
+
+const ReplyingInChannelHint = () => {
+  const messageComposer = useMessageComposerController();
+  return <div>Replying in {messageComposer.channel.data?.name}</div>;
+};
+
+const previewSet: MessageComposerPreviewSetItem[] = [
+  ...defaultMessageComposerPreviewSet.filter(({ type }) => type !== 'linkPreviews'),
+  {
+    Component: ReplyingInChannelHint,
+    isVisible: ({ quotedMessage }) => !!quotedMessage,
+    type: 'replyingInChannelHint',
+  },
+];
+
+const CustomComposerPreviews = () => (
+  <MessageComposerPreviews messageComposerPreviewSet={previewSet} />
+);
+
+export const App = ({ children }: { children: React.ReactNode }) => (
+  <WithComponents overrides={{ MessageComposerPreviews: CustomComposerPreviews }}>
+    {children}
+  </WithComponents>
+);
+```
+
+- `useMessageComposerPreviewSetFilter(set)` returns the visible items, and `useMessageComposerPreviewState()` the state they are checked against, for a custom container.
+- `isVisible` sees only the state above, so a preview that depends on something else must read it inside its `Component` and return `null`. To drive visibility from app state, put it in `messageComposer.customDataManager.setCustomData(...)` and read `customData`.
+- `EditedMessagePreview`, `GeolocationPreview` and `PollPreview` are now exported from the root.
+
 ---
 
 ## 14. Request handlers

@@ -564,6 +564,7 @@ export const deTranslations = {
     'Standortanhang entfernen',
   'messageComposer.geolocationPreview.sharedLocation.title': 'Geteilter Standort',
   'messageComposer.icons.attachFiles.text': 'Dateien anhängen',
+  'messageComposer.pollPreview.removePoll.ariaLabel': 'Umfrage entfernen',
   'messageComposer.quotedMessagePreview.cancelReply.ariaLabel': 'Antwort abbrechen',
   'messageComposer.quotedMessagePreview.files.label_one': '{{ count }} Datei',
   'messageComposer.quotedMessagePreview.files.label_other': '{{ count }} Dateien',
