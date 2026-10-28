@@ -9,6 +9,7 @@ import {
   SettingsTabBody,
   SettingsTabLayoutHeader,
 } from '../SettingsTabLayoutComponents.tsx';
+import { PreviewSectionsField } from './PreviewSectionsField';
 
 const uploadDestinations: { label: string; value: UploadDestination }[] = [
   { label: 'Stream', value: 'stream' },
@@ -45,6 +46,20 @@ export const ComposerTab = ({ close }: ComposerTabProps) => {
       />
 
       <SettingsTabBody>
+        <div className='app__settings-modal__field'>
+          <div className='app__settings-modal__field-label'>Preview sections</div>
+          <div className='app__settings-modal__field-comment'>
+            The previews above the textarea, rendered through{' '}
+            <code>MessageComposerPreviews</code> with a{' '}
+            <code>messageComposerPreviewSet</code> built from{' '}
+            <code>defaultMessageComposerPreviewSet</code>. Drag a section, or use its
+            arrows, to change the order; switch it off to leave it out. A removed section
+            also takes the composer&apos;s way into it with it, so the composer never
+            holds something it cannot show. Applies to open composers at once.
+          </div>
+          <PreviewSectionsField />
+        </div>
+
         <div className='app__settings-modal__field'>
           <div className='app__settings-modal__field-label'>Pending uploads</div>
           <SwitchField

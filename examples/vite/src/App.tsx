@@ -22,6 +22,7 @@ import {
   createCommandStringExtractionMiddleware,
   createDraftCommandInjectionMiddleware,
   createPriorityOwnershipResolver,
+  isVoiceRecordingAttachment,
   MessageSearchSource,
   SearchController,
   UserSearchSource,
@@ -96,6 +97,10 @@ import { ConfigurableMessageActions } from './CustomMessageActions';
 import { InlineEditableMessage } from './InlineEditMessage';
 import { SidebarToggle } from './Sidebar/SidebarToggle.tsx';
 import { CommandModeAttachmentSelector } from './CommandModeAttachmentSelector.tsx';
+import {
+  ConfigurableComposerPreviews,
+  ConfigurableStartRecordingAudioButton,
+} from './ComposerPreviews/ConfigurableComposerPreviews.tsx';
 import { StreamDebugHandles } from './Debug';
 import {
   installUploadHarness,
@@ -291,8 +296,17 @@ const formatDocumentTitle = ({
 const App = () => {
   const { tokenProvider, userId, userImage, userName } = useUser();
   const chatView = useAppSettingsSelector((state) => state.chatView);
-  const { failUploads, sendMessagesWithPendingUploads, slowUploads, uploadDestination } =
-    useAppSettingsSelector((state) => state.composer);
+  const {
+    disabledPreviewSections,
+    failUploads,
+    sendMessagesWithPendingUploads,
+    slowUploads,
+    uploadDestination,
+  } = useAppSettingsSelector((state) => state.composer);
+  const filesDisabled = disabledPreviewSections.includes('attachments');
+  const linkPreviewsDisabled = disabledPreviewSections.includes('linkPreviews');
+  const locationDisabled = disabledPreviewSections.includes('location');
+  const pollDisabled = disabledPreviewSections.includes('poll');
   // Project to a stable-shape object rather than returning `state.layout` directly. `layout`
   // starts as `{}`, and useStateStore only diffs the keys present in its *cached* selection — so
   // a selection that starts empty never notices `channelCid` appearing later, and the modal would
@@ -573,12 +587,28 @@ const App = () => {
         unique: true,
       });
 
+      // A preview section left out in Settings -> Composer also closes the way into it, so the
+      // composer never holds something it cannot show. Voice recordings are attachments too, so
+      // removing Files filters uploads rather than disabling the attachment manager.
       composer.updateConfig({
-        linkPreviews: { enabled: true },
-        location: { enabled: true },
+        attachments: {
+          fileUploadFilter: filesDisabled ? isVoiceRecordingAttachment : () => true,
+        },
+        linkPreviews: { enabled: !linkPreviewsDisabled },
+        location: { enabled: !locationDisabled },
+        polls: { enabled: !pollDisabled },
       });
     });
-  }, [chatClient, failUploads, slowUploads, uploadDestination]);
+  }, [
+    chatClient,
+    failUploads,
+    filesDisabled,
+    linkPreviewsDisabled,
+    locationDisabled,
+    pollDisabled,
+    slowUploads,
+    uploadDestination,
+  ]);
 
   useEffect(() => {
     if (!chatClient) return;
@@ -671,6 +701,8 @@ const App = () => {
         HeaderEndContent: SidebarToggle,
         MessageActions: ConfigurableMessageActions,
         AttachmentSelector: CommandModeAttachmentSelector,
+        MessageComposerPreviews: ConfigurableComposerPreviews,
+        StartRecordingAudioButton: ConfigurableStartRecordingAudioButton,
         MessageUI: InlineEditableMessage,
         ...messageUiOverrides,
       }}

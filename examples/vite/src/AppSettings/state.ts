@@ -1,5 +1,5 @@
 import { StateStore } from '@stream-io/state-store';
-import { useStateStore } from 'stream-chat-react';
+import { defaultMessageComposerPreviewSet, useStateStore } from 'stream-chat-react';
 
 import { DEFAULT_LANGUAGE, streamI18n } from '../i18n';
 import type { UploadDestination, UploadFailureMode } from '../SendWhilePendingUploads';
@@ -103,6 +103,17 @@ export type ComposerSettingsState = {
   /** The CDN upload endpoint used while `uploadDestination` is `custom-url`. */
   customCdnUrl: string;
   /**
+   * `MessageComposerPreviewSetItem['type']`s left out of the composer. Held as what is turned
+   * *off* so a newly shipped default preview appears without a settings migration. Removing one
+   * also removes the composer's way into it (e.g. `attachments` drops the selector's File option).
+   */
+  disabledPreviewSections: string[];
+  /**
+   * The composer's preview sections in render order. A default preview missing from it is
+   * appended (see `resolvePreviewSectionOrder`).
+   */
+  previewSectionOrder: string[];
+  /**
    * Allow sending a message while its attachments are still uploading.
    */
   sendMessagesWithPendingUploads: boolean;
@@ -185,7 +196,9 @@ const defaultAppSettingsState: AppSettingsState = {
   },
   composer: {
     customCdnUrl: '',
+    disabledPreviewSections: [],
     failUploads: 'off',
+    previewSectionOrder: defaultMessageComposerPreviewSet.map(({ type }) => type),
     sendMessagesWithPendingUploads: false,
     slowUploadMs: 20000,
     slowUploads: false,
