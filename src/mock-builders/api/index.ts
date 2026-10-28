@@ -23,4 +23,5 @@ export * from './getOrCreateChannel';
 export * from './markRead';
 export * from './threadReplies';
 export * from './sendMessage';
+export * from './scheduledMessages';
 export * from './error';
