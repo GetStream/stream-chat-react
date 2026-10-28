@@ -41,10 +41,13 @@ export const OpenFromUrl = () => {
         if (message) openThread({ channel, message });
         else
           console.warn(
-            `No message ${threadParentId} in ${channelId} to open a thread from.`,
+            'No message %s in %s to open a thread from.',
+            threadParentId,
+            channelId,
           );
       } catch (error) {
-        console.error(`Couldn't open ${channelId} from the URL`, error);
+        // URL values go in as arguments, never into the format string.
+        console.error("Couldn't open %s from the URL", channelId, error);
       }
     })();
 

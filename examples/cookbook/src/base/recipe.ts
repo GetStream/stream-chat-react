@@ -91,6 +91,10 @@ export const loadRecipe = async (
   id: string,
   variant = 'default',
 ): Promise<RecipeConfig | undefined> => {
-  const load = recipeModules[`../recipes/${id}/${variant}.recipe.tsx`];
+  // `id` and `variant` come from the URL, so only the glob's own keys are looked up.
+  const path = `../recipes/${id}/${variant}.recipe.tsx`;
+  const load = Object.prototype.hasOwnProperty.call(recipeModules, path)
+    ? recipeModules[path]
+    : undefined;
   return load ? (await load()).default : undefined;
 };
