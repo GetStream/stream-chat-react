@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useState } from 'react';
 import clsx from 'clsx';
 import { MessageBouncePrompt as DefaultMessageBouncePrompt } from '../MessageBounce';
 import { MessageDeletedBubble as DefaultMessageDeletedBubble } from './MessageDeletedBubble';
@@ -6,10 +6,8 @@ import { MessageBlocked as DefaultMessageBlocked } from './MessageBlocked';
 import { MessageActions as DefaultMessageActions } from '../MessageActions';
 import { MessageRepliesCountButton as DefaultMessageRepliesCountButton } from './MessageRepliesCountButton';
 import { MessageStatus as DefaultMessageStatus } from './MessageStatus';
-import { MessageText } from './MessageText';
 import { MessageEditedIndicator as DefaultMessageEditedIndicator } from './MessageEditedIndicator';
 import { MessageTimestamp as DefaultMessageTimestamp } from './MessageTimestamp';
-import { StreamedMessageText as DefaultStreamedMessageText } from './StreamedMessageText';
 import { isDateSeparatorMessage } from '../MessageList';
 import { MessageAlsoSentInChannelIndicator as DefaultMessageAlsoSentInChannelIndicator } from './MessageAlsoSentInChannelIndicator';
 import { ReminderNotification as DefaultReminderNotification } from './ReminderNotification';
@@ -32,55 +30,51 @@ import {
 } from './utils';
 
 import { Avatar as DefaultAvatar } from '../Avatar';
-import { Attachment as DefaultAttachment } from '../Attachment';
-import { Poll } from '../Poll';
 import { MessageReactions as DefaultMessageReactions } from '../Reactions';
 import { MessageBounceModal } from '../MessageBounce/MessageBounceModal';
 import { useComponentContext } from '../../context/ComponentContext';
 import type { MessageContextValue } from '../../context/MessageContext';
-import { useMessageContext } from '../../context/MessageContext';
+import { MessageProvider, useMessageContext } from '../../context/MessageContext';
 
-import { useChannel, useChatContext, useTranslationContext } from '../../context';
+import { useChannel, useTranslationContext } from '../../context';
 import { useThreadContext } from '../Threads';
 
 import type { MessageUIComponentProps } from './types';
 import { PinIndicator as DefaultPinIndicator } from './PinIndicator';
-import { QuotedMessage as DefaultQuotedMessage } from './QuotedMessage';
 import { MessageBubble } from './MessageBubble';
+import { MessageBubbleContent as DefaultMessageBubbleContent } from './MessageBubbleContent';
 import { ErrorBadge } from '../Badge';
 import { extractDisplayInfo as defaultExtractDisplayInfo } from '../Avatar/utils';
 
 type MessageUIWithContextProps = MessageContextValue;
 
-const MessageUIWithContext = ({
-  endOfGroup,
-  firstOfGroup,
-  groupedByUser,
-  handleAction,
-  highlighted,
-  isMessageAIGenerated,
-  isMyMessage,
-  message,
-  onUserClick,
-  onUserHover,
-  renderText,
-  showAvatar = 'incoming',
-}: MessageUIWithContextProps) => {
+const MessageUIWithContext = (props: MessageUIWithContextProps) => {
+  const {
+    endOfGroup,
+    firstOfGroup,
+    groupedByUser,
+    highlighted,
+    isMessageAIGenerated,
+    isMyMessage,
+    message,
+    onUserClick,
+    onUserHover,
+    showAvatar = 'incoming',
+  } = props;
   const channel = useChannel();
   const threadInstance = useThreadContext();
-  const { client } = useChatContext();
   const { t } = useTranslationContext();
   const [isBounceDialogOpen, setIsBounceDialogOpen] = useState(false);
   const reminder = useMessageReminder(message.id);
 
   const {
-    Attachment = DefaultAttachment,
     Avatar = DefaultAvatar,
     extractDisplayInfo = defaultExtractDisplayInfo,
     MessageActions = DefaultMessageActions,
     MessageAlsoSentInChannelIndicator = DefaultMessageAlsoSentInChannelIndicator,
     MessageBlocked = DefaultMessageBlocked,
     MessageBouncePrompt = DefaultMessageBouncePrompt,
+    MessageBubbleContent = DefaultMessageBubbleContent,
     MessageDeleted,
     MessageDeletedBubble = DefaultMessageDeletedBubble,
     MessageEditedIndicator = DefaultMessageEditedIndicator,
@@ -90,26 +84,11 @@ const MessageUIWithContext = ({
     MessageTimestamp = DefaultMessageTimestamp,
     MessageTranslationIndicator = DefaultMessageTranslationIndicator,
     PinIndicator = DefaultPinIndicator,
-    QuotedMessage = DefaultQuotedMessage,
     ReminderNotification = DefaultReminderNotification,
-    StreamedMessageText = DefaultStreamedMessageText,
   } = useComponentContext();
 
-  const isAIGenerated = useMemo(
-    () => isMessageAIGenerated?.(message),
-    [isMessageAIGenerated, message],
-  );
+  const isAIGenerated = isMessageAIGenerated?.(message);
   const isDeleted = isMessageDeleted(message);
-
-  const finalAttachments = useMemo(
-    () =>
-      !message.shared_location && !message.attachments
-        ? []
-        : !message.shared_location
-          ? message.attachments
-          : [message.shared_location, ...(message.attachments ?? [])],
-    [message],
-  );
 
   if (isDateSeparatorMessage(message)) {
     return null;
@@ -123,11 +102,12 @@ const MessageUIWithContext = ({
     return <MessageBlocked />;
   }
 
-  const poll = message.poll_id && client.polls.fromState(message.poll_id);
-
   const memberCount = Object.keys(channel?.state?.members ?? {}).length;
   const hasAttachment = !isDeleted && messageHasAttachments(message);
-  const hasSingleAttachment = !isDeleted && messageHasSingleAttachment(message);
+  const hasPoll = !isDeleted && !!message.poll_id;
+  // A poll shares the bubble, so an attachment next to it is not laid out as the only content.
+  const hasSingleAttachment =
+    !isDeleted && !hasPoll && messageHasSingleAttachment(message);
   const hasGiphyAttachment = !isDeleted && messageHasGiphyAttachment(message);
   const hasReactions = !isDeleted && messageHasReactions(message);
   const hasQuotedMessage = !isDeleted && messageHasQuotedMessage(message);
@@ -148,6 +128,7 @@ const MessageUIWithContext = ({
       'str-chat__message--has-attachment': hasAttachment,
       'str-chat__message--has-giphy-attachment': hasGiphyAttachment,
       'str-chat__message--has-no-text': !message.text,
+      'str-chat__message--has-poll': hasPoll,
       'str-chat__message--has-quoted-message': hasQuotedMessage,
       'str-chat__message--has-single-attachment': hasSingleAttachment,
       'str-chat__message--has-text': !!message.text,
@@ -238,19 +219,11 @@ const MessageUIWithContext = ({
           ) : (
             <>
               <MessageBubble>
-                {poll && <Poll poll={poll} />}
-                {message.quoted_message && <QuotedMessage />}
-                {finalAttachments?.length ? (
-                  <Attachment
-                    actionHandler={handleAction}
-                    attachments={finalAttachments}
-                  />
-                ) : null}
-                {isAIGenerated ? (
-                  <StreamedMessageText message={message} renderText={renderText} />
-                ) : (
-                  <MessageText message={message} renderText={renderText} />
-                )}
+                {/* The bubble content reads `MessageContext`; this hands it the props passed to
+                    `MessageUI`, which override the context's values. */}
+                <MessageProvider value={props}>
+                  <MessageBubbleContent />
+                </MessageProvider>
               </MessageBubble>
               <div className='str-chat__message-reactions-host'>
                 {hasReactions && <MessageReactions reverse />}

@@ -1930,6 +1930,42 @@ The gallery renders outside any message, so its header reads the current item. W
 - To change only the format, customize `timestamp.GalleryTimestamp`.
 - `MessageTimestamp` renders from its `message` prop outside a `MessageProvider`; without the prop it still requires one.
 
+### New: the message bubble's content is a configurable set; the quoted message renders above a poll
+
+`MessageUI` renders the bubble's content through `MessageBubbleContent`, which renders a `messageBubbleContentSet` the way `MessageComposerPreviews` renders the composer's previews. Each item names itself with a `type`, renders a `Component` without props (read the message with `useMessageContext()`), and shows while `isVisible({ isAIGenerated, message })` holds.
+
+`defaultMessageBubbleContentSet` renders `quotedMessage`, `poll`, `attachments` and `text`. v14 rendered the poll above the quoted message; a message that both quotes and carries a poll now shows the quote first. Anything else renders as before.
+
+A message can carry a poll next to its text and attachments, and the root element now has `str-chat__message--has-poll` while it does. Such a message no longer gets `str-chat__message--has-single-attachment`, whose layout is meant for an attachment alone in the bubble.
+
+Reorder, filter or extend the default set, then install it with the `MessageBubbleContent` slot:
+
+```tsx
+import {
+  defaultMessageBubbleContentSet,
+  MessageBubbleContent,
+  WithComponents,
+} from 'stream-chat-react';
+
+// Text above the poll and attachments, quote still first.
+const order = ['quotedMessage', 'text', 'poll', 'attachments'];
+const contentSet = order.flatMap((type) =>
+  defaultMessageBubbleContentSet.filter((item) => item.type === type),
+);
+
+const CustomBubbleContent = () => (
+  <MessageBubbleContent messageBubbleContentSet={contentSet} />
+);
+
+export const App = ({ children }: { children: React.ReactNode }) => (
+  <WithComponents overrides={{ MessageBubbleContent: CustomBubbleContent }}>
+    {children}
+  </WithComponents>
+);
+```
+
+The props passed to `MessageUI` still override `MessageContext` for the bubble's content.
+
 ---
 
 ## 13. Message composer

@@ -204,6 +204,11 @@ export type ComponentContextValue = {
   LoadingIndicator?: React.ComponentType<LoadingIndicatorProps>;
   /** Determinate progress from 0 to 100. */
   ProgressIndicator?: React.ComponentType<ProgressIndicatorProps>;
+  /**
+   * What a message bubble holds. The default renders `defaultMessageBubbleContentSet`; render
+   * `MessageBubbleContent` with your own `messageBubbleContentSet` to change it.
+   */
+  MessageBubbleContent?: React.ComponentType;
   /** Renders a message in the standard `MessageList`. */
   MessageUI?: React.ComponentType<MessageUIComponentProps>;
   /** Message actions popup, rendered without props. */
