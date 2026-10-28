@@ -1,0 +1,12 @@
+[
+  {
+    "file": "custom-thread-header.png",
+    "query": {
+      "channel": "docs-v15-cb-design",
+      "thread": "docs-v15-ck-design-4"
+    },
+    "waitFor": ".cookbook-thread-header:has-text('replies')",
+    "clip": ".cookbook-thread-header",
+    "padding": 0
+  }
+]

@@ -1,0 +1,27 @@
+{
+  "users": [{ "id": "docs-v15-ck-assistant", "name": "Assistant" }],
+  "channels": [
+    {
+      "id": "docs-v15-cb-garden-assistant",
+      "members": ["docs-v15-ck-cleo", "docs-v15-ck-assistant"],
+      "messages": [
+        {
+          "id": "docs-v15-ck-garden-assistant-1",
+          "user": "docs-v15-ck-cleo",
+          "text": "Hi! Can you help me plan my garden plot?"
+        },
+        {
+          "id": "docs-v15-ck-garden-assistant-2",
+          "user": "docs-v15-ck-assistant",
+          "text": "Of course. Tell me what you'd like to grow and how much sun the plot gets.",
+          "custom": { "ai_generated": true }
+        },
+        {
+          "id": "docs-v15-ck-garden-assistant-3",
+          "user": "docs-v15-ck-cleo",
+          "text": "It gets about six hours of sun. Which vegetables are easy for a first season?"
+        }
+      ]
+    }
+  ]
+}

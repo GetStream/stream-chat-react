@@ -38,7 +38,7 @@ Respect repo-specific rules. Do not suppress lint rules broadly; justify and sco
 - `src/` — library source: `components/`, `context/`, `hooks/`, `store/`, `i18n/`, `styling/`, `a11y/`, `plugins/`, `utils/`, `types/`, `constants/`, `mock-builders/`
 - `src/plugins/` — separately exported entry points: `AIComponents`, `ChannelDetail`, `Emojis`, `SlotGeometry`, `SlotLayout`, `encoders`
 - `scripts/` — build/validation scripts
-- `examples/` — private example workspaces: `examples/tutorial` (one folder per tutorial step), `examples/vite` (complete app), `examples/ai-chatbot` (Next.js AI chatbot)
+- `examples/` — private example workspaces: `examples/tutorial` (one folder per tutorial step), `examples/vite` (complete app), `examples/ai-chatbot` (Next.js AI chatbot), `examples/cookbook` (the base app and code of the docs' UI Cookbook recipes; see `.agents/skills/react-ui-cookbook/SKILL.md`)
 - `ai-docs/` — integrator-facing migration guides (`ai-migration-v14-v15.md`, `i18n-v15-migration.md`, `instance-configuration.md`, …) and the hand-reviewed `i18n-v15-key-map.json`
 - `developers/` — dev notes (`BRANCHES.md`, `COMMIT.md`, `DEPRECATIONS.md`, `DEVELOPMENT.md`, `DOCUMENTATION.md`, `PR.md`, `RELEASE.md`)
 
@@ -84,6 +84,7 @@ yarn validate-entry-isolation # fails if the main entry's ESM graph reaches ai-c
 # Examples
 yarn start:tutorial       # @stream-io/stream-chat-react-tutorial dev server
 yarn start:vite           # @stream-io/stream-chat-react-vite dev server
+yarn start:cookbook       # @stream-io/stream-chat-react-cookbook dev server (UI Cookbook recipes)
 yarn start:ai-chatbot     # @stream-io/stream-chat-react-ai-chatbot dev server (run yarn build first)
 yarn examples:build       # build all example workspaces
 ```

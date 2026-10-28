@@ -1,0 +1,48 @@
+@layer stream-overrides {
+  .cookbook-thumbnail-strip {
+    display: flex;
+    justify-content: safe center;
+    gap: var(--str-chat__spacing-xs);
+    padding: var(--str-chat__spacing-xxs);
+    overflow-x: auto;
+  }
+
+  .cookbook-thumbnail-strip__thumbnail {
+    position: relative;
+    flex-shrink: 0;
+    width: 64px;
+    height: 48px;
+    padding: 0;
+    overflow: hidden;
+    border: 2px solid transparent;
+    border-radius: var(--str-chat__radius-sm);
+    background: none;
+    opacity: 0.6;
+    cursor: pointer;
+  }
+
+  .cookbook-thumbnail-strip__thumbnail[aria-current='true'] {
+    border-color: var(--str-chat__accent-primary);
+    opacity: 1;
+  }
+
+  .cookbook-thumbnail-strip__thumbnail:focus-visible {
+    outline: 2px solid var(--str-chat__border-utility-focused);
+    outline-offset: 2px;
+  }
+
+  .cookbook-thumbnail-strip__thumbnail img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .cookbook-thumbnail-strip__play {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    color: var(--str-chat__text-on-accent);
+  }
+}

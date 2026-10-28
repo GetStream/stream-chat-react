@@ -1,0 +1,17 @@
+@layer stream-overrides {
+  .str-chat__message--pinned
+    .str-chat__message-pin-indicator
+    .str-chat__message-pin-indicator__content {
+    width: fit-content;
+    padding: var(--str-chat__spacing-xxs) var(--str-chat__spacing-xs);
+    border: 1px solid var(--str-chat__accent-primary);
+    border-radius: var(--str-chat__radius-sm);
+    background-color: var(--str-chat__background-core-surface-subtle);
+  }
+
+  .str-chat__message--pinned
+    .str-chat__message-pin-indicator__content
+    .str-chat__message-pin-indicator__icon {
+    color: var(--str-chat__accent-primary);
+  }
+}

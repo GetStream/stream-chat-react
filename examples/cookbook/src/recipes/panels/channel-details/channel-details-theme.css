@@ -1,0 +1,10 @@
+@layer stream-overrides {
+  /*
+   * The card of actions takes the channel's lavender background and larger corners, so it stands
+   * out on the side panel's white surface.
+   */
+  .cookbook-channel-details {
+    --str-chat__switch-field-background-color: var(--str-chat__background-core-app);
+    --str-chat__switch-field-border-radius: var(--str-chat__radius-xl);
+  }
+}

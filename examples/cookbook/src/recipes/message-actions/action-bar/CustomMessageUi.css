@@ -1,0 +1,153 @@
+@layer stream-overrides {
+  .cookbook-message-ui {
+    position: relative;
+    display: flex;
+    align-items: flex-start;
+    gap: var(--str-chat__spacing-xs);
+    padding-inline: var(--str-chat__spacing-xl);
+    font: var(--str-chat__font-body-default);
+  }
+
+  .cookbook-message-ui--mine {
+    flex-direction: row-reverse;
+  }
+
+  .cookbook-message-ui__avatar {
+    flex-shrink: 0;
+  }
+
+  .cookbook-message-ui__content {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--str-chat__spacing-xxs);
+    max-width: 70%;
+  }
+
+  .cookbook-message-ui--mine .cookbook-message-ui__content {
+    align-items: flex-end;
+  }
+
+  .cookbook-message-ui__text {
+    padding: var(--str-chat__spacing-xs) var(--str-chat__spacing-sm);
+    border: 1px solid var(--str-chat__chat-border-incoming);
+    border-radius: var(--str-chat__message-bubble-radius-group-bottom);
+    background: var(--str-chat__chat-bg-incoming);
+    color: var(--str-chat__chat-text-incoming);
+  }
+
+  .cookbook-message-ui--mine .cookbook-message-ui__text {
+    border-color: var(--str-chat__chat-border-outgoing);
+    background: var(--str-chat__chat-bg-outgoing);
+    color: var(--str-chat__chat-text-outgoing);
+  }
+
+  /* Markdown wraps the text in paragraphs; the bubble's padding already spaces it. */
+  .cookbook-message-ui__text p {
+    margin: 0;
+  }
+
+  /* The SDK colors mentions with the accent, which the user's own violet bubble would hide. */
+  .cookbook-message-ui--mine .str-chat__message-mention {
+    color: var(--str-chat__chat-text-outgoing);
+    text-decoration: underline;
+  }
+
+  .cookbook-message-ui__metadata {
+    display: none;
+    align-items: baseline;
+    gap: var(--str-chat__spacing-xxs);
+    padding-inline: var(--str-chat__spacing-xs);
+    color: var(--str-chat__chat-text-timestamp);
+    font: var(--str-chat__font-metadata-default);
+  }
+
+  .cookbook-message-ui__metadata > * + *::before {
+    content: '·';
+    margin-inline-end: var(--str-chat__spacing-xxs);
+  }
+
+  .str-chat__li--bottom .cookbook-message-ui__metadata,
+  .str-chat__li--single .cookbook-message-ui__metadata {
+    display: flex;
+  }
+
+  .str-chat__li--top .cookbook-message-ui__avatar,
+  .str-chat__li--middle .cookbook-message-ui__avatar {
+    visibility: hidden;
+  }
+
+  .cookbook-message-ui:hover,
+  .cookbook-message-ui:focus-within {
+    background: var(--str-chat__background-utility-hover);
+  }
+
+  .cookbook-message-ui__actions {
+    position: absolute;
+    top: calc(-1 * var(--str-chat__spacing-md));
+    display: flex;
+    gap: var(--str-chat__spacing-xs);
+    /* Hidden but still in the tab order, so focusing a button shows the actions. */
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .cookbook-message-ui:hover .cookbook-message-ui__actions,
+  .cookbook-message-ui:focus-within .cookbook-message-ui__actions {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .cookbook-message-ui--mine .cookbook-message-ui__actions {
+    left: var(--str-chat__spacing-xl);
+  }
+
+  .cookbook-message-ui--other .cookbook-message-ui__actions {
+    right: var(--str-chat__spacing-xl);
+  }
+
+  .cookbook-message-ui__actions-group {
+    display: flex;
+    gap: var(--str-chat__spacing-xxs);
+    padding: var(--str-chat__spacing-xxs);
+    border: 1px solid var(--str-chat__border-core-default);
+    border-radius: var(--str-chat__radius-max);
+    background: var(--str-chat__background-core-elevation-1);
+    box-shadow: var(--str-chat__box-shadow-2);
+  }
+
+  .cookbook-message-ui__actions-group:empty {
+    display: none;
+  }
+
+  .cookbook-message-ui__actions-group button {
+    padding: var(--str-chat__spacing-xxs) var(--str-chat__spacing-xs);
+    border: 0;
+    border-radius: var(--str-chat__radius-max);
+    background: none;
+    font: var(--str-chat__font-body-default);
+    cursor: pointer;
+  }
+
+  .cookbook-message-ui__actions-group button:hover {
+    background: var(--str-chat__background-utility-hover);
+  }
+
+  .cookbook-message-ui__reply-count {
+    padding: 0;
+    border: 0;
+    background: none;
+    color: var(--str-chat__chat-text-link);
+    font: var(--str-chat__font-metadata-emphasis);
+    cursor: pointer;
+  }
+
+  .cookbook-message-ui__deleted {
+    padding: var(--str-chat__spacing-xs) var(--str-chat__spacing-sm);
+    border: 1px dashed var(--str-chat__border-core-default);
+    border-radius: var(--str-chat__message-bubble-radius-group-bottom);
+    color: var(--str-chat__text-tertiary);
+    font: var(--str-chat__font-body-default);
+    font-style: italic;
+  }
+}

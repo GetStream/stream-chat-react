@@ -1,0 +1,87 @@
+@layer stream-overrides {
+  .cookbook-snackbar {
+    display: flex;
+    align-items: center;
+    gap: var(--str-chat__spacing-xs);
+    padding: var(--str-chat__spacing-xs) var(--str-chat__spacing-xs)
+      var(--str-chat__spacing-xs) var(--str-chat__spacing-sm);
+    border: 1px solid var(--str-chat__border-core-default);
+    border-inline-start-width: 4px;
+    border-radius: var(--str-chat__radius-lg);
+    background: var(--str-chat__background-core-elevation-1);
+    box-shadow: var(--str-chat__box-shadow-2);
+    color: var(--str-chat__text-primary);
+    font: var(--str-chat__font-caption-default);
+    pointer-events: auto;
+    animation: cookbook-snackbar-enter 240ms ease-out both;
+  }
+
+  /* Each severity colors the stripe on the leading edge and the icon. */
+  .cookbook-snackbar--info {
+    border-inline-start-color: var(--str-chat__accent-primary);
+  }
+
+  .cookbook-snackbar--success {
+    border-inline-start-color: var(--str-chat__accent-success);
+  }
+
+  .cookbook-snackbar--warning {
+    border-inline-start-color: var(--str-chat__accent-warning);
+  }
+
+  .cookbook-snackbar--error {
+    border-inline-start-color: var(--str-chat__accent-error);
+  }
+
+  .cookbook-snackbar__icon {
+    display: inline-flex;
+    flex-shrink: 0;
+    color: var(--str-chat__accent-primary);
+  }
+
+  .cookbook-snackbar--success .cookbook-snackbar__icon {
+    color: var(--str-chat__accent-success);
+  }
+
+  .cookbook-snackbar--warning .cookbook-snackbar__icon {
+    color: var(--str-chat__accent-warning);
+  }
+
+  .cookbook-snackbar--error .cookbook-snackbar__icon {
+    color: var(--str-chat__accent-error);
+  }
+
+  .cookbook-snackbar__message {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .cookbook-snackbar__action {
+    flex-shrink: 0;
+    font: var(--str-chat__font-caption-emphasis);
+    /* The label shows as the publisher wrote it. */
+    text-transform: none;
+  }
+
+  .cookbook-snackbar__dismiss {
+    flex-shrink: 0;
+    color: var(--str-chat__text-secondary);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .cookbook-snackbar {
+      animation: none;
+    }
+  }
+
+  @keyframes cookbook-snackbar-enter {
+    from {
+      opacity: 0;
+      transform: translateY(50%);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+}

@@ -1,0 +1,107 @@
+{
+  "channels": [
+    {
+      "id": "docs-v15-cb-trail-photos",
+      "name": "Trail photos",
+      "members": [
+        "docs-v15-ck-cleo",
+        "docs-v15-ck-bob",
+        "docs-v15-ck-cara",
+        "docs-v15-ck-dan"
+      ],
+      "messages": [
+        {
+          "id": "docs-v15-ck-trail-1",
+          "user": "docs-v15-ck-dan",
+          "text": "Back from the weekend hike. Anyone have photos?"
+        },
+        {
+          "id": "docs-v15-ck-trail-2",
+          "user": "docs-v15-ck-cara",
+          "text": "Here are my favourites from the trail.",
+          "attachments": [
+            {
+              "type": "image",
+              "fallback": "valley.jpg",
+              "image_url": "https://picsum.photos/id/1043/1200/900",
+              "original_height": 900,
+              "original_width": 1200,
+              "title": "The valley from the ridge"
+            },
+            {
+              "type": "image",
+              "fallback": "waterfall.jpg",
+              "image_url": "https://picsum.photos/id/1039/1200/900",
+              "original_height": 900,
+              "original_width": 1200,
+              "title": "The waterfall below the bridge"
+            },
+            {
+              "type": "image",
+              "fallback": "red-rocks.jpg",
+              "image_url": "https://picsum.photos/id/1016/1200/900",
+              "original_height": 900,
+              "original_width": 1200,
+              "title": "Red rocks at the turn"
+            },
+            {
+              "type": "image",
+              "fallback": "snowy-peaks.jpg",
+              "image_url": "https://picsum.photos/id/29/1200/900",
+              "original_height": 900,
+              "original_width": 1200,
+              "title": "Snowy peaks at the top"
+            }
+          ]
+        },
+        {
+          "id": "docs-v15-ck-trail-3",
+          "user": "docs-v15-ck-bob",
+          "text": "The waterfall one is great. Let's go back in spring."
+        },
+        {
+          "id": "docs-v15-ck-trail-4",
+          "user": "docs-v15-ck-dan",
+          "text": "Spring sounds good. One more from the forest path.",
+          "attachments": [
+            {
+              "type": "image",
+              "fallback": "forest-stream.jpg",
+              "image_url": "https://picsum.photos/id/28/1200/900",
+              "original_height": 900,
+              "original_width": 1200
+            }
+          ]
+        },
+        {
+          "id": "docs-v15-ck-trail-5",
+          "user": "docs-v15-ck-bob",
+          "text": "Two more from the meadow, and a short clip.",
+          "attachments": [
+            {
+              "type": "image",
+              "fallback": "meadow-flowers.jpg",
+              "image_url": "https://picsum.photos/id/106/1200/900",
+              "original_height": 900,
+              "original_width": 1200
+            },
+            {
+              "type": "image",
+              "fallback": "purple-flowers.jpg",
+              "image_url": "https://picsum.photos/id/152/1200/900",
+              "original_height": 900,
+              "original_width": 1200
+            },
+            {
+              "type": "video",
+              "title": "A flower in the meadow",
+              "asset_url": "https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4",
+              "thumb_url": "https://picsum.photos/id/360/1200/900",
+              "mime_type": "video/mp4"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

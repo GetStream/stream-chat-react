@@ -1,0 +1,136 @@
+@layer stream-overrides {
+  /* Light theme, and the shape, type and shadow tokens both themes share. */
+  .str-chat {
+    /* Brand: a violet ramp in place of the SDK's blues. Both themes build the brand ramp from it. */
+    --str-chat__blue-50: #f5f3ff;
+    --str-chat__blue-100: #ede9fe;
+    --str-chat__blue-150: #e4dffd;
+    --str-chat__blue-200: #ddd6fe;
+    --str-chat__blue-300: #c4b5fd;
+    --str-chat__blue-400: #a78bfa;
+    --str-chat__blue-500: #8b5cf6;
+    --str-chat__blue-600: #7c3aed;
+    --str-chat__blue-700: #6d28d9;
+    --str-chat__blue-800: #5b21b6;
+    --str-chat__blue-900: #4c1d95;
+    --str-chat__accent-primary: #7c3aed;
+
+    /* Surfaces: a lavender-tinted page, white panels and incoming bubbles. */
+    --str-chat__background-core-app: #f7f5fc;
+    --str-chat__background-core-elevation-1: #ffffff;
+    --str-chat__background-core-highlight: #f3effe;
+    --str-chat__background-core-surface-subtle: #f3f0fb;
+    /* Interaction states are overlays painted on top of a control, so they stay translucent. */
+    --str-chat__background-utility-hover: rgb(124 58 237 / 0.06);
+    --str-chat__background-utility-pressed: rgb(124 58 237 / 0.1);
+    --str-chat__background-utility-selected: rgb(124 58 237 / 0.12);
+    --str-chat__border-core-default: #ebe7f5;
+    --str-chat__border-core-subtle: #f1eefa;
+    --str-chat__text-primary: #1f1b2e;
+    --str-chat__text-secondary: #6b6680;
+    --str-chat__text-tertiary: #9a96ab;
+    /* Links, and timestamps and names under messages, in shades that read at 4.5:1 on the page. */
+    --str-chat__text-link: #6d28d9;
+    --str-chat__chat-text-timestamp: #6b6680;
+
+    /* Bubbles: a soft violet for the user's own, white with a hairline for everyone else's.
+       #875dd0 sits off the brand ramp: a muted violet, lighter than the accent, that still
+       carries white text at 4.5:1. Attachment cards inside the bubble, such as link previews,
+       locations and the Giphy preview, sit one step darker in the same muted family (#7a50c2),
+       so the card stands out from the bubble around it. The bubble's border matches its fill. */
+    --str-chat__chat-bg-outgoing: #875dd0;
+    --str-chat__chat-bg-attachment-outgoing: #7a50c2;
+    --str-chat__chat-border-outgoing: #875dd0;
+    --str-chat__chat-text-outgoing: #ffffff;
+    --str-chat__chat-reply-indicator-outgoing: #ddd6fe;
+    /* Borders on the user's own bubble, such as the poll's buttons and checkboxes: white. */
+    --str-chat__chat-border-on-chat-outgoing: #ffffff;
+    /* Poll vote bars on the user's own bubble: a white fill in a deep violet track. */
+    --str-chat__chat-poll-progress-fill-outgoing: #ffffff;
+    --str-chat__chat-poll-progress-track-outgoing: #5b21b6;
+    --str-chat__chat-bg-incoming: #ffffff;
+    --str-chat__chat-border-incoming: #ebe7f5;
+    --str-chat__chat-text-incoming: #1f1b2e;
+
+    --str-chat__avatar-bg-default: #ede9fe;
+    --str-chat__avatar-text-default: #6d28d9;
+
+    /* Shape: softer, rounder bubbles and cards; buttons and inputs stay pill-shaped. */
+    --str-chat__message-bubble-radius-group-top: 20px;
+    --str-chat__message-bubble-radius-group-middle: 20px;
+    --str-chat__message-bubble-radius-group-bottom: 20px;
+    --str-chat__message-bubble-radius-tail: 6px;
+    --str-chat__radius-lg: 16px;
+    --str-chat__radius-xl: 20px;
+
+    /* Type: Plus Jakarta Sans, loaded from Google Fonts, with the system font as fallback. */
+    --str-chat__font-family:
+      'Plus Jakarta Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
+
+    /* Shadows: soft and diffuse, tinted with the brand instead of black. */
+    --str-chat__light-elevation-1:
+      0 0 0 1px rgb(76 29 149 / 0.04), 0 1px 2px rgb(76 29 149 / 0.06),
+      0 4px 12px rgb(76 29 149 / 0.06);
+    --str-chat__light-elevation-2:
+      0 0 0 1px rgb(76 29 149 / 0.04), 0 2px 6px rgb(76 29 149 / 0.08),
+      0 10px 24px rgb(76 29 149 / 0.08);
+    --str-chat__light-elevation-3:
+      0 0 0 1px rgb(76 29 149 / 0.05), 0 4px 10px rgb(76 29 149 / 0.1),
+      0 16px 32px rgb(76 29 149 / 0.1);
+  }
+
+  /* Polls on the user's own bubble: white buttons, and white voter avatars with deep violet
+     initials. A ticked checkbox keeps the SDK's white tick, so it fills with #2e1065, a violet
+     below the brand ramp that stands out from both the tick and the bubble. Both themes share
+     the bubble, so one rule serves both. */
+  .str-chat__message--me .str-chat__poll {
+    --str-chat__button-secondary-text: #ffffff;
+    --str-chat__avatar-bg-default: #ffffff;
+    --str-chat__avatar-text-default: #5b21b6;
+    --str-chat__control-radio-check-bg-selected: #2e1065;
+  }
+
+  /* Mentions and links in the user's own text: white, since no violet reads on the bubble.
+     Mentions stay bold, and links get an underline so they differ from the text around them. */
+  .str-chat__message--me .str-chat__message-text {
+    --str-chat__accent-primary: #ffffff;
+    --str-chat__chat-text-link: #ffffff;
+  }
+
+  .str-chat__message--me .str-chat__message-text a {
+    text-decoration: underline;
+  }
+
+  /* Dark theme: the same brand, on a deep violet-black instead of grey. */
+  .str-chat__theme-dark {
+    --str-chat__accent-primary: #a78bfa;
+    --str-chat__background-core-app: #120f1d;
+    --str-chat__background-core-elevation-1: #1a1628;
+    --str-chat__background-core-highlight: #231c3a;
+    --str-chat__background-core-surface-subtle: #211c33;
+    --str-chat__background-utility-hover: rgb(167 139 250 / 0.1);
+    --str-chat__background-utility-pressed: rgb(167 139 250 / 0.16);
+    --str-chat__background-utility-selected: rgb(167 139 250 / 0.2);
+    --str-chat__border-core-default: #2c2640;
+    --str-chat__border-core-subtle: #241f36;
+    --str-chat__text-primary: #f4f2fb;
+    --str-chat__text-secondary: #a9a3c2;
+    --str-chat__text-tertiary: #7d7796;
+    --str-chat__text-link: #c4b5fd;
+    --str-chat__chat-text-timestamp: #a9a3c2;
+
+    --str-chat__chat-bg-outgoing: #875dd0;
+    --str-chat__chat-bg-attachment-outgoing: #7a50c2;
+    --str-chat__chat-border-outgoing: #875dd0;
+    --str-chat__chat-text-outgoing: #ffffff;
+    --str-chat__chat-border-on-chat-outgoing: #ffffff;
+    --str-chat__chat-poll-progress-fill-outgoing: #ffffff;
+    --str-chat__chat-poll-progress-track-outgoing: #5b21b6;
+    --str-chat__chat-bg-incoming: #241f36;
+    --str-chat__chat-border-incoming: #2c2640;
+    --str-chat__chat-text-incoming: #f4f2fb;
+
+    --str-chat__avatar-bg-default: #2e2650;
+    --str-chat__avatar-text-default: #c4b5fd;
+  }
+}

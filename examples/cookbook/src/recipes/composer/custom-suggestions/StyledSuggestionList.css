@@ -1,0 +1,10 @@
+@layer stream-overrides {
+  .cookbook-suggestion-list {
+    min-width: 240px;
+    padding: var(--str-chat__spacing-xs);
+    border: 1px solid var(--str-chat__border-core-default);
+    border-radius: var(--str-chat__radius-2xl);
+    background: var(--str-chat__background-core-elevation-1);
+    box-shadow: var(--str-chat__box-shadow-3);
+  }
+}

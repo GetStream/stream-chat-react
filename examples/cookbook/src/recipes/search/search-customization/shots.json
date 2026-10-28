@@ -1,0 +1,16 @@
+[
+  {
+    "file": "search-compact-channel-results.png",
+    "variant": "compact-results",
+    "query": { "simulate": "search", "q": "g" },
+    "waitFor": ".cookbook-channel-result",
+    "clip": ".str-chat__channel-list",
+    "padding": 0
+  },
+  {
+    "file": "search-top-bar-results.png",
+    "variant": "top-bar",
+    "query": { "channel": "docs-v15-cb-design", "simulate": "search", "q": "g" },
+    "waitFor": ".str-chat__search-results .str-chat__search-result"
+  }
+]

@@ -1,0 +1,32 @@
+[
+  {
+    "file": "saved-items-reminders.png",
+    "query": { "channel": "docs-v15-cb-general", "saved": "open" },
+    "waitFor": ".cookbook-saved-items__list, .cookbook-saved-items__note",
+    "settleMs": 1500
+  },
+  {
+    "file": "saved-items-saved.png",
+    "query": { "channel": "docs-v15-cb-general", "saved": "open", "kind": "saved" },
+    "waitFor": ".cookbook-saved-items__kind[aria-pressed=\"true\"]:last-child",
+    "clip": ".cookbook-side-panel",
+    "settleMs": 1500
+  },
+  {
+    "file": "saved-items-button.png",
+    "query": { "channel": "docs-v15-cb-general", "saved": "open" },
+    "waitFor": ".cookbook-saved-items",
+    "clip": ".cookbook-channel-list-header",
+    "padding": 8
+  },
+  {
+    "file": "saved-items-jump.png",
+    "query": {
+      "channel": "docs-v15-cb-general",
+      "saved": "open",
+      "item": "docs-v15-ck-band-1"
+    },
+    "waitFor": ".str-chat__channel [data-message-id=\"docs-v15-ck-band-1\"]",
+    "settleMs": 1500
+  }
+]

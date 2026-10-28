@@ -1,0 +1,24 @@
+[
+  {
+    "file": "channel-list-skeleton.png",
+    "query": { "simulate": "channel-list-loading" },
+    "waitFor": ".cookbook-channel-list-skeleton",
+    "clip": ".str-chat__channel-list",
+    "padding": 0
+  },
+  {
+    "file": "channel-list-empty.png",
+    "query": { "simulate": "channel-list-empty" },
+    "waitFor": ".cookbook-channel-list-state",
+    "clip": ".str-chat__channel-list",
+    "padding": 0
+  },
+  {
+    "file": "channel-list-load-error.png",
+    "query": { "simulate": "channel-list-error" },
+    "waitFor": ".cookbook-channel-list-state__icon--error",
+    "clip": ".str-chat__channel-list",
+    "padding": 0,
+    "settleMs": 1500
+  }
+]

@@ -1,0 +1,49 @@
+@layer stream-overrides {
+  /* A raised card with the accent border of an active field, so the editor stands apart from the
+     list and the bubbles around it. */
+  .cookbook-inline-editor {
+    display: flex;
+    flex-direction: column;
+    gap: var(--str-chat__spacing-xs);
+    margin-inline: var(--str-chat__spacing-md);
+    padding: var(--str-chat__spacing-sm);
+    border: 1px solid var(--str-chat__border-utility-active);
+    border-radius: var(--str-chat__radius-xl);
+    background: var(--str-chat__background-core-elevation-1);
+    box-shadow: var(--str-chat__box-shadow-1);
+  }
+
+  /* The card frames the composer, so the bottom bar's background, top border and padding go. */
+  .cookbook-inline-editor .str-chat__message-composer-container {
+    padding: 0;
+    border: 0;
+    background: transparent;
+  }
+
+  .cookbook-inline-editor__footer {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: var(--str-chat__spacing-sm);
+    padding-inline: var(--str-chat__spacing-xs);
+    font: var(--str-chat__font-caption-default);
+  }
+
+  .cookbook-inline-editor__hint {
+    margin-inline-end: auto;
+    color: var(--str-chat__text-secondary);
+  }
+
+  .cookbook-inline-editor__button {
+    padding: 0;
+    border: 0;
+    background: none;
+    color: var(--str-chat__text-secondary);
+    font: var(--str-chat__font-caption-emphasis);
+    cursor: pointer;
+  }
+
+  .cookbook-inline-editor__button--save {
+    color: var(--str-chat__text-link);
+  }
+}

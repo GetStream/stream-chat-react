@@ -1,0 +1,25 @@
+[
+  {
+    "file": "mentions-inbox.png",
+    "query": { "channel": "docs-v15-cb-general", "mentions": "open" },
+    "waitFor": ".cookbook-mention[data-message-id=\"docs-v15-ck-pottery-3\"]",
+    "settleMs": 1500
+  },
+  {
+    "file": "mentions-inbox-button.png",
+    "query": { "channel": "docs-v15-cb-general", "mentions": "open" },
+    "waitFor": ".cookbook-mention",
+    "clip": ".cookbook-channel-list-header",
+    "padding": 8
+  },
+  {
+    "file": "mentions-inbox-jump.png",
+    "query": {
+      "channel": "docs-v15-cb-general",
+      "mentions": "open",
+      "mention": "docs-v15-ck-swim-2"
+    },
+    "waitFor": ".str-chat__channel [data-message-id=\"docs-v15-ck-swim-2\"]",
+    "settleMs": 1500
+  }
+]

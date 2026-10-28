@@ -1,0 +1,74 @@
+{
+  "channels": [
+    {
+      "id": "docs-v15-cb-pottery",
+      "name": "Pottery class",
+      "members": ["docs-v15-ck-cleo", "docs-v15-ck-bob", "docs-v15-ck-cara"],
+      "messages": [
+        {
+          "id": "docs-v15-ck-pottery-1",
+          "user": "docs-v15-ck-cara",
+          "text": "@Cleo the kiln is free on Thursday evening, want a slot?",
+          "mentions": ["docs-v15-ck-cleo"]
+        },
+        {
+          "id": "docs-v15-ck-pottery-2",
+          "user": "docs-v15-ck-cleo",
+          "text": "Yes please, put me down for seven."
+        },
+        {
+          "id": "docs-v15-ck-pottery-3",
+          "user": "docs-v15-ck-bob",
+          "text": "@Cleo could you bring the glaze samples too?",
+          "mentions": ["docs-v15-ck-cleo"]
+        }
+      ]
+    },
+    {
+      "id": "docs-v15-cb-swim",
+      "name": "Swim team",
+      "members": ["docs-v15-ck-cleo", "docs-v15-ck-cara", "docs-v15-ck-dan"],
+      "messages": [
+        {
+          "id": "docs-v15-ck-swim-1",
+          "user": "docs-v15-ck-cara",
+          "text": "Practice moves to the outdoor pool next week."
+        },
+        {
+          "id": "docs-v15-ck-swim-2",
+          "user": "docs-v15-ck-dan",
+          "text": "Great lap times today, @Cleo! Same lane on Monday?",
+          "mentions": ["docs-v15-ck-cleo"]
+        }
+      ]
+    },
+    {
+      "id": "docs-v15-cb-quiz",
+      "name": "Quiz night",
+      "members": [
+        "docs-v15-ck-cleo",
+        "docs-v15-ck-bob",
+        "docs-v15-ck-cara",
+        "docs-v15-ck-dan"
+      ],
+      "messages": [
+        {
+          "id": "docs-v15-ck-quiz-1",
+          "user": "docs-v15-ck-bob",
+          "text": "I will book the usual table for Friday."
+        },
+        {
+          "id": "docs-v15-ck-quiz-2",
+          "user": "docs-v15-ck-cara",
+          "text": "@Cleo you were great on the music round. Want to lead it next time?",
+          "mentions": ["docs-v15-ck-cleo"]
+        },
+        {
+          "id": "docs-v15-ck-quiz-3",
+          "user": "docs-v15-ck-dan",
+          "text": "Count me in for Friday."
+        }
+      ]
+    }
+  ]
+}

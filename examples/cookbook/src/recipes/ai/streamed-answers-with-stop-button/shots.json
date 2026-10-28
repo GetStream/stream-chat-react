@@ -1,0 +1,41 @@
+[
+  {
+    "file": "streamed-answer-thinking.png",
+    "query": {
+      "channel": "docs-v15-cb-garden-assistant",
+      "simulate": "answer",
+      "phase": "thinking"
+    },
+    "waitFor": ".cookbook-assistant-status",
+    "clip": ".str-chat__channel",
+    "padding": 0,
+    "settleMs": 1500,
+    "viewport": { "width": 1280, "height": 760 }
+  },
+  {
+    "file": "streamed-answer-streaming.png",
+    "query": {
+      "channel": "docs-v15-cb-garden-assistant",
+      "simulate": "answer",
+      "phase": "streaming"
+    },
+    "waitFor": "html[data-simulated-answer] .cookbook-stop-button",
+    "clip": ".str-chat__channel",
+    "padding": 0,
+    "settleMs": 2500,
+    "viewport": { "width": 1280, "height": 760 }
+  },
+  {
+    "file": "streamed-answer-done.png",
+    "query": {
+      "channel": "docs-v15-cb-garden-assistant",
+      "simulate": "answer",
+      "phase": "done"
+    },
+    "waitFor": "html[data-simulated-answer] .str-chat__message-composer",
+    "clip": ".str-chat__channel",
+    "padding": 0,
+    "settleMs": 6000,
+    "viewport": { "width": 1280, "height": 760 }
+  }
+]

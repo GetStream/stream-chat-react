@@ -1,0 +1,10 @@
+[
+  {
+    "file": "layout-channel-and-thread-side-by-side.png",
+    "query": {
+      "channel": "docs-v15-cb-design",
+      "thread": "docs-v15-ck-design-4"
+    },
+    "waitFor": ".str-chat__thread-container .str-chat__message-list"
+  }
+]

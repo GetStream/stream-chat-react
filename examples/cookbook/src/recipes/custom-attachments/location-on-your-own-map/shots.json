@@ -1,0 +1,84 @@
+[
+  {
+    "file": "location-map.png",
+    "query": {
+      "channel": "docs-v15-cb-trip",
+      "locations": "on"
+    },
+    "waitFor": ".cookbook-location-map .leaflet-tile-loaded",
+    "settleMs": 3000
+  },
+  {
+    "file": "location-map-share-dialog.png",
+    "query": {
+      "channel": "docs-v15-cb-trip",
+      "geolocation": "fixed",
+      "dialog": "live"
+    },
+    "waitFor": ".cookbook-share-location-map .leaflet-tile-loaded",
+    "clip": ".str-chat__share-location-dialog",
+    "padding": 24,
+    "settleMs": 3000
+  },
+  {
+    "file": "location-map-share-dialog-error.png",
+    "query": {
+      "channel": "docs-v15-cb-trip",
+      "geolocation": "denied",
+      "dialog": "open"
+    },
+    "waitFor": ".cookbook-share-location-map__status button",
+    "clip": ".str-chat__share-location-dialog",
+    "padding": 24
+  },
+  {
+    "file": "location-map-composer-preview.png",
+    "query": {
+      "channel": "docs-v15-cb-trip",
+      "attach": "live"
+    },
+    "waitFor": ".str-chat__location-preview",
+    "clip": ".str-chat__message-composer-container",
+    "padding": 0
+  },
+  {
+    "file": "location-map-static.png",
+    "query": {
+      "channel": "docs-v15-cb-trip",
+      "locations": "on"
+    },
+    "waitFor": ".cookbook-location-map .leaflet-tile-loaded",
+    "clip": ".str-chat__li",
+    "hasText": "Current location",
+    "padding": 0,
+    "settleMs": 3000
+  },
+  {
+    "file": "location-map-live.png",
+    "query": {
+      "channel": "docs-v15-cb-trip",
+      "locations": "on"
+    },
+    "waitFor": ".cookbook-location-map .leaflet-tile-loaded",
+    "clip": ".str-chat__li",
+    "hasText": "Stop sharing",
+    "padding": 0,
+    "settleMs": 3000
+  },
+  {
+    "file": "location-map-ended.png",
+    "query": {
+      "channel": "docs-v15-cb-trip",
+      "locations": "on"
+    },
+    "waitFor": ".cookbook-location-map .leaflet-tile-loaded",
+    "clip": ".str-chat__li",
+    "hasText": "Location sharing ended",
+    "padding": 0,
+    "settleMs": 3000,
+    "viewport": {
+      "width": 1280,
+      "height": 1100
+    }
+  }
+]

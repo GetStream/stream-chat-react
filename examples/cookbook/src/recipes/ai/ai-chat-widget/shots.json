@@ -1,0 +1,16 @@
+[
+  {
+    "file": "ai-chat-widget.png",
+    "query": { "channel": "docs-v15-cb-design", "widget": "open" },
+    "waitFor": ".cookbook-assistant-window [data-message-id=\"docs-v15-ck-widget-assistant-4\"]",
+    "settleMs": 1500
+  },
+  {
+    "file": "ai-chat-widget-launcher.png",
+    "query": { "channel": "docs-v15-cb-design" },
+    "waitFor": ".cookbook-assistant-launcher",
+    "clip": ".cookbook-assistant-widget",
+    "padding": 96,
+    "settleMs": 1500
+  }
+]

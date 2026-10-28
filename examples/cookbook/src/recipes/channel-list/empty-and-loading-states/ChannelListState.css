@@ -1,0 +1,44 @@
+@layer stream-overrides {
+  /* The error and the empty list: a centred message with one action. */
+  .cookbook-channel-list-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--str-chat__spacing-xs);
+    padding: var(--str-chat__spacing-2xl) var(--str-chat__spacing-xl);
+    text-align: center;
+  }
+
+  .cookbook-channel-list-state__icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: var(--str-chat__size-56);
+    height: var(--str-chat__size-56);
+    margin-bottom: var(--str-chat__spacing-xs);
+    border-radius: var(--str-chat__radius-full);
+    background: var(--str-chat__background-core-surface-subtle);
+    color: var(--str-chat__accent-primary);
+  }
+
+  .cookbook-channel-list-state__icon svg {
+    width: var(--str-chat__size-28);
+    height: var(--str-chat__size-28);
+  }
+
+  .cookbook-channel-list-state__icon--error {
+    color: var(--str-chat__accent-error);
+  }
+
+  .cookbook-channel-list-state__title {
+    margin: 0;
+    color: var(--str-chat__text-primary);
+    font: var(--str-chat__font-heading-xs);
+  }
+
+  .cookbook-channel-list-state__text {
+    margin: 0 0 var(--str-chat__spacing-sm);
+    color: var(--str-chat__text-secondary);
+    font: var(--str-chat__font-caption-default);
+  }
+}

@@ -1,0 +1,9 @@
+@layer stream-overrides {
+  .cookbook-upload-percent {
+    padding: var(--str-chat__spacing-xxs) var(--str-chat__spacing-xs);
+    border-radius: var(--str-chat__radius-max);
+    background: var(--str-chat__background-core-elevation-1);
+    color: var(--str-chat__text-primary);
+    font: var(--str-chat__font-caption-emphasis);
+  }
+}

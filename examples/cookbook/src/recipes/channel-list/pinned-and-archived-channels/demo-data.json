@@ -1,0 +1,148 @@
+{
+  "channels": [
+    {
+      "id": "docs-v15-cb-lunch",
+      "name": "Lunch spots",
+      "members": ["docs-v15-ck-cleo", "docs-v15-ck-bob", "docs-v15-ck-dan"],
+      "pinnedForCurrentUser": true,
+      "messages": [
+        {
+          "id": "docs-v15-ck-lunch-1",
+          "user": "docs-v15-ck-dan",
+          "text": "The noodle place on the corner has a new menu."
+        },
+        {
+          "id": "docs-v15-ck-lunch-2",
+          "user": "docs-v15-ck-bob",
+          "text": "Let's try it on Friday at noon."
+        }
+      ]
+    },
+    {
+      "id": "docs-v15-cb-plant-swap",
+      "name": "Plant swap",
+      "members": ["docs-v15-ck-cleo", "docs-v15-ck-cara", "docs-v15-ck-dan"],
+      "pinnedForCurrentUser": true,
+      "messages": [
+        {
+          "id": "docs-v15-ck-plant-swap-1",
+          "user": "docs-v15-ck-cara",
+          "text": "I have three spider plant cuttings to give away."
+        },
+        {
+          "id": "docs-v15-ck-plant-swap-2",
+          "user": "docs-v15-ck-cleo",
+          "text": "I would love one, I can bring a fern in return."
+        }
+      ]
+    },
+    {
+      "id": "docs-v15-cb-spring-fair",
+      "name": "Spring fair",
+      "members": ["docs-v15-ck-cleo", "docs-v15-ck-bob", "docs-v15-ck-cara"],
+      "archivedForCurrentUser": true,
+      "messages": [
+        {
+          "id": "docs-v15-ck-spring-fair-1",
+          "user": "docs-v15-ck-bob",
+          "text": "Thanks for helping at the stand, it was a great day."
+        },
+        {
+          "id": "docs-v15-ck-spring-fair-2",
+          "user": "docs-v15-ck-cara",
+          "text": "See you all at the next one!"
+        }
+      ]
+    },
+    {
+      "id": "docs-v15-cb-game-night",
+      "name": "Board game night",
+      "members": ["docs-v15-ck-cleo", "docs-v15-ck-bob", "docs-v15-ck-dan"],
+      "archivedForCurrentUser": true,
+      "messages": [
+        {
+          "id": "docs-v15-ck-game-night-1",
+          "user": "docs-v15-ck-dan",
+          "text": "I packed the games back into the cupboard."
+        },
+        {
+          "id": "docs-v15-ck-game-night-2",
+          "user": "docs-v15-ck-cleo",
+          "text": "Thanks! That was a fun evening."
+        }
+      ]
+    },
+    {
+      "id": "docs-v15-cb-winter-market",
+      "name": "Winter market",
+      "members": ["docs-v15-ck-cleo", "docs-v15-ck-cara", "docs-v15-ck-dan"],
+      "archivedForCurrentUser": true,
+      "messages": [
+        {
+          "id": "docs-v15-ck-winter-market-1",
+          "user": "docs-v15-ck-cara",
+          "text": "The stalls are packed away until next year."
+        },
+        {
+          "id": "docs-v15-ck-winter-market-2",
+          "user": "docs-v15-ck-cleo",
+          "text": "Thanks for the help with the lights!"
+        }
+      ]
+    },
+    {
+      "id": "docs-v15-cb-choir",
+      "name": "Choir practice",
+      "members": ["docs-v15-ck-cleo", "docs-v15-ck-bob", "docs-v15-ck-cara"],
+      "archivedForCurrentUser": true,
+      "messages": [
+        {
+          "id": "docs-v15-ck-choir-1",
+          "user": "docs-v15-ck-bob",
+          "text": "Last rehearsal of the season, well sung everyone."
+        },
+        {
+          "id": "docs-v15-ck-choir-2",
+          "user": "docs-v15-ck-cara",
+          "text": "See you after the summer break."
+        }
+      ]
+    },
+    {
+      "id": "docs-v15-cb-bike-repair",
+      "name": "Bike repair day",
+      "members": ["docs-v15-ck-cleo", "docs-v15-ck-bob", "docs-v15-ck-dan"],
+      "archivedForCurrentUser": true,
+      "messages": [
+        {
+          "id": "docs-v15-ck-bike-repair-1",
+          "user": "docs-v15-ck-dan",
+          "text": "All twelve bikes are fixed and back with their owners."
+        },
+        {
+          "id": "docs-v15-ck-bike-repair-2",
+          "user": "docs-v15-ck-cleo",
+          "text": "Great work, the tools are back in the shed."
+        }
+      ]
+    },
+    {
+      "id": "docs-v15-cb-film-club",
+      "name": "Film club",
+      "members": ["docs-v15-ck-cleo", "docs-v15-ck-cara", "docs-v15-ck-dan"],
+      "archivedForCurrentUser": true,
+      "messages": [
+        {
+          "id": "docs-v15-ck-film-club-1",
+          "user": "docs-v15-ck-dan",
+          "text": "That was the last film on our list."
+        },
+        {
+          "id": "docs-v15-ck-film-club-2",
+          "user": "docs-v15-ck-cara",
+          "text": "Let's pick a new list in the autumn."
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,22 @@
+@layer stream-overrides {
+  .cookbook-event-preview {
+    display: flex;
+    align-items: center;
+    gap: var(--str-chat__spacing-xs);
+    padding: var(--str-chat__spacing-xs) var(--str-chat__spacing-sm);
+    border: 1px solid var(--str-chat__border-core-default);
+    border-radius: var(--str-chat__radius-max);
+    background: var(--str-chat__background-core-surface-card);
+    color: var(--str-chat__text-primary);
+    font: var(--str-chat__font-caption-emphasis);
+  }
+
+  .cookbook-event-preview__remove {
+    display: flex;
+    padding: 0;
+    border: 0;
+    background: none;
+    color: var(--str-chat__text-secondary);
+    cursor: pointer;
+  }
+}

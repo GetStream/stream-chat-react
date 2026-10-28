@@ -1,0 +1,33 @@
+{
+  "users": [{ "id": "docs-v15-ck-assistant", "name": "Assistant" }],
+  "channels": [
+    {
+      "id": "docs-v15-cb-widget-assistant",
+      "members": ["docs-v15-ck-cleo", "docs-v15-ck-assistant"],
+      "messages": [
+        {
+          "id": "docs-v15-ck-widget-assistant-1",
+          "user": "docs-v15-ck-cleo",
+          "text": "Can you suggest a few short novels for the book club?"
+        },
+        {
+          "id": "docs-v15-ck-widget-assistant-2",
+          "user": "docs-v15-ck-assistant",
+          "text": "Happy to help. Short novels work well for a monthly club: pick ones under 200 pages, so everyone finishes in time. Would you like a mystery, a classic or something light?",
+          "custom": { "ai_generated": true }
+        },
+        {
+          "id": "docs-v15-ck-widget-assistant-3",
+          "user": "docs-v15-ck-cleo",
+          "text": "Something light, please."
+        },
+        {
+          "id": "docs-v15-ck-widget-assistant-4",
+          "user": "docs-v15-ck-assistant",
+          "text": "Then look for a warm, funny story with a small cast, such as a road trip or a summer by the sea. They are quick to read and easy to talk about.",
+          "custom": { "ai_generated": true }
+        }
+      ]
+    }
+  ]
+}

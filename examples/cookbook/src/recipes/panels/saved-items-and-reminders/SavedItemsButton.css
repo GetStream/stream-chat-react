@@ -1,0 +1,19 @@
+@layer stream-overrides {
+  /* The default header and the button share a row. */
+  .cookbook-channel-list-header {
+    display: flex;
+    align-items: center;
+    padding-inline-end: var(--str-chat__spacing-md);
+  }
+
+  .cookbook-channel-list-header__title {
+    flex: 1;
+    min-width: 0;
+  }
+
+  /* While the saved items are open, the button looks pressed. */
+  .cookbook-saved-items-button[aria-expanded='true'] {
+    background: var(--str-chat__background-utility-selected);
+    color: var(--str-chat__accent-primary);
+  }
+}

@@ -235,6 +235,7 @@
     "start:css": "node scripts/watch-styling.mjs",
     "start:ai-chatbot": "yarn workspace @stream-io/stream-chat-react-ai-chatbot dev",
     "start:tutorial": "yarn workspace @stream-io/stream-chat-react-tutorial dev",
+    "start:cookbook": "yarn workspace @stream-io/stream-chat-react-cookbook dev",
     "start:vite": "yarn workspace @stream-io/stream-chat-react-vite dev",
     "postinstall": "node -e \"require('fs').existsSync('scripts/install-husky.mjs') && import('./scripts/install-husky.mjs')\"",
     "test": "vitest run",

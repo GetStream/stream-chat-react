@@ -66,7 +66,7 @@ jobs:
         run: git diff --exit-code -- src/i18n/keys.ts
 
       - name: Build the example apps
-        # Type-checks and bundles every `examples/*` workspace (vite, tutorial, ai-chatbot) against
+        # Type-checks and bundles every `examples/*` workspace (vite, tutorial, ai-chatbot, cookbook) against
         # the `dist` built above, so an SDK change that breaks an example (or a stream-chat API one
         # relies on) fails here. None of the builds need Stream credentials.
         env:

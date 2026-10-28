@@ -1,0 +1,30 @@
+[
+  {
+    "file": "drafts-list.png",
+    "query": { "channel": "docs-v15-cb-general", "drafts": "open" },
+    "waitFor": ".cookbook-draft__open[data-draft-key=\"messaging:docs-v15-cb-kite-day/docs-v15-ck-kite-day-1\"]",
+    "settleMs": 1500
+  },
+  {
+    "file": "drafts-list-open-thread.png",
+    "query": {
+      "channel": "docs-v15-cb-general",
+      "drafts": "open",
+      "draft": "messaging:docs-v15-cb-kite-day/docs-v15-ck-kite-day-1"
+    },
+    "viewport": { "width": 1600, "height": 720 },
+    "waitFor": ".str-chat__thread .str-chat__message-list",
+    "settleMs": 2000
+  },
+  {
+    "file": "drafts-list-open-quote.png",
+    "query": {
+      "channel": "docs-v15-cb-general",
+      "drafts": "open",
+      "draft": "messaging:docs-v15-cb-kite-day/"
+    },
+    "waitFor": ".str-chat__channel .str-chat__quoted-message-preview",
+    "clip": ".str-chat__channel .str-chat__message-composer-container",
+    "settleMs": 1500
+  }
+]

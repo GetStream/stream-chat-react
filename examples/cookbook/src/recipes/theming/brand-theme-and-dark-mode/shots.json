@@ -1,0 +1,56 @@
+[
+  {
+    "file": "stream-chat-css-chat-ui-screenshot.png",
+    "recipe": "base",
+    "query": {
+      "look": "sdk",
+      "channel": "docs-v15-cb-design",
+      "thread": "docs-v15-ck-design-4"
+    },
+    "waitFor": ".str-chat__thread-container .str-chat__message-list",
+    "settleMs": 1500
+  },
+  {
+    "file": "stream-chat-css-chat-ui-theme-customization-screenshot.png",
+    "query": { "channel": "docs-v15-cb-design", "thread": "docs-v15-ck-design-4" },
+    "waitFor": ".str-chat__thread-container .str-chat__message-list",
+    "settleMs": 1500
+  },
+  {
+    "file": "stream-chat-css-custom-avatar-color-screenshot.png",
+    "query": { "channel": "docs-v15-cb-design" },
+    "clip": ".str-chat__channel-list",
+    "padding": 0,
+    "settleMs": 1500
+  },
+  {
+    "file": "stream-chat-css-dark-ui-screenshot.png",
+    "variant": "sdk-dark",
+    "query": {
+      "look": "sdk",
+      "channel": "docs-v15-cb-design",
+      "thread": "docs-v15-ck-design-4"
+    },
+    "waitFor": ".str-chat__thread-container .str-chat__message-list",
+    "settleMs": 1500
+  },
+  {
+    "file": "stream-chat-css-custom-dark-theme-screenshot.png",
+    "variant": "dark",
+    "query": { "channel": "docs-v15-cb-design", "thread": "docs-v15-ck-design-4" },
+    "waitFor": ".str-chat__thread-container .str-chat__message-list",
+    "settleMs": 1500
+  },
+  {
+    "file": "stream-chat-css-square-theme-screenshot.png",
+    "variant": "square",
+    "query": { "channel": "docs-v15-cb-design" },
+    "settleMs": 1500
+  },
+  {
+    "file": "stream-chat-css-rtl-layout-screenshot.png",
+    "variant": "rtl",
+    "query": { "channel": "docs-v15-cb-design" },
+    "settleMs": 1500
+  }
+]

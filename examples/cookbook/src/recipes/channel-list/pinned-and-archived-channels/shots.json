@@ -1,0 +1,42 @@
+[
+  {
+    "file": "channel-list-pinned-and-archived.png",
+    "query": {
+      "channel": "docs-v15-cb-design"
+    },
+    "waitFor": ".cookbook-channel-section:nth-child(2) .str-chat__channel-list-item-container",
+    "clip": ".str-chat__channel-list",
+    "padding": 0
+  },
+  {
+    "file": "channel-list-archived-open.png",
+    "query": {
+      "channel": "docs-v15-cb-design",
+      "simulate": "archive"
+    },
+    "waitFor": ".cookbook-channel-section:has([aria-expanded='true']) .cookbook-channel-section__more button",
+    "clip": ".str-chat__channel-list",
+    "padding": 0
+  },
+  {
+    "file": "channel-list-archived-load-more.png",
+    "query": {
+      "channel": "docs-v15-cb-design",
+      "simulate": "archive-more"
+    },
+    "waitFor": ".cookbook-channel-section:has([aria-expanded='true']) .str-chat__channel-list-item-container:nth-child(6)",
+    "clip": ".str-chat__channel-list",
+    "padding": 0
+  },
+  {
+    "file": "channel-list-pin-archive-menu.png",
+    "query": {
+      "channel": "docs-v15-cb-design",
+      "simulate": "row-menu",
+      "row": "Lunch spots"
+    },
+    "waitFor": "[data-testid='dropdown-action-pin']",
+    "clip": ".str-chat__channel-list",
+    "padding": 88
+  }
+]
