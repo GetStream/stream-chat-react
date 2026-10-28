@@ -1,5 +1,9 @@
 import { StateStore } from '@stream-io/state-store';
-import { defaultMessageComposerPreviewSet, useStateStore } from 'stream-chat-react';
+import {
+  defaultMessageBubbleContentSet,
+  defaultMessageComposerPreviewSet,
+  useStateStore,
+} from 'stream-chat-react';
 
 import { DEFAULT_LANGUAGE, streamI18n } from '../i18n';
 import type { UploadDestination, UploadFailureMode } from '../SendWhilePendingUploads';
@@ -88,6 +92,14 @@ export type PanelLayoutSettingsState = {
   threadPanel: ThreadPanelLayoutSettingsState;
 };
 
+export type MessageBubbleSettingsState = {
+  /**
+   * `MessageBubbleContentSetItem['type']`s in render order. A default type missing from it is
+   * appended (see `resolveBubbleContentOrder`).
+   */
+  contentOrder: string[];
+};
+
 export type MessageListSettingsState = {
   type: 'standard' | 'virtualized';
 };
@@ -147,6 +159,7 @@ export type AppSettingsState = {
   language: LanguageSettingsState;
   layout: LayoutSettingsState;
   messageActions: MessageActionsSettingsState;
+  messageBubble: MessageBubbleSettingsState;
   messageList: MessageListSettingsState;
   notifications: NotificationsSettingsState;
   panelLayout: PanelLayoutSettingsState;
@@ -229,6 +242,9 @@ const defaultAppSettingsState: AppSettingsState = {
         viewMessageInfo: false,
       },
     },
+  },
+  messageBubble: {
+    contentOrder: defaultMessageBubbleContentSet.map(({ type }) => type),
   },
   messageList: {
     type: 'standard',
