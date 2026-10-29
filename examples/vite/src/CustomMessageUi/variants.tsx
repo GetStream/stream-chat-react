@@ -246,7 +246,16 @@ const CustomMessageUiActions = () => {
   return (
     <div className='custom-message-ui__actions'>
       <div className='custom-message-ui__actions-group'>
-        <button onClick={handlePin} title={message.pinned ? 'Unpin' : 'Pin'}>
+        <button
+          onClick={async (event) => {
+            try {
+              await handlePin(event);
+            } catch (error) {
+              console.error('Failed to update the message pin', error);
+            }
+          }}
+          title={message.pinned ? 'Unpin' : 'Pin'}
+        >
           {message.pinned ? '📍' : '📌'}
         </button>
         <button onClick={() => handleDelete()} title='Delete'>
