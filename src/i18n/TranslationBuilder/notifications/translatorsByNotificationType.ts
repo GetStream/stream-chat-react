@@ -7,6 +7,7 @@ import {
   translateCommandDisabled,
   translatePollCreateFailed,
   translatePollEndFailed,
+  translateScheduledMessageBlocked,
   translateScheduledMessageCreateFailed,
 } from './translators';
 import type { Translator } from '../../index';
@@ -37,6 +38,5 @@ export const translatorsByNotificationType: Record<
   'validation:command:disabled': translateCommandDisabled,
   'validation:poll:castVote:limit': ({ t }) =>
     t('Reached the vote limit. Remove an existing vote first.'),
-  [ScheduledMessageNotificationType.CommandRejected]: ({ t }) =>
-    t("Slash commands can't be scheduled"),
+  [ScheduledMessageNotificationType.Blocked]: translateScheduledMessageBlocked,
 };

@@ -1,6 +1,7 @@
 import {
   ErrorFromResponse,
   getScheduledMessageErrorReason,
+  ScheduledMessageBlockReason,
   ScheduledMessageErrorReason,
 } from 'stream-chat';
 import type { Notification } from 'stream-chat';
@@ -124,4 +125,22 @@ export const translateScheduledMessageCreateFailed: Translator<
   if (isForbiddenError(error)) return t("You can't schedule messages here");
 
   return t("Couldn't schedule message. Try again");
+};
+
+export const translateScheduledMessageBlocked: Translator<
+  NotificationTranslatorOptions
+> = ({ options: { notification }, t }) => {
+  const { reason } = notification?.metadata ?? {};
+
+  if (reason === ScheduledMessageBlockReason.Command) {
+    return t("Slash commands can't be scheduled");
+  }
+
+  if (reason === ScheduledMessageBlockReason.Poll) return t("Polls can't be scheduled");
+
+  if (reason === ScheduledMessageBlockReason.SharedLocation) {
+    return t("Locations can't be scheduled");
+  }
+
+  return t("This message can't be scheduled");
 };
