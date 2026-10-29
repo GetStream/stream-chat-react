@@ -29,8 +29,9 @@ export const usePinHandler = (message: LocalMessage) => {
         updateMessage(optimisticMessage);
 
         await client.pinMessage(message);
-      } catch (e) {
+      } catch (error) {
         updateMessage(message);
+        throw error;
       }
     } else {
       try {
@@ -45,8 +46,9 @@ export const usePinHandler = (message: LocalMessage) => {
         updateMessage(optimisticMessage);
 
         await client.unpinMessage(message);
-      } catch (e) {
+      } catch (error) {
         updateMessage(message);
+        throw error;
       }
     }
   };
