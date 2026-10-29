@@ -53,6 +53,7 @@ export const useDeleteHandler = (
             t('common.errorDeletingMessage.label', 'Error deleting message'),
           'error',
         );
+      throw e;
     }
   };
 };

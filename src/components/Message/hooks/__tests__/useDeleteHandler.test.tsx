@@ -89,15 +89,25 @@ describe('useDeleteHandler custom hook', () => {
     });
   });
 
-  it('should notify (and not throw) when the delete request fails', async () => {
+  it('should notify and throw when the delete request fails', async () => {
     vi.spyOn(channel.messageOperations, 'delete').mockRejectedValue(
       new Error('delete failed'),
     );
     const notify = vi.fn();
     const handleDelete = await renderUseDeleteHandler(testMessage, { notify });
     await act(async () => {
-      await expect(handleDelete()).resolves.toBeUndefined();
+      await expect(handleDelete()).rejects.toThrow('delete failed');
     });
     expect(notify).toHaveBeenCalledWith('Error deleting message', 'error');
+  });
+
+  it('should throw when the delete request fails without notifications configured', async () => {
+    vi.spyOn(channel.messageOperations, 'delete').mockRejectedValue(
+      new Error('delete failed'),
+    );
+    const handleDelete = await renderUseDeleteHandler(testMessage);
+    await act(async () => {
+      await expect(handleDelete()).rejects.toThrow('delete failed');
+    });
   });
 });

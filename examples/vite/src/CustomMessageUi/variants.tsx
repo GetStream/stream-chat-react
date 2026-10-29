@@ -259,7 +259,16 @@ const CustomMessageUiActions = () => {
         >
           {message.pinned ? '📍' : '📌'}
         </button>
-        <button onClick={() => handleDelete()} title='Delete'>
+        <button
+          onClick={async () => {
+            try {
+              await handleDelete();
+            } catch (error) {
+              console.error('Failed to delete the message', error);
+            }
+          }}
+          title='Delete'
+        >
           🗑️
         </button>
         <button onClick={handleOpenThread} title='Open thread'>
