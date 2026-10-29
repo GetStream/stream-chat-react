@@ -2,6 +2,7 @@ import React from 'react';
 import { act, cleanup, fireEvent, render, screen } from '@testing-library/react';
 
 import { InfiniteScrollPaginator } from '../InfiniteScrollPaginator';
+import { ResizeObserverMock } from '../../../mock-builders/browser';
 
 const THRESHOLD = 100;
 const INTERVAL_MS = 500;
@@ -154,6 +155,64 @@ describe('InfiniteScrollPaginator', () => {
 
     expect(loadNextOnScrollToTop).toHaveBeenCalledTimes(1);
     expect(replacedLoader).toHaveBeenCalledTimes(1);
+  });
+
+  describe('on resize', () => {
+    beforeEach(() => {
+      ResizeObserverMock.observers = [];
+      vi.stubGlobal('ResizeObserver', ResizeObserverMock);
+    });
+
+    afterEach(() => {
+      vi.unstubAllGlobals();
+    });
+
+    const resize = () => {
+      const observer = ResizeObserverMock.observers.at(-1) as ResizeObserverMock;
+      observer.cb([], observer as unknown as ResizeObserver);
+    };
+
+    // A page loaded inside the observer's callback renders before its delivery ends, and a root
+    // sized by its content then resizes within it: "ResizeObserver loop completed with
+    // undelivered notifications".
+    it('checks the distance to the edges in the next frame, not in the observer callback', () => {
+      const { loadNextOnScrollToTop, root } = renderPaginator();
+      root.scrollTop = 0;
+
+      resize();
+      expect(loadNextOnScrollToTop).not.toHaveBeenCalled();
+
+      act(() => {
+        vi.advanceTimersToNextFrame();
+      });
+      expect(loadNextOnScrollToTop).toHaveBeenCalledTimes(1);
+    });
+
+    it('checks once for resizes reported within the same frame', () => {
+      const { listenToScroll, root } = renderPaginator();
+      root.scrollTop = 0;
+
+      resize();
+      resize();
+      act(() => {
+        vi.advanceTimersToNextFrame();
+      });
+
+      expect(listenToScroll).toHaveBeenCalledTimes(1);
+    });
+
+    it('does not check after unmount', () => {
+      const { listenToScroll, root } = renderPaginator();
+      root.scrollTop = 0;
+
+      resize();
+      cleanup();
+      act(() => {
+        vi.advanceTimersToNextFrame();
+      });
+
+      expect(listenToScroll).not.toHaveBeenCalled();
+    });
   });
 
   it.each([true, false])(
