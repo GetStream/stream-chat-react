@@ -1,0 +1,50 @@
+@use '../../../styling/utils';
+
+.str-chat {
+  --str-chat__split-send-button-segment-gap: 1px;
+
+  .str-chat__split-send-button {
+    display: flex;
+    align-items: center;
+    gap: var(--str-chat__split-send-button-segment-gap);
+
+    .str-chat__send-button {
+      border-start-end-radius: 0;
+      border-end-end-radius: 0;
+    }
+
+    .str-chat__schedule-message-button {
+      border-start-start-radius: 0;
+      border-end-start-radius: 0;
+      border-start-end-radius: var(--str-chat__button-radius-full);
+      border-end-end-radius: var(--str-chat__button-radius-full);
+      padding-inline: var(--str-chat__spacing-xs);
+
+      .str-chat__icon--chevron-up {
+        height: var(--str-chat__icon-size-sm);
+        width: var(--str-chat__icon-size-sm);
+      }
+
+      &.str-chat__schedule-message-button--selected:not(:disabled) {
+        @include utils.overlay-after(var(--str-chat__background-utility-selected));
+      }
+    }
+  }
+
+  .str-chat__schedule-message-menu {
+    min-width: 224px;
+
+    .str-chat__schedule-message-menu__header {
+      display: flex;
+      align-items: center;
+      min-height: 32px;
+      padding: var(--str-chat__spacing-xs);
+    }
+
+    .str-chat__schedule-message-menu__separator {
+      height: 1px;
+      margin: var(--str-chat__spacing-xxs) var(--str-chat__spacing-xs);
+      background-color: var(--str-chat__border-core-subtle);
+    }
+  }
+}

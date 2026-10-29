@@ -10,8 +10,7 @@ import type {
 import { useChannelStateContext, useChatContext } from '../../../context';
 import { useStateStore } from '../../../store';
 import { useMessageComposerController } from '../../MessageComposer/hooks/useMessageComposerController';
-
-export const SCHEDULE_MESSAGE_CAPABILITY = 'schedule-message';
+import { SCHEDULE_MESSAGE_CAPABILITY } from '../constants';
 
 const COMMAND_PATTERN = /^\/(\S+)/;
 

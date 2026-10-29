@@ -48,6 +48,7 @@ import {
   type ReactionSelectorProps,
   type RecordingPermissionDeniedNotificationProps,
   type ReminderNotificationProps,
+  type ScheduleMessageDialogProps,
   type ScrollToLatestMessageButtonProps,
   type SearchResultsPresearchProps,
   type SearchSourceResultListProps,
@@ -270,6 +271,10 @@ export type ComponentContextValue = {
   SearchSourceResultsHeader?: React.ComponentType;
   /** Custom component to display the search source results UI during the search query execution, defaults to and accepts same props as: [SearchSourceResultsLoadingIndicator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Search/SearchResults/SearchSourceResultsLoadingIndicator.tsx) */
   SearchSourceResultsLoadingIndicator?: React.ComponentType;
+  /** Custom UI component rendered next to the send button that opens the schedule menu, defaults to: [ScheduleMessageButton](https://github.com/GetStream/stream-chat-react/blob/master/src/components/ScheduledMessages/ScheduleMessageButton.tsx). Pass `null` to hide it. */
+  ScheduleMessageButton?: React.ComponentType | null;
+  /** Custom UI component to render the custom-time dialog for scheduling a message, defaults to and accepts same props as: [ScheduleMessageDialog](https://github.com/GetStream/stream-chat-react/blob/master/src/components/ScheduledMessages/ScheduleMessageDialog.tsx) */
+  ScheduleMessageDialog?: React.ComponentType<ScheduleMessageDialogProps>;
   /** Custom UI component for send button, defaults to and accepts same props as: [SendButton](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageComposer/icons.tsx) */
   SendButton?: React.ComponentType<SendButtonProps>;
   /** Custom UI component checkbox that indicates message to be sent to main channel, defaults to and accepts same props as: [SendToChannelCheckbox](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageComposer/SendToChannelCheckbox.tsx) */
