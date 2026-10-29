@@ -25,6 +25,11 @@ const mouseEventMock = fromPartial<React.BaseSyntheticEvent>({
   preventDefault: vi.fn(() => {}),
 });
 
+// Reads the message back from the channel's paginator, so assertions see the stored state
+// rather than only the calls made to it.
+const getHeldMessage = (id: string) =>
+  channel.messagePaginator.items?.find((item) => item.id === id);
+
 async function renderUsePinHandler(
   message: LocalMessage,
   notifications?: Parameters<typeof usePinHandler>[1],
@@ -58,58 +63,78 @@ describe('usePinHandler custom hook', () => {
 
   it('should pin the message and update it optimistically', async () => {
     const pinSpy = vi.spyOn(client, 'pinMessage').mockResolvedValue(fromPartial({}));
-    const ingestSpy = vi.spyOn(channel.messagePaginator, 'ingestItem');
-    const message = generateMessage({ pinned: false }) as LocalMessage;
+    const message = generateMessage({ cid: channel.cid, pinned: false }) as LocalMessage;
     const { handlePin } = await renderUsePinHandler(message);
     await act(async () => {
       await handlePin(mouseEventMock);
     });
     expect(pinSpy).toHaveBeenCalledWith(message);
-    expect(ingestSpy).toHaveBeenCalledTimes(1);
-    expect(ingestSpy).toHaveBeenCalledWith(expect.objectContaining({ pinned: true }));
+    expect(getHeldMessage(message.id)).toEqual(expect.objectContaining({ pinned: true }));
   });
 
   it('should roll back and throw when pinning fails', async () => {
-    vi.spyOn(client, 'pinMessage').mockRejectedValue(new Error('pin failed'));
-    const ingestSpy = vi.spyOn(channel.messagePaginator, 'ingestItem');
-    const message = generateMessage({ pinned: false }) as LocalMessage;
+    let rejectRequest: (error: Error) => void = () => {};
+    vi.spyOn(client, 'pinMessage').mockReturnValue(
+      new Promise((_, reject) => {
+        rejectRequest = reject;
+      }),
+    );
+    const message = generateMessage({ cid: channel.cid, pinned: false }) as LocalMessage;
     const { handlePin } = await renderUsePinHandler(message);
-    await act(async () => {
-      await expect(handlePin(mouseEventMock)).rejects.toThrow('pin failed');
+    let pending: ReturnType<typeof handlePin>;
+    act(() => {
+      pending = handlePin(mouseEventMock);
     });
-    expect(ingestSpy).toHaveBeenCalledTimes(2);
-    expect(ingestSpy).toHaveBeenLastCalledWith(message);
+    expect(getHeldMessage(message.id)).toEqual(expect.objectContaining({ pinned: true }));
+    await act(async () => {
+      rejectRequest(new Error('pin failed'));
+      await expect(pending).rejects.toThrow('pin failed');
+    });
+    expect(getHeldMessage(message.id)).toEqual(
+      expect.objectContaining({ pinned: false }),
+    );
   });
 
   it('should unpin the message and update it optimistically', async () => {
     const unpinSpy = vi.spyOn(client, 'unpinMessage').mockResolvedValue(fromPartial({}));
-    const ingestSpy = vi.spyOn(channel.messagePaginator, 'ingestItem');
-    const message = generateMessage({ pinned: true }) as LocalMessage;
+    const message = generateMessage({ cid: channel.cid, pinned: true }) as LocalMessage;
     const { handlePin } = await renderUsePinHandler(message);
     await act(async () => {
       await handlePin(mouseEventMock);
     });
     expect(unpinSpy).toHaveBeenCalledWith(message);
-    expect(ingestSpy).toHaveBeenCalledTimes(1);
-    expect(ingestSpy).toHaveBeenCalledWith(expect.objectContaining({ pinned: false }));
+    expect(getHeldMessage(message.id)).toEqual(
+      expect.objectContaining({ pinned: false }),
+    );
   });
 
   it('should roll back and throw when unpinning fails', async () => {
-    vi.spyOn(client, 'unpinMessage').mockRejectedValue(new Error('unpin failed'));
-    const ingestSpy = vi.spyOn(channel.messagePaginator, 'ingestItem');
-    const message = generateMessage({ pinned: true }) as LocalMessage;
+    let rejectRequest: (error: Error) => void = () => {};
+    vi.spyOn(client, 'unpinMessage').mockReturnValue(
+      new Promise((_, reject) => {
+        rejectRequest = reject;
+      }),
+    );
+    const message = generateMessage({ cid: channel.cid, pinned: true }) as LocalMessage;
     const { handlePin } = await renderUsePinHandler(message);
-    await act(async () => {
-      await expect(handlePin(mouseEventMock)).rejects.toThrow('unpin failed');
+    let pending: ReturnType<typeof handlePin>;
+    act(() => {
+      pending = handlePin(mouseEventMock);
     });
-    expect(ingestSpy).toHaveBeenCalledTimes(2);
-    expect(ingestSpy).toHaveBeenLastCalledWith(message);
+    expect(getHeldMessage(message.id)).toEqual(
+      expect.objectContaining({ pinned: false }),
+    );
+    await act(async () => {
+      rejectRequest(new Error('unpin failed'));
+      await expect(pending).rejects.toThrow('unpin failed');
+    });
+    expect(getHeldMessage(message.id)).toEqual(expect.objectContaining({ pinned: true }));
   });
 
   it('should notify and throw when pinning fails with notifications configured', async () => {
     vi.spyOn(client, 'pinMessage').mockRejectedValue(new Error('pin failed'));
     const notify = vi.fn();
-    const message = generateMessage({ pinned: false }) as LocalMessage;
+    const message = generateMessage({ cid: channel.cid, pinned: false }) as LocalMessage;
     const { handlePin } = await renderUsePinHandler(message, {
       getErrorNotification: () => 'custom pin error',
       notify,
