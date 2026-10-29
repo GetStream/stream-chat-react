@@ -54,11 +54,16 @@ export const usePinHandler = (
   const getLatestMessage = () => messagePaginator.getItem(message.id) ?? message;
 
   // Restores only the pin fields from before the click, so updates that arrived while the request
-  // was in flight (an edit, a reaction) are kept. Skipped when the pin state already changed
-  // again, since that change is newer than the snapshot.
+  // was in flight (an edit, a reaction) are kept. Skipped unless the stored pin is still the
+  // optimistic one: a pin or unpin that arrived meanwhile is newer than the snapshot, even when
+  // `pinned` has the same value.
   const rollBackPin = (optimisticMessage: LocalMessage) => {
     const latestMessage = messagePaginator.getItem(message.id);
-    if (!latestMessage || latestMessage.pinned !== optimisticMessage.pinned) return;
+    const isOptimisticPinStored =
+      latestMessage?.pinned === optimisticMessage.pinned &&
+      latestMessage.pinned_at === optimisticMessage.pinned_at &&
+      latestMessage.pinned_by?.id === optimisticMessage.pinned_by?.id;
+    if (!latestMessage || !isOptimisticPinStored) return;
 
     messagePaginator.ingestItem({
       ...latestMessage,

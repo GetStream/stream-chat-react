@@ -1,6 +1,7 @@
 import React from 'react';
 import { act, renderHook, type RenderHookResult } from '@testing-library/react';
 import { fromPartial } from '@total-typescript/shoehorn';
+import { nowNs } from 'stream-chat';
 import type { Channel as ChannelType, LocalMessage, StreamChat } from 'stream-chat';
 
 import { usePinHandler } from '../usePinHandler';
@@ -176,6 +177,34 @@ describe('usePinHandler custom hook', () => {
       );
     });
     expect(pinSpy).not.toHaveBeenCalled();
+  });
+
+  it('should keep a newer pin with the same pinned value that arrived while pinning', async () => {
+    const rejectRequest = mockPendingRequest('pinMessage');
+    const newerPinner = generateUser();
+    const newerPinnedAt = nowNs();
+    const message = generateMessage({ cid: channel.cid, pinned: false }) as LocalMessage;
+    const { handlePin } = await renderUsePinHandler(message);
+    const pending = startHandlePin(handlePin);
+    act(() => {
+      channel.messagePaginator.ingestItem({
+        ...getStoredMessage(message.id)!,
+        pinned: true,
+        pinned_at: newerPinnedAt,
+        pinned_by: newerPinner,
+      });
+    });
+    await act(async () => {
+      rejectRequest(new Error('pin failed'));
+      await expect(pending).rejects.toThrow('pin failed');
+    });
+    expect(getStoredMessage(message.id)).toEqual(
+      expect.objectContaining({
+        pinned: true,
+        pinned_at: newerPinnedAt,
+        pinned_by: newerPinner,
+      }),
+    );
   });
 
   it('should notify and throw when pinning fails with notifications configured', async () => {
