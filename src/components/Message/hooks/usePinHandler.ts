@@ -50,24 +50,46 @@ export const usePinHandler = (
   const { client } = useChatContext();
   const { t } = useTranslationContext();
 
+  // The stored message, which may be newer than the `message` this hook rendered with.
+  const getLatestMessage = () => messagePaginator.getItem(message.id) ?? message;
+
+  // Restores only the pin fields from before the click, so updates that arrived while the request
+  // was in flight (an edit, a reaction) are kept. Skipped when the pin state already changed
+  // again, since that change is newer than the snapshot.
+  const rollBackPin = (optimisticMessage: LocalMessage) => {
+    const latestMessage = messagePaginator.getItem(message.id);
+    if (!latestMessage || latestMessage.pinned !== optimisticMessage.pinned) return;
+
+    messagePaginator.ingestItem({
+      ...latestMessage,
+      pin_expires: message.pin_expires,
+      pinned: message.pinned,
+      pinned_at: message.pinned_at,
+      pinned_by: message.pinned_by,
+    });
+  };
+
   const handlePin: ReactEventHandler = async (event) => {
     event.preventDefault();
 
     if (!message) return;
 
     if (!message.pinned) {
-      try {
-        const optimisticMessage: LocalMessage = {
-          ...message,
-          pinned: true,
-          pinned_at: nowNs(),
-          pinned_by: client.user as UserResponse | undefined,
-        };
+      const optimisticMessage: LocalMessage = {
+        ...getLatestMessage(),
+        pinned: true,
+        pinned_at: nowNs(),
+        pinned_by: client.user as UserResponse | undefined,
+      };
 
+      try {
         messagePaginator.ingestItem(optimisticMessage);
 
         await client.pinMessage(message);
       } catch (e) {
+        // Roll back first, so a throwing notification callback cannot leave the optimistic state.
+        rollBackPin(optimisticMessage);
+
         const errorMessage =
           getErrorNotification && validateAndGetMessage(getErrorNotification, [message]);
 
@@ -77,23 +99,25 @@ export const usePinHandler = (
               t('common.errorPinningMessage.label', 'Error pinning message'),
             'error',
           );
-        messagePaginator.ingestItem(message);
         throw e;
       }
     } else {
-      try {
-        const optimisticMessage: LocalMessage = {
-          ...message,
-          pin_expires: undefined,
-          pinned: false,
-          pinned_at: undefined,
-          pinned_by: undefined,
-        };
+      const optimisticMessage: LocalMessage = {
+        ...getLatestMessage(),
+        pin_expires: undefined,
+        pinned: false,
+        pinned_at: undefined,
+        pinned_by: undefined,
+      };
 
+      try {
         messagePaginator.ingestItem(optimisticMessage);
 
         await client.unpinMessage(message);
       } catch (e) {
+        // Roll back first, so a throwing notification callback cannot leave the optimistic state.
+        rollBackPin(optimisticMessage);
+
         const errorMessage =
           getErrorNotification && validateAndGetMessage(getErrorNotification, [message]);
 
@@ -103,7 +127,6 @@ export const usePinHandler = (
               t('common.errorRemovingMessagePin.label', 'Error removing message pin'),
             'error',
           );
-        messagePaginator.ingestItem(message);
         throw e;
       }
     }
