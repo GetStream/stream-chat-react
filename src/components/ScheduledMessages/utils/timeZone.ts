@@ -1,14 +1,5 @@
 const MINUTES_IN_HOUR = 60;
 
-/**
- * Returns the local time zone of `date` as a GMT offset label.
- *
- * Whole hours drop the minutes and UTC itself is plain `GMT`. The offset is read for the
- * given date, so a date after a daylight saving change gets the new offset.
- *
- * @example
- * formatTimeZoneOffset(date); // 'GMT+2', 'GMT-5', 'GMT+5:30' or 'GMT'
- */
 export const formatTimeZoneOffset = (date: Date) => {
   const offsetMinutes = -date.getTimezoneOffset();
 
