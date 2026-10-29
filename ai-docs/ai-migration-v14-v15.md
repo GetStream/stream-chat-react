@@ -542,9 +542,7 @@ Nothing to wire. `ChatView` provides the navigation and binds what is opened int
 
 ### Without `ChatView`
 
-Hold what is open in your own state and provide `WorkspaceNavigationProvider` with the navigation `createWorkspaceNavigation` (root export) builds from it. It models one channel panel with one thread panel beside it and derives every member the SDK reads, so list rows are marked active and the thread header's close button renders. Spread its result to override members.
-
-A layout with more panels needs a navigation of its own, built from `defaultWorkspaceNavigation`. Every member you do not override keeps its inert default (`false`, a no-op, an empty list). Override:
+Hold what is open in your own state and provide `WorkspaceNavigationProvider` with an object built from `defaultWorkspaceNavigation`. Every member you do not override keeps its inert default (`false`, a no-op, an empty list). Override:
 
 - always: `openChannel`, `isChannelActive` and `openChannels`;
 - if you render threads: `openThread`, `closeThread`, `openThreads`, `isThreadActive`, and `isThreadDismissable` if you render the default `ThreadHeader`, whose close button shows only when it returns `true`;
@@ -572,18 +570,19 @@ import {
   ChannelPaginator,
   type SortParamRequest,
   type StreamChat,
-  type Thread as StreamThread,
+  Thread as StreamThread,
 } from 'stream-chat';
 import {
   Channel,
   ChannelList,
   ChannelPlaceholder,
   Chat,
-  createWorkspaceNavigation,
+  defaultWorkspaceNavigation,
   MessageComposer,
   MessageList,
   Thread,
   ThreadHeader,
+  type WorkspaceNavigation,
   WorkspaceNavigationProvider,
 } from 'stream-chat-react';
 
@@ -605,15 +604,31 @@ export const App = ({ client, userId }: { client: StreamChat; userId: string }) 
     };
   }, [client, paginator]);
 
-  const navigation = useMemo(
-    () =>
-      createWorkspaceNavigation({
-        channel: activeChannel,
-        setChannel: setActiveChannel,
-        setThread: setActiveThread,
-        thread: activeThread,
-      }),
-    [activeChannel, activeThread],
+  const navigation = useMemo<WorkspaceNavigation>(
+    () => ({
+      ...defaultWorkspaceNavigation,
+      closeThread: () => setActiveThread(undefined),
+      isChannelActive: (cid) => !!cid && cid === activeChannel?.cid,
+      isThreadActive: (threadId) => !!threadId && threadId === activeThread?.id,
+      // the default ThreadHeader renders its close button only when this returns true
+      isThreadDismissable: (threadId) => !!threadId && threadId === activeThread?.id,
+      openChannel: (channel) => {
+        setActiveChannel(channel);
+        setActiveThread(undefined);
+      },
+      openChannels: activeChannel ? [activeChannel] : [],
+      openThread: (target) =>
+        setActiveThread(
+          target instanceof StreamThread
+            ? target
+            : client.threads.ensure({
+                channel: target.channel,
+                parentMessage: target.message,
+              }),
+        ),
+      openThreads: activeThread ? [activeThread] : [],
+    }),
+    [activeChannel, activeThread, client],
   );
 
   return (
@@ -641,8 +656,7 @@ export const App = ({ client, userId }: { client: StreamChat; userId: string }) 
 };
 ```
 
-- An `openThread` target is either a `Thread` or `{ channel, message }`. `createWorkspaceNavigation` turns the latter into a registered `Thread` with `client.threads.ensure({ channel, parentMessage })`; a navigation of your own has to do the same.
-- Opening a different channel closes the thread, and closing the channel closes both. `canGoBack` is always `false`: nothing is stacked.
+- An `openThread` target is either a `Thread` or `{ channel, message }`. `client.threads.ensure({ channel, parentMessage })` turns the latter into a registered `Thread`.
 - Instead of a navigation provider, `ChannelListItem` and the search result items take an `onSelect` prop that replaces their selection handler. That covers selection only: thread opening and the header buttons still read the navigation.
 - **Drop held channels on `disconnectUser()`.** It disposes the user's channels, and a disposed channel throws `Channel <cid> is pending disposal and cannot be used` from `getClient()`, so rendering it (as `activeChannel` above, after a logout or a user switch) throws. Clear the state that holds channels and threads when you disconnect, or re-`ensure` them on the new connection. This also shows up in development when Fast Refresh keeps a stale channel in state across a reconnect.
 
