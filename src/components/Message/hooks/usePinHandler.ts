@@ -5,6 +5,11 @@ import { useChatContext } from '../../../context/ChatContext';
 import type { LocalMessage } from 'stream-chat';
 import type { ReactEventHandler } from '../types';
 
+// `pinned_at` is a `Date` here, and a copy of the message from an event carries its own instance,
+// so pins are compared by time rather than by reference.
+const getPinnedAtTime = (pinnedAt: LocalMessage['pinned_at']) =>
+  pinnedAt ? new Date(pinnedAt).getTime() : undefined;
+
 export const usePinHandler = (message: LocalMessage) => {
   const { updateMessage } = useChannelActionContext('usePinHandler');
   const { channel, channelCapabilities = {} } = useChannelStateContext('usePinHandler');
@@ -17,11 +22,19 @@ export const usePinHandler = (message: LocalMessage) => {
     channel.state.findMessage(message.id, message.parent_id) ?? message;
 
   // Restores only the pin fields from before the click, so updates that arrived while the request
-  // was in flight (an edit, a reaction) are kept. Skipped when the pin state already changed
-  // again, since that change is newer than the snapshot.
+  // was in flight (an edit, a reaction) are kept. Skipped unless the stored pin is still the
+  // optimistic one: a pin or unpin that arrived meanwhile is newer than the snapshot, even when
+  // `pinned` has the same value.
   const rollBackPin = (optimisticMessage: LocalMessage) => {
     const latestMessage = channel.state.findMessage(message.id, message.parent_id);
-    if (!latestMessage || latestMessage.pinned !== optimisticMessage.pinned) return;
+    if (!latestMessage) return;
+
+    const isOptimisticPinStored =
+      latestMessage.pinned === optimisticMessage.pinned &&
+      getPinnedAtTime(latestMessage.pinned_at) ===
+        getPinnedAtTime(optimisticMessage.pinned_at) &&
+      latestMessage.pinned_by?.id === optimisticMessage.pinned_by?.id;
+    if (!isOptimisticPinStored) return;
 
     updateMessage({
       ...latestMessage,

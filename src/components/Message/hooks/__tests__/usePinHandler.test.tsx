@@ -159,4 +159,30 @@ describe('usePinHandler custom hook', () => {
     await expect(pending).rejects.toThrow('unpin failed');
     expect(getStoredMessage(message.id)?.pinned_by).toEqual(newerPinner);
   });
+
+  it('should keep a newer pin with the same pinned value that arrived while pinning', async () => {
+    const rejectRequest = mockPendingRequest('pinMessage');
+    const newerPinner = generateUser();
+    const newerPinnedAt = new Date(Date.now() + 60_000);
+    const message = seedMessage({ pinned: false });
+    const { handlePin } = renderUsePinHandlerHook(message);
+    const pending = startHandlePin(handlePin);
+    channel.state.addMessageSorted(
+      {
+        ...getStoredMessage(message.id)!,
+        pinned: true,
+        pinned_at: newerPinnedAt,
+        pinned_by: newerPinner,
+      },
+      true,
+    );
+    rejectRequest(new Error('pin failed'));
+    await expect(pending).rejects.toThrow('pin failed');
+    expect(getStoredMessage(message.id)).toEqual(
+      expect.objectContaining({ pinned: true, pinned_by: newerPinner }),
+    );
+    expect(getStoredMessage(message.id)?.pinned_at?.getTime()).toBe(
+      newerPinnedAt.getTime(),
+    );
+  });
 });
