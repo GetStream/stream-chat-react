@@ -933,19 +933,48 @@ export const createPaginator = (client: StreamChat, userId: string) =>
 
 These hit apps that never passed the props, because they were v14 defaults:
 
-- **No channel opens on load.** `setActiveChannelOnMount` defaulted to `true`, so every v14 app opened the first channel. v15 has no default selection: nothing is open until you call `useWorkspaceNavigation().openChannel(channel)`. To keep the v14 behavior, call `useOpenFirstChannel(paginator)` (root export) where the list renders:
+- **No channel opens on load.** `setActiveChannelOnMount` defaulted to `true`, so every v14 app opened the first channel. v15 has no default selection: nothing is open until you call `useWorkspaceNavigation().openChannel(channel)`. To keep the v14 behavior, open the paginator's first item when its first page loads:
 
   ```tsx
+  import { useEffect, useRef } from 'react';
   import type { ChannelPaginator } from 'stream-chat';
-  import { ChannelList, useOpenFirstChannel } from 'stream-chat-react';
+  import { useWorkspaceNavigation } from 'stream-chat-react';
 
-  export const Sidebar = ({ paginator }: { paginator: ChannelPaginator }) => {
-    useOpenFirstChannel(paginator);
-    return <ChannelList paginator={paginator} />;
+  export const useOpenFirstChannel = (paginator: ChannelPaginator) => {
+    const { openChannel, openChannels } = useWorkspaceNavigation();
+    // Read when a page loads. The navigation changes with every open and close, and resubscribing
+    // on it would replay a page that already loaded.
+    const navigation = useRef({ hasOpenChannel: openChannels.length > 0, openChannel });
+    useEffect(() => {
+      navigation.current = { hasOpenChannel: openChannels.length > 0, openChannel };
+    });
+
+    useEffect(() => {
+      // Each load counts once, so a channel that later moves to the top is not opened.
+      // `items === undefined` means "never queried", where `client.disconnectUser()` resets the
+      // list, so the next user's first load counts again.
+      let awaitingLoad = true;
+      return paginator.state.subscribeWithSelector(
+        ({ items }) => ({ first: items?.[0], isUnloaded: items === undefined }),
+        ({ first, isUnloaded }) => {
+          if (isUnloaded) {
+            awaitingLoad = true;
+            return;
+          }
+          if (!awaitingLoad) return;
+          awaitingLoad = false;
+          // Check what is open, not a flag of this hook: a remount (a `ChatView` view switch
+          // unmounts the list) must not replace the channel the user picked.
+          if (first && !navigation.current.hasOpenChannel) {
+            navigation.current.openChannel(first);
+          }
+        },
+      );
+    }, [paginator]);
   };
   ```
 
-  It opens the first channel when the list's first page loads, only if no channel is open, so a remount (a `ChatView` view switch unmounts the list) does not replace the channel the user picked. A guard of your own in a `useRef` resets on every remount; check `openChannels` instead. Call it below the navigation provider (inside `ChatView`, or inside your `WorkspaceNavigationProvider`), where `openChannel` does something.
+  Call it where the list renders and below the navigation provider (inside `ChatView`, or inside your `WorkspaceNavigationProvider`), where `openChannel` does something. Mounted where `ChatView`'s threads view renders too, it would open a channel there, since that view has no open channels.
 
 - **Unfiltered channels no longer join the list.** `allowNewMessagesFromUnfilteredChannels` defaulted to `true`: a new message in a channel that was not in the list added it, whatever the list's filters. In v15 the paginator adds a channel only if it matches the paginator's own filters, and there is no opt-out. If channels used to appear this way, widen the filters to cover them.
 - **Infinite scroll, not "Load more".** `Paginator` defaulted to `LoadMorePaginator` (a button). The v15 `ChannelList` always scrolls infinitely, loading the next page near the end of the list. To keep a button, render your own list:
