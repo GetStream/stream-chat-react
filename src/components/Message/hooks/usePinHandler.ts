@@ -78,6 +78,7 @@ export const usePinHandler = (
             'error',
           );
         messagePaginator.ingestItem(message);
+        throw e;
       }
     } else {
       try {
@@ -103,6 +104,7 @@ export const usePinHandler = (
             'error',
           );
         messagePaginator.ingestItem(message);
+        throw e;
       }
     }
   };
