@@ -72,7 +72,9 @@ export const usePinHandler = (
   const handlePin: ReactEventHandler = async (event) => {
     event.preventDefault();
 
-    if (!message) return;
+    if (!message) {
+      throw new Error('usePinHandler was called but it is missing the message.');
+    }
 
     if (!message.pinned) {
       const optimisticMessage: LocalMessage = {

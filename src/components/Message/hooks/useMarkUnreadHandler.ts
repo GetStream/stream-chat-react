@@ -21,8 +21,7 @@ export const useMarkUnreadHandler = (
   return async (event) => {
     event.preventDefault();
     if (!message?.id) {
-      console.warn('Mark unread handler does not have access to message id');
-      return;
+      throw new Error('Mark unread handler does not have access to message id');
     }
 
     // Request failures propagate so the caller can report them; `notify` only reports success.

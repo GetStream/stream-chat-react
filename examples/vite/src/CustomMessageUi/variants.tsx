@@ -274,7 +274,16 @@ const CustomMessageUiActions = () => {
         <button onClick={handleOpenThread} title='Open thread'>
           ↩️
         </button>
-        <button onClick={handleFlag} title='Flag message'>
+        <button
+          onClick={async (event) => {
+            try {
+              await handleFlag(event);
+            } catch (error) {
+              console.error('Failed to flag the message', error);
+            }
+          }}
+          title='Flag message'
+        >
           {' '}
           🚩
         </button>
