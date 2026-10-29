@@ -28,6 +28,7 @@ import {
 import { MessageActions, type MessageActionSetItem } from './MessageActions';
 import { QuickMessageActionsButton } from './QuickMessageActionButton';
 import clsx from 'clsx';
+import type { LocalMessage } from 'stream-chat';
 import { DeleteMessageAlert } from './DeleteMessageAlert';
 import { downloadAttachment, isDownloadableAttachment } from './downloadUtils';
 
@@ -49,6 +50,56 @@ const getNotificationError = (error: unknown): Error | undefined => {
     if (typeof message === 'string') return new Error(message);
   }
   return undefined;
+};
+
+const COMPOSER_TEXTAREA_SELECTOR = '.str-chat__textarea__textarea';
+
+/**
+ * The composer next to the message list the menu was opened from: the thread's for a message in a
+ * thread, the channel's otherwise. Several composers can be on screen (a thread panel, channels side
+ * by side), so it is looked up from the menu's anchor, falling back to the first one in the page.
+ */
+const findComposerTextarea = (
+  anchor: HTMLElement | null | undefined,
+  message: LocalMessage,
+): HTMLTextAreaElement | undefined => {
+  const thread = anchor?.closest('.str-chat__thread') ?? null;
+  const container = thread ?? anchor?.closest('.str-chat__channel');
+  if (container) {
+    const textarea = Array.from(
+      container.querySelectorAll<HTMLTextAreaElement>(COMPOSER_TEXTAREA_SELECTOR),
+    ).find((candidate) => candidate.closest('.str-chat__thread') === thread);
+    if (textarea) return textarea;
+  }
+  const fallback = document
+    .querySelectorAll(
+      message.parent_id
+        ? `.str-chat__thread ${COMPOSER_TEXTAREA_SELECTOR}`
+        : COMPOSER_TEXTAREA_SELECTOR,
+    )
+    .item(0);
+  return fallback instanceof HTMLTextAreaElement ? fallback : undefined;
+};
+
+/**
+ * Focuses the message's composer (see {@link findComposerTextarea}) on the next frame: by then the
+ * menu, which traps focus while open, has started closing and no longer pulls focus back, and the
+ * composed text has rendered, so the caret can go after it.
+ */
+const focusComposerTextarea = (
+  anchor: HTMLElement | null | undefined,
+  message: LocalMessage,
+  { caretAtEnd = false }: { caretAtEnd?: boolean } = {},
+) => {
+  // Looked up now, while the anchor is still in the document.
+  const textarea = findComposerTextarea(anchor, message);
+  if (!textarea) return;
+
+  window.requestAnimationFrame(() => {
+    textarea.focus();
+    if (caretAtEnd)
+      textarea.setSelectionRange(textarea.value.length, textarea.value.length);
+  });
 };
 
 const DefaultMessageActionComponents = {
@@ -135,22 +186,14 @@ const DefaultMessageActionComponents = {
     },
     Quote() {
       const { IconQuote } = useComponentContextIcons();
-      const { closeMenu } = useContextMenuContext();
+      const { anchorReferenceElement, closeMenu } = useContextMenuContext();
       const { message } = useMessageContext();
       const { t } = useTranslationContext();
       const messageComposer = useMessageComposerController();
 
       const handleQuote = () => {
         messageComposer.setQuotedMessage(message);
-
-        const elements = message.parent_id
-          ? document.querySelectorAll('.str-chat__thread .str-chat__textarea__textarea')
-          : document.getElementsByClassName('str-chat__textarea__textarea');
-        const textarea = elements.item(0);
-
-        if (textarea instanceof HTMLTextAreaElement) {
-          textarea.focus();
-        }
+        focusComposerTextarea(anchorReferenceElement, message);
       };
 
       return (
@@ -305,7 +348,7 @@ const DefaultMessageActionComponents = {
       const messageComposer = useMessageComposerController();
       const { message } = useMessageContext();
       const { t } = useTranslationContext();
-      const { closeMenu } = useContextMenuContext();
+      const { anchorReferenceElement, closeMenu } = useContextMenuContext();
 
       return (
         <MessageActionsMenuItemButton
@@ -315,6 +358,7 @@ const DefaultMessageActionComponents = {
           onClick={() => {
             savePreEditSnapshot(messageComposer);
             messageComposer.initState({ composition: message });
+            focusComposerTextarea(anchorReferenceElement, message, { caretAtEnd: true });
             closeMenu();
           }}
         >

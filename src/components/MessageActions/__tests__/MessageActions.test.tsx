@@ -473,6 +473,48 @@ describe('<MessageActions />', () => {
 
       expect(setQuotedMessageSpy).toHaveBeenCalledWith(message);
     });
+
+    // Closing the menu returns focus to its toggle, which a hover-only toggle no longer renders, so
+    // the composer was left unfocused and the first keystrokes were lost.
+    it('focuses the composer when Edit Message is clicked', async () => {
+      const {
+        channels: [channel],
+        client,
+      } = await initClientWithChannels({
+        channelsData: [{ channel: { own_capabilities: ['update-own-message'] } }],
+      });
+      const message = generateMessage({ text: 'to edit', user: client.user });
+
+      await act(async () => {
+        await render(
+          <Chat client={client}>
+            <Channel channel={channel}>
+              <DialogManagerProvider id='message-actions-dialog-provider'>
+                <MessageProvider
+                  value={mockMessageContext({
+                    ...defaultMessageContextValue,
+                    message,
+                  })}
+                >
+                  <MessageActions />
+                </MessageProvider>
+              </DialogManagerProvider>
+              <textarea className='str-chat__textarea__textarea' data-testid='composer' />
+            </Channel>
+          </Chat>,
+        );
+      });
+
+      await toggleOpenMessageActions();
+
+      await act(async () => {
+        await fireEvent.click(screen.getByText('Edit Message'));
+      });
+
+      await waitFor(() =>
+        expect(document.activeElement).toBe(screen.getByTestId('composer')),
+      );
+    });
   });
 
   describe('Quick actions', () => {
@@ -1858,7 +1900,8 @@ describe('<MessageActions />', () => {
       await act(async () => {
         await fireEvent.click(screen.getByText('Quote Reply'));
       });
-      expect(focusSpy).toHaveBeenCalled();
+      // Focus moves on the next frame, once the menu has started closing.
+      await waitFor(() => expect(focusSpy).toHaveBeenCalled());
       document.body.removeChild(threadRoot);
     });
   });
