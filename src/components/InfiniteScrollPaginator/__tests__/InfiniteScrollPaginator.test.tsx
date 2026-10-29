@@ -47,14 +47,14 @@ describe('InfiniteScrollPaginator', () => {
     const listenToScroll = vi.fn();
     const loadNextOnScrollToBottom = vi.fn();
     const loadNextOnScrollToTop = vi.fn();
-    const renderWithLoader = (loader: () => void) => (
+    const renderWithLoader = (loader: () => void, threshold = THRESHOLD) => (
       <InfiniteScrollPaginator
         data-testid='paginator-root'
         listenToScroll={listenToScroll}
         loadNextDebounceMs={INTERVAL_MS}
         loadNextOnScrollToBottom={loadNextOnScrollToBottom}
         loadNextOnScrollToTop={loader}
-        threshold={THRESHOLD}
+        threshold={threshold}
       >
         <div>content</div>
       </InfiniteScrollPaginator>
@@ -65,6 +65,8 @@ describe('InfiniteScrollPaginator', () => {
       loadNextOnScrollToBottom,
       loadNextOnScrollToTop,
       replaceLoader: (loader: () => void) => rerender(renderWithLoader(loader)),
+      replaceThreshold: (threshold: number) =>
+        rerender(renderWithLoader(loadNextOnScrollToTop, threshold)),
       root: setUpLayout(),
     };
   };
@@ -168,8 +170,9 @@ describe('InfiniteScrollPaginator', () => {
     });
 
     const resize = () => {
-      const observer = ResizeObserverMock.observers.at(-1) as ResizeObserverMock;
-      observer.cb([], observer as unknown as ResizeObserver);
+      const observer = ResizeObserverMock.observers.at(-1);
+      expect(observer).toBeDefined();
+      observer?.cb([], observer as unknown as ResizeObserver);
     };
 
     // A page loaded inside the observer's callback renders before its delivery ends, and a root
@@ -188,6 +191,7 @@ describe('InfiniteScrollPaginator', () => {
       expect(loadNextOnScrollToTop).toHaveBeenCalledTimes(1);
     });
 
+    // Two checks in one frame would leave the second for the end of the throttle interval.
     it('checks once for resizes reported within the same frame', () => {
       const { listenToScroll, root } = renderPaginator();
       root.scrollTop = 0;
@@ -197,20 +201,24 @@ describe('InfiniteScrollPaginator', () => {
       act(() => {
         vi.advanceTimersToNextFrame();
       });
+      act(() => {
+        vi.advanceTimersByTime(INTERVAL_MS);
+      });
 
       expect(listenToScroll).toHaveBeenCalledTimes(1);
     });
 
-    it('does not check after unmount', () => {
-      const { listenToScroll, root } = renderPaginator();
+    it('drops a pending check when the observer is replaced', () => {
+      const { listenToScroll, replaceThreshold, root } = renderPaginator();
       root.scrollTop = 0;
 
       resize();
-      cleanup();
+      replaceThreshold(THRESHOLD * 2);
       act(() => {
         vi.advanceTimersToNextFrame();
       });
 
+      expect(ResizeObserverMock.observers).toHaveLength(2);
       expect(listenToScroll).not.toHaveBeenCalled();
     });
   });

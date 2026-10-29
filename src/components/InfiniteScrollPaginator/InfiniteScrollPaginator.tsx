@@ -179,11 +179,12 @@ export const InfiniteScrollPaginator = forwardRef(function InfiniteScrollPaginat
 
   useEffect(() => {
     const root = rootRef.current;
-    if (!root || typeof ResizeObserver === 'undefined' || !scrollListener) return;
-    // Checked in the next frame, not in the observer's callback: the check can load a page, and the
-    // store update renders synchronously before the callback's delivery ends. A root sized by its
-    // content then resizes within that delivery, which the browser reports as "ResizeObserver loop
-    // completed with undelivered notifications". Run from a frame, the resize is observed in the next.
+    if (!root || typeof ResizeObserver === 'undefined') return;
+    // The check runs in the next animation frame, not in the observer's callback. It can load a
+    // page, and the store update renders synchronously before the callback returns: a root sized by
+    // its content would resize while the browser is still delivering resize notifications, which it
+    // reports as "ResizeObserver loop completed with undelivered notifications". From a frame, the
+    // page renders before layout, and the observer reports that resize in its next delivery.
     let frameId: number | undefined;
     const observer = new ResizeObserver(() => {
       if (typeof frameId !== 'undefined') return;
