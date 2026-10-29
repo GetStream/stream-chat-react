@@ -1,0 +1,758 @@
+{
+ "chatperfCommit": "99d17ff+uncommitted",
+ "pinnedAt": "2026-10-22",
+ "scenarios": [
+  {
+   "id": "cl-01",
+   "kind": "seed",
+   "metric": "M-LAUNCH",
+   "title": "Channel list relaunch (warm cache)",
+   "channel_types": [
+    "messaging"
+   ],
+   "web": "adapted",
+   "canonical_command": "chatperf seed cl-01",
+   "seedable": true,
+   "defaults": {
+    "channels": 100,
+    "messages": 30,
+    "members": 5
+   },
+   "live": null
+  },
+  {
+   "id": "cl-02",
+   "kind": "seed",
+   "metric": "M-FRAMES",
+   "title": "Channel list at scale",
+   "channel_types": [
+    "messaging"
+   ],
+   "web": "same",
+   "canonical_command": "chatperf seed cl-02",
+   "seedable": true,
+   "defaults": {
+    "channels": 500,
+    "messages": 10,
+    "members": 3
+   },
+   "live": null
+  },
+  {
+   "id": "cl-03",
+   "kind": "seed",
+   "metric": "M-FRAMES",
+   "title": "Unread badges everywhere",
+   "channel_types": [
+    "messaging"
+   ],
+   "web": "same",
+   "canonical_command": "chatperf seed cl-03",
+   "seedable": true,
+   "defaults": {
+    "channels": 60,
+    "members": 3,
+    "unread_ladder": [
+     1,
+     5,
+     25,
+     120,
+     250
+    ]
+   },
+   "live": null
+  },
+  {
+   "id": "cl-04",
+   "kind": "seed",
+   "metric": "M-FRAMES",
+   "title": "Rich last-message previews",
+   "channel_types": [
+    "messaging"
+   ],
+   "web": "same",
+   "canonical_command": "chatperf seed cl-04",
+   "seedable": true,
+   "defaults": {
+    "channels": 40,
+    "members": 3,
+    "messages": 5
+   },
+   "live": null
+  },
+  {
+   "id": "cl-05",
+   "kind": "seed",
+   "metric": "M-LAUNCH",
+   "title": "Large member list open",
+   "channel_types": [
+    "messaging"
+   ],
+   "web": "same",
+   "canonical_command": "chatperf seed cl-05",
+   "seedable": true,
+   "defaults": {
+    "channels": 20,
+    "members": 100,
+    "messages": 10
+   },
+   "live": null
+  },
+  {
+   "id": "cl-06",
+   "kind": "seed_live",
+   "metric": "M-FRAMES",
+   "title": "Live inserts & re-sorting",
+   "channel_types": [
+    "messaging"
+   ],
+   "web": "same",
+   "canonical_command": "chatperf seed cl-06",
+   "seedable": true,
+   "defaults": {
+    "channels": 60,
+    "members": 3,
+    "messages": 5
+   },
+   "live": {
+    "rate": 3,
+    "duration": 60,
+    "weights": {
+     "messages": 1
+    },
+    "source": [
+     "cl-06"
+    ]
+   }
+  },
+  {
+   "id": "cl-07",
+   "kind": "live",
+   "metric": "M-CPU",
+   "title": "Channel-update churn",
+   "channel_types": [
+    "messaging"
+   ],
+   "web": "same",
+   "canonical_command": "chatperf live cl-07",
+   "seedable": false,
+   "defaults": {},
+   "live": {
+    "rate": 2,
+    "duration": 60,
+    "weights": {
+     "channel_update": 1
+    },
+    "source": [
+     "cl-06",
+     "cl-01"
+    ]
+   }
+  },
+  {
+   "id": "cl-08",
+   "kind": "live",
+   "metric": "M-FRAMES",
+   "title": "Membership churn",
+   "channel_types": [
+    "messaging"
+   ],
+   "web": "same",
+   "canonical_command": "chatperf live cl-08",
+   "seedable": false,
+   "defaults": {},
+   "live": {
+    "rate": 1,
+    "duration": 60,
+    "weights": {
+     "member_churn": 1
+    },
+    "source": [
+     "cl-06",
+     "cl-01"
+    ]
+   }
+  },
+  {
+   "id": "cl-09",
+   "kind": "seed_live",
+   "metric": "M-FRAMES",
+   "title": "Truncate/delete churn",
+   "channel_types": [
+    "messaging"
+   ],
+   "web": "same",
+   "canonical_command": "chatperf seed cl-09",
+   "seedable": true,
+   "defaults": {
+    "channels": 20,
+    "members": 3,
+    "messages": 10
+   },
+   "live": {
+    "rate": 1,
+    "duration": 60,
+    "weights": {
+     "truncate": 5,
+     "hide": 3,
+     "delete_channel": 2
+    },
+    "source": [
+     "cl-09"
+    ]
+   }
+  },
+  {
+   "id": "cl-10",
+   "kind": "protocol",
+   "metric": "M-LAUNCH",
+   "title": "Channel list first login (cold cache)",
+   "channel_types": [
+    "messaging"
+   ],
+   "web": "adapted",
+   "canonical_command": "chatperf seed cl-01",
+   "seedable": false,
+   "defaults": {},
+   "live": null
+  },
+  {
+   "id": "cl-11",
+   "kind": "protocol",
+   "metric": "M-FRAMES",
+   "title": "Channel list scroll (frame baseline)",
+   "channel_types": [
+    "messaging"
+   ],
+   "web": "same",
+   "canonical_command": "chatperf seed cl-01",
+   "seedable": false,
+   "defaults": {},
+   "live": null
+  },
+  {
+   "id": "cl-12",
+   "kind": "protocol",
+   "metric": "M-MEM",
+   "title": "Channel list memory at scale",
+   "channel_types": [
+    "messaging"
+   ],
+   "web": "same",
+   "canonical_command": "chatperf seed cl-02",
+   "seedable": false,
+   "defaults": {},
+   "live": null
+  },
+  {
+   "id": "cl-13",
+   "kind": "protocol",
+   "metric": "M-FRAMES",
+   "title": "Large member list scroll",
+   "channel_types": [
+    "messaging"
+   ],
+   "web": "same",
+   "canonical_command": "chatperf seed cl-05",
+   "seedable": false,
+   "defaults": {},
+   "live": null
+  },
+  {
+   "id": "ml-01",
+   "kind": "seed",
+   "metric": "M-FRAMES",
+   "title": "Plain history (baseline)",
+   "channel_types": [
+    "messaging",
+    "livestream"
+   ],
+   "web": "same",
+   "canonical_command": "chatperf seed ml-01",
+   "seedable": true,
+   "defaults": {
+    "messages": 2000,
+    "members": 5
+   },
+   "live": null
+  },
+  {
+   "id": "ml-02",
+   "kind": "seed",
+   "metric": "M-FRAMES",
+   "title": "Text-layout variety",
+   "channel_types": [
+    "messaging",
+    "livestream"
+   ],
+   "web": "same",
+   "canonical_command": "chatperf seed ml-02",
+   "seedable": true,
+   "defaults": {
+    "messages": 800,
+    "members": 5,
+    "text_variety": true
+   },
+   "live": null
+  },
+  {
+   "id": "ml-03",
+   "kind": "seed",
+   "metric": "M-FRAMES",
+   "title": "Media-heavy list",
+   "channel_types": [
+    "messaging",
+    "livestream"
+   ],
+   "web": "same",
+   "canonical_command": "chatperf seed ml-03",
+   "seedable": true,
+   "defaults": {
+    "messages": 600,
+    "media_pct": 40,
+    "members": 5
+   },
+   "live": null
+  },
+  {
+   "id": "ml-04",
+   "kind": "seed",
+   "metric": "M-FRAMES",
+   "title": "Reaction-heavy list",
+   "channel_types": [
+    "messaging",
+    "livestream"
+   ],
+   "web": "same",
+   "canonical_command": "chatperf seed ml-04",
+   "seedable": true,
+   "defaults": {
+    "messages": 400,
+    "reactions": 5,
+    "members": 5
+   },
+   "live": null
+  },
+  {
+   "id": "ml-05",
+   "kind": "seed",
+   "metric": "M-FRAMES",
+   "title": "Thread-preview density",
+   "channel_types": [
+    "messaging",
+    "livestream"
+   ],
+   "web": "same",
+   "canonical_command": "chatperf seed ml-05",
+   "seedable": true,
+   "defaults": {
+    "messages": 400,
+    "thread_pct": 30,
+    "members": 5
+   },
+   "live": null
+  },
+  {
+   "id": "ml-06",
+   "kind": "seed",
+   "metric": "M-FRAMES",
+   "title": "Quoted-reply chain",
+   "channel_types": [
+    "messaging",
+    "livestream"
+   ],
+   "web": "same",
+   "canonical_command": "chatperf seed ml-06",
+   "seedable": true,
+   "defaults": {
+    "messages": 300,
+    "members": 5,
+    "quote_chain": true
+   },
+   "live": null
+  },
+  {
+   "id": "ml-07",
+   "kind": "seed",
+   "metric": "M-FRAMES",
+   "title": "Kitchen sink — every message kind",
+   "channel_types": [
+    "messaging",
+    "livestream"
+   ],
+   "web": "same",
+   "canonical_command": "chatperf seed ml-07",
+   "seedable": true,
+   "defaults": {
+    "messages": 300,
+    "members": 5
+   },
+   "live": null
+  },
+  {
+   "id": "ml-08",
+   "kind": "live",
+   "metric": "M-FRAMES",
+   "title": "Live message flood",
+   "channel_types": [
+    "messaging",
+    "livestream"
+   ],
+   "web": "same",
+   "canonical_command": "chatperf live ml-08",
+   "seedable": false,
+   "defaults": {},
+   "live": {
+    "rate": 5,
+    "duration": 60,
+    "weights": {
+     "messages": 1
+    },
+    "source": [
+     "ml-01"
+    ]
+   }
+  },
+  {
+   "id": "ml-09",
+   "kind": "live",
+   "metric": "M-CPU",
+   "title": "Reaction storm (update-only churn)",
+   "channel_types": [
+    "messaging",
+    "livestream"
+   ],
+   "web": "same",
+   "canonical_command": "chatperf live ml-09",
+   "seedable": false,
+   "defaults": {},
+   "live": {
+    "rate": 16,
+    "duration": 30,
+    "weights": {
+     "reactions": 1
+    },
+    "source": [
+     "ml-01"
+    ]
+   }
+  },
+  {
+   "id": "ml-10",
+   "kind": "live",
+   "metric": "M-FRAMES",
+   "title": "Edit/delete churn",
+   "channel_types": [
+    "messaging",
+    "livestream"
+   ],
+   "web": "same",
+   "canonical_command": "chatperf live ml-10",
+   "seedable": false,
+   "defaults": {},
+   "live": {
+    "rate": 4,
+    "duration": 60,
+    "weights": {
+     "edits": 0.7,
+     "deletes": 0.3
+    },
+    "source": [
+     "ml-01"
+    ]
+   }
+  },
+  {
+   "id": "ml-11",
+   "kind": "live",
+   "metric": "M-CPU",
+   "title": "Typing storm",
+   "channel_types": [
+    "messaging",
+    "livestream"
+   ],
+   "web": "same",
+   "canonical_command": "chatperf live ml-11",
+   "seedable": false,
+   "defaults": {},
+   "live": {
+    "rate": 4,
+    "duration": 60,
+    "weights": {
+     "typing": 1
+    },
+    "source": [
+     "ml-01"
+    ]
+   }
+  },
+  {
+   "id": "ml-12",
+   "kind": "seed_live",
+   "metric": "M-FRAMES",
+   "title": "Read-receipt churn",
+   "channel_types": [
+    "messaging",
+    "livestream"
+   ],
+   "web": "same",
+   "canonical_command": "chatperf seed ml-12",
+   "seedable": true,
+   "defaults": {
+    "messages": 200,
+    "members": 5,
+    "self_authored": true
+   },
+   "live": {
+    "rate": 2,
+    "duration": 60,
+    "weights": {
+     "mark_read": 1
+    },
+    "source": [
+     "ml-12"
+    ]
+   }
+  },
+  {
+   "id": "ml-13",
+   "kind": "seed",
+   "metric": "M-SETTLE",
+   "title": "Jump-to-message / deep anchors",
+   "channel_types": [
+    "messaging",
+    "livestream"
+   ],
+   "web": "same",
+   "canonical_command": "chatperf seed ml-13",
+   "seedable": true,
+   "defaults": {
+    "messages": 3000,
+    "members": 5,
+    "pin_every": 500,
+    "quote_target": 250
+   },
+   "live": null
+  },
+  {
+   "id": "ml-14",
+   "kind": "seed",
+   "metric": "M-CPU",
+   "title": "Active live locations",
+   "channel_types": [
+    "messaging",
+    "livestream"
+   ],
+   "web": "same",
+   "canonical_command": "chatperf seed ml-14",
+   "seedable": true,
+   "defaults": {
+    "locations": 50,
+    "members": 5,
+    "min_ttl": 30,
+    "ttl": 120,
+    "self_authored": true
+   },
+   "live": null
+  },
+  {
+   "id": "ml-15",
+   "kind": "protocol",
+   "metric": "M-SETTLE",
+   "title": "Message list open (settle baseline)",
+   "channel_types": [
+    "messaging",
+    "livestream"
+   ],
+   "web": "same",
+   "canonical_command": "chatperf seed ml-01",
+   "seedable": false,
+   "defaults": {},
+   "live": null
+  },
+  {
+   "id": "ml-16",
+   "kind": "protocol",
+   "metric": "M-SETTLE",
+   "title": "Reaction-heavy message list open",
+   "channel_types": [
+    "messaging",
+    "livestream"
+   ],
+   "web": "same",
+   "canonical_command": "chatperf seed ml-04",
+   "seedable": false,
+   "defaults": {},
+   "live": null
+  },
+  {
+   "id": "ml-17",
+   "kind": "protocol",
+   "metric": "M-MEM",
+   "title": "Media list memory",
+   "channel_types": [
+    "messaging",
+    "livestream"
+   ],
+   "web": "adapted",
+   "canonical_command": "chatperf seed ml-03",
+   "seedable": false,
+   "defaults": {},
+   "live": null
+  },
+  {
+   "id": "th-01",
+   "kind": "seed",
+   "metric": "M-FRAMES",
+   "title": "Deep thread pagination",
+   "channel_types": [
+    "messaging"
+   ],
+   "web": "same",
+   "canonical_command": "chatperf seed th-01",
+   "seedable": true,
+   "defaults": {
+    "parents": 200,
+    "replies": 500,
+    "members": 5
+   },
+   "live": null
+  },
+  {
+   "id": "th-02",
+   "kind": "live",
+   "metric": "M-FRAMES",
+   "title": "Live thread replies",
+   "channel_types": [
+    "messaging"
+   ],
+   "web": "adapted",
+   "canonical_command": "chatperf live th-02",
+   "seedable": false,
+   "defaults": {},
+   "live": {
+    "rate": 3,
+    "duration": 60,
+    "weights": {
+     "thread_replies": 1
+    },
+    "source": [
+     "th-01"
+    ]
+   }
+  },
+  {
+   "id": "th-03",
+   "kind": "protocol",
+   "metric": "M-SETTLE",
+   "title": "Thread open with a huge reply_count",
+   "channel_types": [
+    "messaging"
+   ],
+   "web": "same",
+   "canonical_command": "chatperf seed th-01",
+   "seedable": false,
+   "defaults": {},
+   "live": null
+  },
+  {
+   "id": "of-01",
+   "kind": "protocol",
+   "metric": "M-LAUNCH",
+   "title": "Offline cold start",
+   "channel_types": [
+    "messaging"
+   ],
+   "web": "na",
+   "canonical_command": "chatperf seed cl-01",
+   "seedable": false,
+   "defaults": {},
+   "live": null
+  },
+  {
+   "id": "of-02",
+   "kind": "live",
+   "metric": "M-FRAMES",
+   "title": "Reconnect catch-up",
+   "channel_types": [
+    "messaging"
+   ],
+   "web": "adapted",
+   "canonical_command": "chatperf live of-02",
+   "seedable": false,
+   "defaults": {},
+   "live": {
+    "rate": 8,
+    "duration": null,
+    "count": 200,
+    "channels": 20,
+    "weights": {
+     "messages": 1
+    },
+    "source": [
+     "cl-01"
+    ]
+   }
+  },
+  {
+   "id": "of-03",
+   "kind": "protocol",
+   "metric": "M-SETTLE",
+   "title": "Reconnect time-to-settled",
+   "channel_types": [
+    "messaging"
+   ],
+   "web": "adapted",
+   "canonical_command": "chatperf live of-02",
+   "seedable": false,
+   "defaults": {},
+   "live": null
+  },
+  {
+   "id": "sk-01",
+   "kind": "seed_live",
+   "metric": "M-MEM",
+   "title": "Mixed 10-minute soak",
+   "channel_types": [
+    "messaging",
+    "livestream"
+   ],
+   "web": "adapted",
+   "canonical_command": "chatperf seed sk-01",
+   "seedable": true,
+   "defaults": {
+    "channels": 10,
+    "messages": 5,
+    "members": 3
+   },
+   "live": {
+    "rate": 7.5,
+    "duration": 600,
+    "weights": {
+     "messages": 2,
+     "reactions": 4,
+     "typing": 1,
+     "edits": 0.5
+    },
+    "source": [
+     "ml-01"
+    ]
+   }
+  },
+  {
+   "id": "sk-02",
+   "kind": "protocol",
+   "metric": "M-CPU",
+   "title": "Mixed 10-minute soak — steady-state CPU",
+   "channel_types": [
+    "messaging",
+    "livestream"
+   ],
+   "web": "adapted",
+   "canonical_command": "chatperf live sk-01",
+   "seedable": false,
+   "defaults": {},
+   "live": null
+  }
+ ]
+}

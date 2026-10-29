@@ -1,0 +1,29 @@
+{
+  "name": "@stream-io/react-perf-host",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "installConfig": {
+    "hoistingLimits": "workspaces"
+  },
+  "scripts": {
+    "dev": "vite --port 5173 --strictPort",
+    "build": "tsc -b && vite build",
+    "build:profiling": "tsc -b && vite build --mode profiling --outDir dist-profiling",
+    "preview": "vite preview --port 4173 --strictPort",
+    "preview:profiling": "vite preview --port 4174 --strictPort --outDir dist-profiling"
+  },
+  "dependencies": {
+    "react": "^19.2.6",
+    "react-dom": "^19.2.6",
+    "stream-chat": "^10.0.0-rc.22",
+    "stream-chat-react": "workspace:^"
+  },
+  "devDependencies": {
+    "@types/react": "^19.2.15",
+    "@types/react-dom": "^19.2.3",
+    "@vitejs/plugin-react": "^6.0.3",
+    "typescript": "^6.0.3",
+    "vite": "^8.1.3"
+  }
+}
