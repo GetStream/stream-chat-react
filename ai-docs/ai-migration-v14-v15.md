@@ -536,7 +536,7 @@ Nothing to wire. `ChatView` provides the navigation and binds what is opened int
 
 ### Without `ChatView`
 
-Hold what is open in your own state and provide `WorkspaceNavigationProvider` with an object built from `defaultWorkspaceNavigation`. Override at least `openChannel`, `isChannelActive` and `openChannels`, plus `openThread` / `closeThread` / `openThreads` / `isThreadActive` if you render threads.
+Hold what is open in your own state and provide `WorkspaceNavigationProvider` with the navigation `createWorkspaceNavigation` (root export) builds from it. It models one channel panel with one thread panel beside it and derives every member the SDK reads, so list rows are marked active and the thread header's close button renders. Spread its result to override members. A layout with more panels needs its own `WorkspaceNavigation`, built from `defaultWorkspaceNavigation`.
 
 ```tsx
 // v14
@@ -560,19 +560,18 @@ import {
   ChannelPaginator,
   type SortParamRequest,
   type StreamChat,
-  Thread as StreamThread,
+  type Thread as StreamThread,
 } from 'stream-chat';
 import {
   Channel,
   ChannelList,
   ChannelPlaceholder,
   Chat,
-  defaultWorkspaceNavigation,
+  createWorkspaceNavigation,
   MessageComposer,
   MessageList,
   Thread,
   ThreadHeader,
-  type WorkspaceNavigation,
   WorkspaceNavigationProvider,
 } from 'stream-chat-react';
 
@@ -594,29 +593,15 @@ export const App = ({ client, userId }: { client: StreamChat; userId: string }) 
     };
   }, [client, paginator]);
 
-  const navigation = useMemo<WorkspaceNavigation>(
-    () => ({
-      ...defaultWorkspaceNavigation,
-      closeThread: () => setActiveThread(undefined),
-      isChannelActive: (cid) => !!cid && cid === activeChannel?.cid,
-      isThreadActive: (threadId) => !!threadId && threadId === activeThread?.id,
-      openChannel: (channel) => {
-        setActiveChannel(channel);
-        setActiveThread(undefined);
-      },
-      openChannels: activeChannel ? [activeChannel] : [],
-      openThread: (target) =>
-        setActiveThread(
-          target instanceof StreamThread
-            ? target
-            : client.threads.ensure({
-                channel: target.channel,
-                parentMessage: target.message,
-              }),
-        ),
-      openThreads: activeThread ? [activeThread] : [],
-    }),
-    [activeChannel, activeThread, client],
+  const navigation = useMemo(
+    () =>
+      createWorkspaceNavigation({
+        channel: activeChannel,
+        setChannel: setActiveChannel,
+        setThread: setActiveThread,
+        thread: activeThread,
+      }),
+    [activeChannel, activeThread],
   );
 
   return (
@@ -644,7 +629,9 @@ export const App = ({ client, userId }: { client: StreamChat; userId: string }) 
 };
 ```
 
-- An `openThread` target is either a `Thread` or `{ channel, message }`. `client.threads.ensure({ channel, parentMessage })` turns the latter into a registered `Thread`.
+- An `openThread` target is either a `Thread` or `{ channel, message }`. `createWorkspaceNavigation` turns the latter into a registered `Thread` with `client.threads.ensure({ channel, parentMessage })`; a navigation of your own has to do the same.
+- Opening a different channel closes the thread, and closing the channel closes both. `canGoBack` is always `false`: nothing is stacked.
+- A navigation built by hand from `defaultWorkspaceNavigation` inherits `isThreadDismissable: () => false`, which hides `ThreadHeader`'s close button. Override it too.
 - Instead of a navigation provider, `ChannelListItem` and the search result items take an `onSelect` prop that replaces their selection handler. That covers selection only: thread opening and the header buttons still read the navigation.
 - **Drop held channels on `disconnectUser()`.** It disposes the user's channels, and a disposed channel throws `Channel <cid> is pending disposal and cannot be used` from `getClient()`, so rendering it (as `activeChannel` above, after a logout or a user switch) throws. Clear the state that holds channels and threads when you disconnect, or re-`ensure` them on the new connection. This also shows up in development when Fast Refresh keeps a stale channel in state across a reconnect.
 
@@ -946,33 +933,19 @@ export const createPaginator = (client: StreamChat, userId: string) =>
 
 These hit apps that never passed the props, because they were v14 defaults:
 
-- **No channel opens on load.** `setActiveChannelOnMount` defaulted to `true`, so every v14 app opened the first channel. v15 has no default selection: nothing is open until you call `useWorkspaceNavigation().openChannel(channel)`. To keep the v14 behavior, open the paginator's first item once:
+- **No channel opens on load.** `setActiveChannelOnMount` defaulted to `true`, so every v14 app opened the first channel. v15 has no default selection: nothing is open until you call `useWorkspaceNavigation().openChannel(channel)`. To keep the v14 behavior, call `useOpenFirstChannel(paginator)` (root export) where the list renders:
 
   ```tsx
-  import { useEffect, useRef } from 'react';
   import type { ChannelPaginator } from 'stream-chat';
-  import { useWorkspaceNavigation } from 'stream-chat-react';
+  import { ChannelList, useOpenFirstChannel } from 'stream-chat-react';
 
-  export const useOpenFirstChannel = (paginator: ChannelPaginator) => {
-    const { openChannel } = useWorkspaceNavigation();
-    const opened = useRef(false);
-    useEffect(
-      () =>
-        paginator.state.subscribeWithSelector(
-          ({ items }) => ({ first: items?.[0] }),
-          ({ first }) => {
-            if (first && !opened.current) {
-              opened.current = true;
-              openChannel(first);
-            }
-          },
-        ),
-      [paginator, openChannel],
-    );
+  export const Sidebar = ({ paginator }: { paginator: ChannelPaginator }) => {
+    useOpenFirstChannel(paginator);
+    return <ChannelList paginator={paginator} />;
   };
   ```
 
-  Call it below the navigation provider (inside `ChatView`, or inside your `WorkspaceNavigationProvider`), where `openChannel` does something.
+  It opens the first channel when the list's first page loads, only if no channel is open, so a remount (a `ChatView` view switch unmounts the list) does not replace the channel the user picked. A guard of your own in a `useRef` resets on every remount; check `openChannels` instead. Call it below the navigation provider (inside `ChatView`, or inside your `WorkspaceNavigationProvider`), where `openChannel` does something.
 
 - **Unfiltered channels no longer join the list.** `allowNewMessagesFromUnfilteredChannels` defaulted to `true`: a new message in a channel that was not in the list added it, whatever the list's filters. In v15 the paginator adds a channel only if it matches the paginator's own filters, and there is no opt-out. If channels used to appear this way, widen the filters to cover them.
 - **Infinite scroll, not "Load more".** `Paginator` defaulted to `LoadMorePaginator` (a button). The v15 `ChannelList` always scrolls infinitely, loading the next page near the end of the list. To keep a button, render your own list:
