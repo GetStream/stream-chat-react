@@ -154,11 +154,12 @@ const MessageListWithContext = (props: MessageListWithContextProps) => {
     suppressAutoscroll,
   });
 
-  const { show: showUnreadMessagesNotification } = useUnreadMessagesNotification({
-    isMessageListScrolledToBottom,
-    listElement,
-    showAlways: !!showUnreadNotificationAlways,
-  });
+  const { show: showUnreadMessagesNotification, unreadIsBelow } =
+    useUnreadMessagesNotification({
+      isMessageListScrolledToBottom,
+      listElement,
+      showAlways: !!showUnreadNotificationAlways,
+    });
 
   useMarkRead({
     hasMoreNewer,
@@ -340,7 +341,10 @@ const MessageListWithContext = (props: MessageListWithContextProps) => {
       <MessageTranslationViewProvider>
         <DialogManagerProvider id={dialogManagerId}>
           {!isThreadList && showUnreadMessagesNotification && (
-            <UnreadMessagesNotification unreadCount={channelUnreadUiState?.unreadCount} />
+            <UnreadMessagesNotification
+              unreadCount={channelUnreadUiState?.unreadCount}
+              unreadIsBelow={unreadIsBelow}
+            />
           )}
           {/*todo: apply styles
             .str-chat__list {

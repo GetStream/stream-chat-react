@@ -11,7 +11,13 @@ import { generateMessage, initClientWithChannels } from '../../../mock-builders'
 const SECOND_NS = 1_000_000_000;
 const lastReadAt = 1_800_000_000 * SECOND_NS;
 
-const renderNotification = async ({ newestLoadedAt }: { newestLoadedAt: number }) => {
+const renderNotification = async ({
+  newestLoadedAt,
+  unreadIsBelow,
+}: {
+  newestLoadedAt: number;
+  unreadIsBelow?: boolean;
+}) => {
   const {
     channels: [channel],
     client,
@@ -19,7 +25,7 @@ const renderNotification = async ({ newestLoadedAt }: { newestLoadedAt: number }
   const result = render(
     <Chat client={client}>
       <Channel channel={channel}>
-        <UnreadMessagesNotification />
+        <UnreadMessagesNotification unreadIsBelow={unreadIsBelow} />
       </Channel>
     </Chat>,
   );
@@ -56,6 +62,18 @@ describe('UnreadMessagesNotification', () => {
   it('points down when every loaded message is older than the last read one', async () => {
     const { container } = await renderNotification({
       newestLoadedAt: lastReadAt - 10 * SECOND_NS,
+    });
+
+    expect(container.querySelector('.str-chat__icon--arrow-down')).toBeInTheDocument();
+    expect(container.querySelector('.str-chat__icon--arrow-up')).not.toBeInTheDocument();
+  });
+
+  // The unread messages are loaded but the reader scrolled up past the separator: the list tells the
+  // notification, and that wins over the loaded-window check.
+  it('points down when the list reports the unread messages below the viewport', async () => {
+    const { container } = await renderNotification({
+      newestLoadedAt: lastReadAt + 10 * SECOND_NS,
+      unreadIsBelow: true,
     });
 
     expect(container.querySelector('.str-chat__icon--arrow-down')).toBeInTheDocument();

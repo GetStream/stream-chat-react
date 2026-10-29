@@ -17,6 +17,12 @@ export type UnreadMessagesNotificationProps = {
   queryMessageLimit?: number;
   /** Whether to show the unread count. Defaults to `true`. */
   showCount?: boolean;
+  /**
+   * Whether the first unread message is below the viewport, which turns the arrow down. When
+   * omitted, it is derived from the loaded window: below when every loaded message is older than the
+   * last read one.
+   */
+  unreadIsBelow?: boolean;
   // todo: maybe remove?
   unreadCount?: number;
 };
@@ -33,6 +39,7 @@ const newestLoadedMessageSelector = (state: MessagePaginatorState) => ({
 export const UnreadMessagesNotification = ({
   queryMessageLimit,
   showCount = true,
+  unreadIsBelow: unreadIsBelowProp,
 }: UnreadMessagesNotificationProps) => {
   const { IconArrowDown, IconArrowUp, IconXmark } = useComponentContextIcons();
   // todo: move into a hook dedicated to unread count from the snapshot
@@ -51,7 +58,8 @@ export const UnreadMessagesNotification = ({
   // The first unread message is usually above what is on screen. It is below when the loaded window
   // is older than the last read message, e.g. after jumping back in history while new ones arrived.
   const unreadIsBelow =
-    lastReadAt != null && newestLoadedAt != null && newestLoadedAt <= lastReadAt;
+    unreadIsBelowProp ??
+    (lastReadAt != null && newestLoadedAt != null && newestLoadedAt <= lastReadAt);
   const ArrowIcon = unreadIsBelow ? IconArrowDown : IconArrowUp;
 
   const { t } = useTranslationContext();

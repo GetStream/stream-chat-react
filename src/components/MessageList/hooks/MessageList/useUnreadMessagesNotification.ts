@@ -55,6 +55,9 @@ export const useUnreadMessagesNotification = ({
     unreadStateSnapshotSelector,
   );
   const [show, setShow] = useState(false);
+  // Where the unread separator sits relative to the viewport: below it after scrolling up past it.
+  // `undefined` while no separator is rendered (the unread messages are outside the loaded window).
+  const [unreadIsBelow, setUnreadIsBelow] = useState<boolean | undefined>(undefined);
   const isScrolledAboveTargetTop = useRef(false);
   const intersectionObserverIsSupported = typeof IntersectionObserver !== 'undefined';
 
@@ -75,6 +78,7 @@ export const useUnreadMessagesNotification = ({
       );
       if (!observedTarget) {
         setShow(unreadCount > 0);
+        setUnreadIsBelow(undefined);
       }
       return;
     }
@@ -84,6 +88,7 @@ export const useUnreadMessagesNotification = ({
     );
     if (!observedTarget) {
       setShow(unreadCount > 0);
+      setUnreadIsBelow(undefined);
       return;
     }
 
@@ -101,6 +106,7 @@ export const useUnreadMessagesNotification = ({
         ? scrolledBelowSeparator || scrolledAboveSeparator
         : scrolledBelowSeparator,
     );
+    setUnreadIsBelow(scrolledAboveSeparator);
 
     const observer = new IntersectionObserver(
       (elements) => {
@@ -114,6 +120,7 @@ export const useUnreadMessagesNotification = ({
         const rootTop = rootBounds?.top ?? 0;
         const separatorIsAboveContainerTop = boundingClientRect.bottom < rootTop;
         setShow(showAlways || separatorIsAboveContainerTop);
+        setUnreadIsBelow(!separatorIsAboveContainerTop);
         isScrolledAboveTargetTop.current = separatorIsAboveContainerTop;
       },
       { root: scrollRoot },
@@ -145,5 +152,5 @@ export const useUnreadMessagesNotification = ({
     }
   }, [isMessageListScrolledToBottom, unreadCount]);
 
-  return { show: show && intersectionObserverIsSupported };
+  return { show: show && intersectionObserverIsSupported, unreadIsBelow };
 };
