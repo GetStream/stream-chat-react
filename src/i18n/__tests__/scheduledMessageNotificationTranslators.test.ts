@@ -1,9 +1,12 @@
 import { fromPartial } from '@total-typescript/shoehorn';
 import type { TFunction } from 'i18next';
-import { ErrorFromResponse } from 'stream-chat';
+import { ErrorFromResponse, ScheduledMessageBlockReason } from 'stream-chat';
 import type { Notification } from 'stream-chat';
 
-import { translateScheduledMessageCreateFailed } from '../TranslationBuilder/notifications/translators';
+import {
+  translateScheduledMessageBlocked,
+  translateScheduledMessageCreateFailed,
+} from '../TranslationBuilder/notifications/translators';
 import { translatorsByNotificationType } from '../TranslationBuilder/notifications/translatorsByNotificationType';
 
 const t = ((key: string) => key) as TFunction;
@@ -63,18 +66,45 @@ describe('translateScheduledMessageCreateFailed', () => {
   });
 });
 
+const translateBlocked = (reason?: string) =>
+  translateScheduledMessageBlocked({
+    key: '',
+    options: {
+      notification: fromPartial<Notification>({
+        message: 'This message cannot be scheduled',
+        metadata: reason ? { reason } : undefined,
+        type: 'validation:scheduled-message:blocked',
+      }),
+    },
+    t,
+    value: '',
+  });
+
+describe('translateScheduledMessageBlocked', () => {
+  it.each([
+    [ScheduledMessageBlockReason.Command, "Slash commands can't be scheduled"],
+    [ScheduledMessageBlockReason.Poll, "Polls can't be scheduled"],
+    [ScheduledMessageBlockReason.SharedLocation, "Locations can't be scheduled"],
+  ])('translates the %s reason', (reason, expected) => {
+    expect(translateBlocked(reason)).toBe(expected);
+  });
+
+  it('falls back to the generic copy without a known reason', () => {
+    expect(translateBlocked()).toBe("This message can't be scheduled");
+    expect(translateBlocked('unknown')).toBe("This message can't be scheduled");
+  });
+});
+
 describe('scheduled message notification types', () => {
   it('registers translators for the composer notifications', () => {
     expect(translatorsByNotificationType['api:scheduled-message:create:failed']).toBe(
       translateScheduledMessageCreateFailed,
     );
-    expect(
-      translatorsByNotificationType['validation:scheduled-message:command']?.({
-        key: '',
-        options: {},
-        t,
-        value: '',
-      }),
-    ).toBe("Slash commands can't be scheduled");
+    expect(translatorsByNotificationType['validation:scheduled-message:blocked']).toBe(
+      translateScheduledMessageBlocked,
+    );
+    expect(translatorsByNotificationType).not.toHaveProperty(
+      'validation:scheduled-message:command',
+    );
   });
 });

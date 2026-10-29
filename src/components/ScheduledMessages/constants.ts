@@ -31,7 +31,7 @@ export type ScheduleMessageNoticeSeverity =
   (typeof ScheduleMessageNoticeSeverity)[keyof typeof ScheduleMessageNoticeSeverity];
 
 export const ScheduledMessageNotificationType = {
-  CommandRejected: 'validation:scheduled-message:command',
+  Blocked: 'validation:scheduled-message:blocked',
   CreateFailed: 'api:scheduled-message:create:failed',
   CreateSucceeded: 'api:scheduled-message:create:success',
 } as const;
