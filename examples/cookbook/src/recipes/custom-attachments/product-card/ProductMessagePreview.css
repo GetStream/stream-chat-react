@@ -1,0 +1,23 @@
+@layer stream-overrides {
+  .cookbook-product-message-preview {
+    display: flex;
+    gap: var(--str-chat__spacing-xxs);
+    min-width: 0;
+    color: var(--str-chat__text-secondary);
+    font: var(--str-chat__font-caption-default);
+  }
+
+  .cookbook-product-message-preview__sender {
+    flex-shrink: 0;
+    color: var(--str-chat__text-tertiary);
+    font: var(--str-chat__font-caption-emphasis);
+  }
+
+  .cookbook-product-message-preview__text {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}

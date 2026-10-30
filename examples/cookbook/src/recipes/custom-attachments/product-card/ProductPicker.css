@@ -1,0 +1,45 @@
+@layer stream-overrides {
+  .cookbook-product-picker__list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--str-chat__spacing-xs);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .cookbook-product-picker__item {
+    display: flex;
+    align-items: center;
+    gap: var(--str-chat__spacing-sm);
+    width: 100%;
+    padding: var(--str-chat__spacing-xs);
+    border: 1px solid var(--str-chat__border-core-default);
+    border-radius: var(--str-chat__radius-lg);
+    background: var(--str-chat__background-core-surface-card);
+    color: var(--str-chat__text-primary);
+    text-align: start;
+    cursor: pointer;
+  }
+
+  .cookbook-product-picker__item:hover {
+    background: var(--str-chat__background-utility-hover);
+  }
+
+  .cookbook-product-picker__image {
+    width: 48px;
+    height: 48px;
+    border-radius: var(--str-chat__radius-md);
+    object-fit: cover;
+  }
+
+  .cookbook-product-picker__title {
+    flex: 1;
+    font: var(--str-chat__font-body-emphasis);
+  }
+
+  .cookbook-product-picker__price {
+    color: var(--str-chat__text-secondary);
+    font: var(--str-chat__font-caption-default);
+  }
+}

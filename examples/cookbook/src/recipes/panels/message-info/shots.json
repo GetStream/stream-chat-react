@@ -1,0 +1,7 @@
+[
+  {
+    "file": "message-info-panel.png",
+    "query": { "channel": "docs-v15-cb-picnic", "info": "docs-v15-ck-picnic-3" },
+    "waitFor": ".cookbook-message-info .cookbook-message-info__time"
+  }
+]

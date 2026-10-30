@@ -1,0 +1,118 @@
+@layer stream-overrides {
+  .cookbook-search-dialog {
+    display: flex;
+    flex-direction: column;
+    gap: var(--str-chat__spacing-sm);
+    width: 640px;
+    max-width: calc(100vw - 2 * var(--str-chat__spacing-md));
+    max-height: calc(100vh - 2 * var(--str-chat__spacing-xl));
+    padding: var(--str-chat__spacing-lg);
+    border-radius: var(--str-chat__radius-xl);
+    background: var(--str-chat__background-core-elevation-1);
+    box-shadow: var(--str-chat__box-shadow-4);
+    color: var(--str-chat__text-primary);
+  }
+
+  .cookbook-search-dialog__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .cookbook-search-dialog__title {
+    margin: 0;
+    font: var(--str-chat__font-heading-sm);
+  }
+
+  .cookbook-search-dialog__close {
+    padding: var(--str-chat__spacing-xxxs) var(--str-chat__spacing-xs);
+    border: 1px solid var(--str-chat__border-core-subtle);
+    border-radius: var(--str-chat__radius-sm);
+    background: none;
+    color: var(--str-chat__text-secondary);
+    font: var(--str-chat__font-caption-default);
+    cursor: pointer;
+  }
+
+  .cookbook-search-dialog__input {
+    width: 100%;
+    padding: var(--str-chat__spacing-sm) var(--str-chat__spacing-md);
+    border: 1px solid var(--str-chat__border-core-default);
+    border-radius: var(--str-chat__radius-full);
+    background: var(--str-chat__background-core-surface-subtle);
+    color: var(--str-chat__text-primary);
+    font: var(--str-chat__font-body-default);
+  }
+
+  .cookbook-search-dialog__input:focus-visible {
+    border-color: var(--str-chat__accent-primary);
+    outline: none;
+  }
+
+  .cookbook-search-dialog__toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--str-chat__spacing-sm) var(--str-chat__spacing-lg);
+  }
+
+  .cookbook-search-dialog__options {
+    display: flex;
+    align-items: center;
+    gap: var(--str-chat__spacing-xs);
+    margin: 0;
+    padding: 0;
+    border: 0;
+  }
+
+  /* A legend can't sit in a flex row, so it floats at its start. */
+  .cookbook-search-dialog__legend {
+    float: left;
+    margin-inline-end: var(--str-chat__spacing-xxs);
+    padding: 0;
+    color: var(--str-chat__text-secondary);
+    font: var(--str-chat__font-caption-default);
+  }
+
+  .cookbook-search-dialog__chip {
+    display: flex;
+    align-items: center;
+    gap: var(--str-chat__spacing-xxs);
+    padding: var(--str-chat__spacing-xxs) var(--str-chat__spacing-sm);
+    border: 1px solid var(--str-chat__border-core-default);
+    border-radius: var(--str-chat__radius-full);
+    font: var(--str-chat__font-caption-emphasis);
+    cursor: pointer;
+  }
+
+  .cookbook-search-dialog__chip:has(input:checked) {
+    border-color: var(--str-chat__accent-primary);
+    background: var(--str-chat__background-utility-selected);
+  }
+
+  .cookbook-search-dialog__chip input {
+    margin: 0;
+    accent-color: var(--str-chat__accent-primary);
+  }
+
+  .cookbook-search-dialog__filters-button {
+    margin-inline-start: auto;
+    padding: var(--str-chat__spacing-xxs) var(--str-chat__spacing-sm);
+    border: 0;
+    border-radius: var(--str-chat__radius-full);
+    background: none;
+    color: var(--str-chat__text-link);
+    font: var(--str-chat__font-caption-emphasis);
+    cursor: pointer;
+  }
+
+  .cookbook-search-dialog__filters-button[aria-expanded='true'] {
+    background: var(--str-chat__background-utility-selected);
+  }
+
+  .cookbook-search-dialog__hint {
+    margin: 0;
+    color: var(--str-chat__text-secondary);
+    font: var(--str-chat__font-caption-default);
+  }
+}

@@ -1,0 +1,79 @@
+@layer stream-overrides {
+  .cookbook-channel-list-skeleton {
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* The same size and spacing as a channel list row, so nothing moves when the rows arrive. */
+  .cookbook-channel-list-skeleton__row {
+    display: flex;
+    align-items: center;
+    gap: var(--str-chat__spacing-md);
+    padding: calc(var(--str-chat__spacing-sm) + var(--str-chat__spacing-xxs));
+    border-bottom: 1px solid var(--str-chat__border-core-subtle);
+  }
+
+  .cookbook-channel-list-skeleton__avatar {
+    flex-shrink: 0;
+    width: var(--str-chat__size-48);
+    height: var(--str-chat__size-48);
+    border-radius: var(--str-chat__radius-full);
+  }
+
+  .cookbook-channel-list-skeleton__lines {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    gap: var(--str-chat__spacing-xs);
+    min-width: 0;
+  }
+
+  .cookbook-channel-list-skeleton__first-line {
+    display: flex;
+    justify-content: space-between;
+    gap: var(--str-chat__spacing-md);
+  }
+
+  .cookbook-channel-list-skeleton__bar {
+    height: 14px;
+    border-radius: var(--str-chat__radius-full);
+  }
+
+  .cookbook-channel-list-skeleton__bar--time {
+    flex-shrink: 0;
+    width: var(--str-chat__size-48);
+  }
+
+  /* The skeleton tokens are a shimmer laid over a surface, so the shapes get a surface below it that
+     stands out from the list. One shimmer moves across every shape. */
+  .cookbook-channel-list-skeleton__avatar,
+  .cookbook-channel-list-skeleton__bar {
+    background-color: var(--str-chat__background-core-surface-default);
+    background-image: linear-gradient(
+      90deg,
+      var(--str-chat__skeleton-loading-base) 0%,
+      var(--str-chat__skeleton-loading-highlight) 50%,
+      var(--str-chat__skeleton-loading-base) 100%
+    );
+    background-repeat: no-repeat;
+    background-size: 200% 100%;
+    animation: cookbook-channel-list-shimmer 1.4s linear infinite;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .cookbook-channel-list-skeleton__avatar,
+    .cookbook-channel-list-skeleton__bar {
+      animation: none;
+    }
+  }
+
+  @keyframes cookbook-channel-list-shimmer {
+    from {
+      background-position: 200% 0;
+    }
+
+    to {
+      background-position: -200% 0;
+    }
+  }
+}

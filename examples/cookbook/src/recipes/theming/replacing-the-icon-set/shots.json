@@ -1,0 +1,38 @@
+[
+  {
+    "file": "replacing-the-icon-set-before.png",
+    "variant": "before",
+    "query": {
+      "channel": "docs-v15-cb-design",
+      "thread": "docs-v15-ck-design-4",
+      "menu": "docs-v15-ck-design-3"
+    },
+    "waitFor": ".str-chat__message-actions-box--open",
+    "settleMs": 1500
+  },
+  {
+    "file": "replacing-the-icon-set.png",
+    "query": {
+      "channel": "docs-v15-cb-design",
+      "thread": "docs-v15-ck-design-4",
+      "menu": "docs-v15-ck-design-3"
+    },
+    "waitFor": ".str-chat__message-actions-box--open",
+    "settleMs": 1500
+  },
+  {
+    "file": "replacing-the-icon-set-composer.png",
+    "query": {
+      "channel": "docs-v15-cb-design",
+      "attach": "1"
+    },
+    "viewport": {
+      "width": 1280,
+      "height": 440
+    },
+    "waitFor": "[data-testid='attachment-selector-actions-menu']",
+    "clip": ".str-chat__channel",
+    "padding": 0,
+    "settleMs": 1500
+  }
+]

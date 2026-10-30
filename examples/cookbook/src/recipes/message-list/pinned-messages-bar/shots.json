@@ -1,0 +1,17 @@
+[
+  {
+    "file": "pinned-messages-bar.png",
+    "query": { "channel": "docs-v15-cb-moving-day" },
+    "waitFor": ".cookbook-pinned-bar",
+    "clip": ".str-chat__channel",
+    "padding": 0
+  },
+  {
+    "file": "pinned-messages-bar-after-click.png",
+    "query": { "channel": "docs-v15-cb-moving-day", "pinClicks": "1" },
+    "waitFor": ".str-chat__message--highlighted",
+    "clip": ".str-chat__channel",
+    "padding": 0,
+    "settleMs": 1000
+  }
+]

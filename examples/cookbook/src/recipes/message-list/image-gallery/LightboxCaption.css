@@ -1,0 +1,8 @@
+@layer stream-overrides {
+  .cookbook-lightbox-caption {
+    max-width: 100%;
+    color: var(--str-chat__text-secondary);
+    font: var(--str-chat__font-body-default);
+    text-align: center;
+  }
+}

@@ -1,0 +1,65 @@
+@layer stream-overrides {
+  .cookbook-image-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--str-chat__spacing-xxs);
+    width: 280px;
+    overflow: hidden;
+    border-radius: var(--str-chat__radius-lg);
+  }
+
+  /* One image fills the attachment's width, as the SDK sizes it. */
+  .cookbook-image-grid[data-count='1'] {
+    grid-template-columns: 1fr;
+    width: 100%;
+  }
+
+  /* With three items, the first one spans the top row. */
+  .cookbook-image-grid[data-count='3'] .cookbook-image-grid__tile:first-child {
+    grid-column: span 2;
+  }
+
+  .cookbook-image-grid__tile {
+    position: relative;
+    aspect-ratio: 4 / 3;
+    padding: 0;
+    border: 0;
+    background: var(--str-chat__background-core-surface-subtle);
+    cursor: zoom-in;
+  }
+
+  .cookbook-image-grid__tile:focus-visible {
+    outline: 2px solid var(--str-chat__border-utility-focused);
+    outline-offset: -2px;
+  }
+
+  .cookbook-image-grid__image {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .cookbook-image-grid__play {
+    position: absolute;
+    inset: 50% auto auto 50%;
+    display: grid;
+    place-items: center;
+    width: 40px;
+    height: 40px;
+    border-radius: var(--str-chat__radius-full);
+    background: var(--str-chat__background-core-scrim);
+    color: var(--str-chat__text-on-accent);
+    transform: translate(-50%, -50%);
+  }
+
+  .cookbook-image-grid__more {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    background: var(--str-chat__background-core-scrim);
+    color: var(--str-chat__text-on-accent);
+    font: var(--str-chat__font-heading-md);
+  }
+}

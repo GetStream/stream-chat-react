@@ -1,0 +1,64 @@
+@layer stream-overrides {
+  /*
+   * Pinned to the bottom right of the page, the window stacked above the launcher. 96px clears a
+   * composer along the bottom of the page, such as the base app's.
+   */
+  .cookbook-assistant-widget {
+    position: fixed;
+    z-index: 10;
+    inset-block-end: 96px;
+    inset-inline-end: var(--str-chat__spacing-lg);
+    display: flex;
+    flex-direction: column-reverse;
+    align-items: flex-end;
+    gap: var(--str-chat__spacing-sm);
+  }
+
+  .cookbook-assistant-launcher {
+    box-shadow: var(--str-chat__box-shadow-3);
+  }
+
+  /* A compact card, never wider or taller than the page leaves room for. */
+  .cookbook-assistant-window {
+    display: flex;
+    flex-direction: column;
+    width: min(380px, calc(100vw - 2 * var(--str-chat__spacing-lg)));
+    height: min(520px, calc(100dvh - 200px));
+    overflow: hidden;
+    border: 1px solid var(--str-chat__border-core-default);
+    border-radius: var(--str-chat__radius-xl);
+    background: var(--str-chat__background-core-elevation-1);
+    box-shadow: var(--str-chat__box-shadow-3);
+    color: var(--str-chat__text-primary);
+  }
+
+  .cookbook-assistant-window__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--str-chat__spacing-sm);
+    padding: var(--str-chat__spacing-sm) var(--str-chat__spacing-sm)
+      var(--str-chat__spacing-sm) var(--str-chat__spacing-md);
+    border-block-end: 1px solid var(--str-chat__border-core-default);
+  }
+
+  .cookbook-assistant-window__title {
+    margin: 0;
+    font: var(--str-chat__font-heading-sm);
+  }
+
+  /* The channel fills the space under the header. */
+  .cookbook-assistant-window__body {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    min-height: 0;
+  }
+
+  .cookbook-assistant-window__note {
+    margin: 0;
+    padding: var(--str-chat__spacing-md);
+    color: var(--str-chat__text-secondary);
+    font: var(--str-chat__font-body-default);
+  }
+}

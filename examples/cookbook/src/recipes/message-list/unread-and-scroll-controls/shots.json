@@ -1,0 +1,94 @@
+[
+  {
+    "file": "unread-controls-default-banner.png",
+    "variant": "default",
+    "query": {
+      "channel": "docs-v15-cb-running"
+    },
+    "waitFor": ".str-chat__unread-messages-notification",
+    "clip": ".str-chat__message-list-main-panel",
+    "padding": 0
+  },
+  {
+    "file": "unread-controls-default-separator.png",
+    "variant": "default",
+    "query": {
+      "channel": "docs-v15-cb-running",
+      "jump": "unread"
+    },
+    "waitFor": ".str-chat__jump-to-latest-message",
+    "clip": ".str-chat__message-list-main-panel",
+    "padding": 0,
+    "settleMs": 1500
+  },
+  {
+    "file": "unread-controls-default-new-messages.png",
+    "variant": "default",
+    "query": {
+      "channel": "docs-v15-cb-running",
+      "jump": "unread",
+      "arrive": "2"
+    },
+    "waitFor": ".str-chat__jump-to-latest__unread-count",
+    "clip": ".str-chat__message-list-main-panel",
+    "padding": 0,
+    "settleMs": 1500
+  },
+  {
+    "file": "unread-controls-css-banner.png",
+    "variant": "css",
+    "query": {
+      "channel": "docs-v15-cb-running"
+    },
+    "waitFor": ".str-chat__unread-messages-notification",
+    "clip": ".str-chat__message-list-main-panel",
+    "padding": 0
+  },
+  {
+    "file": "unread-controls-css-separator.png",
+    "variant": "css",
+    "query": {
+      "channel": "docs-v15-cb-running",
+      "jump": "unread"
+    },
+    "waitFor": ".str-chat__jump-to-latest-message",
+    "clip": ".str-chat__message-list-main-panel",
+    "padding": 0,
+    "settleMs": 1500
+  },
+  {
+    "file": "unread-controls-css-new-messages.png",
+    "variant": "css",
+    "query": {
+      "channel": "docs-v15-cb-running",
+      "jump": "unread",
+      "arrive": "2"
+    },
+    "waitFor": ".str-chat__jump-to-latest__unread-count",
+    "clip": ".str-chat__message-list-main-panel",
+    "padding": 0,
+    "settleMs": 1500
+  },
+  {
+    "file": "unread-controls-component-banner.png",
+    "variant": "component",
+    "query": {
+      "channel": "docs-v15-cb-running"
+    },
+    "waitFor": ".cookbook-unread-banner",
+    "clip": ".str-chat__message-list-main-panel",
+    "padding": 0
+  },
+  {
+    "file": "unread-controls-component-separator.png",
+    "variant": "component",
+    "query": {
+      "channel": "docs-v15-cb-running",
+      "jump": "unread"
+    },
+    "waitFor": ".str-chat__jump-to-latest-message",
+    "clip": ".str-chat__message-list-main-panel",
+    "padding": 0,
+    "settleMs": 1500
+  }
+]

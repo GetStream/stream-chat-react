@@ -1,0 +1,28 @@
+[
+  {
+    "file": "channel-details-panel.png",
+    "query": {
+      "channel": "docs-v15-cb-design",
+      "details": "open",
+      "simulate": "online",
+      "online": "docs-v15-ck-bob,docs-v15-ck-cara"
+    },
+    "waitFor": ".cookbook-channel-details .str-chat__channel-detail__channel-management-view"
+  },
+  {
+    "file": "channel-details-members.png",
+    "query": {
+      "channel": "docs-v15-cb-design",
+      "details": "members",
+      "simulate": "online",
+      "online": "docs-v15-ck-bob,docs-v15-ck-cara"
+    },
+    "waitFor": ".cookbook-member-row",
+    "clip": ".cookbook-side-panel",
+    "padding": 0,
+    "viewport": {
+      "width": 1280,
+      "height": 320
+    }
+  }
+]

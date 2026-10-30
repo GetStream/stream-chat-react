@@ -1,0 +1,52 @@
+@layer stream-overrides {
+  .cookbook-giphy-actions {
+    display: flex;
+    flex-direction: column;
+    gap: var(--str-chat__spacing-xs);
+    margin-top: var(--str-chat__spacing-xs);
+    padding: var(--str-chat__spacing-sm);
+    border-radius: var(--str-chat__radius-lg);
+    background: var(--str-chat__background-core-elevation-0);
+  }
+
+  .cookbook-giphy-actions__query {
+    color: var(--str-chat__text-secondary);
+    font: var(--str-chat__font-caption-emphasis);
+  }
+
+  .cookbook-giphy-actions__buttons {
+    display: flex;
+    gap: var(--str-chat__spacing-xs);
+  }
+
+  .cookbook-giphy-actions__button {
+    display: inline-flex;
+    flex: 1;
+    align-items: center;
+    justify-content: center;
+    gap: var(--str-chat__spacing-xxs);
+    padding: var(--str-chat__spacing-xs);
+    border: 1px solid var(--str-chat__border-core-default);
+    border-radius: var(--str-chat__radius-full);
+    background: var(--str-chat__background-core-elevation-0);
+    color: var(--str-chat__text-primary);
+    font: var(--str-chat__font-caption-emphasis);
+    white-space: nowrap;
+    cursor: pointer;
+  }
+
+  .cookbook-giphy-actions__button:hover {
+    background: var(--str-chat__background-utility-hover);
+  }
+
+  .cookbook-giphy-actions__button--send {
+    border-color: var(--str-chat__accent-primary);
+    background: var(--str-chat__accent-primary);
+    color: var(--str-chat__text-on-accent);
+  }
+
+  .cookbook-giphy-actions__button--send:hover {
+    background: var(--str-chat__accent-primary);
+    opacity: 0.9;
+  }
+}

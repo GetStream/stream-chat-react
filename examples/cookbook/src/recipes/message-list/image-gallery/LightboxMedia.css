@@ -1,0 +1,7 @@
+@layer stream-overrides {
+  .cookbook-lightbox-media {
+    max-width: 100%;
+    max-height: 56vh;
+    border-radius: var(--str-chat__radius-lg);
+  }
+}

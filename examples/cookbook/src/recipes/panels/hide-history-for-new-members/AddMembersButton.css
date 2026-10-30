@@ -1,0 +1,40 @@
+@layer stream-overrides {
+  .cookbook-history-options {
+    display: grid;
+    gap: var(--str-chat__spacing-xs);
+  }
+
+  .cookbook-history-option {
+    display: flex;
+    align-items: center;
+    gap: var(--str-chat__spacing-xs);
+    color: var(--str-chat__text-primary);
+    font: var(--str-chat__font-body-default);
+    cursor: pointer;
+  }
+
+  .cookbook-history-option input {
+    accent-color: var(--str-chat__control-radio-button-bg-selected);
+  }
+
+  .cookbook-history-custom {
+    margin-top: var(--str-chat__spacing-sm);
+  }
+
+  .cookbook-history-custom__input {
+    box-sizing: border-box;
+    width: 100%;
+    padding: var(--str-chat__spacing-xs) var(--str-chat__spacing-sm);
+    border: 1px solid var(--str-chat__border-core-default);
+    border-radius: var(--str-chat__radius-max);
+    background: var(--str-chat__background-core-surface-card);
+    color: var(--str-chat__input-text-default);
+    font: var(--str-chat__font-body-default);
+  }
+
+  .cookbook-history-custom__error {
+    margin-top: var(--str-chat__spacing-xxs);
+    color: var(--str-chat__accent-error);
+    font: var(--str-chat__font-caption-default);
+  }
+}

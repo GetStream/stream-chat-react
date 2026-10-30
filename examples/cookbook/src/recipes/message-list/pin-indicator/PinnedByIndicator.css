@@ -1,0 +1,22 @@
+@layer stream-overrides {
+  .cookbook-pinned-by {
+    display: flex;
+    align-items: center;
+    gap: var(--str-chat__spacing-xs);
+    color: var(--str-chat__text-secondary);
+    font: var(--str-chat__font-caption-default);
+  }
+
+  .cookbook-pinned-by__expiry {
+    color: var(--str-chat__text-tertiary);
+  }
+
+  .cookbook-pinned-by__unpin {
+    padding: 0;
+    border: 0;
+    background: none;
+    color: var(--str-chat__text-link);
+    font: var(--str-chat__font-caption-emphasis);
+    cursor: pointer;
+  }
+}

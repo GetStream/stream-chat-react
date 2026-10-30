@@ -1,0 +1,9 @@
+[
+  {
+    "file": "read-receipt-avatars.png",
+    "query": { "channel": "docs-v15-cb-movie-night" },
+    "waitFor": ".cookbook-read-receipts",
+    "clip": ".str-chat__channel .str-chat__message-list",
+    "padding": 0
+  }
+]

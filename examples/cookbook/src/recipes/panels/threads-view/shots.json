@@ -1,0 +1,14 @@
+[
+  {
+    "file": "threads-view.png",
+    "query": { "view": "threads" },
+    "waitFor": ".cookbook-thread-row[data-thread-id=\"docs-v15-ck-design-4\"]",
+    "settleMs": 1500
+  },
+  {
+    "file": "threads-view-open-thread.png",
+    "query": { "view": "threads", "row": "docs-v15-ck-design-4" },
+    "waitFor": ".str-chat__chat-view__threads .str-chat__thread-container .str-chat__message-list",
+    "settleMs": 1500
+  }
+]

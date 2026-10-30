@@ -1,0 +1,71 @@
+[
+  {
+    "file": "product-card.png",
+    "query": { "channel": "docs-v15-cb-shop" },
+    "waitFor": ".cookbook-product-card__image",
+    "settleMs": 1500
+  },
+  {
+    "file": "product-card-sdk-default.png",
+    "variant": "sdk-default",
+    "query": { "channel": "docs-v15-cb-shop", "reply": "docs-v15-ck-shop-2" },
+    "waitFor": ".str-chat__quoted-message-preview",
+    "clip": ".str-chat__message-list .str-chat__ul",
+    "padding": 0
+  },
+  {
+    "file": "product-card-attachment-menu.png",
+    "query": { "channel": "docs-v15-cb-shop", "menu": "open" },
+    "waitFor": ".cookbook-attach-product-button",
+    "clip": ".str-chat__attachment-selector-actions-menu",
+    "padding": 56
+  },
+  {
+    "file": "product-card-picker.png",
+    "query": { "channel": "docs-v15-cb-shop", "menu": "picker" },
+    "waitFor": ".cookbook-product-picker__image",
+    "clip": ".cookbook-product-picker",
+    "padding": 24,
+    "settleMs": 1500
+  },
+  {
+    "file": "product-card-composer-preview.png",
+    "query": { "channel": "docs-v15-cb-shop", "product": "honey-jar" },
+    "waitFor": ".cookbook-product-preview__image",
+    "clip": ".str-chat__message-composer-container",
+    "padding": 0,
+    "settleMs": 1500
+  },
+  {
+    "file": "product-card-message.png",
+    "query": { "channel": "docs-v15-cb-shop" },
+    "waitFor": ".cookbook-product-card__image",
+    "clip": ".str-chat__li",
+    "hasText": "Glass teapot",
+    "padding": 0,
+    "settleMs": 1500
+  },
+  {
+    "file": "product-card-channel-preview.png",
+    "query": { "channel": "docs-v15-cb-shop" },
+    "waitFor": ".cookbook-product-message-preview",
+    "clip": ".str-chat__channel-list-item-container",
+    "hasText": "Glass teapot",
+    "padding": 0
+  },
+  {
+    "file": "product-card-quoted-reply.png",
+    "query": { "channel": "docs-v15-cb-shop", "reply": "docs-v15-ck-shop-2" },
+    "waitFor": ".str-chat__quoted-message-preview",
+    "clip": ".str-chat__li",
+    "hasText": "fits the shelf",
+    "padding": 0
+  },
+  {
+    "file": "product-card-quoted-composer.png",
+    "query": { "channel": "docs-v15-cb-shop", "quote": "docs-v15-ck-shop-2" },
+    "waitFor": ".str-chat__message-composer .str-chat__quoted-message-preview",
+    "clip": ".str-chat__message-composer-container",
+    "padding": 0
+  }
+]

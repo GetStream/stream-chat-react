@@ -1,0 +1,23 @@
+[
+  {
+    "file": "system-notification-banner.png",
+    "query": {
+      "channel": "docs-v15-cb-design",
+      "simulate": "maintenance"
+    },
+    "waitFor": ".cookbook-system-banner--warning",
+    "clip": ".cookbook-app-layout",
+    "padding": 0
+  },
+  {
+    "file": "system-notification-banner-offline.png",
+    "variant": "connection",
+    "query": {
+      "channel": "docs-v15-cb-design",
+      "simulate": "offline"
+    },
+    "waitFor": ".cookbook-connection-status",
+    "clip": ".cookbook-app-layout",
+    "padding": 0
+  }
+]

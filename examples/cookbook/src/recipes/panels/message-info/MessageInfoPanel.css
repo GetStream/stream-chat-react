@@ -1,0 +1,46 @@
+@layer stream-overrides {
+  .cookbook-message-info {
+    display: flex;
+    flex-direction: column;
+    gap: var(--str-chat__spacing-lg);
+    padding: var(--str-chat__spacing-md);
+  }
+
+  .cookbook-message-info__message {
+    align-self: flex-end;
+    max-width: 85%;
+    margin: 0;
+    padding: var(--str-chat__spacing-xs) var(--str-chat__spacing-sm);
+    border-radius: var(--str-chat__radius-lg);
+    background: var(--str-chat__chat-bg-outgoing);
+    color: var(--str-chat__chat-text-outgoing);
+    font: var(--str-chat__font-body-default);
+  }
+
+  .cookbook-message-info__list {
+    display: grid;
+    gap: var(--str-chat__spacing-sm);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .cookbook-message-info__row {
+    display: flex;
+    align-items: center;
+    gap: var(--str-chat__spacing-sm);
+  }
+
+  .cookbook-message-info__name {
+    flex: 1;
+    min-width: 0;
+    font: var(--str-chat__font-body-emphasis);
+  }
+
+  .cookbook-message-info__time,
+  .cookbook-message-info__empty {
+    margin: 0;
+    color: var(--str-chat__text-secondary);
+    font: var(--str-chat__font-caption-default);
+  }
+}

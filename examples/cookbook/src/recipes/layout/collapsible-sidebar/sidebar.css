@@ -1,0 +1,62 @@
+@layer stream-overrides {
+  .cookbook-sidebar-layout {
+    height: 100%;
+  }
+
+  /* Collapsed, the list's width goes to 0 and the SDK's stylesheet animates the change. */
+  .cookbook-sidebar-layout--collapsed .str-chat {
+    --str-chat__channel-list-width: 0px;
+  }
+
+  .cookbook-sidebar-layout--collapsed .str-chat__channel-list {
+    min-width: 0;
+    overflow: hidden;
+    border-inline-end: 0;
+    opacity: 0;
+    pointer-events: none;
+    /* Hidden, so its rows leave the tab order; it turns hidden only once it has collapsed. */
+    visibility: hidden;
+    transition:
+      flex-basis var(--str-chat__channel-list-transition-duration)
+        var(--str-chat__channel-list-transition-easing),
+      min-width var(--str-chat__channel-list-transition-duration)
+        var(--str-chat__channel-list-transition-easing),
+      width var(--str-chat__channel-list-transition-duration)
+        var(--str-chat__channel-list-transition-easing),
+      opacity var(--str-chat__channel-list-transition-duration)
+        var(--str-chat__channel-list-transition-easing),
+      transform var(--str-chat__channel-list-transition-duration)
+        var(--str-chat__channel-list-transition-easing),
+      visibility 0s linear var(--str-chat__channel-list-transition-duration);
+  }
+
+  /* One toggle at a time: the header's shows only while the list is collapsed. */
+  .cookbook-sidebar-layout:not(.cookbook-sidebar-layout--collapsed)
+    .str-chat__channel-header
+    .cookbook-sidebar-toggle {
+    display: none;
+  }
+
+  @media (max-width: 767px) {
+    /* cookbook-allow-layout: below 768px, the SDK's stylesheet hides the list over the channel
+       and has no rule that shows it again; this one shows it while it's open. */
+    .cookbook-sidebar-layout:not(.cookbook-sidebar-layout--collapsed)
+      .str-chat__channel-list {
+      pointer-events: auto;
+      transform: translateX(0);
+      /* Shows at once; the SDK's rule delays hiding until the list has slid out. */
+      transition:
+        transform var(--str-chat__channel-list-transition-duration)
+          var(--str-chat__channel-list-transition-easing),
+        visibility 0s;
+      visibility: visible;
+    }
+  }
+
+  /* Without animations, the list collapses and shows at once. */
+  @media (prefers-reduced-motion: reduce) {
+    .cookbook-sidebar-layout .str-chat__chat-view .str-chat__channel-list {
+      transition: none;
+    }
+  }
+}

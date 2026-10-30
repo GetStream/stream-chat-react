@@ -1,0 +1,90 @@
+@layer stream-overrides {
+  .cookbook-system-banner {
+    display: flex;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: center;
+    gap: var(--str-chat__spacing-xs);
+    overflow: hidden;
+    padding: var(--str-chat__spacing-xs) var(--str-chat__spacing-md);
+    border-bottom: 1px solid var(--str-chat__border-core-default);
+    background: var(--str-chat__background-core-surface-default);
+    color: var(--str-chat__text-primary);
+    font: var(--str-chat__font-caption-emphasis);
+    animation: cookbook-system-banner-slide-in 300ms ease-out both;
+  }
+
+  .cookbook-system-banner--exiting {
+    animation: cookbook-system-banner-slide-out 300ms ease-in both;
+  }
+
+  .cookbook-system-banner--interactive {
+    cursor: pointer;
+  }
+
+  .cookbook-system-banner__icon {
+    display: inline-flex;
+    color: var(--str-chat__accent-primary);
+  }
+
+  .cookbook-system-banner--error .cookbook-system-banner__icon {
+    color: var(--str-chat__accent-error);
+  }
+
+  .cookbook-system-banner--success .cookbook-system-banner__icon {
+    color: var(--str-chat__accent-success);
+  }
+
+  .cookbook-system-banner--warning .cookbook-system-banner__icon {
+    color: var(--str-chat__accent-warning);
+  }
+
+  .cookbook-system-banner--loading .cookbook-system-banner__icon {
+    animation: cookbook-system-banner-spin 1.5s linear infinite;
+  }
+
+  .cookbook-system-banner__message {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  /* Without animations, the bar shows and goes at once, and the icon stays still. */
+  @media (prefers-reduced-motion: reduce) {
+    .cookbook-system-banner,
+    .cookbook-system-banner--exiting,
+    .cookbook-system-banner--loading .cookbook-system-banner__icon {
+      animation: none;
+    }
+  }
+
+  @keyframes cookbook-system-banner-slide-in {
+    from {
+      max-height: 0;
+      opacity: 0;
+      padding-block: 0;
+    }
+    to {
+      max-height: 64px;
+      opacity: 1;
+    }
+  }
+
+  @keyframes cookbook-system-banner-slide-out {
+    from {
+      max-height: 64px;
+      opacity: 1;
+    }
+    to {
+      max-height: 0;
+      opacity: 0;
+      padding-block: 0;
+    }
+  }
+
+  @keyframes cookbook-system-banner-spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+}

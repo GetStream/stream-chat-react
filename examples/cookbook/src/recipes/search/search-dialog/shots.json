@@ -1,0 +1,47 @@
+[
+  {
+    "file": "search-dialog-grouped.png",
+    "query": {
+      "channel": "docs-v15-cb-design",
+      "simulate": "search-dialog",
+      "q": "Cara"
+    },
+    "waitFor": ".cookbook-search-results__group .cookbook-search-result",
+    "clip": ".cookbook-search-dialog",
+    "padding": 16,
+    "settleMs": 1500
+  },
+  {
+    "file": "search-dialog-mixed.png",
+    "query": {
+      "channel": "docs-v15-cb-design",
+      "simulate": "search-dialog",
+      "q": "Cara",
+      "layout": "mixed"
+    },
+    "waitFor": ".cookbook-search-result__tag",
+    "clip": ".cookbook-search-dialog",
+    "padding": 16,
+    "settleMs": 1500
+  },
+  {
+    "file": "search-dialog-filters.png",
+    "query": {
+      "channel": "docs-v15-cb-design",
+      "simulate": "search-dialog",
+      "q": "Cara",
+      "filters": "open"
+    },
+    "waitFor": ".cookbook-search-filters",
+    "clip": ".cookbook-search-dialog",
+    "padding": 16,
+    "settleMs": 1500
+  },
+  {
+    "file": "search-dialog-button.png",
+    "query": { "channel": "docs-v15-cb-design" },
+    "waitFor": ".cookbook-search-trigger__button",
+    "clip": ".str-chat__channel-list",
+    "padding": 0
+  }
+]

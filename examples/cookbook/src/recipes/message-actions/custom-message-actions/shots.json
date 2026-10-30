@@ -1,0 +1,12 @@
+[
+  {
+    "file": "custom-message-actions-menu.png",
+    "query": {
+      "channel": "docs-v15-cb-design",
+      "menu": "docs-v15-ck-design-6"
+    },
+    "waitFor": ".str-chat__message-actions-box--open",
+    "hover": "[data-message-id='docs-v15-ck-design-6'] .str-chat__message-bubble",
+    "clip": ".str-chat__main-panel-inner"
+  }
+]

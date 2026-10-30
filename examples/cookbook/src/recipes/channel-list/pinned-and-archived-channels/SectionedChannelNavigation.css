@@ -1,0 +1,92 @@
+@layer stream-overrides {
+  /* The one scroll of the column: every section sits in it, one after another, and takes the
+     height its rows need. */
+  .cookbook-channel-sections {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+  }
+
+  .cookbook-channel-section + .cookbook-channel-section {
+    border-top: 1px solid var(--str-chat__border-core-default);
+  }
+
+  .cookbook-channel-section__title {
+    margin: 0;
+    padding: var(--str-chat__spacing-sm) var(--str-chat__spacing-md)
+      var(--str-chat__spacing-xs);
+    color: var(--str-chat__text-secondary);
+    font: var(--str-chat__font-caption-emphasis);
+  }
+
+  .cookbook-channel-section__toggle {
+    display: flex;
+    align-items: center;
+    gap: var(--str-chat__spacing-xs);
+    width: 100%;
+    padding: 0;
+    border: 0;
+    background: none;
+    color: inherit;
+    font: inherit;
+    cursor: pointer;
+  }
+
+  .cookbook-channel-section__toggle:hover {
+    color: var(--str-chat__text-primary);
+  }
+
+  .cookbook-channel-section__chevron {
+    margin-inline-start: auto;
+    transition: transform 150ms ease;
+  }
+
+  .cookbook-channel-section__toggle[aria-expanded='false']
+    .cookbook-channel-section__chevron {
+    transform: rotate(-90deg);
+  }
+
+  /* The load-more button, at the start of the row. The SDK centres the button inside its own
+     wrapper; this row's display: flex shrinks that wrapper to the button, which puts it at the
+     start. The row's start padding and the button's own padding add up to the title's padding, so
+     the label lines up with the section title, and the focus ring stays inside the column. */
+  .cookbook-channel-section__more {
+    display: flex;
+    padding-inline: var(--str-chat__spacing-xs) var(--str-chat__spacing-md);
+  }
+
+  .cookbook-channel-section__more .str-chat__button {
+    padding-inline: var(--str-chat__spacing-xs);
+    color: var(--str-chat__text-secondary);
+    font: var(--str-chat__font-caption-emphasis);
+    text-transform: none;
+  }
+
+  .cookbook-channel-section__more .str-chat__button:hover {
+    color: var(--str-chat__text-primary);
+  }
+
+  .cookbook-channel-section__empty {
+    margin: 0;
+    padding: var(--str-chat__spacing-xs) var(--str-chat__spacing-md)
+      var(--str-chat__spacing-md);
+    color: var(--str-chat__text-tertiary);
+    font: var(--str-chat__font-caption-default);
+  }
+
+  /* A failed query: the message, and the button that asks again, under the section title. */
+  .cookbook-channel-section__error {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--str-chat__spacing-xs);
+    padding: var(--str-chat__spacing-xs) var(--str-chat__spacing-md)
+      var(--str-chat__spacing-md);
+  }
+
+  .cookbook-channel-section__error-text {
+    margin: 0;
+    color: var(--str-chat__text-secondary);
+    font: var(--str-chat__font-caption-default);
+  }
+}

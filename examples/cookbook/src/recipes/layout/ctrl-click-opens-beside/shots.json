@@ -1,0 +1,11 @@
+[
+  {
+    "file": "layout-ctrl-click-opens-beside.png",
+    "query": {
+      "channel": "docs-v15-cb-design",
+      "beside": "docs-v15-cb-trip"
+    },
+    "waitFor": ".str-chat__chat-view__slot .str-chat__channel-header:has-text('Weekend trip')",
+    "settleMs": 1500
+  }
+]

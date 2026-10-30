@@ -1,0 +1,111 @@
+@layer stream-overrides {
+  .cookbook-saved-items {
+    display: flex;
+    flex-direction: column;
+    padding-block-end: var(--str-chat__spacing-md);
+  }
+
+  .cookbook-saved-items__kinds {
+    display: flex;
+    gap: var(--str-chat__spacing-xs);
+    padding: var(--str-chat__spacing-sm) var(--str-chat__spacing-md);
+  }
+
+  /* The kind on show looks selected. */
+  .cookbook-saved-items__kind[aria-pressed='true'] {
+    border-color: var(--str-chat__accent-primary);
+    background: var(--str-chat__background-utility-selected);
+    color: var(--str-chat__accent-primary);
+  }
+
+  .cookbook-saved-items__list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .cookbook-saved-item {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--str-chat__spacing-xs);
+    padding-inline-end: var(--str-chat__spacing-sm);
+    border-block-end: 1px solid var(--str-chat__border-core-subtle);
+  }
+
+  .cookbook-saved-item:hover {
+    background: var(--str-chat__background-utility-hover);
+  }
+
+  .cookbook-saved-item__open {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    gap: var(--str-chat__spacing-xxs);
+    min-width: 0;
+    padding: var(--str-chat__spacing-sm) var(--str-chat__spacing-md);
+    border: 0;
+    background: none;
+    color: var(--str-chat__text-primary);
+    font: var(--str-chat__font-body-default);
+    text-align: start;
+    cursor: pointer;
+  }
+
+  .cookbook-saved-item__open:focus-visible {
+    outline: 2px solid var(--str-chat__accent-primary);
+    outline-offset: -2px;
+  }
+
+  .cookbook-saved-item__action {
+    margin-block-start: var(--str-chat__spacing-sm);
+  }
+
+  .cookbook-saved-item__header {
+    display: flex;
+    align-items: baseline;
+    gap: var(--str-chat__spacing-xs);
+    color: var(--str-chat__text-secondary);
+    font: var(--str-chat__font-caption-default);
+  }
+
+  .cookbook-saved-item__author {
+    color: var(--str-chat__text-primary);
+    font: var(--str-chat__font-caption-emphasis);
+  }
+
+  .cookbook-saved-item__due {
+    display: flex;
+    align-items: center;
+    gap: var(--str-chat__spacing-xs);
+    color: var(--str-chat__text-secondary);
+    font: var(--str-chat__font-caption-default);
+  }
+
+  /* An overdue reminder's time reads as a warning. */
+  .cookbook-saved-item[data-overdue] .cookbook-saved-item__due {
+    color: var(--str-chat__accent-error);
+  }
+
+  .cookbook-saved-item__overdue {
+    padding: 0 var(--str-chat__spacing-xs);
+    border-radius: var(--str-chat__radius-max);
+    background: var(--str-chat__accent-error);
+    color: var(--str-chat__text-on-accent);
+    font: var(--str-chat__font-caption-emphasis);
+  }
+
+  .cookbook-saved-items__note {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--str-chat__spacing-sm);
+    margin: 0;
+    padding: var(--str-chat__spacing-md);
+    color: var(--str-chat__text-secondary);
+    font: var(--str-chat__font-body-default);
+  }
+
+  .cookbook-saved-items__note p {
+    margin: 0;
+  }
+}

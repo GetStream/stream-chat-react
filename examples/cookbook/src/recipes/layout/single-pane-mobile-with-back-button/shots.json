@@ -1,0 +1,23 @@
+[
+  {
+    "file": "layout-single-pane-mobile-list.png",
+    "viewport": { "width": 390, "height": 844 },
+    "waitFor": ".str-chat__channel-list .str-chat__channel-preview, .str-chat__channel-list [role='option']"
+  },
+  {
+    "file": "layout-single-pane-mobile.png",
+    "viewport": { "width": 390, "height": 844 },
+    "query": {
+      "channel": "docs-v15-cb-design"
+    }
+  },
+  {
+    "file": "layout-single-pane-mobile-thread.png",
+    "viewport": { "width": 390, "height": 844 },
+    "query": {
+      "channel": "docs-v15-cb-design",
+      "thread": "docs-v15-ck-design-4"
+    },
+    "waitFor": ".str-chat__thread .str-chat__message-list"
+  }
+]

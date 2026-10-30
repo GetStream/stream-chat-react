@@ -1,0 +1,28 @@
+[
+  {
+    "file": "poll-with-text-composer.png",
+    "query": {
+      "channel": "docs-v15-cb-trip",
+      "poll": "composer"
+    },
+    "waitFor": ".cookbook-poll-preview",
+    "clip": ".cookbook-poll-composer",
+    "padding": 0
+  },
+  {
+    "file": "poll-with-text-message.png",
+    "query": {
+      "channel": "docs-v15-cb-trip",
+      "poll": "sent"
+    },
+    "waitFor": ".str-chat__li .str-chat__poll",
+    "clip": ".str-chat__li",
+    "hasText": "Trying to pin down the hike",
+    "padding": 0,
+    "settleMs": 2500,
+    "viewport": {
+      "width": 1280,
+      "height": 1000
+    }
+  }
+]

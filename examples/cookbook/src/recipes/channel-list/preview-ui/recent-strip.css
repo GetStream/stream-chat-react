@@ -1,0 +1,9 @@
+/* Cookbook only: lays out the strip of chips the `chips` variant renders under the header. */
+@layer stream-overrides {
+  .cookbook-recent-channels {
+    display: flex;
+    gap: var(--str-chat__spacing-sm);
+    padding: var(--str-chat__spacing-sm) var(--str-chat__spacing-md);
+    border-bottom: 1px solid var(--str-chat__border-core-default);
+  }
+}

@@ -1,0 +1,9 @@
+[
+  {
+    "file": "hide-channel-history-before-dialog.png",
+    "query": { "channel": "docs-v15-cb-trip", "dialog": "history" },
+    "waitFor": ".str-chat__prompt",
+    "clip": ".str-chat__prompt",
+    "padding": 0
+  }
+]

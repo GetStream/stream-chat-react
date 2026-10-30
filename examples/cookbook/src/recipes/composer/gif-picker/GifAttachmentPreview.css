@@ -1,0 +1,28 @@
+@layer stream-overrides {
+  .cookbook-gif-preview {
+    position: relative;
+    width: 96px;
+    height: 72px;
+    border-radius: var(--str-chat__radius-lg);
+    background: var(--str-chat__background-core-surface-subtle);
+  }
+
+  .cookbook-gif-preview__image {
+    display: block;
+    width: 100%;
+    height: 100%;
+    border-radius: var(--str-chat__radius-lg);
+    object-fit: cover;
+  }
+
+  .cookbook-gif-preview__badge {
+    position: absolute;
+    inset-block-end: var(--str-chat__spacing-xxs);
+    inset-inline-start: var(--str-chat__spacing-xxs);
+    padding: 0 var(--str-chat__spacing-xxs);
+    border-radius: var(--str-chat__radius-sm);
+    background: var(--str-chat__background-core-surface-card);
+    color: var(--str-chat__text-primary);
+    font: var(--str-chat__font-caption-emphasis);
+  }
+}

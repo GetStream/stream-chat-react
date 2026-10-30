@@ -1,0 +1,34 @@
+{
+  "channels": [
+    {
+      "id": "docs-v15-cb-photos",
+      "name": "Trip photos",
+      "members": ["docs-v15-ck-cleo", "docs-v15-ck-bob", "docs-v15-ck-cara"],
+      "messages": [
+        {
+          "id": "docs-v15-ck-photos-1",
+          "user": "docs-v15-ck-bob",
+          "text": "Which view should go on the trip poster?"
+        },
+        {
+          "id": "docs-v15-ck-photos-2",
+          "user": "docs-v15-ck-cara",
+          "text": "This one, from the ridge.",
+          "attachments": [
+            {
+              "type": "image",
+              "fallback": "mountain-view.jpg",
+              "image_url": "https://picsum.photos/id/1018/640/427",
+              "original_height": 427,
+              "original_width": 640,
+              "actions": [
+                { "name": "vote", "text": "Love", "type": "button", "value": "love" },
+                { "name": "vote", "text": "Loathe", "type": "button", "value": "sad" }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

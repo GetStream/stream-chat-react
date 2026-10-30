@@ -1,0 +1,7 @@
+@layer stream-overrides {
+  /* While the drafts are open, the button looks pressed, like the rail's current view. */
+  .cookbook-drafts-button[aria-expanded='true'] {
+    background: var(--str-chat__background-utility-selected);
+    color: var(--str-chat__accent-primary);
+  }
+}

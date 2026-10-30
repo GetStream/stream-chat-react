@@ -1,0 +1,24 @@
+@layer stream-overrides {
+  /* Floats over the bottom of its panel; only the snackbars themselves take clicks. */
+  .cookbook-snackbar-stack {
+    display: flex;
+    position: absolute;
+    z-index: 2;
+    inset-block-end: var(--str-chat__spacing-md);
+    inset-inline: var(--str-chat__spacing-md);
+    flex-direction: column;
+    align-items: center;
+    gap: var(--str-chat__spacing-xs);
+    pointer-events: none;
+  }
+
+  /* A modal's stack floats over the top of the modal instead. */
+  .cookbook-snackbar-stack--top {
+    inset-block-start: var(--str-chat__spacing-md);
+    inset-block-end: auto;
+  }
+
+  .cookbook-snackbar-stack > .cookbook-snackbar {
+    width: min(100%, 420px);
+  }
+}

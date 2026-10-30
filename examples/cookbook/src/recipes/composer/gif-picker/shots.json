@@ -1,0 +1,18 @@
+[
+  {
+    "file": "gif-picker.png",
+    "query": { "channel": "docs-v15-cb-trip", "gif": "mountain" },
+    "waitFor": ".cookbook-gif-picker__image",
+    "clip": ".cookbook-gif-picker",
+    "padding": 56,
+    "settleMs": 2000
+  },
+  {
+    "file": "gif-picker-composer.png",
+    "query": { "channel": "docs-v15-cb-trip", "gif": "mountain", "pick": "Snowy peaks" },
+    "waitFor": ".cookbook-gif-preview__image",
+    "clip": ".str-chat__message-composer-container",
+    "padding": 0,
+    "settleMs": 1500
+  }
+]
