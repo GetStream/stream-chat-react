@@ -13,3 +13,4 @@ export * from './Views/ChannelMediaView';
 export * from './Views/ChannelMemberDetailView';
 export * from './Views/ChannelMembersView';
 export * from './Views/PinnedMessagesView';
+export * from './Views/ScheduledMessagesView';
