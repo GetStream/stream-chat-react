@@ -19,6 +19,7 @@ import {
   IconNotification,
   MessageActions,
   type MessageActionSetItem,
+  type MessageActionVisibilityFilterParams,
   modalDialogManagerId,
   SwitchField,
   useComponentContext,
@@ -369,9 +370,29 @@ export const ConfigurableMessageActions = (
     (state) => state.messageActions,
   );
   const surfaceActions = customMessageActions[surface];
+  const { disabledPreviewSections } = useAppSettingsSelector((state) => state.composer);
+  // A composer without the quoted or edited message preview has nowhere to show what these
+  // actions put into it, so they go along with the preview (Settings -> Composer).
+  const quoteDisabled = disabledPreviewSections.includes('quotedMessage');
+  const editDisabled = disabledPreviewSections.includes('editedMessage');
+  const pollDisabled = disabledPreviewSections.includes('poll');
   const customDeleteEnabled = surfaceActions.delete.enableOptionConfiguration;
   const configurableActionSet = useMemo(() => {
-    const actionSet = props.messageActionSet ?? defaultMessageActionSet;
+    const baseActionSet = props.messageActionSet ?? defaultMessageActionSet;
+    // While the Poll preview shows, a poll goes out with the message's text and attachments, so
+    // the message stays editable. Only the edit item's own rule changes: the SDK still requires
+    // the update-message capability.
+    const actionSet = pollDisabled
+      ? baseActionSet
+      : baseActionSet.map((item) =>
+          item.placement !== 'quick-dropdown-toggle' && item.type === 'edit'
+            ? {
+                ...item,
+                isVisible: ({ message }: MessageActionVisibilityFilterParams) =>
+                  message.command !== 'giphy',
+              }
+            : item,
+        );
     const actionOverrides: Record<
       SupportedCustomMessageActionType,
       Omit<CustomMessageActionOverrideSpec, 'enabled'>
@@ -438,16 +459,24 @@ export const ConfigurableMessageActions = (
       overrides,
     });
 
+    const disabledActionTypes = [
+      ...surfaceActions.disabledActionTypes,
+      ...(quoteDisabled ? ['quote'] : []),
+      ...(editDisabled ? ['edit', 'editInline'] : []),
+    ];
+
     // Turning a default action off is just dropping it from the set; the SDK's base filter still
     // has the last word on whatever remains.
-    if (!surfaceActions.disabledActionTypes.length) return withOverrides;
+    if (!disabledActionTypes.length) return withOverrides;
 
     return withOverrides.filter(
-      (item) =>
-        !('type' in item) || !surfaceActions.disabledActionTypes.includes(item.type),
+      (item) => !('type' in item) || !disabledActionTypes.includes(item.type),
     );
   }, [
     customDeleteEnabled,
+    editDisabled,
+    pollDisabled,
+    quoteDisabled,
     surfaceActions.disabledActionTypes,
     surfaceActions.inlineEdit,
     surfaceActions.markOwnUnread,

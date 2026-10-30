@@ -1,0 +1,80 @@
+@use '../../../styling/utils';
+
+.str-chat__poll-preview {
+  position: relative;
+  width: 100%;
+  min-width: 0;
+  display: flex;
+  align-items: start;
+  justify-content: space-around;
+  gap: var(--str-chat__spacing-xs);
+  padding-inline: var(--str-chat__spacing-xs) var(--str-chat__spacing-sm);
+  padding-block: var(--str-chat__spacing-xs);
+  background-color: var(--str-chat__chat-bg-outgoing);
+  border-radius: var(--str-chat__message-bubble-radius-attachment);
+
+  .str-chat__poll-preview-image {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--str-chat__background-core-overlay-light);
+    width: 40px;
+    height: 40px;
+
+    .str-chat__icon {
+      width: 20px;
+      height: 20px;
+    }
+  }
+
+  .str-chat__poll-preview__data {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    min-width: 0;
+    flex: 1;
+    height: 100%;
+    gap: 2px;
+
+    .str-chat__poll-preview__data__title {
+      @include utils.ellipsis-text();
+      font: var(--str-chat__font-metadata-emphasis);
+    }
+
+    .str-chat__poll-preview__data__options {
+      display: flex;
+      gap: var(--str-chat__spacing-xxs);
+      min-width: 0;
+      font: var(--str-chat__font-metadata-default);
+    }
+
+    .str-chat__poll-preview__data__options-count {
+      flex-shrink: 0;
+      color: var(--str-chat__text-primary);
+    }
+
+    // A poll holds up to 100 options; only the first few are named and the line still ellipsizes.
+    .str-chat__poll-preview__data__options-list {
+      @include utils.ellipsis-text();
+      min-width: 0;
+      color: var(--str-chat__text-secondary);
+    }
+
+    .str-chat__poll-preview__data__settings {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--str-chat__spacing-xxs);
+      margin: 2px 0 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .str-chat__poll-preview__data__setting {
+      padding: 0 var(--str-chat__spacing-xs);
+      border-radius: var(--str-chat__radius-max);
+      background-color: var(--str-chat__background-core-overlay-light);
+      font: var(--str-chat__font-metadata-default);
+      white-space: nowrap;
+    }
+  }
+}

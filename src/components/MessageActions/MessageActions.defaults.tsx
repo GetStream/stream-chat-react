@@ -794,6 +794,11 @@ const DefaultMessageActionComponents = {
   },
 };
 
+/**
+ * The actions `MessageActions` renders by default. Each item's `isVisible` holds the action's own
+ * rule about the message; replace an item to change it. Capabilities, server-side features and the
+ * message's status are checked by `useBaseMessageActionSetFilter` and cannot be overridden.
+ */
 export const defaultMessageActionSet: MessageActionSetItem[] = [
   {
     Component: DefaultMessageActionComponents.quick.DropdownToggle,
@@ -826,6 +831,7 @@ export const defaultMessageActionSet: MessageActionSetItem[] = [
   },
   {
     Component: DefaultMessageActionComponents.dropdown.Download,
+    isVisible: ({ message }) => !!message.attachments?.some(isDownloadableAttachment),
     placement: 'dropdown',
     type: 'download',
   },
@@ -836,6 +842,7 @@ export const defaultMessageActionSet: MessageActionSetItem[] = [
   },
   {
     Component: DefaultMessageActionComponents.dropdown.CopyMessageText,
+    isVisible: ({ message }) => !!message.text,
     placement: 'dropdown',
     type: 'copyMessageText',
   },
@@ -846,6 +853,8 @@ export const defaultMessageActionSet: MessageActionSetItem[] = [
   },
   {
     Component: DefaultMessageActionComponents.dropdown.Edit,
+    // A poll message and a giphy have no content the composer can edit.
+    isVisible: ({ message }) => !message.poll && message.command !== 'giphy',
     placement: 'dropdown',
     type: 'edit',
   },

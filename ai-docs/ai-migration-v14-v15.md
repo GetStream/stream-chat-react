@@ -1776,6 +1776,21 @@ export const List = () => (
 
 - Action names are typed by the exported `DefaultMessageActionType` union; a custom action may use any string.
 - Permission and message-state filtering stays in `useBaseMessageActionSetFilter`: an action the user cannot perform, or that a thread reply does not support, is dropped whether or not you list it. Pass `disableBaseMessageActionSetFilter` to take that over.
+- An action's own rule about the message lives on its item as `isVisible({ isMyMessage, isThreadReply, message })`. In `defaultMessageActionSet`, `edit` hides for a poll message and a giphy, `copyMessageText` for a message without text and `download` for one without a downloadable attachment. Replace the item to change its rule. `isVisible` can only hide an action: the capabilities, the features enabled on the server and the message's status are still checked by the base filter. Item rules apply even with `disableBaseMessageActionSetFilter`. For example, to let users edit the text and attachments sent with a poll:
+
+  ```tsx
+  import { defaultMessageActionSet, type MessageActionSetItem } from 'stream-chat-react';
+
+  const messageActionSet = defaultMessageActionSet.map(
+    (item): MessageActionSetItem =>
+      'type' in item && item.type === 'edit'
+        ? { ...item, isVisible: ({ message }) => message.command !== 'giphy' }
+        : item,
+  );
+  ```
+
+- A hand-written `edit`, `copyMessageText` or `download` item without `isVisible` now shows wherever the base filter allows it, e.g. `edit` on a poll message the user may update. Copy the default item's `isVisible` to keep the default rule.
+- `useUserRole(message).canEdit` is now the permission alone (`update-any-message`, or `update-own-message` on the user's own message), the same check the base filter makes. It no longer excludes poll messages and giphies; a custom UI that gated an edit button on it and wants that rule adds `!message.poll && message.command !== 'giphy'` itself.
 - There is no `actionsEnabled` replacement. The base filter already drops actions on deleted, bounced and failed messages.
 - **A custom `MessageUI` that gated its own buttons** on `getMessageActions()` / `MESSAGE_ACTIONS` (for example showing a react or reply button only when allowed) reads the permission from `useUserRole(message)`, which returns `canReact`, `canReply`, `canPin`, `canEdit`, `canDelete`, `canFlag`, `canMute`, `canQuote`, `canMarkUnread`, `canBlockUser`, `canSendMessage`, `isMyMessage` and the role flags:
 
@@ -2033,6 +2048,42 @@ The gallery renders outside any message, so its header reads the current item. W
 - To change only the format, customize `timestamp.GalleryTimestamp`.
 - `MessageTimestamp` renders from its `message` prop outside a `MessageProvider`; without the prop it still requires one.
 
+### New: the message bubble's content is a configurable set; the quoted message renders above a poll
+
+`MessageUI` renders the bubble's content through `MessageBubbleContent`, which renders a `messageBubbleContentSet` the way `MessageComposerPreviews` renders the composer's previews. Each item names itself with a `type`, renders a `Component` without props (read the message with `useMessageContext()`), and shows while `isVisible({ isAIGenerated, message })` holds.
+
+`defaultMessageBubbleContentSet` renders `quotedMessage`, `poll`, `attachments` and `text`. v14 rendered the poll above the quoted message; a message that both quotes and carries a poll now shows the quote first. Anything else renders as before.
+
+A message can carry a poll next to its text and attachments, and the root element now has `str-chat__message--has-poll` while it does. Such a message no longer gets `str-chat__message--has-single-attachment`, whose layout is meant for an attachment alone in the bubble.
+
+Reorder, filter or extend the default set, then install it with the `MessageBubbleContent` slot:
+
+```tsx
+import {
+  defaultMessageBubbleContentSet,
+  MessageBubbleContent,
+  WithComponents,
+} from 'stream-chat-react';
+
+// Text above the poll and attachments, quote still first.
+const order = ['quotedMessage', 'text', 'poll', 'attachments'];
+const contentSet = order.flatMap((type) =>
+  defaultMessageBubbleContentSet.filter((item) => item.type === type),
+);
+
+const CustomBubbleContent = () => (
+  <MessageBubbleContent messageBubbleContentSet={contentSet} />
+);
+
+export const App = ({ children }: { children: React.ReactNode }) => (
+  <WithComponents overrides={{ MessageBubbleContent: CustomBubbleContent }}>
+    {children}
+  </WithComponents>
+);
+```
+
+The props passed to `MessageUI` still override `MessageContext` for the bubble's content.
+
 ---
 
 ## 13. Message composer
@@ -2234,6 +2285,105 @@ const PreviewList = (props: AttachmentPreviewListProps) => (
 
 export const ComposerPreviews = ({ children }: { children: ReactNode }) => (
   <WithComponents overrides={{ AttachmentPreviewList: PreviewList }}>
+    {children}
+  </WithComponents>
+);
+```
+
+### New: composer previews are a configurable set, with a poll preview
+
+Not a break. The previews above the composer's textarea (`.str-chat__message-composer-previews`) come from `MessageComposerPreviews`, which renders a `messageComposerPreviewSet` the way `MessageActions` renders a `messageActionSet`. Each item names itself with a `type`, renders a `Component` without props, and shows while `isVisible(state)` holds. `state` (`MessageComposerPreviewVisibilityFilterParams`) carries the composer's `attachments`, `customData`, `editedMessage`, `linkPreviews` (loading or loaded), `location`, `pollId` and `quotedMessage`. The preview area renders when any item is visible.
+
+`defaultMessageComposerPreviewSet` keeps v14's previews in v14's order (`editedMessage`, `quotedMessage`, `voiceRecording`, `attachments`, `linkPreviews`, `location`) and adds `poll`. The poll preview shows while `messageComposer.state.pollId` holds a poll created with `messageComposer.createPoll()` and not sent yet, and not while editing. It shows the poll's question and options (fetching a poll missing from `client.polls`, e.g. one restored from a draft), and its remove button detaches the poll from the composer. Replace it through the `PollPreview` component slot.
+
+Filter, reorder or extend the default set, then install it with the `MessageComposerPreviews` slot:
+
+```tsx
+import {
+  defaultMessageComposerPreviewSet,
+  MessageComposerPreviews,
+  type MessageComposerPreviewSetItem,
+  useMessageComposerController,
+  WithComponents,
+} from 'stream-chat-react';
+
+const ReplyingInChannelHint = () => {
+  const messageComposer = useMessageComposerController();
+  return <div>Replying in {messageComposer.channel.data?.name}</div>;
+};
+
+const previewSet: MessageComposerPreviewSetItem[] = [
+  ...defaultMessageComposerPreviewSet.filter(({ type }) => type !== 'linkPreviews'),
+  {
+    Component: ReplyingInChannelHint,
+    isVisible: ({ quotedMessage }) => !!quotedMessage,
+    type: 'replyingInChannelHint',
+  },
+];
+
+const CustomComposerPreviews = () => (
+  <MessageComposerPreviews messageComposerPreviewSet={previewSet} />
+);
+
+export const App = ({ children }: { children: React.ReactNode }) => (
+  <WithComponents overrides={{ MessageComposerPreviews: CustomComposerPreviews }}>
+    {children}
+  </WithComponents>
+);
+```
+
+- `useMessageComposerPreviewSetFilter(set)` returns the visible items, and `useMessageComposerPreviewState()` the state they are checked against, for a custom container.
+- `isVisible` sees only the state above, so a preview that depends on something else must read it inside its `Component` and return `null`. To drive visibility from app state, put it in `messageComposer.customDataManager.setCustomData(...)` and read `customData`.
+- `EditedMessagePreview`, `GeolocationPreview` and `PollPreview` are now exported from the root.
+
+The default poll creation dialog sends the poll as soon as it is created, so the poll preview only shows a poll created elsewhere. To have the dialog attach the poll to the message being composed instead:
+
+1. Remove `stream-chat`'s poll-only step from the composition chain. With it, `stream-chat` sends a composer's poll as a message of its own and keeps the text and attachments in the composer. Without it, the poll is sent with them and the composer clears:
+
+   ```ts
+   import { POLL_ONLY_COMPOSITION_MIDDLEWARE_ID } from 'stream-chat';
+
+   client.config.setSetupFunction('messageComposer', ({ composer }) => {
+     composer.compositionMiddlewareExecutor.remove(POLL_ONLY_COMPOSITION_MIDDLEWARE_ID);
+   });
+   ```
+
+2. Replace the dialog's footer through the new `PollCreationDialogControls` slot (`PollCreationDialogControls` and `PollCreationDialogControlsProps` are exported) and call `createPoll()` without `send()`:
+
+```tsx
+import {
+  type PollCreationDialogControlsProps,
+  Prompt,
+  useMessageComposerController,
+  WithComponents,
+} from 'stream-chat-react';
+
+const AttachPollControls = ({ close }: PollCreationDialogControlsProps) => {
+  const messageComposer = useMessageComposerController();
+
+  return (
+    <Prompt.Footer>
+      <Prompt.FooterControls>
+        <Prompt.FooterControlsButtonSecondary onClick={close} type='button'>
+          Cancel
+        </Prompt.FooterControlsButtonSecondary>
+        <Prompt.FooterControlsButtonPrimary
+          onClick={async () => {
+            // The poll waits in `messageComposer.state.pollId` and goes out with the message.
+            await messageComposer.createPoll();
+            close();
+          }}
+          type='submit'
+        >
+          Attach poll
+        </Prompt.FooterControlsButtonPrimary>
+      </Prompt.FooterControls>
+    </Prompt.Footer>
+  );
+};
+
+export const App = ({ children }: { children: React.ReactNode }) => (
+  <WithComponents overrides={{ PollCreationDialogControls: AttachPollControls }}>
     {children}
   </WithComponents>
 );

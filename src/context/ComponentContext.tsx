@@ -38,6 +38,7 @@ import {
   type NotificationListProps,
   type NotificationProps,
   type PinIndicatorProps,
+  type PollCreationDialogControlsProps,
   type PollCreationDialogProps,
   type PollOptionSelectorProps,
   type QuotedMessagePreviewProps,
@@ -190,6 +191,11 @@ export type ComponentContextValue = {
    * overriding one icon leaves the rest intact. Read with `useComponentContextIcons`.
    */
   icons?: IconSlots;
+  /**
+   * Previews above the composer's textarea. The default renders `defaultMessageComposerPreviewSet`;
+   * render `MessageComposerPreviews` with your own `messageComposerPreviewSet` to change it.
+   */
+  MessageComposerPreviews?: React.ComponentType;
   /** How the message composer renders. */
   MessageComposerUI?: React.ComponentType<MessageComposerProps>;
   /** Link previews in the message composer. */
@@ -198,6 +204,11 @@ export type ComponentContextValue = {
   LoadingIndicator?: React.ComponentType<LoadingIndicatorProps>;
   /** Determinate progress from 0 to 100. */
   ProgressIndicator?: React.ComponentType<ProgressIndicatorProps>;
+  /**
+   * What a message bubble holds. The default renders `defaultMessageBubbleContentSet`; render
+   * `MessageBubbleContent` with your own `messageBubbleContentSet` to change it.
+   */
+  MessageBubbleContent?: React.ComponentType;
   /** Renders a message in the standard `MessageList`. */
   MessageUI?: React.ComponentType<MessageUIComponentProps>;
   /** Message actions popup, rendered without props. */
@@ -244,12 +255,20 @@ export type ComponentContextValue = {
    */
   MessageAlsoSentInChannelIndicator?: React.ComponentType;
   PinIndicator?: React.ComponentType<PinIndicatorProps>;
+  /** Preview of the poll the message composer holds (`messageComposer.state.pollId`). */
+  PollPreview?: React.ComponentType;
   /** Poll actions in a message. */
   PollActions?: React.ComponentType;
   /** Poll rendering in a message. */
   PollContent?: React.ComponentType;
   /** Contents of the poll creation dialog. */
   PollCreationDialog?: React.ComponentType<PollCreationDialogProps>;
+  /**
+   * Footer of the poll creation dialog. The default cancels, or creates the poll and sends it at
+   * once. Calling `messageComposer.createPoll()` without `send()` instead leaves the poll in the
+   * composer (`state.pollId`) to go out with the next message.
+   */
+  PollCreationDialogControls?: React.ComponentType<PollCreationDialogControlsProps>;
   /** Poll header in a message. */
   PollHeader?: React.ComponentType;
   /** Poll option selector. */

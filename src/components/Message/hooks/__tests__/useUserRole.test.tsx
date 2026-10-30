@@ -223,6 +223,18 @@ describe('useUserRole custom hook', () => {
     },
   );
 
+  it('checks only the permission for canEdit, so a poll message stays editable', async () => {
+    const message = {
+      ...generateMessage({ poll_id: 'poll-1', user: alice }),
+      poll: fromPartial({ id: 'poll-1' }),
+    } as LocalMessage;
+    const { canEdit } = await renderUserRoleHook({
+      channelStateContextValue: { channelCapabilities: { 'update-own-message': true } },
+      message,
+    });
+    expect(canEdit).toBe(true);
+  });
+
   describe('canDo flags', () => {
     it.each([
       [true, true, alice, true],
