@@ -3,6 +3,8 @@ export * from './dateTimeInputValues';
 export * from './nativePicker';
 export * from './schedulePresets';
 export * from './scheduledMessageErrors';
+export * from './scheduledMessageFailureReason';
+export * from './scheduledMessageGroups';
 export * from './scheduledMessagePreview';
 export * from './scheduleTimeBounds';
 export * from './timeZone';
