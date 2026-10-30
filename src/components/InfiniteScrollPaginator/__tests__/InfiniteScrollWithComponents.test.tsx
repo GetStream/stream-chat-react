@@ -49,11 +49,12 @@ describe('InfiniteScrollWithComponents', () => {
       'livestream',
       'team',
     ]);
-    expect(consoleError).not.toHaveBeenCalledWith(
-      expect.stringContaining('same key'),
-      expect.anything(),
-      expect.anything(),
-    );
+    // React's argument count for this warning varies by version, so only the message is matched.
+    expect(
+      consoleError.mock.calls.some(
+        ([message]) => typeof message === 'string' && message.includes('same key'),
+      ),
+    ).toBe(false);
     consoleError.mockRestore();
   });
 
