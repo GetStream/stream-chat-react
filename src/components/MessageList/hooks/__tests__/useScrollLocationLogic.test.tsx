@@ -65,6 +65,23 @@ describe('useScrollLocationLogic', () => {
     client = await getTestClientWithUser({ id: 'alice' });
   });
 
+  // The list can open at the bottom without a scroll event reporting it (the autoscroll lands before
+  // the content is tall enough to scroll). The first scroll up must still leave "scrolled to bottom".
+  it('reports the first scroll up after opening as no longer at the bottom', () => {
+    const listElement = createListElement();
+    const { result } = renderScrollLogic({
+      hasMoreNewer: false,
+      listElement,
+      messages: generateMessages(25),
+    });
+    expect(result.current.isMessageListScrolledToBottom).toBe(true);
+
+    (listElement as { scrollTop: number }).scrollTop = 10000;
+    act(() => result.current.onScroll(fromPartial({ target: listElement })));
+
+    expect(result.current.isMessageListScrolledToBottom).toBe(false);
+  });
+
   it('does not scroll to the newest message when a jumped-to window merges into the live head', () => {
     const listElement = createListElement();
     const loadedWindow = generateMessages(25);

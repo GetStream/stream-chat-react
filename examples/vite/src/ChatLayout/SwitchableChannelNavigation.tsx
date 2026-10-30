@@ -170,15 +170,20 @@ const ChannelListSwitcher = ({
 // interval), so render both here, in a section above the list. `intervalViews` emits regardless of
 // which interval is active, and the selector below only wakes when logicalHead/logicalTail change
 // (not the `head` field), so this stays reactive even while the list shows a different window.
+// With no page loaded (e.g. every channel was hidden, then shown again) a logical interval is itself
+// the active one, so `ChannelList` already shows its channels: those are skipped here.
 const sideloadedSelector = (state: PaginatorIntervalViews<Channel>) => ({
   head: state.logicalHead,
   tail: state.logicalTail,
 });
+const listedItemsSelector = (state: { items?: Channel[] }) => ({ items: state.items });
 const SideloadedChannels = ({ paginator }: { paginator: ChannelPaginator }) => {
   const { head, tail } = useStateStore(paginator.intervalViews, sideloadedSelector);
+  const { items } = useStateStore(paginator.state, listedItemsSelector);
   // Head items sort newer than the loaded window, tail items older — concatenated they are all the
   // out-of-order (sideloaded) channels, newest first.
-  const channels = [...head, ...tail];
+  const listed = new Set(items?.map((channel) => channel.cid));
+  const channels = [...head, ...tail].filter((channel) => !listed.has(channel.cid));
   if (!channels.length) return null;
   return (
     <div className='app-sideloaded-channels'>

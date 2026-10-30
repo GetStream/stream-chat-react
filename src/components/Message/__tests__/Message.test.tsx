@@ -360,6 +360,24 @@ describe('<Message /> component', () => {
     });
   });
 
+  it('does not reject when a retry fails again', async () => {
+    const message = generateMessage();
+    let context: MessageContextValue;
+
+    await renderComponent({
+      contextCallback: (ctx) => {
+        context = ctx;
+      },
+      message,
+    });
+
+    vi.spyOn(lastChannel.messageOperations, 'retry').mockRejectedValue(
+      new Error('still failing'),
+    );
+
+    await expect(context.handleRetry(message)).resolves.toBeUndefined();
+  });
+
   it('should trigger channel mentions handler when there is one set and user clicks on a mention', async () => {
     const message = generateMessage({ mentioned_users: [bob] });
     const onMentionsClick = vi.fn(() => {});

@@ -231,7 +231,9 @@ export const DialogAnchor = ({
 
   return (
     <DialogPortalEntry dialogId={id} dialogManagerId={dialogManagerId}>
-      <FocusScope autoFocus={focus} contain={trapFocus} restoreFocus>
+      {/* A closing dialog releases the trap, so an action that moves focus elsewhere as it closes the
+      dialog (e.g. "Edit Message" focusing the composer) keeps it there. */}
+      <FocusScope autoFocus={focus} contain={trapFocus && !isClosing} restoreFocus>
         <div
           {...anchorDivProps}
           aria-describedby={ariaDescribedBy}

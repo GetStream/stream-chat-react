@@ -188,4 +188,40 @@ describe('useUnreadMessagesNotificationVirtualized', () => {
       },
     );
   });
+
+  // Newer messages can be loaded past the rendered range, so the loaded window cannot tell which way
+  // the unread messages are.
+  describe('unreadIsBelow', () => {
+    it('is true when every rendered message is older than the last read one', async () => {
+      const now = nowNs();
+      const lastRead = now - msToNs(1000);
+      const messages = [
+        generateMessage({ created_at: now - msToNs(1002) }),
+        generateMessage({ created_at: now - msToNs(1001) }),
+      ];
+      const { result } = await render({ lastRead, showAlways: true, unreadCount: 1 });
+      await act(() => {
+        result.current.toggleShowUnreadMessagesNotification(
+          messages as RenderedMessage[],
+        );
+      });
+      expect(result.current.unreadIsBelow).toBe(true);
+    });
+
+    it('is false when every rendered message is newer than the last read one', async () => {
+      const now = nowNs();
+      const lastRead = now - msToNs(1000);
+      const messages = [
+        generateMessage({ created_at: now - msToNs(500) }),
+        generateMessage({ created_at: now }),
+      ];
+      const { result } = await render({ lastRead, unreadCount: 1 });
+      await act(() => {
+        result.current.toggleShowUnreadMessagesNotification(
+          messages as RenderedMessage[],
+        );
+      });
+      expect(result.current.unreadIsBelow).toBe(false);
+    });
+  });
 });

@@ -147,7 +147,10 @@ export const Message = (props: MessageProps) => {
   const handleOpenThread = useOpenThreadHandler(message, propOpenThread);
   const retryHandler = useRetryHandler();
   const handleRetry = useCallback(
-    (retriedMessage: LocalMessage) => retryHandler({ localMessage: retriedMessage }),
+    (retriedMessage: LocalMessage) =>
+      // A retry that fails again marks the message failed, which is how it reports the failure; the
+      // rejection itself would be unhandled at every click site.
+      retryHandler({ localMessage: retriedMessage }).catch(() => undefined),
     [retryHandler],
   );
 
