@@ -283,10 +283,13 @@ const VirtualizedMessageListWithContext = (
 
   const lastRead = useMemo(() => channel.lastRead?.(), [channel]);
 
-  const { show: showUnreadMessagesNotification, toggleShowUnreadMessagesNotification } =
-    useUnreadMessagesNotificationVirtualized({
-      showAlways: !!showUnreadNotificationAlways,
-    });
+  const {
+    show: showUnreadMessagesNotification,
+    toggleShowUnreadMessagesNotification,
+    unreadIsBelow,
+  } = useUnreadMessagesNotificationVirtualized({
+    showAlways: !!showUnreadNotificationAlways,
+  });
 
   const { giphyPreviewMessage, setGiphyPreviewMessage } =
     useGiphyPreview(separateGiphyPreview);
@@ -560,7 +563,10 @@ const VirtualizedMessageListWithContext = (
       <MessageTranslationViewProvider>
         <DialogManagerProvider id={dialogManagerId}>
           {!isThreadList && showUnreadMessagesNotification && (
-            <UnreadMessagesNotification unreadCount={channelUnreadUiState?.unreadCount} />
+            <UnreadMessagesNotification
+              unreadCount={channelUnreadUiState?.unreadCount}
+              unreadIsBelow={unreadIsBelow}
+            />
           )}
           <div
             className={customClasses?.virtualizedMessageList || 'str-chat__virtual-list'}
