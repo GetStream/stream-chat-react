@@ -36,6 +36,7 @@ import {
 } from 'stream-chat';
 import { CommandChip as DefaultCommandChip } from './CommandChip';
 import { GeolocationPreview } from './AttachmentPreviewList/GeolocationPreview';
+import { ScheduledMessagesBanner as DefaultScheduledMessagesBanner } from '../ScheduledMessages/ScheduledMessagesBanner';
 
 const messageComposerStateSelector = ({
   editedMessage,
@@ -151,6 +152,7 @@ export const MessageComposerUI = () => {
     AttachmentSelector = message ? SimpleAttachmentSelector : DefaultAttachmentSelector,
     AudioRecorder = DefaultAudioRecorder,
     CommandChip = DefaultCommandChip,
+    ScheduledMessagesBanner = DefaultScheduledMessagesBanner,
     SendToChannelCheckbox = DefaultSendToChannelCheckbox,
     TextareaComposer = DefaultTextareaComposer,
   } = useComponentContext();
@@ -160,6 +162,7 @@ export const MessageComposerUI = () => {
       className='str-chat__message-composer-container'
       component='div'
     >
+      {!message && ScheduledMessagesBanner && <ScheduledMessagesBanner />}
       <div
         className={clsx('str-chat__message-composer', {
           'str-chat__message-composer--command-active': !!command,

@@ -7,5 +7,6 @@
 @use 'ChannelMembersView';
 @use 'ChannelMembersViewListFooter';
 @use 'PinnedMessagesView';
+@use 'ScheduledMessagesView';
 @use '../SectionNavigator/styling' as SectionNavigator;
 @use '../VirtualizedList/styling' as VirtualizedList;

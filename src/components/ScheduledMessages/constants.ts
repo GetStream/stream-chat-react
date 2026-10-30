@@ -38,3 +38,13 @@ export const ScheduledMessageNotificationType = {
 
 export type ScheduledMessageNotificationType =
   (typeof ScheduledMessageNotificationType)[keyof typeof ScheduledMessageNotificationType];
+
+export const ScheduledMessageGroupType = {
+  Day: 'day',
+  Failed: 'failed',
+} as const;
+
+export type ScheduledMessageGroupType =
+  (typeof ScheduledMessageGroupType)[keyof typeof ScheduledMessageGroupType];
+
+export const FAILED_SCHEDULED_MESSAGE_GROUP_ID = 'failed';
