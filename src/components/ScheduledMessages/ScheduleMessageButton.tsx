@@ -7,7 +7,6 @@ import {
   useTranslationContext,
 } from '../../context';
 import { Button } from '../Button';
-import { CHANNEL_CONTAINER_ID } from '../Channel/constants';
 import { ContextMenu, useDialogIsOpen, useDialogOnNearestManager } from '../Dialog';
 import { useMessageComposerHasSendableData } from '../MessageComposer/hooks';
 import { useMessageComposerController } from '../MessageComposer/hooks/useMessageComposerController';
@@ -22,8 +21,7 @@ import {
 import { ScheduleMessageDialog as DefaultScheduleMessageDialog } from './ScheduleMessageDialog';
 import { ScheduleMessageMenu } from './ScheduleMessageMenu';
 import { ScheduleMessageMenuHeader } from './ScheduleMessageMenuHeader';
-
-const getChannelContainer = () => document.getElementById(CHANNEL_CONTAINER_ID);
+import { getChannelContainer } from './utils';
 
 const getMenuDialogId = (threadId?: string | null) =>
   threadId ? `${SCHEDULE_MESSAGE_MENU_ID}-thread` : SCHEDULE_MESSAGE_MENU_ID;
