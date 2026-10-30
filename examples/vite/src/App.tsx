@@ -21,9 +21,11 @@ import {
   createCommandInjectionMiddleware,
   createCommandStringExtractionMiddleware,
   createDraftCommandInjectionMiddleware,
+  createPollOnlyCompositionMiddleware,
   createPriorityOwnershipResolver,
   isVoiceRecordingAttachment,
   MessageSearchSource,
+  POLL_ONLY_COMPOSITION_MIDDLEWARE_ID,
   SearchController,
   UserSearchSource,
 } from 'stream-chat';
@@ -600,6 +602,24 @@ const App = () => {
         location: { enabled: !locationDisabled },
         polls: { enabled: !pollDisabled },
       });
+
+      // While the Poll preview shows, the poll dialog attaches the poll to the message being
+      // composed (ConfigurablePollCreationDialogControls). Without the poll-only step the poll is
+      // sent with the text and attachments rather than as a message of its own, and the composer
+      // clears after the send. Restored when the preview is turned off, since this setup re-runs.
+      if (pollDisabled) {
+        composer.compositionMiddlewareExecutor.insert({
+          middleware: [createPollOnlyCompositionMiddleware(composer)],
+          position: {
+            after: 'stream-io/message-composer-middleware/user-data-injection',
+          },
+          unique: true,
+        });
+      } else {
+        composer.compositionMiddlewareExecutor.remove(
+          POLL_ONLY_COMPOSITION_MIDDLEWARE_ID,
+        );
+      }
     });
   }, [
     chatClient,

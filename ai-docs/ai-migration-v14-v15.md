@@ -2214,7 +2214,19 @@ export const App = ({ children }: { children: React.ReactNode }) => (
 - `isVisible` sees only the state above, so a preview that depends on something else must read it inside its `Component` and return `null`. To drive visibility from app state, put it in `messageComposer.customDataManager.setCustomData(...)` and read `customData`.
 - `EditedMessagePreview`, `GeolocationPreview` and `PollPreview` are now exported from the root.
 
-The default poll creation dialog sends the poll as soon as it is created, so the poll preview only shows a poll created elsewhere. To have the dialog attach the poll to the message being composed instead, replace its footer through the new `PollCreationDialogControls` slot (`PollCreationDialogControls` and `PollCreationDialogControlsProps` are exported) and call `createPoll()` without `send()`:
+The default poll creation dialog sends the poll as soon as it is created, so the poll preview only shows a poll created elsewhere. To have the dialog attach the poll to the message being composed instead:
+
+1. Remove `stream-chat`'s poll-only step from the composition chain. With it, `stream-chat` sends a composer's poll as a message of its own and keeps the text and attachments in the composer. Without it, the poll is sent with them and the composer clears:
+
+   ```ts
+   import { POLL_ONLY_COMPOSITION_MIDDLEWARE_ID } from 'stream-chat';
+
+   client.config.setSetupFunction('messageComposer', ({ composer }) => {
+     composer.compositionMiddlewareExecutor.remove(POLL_ONLY_COMPOSITION_MIDDLEWARE_ID);
+   });
+   ```
+
+2. Replace the dialog's footer through the new `PollCreationDialogControls` slot (`PollCreationDialogControls` and `PollCreationDialogControlsProps` are exported) and call `createPoll()` without `send()`:
 
 ```tsx
 import {
