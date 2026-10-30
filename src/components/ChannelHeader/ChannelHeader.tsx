@@ -60,6 +60,11 @@ export type ChannelHeaderProps = {
    */
   StartContent?: React.ComponentType;
   /**
+   * Replaces the subtitle below the title. Defaults to `ChannelHeaderSubtitle`. Read the channel
+   * with `useChannel()` and the status text with `useChannelHeaderOnlineStatus()`.
+   */
+  Subtitle?: React.ComponentType;
+  /**
    * Replaces the title. Defaults to `ChannelHeaderTitle`. Receives the channel and its display
    * title, so it can render the title as a button, for example. The subtitle stays below it.
    */
@@ -77,6 +82,7 @@ export const ChannelHeader = (props: ChannelHeaderProps) => {
     EndContent = WorkspaceNavigationCloseButton,
     image: overrideImage,
     StartContent = WorkspaceNavigationBackButton,
+    Subtitle = ChannelHeaderSubtitle,
     Title = ChannelHeaderTitle,
     title: overrideTitle,
   } = props;
@@ -95,7 +101,7 @@ export const ChannelHeader = (props: ChannelHeaderProps) => {
       </div>
       <div className='str-chat__channel-header__data'>
         <Title channel={channel} displayTitle={displayTitle} />
-        <ChannelHeaderSubtitle />
+        <Subtitle />
       </div>
       <div className='str-chat__channel-header__end'>
         <Avatar

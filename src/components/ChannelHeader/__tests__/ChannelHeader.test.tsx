@@ -638,6 +638,24 @@ describe('ChannelHeader', () => {
     });
   });
 
+  describe('Subtitle prop', () => {
+    it('renders the Subtitle passed to it in place of the default subtitle', async () => {
+      const Subtitle = () => <div data-testid='custom-subtitle'>Custom subtitle</div>;
+
+      const { container } = await renderComponent({
+        channelData: { ...channelCustom({ name: 'test-channel-1' }), member_count: 5 },
+        props: { Subtitle },
+      });
+
+      expect(await screen.findByTestId('custom-subtitle')).toBeInTheDocument();
+      expect(
+        container.querySelector('.str-chat__channel-header__data__subtitle'),
+      ).not.toBeInTheDocument();
+      expect(screen.getByText('test-channel-1')).toBeInTheDocument();
+      expect(await axe(container)).toHaveNoViolations();
+    });
+  });
+
   describe('ChannelHeaderSubtitle', () => {
     const renderSubtitle = async (watchers: UserResponse[]) => {
       client = await getTestClientWithUser(user1);
