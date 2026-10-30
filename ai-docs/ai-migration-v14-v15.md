@@ -988,28 +988,44 @@ export const createPaginator = (client: StreamChat, userId: string) =>
 
 These hit apps that never passed the props, because they were v14 defaults:
 
-- **No channel opens on load.** `setActiveChannelOnMount` defaulted to `true`, so every v14 app opened the first channel. v15 has no default selection: nothing is open until you call `useWorkspaceNavigation().openChannel(channel)`. To keep the v14 behavior, open the paginator's first item while no channel is open:
+- **No channel opens on load.** `setActiveChannelOnMount` defaulted to `true`, so every v14 app opened the first channel. v15 has no default selection: nothing is open until you call `useWorkspaceNavigation().openChannel(channel)`. To keep the v14 behavior, open the paginator's first item when its first page loads:
 
   ```tsx
-  import { useEffect } from 'react';
+  import { useEffect, useRef } from 'react';
   import type { ChannelPaginator } from 'stream-chat';
   import { ChannelNavigation, useWorkspaceNavigation } from 'stream-chat-react';
 
   export const useOpenFirstChannel = (paginator: ChannelPaginator) => {
     const { openChannel, openChannels } = useWorkspaceNavigation();
-    // Guard on the navigation's state, not a ref: inside ChatView this hook remounts with its view,
-    // and a ref would reset and open the first channel over the one the user had open.
-    const nothingOpen = openChannels.length === 0;
-    useEffect(
-      () =>
-        paginator.state.subscribeWithSelector(
-          ({ items }) => ({ first: items?.[0] }),
-          ({ first }) => {
-            if (first && nothingOpen) openChannel(first);
-          },
-        ),
-      [nothingOpen, openChannel, paginator],
-    );
+    // Read when a page loads. The navigation changes with every open and close, and resubscribing
+    // on it would replay a page that already loaded.
+    const navigation = useRef({ hasOpenChannel: openChannels.length > 0, openChannel });
+    useEffect(() => {
+      navigation.current = { hasOpenChannel: openChannels.length > 0, openChannel };
+    });
+
+    useEffect(() => {
+      // Each load counts once, so a channel that later moves to the top is not opened.
+      // `items === undefined` means "never queried", where `client.disconnectUser()` resets the
+      // list, so the next user's first load counts again.
+      let awaitingLoad = true;
+      return paginator.state.subscribeWithSelector(
+        ({ items }) => ({ first: items?.[0], isUnloaded: items === undefined }),
+        ({ first, isUnloaded }) => {
+          if (isUnloaded) {
+            awaitingLoad = true;
+            return;
+          }
+          if (!awaitingLoad) return;
+          awaitingLoad = false;
+          // Check what is open, not a flag of this hook: a remount (a `ChatView` view switch
+          // unmounts the list) must not replace the channel the user picked.
+          if (first && !navigation.current.hasOpenChannel) {
+            navigation.current.openChannel(first);
+          }
+        },
+      );
+    }, [paginator]);
   };
 
   // In `views.channels`; the paginator comes from useChannelPaginator, above ChatView.
@@ -1021,7 +1037,8 @@ These hit apps that never passed the props, because they were v14 defaults:
 
   - Call it below the navigation provider (inside `ChatView`, or inside your `WorkspaceNavigationProvider`), where `openChannel` does something.
   - Inside `ChatView`, call it in the channels view, not in an always-rendered `ChatView` child. `openChannels` lists the active view's channels only, so it is empty in the threads view, and opening a channel from there switches the user back to the channels view.
-  - It opens the first channel again whenever nothing is open, for example after your own navigation closes the last channel. If an empty selection is a valid state in your app, keep an "already opened" flag above `ChatView` instead.
+  - It opens once per load of the list: closing the last channel, or a channel moving to the top, opens nothing. After `client.disconnectUser()` resets the list, the next load opens its first channel again, once the previous user's channel is closed: inside `ChatView`, mount `<DisposedChannelRelease />` (from `stream-chat-react/slot-layout`); without it, clear your own state as described in [Without `ChatView`](#without-chatview).
+  - With several lists, call it once, for the list whose first channel should open. Each call knows only its own paginator, so with one call per list the first page to arrive wins, and two pages arriving before a re-render can both open.
   - Create the paginator above `ChatView` too ([above](#channellist-is-driven-by-a-channelpaginator)); one created inside the view is replaced on every switch, and the hook then subscribes to a fresh, unloaded paginator.
 
 - **Unfiltered channels no longer join the list.** `allowNewMessagesFromUnfilteredChannels` defaulted to `true`: a new message in a channel that was not in the list added it, whatever the list's filters. In v15 the paginator adds a channel only if it matches the paginator's own filters, and there is no opt-out. If channels used to appear this way, widen the filters to cover them.
