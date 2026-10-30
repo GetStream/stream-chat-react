@@ -2,7 +2,7 @@ import React from 'react';
 import { Button } from '../../Button';
 import { Viewer } from '../../Dialog';
 import { PollVote } from '../PollVote';
-import { usePollAnswerPagination } from '../hooks';
+import { usePollAnswerPagination, usePollTextTranslation } from '../hooks';
 import { InfiniteScrollPaginator } from '../../InfiniteScrollPaginator/InfiniteScrollPaginator';
 import { LoadingIndicator } from '../../Loading';
 import { useStateStore } from '../../../store';
@@ -34,6 +34,7 @@ export const PollAnswerList = ({ onUpdateOwnAnswerClick }: PollAnswerListProps) 
   const { poll } = usePollContext();
   const { close } = useModalContext();
   const { is_closed } = useStateStore(poll.state, pollStateSelector);
+  const translate = usePollTextTranslation();
 
   const { answers, error, hasNextPage, loading, loadMore } = usePollAnswerPagination();
 
@@ -54,7 +55,9 @@ export const PollAnswerList = ({ onUpdateOwnAnswerClick }: PollAnswerListProps) 
               <div className='str-chat__poll-answer' key={`comment-${answer.id}`}>
                 <div className='str-chat__poll-answer__data'>
                   {answer.answer_text && (
-                    <p className='str-chat__poll-answer__text'>{answer.answer_text}</p>
+                    <p className='str-chat__poll-answer__text'>
+                      {translate(answer.answer_text, answer.answer_text_i18n)}
+                    </p>
                   )}
                   <PollVote key={`poll-vote-${answer.id}`} vote={answer} />
                 </div>

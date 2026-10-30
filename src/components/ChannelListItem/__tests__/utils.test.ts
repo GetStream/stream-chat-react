@@ -183,6 +183,56 @@ describe('ChannelPreview utils', () => {
       expect(getLatestMessagePreviewText(channel, tAria)).toBe('Poll: Lunch spot?');
     });
 
+    it('announces a poll by its question in the user language', async () => {
+      const channel = await getQueriedChannelInstance(
+        generateChannel({
+          messages: [
+            generateMessage({
+              poll: { name: 'Lunch spot?', name_i18n: { es_text: '¿Dónde comer?' } },
+              text: '',
+            }),
+          ],
+        }),
+      );
+      expect(getLatestMessagePreviewText(channel, tAria, 'es')).toBe(
+        'Poll: ¿Dónde comer?',
+      );
+      expect(getLatestMessagePreviewText(channel, tAria, 'de')).toBe('Poll: Lunch spot?');
+    });
+
+    it('announces a vote by the option text in the user language', async () => {
+      const voter = generateUser({ id: 'voter', name: 'Ana' });
+      const vote = {
+        created_at: convertDateToTimestamp(),
+        id: 'vote-1',
+        option_id: 'apples',
+        poll_id: 'poll-voted',
+        updated_at: convertDateToTimestamp(),
+        user: voter,
+        user_id: voter.id,
+      };
+      const channel = await getQueriedChannelInstance(
+        generateChannel({
+          messages: [
+            generateMessage({
+              poll: {
+                id: 'poll-voted',
+                latest_votes_by_option: { apples: [vote] },
+                name: 'Fruit?',
+                options: [
+                  { id: 'apples', text: 'Apples', text_i18n: { es_text: 'Manzanas' } },
+                ],
+                vote_count: 1,
+              },
+              text: '',
+            }),
+          ],
+        }),
+      );
+      const preview = getLatestMessagePreview(channel, tAria, 'es');
+      expect(preview).toBe('📊 Ana voted: Manzanas');
+    });
+
     it('announces an attachment-only message with a localized type label', async () => {
       const channel = await getQueriedChannelInstance(
         generateChannel({
