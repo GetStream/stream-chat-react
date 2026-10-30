@@ -36,7 +36,7 @@ imported and copied into `Streami18n` at construction, so they shipped even if y
 
 ## Renaming your keys
 
-Every old key maps to exactly one new key. The full table (627 rows, including the 24 `aiComponents.*` keys of `stream-chat-react/ai-components`) is
+Every old key that v15 still has maps to exactly one new key ([some were removed](#keys-removed-without-a-replacement)). The full table (627 rows, including the 24 `aiComponents.*` keys of `stream-chat-react/ai-components`) is
 [`i18n-v15-key-map.json`](https://github.com/GetStream/stream-chat-react/blob/master/ai-docs/i18n-v15-key-map.json):
 
 ```json
@@ -101,6 +101,21 @@ nothing catches a stale one there. The extra plural categories some languages us
 > Do **not** key a dictionary on `Partial<Record<TranslationKey, string>>`. `TranslationKey` is the
 > set `t()` accepts, where a plural is the bare `<key>`; a dictionary needs the `_one` / `_other`
 > entries, which that type rejects. `TranslationDictionary` already handles this.
+
+### Keys removed without a replacement
+
+These v14 keys (from `src/i18n/en.json` at `v14.10.0`, plural suffixes folded) have no entry in the key map. A `t()` call on one of them no longer compiles (`TS2769`), and a dictionary entry for one never matches. Copy you still need is app-owned now: give it a key of your own through `asDynamicKey`, with the English inline, and keep its translations in your dictionaries ([Calling `t` in your own components](#calling-t-in-your-own-components)).
+
+```text
+{{ imageCount }} more | {{ user }} is typing... | {{ users }} and {{ user }} are typing... | {{ users }} and more are typing... | +{{ imageCount }} | Allow comments | Allow option suggestion | aria/Collapse sidebar | aria/Expand sidebar | aria/Unblock User | Attachment | Channel members | Close emoji picker | Commands matching | Connection failure, reconnecting now... | Create | Delete for me | Download attachment {{ name }} | Drag your files here to add to your post | Emoji matching | End | End vote | Error connecting to chat, refresh the page to try again. | Error removing members | Error uploading file | Error uploading image | Failed to delete the message | Failed to load channels | Failed to load more channels | Failed to mark channel as read | File is too large: {{ size }}, maximum upload size is {{ limit }} | Image | Link | live | Manage members | Maximum number of votes (from 2 to 10) | mention/Channel | mention/Here | Menu | Messages have been marked unread. | Missing permissions to upload the attachment | network error | New | No chats here yet… | Nobody will be able to vote in this poll anymore. | Ok | Open emoji picker | People matching | Remove | Remove {{ count }} members | Remove channel members | Removed {{ count }} members | Reply to Message | Searching... | searchResultsCount | Select a thread to continue the conversation | Shared live location | Slow Mode ON | Submit | Thread reply | Upload type: "{{ type }}" is not allowed | You've reached the maximum number of files
+```
+
+```tsx
+// v14
+<span>{t('live')}</span>
+// v15
+<span>{t(asDynamicKey('myApp.channelHeader.live.label'), 'live')}</span>
+```
 
 ## Discovering the keys
 
