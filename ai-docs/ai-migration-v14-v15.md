@@ -1676,10 +1676,13 @@ export const List = () => (
 - An action's own rule about the message lives on its item as `isVisible({ isMyMessage, isThreadReply, message })`. In `defaultMessageActionSet`, `edit` hides for a poll message and a giphy, `copyMessageText` for a message without text and `download` for one without a downloadable attachment. Replace the item to change its rule. `isVisible` can only hide an action: the capabilities, the features enabled on the server and the message's status are still checked by the base filter. Item rules apply even with `disableBaseMessageActionSetFilter`. For example, to let users edit the text and attachments sent with a poll:
 
   ```tsx
-  const messageActionSet = defaultMessageActionSet.map((item) =>
-    'type' in item && item.type === 'edit'
-      ? { ...item, isVisible: ({ message }) => message.command !== 'giphy' }
-      : item,
+  import { defaultMessageActionSet, type MessageActionSetItem } from 'stream-chat-react';
+
+  const messageActionSet = defaultMessageActionSet.map(
+    (item): MessageActionSetItem =>
+      'type' in item && item.type === 'edit'
+        ? { ...item, isVisible: ({ message }) => message.command !== 'giphy' }
+        : item,
   );
   ```
 

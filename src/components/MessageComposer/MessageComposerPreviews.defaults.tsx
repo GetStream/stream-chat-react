@@ -37,14 +37,12 @@ const DefaultMessageComposerPreviewComponents = {
     if (!editedMessage) return null;
 
     return (
-      <div className='str-chat__message-composer-previews'>
-        <EditedMessagePreview
-          message={editedMessage}
-          onCancel={() => {
-            restorePreEditSnapshot(messageComposer);
-          }}
-        />
-      </div>
+      <EditedMessagePreview
+        message={editedMessage}
+        onCancel={() => {
+          restorePreEditSnapshot(messageComposer);
+        }}
+      />
     );
   },
   QuotedMessage() {
