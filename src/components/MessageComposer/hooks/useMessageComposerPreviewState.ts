@@ -42,7 +42,7 @@ const customDataManagerStateSelector = (state: CustomDataManagerState) => ({
  * The composer state that decides which previews show. Each item of a
  * `messageComposerPreviewSet` reads it in `isVisible`.
  */
-export type MessageComposerPreviewState = {
+export type MessageComposerPreviewVisibilityFilterParams = {
   attachments: AttachmentManagerState['attachments'];
   /** The composer's custom data (`messageComposer.customDataManager`). */
   customData: CustomDataManagerState['custom'];
@@ -59,57 +59,58 @@ export type MessageComposerPreviewState = {
  * Subscribes to the composer state that decides which previews show, for the composer
  * `useMessageComposerController()` resolves.
  */
-export const useMessageComposerPreviewState = (): MessageComposerPreviewState => {
-  const messageComposer = useMessageComposerController();
-  const { editedMessage, pollId, quotedMessage } = useStateStore(
-    messageComposer.state,
-    messageComposerStateSelector,
-  );
-  const { attachments } = useStateStore(
-    messageComposer.attachmentManager.state,
-    attachmentManagerStateSelector,
-  );
-  const { previews } = useStateStore(
-    messageComposer.linkPreviewsManager.state,
-    linkPreviewsManagerStateSelector,
-  );
-  const { location } = useStateStore(
-    messageComposer.locationComposer.state,
-    locationComposerStateSelector,
-  );
-  const { customData } = useStateStore(
-    messageComposer.customDataManager.state,
-    customDataManagerStateSelector,
-  );
+export const useMessageComposerPreviewState =
+  (): MessageComposerPreviewVisibilityFilterParams => {
+    const messageComposer = useMessageComposerController();
+    const { editedMessage, pollId, quotedMessage } = useStateStore(
+      messageComposer.state,
+      messageComposerStateSelector,
+    );
+    const { attachments } = useStateStore(
+      messageComposer.attachmentManager.state,
+      attachmentManagerStateSelector,
+    );
+    const { previews } = useStateStore(
+      messageComposer.linkPreviewsManager.state,
+      linkPreviewsManagerStateSelector,
+    );
+    const { location } = useStateStore(
+      messageComposer.locationComposer.state,
+      locationComposerStateSelector,
+    );
+    const { customData } = useStateStore(
+      messageComposer.customDataManager.state,
+      customDataManagerStateSelector,
+    );
 
-  const linkPreviews = useMemo(
-    () =>
-      Array.from(previews.values()).filter(
-        (preview) =>
-          LinkPreviewsManager.previewIsLoaded(preview) ||
-          LinkPreviewsManager.previewIsLoading(preview),
-      ),
-    [previews],
-  );
+    const linkPreviews = useMemo(
+      () =>
+        Array.from(previews.values()).filter(
+          (preview) =>
+            LinkPreviewsManager.previewIsLoaded(preview) ||
+            LinkPreviewsManager.previewIsLoading(preview),
+        ),
+      [previews],
+    );
 
-  return useMemo(
-    () => ({
-      attachments,
-      customData,
-      editedMessage,
-      linkPreviews,
-      location,
-      pollId,
-      quotedMessage,
-    }),
-    [
-      attachments,
-      customData,
-      editedMessage,
-      linkPreviews,
-      location,
-      pollId,
-      quotedMessage,
-    ],
-  );
-};
+    return useMemo(
+      () => ({
+        attachments,
+        customData,
+        editedMessage,
+        linkPreviews,
+        location,
+        pollId,
+        quotedMessage,
+      }),
+      [
+        attachments,
+        customData,
+        editedMessage,
+        linkPreviews,
+        location,
+        pollId,
+        quotedMessage,
+      ],
+    );
+  };

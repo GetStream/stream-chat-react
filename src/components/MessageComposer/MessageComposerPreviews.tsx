@@ -1,7 +1,7 @@
 import React from 'react';
 
 import { useMessageComposerPreviewSetFilter } from './hooks/useMessageComposerPreviewSetFilter';
-import type { MessageComposerPreviewState } from './hooks/useMessageComposerPreviewState';
+import type { MessageComposerPreviewVisibilityFilterParams } from './hooks/useMessageComposerPreviewState';
 import { defaultMessageComposerPreviewSet } from './MessageComposerPreviews.defaults';
 
 /**
@@ -21,7 +21,7 @@ export type MessageComposerPreviewSetItem = {
   /** Rendered without props while `isVisible` holds. Read the composer with `useMessageComposerController()`. */
   Component: React.ComponentType;
   /** Whether the preview shows for the current composer state. */
-  isVisible: (state: MessageComposerPreviewState) => boolean;
+  isVisible: (state: MessageComposerPreviewVisibilityFilterParams) => boolean;
   /** Names the preview; unique within a set. */
   type: DefaultMessageComposerPreviewType | (string & {});
 };

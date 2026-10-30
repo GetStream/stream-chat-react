@@ -15,7 +15,7 @@ export type DefaultMessageBubbleContentType =
   | 'text';
 
 /** What decides which parts of a message bubble show. */
-export type MessageBubbleContentState = {
+export type MessageBubbleContentVisibilityFilterParams = {
   /** Whether `isMessageAIGenerated` marks the message as AI generated (streamed text). */
   isAIGenerated: boolean;
   message: LocalMessage;
@@ -25,7 +25,7 @@ export type MessageBubbleContentSetItem = {
   /** Rendered without props while `isVisible` holds. Read the message with `useMessageContext()`. */
   Component: React.ComponentType;
   /** Whether the content shows for the message. */
-  isVisible: (state: MessageBubbleContentState) => boolean;
+  isVisible: (state: MessageBubbleContentVisibilityFilterParams) => boolean;
   /** Names the content; unique within a set. */
   type: DefaultMessageBubbleContentType | (string & {});
 };

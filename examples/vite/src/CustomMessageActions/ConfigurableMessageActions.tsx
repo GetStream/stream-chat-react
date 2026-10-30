@@ -19,6 +19,7 @@ import {
   IconNotification,
   MessageActions,
   type MessageActionSetItem,
+  type MessageActionVisibilityFilterParams,
   modalDialogManagerId,
   SwitchField,
   useComponentContext,
@@ -374,9 +375,24 @@ export const ConfigurableMessageActions = (
   // actions put into it, so they go along with the preview (Settings -> Composer).
   const quoteDisabled = disabledPreviewSections.includes('quotedMessage');
   const editDisabled = disabledPreviewSections.includes('editedMessage');
+  const pollDisabled = disabledPreviewSections.includes('poll');
   const customDeleteEnabled = surfaceActions.delete.enableOptionConfiguration;
   const configurableActionSet = useMemo(() => {
-    const actionSet = props.messageActionSet ?? defaultMessageActionSet;
+    const baseActionSet = props.messageActionSet ?? defaultMessageActionSet;
+    // While the Poll preview shows, a poll goes out with the message's text and attachments, so
+    // the message stays editable. Only the edit item's own rule changes: the SDK still requires
+    // the update-message capability.
+    const actionSet = pollDisabled
+      ? baseActionSet
+      : baseActionSet.map((item) =>
+          item.placement !== 'quick-dropdown-toggle' && item.type === 'edit'
+            ? {
+                ...item,
+                isVisible: ({ message }: MessageActionVisibilityFilterParams) =>
+                  message.command !== 'giphy',
+              }
+            : item,
+        );
     const actionOverrides: Record<
       SupportedCustomMessageActionType,
       Omit<CustomMessageActionOverrideSpec, 'enabled'>
@@ -459,6 +475,7 @@ export const ConfigurableMessageActions = (
   }, [
     customDeleteEnabled,
     editDisabled,
+    pollDisabled,
     quoteDisabled,
     surfaceActions.disabledActionTypes,
     surfaceActions.inlineEdit,

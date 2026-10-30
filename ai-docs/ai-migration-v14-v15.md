@@ -1673,6 +1673,18 @@ export const List = () => (
 
 - Action names are typed by the exported `DefaultMessageActionType` union; a custom action may use any string.
 - Permission and message-state filtering stays in `useBaseMessageActionSetFilter`: an action the user cannot perform, or that a thread reply does not support, is dropped whether or not you list it. Pass `disableBaseMessageActionSetFilter` to take that over.
+- An action's own rule about the message lives on its item as `isVisible({ isMyMessage, isThreadReply, message })`. In `defaultMessageActionSet`, `edit` hides for a poll message and a giphy, `copyMessageText` for a message without text and `download` for one without a downloadable attachment. Replace the item to change its rule. `isVisible` can only hide an action: the capabilities, the features enabled on the server and the message's status are still checked by the base filter. Item rules apply even with `disableBaseMessageActionSetFilter`. For example, to let users edit the text and attachments sent with a poll:
+
+  ```tsx
+  const messageActionSet = defaultMessageActionSet.map((item) =>
+    'type' in item && item.type === 'edit'
+      ? { ...item, isVisible: ({ message }) => message.command !== 'giphy' }
+      : item,
+  );
+  ```
+
+- A hand-written `edit`, `copyMessageText` or `download` item without `isVisible` now shows wherever the base filter allows it, e.g. `edit` on a poll message the user may update. Copy the default item's `isVisible` to keep the default rule.
+- `useUserRole(message).canEdit` is now the permission alone (`update-any-message`, or `update-own-message` on the user's own message), the same check the base filter makes. It no longer excludes poll messages and giphies; a custom UI that gated an edit button on it and wants that rule adds `!message.poll && message.command !== 'giphy'` itself.
 - There is no `actionsEnabled` replacement. The base filter already drops actions on deleted, bounced and failed messages.
 - **A custom `MessageUI` that gated its own buttons** on `getMessageActions()` / `MESSAGE_ACTIONS` (for example showing a react or reply button only when allowed) reads the permission from `useUserRole(message)`, which returns `canReact`, `canReply`, `canPin`, `canEdit`, `canDelete`, `canFlag`, `canMute`, `canQuote`, `canMarkUnread`, `canBlockUser`, `canSendMessage`, `isMyMessage` and the role flags:
 
@@ -2170,7 +2182,7 @@ export const ComposerPreviews = ({ children }: { children: ReactNode }) => (
 
 ### New: composer previews are a configurable set, with a poll preview
 
-Not a break. The previews above the composer's textarea (`.str-chat__message-composer-previews`) come from `MessageComposerPreviews`, which renders a `messageComposerPreviewSet` the way `MessageActions` renders a `messageActionSet`. Each item names itself with a `type`, renders a `Component` without props, and shows while `isVisible(state)` holds. `state` (`MessageComposerPreviewState`) carries the composer's `attachments`, `customData`, `editedMessage`, `linkPreviews` (loading or loaded), `location`, `pollId` and `quotedMessage`. The preview area renders when any item is visible.
+Not a break. The previews above the composer's textarea (`.str-chat__message-composer-previews`) come from `MessageComposerPreviews`, which renders a `messageComposerPreviewSet` the way `MessageActions` renders a `messageActionSet`. Each item names itself with a `type`, renders a `Component` without props, and shows while `isVisible(state)` holds. `state` (`MessageComposerPreviewVisibilityFilterParams`) carries the composer's `attachments`, `customData`, `editedMessage`, `linkPreviews` (loading or loaded), `location`, `pollId` and `quotedMessage`. The preview area renders when any item is visible.
 
 `defaultMessageComposerPreviewSet` keeps v14's previews in v14's order (`editedMessage`, `quotedMessage`, `voiceRecording`, `attachments`, `linkPreviews`, `location`) and adds `poll`. The poll preview shows while `messageComposer.state.pollId` holds a poll created with `messageComposer.createPoll()` and not sent yet, and not while editing. It shows the poll's question and options (fetching a poll missing from `client.polls`, e.g. one restored from a draft), and its remove button detaches the poll from the composer. Replace it through the `PollPreview` component slot.
 
