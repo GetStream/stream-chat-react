@@ -12,7 +12,7 @@
     "shots": "node scripts/shots.mjs"
   },
   "dependencies": {
-    "@stream-io/state-store": "^1.1.6",
+    "@stream-io/state-store": "^1.2.0",
     "leaflet": "^1.9.4",
     "lucide-react": "^1.61.0",
     "modern-normalize": "^3.0.1",
