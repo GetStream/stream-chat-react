@@ -57,7 +57,9 @@ const COMPOSER_TEXTAREA_SELECTOR = '.str-chat__textarea__textarea';
 /**
  * The composer next to the message list the menu was opened from: the thread's for a message in a
  * thread, the channel's otherwise. Several composers can be on screen (a thread panel, channels side
- * by side), so it is looked up from the menu's anchor, falling back to the first one in the page.
+ * by side), so it is looked up from the menu's anchor. Only an anchor outside any channel or thread
+ * (a custom layout) falls back to the first composer in the page: inside one, a composer showing no
+ * textarea (while recording audio, say) leaves focus where it is rather than moving it elsewhere.
  */
 const findComposerTextarea = (
   anchor: HTMLElement | null | undefined,
@@ -66,10 +68,9 @@ const findComposerTextarea = (
   const thread = anchor?.closest('.str-chat__thread') ?? null;
   const container = thread ?? anchor?.closest('.str-chat__channel');
   if (container) {
-    const textarea = Array.from(
+    return Array.from(
       container.querySelectorAll<HTMLTextAreaElement>(COMPOSER_TEXTAREA_SELECTOR),
     ).find((candidate) => candidate.closest('.str-chat__thread') === thread);
-    if (textarea) return textarea;
   }
   const fallback = document
     .querySelectorAll(

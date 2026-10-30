@@ -515,6 +515,50 @@ describe('<MessageActions />', () => {
         expect(document.activeElement).toBe(screen.getByTestId('composer')),
       );
     });
+
+    // Channels side by side: a channel whose composer shows no textarea (recording audio) must not
+    // send focus to the other channel's composer.
+    it('leaves focus alone when the channel of the message shows no composer textarea', async () => {
+      const {
+        channels: [channel],
+        client,
+      } = await initClientWithChannels({
+        channelsData: [{ channel: { own_capabilities: ['update-own-message'] } }],
+      });
+      const message = generateMessage({ text: 'to edit', user: client.user });
+
+      await act(async () => {
+        await render(
+          <Chat client={client}>
+            <Channel channel={channel}>
+              <DialogManagerProvider id='message-actions-dialog-provider'>
+                <MessageProvider
+                  value={mockMessageContext({
+                    ...defaultMessageContextValue,
+                    message,
+                  })}
+                >
+                  <MessageActions />
+                </MessageProvider>
+              </DialogManagerProvider>
+            </Channel>
+            <textarea
+              className='str-chat__textarea__textarea'
+              data-testid='other-composer'
+            />
+          </Chat>,
+        );
+      });
+
+      await toggleOpenMessageActions();
+
+      await act(async () => {
+        await fireEvent.click(screen.getByText('Edit Message'));
+      });
+      await act(() => new Promise((resolve) => requestAnimationFrame(resolve)));
+
+      expect(document.activeElement).not.toBe(screen.getByTestId('other-composer'));
+    });
   });
 
   describe('Quick actions', () => {
@@ -1869,28 +1913,31 @@ describe('<MessageActions />', () => {
         channelsData: [{ channel: { own_capabilities: ['quote-message'] } }],
       });
       const message = generateMessage({ parent_id: 'parent-1', user: client.user });
-      const textarea = document.createElement('textarea');
-      textarea.className = 'str-chat__textarea__textarea';
-      const threadRoot = document.createElement('div');
-      threadRoot.className = 'str-chat__thread';
-      threadRoot.appendChild(textarea);
-      document.body.appendChild(threadRoot);
-      const focusSpy = vi.spyOn(textarea, 'focus');
 
       await act(async () => {
         await render(
           <Chat client={client}>
             <Channel channel={channel}>
-              <DialogManagerProvider id='message-actions-dialog-provider'>
-                <MessageProvider
-                  value={mockMessageContext({
-                    ...defaultMessageContextValue,
-                    message,
-                  })}
-                >
-                  <MessageActions />
-                </MessageProvider>
-              </DialogManagerProvider>
+              <textarea
+                className='str-chat__textarea__textarea'
+                data-testid='channel-composer'
+              />
+              <div className='str-chat__thread'>
+                <DialogManagerProvider id='message-actions-dialog-provider'>
+                  <MessageProvider
+                    value={mockMessageContext({
+                      ...defaultMessageContextValue,
+                      message,
+                    })}
+                  >
+                    <MessageActions />
+                  </MessageProvider>
+                </DialogManagerProvider>
+                <textarea
+                  className='str-chat__textarea__textarea'
+                  data-testid='thread-composer'
+                />
+              </div>
             </Channel>
           </Chat>,
         );
@@ -1901,8 +1948,9 @@ describe('<MessageActions />', () => {
         await fireEvent.click(screen.getByText('Quote Reply'));
       });
       // Focus moves on the next frame, once the menu has started closing.
-      await waitFor(() => expect(focusSpy).toHaveBeenCalled());
-      document.body.removeChild(threadRoot);
+      await waitFor(() =>
+        expect(document.activeElement).toBe(screen.getByTestId('thread-composer')),
+      );
     });
   });
 });
