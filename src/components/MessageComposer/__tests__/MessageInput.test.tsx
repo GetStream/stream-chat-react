@@ -1075,7 +1075,7 @@ describe(`MessageInputFlat`, () => {
       await waitFor(() => {
         expect(sendMessageMock).toHaveBeenCalledWith(
           customChannel,
-          expect.objectContaining(customMessageData),
+          expect.objectContaining({ custom: customMessageData }),
           {},
         );
       });
@@ -1103,11 +1103,12 @@ describe(`MessageInputFlat`, () => {
 
       await act(() => submit());
 
-      // The custom handler receives the composed message (text + custom data) and the send options.
+      // The custom handler receives the composed message (text + custom data, nested under `custom`)
+      // and the send options.
       await waitFor(() =>
         expect(sendMessageMock).toHaveBeenCalledWith(
           customChannel,
-          expect.objectContaining({ text: messageText, ...customMessageData }),
+          expect.objectContaining({ custom: customMessageData, text: messageText }),
           {},
         ),
       );
