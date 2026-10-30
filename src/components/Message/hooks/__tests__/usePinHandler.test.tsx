@@ -168,6 +168,17 @@ describe('usePinHandler custom hook', () => {
     expect(getStoredMessage(message.id)?.pinned_by).toEqual(newerPinner);
   });
 
+  it('should throw without pinning when the message is missing', async () => {
+    const pinSpy = vi.spyOn(client, 'pinMessage');
+    const { handlePin } = await renderUsePinHandler(undefined as unknown as LocalMessage);
+    await act(async () => {
+      await expect(handlePin(mouseEventMock)).rejects.toThrow(
+        'usePinHandler was called but it is missing the message.',
+      );
+    });
+    expect(pinSpy).not.toHaveBeenCalled();
+  });
+
   it('should keep a newer pin with the same pinned value that arrived while pinning', async () => {
     const rejectRequest = mockPendingRequest('pinMessage');
     const newerPinner = generateUser();

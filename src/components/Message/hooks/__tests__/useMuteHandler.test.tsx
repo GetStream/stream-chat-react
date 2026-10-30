@@ -55,11 +55,13 @@ describe('useHandleMute custom hook', () => {
     expect(typeof handleMute).toBe('function');
   });
 
-  it('should throw a warning when there are missing parameters and the handler is called', async () => {
-    const consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementationOnce(() => null);
+  it('should throw when there are missing parameters and the handler is called', async () => {
     const handleMute = await renderUseHandleMuteHook(undefined);
-    await handleMute(mouseEventMock);
-    expect(consoleWarnSpy).toHaveBeenCalledWith(missingUseMuteHandlerParamsWarning);
+    await expect(handleMute(mouseEventMock)).rejects.toThrow(
+      missingUseMuteHandlerParamsWarning,
+    );
+    expect(mute).not.toHaveBeenCalled();
+    expect(unmute).not.toHaveBeenCalled();
   });
 
   it('should allow to mute a user when it is successful', async () => {

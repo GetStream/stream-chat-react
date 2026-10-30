@@ -50,11 +50,13 @@ describe('useHandleFlag custom hook', () => {
     expect(typeof handleFlag).toBe('function');
   });
 
-  it('should throw a warning when there are missing parameters and the handler is called', async () => {
-    const consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementationOnce(() => null);
+  it('should throw when there are missing parameters and the handler is called', async () => {
+    const flagSpy = vi.spyOn(client.moderation, 'flagMessage');
     const handleFlag = await renderUseHandleFlagHook(undefined);
-    await handleFlag(mouseEventMock);
-    expect(consoleWarnSpy).toHaveBeenCalledWith(missingUseFlagHandlerParameterWarning);
+    await expect(handleFlag(mouseEventMock)).rejects.toThrow(
+      missingUseFlagHandlerParameterWarning,
+    );
+    expect(flagSpy).not.toHaveBeenCalled();
   });
 
   it('should allow to flag a message when it is successful', async () => {

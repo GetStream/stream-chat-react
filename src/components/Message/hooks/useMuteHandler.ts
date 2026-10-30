@@ -30,8 +30,7 @@ export const useMuteHandler = (
 
     // The action runs even without `notify` (`Message` passes none); it only reports the outcome.
     if (!message?.user || !client) {
-      console.warn(missingUseMuteHandlerParamsWarning);
-      return;
+      throw new Error(missingUseMuteHandlerParamsWarning);
     }
     const mutes = client.mutedUsersStore.getLatestValue().mutedUsers ?? [];
 

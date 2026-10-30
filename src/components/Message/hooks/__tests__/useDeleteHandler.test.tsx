@@ -59,6 +59,19 @@ describe('useDeleteHandler custom hook', () => {
     expect(typeof handleDelete).toBe('function');
   });
 
+  it('should throw without deleting when the message has no id', async () => {
+    const deleteSpy = vi.spyOn(channel.messageOperations, 'delete');
+    const handleDelete = await renderUseDeleteHandler(
+      generateMessage({ id: undefined }) as typeof testMessage,
+    );
+    await act(async () => {
+      await expect(handleDelete()).rejects.toThrow(
+        'useDeleteHandler was called but it is missing one or more necessary parameters.',
+      );
+    });
+    expect(deleteSpy).not.toHaveBeenCalled();
+  });
+
   it('should delete a message without options via the channel local-update path', async () => {
     const deleteSpy = vi
       .spyOn(channel.messageOperations, 'delete')

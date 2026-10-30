@@ -27,7 +27,9 @@ export const useDeleteHandler = (
 
   return async (options?: DeleteMessageOptions) => {
     if (!message?.id || !client) {
-      return;
+      throw new Error(
+        'useDeleteHandler was called but it is missing one or more necessary parameters.',
+      );
     }
 
     try {
