@@ -1,0 +1,31 @@
+.str-chat {
+  .str-chat__scheduled-messages-banner {
+    display: flex;
+    align-items: center;
+    gap: var(--str-chat__spacing-xs);
+    width: 100%;
+    padding-inline: var(--str-chat__spacing-sm);
+    border-radius: var(--str-chat__radius-md);
+    background-color: var(--str-chat__background-core-surface-subtle);
+    color: var(--str-chat__text-secondary);
+    font: var(--str-chat__font-caption-default);
+
+    .str-chat__scheduled-messages-banner__icon {
+      flex-shrink: 0;
+      height: var(--str-chat__icon-size-sm);
+      width: var(--str-chat__icon-size-sm);
+    }
+
+    .str-chat__scheduled-messages-banner__label {
+      flex: 1;
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .str-chat__scheduled-messages-banner__view-button {
+      flex-shrink: 0;
+    }
+  }
+}

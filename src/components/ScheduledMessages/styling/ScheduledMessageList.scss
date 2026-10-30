@@ -1,0 +1,96 @@
+.str-chat {
+  --str-chat__scheduled-message-list-dialog-max-width: 504px;
+
+  .str-chat__scheduled-message-list-dialog {
+    width: 100%;
+    max-width: var(--str-chat__scheduled-message-list-dialog-max-width);
+
+    .str-chat__scheduled-message-list-dialog__body {
+      overflow-y: auto;
+    }
+  }
+
+  .str-chat__scheduled-message-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--str-chat__spacing-md);
+
+    .str-chat__scheduled-message-list__load-more {
+      align-self: center;
+    }
+  }
+
+  .str-chat__scheduled-message-group {
+    display: flex;
+    flex-direction: column;
+    gap: var(--str-chat__spacing-xxs);
+
+    .str-chat__scheduled-message-group__header {
+      margin: 0;
+      padding-inline: var(--str-chat__spacing-sm);
+      color: var(--str-chat__text-secondary);
+      font: var(--str-chat__font-caption-emphasis);
+    }
+
+    .str-chat__scheduled-message-group__items {
+      display: flex;
+      flex-direction: column;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+  }
+
+  .str-chat__scheduled-message-item {
+    .str-chat__summarized-message-preview {
+      min-width: 0;
+    }
+
+    .str-chat__scheduled-message-item__time {
+      color: var(--str-chat__text-secondary);
+      font: var(--str-chat__font-caption-default);
+    }
+
+    .str-chat__scheduled-message-item__failure-reason {
+      color: var(--str-chat__accent-error);
+      font: var(--str-chat__font-caption-default);
+    }
+
+    .str-chat__scheduled-message-status-badge {
+      flex-shrink: 0;
+    }
+  }
+
+  .str-chat__scheduled-messages-empty-list {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: var(--str-chat__spacing-xxs);
+    padding-block: var(--str-chat__spacing-3xl);
+    padding-inline: var(--str-chat__spacing-md);
+    text-align: center;
+
+    .str-chat__scheduled-messages-empty-list__icon {
+      width: 32px;
+      height: 32px;
+      margin-block-end: var(--str-chat__spacing-xs);
+      color: var(--str-chat__text-tertiary);
+    }
+
+    .str-chat__scheduled-messages-empty-list__title,
+    .str-chat__scheduled-messages-empty-list__description {
+      margin: 0;
+    }
+
+    .str-chat__scheduled-messages-empty-list__title {
+      color: var(--str-chat__text-primary);
+      font: var(--str-chat__font-caption-emphasis);
+    }
+
+    .str-chat__scheduled-messages-empty-list__description {
+      color: var(--str-chat__text-secondary);
+      font: var(--str-chat__font-caption-default);
+    }
+  }
+}
