@@ -8,14 +8,33 @@ import {
   overlapsFloatingSlot,
 } from '../floatingDateSlot';
 
+type MeasuredState = { date: Date | null; isFloatingSlotTaken: boolean };
+
+const EMPTY_STATE: MeasuredState = { date: null, isFloatingSlotTaken: false };
+
+/** Two measurements agree on the date and on the floating spot, so the state can stay as it is. */
+const isSameMeasurement = (a: MeasuredState, b: MeasuredState) =>
+  a.isFloatingSlotTaken === b.isFloatingSlotTaken &&
+  (a.date?.getTime() ?? null) === (b.date?.getTime() ?? null);
+
 export type UseFloatingDateSeparatorMessageListParams = {
-  listElement: HTMLDivElement | null;
+  /** Scroll container holding the rendered inline date separators. */
+  listElement: HTMLElement | null;
   processedMessages: RenderedMessage[];
   withDateSeparator: boolean;
+  /**
+   * Which inline separators may supply the floating date, queried on `listElement` (`:scope` refers
+   * to it). Every inline separator still counts toward the floating spot being taken. Defaults to
+   * all of them.
+   */
+  datedSeparatorSelector?: string;
 };
 
 export type UseFloatingDateSeparatorMessageListResult = {
+  /** Date of the last rendered inline separator scrolled out above the list's top edge. */
   floatingDate: Date | null;
+  /** Whether a rendered inline separator overlaps the spot where the floating one is drawn. */
+  isFloatingSlotTaken: boolean;
   showFloatingDate: boolean;
 };
 
@@ -31,63 +50,65 @@ const parseSeparatorDate = (separator: HTMLElement) => {
 };
 
 /**
- * Keeps the floating date in sync with the last date separator scrolled out above the top of the
- * list viewport, for the non-virtualized `MessageList`. The floating date is hidden while any inline
- * separator overlaps the spot where it would be drawn, so two date labels never stack.
+ * The date of the last separator matching `datedSeparatorSelector` that scrolled out above the
+ * list's top edge, and whether any inline separator overlaps the floating spot.
+ */
+const measureInlineSeparators = (
+  listElement: HTMLElement,
+  datedSeparatorSelector: string,
+): MeasuredState => {
+  const listTop = listElement.getBoundingClientRect().top;
+  let scrolledPastDate: Date | null = null;
+  let scrolledPastBottom = -Infinity;
+  let isFloatingSlotTaken = false;
+  const datedSeparators = new Set(listElement.querySelectorAll(datedSeparatorSelector));
+
+  for (const separator of listElement.querySelectorAll<HTMLElement>(
+    INLINE_DATE_SEPARATOR_SELECTOR,
+  )) {
+    const separatorRect = separator.getBoundingClientRect();
+
+    if (overlapsFloatingSlot(separatorRect, listTop)) {
+      isFloatingSlotTaken = true;
+    }
+
+    const date = datedSeparators.has(separator) ? parseSeparatorDate(separator) : null;
+    if (
+      date &&
+      isScrolledPastListTop(separatorRect, listTop) &&
+      separatorRect.bottom > scrolledPastBottom
+    ) {
+      scrolledPastBottom = separatorRect.bottom;
+      scrolledPastDate = date;
+    }
+  }
+
+  return { date: scrolledPastDate, isFloatingSlotTaken };
+};
+
+/**
+ * Measures the inline date separators rendered in a scroll container: the date of the last one
+ * scrolled out above its top edge, and whether one overlaps the spot where the floating separator
+ * is drawn. The floating date is shown only when there is a date and that spot is free, so two date
+ * labels never stack. `MessageList` passes its list; `VirtualizedMessageList` passes its scroller,
+ * where only the items Virtuoso rendered can be measured. It re-measures on scroll and resize only.
  */
 export const useFloatingDateSeparatorMessageList = ({
+  datedSeparatorSelector = INLINE_DATE_SEPARATOR_SELECTOR,
   listElement,
   processedMessages,
   withDateSeparator,
 }: UseFloatingDateSeparatorMessageListParams): UseFloatingDateSeparatorMessageListResult => {
-  const [state, setState] = useState<{ date: Date | null; visible: boolean }>({
-    date: null,
-    visible: false,
-  });
+  const [state, setState] = useState<MeasuredState>(EMPTY_STATE);
+  const hasMessages = processedMessages.length > 0;
 
   const update = useCallback(() => {
-    if (!withDateSeparator || !listElement || processedMessages.length === 0) {
-      setState({ date: null, visible: false });
-      return;
-    }
-
-    const separators = listElement.querySelectorAll<HTMLElement>(
-      INLINE_DATE_SEPARATOR_SELECTOR,
-    );
-    if (separators.length === 0) {
-      setState({ date: null, visible: false });
-      return;
-    }
-
-    const listTop = listElement.getBoundingClientRect().top;
-    let scrolledPastDate: Date | null = null;
-    let scrolledPastBottom = -Infinity;
-    let isFloatingSlotTaken = false;
-
-    for (const separator of separators) {
-      const date = parseSeparatorDate(separator);
-      if (!date) continue;
-
-      const separatorRect = separator.getBoundingClientRect();
-
-      if (overlapsFloatingSlot(separatorRect, listTop)) {
-        isFloatingSlotTaken = true;
-      }
-
-      if (
-        isScrolledPastListTop(separatorRect, listTop) &&
-        separatorRect.bottom > scrolledPastBottom
-      ) {
-        scrolledPastBottom = separatorRect.bottom;
-        scrolledPastDate = date;
-      }
-    }
-
-    setState({
-      date: scrolledPastDate,
-      visible: scrolledPastDate !== null && !isFloatingSlotTaken,
-    });
-  }, [withDateSeparator, listElement, processedMessages]);
+    const next =
+      withDateSeparator && listElement && hasMessages
+        ? measureInlineSeparators(listElement, datedSeparatorSelector)
+        : EMPTY_STATE;
+    setState((prev) => (isSameMeasurement(prev, next) ? prev : next));
+  }, [datedSeparatorSelector, hasMessages, listElement, withDateSeparator]);
 
   useEffect(() => {
     if (!listElement) return;
@@ -109,6 +130,7 @@ export const useFloatingDateSeparatorMessageList = ({
 
   return {
     floatingDate: state.date,
-    showFloatingDate: state.visible,
+    isFloatingSlotTaken: state.isFloatingSlotTaken,
+    showFloatingDate: state.date !== null && !state.isFloatingSlotTaken,
   };
 };

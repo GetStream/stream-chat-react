@@ -2,6 +2,7 @@ import { renderHook } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import { useFloatingDateSeparatorMessageList } from '../useFloatingDateSeparatorMessageList';
+import { VIRTUALIZED_ITEM_DATE_SEPARATOR_SELECTOR } from '../../floatingDateSlot';
 import type { RenderedMessage } from '../../../utils';
 
 vi.mock('lodash.throttle', () => ({
@@ -122,6 +123,17 @@ describe('useFloatingDateSeparatorMessageList', () => {
     ]);
 
     expect(result.current.showFloatingDate).toBe(false);
+    expect(result.current.isFloatingSlotTaken).toBe(true);
+    expect(result.current.floatingDate).toEqual(jan1);
+  });
+
+  it('treats a separator without a date as taking the floating spot', () => {
+    const undated = makeSeparator(jan2, 110, 130);
+    undated.removeAttribute('data-date');
+    const result = renderWithSeparators([makeSeparator(jan1, 40, 60), undated]);
+
+    expect(result.current.isFloatingSlotTaken).toBe(true);
+    expect(result.current.showFloatingDate).toBe(false);
   });
 
   it('shows again once the next inline separator is below the floating spot', () => {
@@ -131,6 +143,73 @@ describe('useFloatingDateSeparatorMessageList', () => {
     ]);
 
     expect(result.current.showFloatingDate).toBe(true);
+    expect(result.current.floatingDate).toEqual(jan1);
+  });
+
+  it('takes the date only from separators matching datedSeparatorSelector', () => {
+    const listElement = makeListElement();
+    // The header separator is the one closest to the top, so only the selector excludes it.
+    const header = makeSeparator(jan1, 40, 60);
+    const item = document.createElement('div');
+    item.setAttribute('data-item-index', '0');
+    item.appendChild(makeSeparator(jan2, 0, 20));
+    listElement.append(header, item);
+
+    const { result } = renderHook(() =>
+      useFloatingDateSeparatorMessageList({
+        datedSeparatorSelector: VIRTUALIZED_ITEM_DATE_SEPARATOR_SELECTOR,
+        listElement,
+        processedMessages,
+        withDateSeparator: true,
+      }),
+    );
+
+    expect(result.current.floatingDate).toEqual(jan2);
+  });
+
+  it('counts a separator outside datedSeparatorSelector toward the floating spot', () => {
+    const listElement = makeListElement();
+    listElement.appendChild(makeSeparator(jan1, 105, 125));
+
+    const { result } = renderHook(() =>
+      useFloatingDateSeparatorMessageList({
+        datedSeparatorSelector: VIRTUALIZED_ITEM_DATE_SEPARATOR_SELECTOR,
+        listElement,
+        processedMessages,
+        withDateSeparator: true,
+      }),
+    );
+
+    expect(result.current.isFloatingSlotTaken).toBe(true);
+    expect(result.current.floatingDate).toBeNull();
+  });
+
+  it('ignores an item wrapper outside the list when picking the date', () => {
+    // The list itself sits inside another virtualized list's item.
+    const outerItem = document.createElement('div');
+    outerItem.setAttribute('data-item-index', '0');
+    const listElement = makeListElement();
+    outerItem.appendChild(listElement);
+    listElement.appendChild(makeSeparator(jan1, 40, 60));
+
+    const { result } = renderHook(() =>
+      useFloatingDateSeparatorMessageList({
+        datedSeparatorSelector: VIRTUALIZED_ITEM_DATE_SEPARATOR_SELECTOR,
+        listElement,
+        processedMessages,
+        withDateSeparator: true,
+      }),
+    );
+
+    expect(result.current.floatingDate).toBeNull();
+  });
+
+  it('does not count the floating separator toward the floating spot', () => {
+    const floating = makeSeparator(jan2, 100, 120);
+    floating.classList.add('str-chat__date-separator--floating');
+    const result = renderWithSeparators([makeSeparator(jan1, 40, 60), floating]);
+
+    expect(result.current.isFloatingSlotTaken).toBe(false);
     expect(result.current.floatingDate).toEqual(jan1);
   });
 
