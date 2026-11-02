@@ -164,14 +164,6 @@ export const PollPreview = () => {
 
   if (!pollId) return null;
 
-  const removePoll = () => {
-    messageComposer.state.partialNext({ pollId: null });
-    // The poll was created for this message only and was never sent, so nothing else uses it.
-    client.deletePoll({ poll_id: pollId }).catch(() => {
-      // An orphaned poll is harmless; the user has nothing to retry.
-    });
-  };
-
   return (
     <div className='str-chat__poll-preview' data-testid='poll-preview'>
       <PollPreviewImage />
@@ -188,7 +180,11 @@ export const PollPreview = () => {
         aria-label={t('messageComposer.pollPreview.removePoll.ariaLabel', 'Remove poll')}
         className='str-chat__attachment-preview__remove-button'
         data-testid='poll-preview-delete-button'
-        onClick={removePoll}
+        onClick={() =>
+          // Detached, not deleted: the composer does not know whether it created the poll or
+          // whether the poll was sent, e.g. a `poll_id` restored from a draft.
+          messageComposer.state.partialNext({ pollId: null })
+        }
       />
     </div>
   );

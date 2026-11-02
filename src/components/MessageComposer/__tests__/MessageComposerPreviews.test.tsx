@@ -311,12 +311,10 @@ describe('MessageComposerPreviews', () => {
       expect(screen.getByTestId('poll-preview')).toHaveTextContent('Poll');
     });
 
-    it('detaches the poll from the composer and deletes it on remove', async () => {
+    it('detaches the poll from the composer on remove without deleting it', async () => {
       const { channel, client } = await setup();
       const poll = cachePoll(client);
-      const deletePollSpy = vi
-        .spyOn(client, 'deletePoll')
-        .mockResolvedValue(fromPartial({}));
+      const deletePollSpy = vi.spyOn(client, 'deletePoll');
       const { container } = await renderPreviews({ channel, client });
 
       await act(() => {
@@ -328,7 +326,7 @@ describe('MessageComposerPreviews', () => {
 
       expect(channel.messageComposer.pollId).toBeNull();
       expect(container.querySelector(`.${PREVIEWS_CLASS}`)).not.toBeInTheDocument();
-      expect(deletePollSpy).toHaveBeenCalledWith({ poll_id: poll.id });
+      expect(deletePollSpy).not.toHaveBeenCalled();
     });
 
     it('has no accessibility violations', async () => {
