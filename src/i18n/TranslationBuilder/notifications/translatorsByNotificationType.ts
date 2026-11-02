@@ -7,6 +7,7 @@ import {
   translateCommandDisabled,
   translatePollCreateFailed,
   translatePollEndFailed,
+  translateScheduledMessageActionFailed,
   translateScheduledMessageBlocked,
   translateScheduledMessageCreateFailed,
 } from './translators';
@@ -24,6 +25,11 @@ export const translatorsByNotificationType: Record<
   'api:poll:end:success': ({ t }) => t('Poll ended'),
   'api:reply:search:failed': ({ t }) => t('Thread has not been found'),
   [ScheduledMessageNotificationType.CreateFailed]: translateScheduledMessageCreateFailed,
+  [ScheduledMessageNotificationType.DeleteFailed]: translateScheduledMessageActionFailed,
+  [ScheduledMessageNotificationType.RescheduleFailed]:
+    translateScheduledMessageActionFailed,
+  [ScheduledMessageNotificationType.SendNowFailed]: translateScheduledMessageActionFailed,
+  [ScheduledMessageNotificationType.UpdateFailed]: translateScheduledMessageActionFailed,
   'browser:audio:playback:error': translateBrowserAudioPlaybackError,
   'browser:location:get:failed': ({ t }) => t('Failed to retrieve location'),
   'channel:jumpToFirstUnread:failed': ({ t }) =>
