@@ -43,7 +43,7 @@ const setup = async () => {
   const composer = new MessageComposer({ client, compositionContext: channel });
   const wrapper = createWrapper(client, channel, composer);
 
-  return { client, composer, wrapper };
+  return { channel, client, composer, wrapper };
 };
 
 const deferred = <T,>() => {
@@ -98,9 +98,9 @@ describe('scheduled message hooks', () => {
 
   describe('useScheduleTimeForm', () => {
     it('starts at the next whole hour after the earliest time', async () => {
-      const { wrapper } = await setup();
+      const { channel, wrapper } = await setup();
 
-      const { result } = renderHook(() => useScheduleTimeForm(), { wrapper });
+      const { result } = renderHook(() => useScheduleTimeForm({ channel }), { wrapper });
 
       expect(result.current.dateValue).toBe('2026-10-28');
       expect(result.current.timeValue).toBe('11:00');
@@ -109,15 +109,31 @@ describe('scheduled message hooks', () => {
     });
 
     it('keeps handlers and the picked time stable across re-renders', async () => {
-      const { wrapper } = await setup();
+      const { channel, wrapper } = await setup();
 
-      const { rerender, result } = renderHook(() => useScheduleTimeForm(), { wrapper });
+      const { rerender, result } = renderHook(() => useScheduleTimeForm({ channel }), {
+        wrapper,
+      });
       const { onDateChange, onTimeChange, scheduledAt } = result.current;
       rerender();
 
       expect(result.current.onDateChange).toBe(onDateChange);
       expect(result.current.onTimeChange).toBe(onTimeChange);
       expect(result.current.scheduledAt).toBe(scheduledAt);
+    });
+
+    it('starts at the given time when rescheduling', async () => {
+      const { channel, wrapper } = await setup();
+      const initialScheduledAt = new Date(2026, 9, 30, 15, 45);
+
+      const { result } = renderHook(
+        () => useScheduleTimeForm({ channel, initialScheduledAt }),
+        { wrapper },
+      );
+
+      expect(result.current.dateValue).toBe('2026-10-30');
+      expect(result.current.timeValue).toBe('15:45');
+      expect(result.current.scheduledAt).toEqual(initialScheduledAt);
     });
   });
 

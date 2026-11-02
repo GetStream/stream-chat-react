@@ -1,7 +1,6 @@
 import { type ChangeEvent, useCallback, useMemo, useState } from 'react';
 
-import { useMessageComposerController } from '../../MessageComposer/hooks/useMessageComposerController';
-import type { ScheduleTimeForm } from '../types';
+import type { ScheduleTimeForm, ScheduleTimeFormParams } from '../types';
 import {
   fromDateAndTimeInputValues,
   getChannelScheduleTimeBounds,
@@ -13,16 +12,16 @@ import {
 
 const readInputValue = ({ target }: ChangeEvent<HTMLInputElement>) => target.value;
 
-export const useScheduleTimeForm = () => {
-  const { channel } = useMessageComposerController();
-
+export const useScheduleTimeForm = ({
+  channel,
+  initialScheduledAt,
+}: ScheduleTimeFormParams) => {
   const [bounds] = useState(() => getChannelScheduleTimeBounds(channel, new Date()));
-  const [dateValue, setDateValue] = useState(() =>
-    toDateInputValue(getDefaultScheduledAt(bounds)),
+  const [initialValue] = useState(
+    () => initialScheduledAt ?? getDefaultScheduledAt(bounds),
   );
-  const [timeValue, setTimeValue] = useState(() =>
-    toTimeInputValue(getDefaultScheduledAt(bounds)),
-  );
+  const [dateValue, setDateValue] = useState(() => toDateInputValue(initialValue));
+  const [timeValue, setTimeValue] = useState(() => toTimeInputValue(initialValue));
 
   const scheduledAt = useMemo(
     () => fromDateAndTimeInputValues(dateValue, timeValue),

@@ -1,5 +1,10 @@
 import type { ChangeEventHandler, ReactNode } from 'react';
-import type { Attachment, ScheduledMessageResponse } from 'stream-chat';
+import type {
+  Attachment,
+  Channel,
+  LocalMessageBase,
+  ScheduledMessageResponse,
+} from 'stream-chat';
 
 import type { IconComponent } from '../Icons';
 
@@ -76,6 +81,13 @@ export type ScheduleTimeForm = {
   timeError?: ScheduleTimeError;
 };
 
+export type ScheduleTimeFormParams = {
+  channel: Channel;
+  initialScheduledAt?: Date;
+};
+
+export type SubmitScheduledAt = (scheduledAt: Date) => Promise<unknown>;
+
 export type ScheduleMessageSubmit = {
   hasFailed: boolean;
   isScheduling: boolean;
@@ -101,6 +113,16 @@ export type ScheduleMessagePresetButtonProps = {
 
 export type ScheduleMessageDialogProps = {
   close: () => void;
+};
+
+export type ScheduleTimeDialogProps = {
+  channel: Channel;
+  close: () => void;
+  errorMessage: string;
+  previewMessage: LocalMessageBase;
+  submit: SubmitScheduledAt;
+  title: string;
+  initialScheduledAt?: Date;
 };
 
 export type ScheduleMessageDialogNoticeProps = {

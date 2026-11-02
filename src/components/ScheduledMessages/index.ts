@@ -22,4 +22,5 @@ export * from './ScheduleMessageDialogNotice';
 export * from './ScheduleMessageMenu';
 export * from './ScheduleMessageMenuHeader';
 export * from './ScheduleMessagePresetButton';
+export * from './ScheduleTimeDialog';
 export * from './types';
