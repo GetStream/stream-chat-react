@@ -41,6 +41,7 @@ import { FileIcon } from '../FileIcon';
 import { QuotedMessageIndicator } from './QuotedMessageIndicator';
 import { getRenderTextMentionEntities } from '../Message/renderText/rehypePlugins';
 import { isDeletedMessage } from '../MessageList';
+import { getPollTextTranslation } from '../Poll/utils/translations';
 import { useComponentContextIcons } from '../../context';
 import type { IconSlots } from '../Icons/slots';
 
@@ -387,7 +388,8 @@ export const QuotedMessagePreviewUI = ({
     } else if (!quotedMessageText) {
       if (previewType === 'poll') {
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        renderedText = quotedMessage.poll!.name;
+        const poll = quotedMessage.poll!;
+        renderedText = getPollTextTranslation(poll.name_i18n, userLanguage) ?? poll.name;
       } else if (previewType === 'location') {
         renderedText = t('common.liveLocation.text', 'Live location');
       } else if (previewType === 'voice') {
@@ -454,6 +456,7 @@ export const QuotedMessagePreviewUI = ({
     quotedMessageText,
     renderText,
     t,
+    userLanguage,
   ]);
 
   const isOwnMessage = client.user?.id === quotedMessage?.user?.id;

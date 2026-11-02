@@ -2,12 +2,14 @@ import React, { useMemo } from 'react';
 import { usePollContext, useTranslationContext } from '../../context';
 import { useStateStore } from '../../store';
 import type { PollOptionResponseData, PollState } from 'stream-chat';
+import { usePollTextTranslation } from './hooks';
 
 type PollStateSelectorReturnValue = {
   enforce_unique_vote: boolean;
   is_closed: boolean | undefined;
   max_votes_allowed: number | undefined;
   name: string;
+  name_i18n: PollState['name_i18n'];
   options: PollOptionResponseData[];
 };
 const pollStateSelector = (nextValue: PollState): PollStateSelectorReturnValue => ({
@@ -15,14 +17,16 @@ const pollStateSelector = (nextValue: PollState): PollStateSelectorReturnValue =
   is_closed: nextValue.is_closed,
   max_votes_allowed: nextValue.max_votes_allowed,
   name: nextValue.name,
+  name_i18n: nextValue.name_i18n,
   options: nextValue.options,
 });
 
 export const PollHeader = () => {
   const { t } = useTranslationContext();
+  const translate = usePollTextTranslation();
 
   const { poll } = usePollContext();
-  const { enforce_unique_vote, is_closed, max_votes_allowed, name, options } =
+  const { enforce_unique_vote, is_closed, max_votes_allowed, name, name_i18n, options } =
     useStateStore(poll.state, pollStateSelector);
 
   const selectionInstructions = useMemo(() => {
@@ -44,7 +48,7 @@ export const PollHeader = () => {
 
   return (
     <div className='str-chat__poll-header'>
-      <div className='str-chat__poll-title'>{name}</div>
+      <div className='str-chat__poll-title'>{translate(name, name_i18n)}</div>
       <div className='str-chat__poll-subtitle'>{selectionInstructions}</div>
     </div>
   );
