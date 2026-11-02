@@ -1,8 +1,8 @@
 import React from 'react';
 
-import { useTranslationContext } from '../../context';
+import { useComponentContext, useTranslationContext } from '../../context';
 import { Prompt } from '../Dialog';
-import { ScheduledMessageList } from './ScheduledMessageList';
+import { ScheduledMessageList as DefaultScheduledMessageList } from './ScheduledMessageList';
 import type { ScheduledMessageListDialogProps } from './types';
 
 export const ScheduledMessageListDialog = ({
@@ -12,6 +12,7 @@ export const ScheduledMessageListDialog = ({
   parentId,
 }: ScheduledMessageListDialogProps) => {
   const { t } = useTranslationContext();
+  const { ScheduledMessageList = DefaultScheduledMessageList } = useComponentContext();
 
   const title = parentId ? t('Scheduled replies') : t('Scheduled messages');
 

@@ -1,10 +1,14 @@
 import React, { useCallback, useState } from 'react';
 import type { ScheduledMessageResponse } from 'stream-chat';
 
-import { useModalContext, useTranslationContext } from '../../../../context';
+import {
+  useComponentContext,
+  useModalContext,
+  useTranslationContext,
+} from '../../../../context';
 import { Prompt } from '../../../../components/Dialog';
 import {
-  ScheduledMessageList,
+  ScheduledMessageList as DefaultScheduledMessageList,
   useScheduledMessageCount,
 } from '../../../../components/ScheduledMessages';
 import { openScheduledMessageInComposer } from '../../../../components/ScheduledMessages/utils';
@@ -14,6 +18,7 @@ import { SectionNavigatorHeader } from '../../SectionNavigator';
 
 export const ScheduledMessagesView = () => {
   const { t } = useTranslationContext();
+  const { ScheduledMessageList = DefaultScheduledMessageList } = useComponentContext();
   const { close } = useModalContext();
   const { channel } = useChannelDetailContext();
 

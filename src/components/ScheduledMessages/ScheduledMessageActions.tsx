@@ -9,9 +9,9 @@ import { Button } from '../Button';
 import { ContextMenu, useDialogIsOpen, useDialogOnNearestManager } from '../Dialog';
 import { GlobalModal } from '../Modal';
 import { SCHEDULED_MESSAGE_ACTIONS_MENU_ID } from './constants';
-import { DeleteScheduledMessageAlert } from './DeleteScheduledMessageAlert';
+import { DeleteScheduledMessageAlert as DefaultDeleteScheduledMessageAlert } from './DeleteScheduledMessageAlert';
 import { useScheduledMessageActionHandlers, useScheduleMessageDialog } from './hooks';
-import { RescheduleMessageDialog } from './RescheduleMessageDialog';
+import { RescheduleMessageDialog as DefaultRescheduleMessageDialog } from './RescheduleMessageDialog';
 import { ScheduledMessageActionsMenu } from './ScheduledMessageActionsMenu';
 import type { ScheduledMessageActionsProps } from './types';
 import { getScheduledMessageActions } from './utils';
@@ -22,8 +22,12 @@ export const ScheduledMessageActions = ({
 }: ScheduledMessageActionsProps) => {
   const { t } = useTranslationContext();
   const { IconMore } = useComponentContextIcons();
-  const { ContextMenu: ContextMenuComponent = ContextMenu, Modal = GlobalModal } =
-    useComponentContext();
+  const {
+    ContextMenu: ContextMenuComponent = ContextMenu,
+    DeleteScheduledMessageAlert = DefaultDeleteScheduledMessageAlert,
+    Modal = GlobalModal,
+    RescheduleMessageDialog = DefaultRescheduleMessageDialog,
+  } = useComponentContext();
 
   const { copyText, deleteScheduledMessage, isPending, sendNow } =
     useScheduledMessageActionHandlers(scheduledMessage);

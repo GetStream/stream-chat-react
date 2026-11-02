@@ -1,10 +1,10 @@
 import clsx from 'clsx';
 import React, { useMemo } from 'react';
 
-import { useTranslationContext } from '../../context';
+import { useComponentContext, useTranslationContext } from '../../context';
 import { ListItemLayout } from '../ListItemLayout';
 import { SummarizedMessagePreview } from '../SummarizedMessagePreview';
-import { ScheduledMessageActions } from './ScheduledMessageActions';
+import { ScheduledMessageActions as DefaultScheduledMessageActions } from './ScheduledMessageActions';
 import { ScheduledMessageStatusBadge } from './ScheduledMessageStatusBadge';
 import type { ScheduledMessageItemProps } from './types';
 import {
@@ -18,8 +18,14 @@ export const ScheduledMessageItem = ({
   scheduledMessage,
 }: ScheduledMessageItemProps) => {
   const { t } = useTranslationContext();
+  const { ScheduledMessageActions: ScheduledMessageActionsOverride } =
+    useComponentContext();
 
   const { failure_reason, scheduled_at } = scheduledMessage;
+  const ScheduledMessageActions =
+    ScheduledMessageActionsOverride === undefined
+      ? DefaultScheduledMessageActions
+      : ScheduledMessageActionsOverride;
 
   const previewMessage = useMemo(
     () => toStoredScheduledMessagePreview(scheduledMessage),
@@ -32,14 +38,16 @@ export const ScheduledMessageItem = ({
         return (
           <div className='str-chat__scheduled-message-item__trailing'>
             <ScheduledMessageStatusBadge scheduledMessage={scheduledMessage} />
-            <ScheduledMessageActions
-              onEdit={onEdit}
-              scheduledMessage={scheduledMessage}
-            />
+            {ScheduledMessageActions && (
+              <ScheduledMessageActions
+                onEdit={onEdit}
+                scheduledMessage={scheduledMessage}
+              />
+            )}
           </div>
         );
       },
-    [onEdit, scheduledMessage],
+    [ScheduledMessageActions, onEdit, scheduledMessage],
   );
 
   const isFailed = isFailedScheduledMessage(scheduledMessage);

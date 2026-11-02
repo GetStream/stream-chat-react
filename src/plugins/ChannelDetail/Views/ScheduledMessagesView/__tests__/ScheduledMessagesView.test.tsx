@@ -9,6 +9,7 @@ import {
   ModalContextProvider,
   TranslationProvider,
 } from '../../../../../context';
+import { WithComponents } from '../../../../../context/WithComponents';
 import { Streami18n } from '../../../../../i18n';
 import {
   generateChannel,
@@ -23,7 +24,10 @@ import { ScheduledMessagesView } from '../ScheduledMessagesView';
 
 const cid = 'messaging:general';
 
-const renderView = async (scheduledMessages: ScheduledMessageResponse[] = []) => {
+const renderView = async (
+  scheduledMessages: ScheduledMessageResponse[] = [],
+  components: Parameters<typeof WithComponents>[0]['overrides'] = {},
+) => {
   const {
     channels: [channel],
     client,
@@ -37,17 +41,19 @@ const renderView = async (scheduledMessages: ScheduledMessageResponse[] = []) =>
   const translators = await new Streami18n({ language: 'en' }).getTranslators();
 
   const view = render(
-    <ChatProvider value={mockChatContext({ client })}>
-      <TranslationProvider value={{ ...translators, userLanguage: 'en' }}>
-        <ModalContextProvider value={{ close }}>
-          <DialogManagerProvider id='scheduled-messages-view-test-dialog-manager'>
-            <ChannelDetailProvider channel={channel}>
-              <ScheduledMessagesView />
-            </ChannelDetailProvider>
-          </DialogManagerProvider>
-        </ModalContextProvider>
-      </TranslationProvider>
-    </ChatProvider>,
+    <WithComponents overrides={components}>
+      <ChatProvider value={mockChatContext({ client })}>
+        <TranslationProvider value={{ ...translators, userLanguage: 'en' }}>
+          <ModalContextProvider value={{ close }}>
+            <DialogManagerProvider id='scheduled-messages-view-test-dialog-manager'>
+              <ChannelDetailProvider channel={channel}>
+                <ScheduledMessagesView />
+              </ChannelDetailProvider>
+            </DialogManagerProvider>
+          </ModalContextProvider>
+        </TranslationProvider>
+      </ChatProvider>
+    </WithComponents>,
   );
 
   return { ...view, channel, close };
@@ -100,6 +106,16 @@ describe('ScheduledMessagesView', () => {
 
     expect(screen.getByText('Lunch at noon')).toBeInTheDocument();
     expect(screen.queryByText('Launch moved to Monday')).not.toBeInTheDocument();
+  });
+
+  it('renders the list through the ScheduledMessageList slot', async () => {
+    const CustomList = ({ cid: listCid }: { cid: string }) => (
+      <div data-testid='custom-scheduled-message-list'>{listCid}</div>
+    );
+
+    await renderView([], { ScheduledMessageList: CustomList });
+
+    expect(screen.getByTestId('custom-scheduled-message-list')).toHaveTextContent(cid);
   });
 
   it('closes the channel detail modal from the header', async () => {

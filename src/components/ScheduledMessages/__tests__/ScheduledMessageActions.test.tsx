@@ -13,6 +13,7 @@ import {
   DialogManagerProvider,
   TranslationProvider,
 } from '../../../context';
+import { WithComponents } from '../../../context/WithComponents';
 import { Streami18n } from '../../../i18n';
 import {
   generateScheduledMessage,
@@ -34,11 +35,13 @@ const notFoundError = new ErrorFromResponse('not found', {
 });
 
 type RenderActionsOptions = {
+  components?: Parameters<typeof WithComponents>[0]['overrides'];
   onEdit?: EditScheduledMessage;
   scheduledMessage?: ScheduledMessageResponse;
 };
 
 const renderActions = async ({
+  components = {},
   onEdit,
   scheduledMessage = generateScheduledMessage({
     cid,
@@ -52,13 +55,15 @@ const renderActions = async ({
   const translators = await new Streami18n({ language: 'en' }).getTranslators();
 
   const view = render(
-    <ChatProvider value={mockChatContext({ client })}>
-      <TranslationProvider value={{ ...translators, userLanguage: 'en' }}>
-        <DialogManagerProvider id='scheduled-message-actions-test-dialog-manager'>
-          <ScheduledMessageList cid={cid} onEdit={onEdit} />
-        </DialogManagerProvider>
-      </TranslationProvider>
-    </ChatProvider>,
+    <WithComponents overrides={components}>
+      <ChatProvider value={mockChatContext({ client })}>
+        <TranslationProvider value={{ ...translators, userLanguage: 'en' }}>
+          <DialogManagerProvider id='scheduled-message-actions-test-dialog-manager'>
+            <ScheduledMessageList cid={cid} onEdit={onEdit} />
+          </DialogManagerProvider>
+        </TranslationProvider>
+      </ChatProvider>
+    </WithComponents>,
   );
 
   return { ...view, client, scheduledMessage };
@@ -276,6 +281,24 @@ describe('ScheduledMessageActions', () => {
     await selectAction('copy');
 
     expect(writeText).toHaveBeenCalledWith('Launch moved to Monday');
+  });
+
+  it('renders the delete confirmation through the DeleteScheduledMessageAlert slot', async () => {
+    const CustomAlert = () => <div data-testid='custom-delete-alert' />;
+    await renderActions({ components: { DeleteScheduledMessageAlert: CustomAlert } });
+
+    await selectAction('delete');
+
+    expect(await screen.findByTestId('custom-delete-alert')).toBeInTheDocument();
+  });
+
+  it('renders the reschedule dialog through the RescheduleMessageDialog slot', async () => {
+    const CustomDialog = () => <div data-testid='custom-reschedule-dialog' />;
+    await renderActions({ components: { RescheduleMessageDialog: CustomDialog } });
+
+    await selectAction('reschedule');
+
+    expect(await screen.findByTestId('custom-reschedule-dialog')).toBeInTheDocument();
   });
 
   it('has no accessibility violations with the menu open', async () => {

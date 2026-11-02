@@ -274,6 +274,17 @@ describe('ScheduledMessageList', () => {
     expect(screen.getByRole('button', { name: 'Load more' })).toBeDisabled();
   });
 
+  it('hides the row actions when the ScheduledMessageActions slot is null', async () => {
+    await renderList({
+      components: { ScheduledMessageActions: null },
+      scheduledMessages: [generateScheduledMessage({ cid })],
+    });
+
+    expect(
+      screen.queryByTestId('scheduled-message-actions-button'),
+    ).not.toBeInTheDocument();
+  });
+
   it('renders items through the ScheduledMessageItem slot', async () => {
     const CustomItem = ({ scheduledMessage }: ScheduledMessageItemProps) => (
       <div data-testid='custom-item'>{scheduledMessage.id}</div>
