@@ -6,6 +6,7 @@ export {
   ScheduleTimeError,
 } from './constants';
 export * from './DeleteScheduledMessageAlert';
+export * from './EditedScheduledMessagePreview';
 export * from './hooks';
 export * from './RescheduleMessageDialog';
 export * from './ScheduledMessageActions';

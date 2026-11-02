@@ -196,6 +196,11 @@ export type ScheduledMessageActionHandlers = {
   sendNow: () => Promise<void>;
 };
 
+export type EditedScheduledMessagePreviewProps = {
+  onCancel: () => void;
+  scheduledMessage: ScheduledMessageResponse;
+};
+
 export type ScheduledMessageStatusBadgeProps = {
   scheduledMessage: ScheduledMessageResponse;
 };
