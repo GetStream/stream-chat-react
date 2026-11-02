@@ -1,4 +1,5 @@
 export * from './useCanScheduleMessage';
+export * from './useFailedScheduledMessageCount';
 export * from './useIsConnectionOnline';
 export * from './useScheduledMessageActionHandlers';
 export * from './useScheduledMessageCount';

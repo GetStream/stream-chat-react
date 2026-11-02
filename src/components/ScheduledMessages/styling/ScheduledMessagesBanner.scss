@@ -24,6 +24,12 @@
       white-space: nowrap;
     }
 
+    .str-chat__scheduled-messages-banner__failed {
+      flex-shrink: 0;
+      color: var(--str-chat__accent-error);
+      font: var(--str-chat__font-caption-emphasis);
+    }
+
     .str-chat__scheduled-messages-banner__view-button {
       flex-shrink: 0;
     }
