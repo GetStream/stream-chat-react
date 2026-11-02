@@ -674,6 +674,7 @@
   "timestamp/relativeWeeksAgo": "{{ count }} सप्ताह पहले",
   "timestamp/relativeYesterday": "बीता कल",
   "timestamp/ReminderNotification": "{{ timestamp | timestampFormatter(calendar: true; calendarFormats: { \"sameDay\": \"[आज] HH:mm\", \"nextDay\": \"[कल] HH:mm\", \"lastDay\": \"[बीता कल] HH:mm\", \"nextWeek\": \"dddd HH:mm\", \"lastWeek\": \"[पिछले] dddd, HH:mm\", \"sameElse\": \"ddd, D MMM HH:mm\" }) }}",
+  "timestamp/SchedulePreset": "{{ timestamp | timestampFormatter(calendar: true; calendarFormats: { \"sameDay\": \"[आज] HH:mm\", \"nextDay\": \"[कल] HH:mm\", \"lastDay\": \"[बीता कल] HH:mm\", \"nextWeek\": \"dddd HH:mm\", \"lastWeek\": \"[पिछले] dddd, HH:mm\", \"sameElse\": \"dddd HH:mm\" }) }}",
   "timestamp/ScheduledMessage": "{{ timestamp | timestampFormatter(calendar: true; calendarFormats: { \"sameDay\": \"[आज] HH:mm\", \"nextDay\": \"[कल] HH:mm\", \"lastDay\": \"[बीता कल] HH:mm\", \"nextWeek\": \"dddd HH:mm\", \"lastWeek\": \"[पिछले] dddd, HH:mm\", \"sameElse\": \"ddd, D MMM HH:mm\" }) }}",
   "timestamp/SystemMessage": "{{ timestamp | timestampFormatter(format: dddd L) }}",
   "To start recording, allow the camera access in your browser": "रिकॉर्डिंग शुरू करने के लिए, अपने ब्राउज़र में कैमरा तक पहुँच दें",

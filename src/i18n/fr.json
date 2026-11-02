@@ -699,6 +699,7 @@
   "timestamp/relativeWeeksAgo": "il y a {{ count }} sem",
   "timestamp/relativeYesterday": "Hier",
   "timestamp/ReminderNotification": "{{ timestamp | timestampFormatter(calendar: true; calendarFormats: { \"sameDay\": \"[Aujourd'hui] [à] HH:mm\", \"nextDay\": \"[Demain] [à] HH:mm\", \"lastDay\": \"[Hier] [à] HH:mm\", \"nextWeek\": \"dddd [à] HH:mm\", \"lastWeek\": \"dddd [dernier à] HH:mm\", \"sameElse\": \"ddd, D MMM [à] HH:mm\" }) }}",
+  "timestamp/SchedulePreset": "{{ timestamp | timestampFormatter(calendar: true; calendarFormats: { \"sameDay\": \"[Aujourd'hui] [à] HH:mm\", \"nextDay\": \"[Demain] [à] HH:mm\", \"lastDay\": \"[Hier] [à] HH:mm\", \"nextWeek\": \"dddd [à] HH:mm\", \"lastWeek\": \"dddd [dernier à] HH:mm\", \"sameElse\": \"dddd [à] HH:mm\" }) }}",
   "timestamp/ScheduledMessage": "{{ timestamp | timestampFormatter(calendar: true; calendarFormats: { \"sameDay\": \"[Aujourd'hui] [à] HH:mm\", \"nextDay\": \"[Demain] [à] HH:mm\", \"lastDay\": \"[Hier] [à] HH:mm\", \"nextWeek\": \"dddd [à] HH:mm\", \"lastWeek\": \"dddd [dernier à] HH:mm\", \"sameElse\": \"ddd, D MMM [à] HH:mm\" }) }}",
   "timestamp/SystemMessage": "{{ timestamp | timestampFormatter(format: dddd L) }}",
   "To start recording, allow the camera access in your browser": "Pour commencer l'enregistrement, autorisez l'accès à la caméra dans votre navigateur",

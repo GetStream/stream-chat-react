@@ -25,6 +25,7 @@ import {
 const user = generateUser({ id: 'user-id' });
 
 const WEDNESDAY_MORNING = new Date(2026, 9, 28, 10, 30);
+const MONDAY_MORNING = new Date(2026, 10, 2, 13, 0);
 
 const channelDataWith = (ownCapabilities: string[]) =>
   generateChannel({
@@ -186,6 +187,16 @@ describe('ScheduleMessageButton', () => {
         'aria-expanded',
         'true',
       );
+    });
+
+    it('labels the next-Monday preset with the weekday on a Monday', async () => {
+      vi.setSystemTime(MONDAY_MORNING);
+      await renderComposer();
+
+      await openMenu();
+
+      expect(screen.getByText('Tomorrow at 09:00')).toBeInTheDocument();
+      expect(screen.getByText('Monday at 09:00')).toBeInTheDocument();
     });
 
     it('schedules at the picked preset and confirms with the server time', async () => {
