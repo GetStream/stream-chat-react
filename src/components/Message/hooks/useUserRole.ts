@@ -24,11 +24,11 @@ export const useUserRole = (message: LocalMessage, disableQuotedMessages?: boole
 
   const isMyMessage = client.userID === message.user?.id;
 
+  // Permission only. Which messages have editable content (no poll, no giphy) is the `edit`
+  // action's `isVisible` rule in `defaultMessageActionSet`.
   const canEdit =
-    !message.poll &&
-    message.command !== 'giphy' &&
-    (channelCapabilities.has('update-any-message') ||
-      (isMyMessage && channelCapabilities.has('update-own-message')));
+    channelCapabilities.has('update-any-message') ||
+    (isMyMessage && channelCapabilities.has('update-own-message'));
 
   const canDelete =
     channelCapabilities.has('delete-any-message') ||

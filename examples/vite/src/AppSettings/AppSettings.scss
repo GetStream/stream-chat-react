@@ -1263,6 +1263,65 @@
     padding: 10px 12px;
   }
 
+  // A list of sections to drag into order (Settings -> Composer and Message).
+  .app__sortable-sections {
+    display: flex;
+    flex-direction: column;
+    gap: var(--str-chat__spacing-xs);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .app__sortable-sections__item {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    gap: var(--str-chat__spacing-sm);
+    align-items: center;
+    border: 1px solid var(--str-chat__border-core-default);
+    border-radius: 10px;
+    padding: var(--str-chat__spacing-xs) var(--str-chat__spacing-sm);
+    background: var(--str-chat__background-core-elevation-1, transparent);
+    cursor: grab;
+
+    &--dragged {
+      opacity: 0.5;
+    }
+
+    &--drop-target {
+      border-color: var(--str-chat__accent-primary);
+      box-shadow: 0 0 0 1px var(--str-chat__accent-primary);
+    }
+
+    &--disabled .app__sortable-sections__text {
+      opacity: 0.55;
+    }
+  }
+
+  .app__sortable-sections__handle {
+    display: flex;
+    color: var(--str-chat__text-tertiary, var(--str-chat__text-secondary));
+  }
+
+  .app__sortable-sections__label {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--str-chat__text-primary);
+  }
+
+  .app__sortable-sections__comment {
+    color: var(--str-chat__text-secondary);
+    font-size: 12px;
+    line-height: 1.4;
+  }
+
+  .app__sortable-sections__controls {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    cursor: default;
+  }
+
   .app__settings-modal__option-button[aria-pressed='true'] {
     // Deliberately no `background` or `border-color`. `str-chat__button` already draws the pressed state
     // as an `::after` overlay tinted with `--str-chat__background-utility-selected`; setting the same

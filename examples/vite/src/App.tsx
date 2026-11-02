@@ -21,8 +21,11 @@ import {
   createCommandInjectionMiddleware,
   createCommandStringExtractionMiddleware,
   createDraftCommandInjectionMiddleware,
+  createPollOnlyCompositionMiddleware,
   createPriorityOwnershipResolver,
+  isVoiceRecordingAttachment,
   MessageSearchSource,
+  POLL_ONLY_COMPOSITION_MIDDLEWARE_ID,
   SearchController,
   UserSearchSource,
 } from 'stream-chat';
@@ -96,6 +99,12 @@ import { ConfigurableMessageActions } from './CustomMessageActions';
 import { InlineEditableMessage } from './InlineEditMessage';
 import { SidebarToggle } from './Sidebar/SidebarToggle.tsx';
 import { CommandModeAttachmentSelector } from './CommandModeAttachmentSelector.tsx';
+import {
+  ConfigurableComposerPreviews,
+  ConfigurableStartRecordingAudioButton,
+} from './ComposerPreviews/ConfigurableComposerPreviews.tsx';
+import { ConfigurablePollCreationDialogControls } from './ComposerPreviews/ConfigurablePollCreationDialogControls.tsx';
+import { ConfigurableMessageBubbleContent } from './MessageBubble/ConfigurableMessageBubbleContent.tsx';
 import { StreamDebugHandles } from './Debug';
 import {
   installUploadHarness,
@@ -291,8 +300,17 @@ const formatDocumentTitle = ({
 const App = () => {
   const { tokenProvider, userId, userImage, userName } = useUser();
   const chatView = useAppSettingsSelector((state) => state.chatView);
-  const { failUploads, sendMessagesWithPendingUploads, slowUploads, uploadDestination } =
-    useAppSettingsSelector((state) => state.composer);
+  const {
+    disabledPreviewSections,
+    failUploads,
+    sendMessagesWithPendingUploads,
+    slowUploads,
+    uploadDestination,
+  } = useAppSettingsSelector((state) => state.composer);
+  const filesDisabled = disabledPreviewSections.includes('attachments');
+  const linkPreviewsDisabled = disabledPreviewSections.includes('linkPreviews');
+  const locationDisabled = disabledPreviewSections.includes('location');
+  const pollDisabled = disabledPreviewSections.includes('poll');
   // Project to a stable-shape object rather than returning `state.layout` directly. `layout`
   // starts as `{}`, and useStateStore only diffs the keys present in its *cached* selection — so
   // a selection that starts empty never notices `channelCid` appearing later, and the modal would
@@ -573,12 +591,46 @@ const App = () => {
         unique: true,
       });
 
+      // A preview section left out in Settings -> Composer also closes the way into it, so the
+      // composer never holds something it cannot show. Voice recordings are attachments too, so
+      // removing Files filters uploads rather than disabling the attachment manager.
       composer.updateConfig({
-        linkPreviews: { enabled: true },
-        location: { enabled: true },
+        attachments: {
+          fileUploadFilter: filesDisabled ? isVoiceRecordingAttachment : () => true,
+        },
+        linkPreviews: { enabled: !linkPreviewsDisabled },
+        location: { enabled: !locationDisabled },
+        polls: { enabled: !pollDisabled },
       });
+
+      // While the Poll preview shows, the poll dialog attaches the poll to the message being
+      // composed (ConfigurablePollCreationDialogControls). Without the poll-only step the poll is
+      // sent with the text and attachments rather than as a message of its own, and the composer
+      // clears after the send. Restored when the preview is turned off, since this setup re-runs.
+      if (pollDisabled) {
+        composer.compositionMiddlewareExecutor.insert({
+          middleware: [createPollOnlyCompositionMiddleware(composer)],
+          position: {
+            after: 'stream-io/message-composer-middleware/user-data-injection',
+          },
+          unique: true,
+        });
+      } else {
+        composer.compositionMiddlewareExecutor.remove(
+          POLL_ONLY_COMPOSITION_MIDDLEWARE_ID,
+        );
+      }
     });
-  }, [chatClient, failUploads, slowUploads, uploadDestination]);
+  }, [
+    chatClient,
+    failUploads,
+    filesDisabled,
+    linkPreviewsDisabled,
+    locationDisabled,
+    pollDisabled,
+    slowUploads,
+    uploadDestination,
+  ]);
 
   useEffect(() => {
     if (!chatClient) return;
@@ -671,6 +723,10 @@ const App = () => {
         HeaderEndContent: SidebarToggle,
         MessageActions: ConfigurableMessageActions,
         AttachmentSelector: CommandModeAttachmentSelector,
+        MessageBubbleContent: ConfigurableMessageBubbleContent,
+        MessageComposerPreviews: ConfigurableComposerPreviews,
+        PollCreationDialogControls: ConfigurablePollCreationDialogControls,
+        StartRecordingAudioButton: ConfigurableStartRecordingAudioButton,
         MessageUI: InlineEditableMessage,
         ...messageUiOverrides,
       }}

@@ -3,12 +3,12 @@ import type { PollComposerState } from 'stream-chat';
 import { MultipleAnswersField } from './MultipleAnswersField';
 import { NameField } from './NameField';
 import { OptionFieldSet } from './OptionFieldSet';
-import { PollCreationDialogControls } from './PollCreationDialogControls';
+import { PollCreationDialogControls as DefaultPollCreationDialogControls } from './PollCreationDialogControls';
 import { Prompt } from '../../Dialog';
 import { SwitchField } from '../../Form/SwitchField';
 import { useInteractionAnnouncements } from '../../Accessibility';
 import { useMessageComposerController } from '../../MessageComposer/hooks/useMessageComposerController';
-import { useTranslationContext } from '../../../context';
+import { useComponentContext, useTranslationContext } from '../../../context';
 import { useStateStore } from '../../../store';
 
 export type PollCreationDialogProps = {
@@ -22,6 +22,8 @@ const pollComposerStateSelector = (state: PollComposerState) => ({
 });
 
 export const PollCreationDialog = ({ close }: PollCreationDialogProps) => {
+  const { PollCreationDialogControls = DefaultPollCreationDialogControls } =
+    useComponentContext();
   const { t } = useTranslationContext();
   const { announceInteraction } = useInteractionAnnouncements();
   const { pollComposer } = useMessageComposerController();
