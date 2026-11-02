@@ -9,6 +9,7 @@ import type {
 import type { IconComponent } from '../Icons';
 
 import type {
+  ScheduledMessageAction,
   ScheduledMessageGroupType,
   ScheduleMessageNoticeSeverity,
   ScheduleTimeError,
@@ -125,13 +126,26 @@ export type ScheduleTimeDialogProps = {
   initialScheduledAt?: Date;
 };
 
+export type RescheduleMessageDialogProps = {
+  close: () => void;
+  scheduledMessage: ScheduledMessageResponse;
+};
+
+export type DeleteScheduledMessageAlertProps = {
+  onCancel: () => void;
+  onDelete: () => void;
+};
+
 export type ScheduleMessageDialogNoticeProps = {
   children: ReactNode;
   severity: ScheduleMessageNoticeSeverity;
 };
 
+export type EditScheduledMessage = (scheduledMessage: ScheduledMessageResponse) => void;
+
 export type ScheduledMessageListProps = {
   cid: string;
+  onEdit?: EditScheduledMessage;
   parentId?: string;
   searchQuery?: string;
 };
@@ -157,6 +171,29 @@ export type ScheduledMessageGroupHeaderProps = {
 
 export type ScheduledMessageItemProps = {
   scheduledMessage: ScheduledMessageResponse;
+  onEdit?: EditScheduledMessage;
+};
+
+export type ScheduledMessageActionsProps = ScheduledMessageItemProps;
+
+export type ScheduledMessageActionsOptions = {
+  canEdit: boolean;
+};
+
+export type ScheduledMessageActionsMenuProps = {
+  actions: ScheduledMessageAction[];
+  onCopy: () => void;
+  onDelete: () => void;
+  onEdit: () => void;
+  onReschedule: () => void;
+  onSendNow: () => void;
+};
+
+export type ScheduledMessageActionHandlers = {
+  copyText: () => void;
+  deleteScheduledMessage: () => Promise<void>;
+  isPending: boolean;
+  sendNow: () => Promise<void>;
 };
 
 export type ScheduledMessageStatusBadgeProps = {

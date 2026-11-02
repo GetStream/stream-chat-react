@@ -5,6 +5,7 @@ import type { ScheduledMessageResponse } from 'stream-chat';
 import { axe } from '../../../../../../axe-helper';
 import {
   ChatProvider,
+  DialogManagerProvider,
   ModalContextProvider,
   TranslationProvider,
 } from '../../../../../context';
@@ -39,15 +40,17 @@ const renderView = async (scheduledMessages: ScheduledMessageResponse[] = []) =>
     <ChatProvider value={mockChatContext({ client })}>
       <TranslationProvider value={{ ...translators, userLanguage: 'en' }}>
         <ModalContextProvider value={{ close }}>
-          <ChannelDetailProvider channel={channel}>
-            <ScheduledMessagesView />
-          </ChannelDetailProvider>
+          <DialogManagerProvider id='scheduled-messages-view-test-dialog-manager'>
+            <ChannelDetailProvider channel={channel}>
+              <ScheduledMessagesView />
+            </ChannelDetailProvider>
+          </DialogManagerProvider>
         </ModalContextProvider>
       </TranslationProvider>
     </ChatProvider>,
   );
 
-  return { ...view, close };
+  return { ...view, channel, close };
 };
 
 describe('ScheduledMessagesView', () => {

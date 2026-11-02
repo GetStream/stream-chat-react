@@ -4,7 +4,11 @@ import { ScheduledMessageFailureReason, ScheduledMessageStatus } from 'stream-ch
 import type { ScheduledMessageResponse, StreamChat } from 'stream-chat';
 
 import { axe } from '../../../../axe-helper';
-import { ChatProvider, TranslationProvider } from '../../../context';
+import {
+  ChatProvider,
+  DialogManagerProvider,
+  TranslationProvider,
+} from '../../../context';
 import { WithComponents } from '../../../context/WithComponents';
 import { Streami18n } from '../../../i18n';
 import {
@@ -13,7 +17,7 @@ import {
   mockChatContext,
 } from '../../../mock-builders';
 import { ScheduledMessageList } from '../ScheduledMessageList';
-import type { ScheduledMessageItemProps } from '../types';
+import type { EditScheduledMessage, ScheduledMessageItemProps } from '../types';
 
 const cid = 'messaging:general';
 
@@ -24,12 +28,14 @@ const atLocalTime = (day: number, hour: number) =>
 
 type RenderListOptions = {
   components?: Parameters<typeof WithComponents>[0]['overrides'];
+  onEdit?: EditScheduledMessage;
   scheduledMessages?: ScheduledMessageResponse[];
   searchQuery?: string;
 };
 
 const renderList = async ({
   components = {},
+  onEdit,
   scheduledMessages = [],
   searchQuery,
 }: RenderListOptions = {}) => {
@@ -42,7 +48,9 @@ const renderList = async ({
     <WithComponents overrides={components}>
       <ChatProvider value={mockChatContext({ client })}>
         <TranslationProvider value={{ ...translators, userLanguage: 'en' }}>
-          <ScheduledMessageList cid={cid} searchQuery={searchQuery} />
+          <DialogManagerProvider id='scheduled-message-list-test-dialog-manager'>
+            <ScheduledMessageList cid={cid} onEdit={onEdit} searchQuery={searchQuery} />
+          </DialogManagerProvider>
         </TranslationProvider>
       </ChatProvider>
     </WithComponents>,

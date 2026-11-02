@@ -8,6 +8,7 @@ import type { ScheduledMessageListDialogProps } from './types';
 export const ScheduledMessageListDialog = ({
   cid,
   close,
+  onEdit,
   parentId,
 }: ScheduledMessageListDialogProps) => {
   const { t } = useTranslationContext();
@@ -21,7 +22,7 @@ export const ScheduledMessageListDialog = ({
     >
       <Prompt.Header close={close} title={title} />
       <Prompt.Body className='str-chat__scheduled-message-list-dialog__body'>
-        <ScheduledMessageList cid={cid} parentId={parentId} />
+        <ScheduledMessageList cid={cid} onEdit={onEdit} parentId={parentId} />
       </Prompt.Body>
     </Prompt.Root>
   );

@@ -2,6 +2,8 @@ export * from './channelContainer';
 export * from './dateTimeInputValues';
 export * from './nativePicker';
 export * from './schedulePresets';
+export * from './scheduledMessageActions';
+export * from './scheduledMessageChannel';
 export * from './scheduledMessageErrors';
 export * from './scheduledMessageFailureReason';
 export * from './scheduledMessageGroups';

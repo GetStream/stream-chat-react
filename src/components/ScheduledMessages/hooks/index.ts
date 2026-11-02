@@ -1,5 +1,6 @@
 export * from './useCanScheduleMessage';
 export * from './useIsConnectionOnline';
+export * from './useScheduledMessageActionHandlers';
 export * from './useScheduledMessageCount';
 export * from './useScheduledMessageGroups';
 export * from './useScheduledMessagePreview';

@@ -4,6 +4,7 @@ import React, { useMemo } from 'react';
 import { useTranslationContext } from '../../context';
 import { ListItemLayout } from '../ListItemLayout';
 import { SummarizedMessagePreview } from '../SummarizedMessagePreview';
+import { ScheduledMessageActions } from './ScheduledMessageActions';
 import { ScheduledMessageStatusBadge } from './ScheduledMessageStatusBadge';
 import type { ScheduledMessageItemProps } from './types';
 import {
@@ -12,7 +13,10 @@ import {
   translateScheduledMessageFailureReason,
 } from './utils';
 
-export const ScheduledMessageItem = ({ scheduledMessage }: ScheduledMessageItemProps) => {
+export const ScheduledMessageItem = ({
+  onEdit,
+  scheduledMessage,
+}: ScheduledMessageItemProps) => {
   const { t } = useTranslationContext();
 
   const { failure_reason, scheduled_at } = scheduledMessage;
@@ -22,12 +26,20 @@ export const ScheduledMessageItem = ({ scheduledMessage }: ScheduledMessageItemP
     [scheduledMessage],
   );
 
-  const StatusBadge = useMemo(
+  const TrailingSlot = useMemo(
     () =>
-      function ScheduledMessageItemStatusBadge() {
-        return <ScheduledMessageStatusBadge scheduledMessage={scheduledMessage} />;
+      function ScheduledMessageItemTrailingSlot() {
+        return (
+          <div className='str-chat__scheduled-message-item__trailing'>
+            <ScheduledMessageStatusBadge scheduledMessage={scheduledMessage} />
+            <ScheduledMessageActions
+              onEdit={onEdit}
+              scheduledMessage={scheduledMessage}
+            />
+          </div>
+        );
       },
-    [scheduledMessage],
+    [onEdit, scheduledMessage],
   );
 
   const isFailed = isFailedScheduledMessage(scheduledMessage);
@@ -51,7 +63,7 @@ export const ScheduledMessageItem = ({ scheduledMessage }: ScheduledMessageItemP
         subtitle={<time dateTime={scheduled_at}>{scheduledTime}</time>}
         subtitleClassName='str-chat__scheduled-message-item__time'
         title={<SummarizedMessagePreview latestMessage={previewMessage} />}
-        TrailingSlot={StatusBadge}
+        TrailingSlot={TrailingSlot}
       />
     </div>
   );
