@@ -25,11 +25,13 @@ const atLocalTime = (day: number, hour: number) =>
 type RenderListOptions = {
   components?: Parameters<typeof WithComponents>[0]['overrides'];
   scheduledMessages?: ScheduledMessageResponse[];
+  searchQuery?: string;
 };
 
 const renderList = async ({
   components = {},
   scheduledMessages = [],
+  searchQuery,
 }: RenderListOptions = {}) => {
   const client = await getTestClientWithUser({ id: 'user-id' });
   scheduledMessages.forEach(client.scheduledMessages.upsertToState);
@@ -40,7 +42,7 @@ const renderList = async ({
     <WithComponents overrides={components}>
       <ChatProvider value={mockChatContext({ client })}>
         <TranslationProvider value={{ ...translators, userLanguage: 'en' }}>
-          <ScheduledMessageList cid={cid} />
+          <ScheduledMessageList cid={cid} searchQuery={searchQuery} />
         </TranslationProvider>
       </ChatProvider>
     </WithComponents>,
@@ -74,13 +76,90 @@ describe('ScheduledMessageList', () => {
     expect(screen.getByText('Messages you schedule appear here')).toBeInTheDocument();
   });
 
-  it('shows a loading indicator while the first page loads', async () => {
+  it('shows skeleton rows while the first page loads', async () => {
     const { client } = await renderList();
 
     act(() => client.scheduledMessages.state.partialNext({ isLoading: true }));
 
     expect(screen.queryByText('No scheduled messages')).not.toBeInTheDocument();
-    expect(document.querySelector('.str-chat__loading-indicator')).toBeInTheDocument();
+    expect(
+      screen.getByRole('status', { name: 'Loading scheduled messages' }),
+    ).toBeInTheDocument();
+  });
+
+  it('shows the empty state while a later reload runs', async () => {
+    const { client } = await renderList();
+
+    act(() =>
+      client.scheduledMessages.state.partialNext({ isLoaded: true, isLoading: true }),
+    );
+
+    expect(screen.getByText('No scheduled messages')).toBeInTheDocument();
+    expect(
+      screen.queryByTestId('scheduled-message-list-loading'),
+    ).not.toBeInTheDocument();
+  });
+
+  it('shows the load error and reloads on retry', async () => {
+    const { client } = await renderList();
+    const load = vi.spyOn(client.scheduledMessages, 'load').mockResolvedValue({
+      duration: '',
+      scheduled_messages: [],
+    });
+
+    act(() =>
+      client.scheduledMessages.state.partialNext({
+        lastQueryError: new Error('offline'),
+      }),
+    );
+    fireEvent.click(screen.getByRole('button', { name: 'Try again' }));
+
+    expect(screen.getByText("Couldn't load scheduled messages")).toBeInTheDocument();
+    expect(load).toHaveBeenCalledTimes(1);
+  });
+
+  it('keeps showing stored messages when a reload fails', async () => {
+    const { client } = await renderList({
+      scheduledMessages: [
+        generateScheduledMessage({ cid, message: { text: 'Launch moved to Monday' } }),
+      ],
+    });
+
+    act(() =>
+      client.scheduledMessages.state.partialNext({
+        lastQueryError: new Error('offline'),
+      }),
+    );
+
+    expect(screen.getByText('Launch moved to Monday')).toBeInTheDocument();
+    expect(
+      screen.queryByText("Couldn't load scheduled messages"),
+    ).not.toBeInTheDocument();
+  });
+
+  it('shows only the messages matching the search query', async () => {
+    await renderList({
+      scheduledMessages: [
+        generateScheduledMessage({ cid, message: { text: 'Launch moved to Monday' } }),
+        generateScheduledMessage({ cid, message: { text: 'Lunch at noon' } }),
+      ],
+      searchQuery: 'launch',
+    });
+
+    expect(screen.getByText('Launch moved to Monday')).toBeInTheDocument();
+    expect(screen.queryByText('Lunch at noon')).not.toBeInTheDocument();
+  });
+
+  it('shows no results when the search matches nothing', async () => {
+    await renderList({
+      scheduledMessages: [
+        generateScheduledMessage({ cid, message: { text: 'Launch moved to Monday' } }),
+      ],
+      searchQuery: 'friday',
+    });
+
+    expect(screen.getByText('No messages found')).toBeInTheDocument();
+    expect(screen.queryByText('No scheduled messages')).not.toBeInTheDocument();
   });
 
   it('lists failed messages first, then one group per day', async () => {
@@ -198,6 +277,17 @@ describe('ScheduledMessageList', () => {
     });
 
     expect(screen.getByTestId('custom-item')).toHaveTextContent('scheduled-id');
+  });
+
+  it.each([
+    ['loading', { isLoading: true }],
+    ['load error', { lastQueryError: new Error('offline') }],
+  ])('has no accessibility violations in the %s state', async (_, state) => {
+    const { client, container } = await renderList();
+
+    act(() => client.scheduledMessages.state.partialNext(state));
+
+    expect(await axe(container)).toHaveNoViolations();
   });
 
   it('has no accessibility violations', async () => {

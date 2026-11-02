@@ -2,22 +2,43 @@ import React from 'react';
 
 import { useComponentContext, useTranslationContext } from '../../context';
 import { Button } from '../Button';
-import { LoadingIndicator } from '../Loading';
-import { useScheduledMessageGroups, useScheduledMessagesPagination } from './hooks';
+import {
+  useScheduledMessageGroups,
+  useScheduledMessagesLoadState,
+  useScheduledMessagesPagination,
+} from './hooks';
 import { ScheduledMessageGroupHeader } from './ScheduledMessageGroupHeader';
 import { ScheduledMessageItem as DefaultScheduledMessageItem } from './ScheduledMessageItem';
+import { ScheduledMessageListLoading } from './ScheduledMessageListLoading';
 import { ScheduledMessagesEmptyList } from './ScheduledMessagesEmptyList';
+import { ScheduledMessagesLoadError } from './ScheduledMessagesLoadError';
+import { ScheduledMessagesNoResults } from './ScheduledMessagesNoResults';
 import type { ScheduledMessageListProps } from './types';
 
-export const ScheduledMessageList = ({ cid, parentId }: ScheduledMessageListProps) => {
+export const ScheduledMessageList = ({
+  cid,
+  parentId,
+  searchQuery,
+}: ScheduledMessageListProps) => {
   const { t } = useTranslationContext();
   const { ScheduledMessageItem = DefaultScheduledMessageItem } = useComponentContext();
 
-  const { groups } = useScheduledMessageGroups({ cid, parentId });
+  const { groups, hasScheduledMessages } = useScheduledMessageGroups({
+    cid,
+    parentId,
+    searchQuery,
+  });
   const { canLoadMore, isLoading, loadMore } = useScheduledMessagesPagination();
+  const { hasLoadFailed, isFirstLoad, reload } = useScheduledMessagesLoadState();
 
   if (!groups.length) {
-    return isLoading ? <LoadingIndicator /> : <ScheduledMessagesEmptyList />;
+    if (hasScheduledMessages) return <ScheduledMessagesNoResults />;
+
+    if (isFirstLoad) return <ScheduledMessageListLoading />;
+
+    if (hasLoadFailed) return <ScheduledMessagesLoadError onRetry={reload} />;
+
+    return <ScheduledMessagesEmptyList />;
   }
 
   return (

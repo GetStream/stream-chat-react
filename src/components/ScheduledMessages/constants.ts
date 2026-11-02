@@ -48,3 +48,5 @@ export type ScheduledMessageGroupType =
   (typeof ScheduledMessageGroupType)[keyof typeof ScheduledMessageGroupType];
 
 export const FAILED_SCHEDULED_MESSAGE_GROUP_ID = 'failed';
+
+export const SCHEDULED_MESSAGE_LIST_LOADING_ROW_COUNT = 6;

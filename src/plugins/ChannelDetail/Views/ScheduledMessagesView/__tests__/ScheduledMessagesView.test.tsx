@@ -82,6 +82,21 @@ describe('ScheduledMessagesView', () => {
     await renderView();
 
     expect(screen.getByText('No scheduled messages')).toBeInTheDocument();
+    expect(screen.queryByRole('searchbox', { name: 'Search' })).not.toBeInTheDocument();
+  });
+
+  it('filters the list by the search field', async () => {
+    await renderView([
+      generateScheduledMessage({ cid, message: { text: 'Launch moved to Monday' } }),
+      generateScheduledMessage({ cid, message: { text: 'Lunch at noon' } }),
+    ]);
+
+    fireEvent.change(screen.getByRole('searchbox', { name: 'Search' }), {
+      target: { value: 'lunch' },
+    });
+
+    expect(screen.getByText('Lunch at noon')).toBeInTheDocument();
+    expect(screen.queryByText('Launch moved to Monday')).not.toBeInTheDocument();
   });
 
   it('closes the channel detail modal from the header', async () => {

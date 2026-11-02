@@ -1,6 +1,8 @@
 import type { ChangeEventHandler, ReactNode } from 'react';
 import type { Attachment, ScheduledMessageResponse } from 'stream-chat';
 
+import type { IconComponent } from '../Icons';
+
 import type {
   ScheduledMessageGroupType,
   ScheduleMessageNoticeSeverity,
@@ -42,9 +44,20 @@ export type ScheduledMessageGroup = {
   day?: Date;
 };
 
+export type UseScheduledMessageGroupsParams = UseScheduledMessagesParams & {
+  searchQuery?: string;
+};
+
 export type ScheduledMessageGroups = {
   groups: ScheduledMessageGroup[];
+  hasScheduledMessages: boolean;
   isLoaded: boolean;
+};
+
+export type ScheduledMessagesLoadState = {
+  hasLoadFailed: boolean;
+  isFirstLoad: boolean;
+  reload: () => void;
 };
 
 export type ScheduledMessagesPagination = {
@@ -98,6 +111,18 @@ export type ScheduleMessageDialogNoticeProps = {
 export type ScheduledMessageListProps = {
   cid: string;
   parentId?: string;
+  searchQuery?: string;
+};
+
+export type ScheduledMessagesEmptyStateProps = {
+  Icon: IconComponent;
+  title: string;
+  children?: ReactNode;
+  description?: string;
+};
+
+export type ScheduledMessagesLoadErrorProps = {
+  onRetry: () => void;
 };
 
 export type ScheduledMessageListDialogProps = ScheduledMessageListProps & {
