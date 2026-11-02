@@ -4,6 +4,7 @@ export * from './nativePicker';
 export * from './schedulePresets';
 export * from './scheduledMessageActions';
 export * from './scheduledMessageChannel';
+export * from './scheduledMessageComposer';
 export * from './scheduledMessageErrors';
 export * from './scheduledMessageFailureReason';
 export * from './scheduledMessageGroups';

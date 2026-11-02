@@ -86,7 +86,7 @@ export const useSubmitHandler = (props: MessageComposerProps) => {
       if (!composition || !composition.message) return;
 
       // Read from the composer: the composed message never carries the `error` type.
-      const { editedMessage } = messageComposer;
+      const { editedMessage, failedScheduledMessage } = messageComposer;
       const rejectedMessage =
         editedMessage && isRejectedByServer(editedMessage) ? editedMessage : undefined;
       const { localMessage, message, sendOptions } = rejectedMessage
@@ -145,6 +145,11 @@ export const useSubmitHandler = (props: MessageComposerProps) => {
             });
           } else {
             await sendMessage({ localMessage, message, options: sendOptions });
+          }
+          if (failedScheduledMessage) {
+            client.scheduledMessages
+              .deleteScheduledMessage(failedScheduledMessage.id)
+              .catch(() => undefined);
           }
         } catch (err) {
           restoreComposerStateSnapshot();

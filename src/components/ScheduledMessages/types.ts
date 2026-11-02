@@ -201,6 +201,8 @@ export type EditedScheduledMessagePreviewProps = {
   scheduledMessage: ScheduledMessageResponse;
 };
 
+export type FailedScheduledMessagePreviewProps = EditedScheduledMessagePreviewProps;
+
 export type ScheduledMessageStatusBadgeProps = {
   scheduledMessage: ScheduledMessageResponse;
 };

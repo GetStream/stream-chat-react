@@ -7,6 +7,7 @@ import {
   ScheduledMessageList,
   useScheduledMessageCount,
 } from '../../../../components/ScheduledMessages';
+import { openScheduledMessageInComposer } from '../../../../components/ScheduledMessages/utils';
 import { ChannelDetailSearchInput } from '../../ChannelDetailSearchInput';
 import { useChannelDetailContext } from '../../ChannelDetailContext';
 import { SectionNavigatorHeader } from '../../SectionNavigator';
@@ -23,7 +24,7 @@ export const ScheduledMessagesView = () => {
   const editScheduledMessage = useCallback(
     (scheduledMessage: ScheduledMessageResponse) => {
       close();
-      channel.messageComposer.editScheduledMessage(scheduledMessage);
+      openScheduledMessageInComposer(channel.messageComposer, scheduledMessage);
     },
     [channel, close],
   );

@@ -14,7 +14,7 @@ import { Portal } from '../Portal/Portal';
 import { SCHEDULE_MESSAGE_CAPABILITY } from './constants';
 import { useScheduledMessageCount, useScheduleMessageDialog } from './hooks';
 import { ScheduledMessageListDialog } from './ScheduledMessageListDialog';
-import { getChannelContainer } from './utils';
+import { getChannelContainer, openScheduledMessageInComposer } from './utils';
 
 export const ScheduledMessagesBanner = () => {
   const { t } = useTranslationContext();
@@ -36,7 +36,7 @@ export const ScheduledMessagesBanner = () => {
   const editScheduledMessage = useCallback(
     (scheduledMessage: ScheduledMessageResponse) => {
       closeDialog();
-      messageComposer.editScheduledMessage(scheduledMessage);
+      openScheduledMessageInComposer(messageComposer, scheduledMessage);
     },
     [closeDialog, messageComposer],
   );

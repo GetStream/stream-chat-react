@@ -36,13 +36,17 @@ describe('getScheduledMessageActions', () => {
     expect(getScheduledMessageActions(scheduledMessage, { canEdit: true })).toEqual([]);
   });
 
-  it('offers only Delete for a failed message', () => {
+  it('offers Edit and Delete for a failed message', () => {
     const scheduledMessage = generateScheduledMessage({
       failure_reason: ScheduledMessageFailureReason.ChannelFrozen,
       status: ScheduledMessageStatus.Failed,
     });
 
     expect(getScheduledMessageActions(scheduledMessage, { canEdit: true })).toEqual([
+      Edit,
+      Delete,
+    ]);
+    expect(getScheduledMessageActions(scheduledMessage, { canEdit: false })).toEqual([
       Delete,
     ]);
   });
