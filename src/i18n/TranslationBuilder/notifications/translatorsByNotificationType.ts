@@ -9,6 +9,7 @@ import {
   translatePollEndFailed,
   translateScheduledMessageActionFailed,
   translateScheduledMessageBlocked,
+  translateScheduledMessageCompositionEnded,
   translateScheduledMessageCreateFailed,
 } from './translators';
 import type { Translator } from '../../index';
@@ -45,4 +46,6 @@ export const translatorsByNotificationType: Record<
   'validation:poll:castVote:limit': ({ t }) =>
     t('Reached the vote limit. Remove an existing vote first.'),
   [ScheduledMessageNotificationType.Blocked]: translateScheduledMessageBlocked,
+  [ScheduledMessageNotificationType.CompositionEnded]:
+    translateScheduledMessageCompositionEnded,
 };

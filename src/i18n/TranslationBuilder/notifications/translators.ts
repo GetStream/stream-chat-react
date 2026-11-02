@@ -3,6 +3,7 @@ import {
   getScheduledMessageErrorReason,
   isScheduledMessageNotFoundError,
   ScheduledMessageBlockReason,
+  ScheduledMessageCompositionEndReason,
   ScheduledMessageErrorReason,
 } from 'stream-chat';
 import type { Notification } from 'stream-chat';
@@ -194,4 +195,24 @@ export const translateScheduledMessageActionFailed: Translator<
   if (isForbiddenError(error)) return t("You can't schedule messages here");
 
   return translateScheduledMessageActionFallback(t, notification?.type);
+};
+
+export const translateScheduledMessageCompositionEnded: Translator<
+  NotificationTranslatorOptions
+> = ({ options: { notification }, t }) => {
+  const { reason } = notification?.metadata ?? {};
+
+  if (reason === ScheduledMessageCompositionEndReason.Sent) {
+    return t('This scheduled message was already sent');
+  }
+
+  if (reason === ScheduledMessageCompositionEndReason.Deleted) {
+    return t('This scheduled message was deleted');
+  }
+
+  if (reason === ScheduledMessageCompositionEndReason.Failed) {
+    return t('This scheduled message failed to send');
+  }
+
+  return t('This scheduled message can no longer be edited');
 };
