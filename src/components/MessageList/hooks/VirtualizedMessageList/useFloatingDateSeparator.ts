@@ -40,19 +40,23 @@ function getFloatingDateForFirstMessage(
   return null;
 }
 
-function getFloatingDateForFirstItem(
-  firstItem: RenderedMessage,
-  processedMessages: RenderedMessage[],
-  firstItemIndex: number,
-): Date | null {
-  if (isDateSeparatorMessage(firstItem)) return firstItem.date;
-
-  return getFloatingDateForFirstMessage(firstItem, processedMessages, firstItemIndex);
-}
+/**
+ * The topmost rendered item is an inline date separator, so its label is still on screen.
+ * Precondition: Virtuoso renders nothing above the viewport, which holds for the list's defaults
+ * (`overscan` and `increaseViewportBy.top` of 0). An integrator raising either, through the list's
+ * deprecated `overscan` prop or `additionalVirtuosoProps`, can make the first rendered item an
+ * off-screen one.
+ */
+const isInlineDateSeparatorAtTop = (firstItem: RenderedMessage) =>
+  isDateSeparatorMessage(firstItem);
 
 const HIDDEN_STATE = { date: null, visible: false } as const;
 
-/** State of the floating date separator, a sticky label showing the first visible item's date. */
+/**
+ * State of the floating date separator, a sticky label showing the date of the first visible
+ * message. Hidden while an inline date separator is the first visible item, so two date labels
+ * never stack.
+ */
 export const useFloatingDateSeparator = ({
   processedMessages,
   withDateSeparator,
@@ -76,10 +80,15 @@ export const useFloatingDateSeparator = ({
       }
 
       const first = valid[0];
+      if (isInlineDateSeparatorAtTop(first)) {
+        setState(HIDDEN_STATE);
+        return;
+      }
+
       const firstIndex = processedMessages.findIndex((m) => m.id === first.id);
       const date =
         firstIndex >= 0
-          ? getFloatingDateForFirstItem(first, processedMessages, firstIndex)
+          ? getFloatingDateForFirstMessage(first, processedMessages, firstIndex)
           : null;
 
       const visible = date !== null;

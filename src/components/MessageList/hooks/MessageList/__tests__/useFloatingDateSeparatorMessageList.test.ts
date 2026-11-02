@@ -67,39 +67,75 @@ describe('useFloatingDateSeparatorMessageList', () => {
     expect(result.current.floatingDate).toBeNull();
   });
 
-  it('uses the separator that reached the top boundary', () => {
-    const jan1 = new Date('2025-01-01T12:00:00Z');
-    const jan2 = new Date('2025-01-02T12:00:00Z');
+  // The list's top edge is at 100px, and each separator is 20px tall.
+  const jan1 = new Date('2025-01-01T12:00:00Z');
+  const jan2 = new Date('2025-01-02T12:00:00Z');
+
+  const renderWithSeparators = (separators: HTMLElement[]) => {
     const listElement = makeListElement();
+    separators.forEach((separator) => listElement.appendChild(separator));
 
-    listElement.appendChild(makeSeparator(jan1, 40, 60));
-    listElement.appendChild(makeSeparator(jan2, 100, 120));
-
-    const { result } = renderHook(() =>
+    return renderHook(() =>
       useFloatingDateSeparatorMessageList({
         listElement,
         processedMessages,
         withDateSeparator: true,
       }),
-    );
+    ).result;
+  };
+
+  it('stays hidden at scroll position 0, while the inline separator sits at the top edge', () => {
+    const result = renderWithSeparators([makeSeparator(jan1, 100, 120)]);
+
+    expect(result.current.showFloatingDate).toBe(false);
+    expect(result.current.floatingDate).toBeNull();
+  });
+
+  it('stays hidden while the inline separator is only partly scrolled out', () => {
+    const result = renderWithSeparators([makeSeparator(jan1, 90, 110)]);
+
+    expect(result.current.showFloatingDate).toBe(false);
+    expect(result.current.floatingDate).toBeNull();
+  });
+
+  it('shows once the inline separator has fully scrolled out above the top edge', () => {
+    const result = renderWithSeparators([makeSeparator(jan1, 80, 100)]);
+
+    expect(result.current.showFloatingDate).toBe(true);
+    expect(result.current.floatingDate).toEqual(jan1);
+  });
+
+  it('shows the date of the last separator scrolled out above the top edge', () => {
+    const result = renderWithSeparators([
+      makeSeparator(jan1, 0, 20),
+      makeSeparator(jan2, 60, 80),
+    ]);
 
     expect(result.current.showFloatingDate).toBe(true);
     expect(result.current.floatingDate).toEqual(jan2);
   });
 
+  it('stays hidden while the next inline separator overlaps the floating spot', () => {
+    const result = renderWithSeparators([
+      makeSeparator(jan1, 40, 60),
+      makeSeparator(jan2, 110, 130),
+    ]);
+
+    expect(result.current.showFloatingDate).toBe(false);
+  });
+
+  it('shows again once the next inline separator is below the floating spot', () => {
+    const result = renderWithSeparators([
+      makeSeparator(jan1, 40, 60),
+      makeSeparator(jan2, 120, 140),
+    ]);
+
+    expect(result.current.showFloatingDate).toBe(true);
+    expect(result.current.floatingDate).toEqual(jan1);
+  });
+
   it('stays hidden before the first inline separator reaches the top', () => {
-    const jan1 = new Date('2025-01-01T12:00:00Z');
-    const listElement = makeListElement();
-
-    listElement.appendChild(makeSeparator(jan1, 120, 140));
-
-    const { result } = renderHook(() =>
-      useFloatingDateSeparatorMessageList({
-        listElement,
-        processedMessages,
-        withDateSeparator: true,
-      }),
-    );
+    const result = renderWithSeparators([makeSeparator(jan1, 120, 140)]);
 
     expect(result.current.showFloatingDate).toBe(false);
     expect(result.current.floatingDate).toBeNull();
