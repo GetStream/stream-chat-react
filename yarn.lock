@@ -2156,22 +2156,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@stream-io/state-store@npm:^1.1.6":
-  version: 1.1.6
-  resolution: "@stream-io/state-store@npm:1.1.6"
-  peerDependencies:
-    react: ^17 || ^18 || ^19
-    use-sync-external-store: ^1.5.0
-  peerDependenciesMeta:
-    react:
-      optional: true
-    use-sync-external-store:
-      optional: true
-  checksum: 10c0/42927cdb6a5bf6ba5f4ec11bb5e530db0a04edc65abd5348eb423780e40a3e53f57125e328d0318a0dc6b24ca0fcb28e8b91895a14a62ed8d82645f67ebcee5a
-  languageName: node
-  linkType: hard
-
-"@stream-io/state-store@npm:^1.2.0":
+"@stream-io/state-store@npm:^1.1.6, @stream-io/state-store@npm:^1.2.0":
   version: 1.2.0
   resolution: "@stream-io/state-store@npm:1.2.0"
   peerDependencies:
@@ -10212,7 +10197,7 @@ __metadata:
     "@semantic-release/git": "npm:^10.0.1"
     "@semantic-release/github": "npm:^12.0.8"
     "@stream-io/i18n": "npm:^1.0.2"
-    "@stream-io/state-store": "npm:^1.1.6"
+    "@stream-io/state-store": "npm:^1.2.0"
     "@stream-io/transliterate": "npm:^1.5.5"
     "@testing-library/dom": "npm:^10.4.1"
     "@testing-library/jest-dom": "npm:^6.9.1"
@@ -10290,7 +10275,7 @@ __metadata:
     modern-normalize: ^3.0.1
     react: ^19.0.0 || ^18.0.0 || ^17.0.0
     react-dom: ^19.0.0 || ^18.0.0 || ^17.0.0
-    stream-chat: ^10.0.0-rc.28
+    stream-chat: ^10.0.0-rc.29
   dependenciesMeta:
     "@parcel/watcher":
       built: true
