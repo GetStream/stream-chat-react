@@ -6,7 +6,7 @@
       "poll": "composer"
     },
     "waitFor": ".cookbook-poll-preview",
-    "clip": ".cookbook-poll-composer",
+    "clip": ".str-chat__message-composer",
     "padding": 0
   },
   {

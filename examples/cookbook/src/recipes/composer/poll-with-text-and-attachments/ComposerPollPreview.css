@@ -1,14 +1,9 @@
 @layer stream-overrides {
-  .cookbook-poll-composer {
-    width: 100%;
-  }
-
   .cookbook-poll-preview {
     position: relative;
     display: flex;
     align-items: flex-start;
     gap: var(--str-chat__spacing-sm);
-    margin: var(--str-chat__spacing-sm) var(--str-chat__spacing-md) 0;
     padding: var(--str-chat__spacing-sm) var(--str-chat__spacing-md);
     border: 1px solid var(--str-chat__border-core-default);
     border-radius: var(--str-chat__radius-lg);

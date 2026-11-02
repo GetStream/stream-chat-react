@@ -1,7 +1,9 @@
 import { useEffect, useState } from 'react';
 import type { MessageComposerState, Poll, PollState } from 'stream-chat';
+import type { MessageComposerPreviewSetItem } from 'stream-chat-react';
 import {
-  MessageComposerUI,
+  defaultMessageComposerPreviewSet,
+  MessageComposerPreviews,
   RemoveAttachmentPreviewButton,
   useChatContext,
   useMessageComposerController,
@@ -10,10 +12,7 @@ import {
 import { removePendingPoll } from './removePendingPoll';
 import './ComposerPollPreview.css';
 
-const composerPollSelector = ({ editedMessage, pollId }: MessageComposerState) => ({
-  editedMessage,
-  pollId,
-});
+const composerPollSelector = ({ pollId }: MessageComposerState) => ({ pollId });
 const pollPreviewSelector = ({ name, options }: PollState) => ({ name, options });
 
 /**
@@ -77,32 +76,39 @@ const PollPreviewCard = ({ onRemove, poll }: PollPreviewCardProps) => {
 };
 
 /** The poll waiting in the composer, while `messageComposer.state.pollId` is set. */
-export const ComposerPollPreview = () => {
+const ComposerPollPreview = () => {
   const messageComposer = useMessageComposerController();
-  const { editedMessage, pollId } = useStateStore(
-    messageComposer.state,
-    composerPollSelector,
-  );
+  const { pollId } = useStateStore(messageComposer.state, composerPollSelector);
   const poll = usePendingPoll(pollId);
   if (!pollId) return null;
 
   return (
     <PollPreviewCard
-      // Takes the poll out of the composer; the poll stays on the server.
-      onRemove={editedMessage ? undefined : () => removePendingPoll(messageComposer)}
+      // Takes the poll out of the composer, without deleting it.
+      onRemove={() => removePendingPoll(messageComposer)}
       poll={poll}
     />
   );
 };
 
-/**
- * The default composer with the poll preview above it. The composer's own preview area renders
- * only for a quoted message, attachments, link previews, a location or an edit, never for a poll
- * alone, so the preview sits outside it.
- */
-export const MessageComposerUIWithPoll = () => (
-  <div className='cookbook-poll-composer'>
-    <ComposerPollPreview />
-    <MessageComposerUI />
-  </div>
+const pollPreviewItem: MessageComposerPreviewSetItem = {
+  Component: ComposerPollPreview,
+  // An edited message keeps its poll, so the preview shows only for a new message.
+  isVisible: ({ editedMessage, pollId }) => !editedMessage && !!pollId,
+  type: 'poll',
+};
+
+// The poll comes right after a quoted message, before the attachments, as in the sent message.
+const quotedMessageIndex = defaultMessageComposerPreviewSet.findIndex(
+  ({ type }) => type === 'quotedMessage',
+);
+const previewSetWithPoll = [
+  ...defaultMessageComposerPreviewSet.slice(0, quotedMessageIndex + 1),
+  pollPreviewItem,
+  ...defaultMessageComposerPreviewSet.slice(quotedMessageIndex + 1),
+];
+
+/** The composer's previews, with the poll among them. */
+export const MessageComposerPreviewsWithPoll = () => (
+  <MessageComposerPreviews messageComposerPreviewSet={previewSetWithPoll} />
 );
