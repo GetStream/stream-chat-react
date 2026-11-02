@@ -2183,11 +2183,11 @@ export const ComposerPreviews = ({ children }: { children: ReactNode }) => (
 );
 ```
 
-### New: composer previews are a configurable set, with a poll preview
+### New: composer previews are a configurable set
 
 Mostly not a break (see the slot overrides below). The previews above the composer's textarea (`.str-chat__message-composer-previews`) come from `MessageComposerPreviews`, which renders a `messageComposerPreviewSet` the way `MessageActions` renders a `messageActionSet`. Each item names itself with a `type`, renders a `Component` without props, and shows while `isVisible(state)` holds. `state` (`MessageComposerPreviewVisibilityFilterParams`) carries the composer's `attachments`, `customData`, `editedMessage`, `linkPreviews` (loading or loaded), `location`, `pollId` and `quotedMessage`. The preview area renders when any item is visible.
 
-`defaultMessageComposerPreviewSet` keeps v14's previews in v14's order (`editedMessage`, `quotedMessage`, `voiceRecording`, `attachments`, `linkPreviews`, `location`) and adds `poll`. The poll preview shows while `messageComposer.state.pollId` holds a poll created with `messageComposer.createPoll()` and not sent yet, and not while editing. It shows the poll's question and options (fetching a poll missing from `client.polls`, e.g. one restored from a draft), and its remove button detaches the poll from the composer. It does not delete the poll: the composer cannot tell whether it created it or whether it was sent, e.g. a `poll_id` restored from a draft. A poll that no longer exists is detached, so the send does not fail on it. Replace it through the `PollPreview` component slot.
+`defaultMessageComposerPreviewSet` keeps v14's previews in v14's order (`editedMessage`, `quotedMessage`, `voiceRecording`, `attachments`, `linkPreviews`, `location`). It has no poll preview: by default the poll creation dialog sends the poll on its own, so the composer never holds one for long. An app that attaches polls to the message adds its own item (see below).
 
 Filter, reorder or extend the default set, then install it with the `MessageComposerPreviews` slot:
 
@@ -2227,7 +2227,7 @@ export const App = ({ children }: { children: React.ReactNode }) => (
 
 - `useMessageComposerPreviewSetFilter(set)` returns the visible items, and `useMessageComposerPreviewState()` the state they are checked against, for a custom container.
 - `isVisible` sees only the state above, so a preview that depends on something else must read it inside its `Component` and return `null`. To drive visibility from app state, put it in `messageComposer.customDataManager.setCustomData(...)` and read `customData`.
-- `EditedMessagePreview`, `GeolocationPreview` and `PollPreview` are now exported from the root.
+- `EditedMessagePreview` and `GeolocationPreview` are now exported from the root.
 - **Custom `AttachmentPreviewList`, `VoiceRecordingPreviewSlot` and `LinkPreviewList` slots mount only while their default item is visible.** v14 mounted them whenever the preview area showed. The `attachments` item shows while the composer holds an attachment other than a voice recording, `voiceRecording` while it holds a voice recording, and `linkPreviews` while a link preview is loading or loaded. A custom component that also rendered something else, e.g. the `location` or `poll` from `useAttachmentsForPreview()` or an empty or upload state, stops mounting when its item is hidden. Replace that item with one whose `isVisible` covers what the component renders, and drop the default item that would render the same thing again:
 
   ```tsx
@@ -2246,7 +2246,7 @@ export const App = ({ children }: { children: React.ReactNode }) => (
     );
   ```
 
-The default poll creation dialog sends the poll as soon as it is created, so the poll preview only shows a poll created elsewhere. To have the dialog attach the poll to the message being composed instead:
+The default poll creation dialog sends the poll as soon as it is created. To have the dialog attach the poll to the message being composed instead:
 
 1. Remove `stream-chat`'s poll-only step from the composition chain. With it, `stream-chat` sends a composer's poll as a message of its own and keeps the text and attachments in the composer. Without it, the poll is sent with them and the composer clears:
 
@@ -2296,6 +2296,54 @@ export const App = ({ children }: { children: React.ReactNode }) => (
   <WithComponents overrides={{ PollCreationDialogControls: AttachPollControls }}>
     {children}
   </WithComponents>
+);
+```
+
+3. Show the attached poll above the textarea with your own preview item. `pollId` in the visibility params holds the poll created with `createPoll()` and not sent yet. Its remove button should only detach the poll (`pollId: null`), not delete it: the composer cannot tell whether it created the poll or whether it was sent, e.g. a `poll_id` restored from a draft. The Vite example's `examples/vite/src/ComposerPreviews/PollPreview.tsx` is a complete one (question, options, settings, a poll fetched when it is not cached):
+
+```tsx
+import type { MessageComposerState } from 'stream-chat';
+import {
+  defaultMessageComposerPreviewSet,
+  MessageComposerPreviews,
+  type MessageComposerPreviewSetItem,
+  RemoveAttachmentPreviewButton,
+  useChatContext,
+  useMessageComposerController,
+  useStateStore,
+} from 'stream-chat-react';
+
+const pollIdSelector = ({ pollId }: MessageComposerState) => ({ pollId });
+
+const PollPreview = () => {
+  const { client } = useChatContext();
+  const messageComposer = useMessageComposerController();
+  const { pollId } = useStateStore(messageComposer.state, pollIdSelector);
+  const poll = pollId ? client.polls.fromState(pollId) : undefined;
+
+  return (
+    <div className='app-poll-preview'>
+      {poll?.data.name ?? 'Poll'}
+      <RemoveAttachmentPreviewButton
+        aria-label='Remove poll'
+        onClick={() => messageComposer.state.partialNext({ pollId: null })}
+      />
+    </div>
+  );
+};
+
+const previewSet: MessageComposerPreviewSetItem[] = [
+  ...defaultMessageComposerPreviewSet,
+  {
+    Component: PollPreview,
+    // An edited message keeps its poll; it cannot be replaced or removed.
+    isVisible: ({ editedMessage, pollId }) => !editedMessage && !!pollId,
+    type: 'poll',
+  },
+];
+
+export const ComposerPreviews = () => (
+  <MessageComposerPreviews messageComposerPreviewSet={previewSet} />
 );
 ```
 

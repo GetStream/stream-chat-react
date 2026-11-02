@@ -1,7 +1,6 @@
-import type { DefaultMessageComposerPreviewType } from 'stream-chat-react';
-
 import {
   PREVIEW_SECTION_INFO,
+  type PreviewSectionType,
   resolvePreviewSectionOrder,
 } from '../../../ComposerPreviews/previewSections';
 import { appSettingsStore, useAppSettingsState } from '../../state';
@@ -31,8 +30,7 @@ export const PreviewSectionsField = () => {
         appSettingsStore.partialNext({ composer: { ...composer, previewSectionOrder } })
       }
       sections={resolvePreviewSectionOrder(composer.previewSectionOrder).map((type) => {
-        const { label, removes } =
-          PREVIEW_SECTION_INFO[type as DefaultMessageComposerPreviewType];
+        const { label, removes } = PREVIEW_SECTION_INFO[type as PreviewSectionType];
         return {
           description: (
             <>

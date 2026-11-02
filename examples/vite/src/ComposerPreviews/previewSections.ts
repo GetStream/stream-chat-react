@@ -4,16 +4,24 @@ import {
   type MessageComposerPreviewSetItem,
 } from 'stream-chat-react';
 
+import { pollPreviewItem } from './PollPreview';
+
 type PreviewSectionInfo = {
   label: string;
   /** What else leaving the section out turns off, so the composer never holds what it cannot show. */
   removes: string;
 };
 
-export const PREVIEW_SECTION_INFO: Record<
-  DefaultMessageComposerPreviewType,
-  PreviewSectionInfo
-> = {
+/** The SDK's default previews plus this app's poll preview, which the SDK does not ship. */
+const examplePreviewSet: MessageComposerPreviewSetItem[] = [
+  ...defaultMessageComposerPreviewSet,
+  pollPreviewItem,
+];
+
+/** The preview types the Composer settings list. */
+export type PreviewSectionType = DefaultMessageComposerPreviewType | 'poll';
+
+export const PREVIEW_SECTION_INFO: Record<PreviewSectionType, PreviewSectionInfo> = {
   attachments: {
     label: 'Files',
     removes:
@@ -34,7 +42,7 @@ export const PREVIEW_SECTION_INFO: Record<
   poll: {
     label: 'Poll',
     removes:
-      'The Poll option in the attachment selector. While shown, the poll dialog attaches the poll to the message instead of sending it.',
+      "The Poll option in the attachment selector. This app's own preview (PollPreview.tsx), not one the SDK ships. While shown, the poll dialog attaches the poll to the message instead of sending it.",
   },
   quotedMessage: {
     label: 'Quoted message',
@@ -46,7 +54,7 @@ export const PREVIEW_SECTION_INFO: Record<
   },
 };
 
-const DEFAULT_TYPES = defaultMessageComposerPreviewSet.map(({ type }) => type);
+const DEFAULT_TYPES = examplePreviewSet.map(({ type }) => type);
 
 /**
  * The stored order, minus types the SDK no longer ships, plus default types it does not list yet
@@ -57,13 +65,11 @@ export const resolvePreviewSectionOrder = (order: string[]) => [
   ...DEFAULT_TYPES.filter((type) => !order.includes(type)),
 ];
 
-/** `defaultMessageComposerPreviewSet` reordered and filtered by the Composer settings. */
+/** The app's preview set reordered and filtered by the Composer settings. */
 export const buildPreviewSet = (
   order: string[],
   disabled: string[],
 ): MessageComposerPreviewSetItem[] =>
   resolvePreviewSectionOrder(order)
     .filter((type) => !disabled.includes(type))
-    .flatMap((type) =>
-      defaultMessageComposerPreviewSet.filter((item) => item.type === type),
-    );
+    .flatMap((type) => examplePreviewSet.filter((item) => item.type === type));

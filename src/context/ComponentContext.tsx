@@ -255,8 +255,6 @@ export type ComponentContextValue = {
    */
   MessageAlsoSentInChannelIndicator?: React.ComponentType;
   PinIndicator?: React.ComponentType<PinIndicatorProps>;
-  /** Preview of the poll the message composer holds (`messageComposer.state.pollId`). */
-  PollPreview?: React.ComponentType;
   /** Poll actions in a message. */
   PollActions?: React.ComponentType;
   /** Poll rendering in a message. */

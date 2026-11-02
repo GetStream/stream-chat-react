@@ -26,7 +26,6 @@ export * from './MessageComposerActions';
 export * from './MessageComposerPreviews';
 export * from './MessageComposerPreviews.defaults';
 export * from './MessageComposerUI';
-export * from './PollPreview';
 export * from './QuotedMessagePreview';
 export * from './RemoveAttachmentPreviewButton';
 export * from './SendButton';

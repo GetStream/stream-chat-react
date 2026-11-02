@@ -13,7 +13,6 @@ export type DefaultMessageComposerPreviewType =
   | 'editedMessage'
   | 'linkPreviews'
   | 'location'
-  | 'poll'
   | 'quotedMessage'
   | 'voiceRecording';
 
@@ -33,7 +32,7 @@ export type MessageComposerPreviewsProps = {
 
 /**
  * Renders the composer's visible previews (edited or quoted message, voice recording,
- * attachments, link previews, location, poll) above the textarea, or nothing when none is visible.
+ * attachments, link previews, location) above the textarea, or nothing when none is visible.
  */
 export const MessageComposerPreviews = ({
   messageComposerPreviewSet = defaultMessageComposerPreviewSet,

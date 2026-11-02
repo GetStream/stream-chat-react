@@ -50,7 +50,10 @@ export type MessageComposerPreviewVisibilityFilterParams = {
   /** Link previews that are loading or loaded. */
   linkPreviews: LinkPreview[];
   location: LocationComposerState['location'];
-  /** A poll created with `messageComposer.createPoll()` that goes out with the message. */
+  /**
+   * A poll created with `messageComposer.createPoll()` and not sent yet. No default preview shows
+   * it; an app that attaches polls to the message adds an item for it.
+   */
   pollId: MessageComposerState['pollId'];
   quotedMessage: MessageComposerState['quotedMessage'];
 };

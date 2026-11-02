@@ -1,0 +1,87 @@
+// The composer's poll preview (PollPreview.tsx), styled like the SDK's other composer previews.
+.app__poll-preview {
+  position: relative;
+  width: 100%;
+  min-width: 0;
+  display: flex;
+  align-items: start;
+  justify-content: space-around;
+  gap: var(--str-chat__spacing-xs);
+  padding-inline: var(--str-chat__spacing-xs) var(--str-chat__spacing-sm);
+  padding-block: var(--str-chat__spacing-xs);
+  background-color: var(--str-chat__chat-bg-outgoing);
+  border-radius: var(--str-chat__message-bubble-radius-attachment);
+}
+
+.app__poll-preview__image {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  overflow: hidden;
+  border-radius: var(--str-chat__radius-md);
+  background-color: var(--str-chat__background-core-overlay-light);
+
+  .str-chat__icon {
+    width: 20px;
+    height: 20px;
+  }
+}
+
+.app__poll-preview__data {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  justify-content: center;
+  min-width: 0;
+  height: 100%;
+  gap: 2px;
+}
+
+.app__poll-preview__title,
+.app__poll-preview__options-list {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.app__poll-preview__title {
+  font: var(--str-chat__font-metadata-emphasis);
+}
+
+.app__poll-preview__options {
+  display: flex;
+  gap: var(--str-chat__spacing-xxs);
+  min-width: 0;
+  font: var(--str-chat__font-metadata-default);
+}
+
+.app__poll-preview__options-count {
+  flex-shrink: 0;
+  color: var(--str-chat__text-primary);
+}
+
+// A poll holds up to 100 options; only the first few are named and the line still ellipsizes.
+.app__poll-preview__options-list {
+  min-width: 0;
+  color: var(--str-chat__text-secondary);
+}
+
+.app__poll-preview__settings {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--str-chat__spacing-xxs);
+  margin: 2px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.app__poll-preview__setting {
+  padding: 0 var(--str-chat__spacing-xs);
+  border-radius: var(--str-chat__radius-max);
+  background-color: var(--str-chat__background-core-overlay-light);
+  font: var(--str-chat__font-metadata-default);
+  white-space: nowrap;
+}

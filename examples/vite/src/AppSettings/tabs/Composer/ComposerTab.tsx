@@ -52,10 +52,11 @@ export const ComposerTab = ({ close }: ComposerTabProps) => {
             The previews above the textarea, rendered through{' '}
             <code>MessageComposerPreviews</code> with a{' '}
             <code>messageComposerPreviewSet</code> built from{' '}
-            <code>defaultMessageComposerPreviewSet</code>. Drag a section, or use its
-            arrows, to change the order; switch it off to leave it out. A removed section
-            also takes the composer&apos;s way into it with it, so the composer never
-            holds something it cannot show. Applies to open composers at once.
+            <code>defaultMessageComposerPreviewSet</code> plus this app&apos;s Poll
+            preview (the SDK ships none). Drag a section, or use its arrows, to change the
+            order; switch it off to leave it out. A removed section also takes the
+            composer&apos;s way into it with it, so the composer never holds something it
+            cannot show. Applies to open composers at once.
           </div>
           <PreviewSectionsField />
         </div>

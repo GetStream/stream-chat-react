@@ -18,7 +18,6 @@ import { EditedMessagePreview as DefaultEditedMessagePreview } from './EditedMes
 import { useMessageComposerController } from './hooks';
 import { LinkPreviewList as DefaultLinkPreviewList } from './LinkPreviewList';
 import type { MessageComposerPreviewSetItem } from './MessageComposerPreviews';
-import { PollPreview as DefaultPollPreview } from './PollPreview';
 import { restorePreEditSnapshot } from './preEditSnapshot';
 import { QuotedMessagePreview as DefaultQuotedMessagePreview } from './QuotedMessagePreview';
 
@@ -81,10 +80,6 @@ const DefaultMessageComposerPreviewComponents = {
       />
     );
   },
-  Poll() {
-    const { PollPreview = DefaultPollPreview } = useComponentContext();
-    return <PollPreview />;
-  },
 };
 
 /**
@@ -124,11 +119,5 @@ export const defaultMessageComposerPreviewSet: MessageComposerPreviewSetItem[] =
     Component: DefaultMessageComposerPreviewComponents.Location,
     isVisible: ({ location }) => !!location,
     type: 'location',
-  },
-  {
-    Component: DefaultMessageComposerPreviewComponents.Poll,
-    // An edited message keeps its poll; it cannot be replaced or removed.
-    isVisible: ({ editedMessage, pollId }) => !editedMessage && !!pollId,
-    type: 'poll',
   },
 ];

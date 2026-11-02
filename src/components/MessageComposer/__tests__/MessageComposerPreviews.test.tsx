@@ -1,5 +1,5 @@
 import React from 'react';
-import { act, cleanup, fireEvent, render, screen, within } from '@testing-library/react';
+import { act, cleanup, render, screen } from '@testing-library/react';
 import { fromPartial } from '@total-typescript/shoehorn';
 import type { Attachment, Channel as ChannelType, StreamChat } from 'stream-chat';
 import { LinkPreviewStatus } from 'stream-chat';
@@ -74,15 +74,10 @@ const addFileAttachment = (channel: ChannelType) => {
   ]);
 };
 
-const cachePoll = (client: StreamChat, poll = generatePoll()) => {
-  client.polls.hydratePollCache([fromPartial({ poll })]);
-  return poll;
-};
-
 const previewTestIds = (container: HTMLElement) =>
   Array.from(
     container.querySelectorAll(
-      `.${PREVIEWS_CLASS} [data-testid='quoted-message-preview'], .${PREVIEWS_CLASS} [data-testid='attachment-preview-list'], .${PREVIEWS_CLASS} [data-testid='link-preview-card'], .${PREVIEWS_CLASS} [data-testid='location-preview'], .${PREVIEWS_CLASS} [data-testid='poll-preview'], .${PREVIEWS_CLASS} [data-testid='custom-preview']`,
+      `.${PREVIEWS_CLASS} [data-testid='quoted-message-preview'], .${PREVIEWS_CLASS} [data-testid='attachment-preview-list'], .${PREVIEWS_CLASS} [data-testid='link-preview-card'], .${PREVIEWS_CLASS} [data-testid='location-preview'], .${PREVIEWS_CLASS} [data-testid='custom-preview']`,
     ),
   ).map((element) => element.getAttribute('data-testid'));
 
@@ -102,7 +97,6 @@ describe('MessageComposerPreviews', () => {
   it('renders the default previews in order', async () => {
     const { channel, client } = await setup();
     const { container } = await renderPreviews({ channel, client });
-    cachePoll(client);
 
     await act(() => {
       channel.messageComposer.setQuotedMessage(
@@ -111,7 +105,6 @@ describe('MessageComposerPreviews', () => {
       addFileAttachment(channel);
       addLinkPreview(channel);
       channel.messageComposer.locationComposer.setData({ latitude: 1, longitude: 2 });
-      channel.messageComposer.state.partialNext({ pollId: generatePoll().id });
     });
 
     expect(container.querySelectorAll(`.${PREVIEWS_CLASS}`)).toHaveLength(1);
@@ -120,11 +113,10 @@ describe('MessageComposerPreviews', () => {
       'attachment-preview-list',
       'link-preview-card',
       'location-preview',
-      'poll-preview',
     ]);
   });
 
-  it('shows the edited message instead of the quoted message and the poll', async () => {
+  it('shows the edited message instead of the quoted message', async () => {
     const { channel, client } = await setup();
     const { container } = await renderPreviews({ channel, client });
 
@@ -133,14 +125,12 @@ describe('MessageComposerPreviews', () => {
         editedMessage: fromPartial(
           generateMessage({ text: 'edited', user: generateUser() }),
         ),
-        pollId: 'poll-id',
         quotedMessage: fromPartial(generateMessage({ text: 'quoted' })),
       });
     });
 
     expect(screen.getByText('Edit Message')).toBeInTheDocument();
     expect(screen.queryByText('quoted')).not.toBeInTheDocument();
-    expect(screen.queryByTestId('poll-preview')).not.toBeInTheDocument();
     expect(container.querySelector(`.${PREVIEWS_CLASS}`)).toBeInTheDocument();
   });
 
@@ -211,135 +201,46 @@ describe('MessageComposerPreviews', () => {
     expect(screen.getByTestId('custom-preview')).toBeInTheDocument();
   });
 
-  describe('poll preview', () => {
-    it('renders the preview area for a poll-only composer', async () => {
-      const { channel, client } = await setup();
-      const poll = cachePoll(client);
-      const { container } = await renderPreviews({ channel, client });
+  it('shows no default preview for a poll the composer holds', async () => {
+    const { channel, client } = await setup();
+    const { container } = await renderPreviews({ channel, client });
 
-      await act(() => {
-        channel.messageComposer.state.partialNext({ pollId: poll.id });
-      });
-
-      const pollPreview = screen.getByTestId('poll-preview');
-      expect(container.querySelector(`.${PREVIEWS_CLASS}`)).toContainElement(pollPreview);
-      expect(pollPreview).toHaveTextContent(poll.name);
-      // The default generated poll: 4 options, up to 2 votes, public, comments on.
-      expect(pollPreview).toHaveTextContent('4 options');
-      expect(pollPreview).toHaveTextContent('A, B, C and 1 more');
-      expect(
-        within(screen.getByRole('list', { name: 'Poll settings' }))
-          .getAllByRole('listitem')
-          .map((item) => item.textContent),
-      ).toEqual(['Up to 2 votes', 'Comments']);
+    await act(() => {
+      channel.messageComposer.state.partialNext({ pollId: generatePoll().id });
     });
 
-    it('names only the first options of a long poll and reflects its settings', async () => {
-      const { channel, client } = await setup();
-      const poll = cachePoll(
-        client,
-        generatePoll({
-          allow_answers: false,
-          allow_user_suggested_options: true,
-          enforce_unique_vote: true,
-          id: 'long-poll',
-          options: Array.from({ length: 99 }, (_, index) => ({
-            id: `option-${index}`,
-            text: `Option ${index + 1}`,
-          })),
-          voting_visibility: 'anonymous',
-        }),
-      );
-      await renderPreviews({ channel, client });
+    expect(container.querySelector(`.${PREVIEWS_CLASS}`)).not.toBeInTheDocument();
+  });
 
-      await act(() => {
-        channel.messageComposer.state.partialNext({ pollId: poll.id });
-      });
+  it('has no accessibility violations', async () => {
+    const { channel, client } = await setup();
+    const { container } = await renderPreviews({ channel, client });
 
-      const pollPreview = screen.getByTestId('poll-preview');
-      expect(pollPreview).toHaveTextContent('99 options');
-      expect(pollPreview).toHaveTextContent('Option 1, Option 2, Option 3 and 96 more');
-      expect(pollPreview).not.toHaveTextContent('Option 4');
-      expect(
-        within(screen.getByRole('list', { name: 'Poll settings' }))
-          .getAllByRole('listitem')
-          .map((item) => item.textContent),
-      ).toEqual(['Anonymous', 'Others can add options']);
+    await act(() => {
+      addFileAttachment(channel);
+      addLinkPreview(channel);
     });
 
-    it('fetches a poll that is not cached', async () => {
-      const { channel, client } = await setup();
-      const poll = generatePoll({ id: 'uncached-poll', name: 'Fetched question' });
-      const getPollSpy = vi
-        .spyOn(client, 'getPoll')
-        .mockResolvedValue(fromPartial({ poll }));
-      await renderPreviews({ channel, client });
+    expect(await axe(container)).toHaveNoViolations();
+  });
 
-      await act(() => {
-        channel.messageComposer.state.partialNext({ pollId: poll.id });
-      });
+  it('lets a custom item show the poll the composer holds', async () => {
+    const { channel, client } = await setup();
+    const PollItem = () => <div data-testid='custom-preview'>Poll</div>;
+    const previewSet: MessageComposerPreviewSetItem[] = [
+      ...defaultMessageComposerPreviewSet,
+      {
+        Component: PollItem,
+        isVisible: ({ editedMessage, pollId }) => !editedMessage && !!pollId,
+        type: 'poll',
+      },
+    ];
+    const { container } = await renderPreviews({ channel, client, previewSet });
 
-      expect(getPollSpy).toHaveBeenCalledWith({ poll_id: poll.id });
-      expect(await screen.findByText('Fetched question')).toBeInTheDocument();
+    await act(() => {
+      channel.messageComposer.state.partialNext({ pollId: generatePoll().id });
     });
 
-    it('detaches a poll that no longer exists', async () => {
-      const { channel, client } = await setup();
-      vi.spyOn(client, 'getPoll').mockRejectedValue(
-        Object.assign(new Error('poll not found'), { code: 16 }),
-      );
-      const { container } = await renderPreviews({ channel, client });
-
-      await act(() => {
-        channel.messageComposer.state.partialNext({ pollId: 'deleted-poll' });
-      });
-
-      expect(channel.messageComposer.pollId).toBeNull();
-      expect(container.querySelector(`.${PREVIEWS_CLASS}`)).not.toBeInTheDocument();
-    });
-
-    it('keeps the poll when fetching it fails for another reason', async () => {
-      const { channel, client } = await setup();
-      vi.spyOn(client, 'getPoll').mockRejectedValue(new Error('Network Error'));
-      await renderPreviews({ channel, client });
-
-      await act(() => {
-        channel.messageComposer.state.partialNext({ pollId: 'unreachable-poll' });
-      });
-
-      expect(channel.messageComposer.pollId).toBe('unreachable-poll');
-      expect(screen.getByTestId('poll-preview')).toHaveTextContent('Poll');
-    });
-
-    it('detaches the poll from the composer on remove without deleting it', async () => {
-      const { channel, client } = await setup();
-      const poll = cachePoll(client);
-      const deletePollSpy = vi.spyOn(client, 'deletePoll');
-      const { container } = await renderPreviews({ channel, client });
-
-      await act(() => {
-        channel.messageComposer.state.partialNext({ pollId: poll.id });
-      });
-      await act(() => {
-        fireEvent.click(screen.getByTestId('poll-preview-delete-button'));
-      });
-
-      expect(channel.messageComposer.pollId).toBeNull();
-      expect(container.querySelector(`.${PREVIEWS_CLASS}`)).not.toBeInTheDocument();
-      expect(deletePollSpy).not.toHaveBeenCalled();
-    });
-
-    it('has no accessibility violations', async () => {
-      const { channel, client } = await setup();
-      const poll = cachePoll(client);
-      const { container } = await renderPreviews({ channel, client });
-
-      await act(() => {
-        channel.messageComposer.state.partialNext({ pollId: poll.id });
-        addLinkPreview(channel);
-      });
-
-      expect(await axe(container)).toHaveNoViolations();
-    });
+    expect(previewTestIds(container)).toEqual(['custom-preview']);
   });
 });
