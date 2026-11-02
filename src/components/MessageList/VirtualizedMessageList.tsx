@@ -1,5 +1,5 @@
 import type { RefObject } from 'react';
-import React, { useCallback, useEffect, useMemo, useRef } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import { FloatingDateSeparator } from './FloatingDateSeparator';
 import type {
@@ -405,13 +405,25 @@ const VirtualizedMessageListWithContext = (
     handleScrollerRef(customScrollParent ?? window);
   }, [customScrollParent, handleScrollerRef, useWindowScroll]);
 
+  const [scrollerElement, setScrollerElement] = useState<HTMLElement | Window | null>(
+    null,
+  );
+
   const scrollerRef = useCallback(
     (element: HTMLElement | Window | null) => {
       handleScrollerRef(element);
+      setScrollerElement(element);
       scrollerRefFromProps?.(element);
     },
     [handleScrollerRef, scrollerRefFromProps],
   );
+
+  // The element whose scrolling shows the floating date. In the window-scroll modes Virtuoso never
+  // calls `scrollerRef`, so the scroll parent is named directly. In those modes the floating date is
+  // not pinned to the scroller's top edge, so its placement there is best-effort.
+  const floatingDateScrollElement =
+    customScrollParent ??
+    (useWindowScroll && typeof window !== 'undefined' ? window : scrollerElement);
 
   // Content can grow without the scroller resizing or scrolling (e.g. an avatar or image loading
   // late), which moves the true bottom without firing either event the hook observes.
@@ -568,6 +580,7 @@ const VirtualizedMessageListWithContext = (
             <FloatingDateSeparator
               itemsRenderedRef={floatingDateItemsRenderedRef}
               processedMessages={processedMessages}
+              scrollElement={floatingDateScrollElement}
               withDateSeparator={withDateSeparator}
             />
             <Virtuoso<UnknownType, VirtuosoContext>
