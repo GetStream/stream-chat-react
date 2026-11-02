@@ -675,6 +675,7 @@
   "timestamp/relativeWeeksAgo": "{{ count }}주 전",
   "timestamp/relativeYesterday": "어제",
   "timestamp/ReminderNotification": "{{ timestamp | timestampFormatter(calendar: true; calendarFormats: { \"sameDay\": \"[오늘] HH:mm\", \"nextDay\": \"[내일] HH:mm\", \"lastDay\": \"[어제] HH:mm\", \"nextWeek\": \"dddd HH:mm\", \"lastWeek\": \"[지난] dddd HH:mm\", \"sameElse\": \"ddd, D MMM HH:mm\" }) }}",
+  "timestamp/SchedulePreset": "{{ timestamp | timestampFormatter(calendar: true; calendarFormats: { \"sameDay\": \"[오늘] HH:mm\", \"nextDay\": \"[내일] HH:mm\", \"lastDay\": \"[어제] HH:mm\", \"nextWeek\": \"dddd HH:mm\", \"lastWeek\": \"[지난] dddd HH:mm\", \"sameElse\": \"dddd HH:mm\" }) }}",
   "timestamp/ScheduledMessage": "{{ timestamp | timestampFormatter(calendar: true; calendarFormats: { \"sameDay\": \"[오늘] HH:mm\", \"nextDay\": \"[내일] HH:mm\", \"lastDay\": \"[어제] HH:mm\", \"nextWeek\": \"dddd HH:mm\", \"lastWeek\": \"[지난] dddd HH:mm\", \"sameElse\": \"ddd, D MMM HH:mm\" }) }}",
   "timestamp/ScheduledMessageGroup": "{{ timestamp | timestampFormatter(calendar: true; calendarFormats: { \"sameDay\": \"[오늘]\", \"nextDay\": \"[내일]\", \"lastDay\": \"[어제]\", \"nextWeek\": \"dddd\", \"lastWeek\": \"[지난] dddd\", \"sameElse\": \"ddd, D MMM\" }) }}",
   "timestamp/SystemMessage": "{{ timestamp | timestampFormatter(format: dddd L) }}",

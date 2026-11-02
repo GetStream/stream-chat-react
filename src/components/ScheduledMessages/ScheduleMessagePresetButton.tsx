@@ -19,7 +19,7 @@ export const ScheduleMessagePresetButton = ({
       Icon={IconClock}
       onClick={selectPreset}
     >
-      {t('timestamp/ScheduledMessage', { timestamp: scheduledAt })}
+      {t('timestamp/SchedulePreset', { timestamp: scheduledAt })}
     </ContextMenuButton>
   );
 };

@@ -675,6 +675,7 @@
   "timestamp/relativeWeeksAgo": "{{ count }}週間前",
   "timestamp/relativeYesterday": "昨日",
   "timestamp/ReminderNotification": "{{ timestamp | timestampFormatter(calendar: true; calendarFormats: { \"sameDay\": \"[今日] HH:mm\", \"nextDay\": \"[明日] HH:mm\", \"lastDay\": \"[昨日] HH:mm\", \"nextWeek\": \"dddd HH:mm\", \"lastWeek\": \"dddd HH:mm\", \"sameElse\": \"ddd, D MMM HH:mm\" }) }}",
+  "timestamp/SchedulePreset": "{{ timestamp | timestampFormatter(calendar: true; calendarFormats: { \"sameDay\": \"[今日] HH:mm\", \"nextDay\": \"[明日] HH:mm\", \"lastDay\": \"[昨日] HH:mm\", \"nextWeek\": \"dddd HH:mm\", \"lastWeek\": \"dddd HH:mm\", \"sameElse\": \"dddd HH:mm\" }) }}",
   "timestamp/ScheduledMessage": "{{ timestamp | timestampFormatter(calendar: true; calendarFormats: { \"sameDay\": \"[今日] HH:mm\", \"nextDay\": \"[明日] HH:mm\", \"lastDay\": \"[昨日] HH:mm\", \"nextWeek\": \"dddd HH:mm\", \"lastWeek\": \"dddd HH:mm\", \"sameElse\": \"ddd, D MMM HH:mm\" }) }}",
   "timestamp/ScheduledMessageGroup": "{{ timestamp | timestampFormatter(calendar: true; calendarFormats: { \"sameDay\": \"[今日]\", \"nextDay\": \"[明日]\", \"lastDay\": \"[昨日]\", \"nextWeek\": \"dddd\", \"lastWeek\": \"[先週の] dddd\", \"sameElse\": \"ddd, D MMM\" }) }}",
   "timestamp/SystemMessage": "{{ timestamp | timestampFormatter(format: dddd L) }}",

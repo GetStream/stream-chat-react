@@ -720,6 +720,7 @@
   "timestamp/relativeWeeksAgo": "há {{ count }} sem",
   "timestamp/relativeYesterday": "Ontem",
   "timestamp/ReminderNotification": "{{ timestamp | timestampFormatter(calendar: true; calendarFormats: { \"sameDay\": \"[Hoje] [às] HH:mm\", \"nextDay\": \"[Amanhã] [às] HH:mm\", \"lastDay\": \"[Ontem] [às] HH:mm\", \"nextWeek\": \"dddd [às] HH:mm\", \"lastWeek\": \"dddd [passada às] HH:mm\", \"sameElse\": \"ddd, D MMM [às] HH:mm\" }) }}",
+  "timestamp/SchedulePreset": "{{ timestamp | timestampFormatter(calendar: true; calendarFormats: { \"sameDay\": \"[Hoje] [às] HH:mm\", \"nextDay\": \"[Amanhã] [às] HH:mm\", \"lastDay\": \"[Ontem] [às] HH:mm\", \"nextWeek\": \"dddd [às] HH:mm\", \"lastWeek\": \"dddd [passada às] HH:mm\", \"sameElse\": \"dddd [às] HH:mm\" }) }}",
   "timestamp/ScheduledMessage": "{{ timestamp | timestampFormatter(calendar: true; calendarFormats: { \"sameDay\": \"[Hoje] [às] HH:mm\", \"nextDay\": \"[Amanhã] [às] HH:mm\", \"lastDay\": \"[Ontem] [às] HH:mm\", \"nextWeek\": \"dddd [às] HH:mm\", \"lastWeek\": \"dddd [passada às] HH:mm\", \"sameElse\": \"ddd, D MMM [às] HH:mm\" }) }}",
   "timestamp/ScheduledMessageGroup": "{{ timestamp | timestampFormatter(calendar: true; calendarFormats: { \"sameDay\": \"[Hoje]\", \"nextDay\": \"[Amanhã]\", \"lastDay\": \"[Ontem]\", \"nextWeek\": \"dddd\", \"lastWeek\": \"[Último] dddd\", \"sameElse\": \"ddd, D MMM\" }) }}",
   "timestamp/SystemMessage": "{{ timestamp | timestampFormatter(format: dddd L) }}",
