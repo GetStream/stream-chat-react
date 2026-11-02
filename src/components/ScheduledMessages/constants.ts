@@ -38,6 +38,7 @@ export type ScheduleMessageNoticeSeverity =
 
 export const ScheduledMessageNotificationType = {
   Blocked: 'validation:scheduled-message:blocked',
+  CompositionEnded: 'validation:scheduled-message:composition:ended',
   CreateFailed: 'api:scheduled-message:create:failed',
   CreateSucceeded: 'api:scheduled-message:create:success',
   DeleteFailed: 'api:scheduled-message:delete:failed',

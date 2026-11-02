@@ -6,6 +6,7 @@ import type { Notification } from 'stream-chat';
 import {
   translateScheduledMessageActionFailed,
   translateScheduledMessageBlocked,
+  translateScheduledMessageCompositionEnded,
   translateScheduledMessageCreateFailed,
   translateScheduledMessageSendFailed,
 } from '../TranslationBuilder/notifications/translators';
@@ -179,6 +180,36 @@ describe('translateScheduledMessageSendFailed', () => {
 
   it('leaves out a reason that is not shown to users', () => {
     expect(translateSendFailed('user_deleted')).toBe('Scheduled message not sent');
+  });
+});
+
+describe('translateScheduledMessageCompositionEnded', () => {
+  const translateEnded = (reason?: string) =>
+    translateScheduledMessageCompositionEnded({
+      key: '',
+      options: {
+        notification: fromPartial<Notification>({
+          metadata: { reason },
+          type: 'validation:scheduled-message:composition:ended',
+        }),
+      },
+      t,
+      value: '',
+    });
+
+  it.each([
+    ['sent', 'This scheduled message was already sent'],
+    ['deleted', 'This scheduled message was deleted'],
+    ['failed', 'This scheduled message failed to send'],
+    [undefined, 'This scheduled message can no longer be edited'],
+  ])('explains why the edit ended (%s)', (reason, expected) => {
+    expect(translateEnded(reason)).toBe(expected);
+  });
+
+  it('is registered for the composition-ended warning', () => {
+    expect(
+      translatorsByNotificationType['validation:scheduled-message:composition:ended'],
+    ).toBe(translateScheduledMessageCompositionEnded);
   });
 });
 

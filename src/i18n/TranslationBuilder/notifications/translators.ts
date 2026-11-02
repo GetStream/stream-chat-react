@@ -3,6 +3,7 @@ import {
   getScheduledMessageErrorReason,
   isScheduledMessageNotFoundError,
   ScheduledMessageBlockReason,
+  ScheduledMessageCompositionEndReason,
   ScheduledMessageErrorReason,
 } from 'stream-chat';
 import type { Notification, ScheduledMessageFailureReason } from 'stream-chat';
@@ -209,4 +210,24 @@ export const translateScheduledMessageSendFailed: Translator<
   if (!reasonCopy) return t('Scheduled message not sent');
 
   return t('Scheduled message not sent: {{ reason }}', { reason: reasonCopy });
+};
+
+export const translateScheduledMessageCompositionEnded: Translator<
+  NotificationTranslatorOptions
+> = ({ options: { notification }, t }) => {
+  const { reason } = notification?.metadata ?? {};
+
+  if (reason === ScheduledMessageCompositionEndReason.Sent) {
+    return t('This scheduled message was already sent');
+  }
+
+  if (reason === ScheduledMessageCompositionEndReason.Deleted) {
+    return t('This scheduled message was deleted');
+  }
+
+  if (reason === ScheduledMessageCompositionEndReason.Failed) {
+    return t('This scheduled message failed to send');
+  }
+
+  return t('This scheduled message can no longer be edited');
 };
