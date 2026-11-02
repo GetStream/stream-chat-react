@@ -7,7 +7,6 @@ import {
   useMessageComposerController,
   useStateStore,
 } from 'stream-chat-react';
-import { deleteUnsentPoll } from './removePendingPoll';
 import './AddPollDialog.css';
 
 const pollFieldsSelector = ({ data }: PollComposerState) => ({
@@ -28,19 +27,12 @@ export const AddPollDialog = ({ close }: PollCreationDialogProps) => {
 
   const addPoll = async () => {
     close();
-    // A poll already waiting in the composer, which the new one replaces.
-    const previousPollId = messageComposer.pollId;
     try {
-      // Creates the poll on the server and sets `messageComposer.state.pollId`.
+      // Creates the poll on the server and sets `messageComposer.state.pollId`, so a new poll
+      // replaces one already waiting in the composer. The replaced poll stays on the server.
       await messageComposer.createPoll();
     } catch {
       // `createPoll()` already reported the failure as a notification.
-    }
-    // `createPoll()` may also return without creating anything, when the form doesn't compose.
-    // Until a new poll is in the composer, the previous one stays there and on the server.
-    const { pollId } = messageComposer;
-    if (previousPollId && pollId && pollId !== previousPollId) {
-      deleteUnsentPoll(messageComposer, previousPollId);
     }
   };
 

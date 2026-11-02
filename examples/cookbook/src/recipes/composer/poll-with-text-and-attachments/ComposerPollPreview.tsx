@@ -88,7 +88,7 @@ export const ComposerPollPreview = () => {
 
   return (
     <PollPreviewCard
-      // Takes the poll out of the composer and deletes it on the server.
+      // Takes the poll out of the composer; the poll stays on the server.
       onRemove={editedMessage ? undefined : () => removePendingPoll(messageComposer)}
       poll={poll}
     />
