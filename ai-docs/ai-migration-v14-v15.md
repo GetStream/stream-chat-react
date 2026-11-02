@@ -1673,7 +1673,7 @@ export const List = () => (
 
 - Action names are typed by the exported `DefaultMessageActionType` union; a custom action may use any string.
 - Permission and message-state filtering stays in `useBaseMessageActionSetFilter`: an action the user cannot perform, or that a thread reply does not support, is dropped whether or not you list it. Pass `disableBaseMessageActionSetFilter` to take that over.
-- An action's own rule about the message lives on its item as `isVisible({ isMyMessage, isThreadReply, message })`. In `defaultMessageActionSet`, `edit` hides for a poll message and a giphy, `copyMessageText` for a message without text and `download` for one without a downloadable attachment. Replace the item to change its rule. `isVisible` can only hide an action: the capabilities, the features enabled on the server and the message's status are still checked by the base filter. Item rules apply even with `disableBaseMessageActionSetFilter`. For example, to let users edit the text and attachments sent with a poll:
+- An action's own rule about the message lives on its item as `isVisible({ isMyMessage, isThreadReply, message })`. In `defaultMessageActionSet`, `edit` hides for a poll message and a giphy, `copyMessageText` for a message without text and `download` for one without a downloadable attachment. Replace the item to change its rule. `isVisible` can only hide an action: the capabilities, the features enabled on the server and the message's status are still checked by the base filter. Item rules apply even with `disableBaseMessageActionSetFilter`, and to failed messages: v14 offered Edit on any message that failed to send for a network reason, while a network-failed poll message or giphy now gets no Edit. For example, to let users edit the text and attachments sent with a poll:
 
   ```tsx
   import { defaultMessageActionSet, type MessageActionSetItem } from 'stream-chat-react';
@@ -1687,7 +1687,7 @@ export const List = () => (
   ```
 
 - A hand-written `edit`, `copyMessageText` or `download` item without `isVisible` now shows wherever the base filter allows it, e.g. `edit` on a poll message the user may update. Copy the default item's `isVisible` to keep the default rule.
-- `useUserRole(message).canEdit` is now the permission alone (`update-any-message`, or `update-own-message` on the user's own message), the same check the base filter makes. It no longer excludes poll messages and giphies; a custom UI that gated an edit button on it and wants that rule adds `!message.poll && message.command !== 'giphy'` itself.
+- `useUserRole(message).canEdit` is now the permission alone (`update-any-message`, or `update-own-message` on the user's own message), the same check the base filter makes. It no longer excludes poll messages and giphies; a custom UI that gated an edit button on it and wants that rule adds `!message.poll_id && message.command !== 'giphy'` itself.
 - There is no `actionsEnabled` replacement. The base filter already drops actions on deleted, bounced and failed messages.
 - **A custom `MessageUI` that gated its own buttons** on `getMessageActions()` / `MESSAGE_ACTIONS` (for example showing a react or reply button only when allowed) reads the permission from `useUserRole(message)`, which returns `canReact`, `canReply`, `canPin`, `canEdit`, `canDelete`, `canFlag`, `canMute`, `canQuote`, `canMarkUnread`, `canBlockUser`, `canSendMessage`, `isMyMessage` and the role flags:
 
@@ -2185,9 +2185,9 @@ export const ComposerPreviews = ({ children }: { children: ReactNode }) => (
 
 ### New: composer previews are a configurable set, with a poll preview
 
-Not a break. The previews above the composer's textarea (`.str-chat__message-composer-previews`) come from `MessageComposerPreviews`, which renders a `messageComposerPreviewSet` the way `MessageActions` renders a `messageActionSet`. Each item names itself with a `type`, renders a `Component` without props, and shows while `isVisible(state)` holds. `state` (`MessageComposerPreviewVisibilityFilterParams`) carries the composer's `attachments`, `customData`, `editedMessage`, `linkPreviews` (loading or loaded), `location`, `pollId` and `quotedMessage`. The preview area renders when any item is visible.
+Mostly not a break (see the slot overrides below). The previews above the composer's textarea (`.str-chat__message-composer-previews`) come from `MessageComposerPreviews`, which renders a `messageComposerPreviewSet` the way `MessageActions` renders a `messageActionSet`. Each item names itself with a `type`, renders a `Component` without props, and shows while `isVisible(state)` holds. `state` (`MessageComposerPreviewVisibilityFilterParams`) carries the composer's `attachments`, `customData`, `editedMessage`, `linkPreviews` (loading or loaded), `location`, `pollId` and `quotedMessage`. The preview area renders when any item is visible.
 
-`defaultMessageComposerPreviewSet` keeps v14's previews in v14's order (`editedMessage`, `quotedMessage`, `voiceRecording`, `attachments`, `linkPreviews`, `location`) and adds `poll`. The poll preview shows while `messageComposer.state.pollId` holds a poll created with `messageComposer.createPoll()` and not sent yet, and not while editing. It shows the poll's question and options (fetching a poll missing from `client.polls`, e.g. one restored from a draft), and its remove button detaches the poll from the composer. Replace it through the `PollPreview` component slot.
+`defaultMessageComposerPreviewSet` keeps v14's previews in v14's order (`editedMessage`, `quotedMessage`, `voiceRecording`, `attachments`, `linkPreviews`, `location`) and adds `poll`. The poll preview shows while `messageComposer.state.pollId` holds a poll created with `messageComposer.createPoll()` and not sent yet, and not while editing. It shows the poll's question and options (fetching a poll missing from `client.polls`, e.g. one restored from a draft), and its remove button detaches the poll from the composer and deletes it, since it was never sent. A poll that no longer exists is detached, so the send does not fail on it. Replace it through the `PollPreview` component slot.
 
 Filter, reorder or extend the default set, then install it with the `MessageComposerPreviews` slot:
 
@@ -2228,6 +2228,20 @@ export const App = ({ children }: { children: React.ReactNode }) => (
 - `useMessageComposerPreviewSetFilter(set)` returns the visible items, and `useMessageComposerPreviewState()` the state they are checked against, for a custom container.
 - `isVisible` sees only the state above, so a preview that depends on something else must read it inside its `Component` and return `null`. To drive visibility from app state, put it in `messageComposer.customDataManager.setCustomData(...)` and read `customData`.
 - `EditedMessagePreview`, `GeolocationPreview` and `PollPreview` are now exported from the root.
+- **Custom `AttachmentPreviewList`, `VoiceRecordingPreviewSlot` and `LinkPreviewList` slots mount only while their default item is visible.** v14 mounted them whenever the preview area showed. The `attachments` item shows while the composer holds an attachment other than a voice recording, `voiceRecording` while it holds a voice recording, and `linkPreviews` while a link preview is loading or loaded. A custom component that also rendered something else, e.g. the `location` or `poll` from `useAttachmentsForPreview()` or an empty or upload state, stops mounting when its item is hidden. Replace that item with one whose `isVisible` covers what the component renders:
+
+  ```tsx
+  const previewSet = defaultMessageComposerPreviewSet.map(
+    (item): MessageComposerPreviewSetItem =>
+      item.type === 'attachments'
+        ? {
+            ...item,
+            isVisible: ({ attachments, location }) =>
+              attachments.length > 0 || !!location,
+          }
+        : item,
+  );
+  ```
 
 The default poll creation dialog sends the poll as soon as it is created, so the poll preview only shows a poll created elsewhere. To have the dialog attach the poll to the message being composed instead:
 

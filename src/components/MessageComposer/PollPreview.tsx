@@ -27,6 +27,9 @@ const pollStateSelector = ({
   voting_visibility,
 });
 
+/** Stream API error code for a resource that does not exist. */
+const DOES_NOT_EXIST_ERROR_CODE = 16;
+
 /** Options named in the preview. A poll holds up to 100, and the rest are only counted. */
 const LISTED_OPTION_COUNT = 3;
 
@@ -142,15 +145,32 @@ export const PollPreview = () => {
       .then((poll) => {
         if (!cancelled) setFetchedPoll(poll);
       })
-      .catch(() => {
-        // The preview keeps its placeholder; the poll still goes out with the message.
+      .catch((error: { code?: number; status?: number }) => {
+        // A poll that no longer exists (e.g. a restored draft's deleted poll) would fail the send,
+        // so it is detached. Any other failure keeps the placeholder; the poll still goes out.
+        if (
+          cancelled ||
+          (error?.code !== DOES_NOT_EXIST_ERROR_CODE && error?.status !== 404)
+        )
+          return;
+        if (messageComposer.pollId === pollId) {
+          messageComposer.state.partialNext({ pollId: null });
+        }
       });
     return () => {
       cancelled = true;
     };
-  }, [client, pollId]);
+  }, [client, messageComposer, pollId]);
 
   if (!pollId) return null;
+
+  const removePoll = () => {
+    messageComposer.state.partialNext({ pollId: null });
+    // The poll was created for this message only and was never sent, so nothing else uses it.
+    client.deletePoll({ poll_id: pollId }).catch(() => {
+      // An orphaned poll is harmless; the user has nothing to retry.
+    });
+  };
 
   return (
     <div className='str-chat__poll-preview' data-testid='poll-preview'>
@@ -168,7 +188,7 @@ export const PollPreview = () => {
         aria-label={t('messageComposer.pollPreview.removePoll.ariaLabel', 'Remove poll')}
         className='str-chat__attachment-preview__remove-button'
         data-testid='poll-preview-delete-button'
-        onClick={() => messageComposer.state.partialNext({ pollId: null })}
+        onClick={removePoll}
       />
     </div>
   );

@@ -48,19 +48,18 @@ import { extractDisplayInfo as defaultExtractDisplayInfo } from '../Avatar/utils
 
 type MessageUIWithContextProps = MessageContextValue;
 
-const MessageUIWithContext = (props: MessageUIWithContextProps) => {
-  const {
-    endOfGroup,
-    firstOfGroup,
-    groupedByUser,
-    highlighted,
-    isMessageAIGenerated,
-    isMyMessage,
-    message,
-    onUserClick,
-    onUserHover,
-    showAvatar = 'incoming',
-  } = props;
+const MessageUIWithContext = ({
+  endOfGroup,
+  firstOfGroup,
+  groupedByUser,
+  highlighted,
+  isMessageAIGenerated,
+  isMyMessage,
+  message,
+  onUserClick,
+  onUserHover,
+  showAvatar = 'incoming',
+}: MessageUIWithContextProps) => {
   const channel = useChannel();
   const threadInstance = useThreadContext();
   const { t } = useTranslationContext();
@@ -219,11 +218,7 @@ const MessageUIWithContext = (props: MessageUIWithContextProps) => {
           ) : (
             <>
               <MessageBubble>
-                {/* The bubble content reads `MessageContext`; this hands it the props passed to
-                    `MessageUI`, which override the context's values. */}
-                <MessageProvider value={props}>
-                  <MessageBubbleContent />
-                </MessageProvider>
+                <MessageBubbleContent />
               </MessageBubble>
               <div className='str-chat__message-reactions-host'>
                 {hasReactions && <MessageReactions reverse />}
@@ -259,6 +254,14 @@ const MemoizedMessageUI = React.memo(
 /** Default message UI; reads its data and handlers from `MessageContext`. */
 export const MessageUI = (props: MessageUIComponentProps) => {
   const messageContext = useMessageContext();
+  const messageUI = <MemoizedMessageUI {...messageContext} {...props} />;
 
-  return <MemoizedMessageUI {...messageContext} {...props} />;
+  // Props passed to `MessageUI` override the context for everything that reads it, the bubble
+  // content included. Provided outside the memo, so the context stays live, e.g. on a translation
+  // toggle the memo's comparator does not look at.
+  if (!Object.keys(props).length) return messageUI;
+
+  return (
+    <MessageProvider value={{ ...messageContext, ...props }}>{messageUI}</MessageProvider>
+  );
 };

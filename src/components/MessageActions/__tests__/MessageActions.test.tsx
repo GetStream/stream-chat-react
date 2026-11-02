@@ -1237,6 +1237,25 @@ describe('<MessageActions />', () => {
       expect(queryEdit()).not.toBeInTheDocument();
     });
 
+    it('does not offer Edit for a poll message that failed to send', async () => {
+      // A local poll message, as the poll-only middleware builds it, has `poll_id` but no `poll`.
+      const message = generateMessage({
+        error: { status: 0 },
+        poll_id: 'poll-1',
+        status: 'failed',
+        text: '',
+        user: alice,
+      });
+      await renderMessageActions({
+        channelStateOpts: editCapability,
+        customMessageContext: { isMyMessage: () => true, message },
+      });
+      await toggleOpenMessageActions();
+
+      expect(screen.getByRole('menuitem', { name: /delete/i })).toBeInTheDocument();
+      expect(queryEdit()).not.toBeInTheDocument();
+    });
+
     it('offers Edit for a poll message once the edit item allows it', async () => {
       await renderMessageActions({
         channelStateOpts: editCapability,

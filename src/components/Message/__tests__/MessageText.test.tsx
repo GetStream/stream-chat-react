@@ -21,6 +21,10 @@ import {
   mockTranslationContextValue,
 } from '../../../mock-builders';
 
+import {
+  MessageTranslationViewProvider,
+  useMessageTranslationViewContext,
+} from '../../../context/MessageTranslationViewContext';
 import { Channel } from '../../Channel';
 import { Chat } from '../../Chat';
 import { Attachment } from '../../Attachment';
@@ -431,6 +435,54 @@ describe('<MessageText />', () => {
     expect(getByText('hello')).toBeInTheDocument();
     const results = await axe(container);
     expect(results).toHaveNoViolations();
+  });
+
+  it('shows the original text after the translation view is toggled', async () => {
+    const message = generateAliceMessage({
+      i18n: { en_text: 'hello', fr_text: 'bonjour', language: 'fr' },
+      text: 'bonjour',
+    });
+    const {
+      channels: [channel],
+      client,
+    } = await initClientWithChannels({ customUser: alice });
+    const ShowOriginal = () => {
+      const { setTranslationView } = useMessageTranslationViewContext();
+      return (
+        <button onClick={() => setTranslationView(message.id, 'original')} type='button'>
+          Show original
+        </button>
+      );
+    };
+
+    const { getByRole, getByText } = render(
+      <Chat client={client}>
+        <Channel channel={channel}>
+          <TranslationProvider
+            value={mockTranslationContextValue({
+              t: mockT as TranslationContextValue['t'],
+              userLanguage: 'en',
+            })}
+          >
+            <ComponentProvider
+              value={mockComponentContext({ MessageUI: () => <MessageUI /> })}
+            >
+              <DialogManagerProvider id='message-dialog-manager-provider'>
+                <MessageTranslationViewProvider>
+                  <ShowOriginal />
+                  <Message {...(defaultProps as MessageProps)} message={message} />
+                </MessageTranslationViewProvider>
+              </DialogManagerProvider>
+            </ComponentProvider>
+          </TranslationProvider>
+        </Channel>
+      </Chat>,
+    );
+
+    expect(getByText('hello')).toBeInTheDocument();
+    // The memoized message UI does not compare `translationView`; the bubble must still follow it.
+    fireEvent.click(getByRole('button', { name: 'Show original' }));
+    await waitFor(() => expect(getByText('bonjour')).toBeInTheDocument());
   });
 
   it('should show reaction list if message has reactions and detailed reactions are not displayed', async () => {

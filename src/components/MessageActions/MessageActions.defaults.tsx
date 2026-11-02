@@ -854,7 +854,7 @@ export const defaultMessageActionSet: MessageActionSetItem[] = [
   {
     Component: DefaultMessageActionComponents.dropdown.Edit,
     // A poll message and a giphy have no content the composer can edit.
-    isVisible: ({ message }) => !message.poll && message.command !== 'giphy',
+    isVisible: ({ message }) => !message.poll_id && message.command !== 'giphy',
     placement: 'dropdown',
     type: 'edit',
   },

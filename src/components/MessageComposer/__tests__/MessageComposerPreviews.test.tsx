@@ -283,9 +283,40 @@ describe('MessageComposerPreviews', () => {
       expect(await screen.findByText('Fetched question')).toBeInTheDocument();
     });
 
-    it('detaches the poll from the composer on remove', async () => {
+    it('detaches a poll that no longer exists', async () => {
+      const { channel, client } = await setup();
+      vi.spyOn(client, 'getPoll').mockRejectedValue(
+        Object.assign(new Error('poll not found'), { code: 16 }),
+      );
+      const { container } = await renderPreviews({ channel, client });
+
+      await act(() => {
+        channel.messageComposer.state.partialNext({ pollId: 'deleted-poll' });
+      });
+
+      expect(channel.messageComposer.pollId).toBeNull();
+      expect(container.querySelector(`.${PREVIEWS_CLASS}`)).not.toBeInTheDocument();
+    });
+
+    it('keeps the poll when fetching it fails for another reason', async () => {
+      const { channel, client } = await setup();
+      vi.spyOn(client, 'getPoll').mockRejectedValue(new Error('Network Error'));
+      await renderPreviews({ channel, client });
+
+      await act(() => {
+        channel.messageComposer.state.partialNext({ pollId: 'unreachable-poll' });
+      });
+
+      expect(channel.messageComposer.pollId).toBe('unreachable-poll');
+      expect(screen.getByTestId('poll-preview')).toHaveTextContent('Poll');
+    });
+
+    it('detaches the poll from the composer and deletes it on remove', async () => {
       const { channel, client } = await setup();
       const poll = cachePoll(client);
+      const deletePollSpy = vi
+        .spyOn(client, 'deletePoll')
+        .mockResolvedValue(fromPartial({}));
       const { container } = await renderPreviews({ channel, client });
 
       await act(() => {
@@ -297,6 +328,7 @@ describe('MessageComposerPreviews', () => {
 
       expect(channel.messageComposer.pollId).toBeNull();
       expect(container.querySelector(`.${PREVIEWS_CLASS}`)).not.toBeInTheDocument();
+      expect(deletePollSpy).toHaveBeenCalledWith({ poll_id: poll.id });
     });
 
     it('has no accessibility violations', async () => {
