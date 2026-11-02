@@ -192,6 +192,47 @@ describe('Chat scheduled messages wiring', () => {
     );
   });
 
+  it('reports a scheduled message that failed to send', async () => {
+    const client = await getTestClientWithUser({ id: 'user-1' });
+    const scheduledMessage = generateScheduledMessage({
+      failure_reason: 'channel_frozen',
+      status: 'failed',
+    });
+    await renderChat(client);
+
+    act(() => {
+      dispatchScheduledMessageEvent({
+        client,
+        scheduledMessage,
+        type: 'scheduled_message.failed',
+      });
+    });
+
+    expect(client.notifications.store.getLatestValue().notifications).toEqual([
+      expect.objectContaining({
+        metadata: { reason: 'channel_frozen', scheduledMessageId: scheduledMessage.id },
+        severity: 'error',
+        type: 'api:scheduled-message:send:failed',
+      }),
+    ]);
+  });
+
+  it('stops reporting failures after unmount', async () => {
+    const client = await getTestClientWithUser({ id: 'user-1' });
+    const { unmount } = await renderChat(client);
+
+    unmount();
+    act(() => {
+      dispatchScheduledMessageEvent({
+        client,
+        scheduledMessage: generateScheduledMessage({ status: 'failed' }),
+        type: 'scheduled_message.failed',
+      });
+    });
+
+    expect(client.notifications.store.getLatestValue().notifications).toEqual([]);
+  });
+
   it('unsubscribes on unmount', async () => {
     const client = await getTestClientWithUser({ id: 'user-1' });
     const connectionChangedListeners = countListeners(client, 'connection.changed');

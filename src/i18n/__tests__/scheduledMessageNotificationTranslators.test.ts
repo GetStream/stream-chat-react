@@ -7,6 +7,7 @@ import {
   translateScheduledMessageActionFailed,
   translateScheduledMessageBlocked,
   translateScheduledMessageCreateFailed,
+  translateScheduledMessageSendFailed,
 } from '../TranslationBuilder/notifications/translators';
 import { translatorsByNotificationType } from '../TranslationBuilder/notifications/translatorsByNotificationType';
 
@@ -147,7 +148,47 @@ describe('translateScheduledMessageActionFailed', () => {
   });
 });
 
+const interpolatingT = ((key: string, options?: { reason?: string }) =>
+  options?.reason ? key.replace('{{ reason }}', options.reason) : key) as TFunction;
+
+const translateSendFailed = (reason?: string) =>
+  translateScheduledMessageSendFailed({
+    key: '',
+    options: {
+      notification: fromPartial<Notification>({
+        metadata: { reason },
+        type: 'api:scheduled-message:send:failed',
+      }),
+    },
+    t: interpolatingT,
+    value: '',
+  });
+
+describe('translateScheduledMessageSendFailed', () => {
+  it('names the failure reason', () => {
+    expect(translateSendFailed('channel_frozen')).toBe(
+      'Scheduled message not sent: This channel is frozen',
+    );
+  });
+
+  it('uses the generic reason for an unknown one', () => {
+    expect(translateSendFailed('something_new')).toBe(
+      'Scheduled message not sent: Something went wrong. Try again',
+    );
+  });
+
+  it('leaves out a reason that is not shown to users', () => {
+    expect(translateSendFailed('user_deleted')).toBe('Scheduled message not sent');
+  });
+});
+
 describe('scheduled message notification types', () => {
+  it('registers the send failure translator', () => {
+    expect(translatorsByNotificationType['api:scheduled-message:send:failed']).toBe(
+      translateScheduledMessageSendFailed,
+    );
+  });
+
   it.each([
     'api:scheduled-message:update:failed',
     'api:scheduled-message:reschedule:failed',

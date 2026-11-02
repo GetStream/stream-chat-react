@@ -5,9 +5,10 @@ import {
   ScheduledMessageBlockReason,
   ScheduledMessageErrorReason,
 } from 'stream-chat';
-import type { Notification } from 'stream-chat';
+import type { Notification, ScheduledMessageFailureReason } from 'stream-chat';
 
 import { ScheduledMessageNotificationType } from '../../../components/ScheduledMessages/constants';
+import { translateScheduledMessageFailureReason } from '../../../components/ScheduledMessages/utils/scheduledMessageFailureReason';
 
 import type { NotificationTranslatorOptions } from './types';
 import type { TranslationTopicOptions, Translator } from '../../index';
@@ -194,4 +195,18 @@ export const translateScheduledMessageActionFailed: Translator<
   if (isForbiddenError(error)) return t("You can't schedule messages here");
 
   return translateScheduledMessageActionFallback(t, notification?.type);
+};
+
+export const translateScheduledMessageSendFailed: Translator<
+  NotificationTranslatorOptions
+> = ({ options: { notification }, t }) => {
+  const { reason } = notification?.metadata ?? {};
+  const reasonCopy = translateScheduledMessageFailureReason(
+    t,
+    reason as ScheduledMessageFailureReason | undefined,
+  );
+
+  if (!reasonCopy) return t('Scheduled message not sent');
+
+  return t('Scheduled message not sent: {{ reason }}', { reason: reasonCopy });
 };
