@@ -1,0 +1,38 @@
+[
+  {
+    "file": "voice-agent-speaking.png",
+    "query": {
+      "channel": "docs-v15-cb-voice-assistant",
+      "state": "speaking",
+      "frames": "90"
+    },
+    "waitFor": "html[data-simulated-voice] [data-message-id=\"docs-v15-ck-voice-assistant-4\"]",
+    "clip": ".str-chat__channel",
+    "padding": 0,
+    "settleMs": 1200
+  },
+  {
+    "file": "voice-agent-listening.png",
+    "query": {
+      "channel": "docs-v15-cb-voice-assistant",
+      "state": "listening",
+      "frames": "90"
+    },
+    "waitFor": "html[data-simulated-voice] .cookbook-voice-panel",
+    "clip": ".cookbook-voice-panel",
+    "padding": 0,
+    "settleMs": 1200
+  },
+  {
+    "file": "voice-agent-thinking.png",
+    "query": {
+      "channel": "docs-v15-cb-voice-assistant",
+      "state": "thinking",
+      "frames": "90"
+    },
+    "waitFor": "html[data-simulated-voice] .cookbook-voice-panel",
+    "clip": ".cookbook-voice-panel",
+    "padding": 0,
+    "settleMs": 1200
+  }
+]

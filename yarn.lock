@@ -1757,6 +1757,17 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@react-leaflet/core@npm:^3.0.0":
+  version: 3.0.0
+  resolution: "@react-leaflet/core@npm:3.0.0"
+  peerDependencies:
+    leaflet: ^1.9.0
+    react: ^19.0.0
+    react-dom: ^19.0.0
+  checksum: 10c0/1e20f92ea99d378121d7ba57b9571ca3a67a86247729d8cd5726ded26105fcbffbbdf727da34b2ad5976438979819a38c93b94389313abb3ff80ca81632609a6
+  languageName: node
+  linkType: hard
+
 "@react-types/shared@npm:^3.34.0":
   version: 3.34.0
   resolution: "@react-types/shared@npm:3.34.0"
@@ -2132,11 +2143,11 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@stream-io/i18n@npm:^1.0.2":
-  version: 1.0.2
-  resolution: "@stream-io/i18n@npm:1.0.2"
+"@stream-io/i18n@npm:^1.1.0":
+  version: 1.1.0
+  resolution: "@stream-io/i18n@npm:1.1.0"
   dependencies:
-    "@stream-io/state-store": "npm:^1.1.6"
+    "@stream-io/state-store": "npm:^1.2.0"
     dayjs: "npm:^1.11.23"
     i18next: "npm:^26.4.2"
     use-sync-external-store: "npm:^1.7.0"
@@ -2145,7 +2156,7 @@ __metadata:
   peerDependenciesMeta:
     react:
       optional: true
-  checksum: 10c0/4b073bc8b39064ee31cab37f5c6ea6da03db916acf7fe998e0954fee6c458f0784d27678954c4aaa1eaed68eb8556d10e88ad3127e5ae4081c3ef16f747a3cda
+  checksum: 10c0/c027a082cf7a2592e2ac87f5a91c873171cd0db1f3c86d016596533cd087e30fce9a9a6ad5810c38703852af2bd2e7ec2dfab08f4a109f4b62ae39cfc40822b5
   languageName: node
   linkType: hard
 
@@ -2156,7 +2167,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@stream-io/state-store@npm:^1.1.6, @stream-io/state-store@npm:^1.2.0":
+"@stream-io/state-store@npm:^1.2.0":
   version: 1.2.0
   resolution: "@stream-io/state-store@npm:1.2.0"
   peerDependencies:
@@ -2175,7 +2186,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@stream-io/stream-chat-react-ai-chatbot@workspace:examples/ai-chatbot"
   dependencies:
-    "@stream-io/state-store": "npm:^1.1.6"
+    "@stream-io/state-store": "npm:^1.2.0"
     "@types/node": "npm:^24.12.2"
     "@types/react": "npm:^19.2.15"
     "@types/react-dom": "npm:^19.2.3"
@@ -2189,6 +2200,29 @@ __metadata:
     stream-chat: "npm:10.0.0-rc.29"
     stream-chat-react: "workspace:^"
     typescript: "npm:^6.0.3"
+  languageName: unknown
+  linkType: soft
+
+"@stream-io/stream-chat-react-cookbook@workspace:examples/cookbook":
+  version: 0.0.0-use.local
+  resolution: "@stream-io/stream-chat-react-cookbook@workspace:examples/cookbook"
+  dependencies:
+    "@playwright/test": "npm:^1.60.0"
+    "@stream-io/state-store": "npm:^1.2.0"
+    "@types/leaflet": "npm:^1.9.20"
+    "@types/react": "npm:^19.2.15"
+    "@types/react-dom": "npm:^19.2.3"
+    "@vitejs/plugin-react": "npm:^6.0.3"
+    leaflet: "npm:^1.9.4"
+    lucide-react: "npm:^1.61.0"
+    modern-normalize: "npm:^3.0.1"
+    react: "npm:^19.2.6"
+    react-dom: "npm:^19.2.6"
+    react-leaflet: "npm:^5.0.0"
+    stream-chat: "npm:10.0.0-rc.29"
+    stream-chat-react: "workspace:^"
+    typescript: "npm:^6.0.3"
+    vite: "npm:^8.1.3"
   languageName: unknown
   linkType: soft
 
@@ -2217,7 +2251,7 @@ __metadata:
     "@babel/core": "npm:^7.29.0"
     "@emoji-mart/data": "npm:^1.2.1"
     "@playwright/test": "npm:^1.60.0"
-    "@stream-io/state-store": "npm:^1.1.6"
+    "@stream-io/state-store": "npm:^1.2.0"
     "@types/react": "npm:^19.2.15"
     "@types/react-dom": "npm:^19.2.3"
     "@vitejs/plugin-react": "npm:^6.0.3"
@@ -2551,6 +2585,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/geojson@npm:*":
+  version: 7946.0.16
+  resolution: "@types/geojson@npm:7946.0.16"
+  checksum: 10c0/1ff24a288bd5860b766b073ead337d31d73bdc715e5b50a2cee5cb0af57a1ed02cc04ef295f5fa68dc40fe3e4f104dd31282b2b818a5ba3231bc1001ba084e3c
+  languageName: node
+  linkType: hard
+
 "@types/hast@npm:^3.0.0, @types/hast@npm:^3.0.4":
   version: 3.0.4
   resolution: "@types/hast@npm:3.0.4"
@@ -2583,6 +2624,15 @@ __metadata:
   version: 0.0.29
   resolution: "@types/json5@npm:0.0.29"
   checksum: 10c0/6bf5337bc447b706bb5b4431d37686aa2ea6d07cfd6f79cc31de80170d6ff9b1c7384a9c0ccbc45b3f512bae9e9f75c2e12109806a15331dc94e8a8db6dbb4ac
+  languageName: node
+  linkType: hard
+
+"@types/leaflet@npm:^1.9.20":
+  version: 1.9.22
+  resolution: "@types/leaflet@npm:1.9.22"
+  dependencies:
+    "@types/geojson": "npm:*"
+  checksum: 10c0/ce2e09d0f208244478c6103ba64726b33a474f89f303860c7b0494ca1bb44f1744285d93c90093c95669497c7dbdc7c206495af0b741fe6e251bf106b0415593
   languageName: node
   linkType: hard
 
@@ -6625,6 +6675,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"leaflet@npm:^1.9.4":
+  version: 1.9.4
+  resolution: "leaflet@npm:1.9.4"
+  checksum: 10c0/f639441dbb7eb9ae3fcd29ffd7d3508f6c6106892441634b0232fafb9ffb1588b05a8244ec7085de2c98b5ed703894df246898477836cfd0ce5b96d4717b5ca1
+  languageName: node
+  linkType: hard
+
 "levn@npm:^0.4.1":
   version: 0.4.1
   resolution: "levn@npm:0.4.1"
@@ -7108,6 +7165,19 @@ __metadata:
   dependencies:
     yallist: "npm:^3.0.2"
   checksum: 10c0/89b2ef2ef45f543011e38737b8a8622a2f8998cddf0e5437174ef8f1f70a8b9d14a918ab3e232cb3ba343b7abddffa667f0b59075b2b80e6b4d63c3de6127482
+  languageName: node
+  linkType: hard
+
+"lucide-react@npm:^1.61.0":
+  version: 1.61.0
+  resolution: "lucide-react@npm:1.61.0"
+  peerDependencies:
+    "@types/react": "*"
+    react: ^16.5.1 || ^17.0.0 || ^18.0.0 || ^19.0.0
+  peerDependenciesMeta:
+    "@types/react":
+      optional: true
+  checksum: 10c0/85576d32aef43d5dccf5a1fac06b67c2ccbb70eb33b996123f49aab108111fffa6bdd517c7d406db67a14432c45924279c2ec7212a166864d3355ce68b361494
   languageName: node
   linkType: hard
 
@@ -9170,6 +9240,19 @@ __metadata:
   languageName: node
   linkType: hard
 
+"react-leaflet@npm:^5.0.0":
+  version: 5.0.0
+  resolution: "react-leaflet@npm:5.0.0"
+  dependencies:
+    "@react-leaflet/core": "npm:^3.0.0"
+  peerDependencies:
+    leaflet: ^1.9.0
+    react: ^19.0.0
+    react-dom: ^19.0.0
+  checksum: 10c0/f0b6fb797cc2d81bc8cbb54e0cb32aefa689d35ca5f52d203ce3c5a1d14668e51244f10844bd2c88d5cb4aca5eb05bc280794e6d1652727ff9da2358e89d1b86
+  languageName: node
+  linkType: hard
+
 "react-markdown@npm:^9.1.0":
   version: 9.1.0
   resolution: "react-markdown@npm:9.1.0"
@@ -10196,7 +10279,7 @@ __metadata:
     "@semantic-release/changelog": "npm:^6.0.3"
     "@semantic-release/git": "npm:^10.0.1"
     "@semantic-release/github": "npm:^12.0.8"
-    "@stream-io/i18n": "npm:^1.0.2"
+    "@stream-io/i18n": "npm:^1.1.0"
     "@stream-io/state-store": "npm:^1.2.0"
     "@stream-io/transliterate": "npm:^1.5.5"
     "@testing-library/dom": "npm:^10.4.1"

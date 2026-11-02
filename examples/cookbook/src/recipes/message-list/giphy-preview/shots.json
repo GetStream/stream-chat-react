@@ -1,0 +1,13 @@
+[
+  {
+    "file": "giphy-preview-custom.png",
+    "query": {
+      "channel": "docs-v15-cb-trip",
+      "giphy": "preview"
+    },
+    "waitFor": ".cookbook-giphy-actions",
+    "clip": ".str-chat__li",
+    "hasText": "/giphy forest",
+    "padding": 0
+  }
+]

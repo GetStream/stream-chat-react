@@ -1,3 +1,85 @@
+## [15.0.0-rc.3](https://github.com/GetStream/stream-chat-react/compare/v15.0.0-rc.2...v15.0.0-rc.3) (2026-10-28)
+
+### ⚠ BREAKING CHANGES
+
+* channel.watch() resolves with the channel instance to use (the channel, or the instance that superseded it), not the server response: read channel.data, channel.state and channel.messagePaginator instead.
+- channel.watch() sends no query for a channel already watched and loaded unless it asks for options the current watch was not sent with, so it no longer refreshes one: refresh with channel.reload(), load other messages through channel.messagePaginator.
+- A channel.watch() while another with the same options is in flight joins it instead of sending a request.
+* **MessageList:** useMessageListScrollManager no longer takes onScrollToTop. Loading older messages keeps the message the reader was looking at in place, also when loading starts at the very top, instead of pinning the newly loaded page to the top.
+- InfiniteScrollPaginator's loadNextDebounceMs now rate-limits the edge check while scrolling (the first check runs at once, then at most once per loadNextDebounceMs) instead of waiting until scrolling stops for that long. Older and newer pages start loading before the reader reaches the edge.
+- MessageList and VirtualizedMessageList pass showNotification to NewMessageNotification only when a message from someone else arrives while the list is scrolled up. Being on an older message set no longer shows it; ScrollToLatestMessageButton signals that.
+- In a channel, ScrollToLatestMessageButton shows the current user's unread count from the channel's read state instead of counting message.new events, so messages a reconnect brought in are included. In a thread it counts new replies from 0.
+* marker: the removals are v14 API, so the branch has a
+`fix!:` commit with a `BREAKING CHANGE:` footer, per the AGENTS.md
+convention. The footer to keep in the squash commit:
+* `MessageList` no longer accepts `messages`, `hasMore`,
+`jumpToLatestMessage`, `loadingMoreNewer` or `messageLimit`, and
+`VirtualizedMessageList` no longer accepts `messages`; the lists render
+and paginate the message paginator. `CustomClasses.chatContainer` and
+the `ComponentContext.LoadingErrorIndicator` slot are removed. Inside
+`ChatView` the channel list no longer renders its own `str-chat <theme>`
+scope. See ai-docs/v15-breaking-changes.md (BC-019, BC-046, BC-047,
+BC-073, BC-074).
+
+Verification: `yarn lint`, `tsc -p tsconfig.lib.json --noEmit`, `yarn
+types:scripts`, `yarn validate-translations` and `yarn test` (281 files,
+3090 tests) pass. `yarn build`, `validate-cjs`, `validate-esm`,
+`validate-entry-isolation`, and the tutorial and vite example builds
+passed before the rebase onto the guides branch, which brought in only
+docs and the api-surface script. The ai-chatbot example build was not
+verified: it hung locally in a sandboxed environment. The theme-scope
+change was not checked visually in a browser.
+
+### UI Changes
+
+No intended visual change inside `ChatView`. Outside `ChatView`, the
+channel list picks up the design tokens again, as in v14. The
+`MessageList` loading indicator now appears while older messages load.
+No screenshots: the examples need Stream credentials to run.
+
+
+<!-- This is an auto-generated comment: release notes by coderabbit.ai
+-->
+## Summary by CodeRabbit
+
+* **New Features**
+  * Gallery items can display message-specific timestamp overrides.
+* Reply-count buttons honor a message’s custom thread-opening behavior.
+* Standalone channel lists now inherit the chat theme, and
+channel-detail actions use workspace navigation.
+* `useMessagePaginator` and `useIsCooldownActive` are available from the
+package entry point.
+* Message timestamps can render with an explicit message outside a
+message context.
+
+* **Bug Fixes**
+* Message-list loading indicators and pagination behavior now reflect
+active page loads more accurately.
+* Workspace navigation warns when navigation actions are used without a
+provider.
+
+* **Breaking Changes**
+* Removed legacy message-list props and the `LoadingErrorIndicator`
+component override slot.
+<!-- end of auto-generated comment: release notes by coderabbit.ai -->
+
+### Bug Fixes
+
+* correct issues found during the comment cleanup ([#3334](https://github.com/GetStream/stream-chat-react/issues/3334)) ([7f87026](https://github.com/GetStream/stream-chat-react/commit/7f870262d8946abb1b27122227d65f3697f5a236))
+* **examples:** translate the voice visualization keys in the vite example ([#3352](https://github.com/GetStream/stream-chat-react/issues/3352)) ([c88ab33](https://github.com/GetStream/stream-chat-react/commit/c88ab339f3dbd89817edb5d2251b62126f5f6520)), closes [#3347](https://github.com/GetStream/stream-chat-react/issues/3347)
+* **MediaRecorder:** stop the recording timer when the preview unmounts ([#3351](https://github.com/GetStream/stream-chat-react/issues/3351)) ([3c8b30a](https://github.com/GetStream/stream-chat-react/commit/3c8b30aa8c37cdc939cf3846f8f616bce8eaa9c6))
+* **MessageList:** keep the reader's place on older pages and count only arrived messages as new ([#3342](https://github.com/GetStream/stream-chat-react/issues/3342)) ([ab00d67](https://github.com/GetStream/stream-chat-react/commit/ab00d67111cd945714d5689d7cef163d0bf55f9f))
+* remove dead v15 surface and restore v14 behaviors found by the API audit ([#3328](https://github.com/GetStream/stream-chat-react/issues/3328)) ([d721f40](https://github.com/GetStream/stream-chat-react/commit/d721f406675c327ada97ce1089525f05d180d20b)), closes [GetStream/stream-chat-react#3327](https://github.com/GetStream/stream-chat-react/issues/3327) [#3305](https://github.com/GetStream/stream-chat-react/issues/3305) [#3237](https://github.com/GetStream/stream-chat-react/issues/3237)
+
+### Features
+
+* **ai-components:** add useHeardText for voice-paced text ([#3348](https://github.com/GetStream/stream-chat-react/issues/3348)) ([ec7c956](https://github.com/GetStream/stream-chat-react/commit/ec7c956b88ff35798cd3aad89a90935ce4be6b2c)), closes [GetStream/stream-chat-react#3343](https://github.com/GetStream/stream-chat-react/issues/3343) [GetStream/stream-chat-react#3344](https://github.com/GetStream/stream-chat-react/issues/3344) [#3344](https://github.com/GetStream/stream-chat-react/issues/3344) [#3343](https://github.com/GetStream/stream-chat-react/issues/3343) [#3339](https://github.com/GetStream/stream-chat-react/issues/3339) [GetStream/stream-chat-react#3347](https://github.com/GetStream/stream-chat-react/issues/3347)
+* **ai-components:** add VoiceWave and VoiceGlow voice-agent visualizations ([#3347](https://github.com/GetStream/stream-chat-react/issues/3347)) ([216d00d](https://github.com/GetStream/stream-chat-react/commit/216d00dd7aadd45d1e3a4933483f46e35db6c94c)), closes [GetStream/stream-chat-react#3339](https://github.com/GetStream/stream-chat-react/issues/3339) [#3339](https://github.com/GetStream/stream-chat-react/issues/3339) [#3339](https://github.com/GetStream/stream-chat-react/issues/3339)
+
+### Refactors
+
+* call Channel.watch(), which replaces ensureWatched() in stream-chat ([#3346](https://github.com/GetStream/stream-chat-react/issues/3346)) ([0100d98](https://github.com/GetStream/stream-chat-react/commit/0100d98ce0cac448238afaba2d4f8ec197b04d49))
+
 ## [15.0.0-rc.2](https://github.com/GetStream/stream-chat-react/compare/v15.0.0-rc.1...v15.0.0-rc.2) (2026-10-19)
 
 ### ⚠ BREAKING CHANGES

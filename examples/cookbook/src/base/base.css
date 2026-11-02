@@ -1,0 +1,90 @@
+/*
+ * Layer order, first to last: a CSS reset, the SDK's stylesheet, the base app, then every recipe's
+ * CSS in `stream-overrides`. A recipe's rules win over both the SDK and the base app without extra
+ * specificity or !important. This is the setup the docs' Theming page teaches; recipes put all their
+ * CSS in `stream-overrides` and never add a layer of their own.
+ */
+@layer modern-normalize, stream, cookbook-base, stream-overrides;
+
+@import 'modern-normalize/modern-normalize.css' layer(modern-normalize);
+@import 'stream-chat-react/dist/css/index.css' layer(stream);
+@import 'stream-chat-react/dist/css/channel-detail.css' layer(stream);
+@import 'stream-chat-react/dist/css/ai-components.css' layer(stream);
+
+/* The base app: the Quick start's layout.css, in the 1280×720 frame screenshots are taken in. */
+@layer cookbook-base {
+  html,
+  body,
+  #root {
+    height: 100%;
+    margin: 0;
+  }
+
+  .str-chat {
+    --str-chat__channel-list-width: 320px;
+  }
+
+  .cookbook-frame {
+    height: 100%;
+  }
+
+  .cookbook-status {
+    color: var(--str-chat__text-secondary);
+    font: var(--str-chat__font-body-default);
+    padding: var(--str-chat__spacing-xl);
+  }
+
+  /*
+   * The side panel (SidePanel.tsx) recipes open their content in: a 360px column after the channel
+   * and the thread, divided from them like the thread is.
+   */
+  .cookbook-side-panel {
+    display: flex;
+    flex: 0 0 360px;
+    flex-direction: column;
+    min-width: 0;
+    min-height: 0;
+    border-inline-start: 1px solid var(--str-chat__border-core-default);
+    background: var(--str-chat__background-core-elevation-1);
+    color: var(--str-chat__text-primary);
+  }
+
+  /* As tall as the channel and thread headers beside it. */
+  .cookbook-side-panel__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--str-chat__spacing-sm);
+    box-sizing: border-box;
+    height: var(--str-chat__channel-header-height);
+    padding: var(--str-chat__spacing-md);
+    border-block-end: 1px solid var(--str-chat__border-core-default);
+  }
+
+  .cookbook-side-panel__title {
+    margin: 0;
+    font: var(--str-chat__font-heading-sm);
+  }
+
+  /* The panel and its title take focus when it opens, only so reading starts there: no ring. */
+  .cookbook-side-panel:focus,
+  .cookbook-side-panel__title:focus {
+    outline: none;
+  }
+
+  /* The body scrolls on its own and sets no padding, so a body can fill it edge to edge. */
+  .cookbook-side-panel__body {
+    display: flex;
+    flex: 1 1 auto;
+    flex-direction: column;
+    min-height: 0;
+    overflow-y: auto;
+  }
+
+  /* The heading of a section inside a panel's body. */
+  .cookbook-side-panel__section-title {
+    margin: 0 0 var(--str-chat__spacing-xs);
+    color: var(--str-chat__text-secondary);
+    font: var(--str-chat__font-caption-emphasis);
+  }
+}

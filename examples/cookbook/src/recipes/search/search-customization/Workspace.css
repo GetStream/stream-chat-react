@@ -1,0 +1,49 @@
+@layer stream-overrides {
+  /* The top bar spans the view. The channel lists, the channel and the thread share the row below it. */
+  .cookbook-workspace {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    min-width: 0;
+    min-height: 0;
+  }
+
+  .cookbook-workspace__top-bar {
+    position: relative;
+    padding: var(--str-chat__spacing-sm) var(--str-chat__spacing-md);
+    border-bottom: 1px solid var(--str-chat__border-core-default);
+    background: var(--str-chat__background-core-elevation-1);
+  }
+
+  .cookbook-workspace__body {
+    display: flex;
+    flex: 1;
+    min-height: 0;
+  }
+
+  .cookbook-workspace__sidebar {
+    flex: 0 0 var(--str-chat__channel-list-width);
+    overflow-y: auto;
+    border-inline-end: 1px solid var(--str-chat__border-core-default);
+    background: var(--str-chat__background-core-elevation-1);
+  }
+
+  /* cookbook-allow-layout: the SDK has no variable for the width of a thread beside a channel. */
+  .cookbook-workspace__body > .str-chat__thread-container {
+    flex: 0 0 400px;
+  }
+
+  /* cookbook-allow-layout: the SDK renders the results in the flow under the search bar, with no
+     dropdown mode; this rule opens them over the content below it. */
+  .cookbook-workspace__top-bar .str-chat__search-results {
+    position: absolute;
+    z-index: 10;
+    top: 100%;
+    inset-inline: 0;
+    max-height: 60vh;
+    overflow-y: auto;
+    border-bottom: 1px solid var(--str-chat__border-core-default);
+    background: var(--str-chat__background-core-elevation-1);
+    box-shadow: var(--str-chat__box-shadow-2);
+  }
+}

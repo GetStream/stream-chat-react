@@ -1,0 +1,52 @@
+{
+  "channels": [
+    {
+      "id": "docs-v15-cb-volunteer",
+      "name": "Volunteer day",
+      "members": ["docs-v15-ck-cleo", "docs-v15-ck-bob", "docs-v15-ck-cara"],
+      "messages": [
+        {
+          "id": "docs-v15-ck-volunteer-1",
+          "user": "docs-v15-ck-cara",
+          "text": "Please send me your shift times for the park cleanup by Friday.",
+          "reminderForCurrentUser": { "remindAt": "+2m" }
+        },
+        {
+          "id": "docs-v15-ck-volunteer-2",
+          "user": "docs-v15-ck-bob",
+          "text": "I can take the morning shift and bring the gloves."
+        },
+        {
+          "id": "docs-v15-ck-volunteer-3",
+          "user": "docs-v15-ck-cara",
+          "text": "Here is the meeting point: the main gate, next to the fountain.",
+          "reminderForCurrentUser": {}
+        }
+      ]
+    },
+    {
+      "id": "docs-v15-cb-band",
+      "name": "Band practice",
+      "members": ["docs-v15-ck-cleo", "docs-v15-ck-bob", "docs-v15-ck-dan"],
+      "messages": [
+        {
+          "id": "docs-v15-ck-band-1",
+          "user": "docs-v15-ck-dan",
+          "text": "The spring concert set list is due before the first rehearsal.",
+          "reminderForCurrentUser": { "remindAt": "2030-03-14T17:00:00Z" }
+        },
+        {
+          "id": "docs-v15-ck-band-2",
+          "user": "docs-v15-ck-bob",
+          "text": "I will bring the new sheet music on Thursday."
+        },
+        {
+          "id": "docs-v15-ck-band-3",
+          "user": "docs-v15-ck-dan",
+          "text": "Warm-up idea: start slow with the scales, then the chorus twice.",
+          "reminderForCurrentUser": {}
+        }
+      ]
+    }
+  ]
+}

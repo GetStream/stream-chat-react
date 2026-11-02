@@ -49,37 +49,41 @@ Then run the [silent-break checklist](#breaks-that-do-not-fail-to-compile) once 
 
 These compile cleanly, or are ignored in plain JS, and change behavior at runtime. Check each one explicitly; the absence of an error does not mean the app is migrated.
 
-| Symptom                                                                                                                                    | Cause                                                                                                                                                        | Fix                                                                                                                                                             |
-| ------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Clicking a channel-list row, a search result, a thread-list row or a message's reply button does nothing; no row shows active              | Selection and thread opening go through workspace navigation, whose default outside `ChatView` is a no-op (it logs a one-time console warning per operation) | Use `ChatView`, or provide `WorkspaceNavigationProvider` ([section 4](#4-selecting-channels-and-opening-threads-workspace-navigation))                          |
-| No channel is open when the app loads                                                                                                      | v14 `ChannelList.setActiveChannelOnMount` defaulted to `true`; v15 selects nothing                                                                           | Open the first channel yourself ([section 6](#v14-list-defaults-that-changed))                                                                                  |
-| A new message in a channel outside the list's filters no longer adds that channel to the list                                              | v14 `allowNewMessagesFromUnfilteredChannels` defaulted to `true`; v15 adds only channels the filters match                                                   | Widen the paginator's filters ([section 6](#v14-list-defaults-that-changed))                                                                                    |
-| The channel list scrolls infinitely instead of showing a "Load more" button                                                                | v14 `Paginator` defaulted to `LoadMorePaginator`                                                                                                             | Keep it, or render your own list ([section 6](#v14-list-defaults-that-changed))                                                                                 |
-| Opening a thread no longer focuses its composer                                                                                            | v14 `Thread.autoFocus` defaulted to `true`, so every thread focused it                                                                                       | `<MessageComposer focus />` in the thread ([section 7](#thread-takes-a-thread-prop-and-renders-its-children))                                                   |
-| A thread renders below the channel instead of beside it, or a panel collapses to a narrow column                                           | The channel no longer contains a flex row, and `ChatView` slots are `flex: 1 1 0` siblings                                                                   | Make your container a row; size panels by slot ([section 19](#panel-layout))                                                                                    |
-| A channel name or image renders empty                                                                                                      | `name` / `image` are custom data in `stream-chat` v10: `channel.data.custom.name`                                                                            | Read `custom` ([section 17](#17-other-stream-chat-v10-data-shapes))                                                                                             |
-| A held channel throws "pending disposal" after logout or a user switch                                                                     | `disconnectUser()` disposes the user's channels                                                                                                              | Drop held channels on disconnect ([section 4](#without-chatview))                                                                                               |
-| A channel renders empty, with no error, and gets no new messages                                                                           | `Channel` no longer watches the channel                                                                                                                      | Watch it first: `channel.watch()` ([section 5](#channel-no-longer-watches-the-channel))                                                                         |
-| A direct message the app just created renders, but new messages never arrive                                                               | The created members-only instance was superseded by the store's instance for the same cid                                                                    | Render the instance `watch()` resolves with ([section 5](#channel-no-longer-watches-the-channel))                                                               |
-| After a failed send, the composer is empty instead of holding the text and attachments                                                     | The composer is released before the request and nothing is put back                                                                                          | Nothing to do; the failed message is retried from the list ([section 13](#a-failed-send-or-edit-no-longer-restores-the-composer))                               |
-| A component that rendered blank outside its provider now throws                                                                            | Required context hooks throw instead of warning and returning `{}`                                                                                           | Render it inside the provider ([section 10](#required-context-hooks-throw-outside-their-provider))                                                              |
-| A standalone `<Message>` (a preview, a pinned-message card) throws                                                                         | `Message` needs a channel in context                                                                                                                         | Wrap it in `ChannelInstanceProvider` ([section 12](#a-standalone-message-needs-a-channel-in-context))                                                           |
-| The channel is not marked read                                                                                                             | Mark-read moved from `Channel` mount to the message list                                                                                                     | Render a message list, or mark read yourself ([section 5](#markreadonmount-is-removed-the-list-marks-read))                                                     |
-| The tab title no longer shows `(3) Title`                                                                                                  | `Channel` no longer writes `document.title`                                                                                                                  | Write it in app code ([section 5](#channel-no-longer-writes-documenttitle))                                                                                     |
-| Mount effects in a channel's children stop re-running when the channel changes                                                             | `Channel` no longer remounts its subtree per channel                                                                                                         | Depend on the `channel` instance ([section 5](#channel-lifecycle-activation-no-remount-no-reload-no-search-jump))                                               |
-| Search results open unwatched, empty channels in a custom result component                                                                 | Search results are no longer watched                                                                                                                         | `watch()` on open ([section 4](#search-results))                                                                                                                |
-| Translations or overrides stop applying; non-English UI renders English                                                                    | Keys renamed, non-English dictionaries removed                                                                                                               | Rename keys, register dictionaries ([section 18](#18-i18n))                                                                                                     |
-| CSS on `.str-chat__main-panel`, `.str-chat__container`, `.str-chat__channel-list-inner` or `.str-chat__thread--virtualized` stops applying | Those wrappers and classes are gone                                                                                                                          | Retarget ([section 19](#19-css-and-markup))                                                                                                                     |
-| Plain JS: `useCreateChatClient({ options })` stops applying `baseURL` and other settings                                                   | `options` was renamed to `config`                                                                                                                            | [Section 2](#usecreatechatclient-options--config)                                                                                                               |
-| Plain JS: a removed prop or override key (`Message`, `HeaderStartContent`, `do*Request`, `overrideSubmitHandler`, ...) does nothing        | Ignored without a warning                                                                                                                                    | Grep for each removed name listed in this guide                                                                                                                 |
-| A supplied composer keeps its content after `MessageComposer` unmounts                                                                     | A supplied composer is never cleared on unmount                                                                                                              | Call `composer.clear()` yourself ([section 13](#preventclearingonunmount-is-removed))                                                                           |
-| A voice message stops another one playing in a different panel                                                                             | Playback is exclusive app-wide                                                                                                                               | Nothing to do ([section 12](#allowconcurrentplayback-is-removed-one-voice-message-plays-at-a-time))                                                             |
-| The attachment menu offers different actions than before                                                                                   | Actions follow the composer's resolved configuration                                                                                                         | Set `customCdn` where it applies ([section 13](#attachment-and-poll-availability))                                                                              |
-| A custom `MessageTimestamp` does not show in the header of a gallery you build yourself                                                    | The gallery renders outside a message and reads the item; it uses the override only when the item carries its `message`                                      | Set `message` on each `GalleryItem` ([section 12](#the-gallery-header-renders-the-messagetimestamp-override-for-items-that-carry-their-message))                |
-| `dayjs(created_at)` renders `Invalid Date`                                                                                                 | Server timestamps are unix nanoseconds                                                                                                                       | Convert with `convertTimestampToDate` ([section 16](#16-dates-on-response-types-are-unix-nanosecond-numbers))                                                   |
-| The "New Messages!" notification no longer shows after jumping to older messages                                                           | It shows only when a message arrives while the list is scrolled up                                                                                           | Read `messagePaginator.hasMoreHead` for an "older messages shown" indicator ([section 11](#the-new-messages-notification-shows-only-for-messages-that-arrived)) |
-| The scroll-to-latest button shows a larger number than before                                                                              | It shows the channel's unread count for the current user, not the messages that arrived while scrolled up                                                    | Nothing to do; see [section 11](#scrolltolatestmessagebutton-shows-the-channels-unread-count)                                                                   |
-| A custom loader given to `InfiniteScrollPaginator` (or `ChannelList` / `SearchSourceResultList`) is called earlier and more often          | `loadNextDebounceMs` now limits how often the scroll position is checked, rather than waiting for scrolling to stop                                          | Ignore calls while a page is loading ([section 11](#loading-older-messages-keeps-your-place-loadnextdebouncems-rate-limits-the-check))                          |
+| Symptom                                                                                                                                                                           | Cause                                                                                                                                                        | Fix                                                                                                                                                             |
+| --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Clicking a channel-list row, a search result, a thread-list row or a message's reply button does nothing; no row shows active                                                     | Selection and thread opening go through workspace navigation, whose default outside `ChatView` is a no-op (it logs a one-time console warning per operation) | Use `ChatView`, or provide `WorkspaceNavigationProvider` ([section 4](#4-selecting-channels-and-opening-threads-workspace-navigation))                          |
+| No channel is open when the app loads                                                                                                                                             | v14 `ChannelList.setActiveChannelOnMount` defaulted to `true`; v15 selects nothing                                                                           | Open the first channel yourself ([section 6](#v14-list-defaults-that-changed))                                                                                  |
+| Inside `ChatView`, returning from the threads view shows the first channel instead of the one that was open, and the channel list reloads                                         | `ChatView` unmounts the inactive view, so an auto-open guarded by a `useRef`, or a paginator created inside the view, starts over on every switch            | Create the paginator above `ChatView`; auto-open only while `openChannels` is empty ([section 6](#v14-list-defaults-that-changed))                              |
+| Without `ChatView`, a default `ThreadHeader` shows no close button                                                                                                                | `defaultWorkspaceNavigation.isThreadDismissable` returns `false`                                                                                             | Override it in your provider ([section 4](#without-chatview))                                                                                                   |
+| A new message in a channel outside the list's filters no longer adds that channel to the list                                                                                     | v14 `allowNewMessagesFromUnfilteredChannels` defaulted to `true`; v15 adds only channels the filters match                                                   | Widen the paginator's filters ([section 6](#v14-list-defaults-that-changed))                                                                                    |
+| The channel list scrolls infinitely instead of showing a "Load more" button                                                                                                       | v14 `Paginator` defaulted to `LoadMorePaginator`                                                                                                             | Keep it, or render your own list ([section 6](#v14-list-defaults-that-changed))                                                                                 |
+| Opening a thread no longer focuses its composer                                                                                                                                   | v14 `Thread.autoFocus` defaulted to `true`, so every thread focused it                                                                                       | `<MessageComposer focus />` in the thread ([section 7](#thread-takes-a-thread-prop-and-renders-its-children))                                                   |
+| A thread renders below the channel instead of beside it, or a panel collapses to a narrow column                                                                                  | The channel no longer contains a flex row, and `ChatView` slots are `flex: 1 1 0` siblings                                                                   | Make your container a row; size panels by slot ([section 19](#panel-layout))                                                                                    |
+| In `views` that render a list beside a `<Slot>`, the channel list or thread list fills the view, the channel or thread beside it is not visible and the page scrolls horizontally | `--str-chat__channel-list-width` and `--str-chat__thread-list-width` default to `100%`, and the lists do not shrink                                          | Set both widths on the `ChatView` root ([section 19](#panel-layout))                                                                                            |
+| A channel name or image renders empty                                                                                                                                             | `name` / `image` are custom data in `stream-chat` v10: `channel.data.custom.name`                                                                            | Read `custom` ([section 17](#17-other-stream-chat-v10-data-shapes))                                                                                             |
+| A held channel throws "pending disposal" after logout or a user switch                                                                                                            | `disconnectUser()` disposes the user's channels                                                                                                              | Drop held channels on disconnect ([section 4](#without-chatview))                                                                                               |
+| A channel renders empty, with no error, and gets no new messages                                                                                                                  | `Channel` no longer watches the channel                                                                                                                      | Watch it first: `channel.watch()` ([section 5](#channel-no-longer-watches-the-channel))                                                                         |
+| A direct message the app just created renders, but new messages never arrive                                                                                                      | The created members-only instance was superseded by the store's instance for the same cid                                                                    | Render the instance `watch()` resolves with ([section 5](#channel-no-longer-watches-the-channel))                                                               |
+| After a failed send, the composer is empty instead of holding the text and attachments                                                                                            | The composer is released before the request and nothing is put back                                                                                          | Nothing to do; the failed message is retried from the list ([section 13](#a-failed-send-or-edit-no-longer-restores-the-composer))                               |
+| A component that rendered blank outside its provider now throws                                                                                                                   | Required context hooks throw instead of warning and returning `{}`                                                                                           | Render it inside the provider ([section 10](#required-context-hooks-throw-outside-their-provider))                                                              |
+| A standalone `<Message>` (a preview, a pinned-message card) throws                                                                                                                | `Message` needs a channel in context                                                                                                                         | Wrap it in `ChannelInstanceProvider` ([section 12](#a-standalone-message-needs-a-channel-in-context))                                                           |
+| The channel is not marked read                                                                                                                                                    | Mark-read moved from `Channel` mount to the message list                                                                                                     | Render a message list, or mark read yourself ([section 5](#markreadonmount-is-removed-the-list-marks-read))                                                     |
+| The tab title no longer shows `(3) Title`                                                                                                                                         | `Channel` no longer writes `document.title`                                                                                                                  | Write it in app code ([section 5](#channel-no-longer-writes-documenttitle))                                                                                     |
+| Mount effects in a channel's children stop re-running when the channel changes                                                                                                    | `Channel` no longer remounts its subtree per channel                                                                                                         | Depend on the `channel` instance ([section 5](#channel-lifecycle-activation-no-remount-no-reload-no-search-jump))                                               |
+| After switching channels, a child still shows the previous channel's name, draft or other local state                                                                             | `Channel` no longer remounts its subtree, so `useState(valueFromChannel)` keeps the value of the first channel it saw                                        | Reset the state when `channel` changes ([section 5](#channel-lifecycle-activation-no-remount-no-reload-no-search-jump))                                         |
+| Search results open unwatched, empty channels in a custom result component                                                                                                        | Search results are no longer watched                                                                                                                         | `watch()` on open ([section 4](#search-results))                                                                                                                |
+| Translations or overrides stop applying; non-English UI renders English                                                                                                           | Keys renamed, non-English dictionaries removed                                                                                                               | Rename keys, register dictionaries ([section 18](#18-i18n))                                                                                                     |
+| CSS on `.str-chat__main-panel`, `.str-chat__container`, `.str-chat__channel-list-inner` or `.str-chat__thread--virtualized` stops applying                                        | Those wrappers and classes are gone                                                                                                                          | Grep for them, combinators included, and retarget ([section 19](#19-css-and-markup))                                                                            |
+| Plain JS: `useCreateChatClient({ options })` stops applying `baseURL` and other settings                                                                                          | `options` was renamed to `config`                                                                                                                            | [Section 2](#usecreatechatclient-options--config)                                                                                                               |
+| Plain JS: a removed prop or override key (`Message`, `HeaderStartContent`, `do*Request`, `overrideSubmitHandler`, ...) does nothing                                               | Ignored without a warning                                                                                                                                    | Grep for each removed name listed in this guide                                                                                                                 |
+| A supplied composer keeps its content after `MessageComposer` unmounts                                                                                                            | A supplied composer is never cleared on unmount                                                                                                              | Call `composer.clear()` yourself ([section 13](#preventclearingonunmount-is-removed))                                                                           |
+| A voice message stops another one playing in a different panel                                                                                                                    | Playback is exclusive app-wide                                                                                                                               | Nothing to do ([section 12](#allowconcurrentplayback-is-removed-one-voice-message-plays-at-a-time))                                                             |
+| The attachment menu offers different actions than before                                                                                                                          | Actions follow the composer's resolved configuration                                                                                                         | Set `customCdn` where it applies ([section 13](#attachment-and-poll-availability))                                                                              |
+| A custom `MessageTimestamp` does not show in the header of a gallery you build yourself                                                                                           | The gallery renders outside a message and reads the item; it uses the override only when the item carries its `message`                                      | Set `message` on each `GalleryItem` ([section 12](#the-gallery-header-renders-the-messagetimestamp-override-for-items-that-carry-their-message))                |
+| `dayjs(created_at)` renders `Invalid Date`                                                                                                                                        | Server timestamps are unix nanoseconds                                                                                                                       | Convert with `convertTimestampToDate` ([section 16](#16-dates-on-response-types-are-unix-nanosecond-numbers))                                                   |
+| The "New Messages!" notification no longer shows after jumping to older messages                                                                                                  | It shows only when a message arrives while the list is scrolled up                                                                                           | Read `messagePaginator.hasMoreHead` for an "older messages shown" indicator ([section 11](#the-new-messages-notification-shows-only-for-messages-that-arrived)) |
+| The scroll-to-latest button shows a larger number than before                                                                                                                     | It shows the channel's unread count for the current user, not the messages that arrived while scrolled up                                                    | Nothing to do; see [section 11](#scrolltolatestmessagebutton-shows-the-channels-unread-count)                                                                   |
+| A custom loader given to `InfiniteScrollPaginator` (or `ChannelList` / `SearchSourceResultList`) is called earlier and more often                                                 | `loadNextDebounceMs` now limits how often the scroll position is checked, rather than waiting for scrolling to stop                                          | Ignore calls while a page is loading ([section 11](#loading-older-messages-keeps-your-place-loadnextdebouncems-rate-limits-the-check))                          |
 
 ---
 
@@ -87,7 +91,8 @@ These compile cleanly, or are ignored in plain JS, and change behavior at runtim
 
 ### Packages
 
-- **`stream-chat` peer is `^10.0.0-rc.20`.** v9 does not satisfy it, and v10 is itself a breaking client release (see [`v10-breaking-changes.md`](https://github.com/GetStream/stream-chat-js/blob/master/ai-docs/v10-breaking-changes.md) in stream-chat-js (added by GetStream/stream-chat-js#1919; until that merges, read it on the PR)). Install `stream-chat@^10`.
+- **`stream-chat` peer is v10.** Read the exact range from `peerDependencies['stream-chat']` in the installed `node_modules/stream-chat-react/package.json` and install a version that satisfies it; the minimum moves between release candidates. v9 does not satisfy it, and v10 is itself a breaking client release (see [`v10-breaking-changes.md`](https://github.com/GetStream/stream-chat-js/blob/release-v10/ai-docs/v10-breaking-changes.md) in stream-chat-js).
+- **The first compile errors are usually `stream-chat` type changes, not React ones.** The removed-exports table below lists only this package's exports. The common ones from `stream-chat`: `ChannelSort`, `UserSort` and the other sort aliases → `SortParamRequest[]` ([sort](https://github.com/GetStream/stream-chat-js/blob/release-v10/ai-docs/v10-breaking-changes.md#sort-shape)); `client.queryChannels` keeps its name but returns the raw response object, and the v9 behavior (`Channel[]`) is `client.queryChannelsAndHydrate` ([queryChannels](https://github.com/GetStream/stream-chat-js/blob/release-v10/ai-docs/v10-breaking-changes.md#query-channels-raw)); `client.queryUsers(filter, sort, options)` → `client.queryUsers({ payload: { filter_conditions, sort, limit } })` ([generated signatures](https://github.com/GetStream/stream-chat-js/blob/release-v10/ai-docs/v10-breaking-changes.md#generated-client-signatures)).
 - **Node `>=22.18.0`.** `stream-chat@10` declares `engines.node >=22.18.0`, and Yarn 1 refuses to install on older Node. Move `.nvmrc` and every CI `node-version` (GitHub Actions `setup-node`, Docker base images, deploy workflows) to Node 22 before anything else: CI is usually the first thing to break.
 - **`dayjs` and `i18next` are no longer dependencies of this package.** It depends on `@stream-io/i18n`, which brings both (`dayjs ^1.11.23`, `i18next ^26`). `stream-chat` v10 depends on neither. If the app declared them only because of this SDK, remove them. If it keeps `dayjs`, its version must dedupe with `@stream-io/i18n`'s, or `import 'dayjs/locale/xx'` registers the locale on a different instance and dates stay English.
 - **`@stream-io/state-store` must resolve to exactly one copy.** `stream-chat`, `@stream-io/i18n` and this package hand each other store instances. `StateStore` has `protected` members, so stores from two copies are not assignable to `useStateStore`'s parameter. Check with `yarn why @stream-io/state-store` / `npm ls @stream-io/state-store`. A linked `stream-chat` checkout needs bundler dedupe.
@@ -191,7 +196,7 @@ export const useClient = (apiKey: string, userId: string, token: string) =>
   | `isLocalUnreadCountEnabled` | `channel.readEvents.localUnreadCountEnabled` |
 
 - `device`, `disableCache`, `enableInsights`, `logger` and `warmUp` have no config key. `notifications` (a `NotificationManager` instance) is now `client.notificationManager`. `wsConnection` is a config object, not a connection instance.
-- The full v9 → v10 option table is in [`v10-breaking-changes.md`](https://github.com/GetStream/stream-chat-js/blob/master/ai-docs/v10-breaking-changes.md) in stream-chat-js (added by GetStream/stream-chat-js#1919; until that merges, read it on the PR). Do not restate it from memory.
+- The full v9 → v10 option table is in [`v10-breaking-changes.md`](https://github.com/GetStream/stream-chat-js/blob/release-v10/ai-docs/v10-breaking-changes.md) in stream-chat-js. Do not restate it from memory.
 - `userData` is typed `ClientUser`. `config` is read once, on the first render.
 
 ### `useChat` and `Chat.defaultLanguage`
@@ -218,14 +223,14 @@ export const useChatParts = (client: StreamChat, i18nInstance?: Streami18n) => {
 
 ### `ChatContext` fields
 
-| v14 `useChatContext()` field   | v15                                                                                                                                                                                                                                                                                             |
-| ------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `channel` (the active channel) | Inside the channel subtree: `useChannel()`. Elsewhere: `useWorkspaceNavigation().openChannels`, or `useSlotChannel({ slot })` from `stream-chat-react/slot-layout`. See [section 4](#4-selecting-channels-and-opening-threads-workspace-navigation).                                            |
-| `setActiveChannel`             | `useWorkspaceNavigation().openChannel(channel, { event })`. See [section 4](#4-selecting-channels-and-opening-threads-workspace-navigation).                                                                                                                                                    |
-| `channelsQueryState`           | The channel list's own query state: `useChannelPaginatorState(paginator)` returns `{ channels, hasMoreHead, hasMoreTail, isLoading, lastQueryError }`; `hasMoreTail` says whether `paginator.toTail()` has another page. `ChannelList` reports `lastQueryError` through `client.notifications`. |
-| `latestMessageDatesByChannels` | Slow-mode cooldown: `useCooldownRemaining()` or `useStateStore(channel.cooldownTimer.state, selector)`. The channel's latest message: `channel.messagePaginator.aggregateState` (`latestMessage`). When the current user last posted: not available; track it from `message.new` yourself.      |
-| `mutes`                        | Unchanged, but typed `UserMuteResponse[]` (was `Mute[]`).                                                                                                                                                                                                                                       |
-| `getAppSettings`               | Returns `ReturnType<StreamChat['getAppSettings']>`.                                                                                                                                                                                                                                             |
+| v14 `useChatContext()` field   | v15                                                                                                                                                                                                                                                                                                                                         |
+| ------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `channel` (the active channel) | Inside the channel subtree: `useChannel()`. Elsewhere: `useWorkspaceNavigation().openChannels`, or `useSlotChannel({ slot })` from `stream-chat-react/slot-layout`, and only below the navigation provider: a component rendered next to `ChatView` instead of inside it always gets `openChannels: []`. See [section 4](#inside-chatview). |
+| `setActiveChannel`             | `useWorkspaceNavigation().openChannel(channel, { event })`. See [section 4](#4-selecting-channels-and-opening-threads-workspace-navigation).                                                                                                                                                                                                |
+| `channelsQueryState`           | The channel list's own query state: `useChannelPaginatorState(paginator)` returns `{ channels, hasMoreHead, hasMoreTail, isLoading, lastQueryError }`; `hasMoreTail` says whether `paginator.toTail()` has another page. `ChannelList` reports `lastQueryError` through `client.notifications`.                                             |
+| `latestMessageDatesByChannels` | Slow-mode cooldown: `useCooldownRemaining()` or `useStateStore(channel.cooldownTimer.state, selector)`. The channel's latest message: `channel.messagePaginator.aggregateState` (`latestMessage`). When the current user last posted: not available; track it from `message.new` yourself.                                                  |
+| `mutes`                        | Unchanged, but typed `UserMuteResponse[]` (was `Mute[]`).                                                                                                                                                                                                                                                                                   |
+| `getAppSettings`               | Returns `ReturnType<StreamChat['getAppSettings']>`.                                                                                                                                                                                                                                                                                         |
 
 `latestMessageDatesByChannels` never held the channel's latest message date: it was filtered to the current user's own messages, to compute slow-mode cooldown, a job `channel.cooldownTimer` now owns. `channelsQueryState` used to drive a loading and error state inside `Channel`; `Channel` renders none now (see [section 5](#channel-requires-channel-and-renders-no-placeholder-loading-or-error-state)).
 
@@ -350,7 +355,9 @@ import {
   Slot,
 } from 'stream-chat-react/slot-layout';
 
-// Module scope: both feed the ChatView layout controller and must be referentially stable.
+// `layouts` (and `resolveDuplicateEntity`, if you pass it) must be referentially stable: a new value
+// re-creates the layout controller and closes everything that was open. Keep `slotRenderers` stable
+// too: a new object re-renders every `useWorkspaceNavigation()` consumer. `views` may be built in render.
 const layouts = [{ id: 'channels' as const, slots: ['left', 'right'] }];
 
 const slotRenderers: ChatViewSlotRenderers = {
@@ -417,7 +424,9 @@ import {
   ThreadSlot,
 } from 'stream-chat-react/slot-layout';
 
-// Module scope: layouts, renderers and views must be referentially stable.
+// Module scope here because nothing depends on props. `layouts` must be stable (a new array closes
+// everything that was open); keep `slotRenderers` stable too (`useMemo` when it needs props).
+// `views` can be built in render.
 const layouts = [
   { id: 'channels' as const, slots: ['channel', 'channel-thread'] },
   { id: 'threads' as const, slots: ['thread'] },
@@ -506,6 +515,8 @@ export const App = ({ client }: { client: StreamChat }) => (
 
 In the example: selecting a channel binds it to `channel`, replacing the open one; a reply opened from a message goes to the free `channel-thread`; clicking a `ThreadList` row binds the thread to `thread`. Each view keeps its own slot state when you switch between them.
 
+**The inactive view unmounts.** `ChatView` renders only the active view's element, so everything in `views.channels` (the channel list, its sidebar, your hooks) unmounts when the user switches to threads and mounts fresh on return. Only the slot bindings survive. Component state, refs and effects inside a view start over on every switch, so state that must outlive one (a `ChannelPaginator`, an "already opened the first channel" guard) lives above `ChatView` ([section 6](#v14-list-defaults-that-changed)). v14 kept the active channel in `ChatContext`, outside the view, so a remount lost nothing.
+
 `ThreadList` rows open additively on ⌘/ctrl-click. Channel rows only forward the click event, so opening a channel _beside_ the current one is opt-in: pass `ChatView` a `deriveWorkspaceNavigation` whose `openChannel` sets `additive` from the event's modifier keys. With it, that channel lands in `channel-thread`.
 
 **`ThreadSlot` and `ChannelSlot` wrap their children.** They resolve the entity bound to a slot and hand it to `<Thread>` / `<Channel>`, so their `children` are the thread's or channel's contents, not a substitute for the whole panel. Anything that has to sit outside the thread container (a panel shell your layout sizes) moves outside the slot; anything that needs the thread context must sit inside.
@@ -534,9 +545,29 @@ The channel-detail "send direct message" member action and the pinned-message en
 
 Nothing to wire. `ChatView` provides the navigation and binds what is opened into a layout slot. To customize it (for example, open beside the current channel on ⌘/ctrl-click), pass `deriveWorkspaceNavigation`, which receives the SDK-derived navigation and returns the members to override. It must be referentially stable.
 
+The same holds for your own components. Anything that reads `useWorkspaceNavigation()` (an "in a call" panel, a header badge for the open channel) has to render inside `ChatView`. Pass it as a `ChatView` child in a `views` layout: children render inside the provider, before the active view, and stay mounted when the view switches. The built-in `layout="nav-rail-entity-list-workspace"` does not render `children`. `openChannels` lists the active view's channels, so it is empty while the threads view is shown.
+
+```tsx
+const CallPanel = () => {
+  const { openChannels } = useWorkspaceNavigation();
+  const channel = openChannels[0];
+  return channel ? <CallControls channel={channel} /> : null;
+};
+
+<Chat client={client}>
+  <ChatView layouts={layouts} slotRenderers={slotRenderers} views={views}>
+    <CallPanel />
+  </ChatView>
+</Chat>;
+```
+
 ### Without `ChatView`
 
-Hold what is open in your own state and provide `WorkspaceNavigationProvider` with an object built from `defaultWorkspaceNavigation`. Override at least `openChannel`, `isChannelActive` and `openChannels`, plus `openThread` / `closeThread` / `openThreads` / `isThreadActive` if you render threads.
+Hold what is open in your own state and provide `WorkspaceNavigationProvider` with an object built from `defaultWorkspaceNavigation`. Every member you do not override keeps its inert default (`false`, a no-op, an empty list). Override:
+
+- always: `openChannel`, `isChannelActive` and `openChannels`;
+- if you render threads: `openThread`, `closeThread`, `openThreads`, `isThreadActive`, and `isThreadDismissable` if you render the default `ThreadHeader`, whose close button shows only when it returns `true`;
+- if you render the default `ChannelHeader` and want its buttons: `isChannelDismissable` with `closeChannel` (close), and `canGoBack` with `goBack` (back). Leave them out for a single channel panel; the buttons then render nothing.
 
 ```tsx
 // v14
@@ -600,6 +631,8 @@ export const App = ({ client, userId }: { client: StreamChat; userId: string }) 
       closeThread: () => setActiveThread(undefined),
       isChannelActive: (cid) => !!cid && cid === activeChannel?.cid,
       isThreadActive: (threadId) => !!threadId && threadId === activeThread?.id,
+      // the default ThreadHeader renders its close button only when this returns true
+      isThreadDismissable: (threadId) => !!threadId && threadId === activeThread?.id,
       openChannel: (channel) => {
         setActiveChannel(channel);
         setActiveThread(undefined);
@@ -780,7 +813,33 @@ const channel = await client.channel('messaging', 'general').watch();
 
 These keep the same signature and change behavior:
 
-- **No remount per channel.** `Channel` no longer keys its subtree on `channel.cid`. Switching the `channel` prop keeps children mounted. A custom child that relied on remounting to reset local state or re-run a mount effect must depend on the `channel` instance instead (not on `channel.cid`).
+- **No remount per channel.** `Channel` no longer keys its subtree on `channel.cid`. Switching the `channel` prop keeps children mounted. A custom child that relied on remounting to reset local state or re-run a mount effect must depend on the `channel` instance instead (not on `channel.cid`). Nothing fails to compile. The common case is state seeded from the channel: `useState(channel.data?.custom?.name)` runs its initializer once, so after a switch the header still shows the previous channel's name. Reset it when the channel changes:
+
+  ```tsx
+  import { useEffect, useState } from 'react';
+  import type { ChannelStateData } from 'stream-chat';
+  import { useChannel, useStateStore } from 'stream-chat-react';
+
+  // `name` is custom data in stream-chat v10; declare it once, app-wide (section 17).
+  declare module 'stream-chat' {
+    interface CustomChannelData {
+      name?: string;
+    }
+  }
+
+  const dataSelector = ({ data }: ChannelStateData) => ({ data });
+
+  export const ChannelNameInput = () => {
+    const channel = useChannel();
+    const { data } = useStateStore(channel.state, dataSelector);
+    const savedName = data?.custom?.name ?? '';
+    // v14 remounted this per channel; in v15 `useState(savedName)` alone keeps the first channel's name.
+    const [draft, setDraft] = useState(savedName);
+    useEffect(() => setDraft(savedName), [channel, savedName]);
+    return <input onChange={(event) => setDraft(event.target.value)} value={draft} />;
+  };
+  ```
+
 - **Activation.** `Channel` calls `channel.activate()` on mount and the returned release on unmount (refcounted, so several consumers can hold one instance). While a channel is active, the client skips re-seeding its message list on channel-list hydration, which would perturb a larger scrolled-back window. A custom channel surface that does not render `Channel` must activate the channel itself, or the client re-seeds its list and `client.channelManager.releaseUnusedChannels()` may drop it.
 - **No reload on reconnect.** `Channel` no longer calls `channel.reload()` on `connection.recovered`. The client reloads active channels itself after a reconnect, so a custom surface needs only the activation:
 
@@ -893,7 +952,7 @@ const options: ChannelOptions = { limit: 10 };
 ```
 
 ```tsx
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import {
   type ChannelFilters,
   ChannelPaginator,
@@ -904,25 +963,29 @@ import { ChannelNavigation } from 'stream-chat-react';
 
 const sort: SortParamRequest[] = [{ direction: -1, field: 'last_message_at' }];
 
-export const Sidebar = ({ client, userId }: { client: StreamChat; userId: string }) => {
-  useEffect(() => {
+// Call once, in the component that renders <Chat>, above ChatView.
+export const useChannelPaginator = (client: StreamChat, userId: string) => {
+  const paginator = useMemo(() => {
     const filters: ChannelFilters = { members: { $in: [userId] }, type: 'messaging' };
-    const paginator = new ChannelPaginator({
-      client,
-      filters,
-      id: 'channels:default',
-      sort,
-    });
+    return new ChannelPaginator({ client, filters, id: 'channels:default', sort });
+  }, [client, userId]);
+
+  useEffect(() => {
     client.channelManager.insertPaginator({ paginator });
     return () => {
       client.channelManager.removePaginator(paginator);
     };
-  }, [client, userId]);
+  }, [client, paginator]);
 
-  // Header, search and one ChannelList per registered paginator.
-  return <ChannelNavigation />;
+  return paginator;
 };
+
+// Header, search and one ChannelList per registered paginator.
+export const Sidebar = () => <ChannelNavigation />;
 ```
+
+- **Create and register the paginator above `ChatView`**, not in the component that renders the list. `ChatView` unmounts the inactive view ([section 3](#where-an-opened-entity-lands)), so a paginator created inside `views.channels` is re-created and re-queried every time the user comes back from the threads view. A paginator that outlives the view keeps its loaded pages, and a remounted `ChannelList` queries only a paginator that was never loaded.
+- `ChannelNavigation` finds every registered paginator through `client.channelManager`, so it takes no prop. Pass the paginator down only to code that needs it, such as `useOpenFirstChannel` [below](#v14-list-defaults-that-changed). `views` may take it as a prop directly; it does not need to be referentially stable.
 
 A single list can still be rendered on its own with `<ChannelList paginator={paginator} />`; it has no header or search. Use `<ChannelLists />` for all registered lists without the header.
 
@@ -946,33 +1009,58 @@ export const createPaginator = (client: StreamChat, userId: string) =>
 
 These hit apps that never passed the props, because they were v14 defaults:
 
-- **No channel opens on load.** `setActiveChannelOnMount` defaulted to `true`, so every v14 app opened the first channel. v15 has no default selection: nothing is open until you call `useWorkspaceNavigation().openChannel(channel)`. To keep the v14 behavior, open the paginator's first item once:
+- **No channel opens on load.** `setActiveChannelOnMount` defaulted to `true`, so every v14 app opened the first channel. v15 has no default selection: nothing is open until you call `useWorkspaceNavigation().openChannel(channel)`. To keep the v14 behavior, open the paginator's first item when its first page loads:
 
   ```tsx
   import { useEffect, useRef } from 'react';
   import type { ChannelPaginator } from 'stream-chat';
-  import { useWorkspaceNavigation } from 'stream-chat-react';
+  import { ChannelNavigation, useWorkspaceNavigation } from 'stream-chat-react';
 
   export const useOpenFirstChannel = (paginator: ChannelPaginator) => {
-    const { openChannel } = useWorkspaceNavigation();
-    const opened = useRef(false);
-    useEffect(
-      () =>
-        paginator.state.subscribeWithSelector(
-          ({ items }) => ({ first: items?.[0] }),
-          ({ first }) => {
-            if (first && !opened.current) {
-              opened.current = true;
-              openChannel(first);
-            }
-          },
-        ),
-      [paginator, openChannel],
-    );
+    const { openChannel, openChannels } = useWorkspaceNavigation();
+    // Read when a page loads. The navigation changes with every open and close, and resubscribing
+    // on it would replay a page that already loaded.
+    const navigation = useRef({ hasOpenChannel: openChannels.length > 0, openChannel });
+    useEffect(() => {
+      navigation.current = { hasOpenChannel: openChannels.length > 0, openChannel };
+    });
+
+    useEffect(() => {
+      // Each load counts once, so a channel that later moves to the top is not opened.
+      // `items === undefined` means "never queried", where `client.disconnectUser()` resets the
+      // list, so the next user's first load counts again.
+      let awaitingLoad = true;
+      return paginator.state.subscribeWithSelector(
+        ({ items }) => ({ first: items?.[0], isUnloaded: items === undefined }),
+        ({ first, isUnloaded }) => {
+          if (isUnloaded) {
+            awaitingLoad = true;
+            return;
+          }
+          if (!awaitingLoad) return;
+          awaitingLoad = false;
+          // Check what is open, not a flag of this hook: a remount (a `ChatView` view switch
+          // unmounts the list) must not replace the channel the user picked.
+          if (first && !navigation.current.hasOpenChannel) {
+            navigation.current.openChannel(first);
+          }
+        },
+      );
+    }, [paginator]);
+  };
+
+  // In `views.channels`; the paginator comes from useChannelPaginator, above ChatView.
+  export const ChannelsSidebar = ({ paginator }: { paginator: ChannelPaginator }) => {
+    useOpenFirstChannel(paginator);
+    return <ChannelNavigation />;
   };
   ```
 
-  Call it below the navigation provider (inside `ChatView`, or inside your `WorkspaceNavigationProvider`), where `openChannel` does something.
+  - Call it below the navigation provider (inside `ChatView`, or inside your `WorkspaceNavigationProvider`), where `openChannel` does something.
+  - Inside `ChatView`, call it in the channels view, not in an always-rendered `ChatView` child. `openChannels` lists the active view's channels only, so it is empty in the threads view, and opening a channel from there switches the user back to the channels view.
+  - It opens once per load of the list: closing the last channel, or a channel moving to the top, opens nothing. After `client.disconnectUser()` resets the list, the next load opens its first channel again, once the previous user's channel is closed: inside `ChatView`, mount `<DisposedChannelRelease />` (from `stream-chat-react/slot-layout`); without it, clear your own state as described in [Without `ChatView`](#without-chatview).
+  - With several lists, call it once, for the list whose first channel should open. Each call knows only its own paginator, so with one call per list the first page to arrive wins, and two pages arriving before a re-render can both open.
+  - Create the paginator above `ChatView` too ([above](#channellist-is-driven-by-a-channelpaginator)); one created inside the view is replaced on every switch, and the hook then subscribes to a fresh, unloaded paginator.
 
 - **Unfiltered channels no longer join the list.** `allowNewMessagesFromUnfilteredChannels` defaulted to `true`: a new message in a channel that was not in the list added it, whatever the list's filters. In v15 the paginator adds a channel only if it matches the paginator's own filters, and there is no opt-out. If channels used to appear this way, widen the filters to cover them.
 - **Infinite scroll, not "Load more".** `Paginator` defaulted to `LoadMorePaginator` (a button). The v15 `ChannelList` always scrolls infinitely, loading the next page near the end of the list. To keep a button, render your own list:
@@ -1088,13 +1176,13 @@ export const ChannelCount = () => {
 
 ### `ChannelListItem` props
 
-| v14                                                                                                                      | v15                                                                                                                                                                                                                                                |
-| ------------------------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `lastMessage` (on `ChannelListItemUIProps` and `ChannelListItemTimestamp`)                                               | `previewedMessage`. `ChannelListItem` also takes `previewedMessage` to preview a specific message (a search result previewing the match); it defaults to `channel.messagePaginator.aggregateState.lastMessage`.                                    |
-| `latestMessagePreview` (`ChannelListItemUIProps`), `getLatestMessagePreview` (`ChannelListItem` and `ChannelList` props) | Render `<SummarizedMessagePreview latestMessage={previewedMessage} ... />`, or override the `SummarizedMessagePreview` slot with `WithComponents` (`SummarizedMessagePreviewProps`: `{ latestMessage, messageDeliveryStatus, participantCount }`). |
-| `setActiveChannel`, `watchers`                                                                                           | `useWorkspaceNavigation().openChannel(channel, { event })`, or the `onSelect` prop ([section 4](#4-selecting-channels-and-opening-threads-workspace-navigation))                                                                                   |
-| `channelUpdateCount`, `key`                                                                                              | None; the item subscribes to the channel's stores                                                                                                                                                                                                  |
-| `active`                                                                                                                 | Unchanged prop; it now defaults to `useWorkspaceNavigation().isChannelActive(cid)`                                                                                                                                                                 |
+| v14                                                                                                                      | v15                                                                                                                                                                                                                                                                                                                                                                                       |
+| ------------------------------------------------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `lastMessage` (on `ChannelListItemUIProps` and `ChannelListItemTimestamp`)                                               | `previewedMessage`. `ChannelListItem` also takes `previewedMessage` to preview a specific message (a search result previewing the match); it defaults to `channel.messagePaginator.aggregateState.lastMessage`.                                                                                                                                                                           |
+| `latestMessagePreview` (`ChannelListItemUIProps`), `getLatestMessagePreview` (`ChannelListItem` and `ChannelList` props) | Render `<SummarizedMessagePreview latestMessage={previewedMessage} ... />`, or override the `SummarizedMessagePreview` slot with `WithComponents` (`SummarizedMessagePreviewProps`: `{ latestMessage, messageDeliveryStatus, participantCount }`).                                                                                                                                        |
+| `setActiveChannel`, `watchers`                                                                                           | `useWorkspaceNavigation().openChannel(channel, { event })`, or the `onSelect` prop ([section 4](#4-selecting-channels-and-opening-threads-workspace-navigation))                                                                                                                                                                                                                          |
+| `channelUpdateCount`, `key`                                                                                              | None; the item subscribes to the channel's stores                                                                                                                                                                                                                                                                                                                                         |
+| `active`                                                                                                                 | Unchanged prop; it now defaults to `useWorkspaceNavigation().isChannelActive(cid)`. `ChannelListItem` passes the resolved value to `ChannelListItemUI` as `active`. The SDK's CSS highlights `.str-chat__channel-list-item[aria-selected=true]` only (v14 also matched `[aria-pressed=true]`), so a custom row that keeps the SDK class sets `role="option"` and `aria-selected={active}` |
 
 The `getLatestMessagePreview` and `getLatestMessagePreviewText` utilities are still exported; only their `t` / `userLanguage` parameter types changed. Prefer `WithComponents` for the slot override: it merges over the parent context, while `ComponentProvider` replaces it. Neither `Chat` nor `Channel` takes component props.
 
@@ -1123,6 +1211,7 @@ import {
 } from 'stream-chat-react';
 
 export const CustomItem = ({
+  active,
   channel,
   displayTitle,
   messageDeliveryStatus,
@@ -1130,7 +1219,12 @@ export const CustomItem = ({
 }: ChannelListItemUIProps) => {
   const { openChannel } = useWorkspaceNavigation();
   return (
-    <button onClick={(event) => openChannel(channel, { event })}>
+    <button
+      aria-selected={active}
+      className='str-chat__channel-list-item'
+      onClick={(event) => openChannel(channel, { event })}
+      role='option'
+    >
       <strong>{displayTitle}</strong>
       <SummarizedMessagePreview
         latestMessage={previewedMessage}
@@ -1200,8 +1294,9 @@ export const ThreadPanel = ({
 
 - `ThreadHeaderProps` is now `{ overrideTitle?, StartContent?, EndContent? }` ([section 8](#8-channel-and-thread-headers)). The `closeThread` and `thread` props are removed (`TS2339`).
 - `ComponentContext.ThreadHeader` is removed: `Thread` renders no header, so the override is ignored. Render your header as a child of `<Thread>`.
+- **Do not follow the compiler's hint.** A stale `ThreadHeader:` override key fails with `TS2561 ... Did you mean to write 'ThreadHead'?`. `ThreadHead` is the parent-message slot, so renaming the key renders your header as the thread's first message.
 - Read the thread with `useThreadContext()` and its parent message from `thread.state`. Close it with the new `useCloseThread()` hook, or `useWorkspaceNavigation().closeThread(thread.id)`. Both close through workspace navigation, so they do nothing outside `ChatView` or a `WorkspaceNavigationProvider`.
-- `useCloseThread()` returns `(options?: WorkspaceNavigationOptions) => void`, not a click handler: pass the event as `{ event }`.
+- `useCloseThread()` returns `(options?: WorkspaceNavigationOptions) => void`, not a click handler: pass the event as `{ event }`. Its type is `WorkspaceNavigationTriggerEvent` (`React.MouseEvent | React.KeyboardEvent | React.TouchEvent`), narrower than the `React.BaseSyntheticEvent` that v14's `closeThread` took, so a handler typed `(event: React.BaseSyntheticEvent) => void` no longer fits; type it with the event it handles (`React.MouseEvent<HTMLButtonElement>`).
 
 ```tsx
 // v14
@@ -1278,6 +1373,7 @@ v14's `<ThreadProvider thread={t}>` rendered `<Channel channel={t.channel}>` aro
 - The v14 thread close button is now `ThreadHeader`'s `EndContent` default. It still renders as `str-chat__close-thread-button`, only for threads the navigation reports as dismissable. `ChannelHeader` gains the same pair (`str-chat__close-channel-button`, `str-chat__channel-header__back-button`).
 - The buttons act on the panel they render in. A layout that renders its own panels declares them with `WorkspacePanelProvider`. Without a workspace navigation (outside `ChatView`, with no provider), nothing can be dismissed, so they render nothing.
 - Passing a component replaces the default button. Render `WorkspaceNavigationBackButton` / `WorkspaceNavigationCloseButton` inside yours to keep it.
+- `ChannelHeader` also takes `Title`, which replaces only the title and receives `{ channel, displayTitle }` (`ChannelHeaderTitleProps`; the default is `ChannelHeaderTitle`). Render the title as a button there instead of rebuilding the header. `Subtitle` likewise replaces only the subtitle (default `ChannelHeaderSubtitle`). A header you build yourself keeps the default subtitle by rendering `ChannelHeaderSubtitle` (Online/Offline for a direct message, member and online counts otherwise, the typing indicator while someone types), or reads the status text with `useChannelHeaderOnlineStatus()`.
 - `ComponentContext.HeaderEndContent` is unchanged and still feeds `ChannelListHeader` / `ThreadListHeader`, but `ChannelListHeader` shows it only while a channel is open in the workspace.
 
 ```tsx
@@ -1430,6 +1526,37 @@ export const TypingCount = () => {
 };
 ```
 
+**Reading who is typing needs a type guard.** The slice is typed `Record<string, Event>`, and `Event` is a discriminated union in `stream-chat` v10, so `event.user` does not compile on it (`TS2339`). The client stores only `typing.start` events there; narrow to that member:
+
+```tsx
+// v14
+const { typing } = useTypingContext();
+const names = Object.values(typing ?? {}).map(({ user }) => user?.name);
+```
+
+```tsx
+import type { ChannelStateData, Event, EventPayload } from 'stream-chat';
+import { useChannel, useChatContext, useStateStore } from 'stream-chat-react';
+
+const typingSelector = ({ typing }: ChannelStateData) => ({ typing });
+
+const isTypingStart = (event: Event): event is EventPayload<'typing.start'> =>
+  event.type === 'typing.start';
+
+export const TypingUsers = () => {
+  const { client } = useChatContext();
+  const channel = useChannel();
+  const { typing } = useStateStore(channel.state, typingSelector);
+  const names = Object.values(typing)
+    .filter(isTypingStart)
+    .filter(({ user }) => user?.id !== client.user?.id)
+    .map(({ user }) => user?.name ?? user?.id);
+  return names.length ? <span>{names.join(', ')} typing</span> : null;
+};
+```
+
+If the installed `stream-chat` types the slice as `Record<string, EventPayload<'typing.start'>>`, the guard is unnecessary: read `event.user` directly.
+
 For a thread-scoped indicator, compare each event's `parent_id` with the thread's parent message (`useStateStore(useThreadContext()?.state, selector)`). The `typing_events` gate is `typingEvents.enabled` on `channel.configState` (below).
 
 ### The unread snapshot: `ChannelUnreadUiState` is removed
@@ -1518,6 +1645,8 @@ A stale key in `WithComponents overrides` is a compile error (`TS2353` / `TS2561
 | `HeaderStartContent`    | `StartContent` on `ChannelHeader` / `ThreadHeader` ([section 8](#8-channel-and-thread-headers))                                                                   |
 | `ChannelListUI`         | The list slots ([section 6](#channellistui-is-removed-use-the-list-slots))                                                                                        |
 | `LoadingErrorIndicator` | Render the exported `LoadingErrorIndicator` yourself, around `Channel` ([section 5](#channel-requires-channel-and-renders-no-placeholder-loading-or-error-state)) |
+
+TypeScript suggests `ThreadHead` for a stale `ThreadHeader` key. Do not follow it: `ThreadHead` is the thread's parent-message slot ([section 7](#threadheader-lost-closethread-and-thread)).
 
 `WithComponents` merges over the parent context and merges `icons` slot by slot. `Channel`, `Thread`, the message lists and `MessageComposer` take no component overrides of their own.
 
@@ -1636,7 +1765,9 @@ Related type changes:
 
 The `messageActions` prop on `Message`, `MessageList`, `VirtualizedMessageList` and `Thread` is removed, along with `MESSAGE_ACTIONS`, `OPTIONAL_MESSAGE_ACTIONS`, `MessageActionsArray`, `Capabilities`, the `getMessageActions()` util, and the `getMessageActions` / `actionsEnabled` fields of `MessageContextValue` (also on `MessageUIComponentProps`, `SharedMessageProps` and `VirtuosoContext`).
 
-The prop had already stopped working in v14: `getMessageActions` was written into `MessageContext` and read by nothing, so passing `messageActions={['delete']}` in v14 changed nothing on screen, and the default rendering does not change now. In untyped code, a custom `MessageUI` that calls `getMessageActions()` throws `TypeError: getMessageActions is not a function`.
+**If your custom message UI calls `getMessageActions()` or checks `MESSAGE_ACTIONS`** (for example to show a reply or react button only when allowed), it has to change: read the permissions from `useUserRole(message)` instead (example at the end of this section). The call fails to compile, and in untyped code throws `TypeError: getMessageActions is not a function`.
+
+Otherwise there is little to do. The prop had already stopped working in v14: `getMessageActions` was written into `MessageContext`, but none of the SDK's own components read it, so passing `messageActions={['delete']}` in v14 changed nothing on screen, and the default rendering does not change now.
 
 Choose the actions on `MessageActions` through `messageActionSet` (filter or extend `defaultMessageActionSet`) and install it with the `MessageActions` slot. `MessageActionSetItem` is a union, and its dropdown-toggle member has no `type`, so guard with `'type' in item`:
 
@@ -2096,6 +2227,10 @@ export const InlineEditor = ({ composer }: { composer: Composer }) => (
 // When the edit is abandoned, discard it yourself: composer.clear();
 ```
 
+### `setMessageComposerSetupFunction` is deprecated
+
+`client.setMessageComposerSetupFunction(fn)` still works in `stream-chat` v10 but is deprecated. Register composer setup (emoji or giphy middleware, composer config) with `client.config.setSetupFunction('messageComposer', fn)`; `fn` receives the same `{ composer }` and may return a teardown ([`instance-configuration.md`](https://github.com/GetStream/stream-chat-react/blob/master/ai-docs/instance-configuration.md#setup-functions-for-behaviour)).
+
 ### Attachment and poll availability
 
 `AttachmentSelector` used to decide which actions to offer from the channel type's raw server flags. It now reads the composer's resolved configuration (server flags ANDed with `client.config`). No React API changed, but the actions offered differ:
@@ -2491,7 +2626,7 @@ React props typed with `stream-chat` types change with them. The React APIs are 
 
 **Channel, chat context and search:**
 
-- **Channel `name` and `image` are custom data.** A `stream-chat` v10 channel response carries them under `custom`, with no top-level `name`, so `channel.data?.name` (the most common read, in every channel header and preview) is `undefined`. Read `channel.data?.custom?.name` / `.image`. To type them, augment `CustomChannelData`. `name` is still a top-level **filter** key (`{ name: { $autocomplete: q } }`); other custom fields filter as `'custom.<key>'`. Writes go under `data.custom`, and `channel.update({ data: { custom } })` replaces the whole custom object, so spread the existing `custom` (or use `channel.updatePartial`) to keep the other fields. The full mapping is in [`v10-breaking-changes.md`](https://github.com/GetStream/stream-chat-js/blob/master/ai-docs/v10-breaking-changes.md) in stream-chat-js.
+- **Channel `name` and `image` are custom data.** A `stream-chat` v10 channel response carries them under `custom`, with no top-level `name`, so `channel.data?.name` (the most common read, in every channel header and preview) is `undefined`. Read `channel.data?.custom?.name` / `.image`. To type them, augment `CustomChannelData`. `name` is still a top-level **filter** key (`{ name: { $autocomplete: q } }`); other custom fields filter as `'custom.<key>'`. Writes go under `data.custom`, and `channel.update({ data: { custom } })` replaces the whole custom object, so spread the existing `custom` (or use `channel.updatePartial`) to keep the other fields. The full mapping is in [`v10-breaking-changes.md`](https://github.com/GetStream/stream-chat-js/blob/release-v10/ai-docs/v10-breaking-changes.md) in stream-chat-js.
 
   ```tsx
   import type { Channel, ChannelFilters } from 'stream-chat';
@@ -2588,6 +2723,7 @@ Full detail: [`i18n-v15-migration.md`](https://github.com/GetStream/stream-chat-
 1. **English is the only bundled language.** The `de`, `es`, `fr`, `hi`, `it`, `ja`, `ko`, `nl`, `pt`, `ru` and `tr` dictionaries are removed with their dayjs calendar formats, and so are the `deTranslations` ... `trTranslations` / `enTranslations` exports, `isLanguageSupported` (use `i18n.registeredLanguages.has(lang)`) and `SupportedTranslations`.
 2. **Keys are namespaced identifiers**, not the English text. `t('Send')` → `t('messageComposer.sendButton.send.ariaLabel', 'Send')`. An unrenamed key never matches, and the English copy renders. Every old key maps to one new key in [`i18n-v15-key-map.json`](https://github.com/GetStream/stream-chat-react/blob/master/ai-docs/i18n-v15-key-map.json).
 3. **`t` is strictly typed** (`StreamTFunction`). `t('English text')` and `t(someString)` no longer compile (`TS2769`). App-owned strings and runtime keys go through `asDynamicKey`: `t(asDynamicKey('myApp.removeMembers.ariaLabel'), 'Remove channel members')`.
+   For each `t('...')` call and each dictionary key, look the string up in the key map's `keys`. Found: use its `key`. Not found: either the string was never an SDK key (for example `t('Message Failed · Click to try again')` in a custom message UI), or v15 dropped it from the catalog (`live`, `Create`, `Submit`, `Remove`, `Menu`, the typing-indicator strings, ...; full list in [`i18n-v15-migration.md`](https://github.com/GetStream/stream-chat-react/blob/master/ai-docs/i18n-v15-migration.md#keys-removed-without-a-replacement)). Either way it is app-owned now. Give it a key of your own through `asDynamicKey`, with the English copy inline, and keep its translations in your dictionaries: `t(asDynamicKey('myApp.message.failed.text'), 'Message Failed · Click to try again')`. A strict-`t` error (`TS2769`) on a v14 string that is not in the map means exactly this.
 4. **`Streami18n`'s API changed:** `getTranslators()` → `init()`; `setLanguage()` returns `void`; `t` is read-only (`overrideTFunction(fn)`); `registerSetLanguageCallback` → `i18n.state.subscribeWithSelector(...)`; `getAvailableLanguages()` → `registeredLanguages`; `geti18Instance()` → `i18nInstance`; custom formatter factories receive a `FormatterContext`, not the `Streami18n` instance.
 
 | Symptom                                                          | Cause                                              | Fix                                                                                         |
@@ -2628,15 +2764,26 @@ Four formatter keys carry English day words inside their `calendarFormats` (`tim
 
 ## 19. CSS and markup
 
-| v14 markup or class                                                                                                        | v15                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
-| -------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `div.str-chat__main-panel` (+ `--thread-open`), rendered by `Window`                                                       | Gone. `Channel` renders `div.str-chat__channel` as the content column (flex column with header, list, composer). Target `.str-chat__thread-container` / `.str-chat__thread` for the thread panel. The v14 getting-started CSS on `#root .str-chat__main-panel` matches nothing.                                                                                                                                                                                                                                                                                                                                                                                                                    |
-| `div.str-chat__container` inside `Channel` (or `customClasses.chatContainer`)                                              | Gone, and `customClasses.chatContainer` is removed from the type. Use `customClasses.channel` for the `.str-chat__channel` column.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
-| `.str-chat__channel-list-inner`, `.str-chat__channel-list-inner__main` (from `ChannelListUI`, which held `role="listbox"`) | Gone. Target `.str-chat__channel-list .str-chat__infinite-scroll-paginator` (the `role="listbox"` scroll container, inside `ChannelNavigation`) and `.str-chat__infinite-scroll-paginator__content`. A bare `<ChannelList>` has no `.str-chat__channel-list` ancestor.                                                                                                                                                                                                                                                                                                                                                                                                                             |
-| The channel list root carried `str-chat <theme> str-chat__channel-list` and `customClasses.channelList`                    | Inside `ChatView` the `str-chat <theme>` scope comes from the `ChatView` root, and the channel list adds none of its own: a nested `.str-chat` would reset the tokens you override on the `ChatView` root. Outside `ChatView`, `ChannelNavigation`'s root renders `str-chat <theme> str-chat__channel-list`, and a bare `<ChannelList>` wraps itself in `div.str-chat.<theme>.str-chat__theme-scope` (`display: contents`). `customClasses.chat` replaces `str-chat` where the scope is applied; `customClasses.channelList` replaces `str-chat__channel-list` on `ChannelNavigation`'s root. App CSS that targeted the list root as a `.str-chat` element no longer matches it inside `ChatView`. |
-| `.str-chat__chat-view__channels` / `.str-chat__chat-view__threads`                                                         | Rendered only when `ChatView` is given `views`. With the built-in workspace layout, content sits in `.str-chat__chat-view__workspace-layout`, `.str-chat__chat-view__workspace-layout-slots`, `.str-chat__chat-view__slot` (`--hidden`) and `.str-chat__chat-view__slot-layer`.                                                                                                                                                                                                                                                                                                                                                                                                                    |
-| `.str-chat__thread--virtualized` on the thread container                                                                   | Not applied. Scope by the list you render (`.str-chat__thread .str-chat__virtual-list`, or your own class).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
-| `.str-chat__quoted-message-preview` text inherited the surrounding colour                                                  | It sets `color: var(--str-chat__chat-text-incoming)`, and `--own` `var(--str-chat__chat-text-outgoing)`, matching the bubble backgrounds. In the default light theme your own quotes change to the outgoing bubble's text colour. Remove contrast workarounds written for v14; theme with those two tokens.                                                                                                                                                                                                                                                                                                                                                                                        |
+| v14 markup or class                                                                                                               | v15                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
+| --------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `div.str-chat__main-panel` (+ `--thread-open`), rendered by `Window`                                                              | Gone. `Channel` renders `div.str-chat__channel` as the content column (flex column with header, list, composer). Target `.str-chat__thread-container` / `.str-chat__thread` for the thread panel. The v14 getting-started CSS on `#root .str-chat__main-panel` matches nothing.                                                                                                                                                                                                                                                                                                                                                                                                                    |
+| `div.str-chat__container` inside `Channel` (or `customClasses.chatContainer`)                                                     | Gone, and `customClasses.chatContainer` is removed from the type. Use `customClasses.channel` for the `.str-chat__channel` column.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
+| `.str-chat__channel-list-inner`, `.str-chat__channel-list-inner__main` (from `ChannelListUI`, which held `role="listbox"`)        | Gone. Target `.str-chat__channel-list .str-chat__infinite-scroll-paginator` (the `role="listbox"` scroll container, inside `ChannelNavigation`) and `.str-chat__infinite-scroll-paginator__content`. A bare `<ChannelList>` has no `.str-chat__channel-list` ancestor.                                                                                                                                                                                                                                                                                                                                                                                                                             |
+| The channel list root carried `str-chat <theme> str-chat__channel-list` and `customClasses.channelList`                           | Inside `ChatView` the `str-chat <theme>` scope comes from the `ChatView` root, and the channel list adds none of its own: a nested `.str-chat` would reset the tokens you override on the `ChatView` root. Outside `ChatView`, `ChannelNavigation`'s root renders `str-chat <theme> str-chat__channel-list`, and a bare `<ChannelList>` wraps itself in `div.str-chat.<theme>.str-chat__theme-scope` (`display: contents`). `customClasses.chat` replaces `str-chat` where the scope is applied; `customClasses.channelList` replaces `str-chat__channel-list` on `ChannelNavigation`'s root. App CSS that targeted the list root as a `.str-chat` element no longer matches it inside `ChatView`. |
+| `.str-chat__chat-view__channels` / `.str-chat__chat-view__threads`                                                                | Rendered only when `ChatView` is given `views`. With the built-in workspace layout, content sits in `.str-chat__chat-view__workspace-layout`, `.str-chat__chat-view__workspace-layout-slots`, `.str-chat__chat-view__slot` (`--hidden`) and `.str-chat__chat-view__slot-layer`.                                                                                                                                                                                                                                                                                                                                                                                                                    |
+| `.str-chat__thread--virtualized` on the thread container                                                                          | Not applied. Scope by the list you render (`.str-chat__thread .str-chat__virtual-list`, or your own class).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
+| `.str-chat__quoted-message-preview` text inherited the surrounding colour                                                         | It sets `color: var(--str-chat__chat-text-incoming)`, and `--own` `var(--str-chat__chat-text-outgoing)`, matching the bubble backgrounds. In the default light theme your own quotes change to the outgoing bubble's text colour. Remove contrast workarounds written for v14; theme with those two tokens.                                                                                                                                                                                                                                                                                                                                                                                        |
+| `.str-chat__channel-list-item[aria-pressed=true]` and `.str-chat__thread-list-item[aria-pressed=true]` highlighted the active row | Only `[aria-selected=true]` is styled. A custom row UI sets `role="option"` and `aria-selected`, not `aria-pressed`: `aria-selected={active}` on a channel row, `aria-selected={isThreadActive(thread.id)}` (from `useWorkspaceNavigation()`) on a thread row                                                                                                                                                                                                                                                                                                                                                                                                                                      |
+
+Find every app rule that uses a removed class. They also hide inside combinators and pseudo-classes, where a rule does more than style the element: `.create-channel-panel + .str-chat__main-panel { display: none }` hid the channel while another panel was open, and without it both render side by side. Nothing reports such a rule; it simply stops matching.
+
+```bash
+grep -rnE "str-chat__(main-panel(--[a-z-]+)?|container|channel-list-inner(__main)?|thread--virtualized)([^a-z0-9_-]|$)" \
+  --include='*.css' --include='*.scss' --include='*.sass' --include='*.less' \
+  --exclude-dir=node_modules --exclude-dir=build --exclude-dir=dist .
+```
+
+The pattern skips `.str-chat__main-panel-inner` and `.str-chat__thread-container`, which still exist. Replace each match per the table above, or move the rule to app-owned markup. A CSS-in-JS app also searches its `.ts` / `.tsx` / `.js` sources.
 
 Consumers keep overriding through CSS layers (see [`README.md`](https://github.com/GetStream/stream-chat-react/blob/master/README.md)); never edit compiled CSS.
 
@@ -2654,6 +2801,17 @@ v14 laid the thread beside the channel inside `Channel` itself: `.str-chat__chan
 ```
 
 A panel your layout renders without `<Slot>` (for example a `ThreadSlot` placed directly in a view, as [`examples/vite`](https://github.com/GetStream/stream-chat-react/tree/master/examples/vite) does) has no slot section; size the element you wrap it in.
+
+**Give the lists a width.** `ChannelNavigation` / `ChannelList` and `ThreadList` size themselves from `--str-chat__channel-list-width` and `--str-chat__thread-list-width`. Both default to `100%` with `flex-shrink: 0`. In a view that puts a list beside a `<Slot>` (the [channels and threads views](#channels-and-threads-views) above), the list takes the whole row, the slot collapses to nothing and the page scrolls sideways. Set both on the `ChatView` root (`div.str-chat.str-chat__chat-view`):
+
+```css
+.str-chat.str-chat__chat-view {
+  --str-chat__channel-list-width: 320px;
+  --str-chat__thread-list-width: 320px;
+}
+```
+
+On narrow screens (`max-width: 767px`) the lists switch to an overlay sized by `--str-chat__channel-list-mobile-width` / `--str-chat__thread-list-mobile-width`.
 
 ---
 

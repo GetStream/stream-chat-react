@@ -1,0 +1,18 @@
+[
+  {
+    "file": "composer-custom-mention-suggestions.png",
+    "query": { "channel": "docs-v15-cb-design", "type": "Thanks @" },
+    "waitFor": ".cookbook-suggestion-row",
+    "hover": ".cookbook-suggestion-row >> nth=1",
+    "clip": ".str-chat__channel",
+    "padding": 0
+  },
+  {
+    "file": "composer-styled-suggestion-list.png",
+    "variant": "styled-list",
+    "query": { "channel": "docs-v15-cb-design", "type": "Thanks @" },
+    "waitFor": ".cookbook-suggestion-list",
+    "clip": ".str-chat__channel",
+    "padding": 0
+  }
+]

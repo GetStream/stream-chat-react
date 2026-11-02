@@ -30,8 +30,7 @@ export const useMuteHandler = (
 
     // The action runs even without `notify` (`Message` passes none); it only reports the outcome.
     if (!message?.user || !client) {
-      console.warn(missingUseMuteHandlerParamsWarning);
-      return;
+      throw new Error(missingUseMuteHandlerParamsWarning);
     }
     const mutes = client.mutedUsersStore.getLatestValue().mutedUsers ?? [];
 
@@ -49,13 +48,15 @@ export const useMuteHandler = (
 
         if (typeof successMessage === 'string') notify(successMessage, 'success');
       } catch (e) {
-        if (!notify) return;
-        const errorMessage =
-          (getErrorNotification &&
-            validateAndGetMessage(getErrorNotification, [message.user])) ||
-          t('common.errorMutingUser.label', 'Error muting a user ...');
+        if (notify) {
+          const errorMessage =
+            (getErrorNotification &&
+              validateAndGetMessage(getErrorNotification, [message.user])) ||
+            t('common.errorMutingUser.label', 'Error muting a user ...');
 
-        if (typeof errorMessage === 'string') notify(errorMessage, 'error');
+          if (typeof errorMessage === 'string') notify(errorMessage, 'error');
+        }
+        throw e;
       }
     } else {
       try {
@@ -71,13 +72,15 @@ export const useMuteHandler = (
 
         if (typeof successMessage === 'string') notify(successMessage, 'success');
       } catch (e) {
-        if (!notify) return;
-        const errorMessage =
-          (getErrorNotification &&
-            validateAndGetMessage(getErrorNotification, [message.user])) ||
-          t('common.errorUnmutingUser.label', 'Error unmuting a user ...');
+        if (notify) {
+          const errorMessage =
+            (getErrorNotification &&
+              validateAndGetMessage(getErrorNotification, [message.user])) ||
+            t('common.errorUnmutingUser.label', 'Error unmuting a user ...');
 
-        if (typeof errorMessage === 'string') notify(errorMessage, 'error');
+          if (typeof errorMessage === 'string') notify(errorMessage, 'error');
+        }
+        throw e;
       }
     }
   };

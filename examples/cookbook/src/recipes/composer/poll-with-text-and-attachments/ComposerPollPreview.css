@@ -1,0 +1,52 @@
+@layer stream-overrides {
+  .cookbook-poll-composer {
+    width: 100%;
+  }
+
+  .cookbook-poll-preview {
+    position: relative;
+    display: flex;
+    align-items: flex-start;
+    gap: var(--str-chat__spacing-sm);
+    margin: var(--str-chat__spacing-sm) var(--str-chat__spacing-md) 0;
+    padding: var(--str-chat__spacing-sm) var(--str-chat__spacing-md);
+    border: 1px solid var(--str-chat__border-core-default);
+    border-radius: var(--str-chat__radius-lg);
+    background: var(--str-chat__background-core-surface-subtle);
+  }
+
+  .cookbook-poll-preview__body {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    gap: var(--str-chat__spacing-xxs);
+    min-width: 0;
+  }
+
+  .cookbook-poll-preview__label {
+    color: var(--str-chat__accent-primary);
+    font: var(--str-chat__font-caption-emphasis);
+  }
+
+  .cookbook-poll-preview__question {
+    color: var(--str-chat__text-primary);
+    font: var(--str-chat__font-body-emphasis);
+  }
+
+  .cookbook-poll-preview__options {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--str-chat__spacing-xxs);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .cookbook-poll-preview__option {
+    padding: 0 var(--str-chat__spacing-xs);
+    border-radius: var(--str-chat__radius-max);
+    background: var(--str-chat__background-core-surface-card);
+    color: var(--str-chat__text-secondary);
+    font: var(--str-chat__font-caption-default);
+  }
+}

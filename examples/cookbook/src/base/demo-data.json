@@ -1,0 +1,173 @@
+{
+  "apiKey": "xzwhhgtazy6h",
+  "tokenEnvironment": "public-shared-chat-redesign",
+  "currentUserId": "docs-v15-ck-cleo",
+  "users": [
+    { "id": "docs-v15-ck-cleo", "name": "Cleo" },
+    { "id": "docs-v15-ck-bob", "name": "Bob" },
+    { "id": "docs-v15-ck-cara", "name": "Cara" },
+    { "id": "docs-v15-ck-dan", "name": "Dan" }
+  ],
+  "channels": [
+    {
+      "id": "docs-v15-cb-design",
+      "name": "Design review",
+      "members": [
+        "docs-v15-ck-cleo",
+        "docs-v15-ck-bob",
+        "docs-v15-ck-cara",
+        "docs-v15-ck-dan"
+      ],
+      "messages": [
+        {
+          "id": "docs-v15-ck-design-1",
+          "user": "docs-v15-ck-cara",
+          "text": "I shared the new icon set in the design folder."
+        },
+        {
+          "id": "docs-v15-ck-design-2",
+          "user": "docs-v15-ck-bob",
+          "text": "They look great. Can we use the rounded ones in the sidebar?"
+        },
+        {
+          "id": "docs-v15-ck-design-3",
+          "user": "docs-v15-ck-cleo",
+          "text": "Yes, the rounded set fits better with the avatars."
+        },
+        {
+          "id": "docs-v15-ck-design-4",
+          "user": "docs-v15-ck-dan",
+          "text": "Should the buttons follow the same style?"
+        },
+        {
+          "id": "docs-v15-ck-design-4-r1",
+          "user": "docs-v15-ck-cara",
+          "parent": "docs-v15-ck-design-4",
+          "text": "I think so, the corners should match."
+        },
+        {
+          "id": "docs-v15-ck-design-4-r2",
+          "user": "docs-v15-ck-cleo",
+          "parent": "docs-v15-ck-design-4",
+          "text": "Agreed, let us try a 12px radius."
+        },
+        {
+          "id": "docs-v15-ck-design-4-r3",
+          "user": "docs-v15-ck-bob",
+          "parent": "docs-v15-ck-design-4",
+          "text": "I can update the button component today."
+        },
+        {
+          "id": "docs-v15-ck-design-5",
+          "user": "docs-v15-ck-cara",
+          "text": "Review is on Thursday at 10:00, the agenda is in the doc.",
+          "pinnedBy": "docs-v15-ck-cara"
+        },
+        {
+          "id": "docs-v15-ck-design-6",
+          "user": "docs-v15-ck-cara",
+          "text": "I will send the updated mockups after lunch."
+        },
+        {
+          "id": "docs-v15-ck-design-7",
+          "user": "docs-v15-ck-bob",
+          "text": "Thanks Cara, looking forward to it!"
+        }
+      ]
+    },
+    {
+      "id": "docs-v15-cb-trip",
+      "name": "Weekend trip",
+      "members": ["docs-v15-ck-cleo", "docs-v15-ck-bob", "docs-v15-ck-cara"],
+      "messages": [
+        {
+          "id": "docs-v15-ck-trip-1",
+          "user": "docs-v15-ck-bob",
+          "text": "The cabin is booked for Saturday"
+        },
+        {
+          "id": "docs-v15-ck-trip-2",
+          "user": "docs-v15-ck-cara",
+          "text": "I will bring the board games"
+        },
+        {
+          "id": "docs-v15-ck-trip-3",
+          "user": "docs-v15-ck-cleo",
+          "text": "Perfect, I will bring snacks"
+        }
+      ]
+    },
+    {
+      "id": "docs-v15-cb-dm-bob",
+      "members": ["docs-v15-ck-cleo", "docs-v15-ck-bob"],
+      "messages": [
+        {
+          "id": "docs-v15-ck-dm-bob-1",
+          "user": "docs-v15-ck-cleo",
+          "text": "Lunch tomorrow?"
+        },
+        {
+          "id": "docs-v15-ck-dm-bob-2",
+          "user": "docs-v15-ck-bob",
+          "text": "Sure, see you at noon 🙂"
+        }
+      ]
+    },
+    {
+      "id": "docs-v15-cb-books",
+      "name": "Book club",
+      "members": ["docs-v15-ck-cleo", "docs-v15-ck-cara", "docs-v15-ck-dan"],
+      "messages": [
+        {
+          "id": "docs-v15-ck-books-1",
+          "user": "docs-v15-ck-dan",
+          "text": "Who has finished chapter five?"
+        },
+        {
+          "id": "docs-v15-ck-books-2",
+          "user": "docs-v15-ck-cara",
+          "text": "Great, the meeting is on Tuesday then."
+        }
+      ]
+    },
+    {
+      "id": "docs-v15-cb-garden",
+      "name": "Garden plot",
+      "members": ["docs-v15-ck-cleo", "docs-v15-ck-dan"],
+      "messages": [
+        {
+          "id": "docs-v15-ck-garden-1",
+          "user": "docs-v15-ck-dan",
+          "text": "The tomatoes need water this weekend."
+        },
+        {
+          "id": "docs-v15-ck-garden-2",
+          "user": "docs-v15-ck-cleo",
+          "text": "I will water them on Sunday morning."
+        }
+      ]
+    },
+    {
+      "id": "docs-v15-cb-general",
+      "name": "General",
+      "members": [
+        "docs-v15-ck-cleo",
+        "docs-v15-ck-bob",
+        "docs-v15-ck-cara",
+        "docs-v15-ck-dan"
+      ],
+      "messages": [
+        {
+          "id": "docs-v15-ck-general-1",
+          "user": "docs-v15-ck-dan",
+          "text": "Welcome to the team chat, everyone!"
+        },
+        {
+          "id": "docs-v15-ck-general-2",
+          "user": "docs-v15-ck-bob",
+          "text": "Thanks Dan, happy to be here."
+        }
+      ]
+    }
+  ]
+}

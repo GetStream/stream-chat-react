@@ -1,0 +1,14 @@
+@layer stream-overrides {
+  .cookbook-channel-details {
+    display: flex;
+    flex: 1 1 auto;
+    flex-direction: column;
+    min-height: 0;
+  }
+
+  /* In a modal, the panel sets its own size. Here, it fills the side panel. */
+  .cookbook-channel-details .str-chat__channel-detail {
+    width: 100%;
+    height: 100%;
+  }
+}

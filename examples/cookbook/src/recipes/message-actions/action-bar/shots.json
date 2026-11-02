@@ -1,0 +1,14 @@
+[
+  {
+    "file": "custom-message-action-bar.png",
+    "variant": "default",
+    "query": {
+      "channel": "docs-v15-cb-design"
+    },
+    "waitFor": ".str-chat__li[data-message-id=\"docs-v15-ck-design-7\"]",
+    "clip": ".str-chat__message-list .str-chat__ul",
+    "padding": 0,
+    "settleMs": 1500,
+    "hover": ".str-chat__li[data-message-id=\"docs-v15-ck-design-5\"] .cookbook-message-ui__text"
+  }
+]

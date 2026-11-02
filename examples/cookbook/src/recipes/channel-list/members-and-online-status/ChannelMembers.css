@@ -1,0 +1,34 @@
+@layer stream-overrides {
+  .cookbook-channel-members {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--str-chat__spacing-xs);
+    margin: 0;
+    padding: var(--str-chat__spacing-sm) var(--str-chat__spacing-md);
+    border-bottom: 1px solid var(--str-chat__border-core-default);
+    background: var(--str-chat__background-core-elevation-1);
+    list-style: none;
+  }
+
+  .cookbook-channel-members__item {
+    display: flex;
+    align-items: center;
+    gap: var(--str-chat__spacing-xs);
+    padding: var(--str-chat__spacing-xxs) var(--str-chat__spacing-sm);
+    border-radius: var(--str-chat__radius-full);
+    background: var(--str-chat__background-core-surface-subtle);
+    color: var(--str-chat__text-primary);
+    font: var(--str-chat__font-caption-default);
+  }
+
+  .cookbook-channel-members__dot {
+    width: 8px;
+    height: 8px;
+    border-radius: var(--str-chat__radius-full);
+    background: var(--str-chat__presence-bg-offline);
+  }
+
+  .cookbook-channel-members__dot--online {
+    background: var(--str-chat__presence-bg-online);
+  }
+}

@@ -474,7 +474,7 @@ describe('<Message /> component', () => {
       message,
     });
 
-    await context.handleMute(mouseEventMock);
+    await expect(context.handleMute(mouseEventMock)).rejects.toThrow('mute failed');
 
     expect(muteUser).toHaveBeenCalledWith({ target_ids: [bob.id] });
   });
@@ -521,7 +521,7 @@ describe('<Message /> component', () => {
       message,
     });
 
-    await context.handleMute(mouseEventMock);
+    await expect(context.handleMute(mouseEventMock)).rejects.toThrow('unmute failed');
 
     expect(unmuteUser).toHaveBeenCalledWith({ target_ids: [bob.id] });
   });

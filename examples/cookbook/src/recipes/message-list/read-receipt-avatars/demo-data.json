@@ -1,0 +1,45 @@
+{
+  "channels": [
+    {
+      "id": "docs-v15-cb-movie-night",
+      "name": "Movie night",
+      "members": [
+        "docs-v15-ck-cleo",
+        "docs-v15-ck-bob",
+        "docs-v15-ck-cara",
+        "docs-v15-ck-dan"
+      ],
+      "messages": [
+        {
+          "id": "docs-v15-ck-movie-1",
+          "user": "docs-v15-ck-cara",
+          "text": "Movie night at my place on Friday?"
+        },
+        {
+          "id": "docs-v15-ck-movie-2",
+          "user": "docs-v15-ck-dan",
+          "text": "Yes! I can bring popcorn."
+        },
+        {
+          "id": "docs-v15-ck-movie-3",
+          "user": "docs-v15-ck-cleo",
+          "text": "I'm in. Comedy or sci-fi?"
+        },
+        {
+          "id": "docs-v15-ck-movie-4",
+          "user": "docs-v15-ck-bob",
+          "text": "Sci-fi, please."
+        },
+        {
+          "id": "docs-v15-ck-movie-5",
+          "user": "docs-v15-ck-cleo",
+          "text": "Sci-fi it is. Doors open at seven."
+        }
+      ],
+      "readBy": ["docs-v15-ck-bob", "docs-v15-ck-cara"],
+      "readUpTo": {
+        "docs-v15-ck-dan": "docs-v15-ck-movie-3"
+      }
+    }
+  ]
+}

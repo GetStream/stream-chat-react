@@ -1,0 +1,13 @@
+[
+  {
+    "file": "custom-composer-layout.png",
+    "query": {
+      "channel": "docs-v15-cb-design",
+      "quote": "docs-v15-ck-design-6",
+      "text": "Sounds good, thanks!"
+    },
+    "waitFor": ".cookbook-composer .str-chat__quoted-message-preview",
+    "clip": ".cookbook-composer",
+    "padding": 0
+  }
+]

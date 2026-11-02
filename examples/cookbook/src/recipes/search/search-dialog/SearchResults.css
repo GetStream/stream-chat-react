@@ -1,0 +1,120 @@
+@layer stream-overrides {
+  /* The results scroll; the input and the options above them stay in place. */
+  .cookbook-search-results {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+  }
+
+  .cookbook-search-results__status {
+    margin: 0 0 var(--str-chat__spacing-xs);
+    color: var(--str-chat__text-tertiary);
+    font: var(--str-chat__font-caption-default);
+  }
+
+  .cookbook-search-results__group + .cookbook-search-results__group {
+    margin-top: var(--str-chat__spacing-sm);
+  }
+
+  .cookbook-search-results__heading {
+    margin: 0 0 var(--str-chat__spacing-xxs);
+    color: var(--str-chat__text-secondary);
+    font: var(--str-chat__font-caption-emphasis);
+  }
+
+  .cookbook-search-results__list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .cookbook-search-results__note {
+    margin: 0;
+    padding: var(--str-chat__spacing-xs) var(--str-chat__spacing-sm);
+    color: var(--str-chat__text-tertiary);
+    font: var(--str-chat__font-caption-default);
+  }
+
+  .cookbook-search-results__more {
+    padding: var(--str-chat__spacing-xxs) var(--str-chat__spacing-sm);
+    border: 0;
+    background: none;
+    color: var(--str-chat__text-link);
+    font: var(--str-chat__font-caption-emphasis);
+    cursor: pointer;
+  }
+
+  .cookbook-search-result {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: var(--str-chat__spacing-sm);
+    padding: var(--str-chat__spacing-xs) var(--str-chat__spacing-sm);
+    border-radius: var(--str-chat__radius-lg);
+    color: var(--str-chat__text-primary);
+  }
+
+  .cookbook-search-result:hover {
+    background: var(--str-chat__background-utility-hover);
+  }
+
+  .cookbook-search-result__button {
+    display: flex;
+    flex: 1;
+    align-items: center;
+    gap: var(--str-chat__spacing-sm);
+    min-width: 0;
+    padding: 0;
+    border: 0;
+    background: none;
+    color: inherit;
+    text-align: start;
+    cursor: pointer;
+  }
+
+  /* Covers the whole row, avatar included, so a click anywhere on it opens the result. */
+  .cookbook-search-result__button::after {
+    position: absolute;
+    inset: 0;
+    border-radius: var(--str-chat__radius-lg);
+    content: '';
+  }
+
+  .cookbook-search-result__button:focus-visible {
+    outline: none;
+  }
+
+  .cookbook-search-result__button:focus-visible::after {
+    outline: 2px solid var(--str-chat__accent-primary);
+    outline-offset: -2px;
+  }
+
+  .cookbook-search-result__text {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    min-width: 0;
+  }
+
+  .cookbook-search-result__title {
+    overflow: hidden;
+    font: var(--str-chat__font-body-emphasis);
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .cookbook-search-result__detail {
+    color: var(--str-chat__text-secondary);
+    font: var(--str-chat__font-caption-default);
+  }
+
+  .cookbook-search-result__tag {
+    flex: 0 0 72px;
+    padding: var(--str-chat__spacing-xxxs) var(--str-chat__spacing-xs);
+    border-radius: var(--str-chat__radius-full);
+    background: var(--str-chat__background-utility-selected);
+    color: var(--str-chat__text-secondary);
+    font: var(--str-chat__font-metadata-emphasis);
+    text-align: center;
+  }
+}

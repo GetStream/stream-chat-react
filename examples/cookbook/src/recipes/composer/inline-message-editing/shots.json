@@ -1,0 +1,14 @@
+[
+  {
+    "file": "composer-inline-message-editing.png",
+    "query": {
+      "channel": "docs-v15-cb-design",
+      "edit": "docs-v15-ck-design-3",
+      "text": "I will share the sidebar draft after lunch"
+    },
+    "viewport": { "width": 1280, "height": 860 },
+    "waitFor": ".cookbook-inline-editor",
+    "clip": ".str-chat__channel",
+    "padding": 0
+  }
+]

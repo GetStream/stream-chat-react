@@ -1,0 +1,60 @@
+@layer stream-overrides {
+  /* One row per source: its name, then its controls. */
+  .cookbook-search-filters {
+    display: flex;
+    flex-direction: column;
+    gap: var(--str-chat__spacing-sm);
+    padding: var(--str-chat__spacing-sm) var(--str-chat__spacing-md);
+    border-radius: var(--str-chat__radius-lg);
+    background: var(--str-chat__background-core-surface-subtle);
+  }
+
+  .cookbook-search-filters__group {
+    margin: 0;
+    padding: 0;
+    border: 0;
+  }
+
+  /* A legend can't be a flex item, so it floats, and the controls wrap beside it. */
+  .cookbook-search-filters__legend {
+    float: left;
+    width: 80px;
+    padding: 0;
+    font: var(--str-chat__font-caption-emphasis);
+  }
+
+  .cookbook-search-filters__controls {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--str-chat__spacing-xs) var(--str-chat__spacing-md);
+  }
+
+  .cookbook-search-filters__field,
+  .cookbook-search-filters__check {
+    display: flex;
+    align-items: center;
+    gap: var(--str-chat__spacing-xxs);
+    color: var(--str-chat__text-secondary);
+    font: var(--str-chat__font-caption-default);
+  }
+
+  .cookbook-search-filters__select,
+  .cookbook-search-filters__date {
+    padding: var(--str-chat__spacing-xxxs) var(--str-chat__spacing-xs);
+    border: 1px solid var(--str-chat__border-core-default);
+    border-radius: var(--str-chat__radius-md);
+    background: var(--str-chat__background-core-elevation-1);
+    color: var(--str-chat__text-primary);
+    font: var(--str-chat__font-caption-default);
+  }
+
+  .cookbook-search-filters__check {
+    cursor: pointer;
+  }
+
+  .cookbook-search-filters__check input {
+    margin: 0;
+    accent-color: var(--str-chat__accent-primary);
+  }
+}

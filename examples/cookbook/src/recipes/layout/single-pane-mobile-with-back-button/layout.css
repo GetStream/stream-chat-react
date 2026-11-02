@@ -1,0 +1,23 @@
+@layer stream-overrides {
+  /* cookbook-allow-layout: the list is the only thing beside the view selector, and the SDK has no
+     variable that lets it take the rest of the width. */
+  .str-chat__chat-view .str-chat__channel-list,
+  .str-chat__chat-view .str-chat__thread-list-container {
+    flex: 1 1 auto;
+  }
+
+  /* Below 768px, the SDK's stylesheet hides the lists. Here the list is the only
+     thing on screen until something opens, so it stays visible. */
+  @media (max-width: 767px) {
+    /* cookbook-allow-layout: the SDK lays the hidden list over the channel; this puts it back in
+       the flow, where it's the only panel. */
+    .str-chat__chat-view .str-chat__channel-list,
+    .str-chat__chat-view .str-chat__thread-list-container {
+      inset: auto;
+      pointer-events: auto;
+      position: relative;
+      transform: none;
+      visibility: visible;
+    }
+  }
+}

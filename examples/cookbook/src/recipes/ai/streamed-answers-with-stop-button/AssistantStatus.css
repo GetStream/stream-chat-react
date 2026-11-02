@@ -1,0 +1,52 @@
+@layer stream-overrides {
+  /* A quiet line under the last message: three pulsing dots and what the assistant is doing. */
+  .cookbook-assistant-status {
+    display: flex;
+    align-items: center;
+    gap: var(--str-chat__spacing-xs);
+    padding: var(--str-chat__spacing-xs) var(--str-chat__spacing-md);
+    color: var(--str-chat__text-secondary);
+    font: var(--str-chat__font-caption-default);
+  }
+
+  .cookbook-assistant-status[data-ai-state='AI_STATE_ERROR'] {
+    color: var(--str-chat__accent-error);
+  }
+
+  .cookbook-assistant-status__dots {
+    display: flex;
+    gap: var(--str-chat__spacing-xxs);
+  }
+
+  .cookbook-assistant-status__dots span {
+    width: 6px;
+    height: 6px;
+    border-radius: var(--str-chat__radius-full);
+    background: var(--str-chat__accent-primary);
+    animation: cookbook-assistant-pulse 1.2s ease-in-out infinite;
+  }
+
+  .cookbook-assistant-status__dots span:nth-child(2) {
+    animation-delay: 0.2s;
+  }
+
+  .cookbook-assistant-status__dots span:nth-child(3) {
+    animation-delay: 0.4s;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .cookbook-assistant-status__dots span {
+      animation: none;
+    }
+  }
+
+  @keyframes cookbook-assistant-pulse {
+    0%,
+    100% {
+      opacity: 0.3;
+    }
+    50% {
+      opacity: 1;
+    }
+  }
+}

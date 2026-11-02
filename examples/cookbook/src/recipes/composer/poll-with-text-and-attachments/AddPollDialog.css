@@ -1,0 +1,7 @@
+@layer stream-overrides {
+  .cookbook-add-poll__form {
+    display: flex;
+    flex-direction: column;
+    gap: var(--str-chat__spacing-sm);
+  }
+}

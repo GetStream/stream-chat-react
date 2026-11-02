@@ -1,0 +1,28 @@
+{
+  "activeView": "channels",
+  "layouts": {
+    "channels": {
+      "availableSlots": ["channel", "thread"],
+      "hiddenSlots": { "thread": true },
+      "slotBindings": {
+        "channel": {
+          "key": "channel:messaging:docs-v15-cb-trip",
+          "payload": { "cid": "messaging:docs-v15-cb-trip" }
+        }
+      },
+      "slotForwardHistory": {},
+      "slotHistory": {},
+      "slotMeta": { "channel": { "occupiedAt": 1793105192097 } },
+      "slotNames": ["channel", "thread"]
+    },
+    "threads": {
+      "availableSlots": ["thread"],
+      "hiddenSlots": {},
+      "slotBindings": {},
+      "slotForwardHistory": {},
+      "slotHistory": {},
+      "slotMeta": {},
+      "slotNames": ["thread"]
+    }
+  }
+}

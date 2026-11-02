@@ -1,0 +1,22 @@
+[
+  {
+    "file": "custom-channel-header.png",
+    "query": {
+      "channel": "docs-v15-cb-design"
+    },
+    "clip": ".cookbook-channel-header",
+    "padding": 0
+  },
+  {
+    "file": "custom-channel-header-typing.png",
+    "query": {
+      "channel": "docs-v15-cb-design",
+      "simulate": "typing",
+      "as": "docs-v15-ck-bob"
+    },
+    "waitFor": ".cookbook-channel-header__subtitle:has-text('is typing')",
+    "clip": ".cookbook-channel-header",
+    "padding": 0,
+    "settleMs": 0
+  }
+]

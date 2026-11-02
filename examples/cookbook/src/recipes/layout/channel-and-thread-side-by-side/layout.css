@@ -1,0 +1,12 @@
+@layer stream-overrides {
+  .str-chat {
+    --str-chat__channel-list-width: 320px;
+    --str-chat__thread-list-width: 320px;
+  }
+
+  /* cookbook-allow-layout: the SDK has no variable for the width of a thread beside a channel. */
+  /* Beside the channel, the thread is a 400px column. The channel takes the rest. */
+  .str-chat__chat-view__channels > .str-chat__thread-container {
+    flex: 0 0 400px;
+  }
+}

@@ -1,0 +1,19 @@
+@layer stream-overrides {
+  /* The size of the send button's icon, so the button keeps its size when it swaps in. */
+  .cookbook-stop-button__icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: var(--str-chat__icon-size-md);
+    height: var(--str-chat__icon-size-md);
+  }
+
+  /* A filled square, the usual sign for stop, in the button's text color. */
+  .cookbook-stop-button__icon::before {
+    content: '';
+    width: 10px;
+    height: 10px;
+    border-radius: var(--str-chat__radius-xxs);
+    background: currentColor;
+  }
+}
