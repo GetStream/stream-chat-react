@@ -105,7 +105,7 @@ import {
 } from './ComposerPreviews/ConfigurableComposerPreviews.tsx';
 import { ConfigurablePollCreationDialogControls } from './ComposerPreviews/ConfigurablePollCreationDialogControls.tsx';
 import { ConfigurableMessageBubbleContent } from './MessageBubble/ConfigurableMessageBubbleContent.tsx';
-import { StreamDebugHandles } from './Debug';
+import { applySimulatedListQueryFailures, StreamDebugHandles } from './Debug';
 import {
   installUploadHarness,
   MOCK_CDN_UPLOAD_URL,
@@ -370,6 +370,10 @@ const App = () => {
       ...(userName && { name: userName }),
     },
   });
+
+  // `?simulate=channel-list-error` / `thread-list-error`: patched during render, before the lists
+  // mount and send their first queries (see src/Debug/simulateListQueryFailures.ts).
+  if (chatClient) applySimulatedListQueryFailures(chatClient);
 
   const searchController = useMemo(() => {
     if (!chatClient) return undefined;

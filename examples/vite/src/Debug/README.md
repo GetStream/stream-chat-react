@@ -20,6 +20,24 @@ streamDebug.messages; // channel.state.messages
 Every entry is a **getter**, so the console always reads current values rather than a snapshot
 from the last render.
 
+## Simulated list query failures
+
+`?simulate=channel-list-error` and `?simulate=thread-list-error` (repeatable, so both work together)
+make every channel or thread list query fail, so the lists show their load-error state. The
+client stays connected; only `queryChannelsAndHydrate` and `queryThreadsAndHydrate` reject. The
+failures last until you turn them off, so Try again fails too until then:
+
+```js
+streamSimulatedFailures.channelList = false; // the next channel list query goes through
+streamSimulatedFailures.threadList = false; // the next thread list query goes through
+```
+
+Channel and message search query through `queryChannelsAndHydrate` too, so `channel-list-error`
+makes them fail as well. The channel list fails after its paginator's retries, about three
+seconds; the thread list at once, when the Threads view opens. A new client (another user) starts
+again from the URL's failures. Applied in `App.tsx` before the lists mount; see
+`simulateListQueryFailures.ts`.
+
 ## Composer state inspector
 
 Actions menu (⚡) → **Composer State**. A draggable, non-modal panel that live-subscribes to
