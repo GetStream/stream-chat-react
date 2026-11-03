@@ -63,7 +63,7 @@ yarn api-surface check --doc ai-docs/v15-breaking-changes.md --diff diff.json
 
 ## Index
 
-77 entries.
+78 entries.
 
 | ID                | Title                                                                                                                                                                                                                         | Group                                                |
 | ----------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------- |
@@ -144,6 +144,7 @@ yarn api-surface check --doc ai-docs/v15-breaking-changes.md --diff diff.json
 | [BC-075](#bc-075) | CSS, ChatView: `str-chat__chat-view__channels` / `__threads` render only in `views` mode                                                                                                                                      | CSS and markup                                       |
 | [BC-076](#bc-076) | CSS, Thread: `str-chat__thread--virtualized` is no longer applied                                                                                                                                                             | CSS and markup                                       |
 | [BC-077](#bc-077) | quote and edit previews set their text colour from the matching bubble token                                                                                                                                                  | CSS and markup                                       |
+| [BC-078](#bc-078) | `CustomCommandData` augmentation and `DefaultCommandData` are removed; command names are `string`                                                                                                                             | Types that follow stream-chat v10 (umbrella entries) |
 
 ## Package and runtime
 
@@ -3178,6 +3179,27 @@ export const DeleteForMe = () => {
   - `03-ui-cookbook/05-message-composer/06-suggestion_list.md` (custom `UserItem` reads `entity.name`, `entity.image`; still valid)
   - `02-ui-components/09-message-composer/05-ui_components.md` (`CommandChip`)
 - Example needed: no (belongs under the guide's "Dates on response types" and v10 data-shape umbrella, which other areas will also feed)
+
+### BC-078: `CustomCommandData` augmentation and `DefaultCommandData` are removed; command names are `string`
+
+- Status: confirmed
+- Area: custom data types, commands
+- User impact: compile error `TS2305` on `import type { DefaultCommandData } from 'stream-chat-react'`, and, with a `stream-chat` release after `10.0.0-rc.31`, on `import type { CustomCommandData } from 'stream-chat'` once no augmentation of it is left in the program. Command names lose their type: v14 typed `command.name` / `command.set` as `CommandVariants` (the built-in names plus the keys of `CustomCommandData`), so a typo such as `command.name === 'gihpy'` failed to compile; v15 types them as `string`, and it compiles. A leftover `interface CustomCommandData { … }` in `declare module 'stream-chat'` still compiles and has no effect, because nothing reads it.
+- Old API:
+  - `DefaultCommandData` (exported from `stream-chat-react`)
+  - `declare module 'stream-chat' { interface CustomCommandData extends DefaultCommandData {} }`
+- Replacement: delete the `CustomCommandData` augmentation and the `DefaultCommandData` import. `Command['name']` and `Command['set']` are `string`; an app that wants a checked set of names declares its own union and narrows `command.name` against it.
+- Evidence:
+  - `release-v14:src/types/defaultDataInterfaces.ts:11` `export interface DefaultCommandData {}`; `release-v14:src/@types/stream-chat-custom-data.d.ts:23` augments `CustomCommandData` with it
+  - `stream-chat` `v9.54.4:src/types.ts:2772-2781` `CommandVariants = 'all' | 'ban' | 'fun_set' | 'giphy' | 'moderation_set' | 'mute' | 'unban' | 'unmute' | keyof CustomCommandData`, used by `CommandResponse.name` / `set` (`:470-475`)
+  - `master:node_modules/stream-chat/src/gen/models/index.ts:2551-2568` `Command.name: string`, `Command.set: string`
+  - `stream-chat` `release-v10` removes `CustomCommandData` from `src/custom_types.ts` and the root exports after `10.0.0-rc.31` (REACT-1363); `10.0.0-rc.31`, which `master` pins, still exports it
+  - `master:src/types/defaultDataInterfaces.ts` has no `DefaultCommandData`
+  - examples: `release-v14:examples/ai-chatbot/src/components/stream-chat.d.ts:4,25` imported and augmented it
+- Docs impact:
+  - `02-state/01-state-and-entities/06-data-conventions.md` ("Custom data types": drop the `CustomCommandData` line)
+  - `08-release-guides/01-upgrade-to-v15.md` (add a row: delete `CustomCommandData` augmentations and the `DefaultCommandData` import)
+- Example needed: no
 
 ## CSS and markup
 
