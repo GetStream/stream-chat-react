@@ -9,13 +9,13 @@ import type { AIUIDocument } from '../AIComponents/GenerativeUI/AIUIDocument';
 import type { AIUIHost } from '../AIComponents/GenerativeUI/AIUIHost';
 import type { AIUIEngine, AIUIRenderer } from '../AIComponents/GenerativeUI/AIUIRenderer';
 import { A2UIPlaceholder } from './A2UIPlaceholder';
+import { A2UI_DEFAULT_CATALOG_ID } from './catalogDocument';
 import { A2UI_VERSION, a2uiSourceOf, supportsA2UIVersion } from './A2UIStream';
 // Types only: the runtime, with the A2UI packages, loads in the browser when a reply first
 // shows A2UI.
 import type { A2UIReplyState, A2UIRuntime } from './runtime';
 
-/** The id of the catalog with the app's components, unless the renderer is given another. */
-export const A2UI_DEFAULT_CATALOG_ID = 'getstream.io:app-catalog';
+export { A2UI_DEFAULT_CATALOG_ID };
 
 /** What went wrong in a reply's A2UI, as the A2UI specification reports it to an agent. */
 export type A2UIError = {

@@ -5,3 +5,10 @@ export {
   createA2UIRenderer,
 } from './A2UIRenderer';
 export { A2UI_VERSION, a2uiMessagesIn, supportsA2UIVersion } from './A2UIStream';
+export {
+  A2UI_PROTOCOL_OVERVIEW,
+  type A2UIInstructionsConfig,
+  A2UIInstructionsError,
+  a2uiInstructions,
+  a2uiProblems,
+} from './A2UIInstructions';

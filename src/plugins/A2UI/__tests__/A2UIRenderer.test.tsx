@@ -19,7 +19,7 @@ import {
   supportsA2UIVersion,
 } from '..';
 import { normalizeA2UIMessage } from '../A2UIStream';
-import { a2uiAppCatalogDocument, a2uiTypeName } from '../runtime';
+import { a2uiAppCatalogDocument, a2uiTypeName } from '../catalogDocument';
 import { ohridLines, uiComponents } from './ohrid';
 
 const definitionOf = (name: string) => {

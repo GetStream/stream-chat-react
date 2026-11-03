@@ -36,11 +36,11 @@ import {
   type AIUIComponent,
   AIUIComponentView,
 } from '../AIComponents/GenerativeUI/AIUIComponent';
-import type { AIUIJSONSchema } from '../AIComponents/GenerativeUI/AIUIComponentDefinition';
 import type { AIUIDocument } from '../AIComponents/GenerativeUI/AIUIDocument';
 import { A2UIPlaceholder } from './A2UIPlaceholder';
 import type { A2UIEngine, A2UIError } from './A2UIRenderer';
 import { A2UIEngineContext, STREAM_BASIC_COMPONENTS } from './basicComponents';
+import { a2uiAppCatalogDocument, a2uiTypeName } from './catalogDocument';
 import {
   A2UI_VERSION,
   a2uiMessagesIn,
@@ -54,76 +54,6 @@ type Entry = ComponentApi;
 
 const isRecord = (value: unknown): value is Record<string, unknown> =>
   typeof value === 'object' && value !== null && !Array.isArray(value);
-
-/** The A2UI type of one of the app's components, named as the basic catalog names its own. */
-export const a2uiTypeName = (name: string) =>
-  name
-    .split(/[_\- ]/)
-    .filter(Boolean)
-    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-    .join('');
-
-const sentence = (text: string) => {
-  const trimmed = text.trim();
-  return /[.!?]$/.test(trimmed) ? trimmed : `${trimmed}.`;
-};
-
-// A parameter as the agent may write it: the value its schema describes, bound to the data
-// model, or worked out by a function.
-const dynamic = (schema: AIUIJSONSchema) => ({
-  anyOf: [
-    schema,
-    { $ref: 'common_types.json#/$defs/DataBinding' },
-    { $ref: 'common_types.json#/$defs/FunctionCall' },
-  ],
-});
-
-/**
- * The app's components as an A2UI catalog document: each under its A2UI type, its parameters
- * as its properties and what its events do in its description, since it reports them itself
- * rather than through an A2UI action the agent writes. The same as StreamChatA2UI's
- * `PortableComponent`, so an agent writes for both alike.
- */
-export const a2uiAppCatalogDocument = (
-  catalogId: string,
-  components: AIUIComponent[],
-) => ({
-  catalogId,
-  components: Object.fromEntries(
-    components.map(({ definition }) => {
-      const type = a2uiTypeName(definition.name);
-      const notes = [
-        definition.description,
-        ...definition.events.map((e) => e.description),
-      ]
-        .filter((note) => note.trim() !== '')
-        .map(sentence);
-      return [
-        type,
-        {
-          ...(notes.length ? { description: notes.join(' ') } : {}),
-          properties: {
-            component: { const: type },
-            ...Object.fromEntries(
-              definition.parameters.map(({ description, name, type: schema }) => [
-                name,
-                dynamic(description === undefined ? schema : { ...schema, description }),
-              ]),
-            ),
-          },
-          required: [
-            'component',
-            ...definition.parameters
-              .filter(({ isRequired }) => isRequired)
-              .map(({ name }) => name),
-          ],
-          type: 'object',
-        },
-      ];
-    }),
-  ),
-  protocolVersion: A2UI_VERSION,
-});
 
 type A2UIReplyContextValue = { isStreaming: boolean; messageId: string };
 
