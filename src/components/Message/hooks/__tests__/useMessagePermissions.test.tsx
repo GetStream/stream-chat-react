@@ -3,7 +3,7 @@ import { renderHook } from '@testing-library/react';
 import { fromPartial } from '@total-typescript/shoehorn';
 import type { Channel, ChannelState, LocalMessage, StreamChat } from 'stream-chat';
 
-import { useUserRole } from '../useUserRole';
+import { useMessagePermissions } from '../useMessagePermissions';
 
 import { ChannelInstanceProvider, ChatProvider } from '../../../../context';
 import {
@@ -23,7 +23,7 @@ const toOwnCapabilities = (capabilities: Record<string, boolean> = {}) =>
     .filter(([, enabled]) => enabled)
     .map(([capability]) => capability);
 
-async function renderUserRoleHook({
+async function renderMessagePermissionsHook({
   channelProps = {},
   channelStateContextValue = {},
   clientContextValue = {},
@@ -38,7 +38,7 @@ async function renderUserRoleHook({
 } = {}) {
   const client = clientContextValue.client ?? (await getTestClientWithUser(alice));
   const channel = fromPartial<Channel>({
-    cid: 'messaging:role-test',
+    cid: 'messaging:permissions-test',
     state: generateChannelState({
       membership: fromPartial<ChannelState['membership']>(
         channelProps.state?.membership ?? {},
@@ -53,13 +53,16 @@ async function renderUserRoleHook({
     </ChatProvider>
   );
 
-  const { result } = renderHook(() => useUserRole(message, disableQuotedMessages), {
-    wrapper,
-  });
+  const { result } = renderHook(
+    () => useMessagePermissions(message, disableQuotedMessages),
+    {
+      wrapper,
+    },
+  );
   return result.current;
 }
 
-describe('useUserRole custom hook', () => {
+describe('useMessagePermissions', () => {
   afterEach(vi.clearAllMocks);
 
   it.each([
@@ -67,143 +70,31 @@ describe('useUserRole custom hook', () => {
     ['does not belong', bob, false],
   ])('should tell when the message %s to user', async (_, user, expected) => {
     const message = generateMessage({ user });
-    const { isMyMessage } = await renderUserRoleHook({ message });
+    const { isMyMessage } = await renderMessagePermissionsHook({ message });
     expect(isMyMessage).toBe(expected);
   });
 
-  it.each([
-    ['admin', true],
-    ['member', false],
-    ['moderator', false],
-    ['channel_moderator', false],
-    ['owner', false],
-  ])('should tell if user is admin when user has %s role', async (role, expected) => {
-    const adminUser = generateUser({ role });
-    const clientMock = await getTestClientWithUser(adminUser);
-    const { isAdmin } = await renderUserRoleHook({
-      clientContextValue: { client: clientMock },
+  it('does not return membership-role flags', async () => {
+    const result = await renderMessagePermissionsHook({
+      channelProps: { state: { membership: { is_moderator: true, role: 'owner' } } },
     });
-    expect(isAdmin).toBe(expected);
+    expect(result).not.toHaveProperty('isAdmin');
+    expect(result).not.toHaveProperty('isModerator');
+    expect(result).not.toHaveProperty('isOwner');
   });
 
   it.each([
+    ['member', false],
+    ['member', true],
     ['admin', true],
-    ['member', false],
-    ['moderator', false],
-    ['channel_moderator', false],
-    ['owner', false],
-  ])(
-    'should tell if user is admin when channel state membership is set to %s',
-    async (role, expected) => {
-      const { isAdmin } = await renderUserRoleHook({
-        channelProps: {
-          state: {
-            membership: {
-              role,
-            },
-          },
-        },
-      });
-      expect(isAdmin).toBe(expected);
-    },
-  );
-
-  it.each([
     ['admin', false],
-    ['member', false],
-    ['moderator', false],
-    ['channel_moderator', false],
-    ['owner', true],
-  ])(
-    'should tell if user is owner when channel state membership is set to %s',
-    async (role, expected) => {
-      const { isOwner } = await renderUserRoleHook({
-        channelProps: {
-          state: {
-            membership: {
-              role,
-            },
-          },
-        },
-      });
-
-      expect(isOwner).toBe(expected);
-    },
-  );
-
-  it.each([
-    ['admin', false],
-    ['member', false],
     ['moderator', true],
     ['channel_moderator', true],
     ['owner', false],
   ])(
-    'should tell if user is moderator when channel state membership role is set to %s',
+    'takes canEdit and canDelete from the any-message capabilities, not the %s role',
     async (role, expected) => {
-      const { isModerator } = await renderUserRoleHook({
-        channelProps: {
-          state: {
-            membership: {
-              role,
-            },
-          },
-        },
-      });
-      expect(isModerator).toBe(expected);
-    },
-  );
-
-  it.each([
-    [true, true],
-    [false, false],
-    [undefined, false],
-  ])(
-    'should tell if user is moderator when channel state membership is_moderator is set to %s',
-    async (bool, expected) => {
-      const { isModerator } = await renderUserRoleHook({
-        channelProps: {
-          state: {
-            membership: {
-              is_moderator: bool,
-            },
-          },
-        },
-      });
-      expect(isModerator).toBe(expected);
-    },
-  );
-
-  it.each([
-    ['admin', false],
-    ['member', false],
-    ['channel_moderator', true],
-    ['owner', false],
-  ])(
-    'should tell if user is moderator when channel state membership channel_role is set to %s',
-    async (role, expected) => {
-      const { isModerator } = await renderUserRoleHook({
-        channelProps: {
-          state: {
-            membership: {
-              channel_role: role,
-            },
-          },
-        },
-      });
-      expect(isModerator).toBe(expected);
-    },
-  );
-
-  it.each([
-    ['member', false],
-    ['admin', true],
-    ['moderator', true],
-    ['channel_moderator', true],
-    ['owner', false],
-  ])(
-    'should allow user to edit or delete message if user role is %s',
-    async (role, expected) => {
-      const { canDelete, canEdit } = await renderUserRoleHook({
+      const { canDelete, canEdit } = await renderMessagePermissionsHook({
         channelProps: {
           state: {
             membership: {
@@ -228,7 +119,7 @@ describe('useUserRole custom hook', () => {
       ...generateMessage({ poll_id: 'poll-1', user: alice }),
       poll: fromPartial({ id: 'poll-1' }),
     } as LocalMessage;
-    const { canEdit } = await renderUserRoleHook({
+    const { canEdit } = await renderMessagePermissionsHook({
       channelStateContextValue: { channelCapabilities: { 'update-own-message': true } },
       message,
     });
@@ -249,7 +140,7 @@ describe('useUserRole custom hook', () => {
       'determine message edit permission',
       async (updateAnyPermission, updateOwnPermission, messageAuthor, expected) => {
         const message = generateMessage({ user: messageAuthor });
-        const { canEdit } = await renderUserRoleHook({
+        const { canEdit } = await renderMessagePermissionsHook({
           channelStateContextValue: {
             channelCapabilities: {
               'update-any-message': updateAnyPermission,
@@ -275,7 +166,7 @@ describe('useUserRole custom hook', () => {
       'determine delete message permission',
       async (deleteAnyMessagePerm, deleteOwnMessagePerm, messageAuthor, expected) => {
         const message = generateMessage({ user: messageAuthor });
-        const { canDelete } = await renderUserRoleHook({
+        const { canDelete } = await renderMessagePermissionsHook({
           channelStateContextValue: {
             channelCapabilities: {
               'delete-any-message': deleteAnyMessagePerm,
@@ -297,7 +188,7 @@ describe('useUserRole custom hook', () => {
       'determine flag message permission',
       async (flagMessagePerm, messageAuthor, expected) => {
         const message = generateMessage({ user: messageAuthor });
-        const { canFlag } = await renderUserRoleHook({
+        const { canFlag } = await renderMessagePermissionsHook({
           channelStateContextValue: {
             channelCapabilities: {
               'flag-message': flagMessagePerm,
@@ -318,7 +209,7 @@ describe('useUserRole custom hook', () => {
       'determine mute channel permission',
       async (muteChannelPerm, messageAuthor, expected) => {
         const message = generateMessage({ user: messageAuthor });
-        const { canMute } = await renderUserRoleHook({
+        const { canMute } = await renderMessagePermissionsHook({
           channelStateContextValue: {
             channelCapabilities: {
               'mute-channel': muteChannelPerm,
@@ -339,7 +230,7 @@ describe('useUserRole custom hook', () => {
       'determine mark unread permission',
       async (readEventsPerm, messageAuthor, expected) => {
         const message = generateMessage({ user: messageAuthor });
-        const { canMarkUnread } = await renderUserRoleHook({
+        const { canMarkUnread } = await renderMessagePermissionsHook({
           channelStateContextValue: {
             channelCapabilities: {
               'read-events': readEventsPerm,
@@ -359,7 +250,7 @@ describe('useUserRole custom hook', () => {
     ])(
       'determine quote message permission',
       async (disableQuotedMessages, quoteMessagePerm, expected) => {
-        const { canQuote } = await renderUserRoleHook({
+        const { canQuote } = await renderMessagePermissionsHook({
           channelStateContextValue: {
             channelCapabilities: {
               'quote-message': quoteMessagePerm,
@@ -375,7 +266,7 @@ describe('useUserRole custom hook', () => {
       [true, true],
       [false, false],
     ])('determine react to a message permission', async (sendReactionPerm, expected) => {
-      const { canReact } = await renderUserRoleHook({
+      const { canReact } = await renderMessagePermissionsHook({
         channelStateContextValue: {
           channelCapabilities: {
             'send-reaction': sendReactionPerm,
@@ -388,8 +279,8 @@ describe('useUserRole custom hook', () => {
     it.each([
       [true, true],
       [false, false],
-    ])('determine react to a message permission', async (sendReplyPerm, expected) => {
-      const { canReply } = await renderUserRoleHook({
+    ])('determine reply to a message permission', async (sendReplyPerm, expected) => {
+      const { canReply } = await renderMessagePermissionsHook({
         channelStateContextValue: {
           channelCapabilities: {
             'send-reply': sendReplyPerm,

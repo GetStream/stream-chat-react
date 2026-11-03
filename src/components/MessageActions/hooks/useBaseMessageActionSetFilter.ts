@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 
 import { useChannel, useMessageContext } from '../../../context';
-import { useUserRole } from '../../Message/hooks';
+import { useMessagePermissions } from '../../Message/hooks';
 import {
   ACTIONS_NOT_WORKING_IN_THREAD,
   isMessageBounced,
@@ -55,7 +55,7 @@ export const useBaseMessageActionSetFilter = (
     canReply,
     canSendMessage,
     isMyMessage,
-  } = useUserRole(message);
+  } = useMessagePermissions(message);
   const isMessageThreadReply = typeof message.parent_id === 'string';
   const isBounced = isMessageBounced(message);
   const allowRetry = isMessageErrorRetryable(message);

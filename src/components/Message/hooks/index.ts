@@ -10,7 +10,7 @@ export * from './usePinHandler';
 export * from './useReactionHandler';
 export * from './useRetryHandler';
 export * from './useUserHandler';
-export * from './useUserRole';
+export * from './useMessagePermissions';
 export * from './useReactionsFetcher';
 export * from './useMessageTextStreaming';
 export * from './useMessageReminder';

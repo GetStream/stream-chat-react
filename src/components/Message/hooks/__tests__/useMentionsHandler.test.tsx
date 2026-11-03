@@ -40,28 +40,25 @@ describe('useMentionsHandler custom hooks', () => {
     });
   });
 
-  it("should call onMentionsClick with message's mentioned users when user clicks on a mention", () => {
+  it('should call onMentionsClick with the message when user clicks on a mention', () => {
     const alice = generateUser();
     const bob = generateUser();
     const mentioned_users = [alice, bob];
     const message = generateMessage({ mentioned_users });
     const { onMentionsClick } = renderUseMentionsHandlerHook(message);
     onMentionsClick(mouseEventMock);
-    expect(onMentionsClickMock).toHaveBeenCalledWith(
-      mouseEventMock,
-      mentioned_users,
-      message,
-    );
+    expect(onMentionsClickMock).toHaveBeenCalledWith(mouseEventMock, message);
   });
 
-  it('should not call onMentionsClick when it is not defined', () => {
-    const alice = generateUser();
-    const bob = generateUser();
-    const mentioned_users = [alice, bob];
-    const message = generateMessage({ mentioned_users });
-    const { onMentionsClick } = renderUseMentionsHandlerHook(message, {}, null);
-    onMentionsClick(mouseEventMock);
-    expect(onMentionsClickMock).not.toHaveBeenCalled();
+  it('should return no click handler when onMentionsClick is not set', () => {
+    const message = generateMessage({ mentioned_users: [generateUser()] });
+    const { onMentionsClick, onMentionsHover } = renderUseMentionsHandlerHook(
+      message,
+      {},
+      null,
+    );
+    expect(onMentionsClick).toBeUndefined();
+    expect(onMentionsHover).toEqual(expect.any(Function));
   });
 
   it('should not call onMentionsClick when it message has no mentioned users set', () => {
@@ -88,43 +85,36 @@ describe('useMentionsHandler custom hooks', () => {
         ],
       },
     ],
-  ])('should call onMentionsClick with an empty user list for a %s', (_, mention) => {
+  ])('should call onMentionsClick for a %s', (_, mention) => {
     const message = generateMessage({
       ...mention,
       mentioned_users: undefined,
     });
     const { onMentionsClick } = renderUseMentionsHandlerHook(message);
     onMentionsClick(mouseEventMock);
-    expect(onMentionsClickMock).toHaveBeenCalledWith(mouseEventMock, [], message);
+    expect(onMentionsClickMock).toHaveBeenCalledWith(mouseEventMock, message);
   });
 
-  it("should call onMentionsHover with message's mentioned users when user hovers on a mention", () => {
+  it('should call onMentionsHover with the message when user hovers on a mention', () => {
     const alice = generateUser();
     const bob = generateUser();
     const mentioned_users = [alice, bob];
     const message = generateMessage({ mentioned_users });
     const { onMentionsHover } = renderUseMentionsHandlerHook(message);
     onMentionsHover(mouseEventMock);
-    expect(onMentionsHoverMock).toHaveBeenCalledWith(
-      mouseEventMock,
-      mentioned_users,
-      message,
-    );
+    expect(onMentionsHoverMock).toHaveBeenCalledWith(mouseEventMock, message);
   });
 
-  it('should not call onMentionsHover when it is not defined', () => {
-    const alice = generateUser();
-    const bob = generateUser();
-    const mentioned_users = [alice, bob];
-    const message = generateMessage({ mentioned_users });
-    const { onMentionsHover } = renderUseMentionsHandlerHook(
+  it('should return no hover handler when onMentionsHover is not set', () => {
+    const message = generateMessage({ mentioned_users: [generateUser()] });
+    const { onMentionsClick, onMentionsHover } = renderUseMentionsHandlerHook(
       message,
       {},
       onMentionsClickMock,
       null,
     );
-    onMentionsHover(mouseEventMock);
-    expect(onMentionsHoverMock).not.toHaveBeenCalled();
+    expect(onMentionsHover).toBeUndefined();
+    expect(onMentionsClick).toEqual(expect.any(Function));
   });
 
   it('should not call onMentionsHover when message has no mentioned users set', () => {
@@ -143,11 +133,7 @@ describe('useMentionsHandler custom hooks', () => {
       onMentionsHover: onMentionsHoverHandler,
     });
     onMentionsHover(mouseEventMock);
-    expect(onMentionsHoverHandler).toHaveBeenCalledWith(
-      mouseEventMock,
-      mentioned_users,
-      message,
-    );
+    expect(onMentionsHoverHandler).toHaveBeenCalledWith(mouseEventMock, message);
   });
 
   it('should call the custom mention click handler when one is set', () => {
@@ -159,10 +145,38 @@ describe('useMentionsHandler custom hooks', () => {
       onMentionsClick: onMentionsClickHandler,
     });
     onMentionsClick(mouseEventMock);
-    expect(onMentionsClickHandler).toHaveBeenCalledWith(
-      mouseEventMock,
-      mentioned_users,
-      message,
+    expect(onMentionsClickHandler).toHaveBeenCalledWith(mouseEventMock, message);
+  });
+
+  it('should keep its handlers stable and call the latest custom handlers with the latest message', () => {
+    const message = generateMessage({ mentioned_users: [generateUser()] });
+    const nextMessage = generateMessage({ mentioned_users: [generateUser()] });
+    const event = fromPartial<React.BaseSyntheticEvent>(mouseEventMock);
+    const firstClick = vi.fn();
+    const nextClick = vi.fn();
+    const nextHover = vi.fn();
+    const { rerender, result } = renderHook(
+      ({ handlers, message }) => useMentionsHandler(message, handlers),
+      {
+        initialProps: {
+          handlers: { onMentionsClick: firstClick, onMentionsHover: onMentionsHoverMock },
+          message,
+        },
+      },
     );
+    const before = result.current;
+
+    rerender({
+      handlers: { onMentionsClick: nextClick, onMentionsHover: nextHover },
+      message: nextMessage,
+    });
+    before.onMentionsClick?.(event);
+    before.onMentionsHover?.(event);
+
+    expect(result.current.onMentionsClick).toBe(before.onMentionsClick);
+    expect(result.current.onMentionsHover).toBe(before.onMentionsHover);
+    expect(firstClick).not.toHaveBeenCalled();
+    expect(nextClick).toHaveBeenCalledWith(event, nextMessage);
+    expect(nextHover).toHaveBeenCalledWith(event, nextMessage);
   });
 });

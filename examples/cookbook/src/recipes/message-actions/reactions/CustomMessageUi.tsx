@@ -8,8 +8,8 @@ import {
   useChatContext,
   useComponentContext,
   useMessageContext,
+  useMessagePermissions,
   useThreadContext,
-  useUserRole,
 } from 'stream-chat-react';
 import './CustomMessageUi.css';
 
@@ -116,7 +116,8 @@ const CustomMessageUiActions = () => {
     message,
   } = useMessageContext();
   const threadList = !!useThreadContext();
-  const { canDelete, canFlag, canPin, canReact, canReply } = useUserRole(message);
+  const { canDelete, canFlag, canPin, canReact, canReply } =
+    useMessagePermissions(message);
   const { reactionOptions } = useComponentContext();
   const quickReactions =
     reactionOptions && 'quick' in reactionOptions ? reactionOptions.quick : {};

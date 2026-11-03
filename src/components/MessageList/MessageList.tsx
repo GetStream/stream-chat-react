@@ -29,7 +29,7 @@ import { TypingIndicator as DefaultTypingIndicator } from '../TypingIndicator';
 import { MessageListMainPanel as DefaultMessageListMainPanel } from './MessageListMainPanel';
 
 import { FloatingDateSeparator } from './FloatingDateSeparator';
-import type { MessageRenderer } from './renderMessages';
+import type { MessageRenderer, SharedMessageProps } from './renderMessages';
 import { defaultRenderMessages } from './renderMessages';
 import { useStableId } from '../UtilityComponents/useStableId';
 import { useThreadContext } from '../Threads';
@@ -79,7 +79,6 @@ const getScrollBehavior = (): ScrollBehavior =>
 
 const MessageListWithContext = (props: MessageListWithContextProps) => {
   const channel = useChannel();
-  const threadHead = useThreadHead();
   const {
     groupStyles,
     headerPosition,
@@ -99,9 +98,25 @@ const MessageListWithContext = (props: MessageListWithContextProps) => {
     showUnreadNotificationAlways,
     sortReactions,
     suppressAutoscroll: suppressAutoscrollFromProps = false,
-    unsafeHTML = false,
     withDateSeparator = true,
   } = props;
+  // The list-wide props every message gets, the thread's parent message included.
+  const messageProps: SharedMessageProps = {
+    additionalMessageComposerProps: props.additionalMessageComposerProps,
+    closeReactionSelectorOnClick: props.closeReactionSelectorOnClick,
+    disableQuotedMessages: props.disableQuotedMessages,
+    formatDate: props.formatDate,
+    onMentionsClick: props.onMentionsClick,
+    onMentionsHover: props.onMentionsHover,
+    onUserClick: props.onUserClick,
+    onUserHover: props.onUserHover,
+    reactionDetailsSort,
+    renderText: props.renderText,
+    showAvatar: props.showAvatar,
+    sortReactions,
+    unsafeHTML: props.unsafeHTML,
+  };
+  const threadHead = useThreadHead(messageProps);
   const thread = useThreadContext();
   const isThreadList = !!thread;
   const [isLoadingOlder, setIsLoadingOlder] = React.useState(false);
@@ -194,23 +209,7 @@ const MessageListWithContext = (props: MessageListWithContextProps) => {
   const elements = useMessageListElements({
     enrichedMessages,
     focusedMessageId,
-    internalMessageProps: {
-      additionalMessageComposerProps: props.additionalMessageComposerProps,
-      closeReactionSelectorOnClick: props.closeReactionSelectorOnClick,
-      disableQuotedMessages: props.disableQuotedMessages,
-      formatDate: props.formatDate,
-      messageListRect: wrapperRect,
-      onMentionsClick: props.onMentionsClick,
-      onMentionsHover: props.onMentionsHover,
-      onUserClick: props.onUserClick,
-      onUserHover: props.onUserHover,
-      reactionDetailsSort,
-      renderText: props.renderText,
-      // retrySendMessage: props.retrySendMessage,
-      showAvatar: props.showAvatar,
-      sortReactions,
-      unsafeHTML,
-    },
+    internalMessageProps: { ...messageProps, messageListRect: wrapperRect },
     lastOwnMessage,
     messageGroupStyles,
     messages,

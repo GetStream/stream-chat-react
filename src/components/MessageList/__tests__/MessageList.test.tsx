@@ -39,6 +39,7 @@ import type { ComponentContextValue } from '../../../context';
 import type { MockInstance } from 'vitest';
 import type { ChannelProps } from '../../Channel';
 import type { MessageListProps } from '../MessageList';
+import type { MessageProps } from '../../Message';
 import { convertDateToTimestamp } from '../../../mock-builders';
 
 const seedPaginator = (
@@ -380,6 +381,41 @@ describe('MessageList', () => {
       expect(screen.queryByText(message1.text)).toBeInTheDocument();
       expect(screen.queryByText(reply1.text)).toBeInTheDocument();
       expect(screen.queryByText(reply2.text)).toBeInTheDocument();
+    });
+  });
+
+  it('should give the thread parent message the message props of its replies', async () => {
+    const CustomThreadHead = vi.fn<(props: MessageProps) => React.ReactElement>(() => (
+      <div />
+    ));
+    const onMentionsClick = vi.fn();
+    const onUserClick = vi.fn();
+    const renderText = vi.fn();
+
+    await act(() => {
+      renderComponent({
+        channelProps: { channel },
+        chatClient,
+        components: { ThreadHead: CustomThreadHead },
+        msgListProps: {
+          messages: [reply1, reply2],
+          onMentionsClick,
+          onUserClick,
+          renderText,
+        },
+        thread: makeThreadStub(channel, message1),
+      });
+    });
+
+    await waitFor(() => {
+      expect(CustomThreadHead.mock.lastCall?.[0]).toEqual(
+        expect.objectContaining({
+          message: expect.objectContaining({ id: message1.id }),
+          onMentionsClick,
+          onUserClick,
+          renderText,
+        }),
+      );
     });
   });
 

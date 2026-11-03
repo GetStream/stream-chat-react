@@ -1890,7 +1890,9 @@ describe(`MessageInputFlat`, () => {
       });
       await initQuotedMessagePreview(m);
 
-      expect(fn).toHaveBeenCalled();
+      expect(fn).toHaveBeenCalledWith(m.text, {
+        messageMentionEntities: expect.any(Array),
+      });
       expect(await screen.findByTestId(m.text)).toBeInTheDocument();
     });
 

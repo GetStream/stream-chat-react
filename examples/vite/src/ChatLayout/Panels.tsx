@@ -192,8 +192,8 @@ const ChannelThreadPanel = ({
           <ReturnToSkipNavigation />
           <ThreadHeader />
           <ThreadMessageList
-            onMentionsClick={(_event, mentionedUsers) =>
-              onOpenMemberDetail(mentionedUsers[0]?.id)
+            onMentionsClick={(_event, message) =>
+              onOpenMemberDetail(message.mentioned_users?.[0]?.id)
             }
             onUserClick={(_event, user) => onOpenMemberDetail(user.id)}
           />
@@ -459,8 +459,8 @@ const ResponsiveChannelPanels = ({ mainChannel }: { mainChannel?: StreamChannel 
                     <VirtualizedMessageList returnAllReadData shouldGroupByUser />
                   ) : (
                     <MessageList
-                      onMentionsClick={(_event, mentionedUsers) =>
-                        openMemberDetail(mentionedUsers[0]?.id)
+                      onMentionsClick={(_event, message) =>
+                        openMemberDetail(message.mentioned_users?.[0]?.id)
                       }
                       onUserClick={(_event, user) => openMemberDetail(user.id)}
                       returnAllReadData

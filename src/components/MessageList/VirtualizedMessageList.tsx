@@ -2,13 +2,7 @@ import type { RefObject } from 'react';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import { FloatingDateSeparator } from './FloatingDateSeparator';
-import type {
-  ComputeItemKey,
-  ScrollSeekConfiguration,
-  ScrollSeekPlaceholderProps,
-  VirtuosoHandle,
-  VirtuosoProps,
-} from 'react-virtuoso';
+import type { ComputeItemKey, VirtuosoHandle, VirtuosoProps } from 'react-virtuoso';
 import { Virtuoso } from 'react-virtuoso';
 
 import { GiphyPreviewMessage as DefaultGiphyPreviewMessage } from './GiphyPreviewMessage';
@@ -206,19 +200,15 @@ const VirtualizedMessageListWithContext = (
     channel,
     closeReactionSelectorOnClick,
     customMessageRenderer,
-    defaultItemHeight,
     formatDate,
     groupStyles,
     hideDeletedMessages = false,
     hideNewMessageSeparator = false,
     maxTimeBetweenGroupedMessages,
-    overscan = 0,
-    // TODO: refactor to scrollSeekPlaceHolderConfiguration and components.ScrollSeekPlaceholder, like the Virtuoso Component
     reactionDetailsSort,
     renderText,
     returnAllReadData = false,
     reviewProcessedMessage,
-    scrollSeekPlaceHolder,
     scrollToLatestMessageOnFocus = false,
     separateGiphyPreview = false,
     shouldGroupByUser = false,
@@ -231,7 +221,20 @@ const VirtualizedMessageListWithContext = (
   } = props;
   const thread = useThreadContext();
   const isThreadList = !!thread;
-  const threadHead = useThreadHead();
+  // The list-wide props every message gets, the thread's parent message included.
+  const messageProps: Pick<
+    VirtualizedMessageListProps,
+    PropsDrilledToMessage | 'closeReactionSelectorOnClick'
+  > = {
+    additionalMessageComposerProps,
+    closeReactionSelectorOnClick,
+    formatDate,
+    reactionDetailsSort,
+    renderText,
+    showAvatar,
+    sortReactions,
+  };
+  const threadHead = useThreadHead(messageProps);
   const [suppressAutoscrollWhileLoadingOlder, setSuppressAutoscrollWhileLoadingOlder] =
     React.useState(false);
   const suppressAutoscroll =
@@ -597,15 +600,13 @@ const VirtualizedMessageListWithContext = (
               }}
               computeItemKey={computeItemKey}
               context={{
-                additionalMessageComposerProps,
+                ...messageProps,
                 channel,
-                closeReactionSelectorOnClick,
                 customClasses,
                 customMessageRenderer,
                 DateSeparator,
                 firstUnreadMessageId: channelUnreadUiState?.firstUnreadMessageId,
                 focusedMessageId,
-                formatDate,
                 head: threadHead,
                 lastOwnMessage,
                 lastReadDate: channelUnreadUiState?.lastReadAt,
@@ -618,12 +619,8 @@ const VirtualizedMessageListWithContext = (
                 ownMessagesDeliveredToOthers,
                 ownMessagesReadByOthers,
                 processedMessages,
-                reactionDetailsSort,
-                renderText,
                 returnAllReadData,
                 shouldGroupByUser,
-                showAvatar,
-                sortReactions,
                 unreadMessageCount: channelUnreadUiState?.unreadCount,
                 UnreadMessagesSeparator,
                 virtuosoRef: virtuoso,
@@ -639,15 +636,12 @@ const VirtualizedMessageListWithContext = (
               itemSize={fractionalItemSize}
               itemsRendered={handleItemsRendered}
               key={messageSetKey}
-              overscan={overscan}
               ref={virtuoso}
               style={{ overflowX: 'hidden' }}
               totalCount={processedMessages.length}
               {...overridingVirtuosoProps}
               scrollerRef={scrollerRef}
               totalListHeightChanged={totalListHeightChanged}
-              {...(scrollSeekPlaceHolder ? { scrollSeek: scrollSeekPlaceHolder } : {})}
-              {...(defaultItemHeight ? { defaultItemHeight } : {})}
             />
             {/* Only for messages that arrived while the reader was scrolled up. Reading an older
                   window (e.g. after a jump) is signalled by ScrollToLatestMessageButton instead. */}
@@ -696,12 +690,6 @@ export type VirtualizedMessageListProps = Partial<
     messageList: RenderedMessage[],
     index: number,
   ) => React.ReactElement;
-  /**
-   * Item height used to compute the total list height; useful when message heights vary a lot.
-   *
-   * @deprecated Use additionalVirtuosoProps.defaultItemHeight instead. Will be removed with next major release - `v11.0.0`.
-   */
-  defaultItemHeight?: number;
   /** Computes the group style of a message from its neighbors. */
   groupStyles?: (
     message: RenderedMessage,
@@ -716,12 +704,6 @@ export type VirtualizedMessageListProps = Partial<
   hideNewMessageSeparator?: boolean;
   /** Maximum time (ms) between two messages for them to stay in the same group. */
   maxTimeBetweenGroupedMessages?: number;
-  /**
-   * Extra content rendered in addition to what fills the viewport.
-   *
-   * @deprecated Use additionalVirtuosoProps.overscan instead. Will be removed with next major release - `v11.0.0`.
-   */
-  overscan?: number;
   /** Computes read and delivery data for every own message, not only the last one. */
   returnAllReadData?: boolean;
   /**
@@ -729,22 +711,6 @@ export type VirtualizedMessageListProps = Partial<
    * returned array is appended to the rendered messages in place of `changes`.
    */
   reviewProcessedMessage?: ProcessMessagesParams['reviewProcessedMessage'];
-  /**
-   * Shows placeholders while the user scrolls fast through the list, e.g.:
-   * ```
-   *  {
-   *    enter: (velocity) => Math.abs(velocity) > 120,
-   *    exit: (velocity) => Math.abs(velocity) < 40,
-   *    change: () => null,
-   *    placeholder: ({index, height})=> <div style={{height: height + "px"}}>{index}</div>,
-   *  }
-   *  ```
-   *
-   * @deprecated Pass additionalVirtuosoProps.scrollSeekConfiguration and specify the placeholder in additionalVirtuosoProps.components.ScrollSeekPlaceholder instead.  Will be removed with next major release - `v11.0.0`.
-   */
-  scrollSeekPlaceHolder?: ScrollSeekConfiguration & {
-    placeholder: React.ComponentType<ScrollSeekPlaceholderProps>;
-  };
   /**
    * Scrolls to the latest message when the window regains focus, if the messages changed while it
    * was blurred. Defaults to `false`.

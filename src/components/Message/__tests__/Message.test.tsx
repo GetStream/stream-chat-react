@@ -150,29 +150,34 @@ async function renderComponent({
 
   lastChannel = channel;
 
-  return renderer(
+  // Built once, so a rerender changes only the message props and exercises the memo bail-out.
+  const overrides = {
+    MessageUI: () => <CustomMessageUIComponent contextCallback={contextCallback} />,
+    reactionOptions: defaultReactionOptions,
+    ...components,
+  };
+  const renderTree = (messageProps: typeof props) => (
     <Chat client={client}>
       <Channel channel={channel}>
-        <WithComponents
-          overrides={{
-            MessageUI: () => (
-              <CustomMessageUIComponent contextCallback={contextCallback} />
-            ),
-            reactionOptions: defaultReactionOptions,
-            ...components,
-          }}
-        >
+        <WithComponents overrides={overrides}>
           <Message
             message={message}
             onMentionsClick={channelActionOpts.onMentionsClick as any}
             onMentionsHover={channelActionOpts.onMentionsHover as any}
             openThread={channelActionOpts.openThread as any}
-            {...props}
+            {...messageProps}
           />
         </WithComponents>
       </Channel>
-    </Chat>,
+    </Chat>
   );
+
+  const result = renderer(renderTree(props));
+  return {
+    ...result,
+    rerenderWithProps: (nextProps: typeof props) =>
+      result.rerender(renderTree(nextProps)),
+  };
 }
 
 function renderComponentWithMessage(
@@ -373,12 +378,8 @@ describe('<Message /> component', () => {
       message,
     });
 
-    context.onMentionsClickMessage(mouseEventMock);
-    expect(onMentionsClick).toHaveBeenCalledWith(
-      mouseEventMock,
-      message.mentioned_users,
-      message,
-    );
+    context.onMentionsClickMessage?.(mouseEventMock);
+    expect(onMentionsClick).toHaveBeenCalledWith(mouseEventMock, message);
   });
 
   it('should trigger channel mentions hover on mentions hover', async () => {
@@ -394,12 +395,23 @@ describe('<Message /> component', () => {
       message,
     });
 
-    context.onMentionsHoverMessage(mouseEventMock);
-    expect(onMentionsHover).toHaveBeenCalledWith(
-      mouseEventMock,
-      message.mentioned_users,
+    context.onMentionsHoverMessage?.(mouseEventMock);
+    expect(onMentionsHover).toHaveBeenCalledWith(mouseEventMock, message);
+  });
+
+  it('should leave the mention handlers undefined when none is set', async () => {
+    const message = generateMessage({ mentioned_users: [bob] });
+    let context: MessageContextValue;
+
+    await renderComponent({
+      contextCallback: (ctx) => {
+        context = ctx;
+      },
       message,
-    );
+    });
+
+    expect(context.onMentionsClickMessage).toBeUndefined();
+    expect(context.onMentionsHoverMessage).toBeUndefined();
   });
 
   it('should trigger channel onUserClick handler when a user element is clicked', async () => {
@@ -418,6 +430,39 @@ describe('<Message /> component', () => {
     context.onUserClick(mouseEventMock);
     expect(onUserClickMock).toHaveBeenCalledWith(mouseEventMock, message.user);
   });
+
+  it.each([
+    ['onUserClick', 'onUserClick', 'user'],
+    ['onUserHover', 'onUserHover', 'user'],
+    ['onMentionsClick', 'onMentionsClickMessage', 'message'],
+    ['onMentionsHover', 'onMentionsHoverMessage', 'message'],
+  ] as const)(
+    'should call the latest %s after the handler is swapped',
+    async (propName, contextName, secondArgument) => {
+      const message = generateMessage({ mentioned_users: [bob], user: bob });
+      const firstHandler = vi.fn();
+      const nextHandler = vi.fn();
+      let context: MessageContextValue;
+
+      const { rerenderWithProps } = await renderComponent({
+        contextCallback: (ctx) => {
+          context = ctx;
+        },
+        message,
+        props: { [propName]: firstHandler },
+      });
+      const handlerBeforeSwap = context[contextName];
+
+      rerenderWithProps({ [propName]: nextHandler });
+      handlerBeforeSwap?.(mouseEventMock);
+
+      expect(firstHandler).not.toHaveBeenCalled();
+      expect(nextHandler).toHaveBeenCalledWith(
+        mouseEventMock,
+        secondArgument === 'user' ? message.user : message,
+      );
+    },
+  );
 
   it('should trigger channel onUserHover handler when a user element is hovered', async () => {
     const message = generateMessage({ user: bob });

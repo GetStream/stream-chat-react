@@ -2,25 +2,13 @@ import { useChannel, useChatContext } from '../../../context';
 import { useChannelCapabilities } from '../../Channel/hooks/useChannelCapabilities';
 import type { LocalMessage } from 'stream-chat';
 
-export const useUserRole = (message: LocalMessage, disableQuotedMessages?: boolean) => {
+export const useMessagePermissions = (
+  message: LocalMessage,
+  disableQuotedMessages?: boolean,
+) => {
   const channel = useChannel();
   const { client } = useChatContext();
   const channelCapabilities = useChannelCapabilities({ cid: channel.cid });
-
-  /** @deprecated Relies on the deprecated `membership.role`. Use `channelCapabilities` instead. */
-  const isAdmin =
-    client.user?.role === 'admin' || channel.state.membership.role === 'admin';
-
-  /** @deprecated Relies on the deprecated `membership.role`. Use `channelCapabilities` instead. */
-  const isOwner = channel.state.membership.role === 'owner';
-
-  /** @deprecated Relies on the deprecated `membership.role`. Use `channelCapabilities` instead. */
-  const isModerator =
-    client.user?.role === 'channel_moderator' ||
-    channel.state.membership.role === 'channel_moderator' ||
-    channel.state.membership.role === 'moderator' ||
-    channel.state.membership.is_moderator === true ||
-    channel.state.membership.channel_role === 'channel_moderator';
 
   const isMyMessage = client.userID === message.user?.id;
 
@@ -55,9 +43,6 @@ export const useUserRole = (message: LocalMessage, disableQuotedMessages?: boole
     canReact,
     canReply,
     canSendMessage,
-    isAdmin,
-    isModerator,
     isMyMessage,
-    isOwner,
   };
 };

@@ -4,7 +4,6 @@ import { find } from 'linkifyjs';
 import remarkGfm from 'remark-gfm';
 import type { ComponentType, JSX, ReactNode } from 'react';
 import type { Options } from 'react-markdown';
-import type { UserResponse } from 'stream-chat';
 import type { PluggableList } from 'unified';
 
 import { Anchor, Emoji, Mention } from './componentRenderers';
@@ -12,7 +11,6 @@ import { detectHttp, matchMarkdownLinks, messageCodeBlocks } from './regex';
 import {
   createMentionPluginAndDisplayTextSet,
   emojiMarkdownPlugin,
-  getRenderTextMentionEntities,
 } from './rehypePlugins';
 import {
   htmlToTextPlugin,
@@ -105,43 +103,32 @@ export type RenderTextOptions = {
   getRemarkPlugins?: RenderTextPluginConfigurator;
   /**
    * Mention entities to highlight in the rendered text, including `@channel`, `@here`, roles and
-   * user groups. Takes precedence over the deprecated `mentionedUsers` argument.
+   * user groups.
    */
   messageMentionEntities?: RenderTextMentionEntity[];
 };
 
 export type RenderTextFunction = (
   text?: string,
-  /**
-   * @deprecated Use `options.messageMentionEntities` instead, which also covers non-user mentions.
-   */
-  mentionedUsers?: UserResponse[],
   options?: RenderTextOptions,
 ) => ReactNode;
 
 export function renderText(
   text?: string,
-  /**
-   * @deprecated Use `options.messageMentionEntities` instead, which also covers non-user mentions.
-   */
-  mentionedUsers?: UserResponse[],
   {
     allowedTagNames = defaultAllowedTagNames,
     customMarkDownRenderers,
     getRehypePlugins = getPluginsForward,
     getRemarkPlugins = getPluginsForward,
-    messageMentionEntities,
+    messageMentionEntities = [],
   }: RenderTextOptions = {},
 ) {
   if (!text) return null;
   if (text.trim().length === 1) return <>{text}</>;
 
   let newText = text;
-  const renderTextMentionEntities =
-    messageMentionEntities ??
-    getRenderTextMentionEntities({ mentioned_users: mentionedUsers });
   const { mentionDisplayTextSet, plugin: mentionsPlugin } =
-    createMentionPluginAndDisplayTextSet(renderTextMentionEntities);
+    createMentionPluginAndDisplayTextSet(messageMentionEntities);
   const markdownLinks = matchMarkdownLinks(newText);
   const codeBlocks = messageCodeBlocks(newText);
 
@@ -202,7 +189,7 @@ export function renderText(
   ];
   const rehypePlugins: PluggableList = [emojiMarkdownPlugin];
 
-  if (renderTextMentionEntities.length) {
+  if (messageMentionEntities.length) {
     rehypePlugins.push(mentionsPlugin);
   }
 

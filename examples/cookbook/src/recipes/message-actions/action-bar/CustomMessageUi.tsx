@@ -6,8 +6,8 @@ import {
   MessageText,
   useChatContext,
   useMessageContext,
+  useMessagePermissions,
   useThreadContext,
-  useUserRole,
 } from 'stream-chat-react';
 import './CustomMessageUi.css';
 
@@ -108,7 +108,7 @@ const CustomMessageUiActions = () => {
   const { handleDelete, handleFlag, handleOpenThread, handlePin, message } =
     useMessageContext();
   const threadList = !!useThreadContext();
-  const { canDelete, canFlag, canPin, canReply } = useUserRole(message);
+  const { canDelete, canFlag, canPin, canReply } = useMessagePermissions(message);
 
   return (
     <div className='cookbook-message-ui__actions'>

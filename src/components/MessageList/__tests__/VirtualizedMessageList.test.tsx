@@ -24,6 +24,7 @@ import { ThreadProvider } from '../../Threads';
 import { StateStore } from '@stream-io/state-store';
 import { fromPartial } from '@total-typescript/shoehorn';
 import type { LocalMessage, Thread, ThreadState } from 'stream-chat';
+import type { MessageProps } from '../../Message';
 
 const threadWithParentMessage = () =>
   fromPartial<Thread>({
@@ -219,6 +220,33 @@ describe('VirtualizedMessageList', () => {
       expect(resolvedAt(container, 'inside')).toBe('CustomMessageUI');
       expect(resolvedAt(container, 'outside')).toBe('CustomMessageUI');
     });
+  });
+
+  it('gives the thread parent message the message props of its replies', async () => {
+    const CustomThreadHead = vi.fn<(props: MessageProps) => React.ReactElement>(() => (
+      <div />
+    ));
+    const renderText = vi.fn();
+    const { channel, client } = await createChannel();
+
+    await act(() => {
+      render(
+        <Chat client={client}>
+          <Channel channel={channel}>
+            <WithComponents overrides={{ ThreadHead: CustomThreadHead }}>
+              <ThreadProvider thread={threadWithParentMessage()}>
+                <VirtualizedMessageList renderText={renderText} showAvatar={false} />
+              </ThreadProvider>
+            </WithComponents>
+          </Channel>
+        </Chat>,
+      );
+    });
+
+    const props = CustomThreadHead.mock.lastCall?.[0];
+    expect(props).toEqual(expect.objectContaining({ renderText, showAvatar: false }));
+    // Props the list was not given stay unset, so an override's own defaults apply.
+    expect(props).not.toHaveProperty('formatDate');
   });
 
   // A bare index means align: 'start', which parks the last row's top at the viewport top and
