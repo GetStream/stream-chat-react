@@ -23,6 +23,7 @@ import {
   MessageSearchSource,
   POLL_ONLY_COMPOSITION_MIDDLEWARE_ID,
   SearchController,
+  USER_DATA_INJECTION_MIDDLEWARE_ID,
   UserSearchSource,
 } from 'stream-chat';
 import {
@@ -581,9 +582,7 @@ const App = () => {
       if (pollDisabled) {
         composer.compositionMiddlewareExecutor.insert({
           middleware: [createPollOnlyCompositionMiddleware(composer)],
-          position: {
-            after: 'stream-io/message-composer-middleware/user-data-injection',
-          },
+          position: { after: USER_DATA_INJECTION_MIDDLEWARE_ID },
           unique: true,
         });
       } else {
