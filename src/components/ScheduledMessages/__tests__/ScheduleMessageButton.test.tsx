@@ -280,6 +280,19 @@ describe('ScheduleMessageButton', () => {
       expect(screen.getByRole('button', { name: 'Schedule' })).toBeEnabled();
     });
 
+    it('shows the picked date in the design format', async () => {
+      await renderComposer();
+
+      const dialog = await openDialog();
+      fireEvent.change(screen.getByLabelText('Date'), {
+        target: { value: '2026-11-03' },
+      });
+
+      expect(
+        dialog.querySelector('.str-chat__schedule-message-dialog__date-value'),
+      ).toHaveTextContent('Tue, Nov 3, 2026');
+    });
+
     it('schedules at the picked date and time and closes', async () => {
       const { channel } = await renderComposer();
       const schedule = mockSchedule(channel).mockResolvedValue(
