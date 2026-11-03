@@ -124,6 +124,8 @@ export type ScheduleTimeDialogProps = {
   submit: SubmitScheduledAt;
   title: string;
   initialScheduledAt?: Date;
+  previewLabel?: string;
+  submitLabel?: string;
 };
 
 export type RescheduleMessageDialogProps = {
@@ -134,6 +136,7 @@ export type RescheduleMessageDialogProps = {
 export type DeleteScheduledMessageAlertProps = {
   onCancel: () => void;
   onDelete: () => void;
+  channelName?: string;
 };
 
 export type ScheduleMessageDialogNoticeProps = {

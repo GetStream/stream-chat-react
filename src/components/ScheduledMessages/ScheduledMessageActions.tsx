@@ -2,10 +2,12 @@ import clsx from 'clsx';
 import React, { useCallback, useMemo, useRef } from 'react';
 
 import {
+  useChatContext,
   useComponentContext,
   useComponentContextIcons,
   useTranslationContext,
 } from '../../context';
+import { useChannelDisplayName } from '../ChannelListItem/hooks/useChannelDisplayName';
 import { Button } from '../Button';
 import { ContextMenu, useDialogIsOpen, useDialogOnNearestManager } from '../Dialog';
 import { GlobalModal } from '../Modal';
@@ -25,6 +27,9 @@ export const ScheduledMessageActions = ({
   const { IconEdit, IconMore } = useComponentContextIcons();
   const { ContextMenu: ContextMenuComponent = ContextMenu, Modal = GlobalModal } =
     useComponentContext();
+
+  const { client } = useChatContext('ScheduledMessageActions');
+  const channelName = useChannelDisplayName(client.activeChannels[scheduledMessage.cid]);
 
   const { copyText, deleteScheduledMessage, isPending, sendNow } =
     useScheduledMessageActionHandlers(scheduledMessage);
@@ -147,6 +152,7 @@ export const ScheduledMessageActions = ({
       >
         {deleteAlert.isDialogOpen && (
           <DeleteScheduledMessageAlert
+            channelName={channelName}
             onCancel={deleteAlert.closeDialog}
             onDelete={confirmDelete}
           />

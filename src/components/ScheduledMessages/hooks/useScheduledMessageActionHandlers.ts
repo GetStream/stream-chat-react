@@ -48,7 +48,7 @@ export const useScheduledMessageActionHandlers = (
 
       addNotification({
         emitter: SCHEDULED_MESSAGE_ACTIONS_EMITTER,
-        message: t('Message sent'),
+        message: t('Scheduled message sent'),
         severity: 'success',
         type: ScheduledMessageNotificationType.SendNowSucceeded,
       });

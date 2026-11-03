@@ -34,8 +34,10 @@ export const ScheduleTimeDialog = ({
   close,
   errorMessage,
   initialScheduledAt,
+  previewLabel,
   previewMessage,
   submit: submitScheduledAt,
+  submitLabel,
   title,
 }: ScheduleTimeDialogProps) => {
   const { t } = useTranslationContext();
@@ -64,9 +66,10 @@ export const ScheduleTimeDialog = ({
   const dateLabel = selectedDate
     ? t('timestamp/ScheduleDate', { timestamp: selectedDate })
     : undefined;
-  const authorLabel = channelDisplayName
+  const messageToLabel = channelDisplayName
     ? t('Message to {{ name }}', { name: channelDisplayName })
     : title;
+  const authorLabel = previewLabel ?? messageToLabel;
 
   const scheduleAtPickedTime = useCallback(() => {
     if (scheduledAt) submit(scheduledAt);
@@ -150,7 +153,7 @@ export const ScheduleTimeDialog = ({
             onClick={scheduleAtPickedTime}
             type='submit'
           >
-            {t('Schedule')}
+            {submitLabel ?? t('Schedule')}
           </Prompt.FooterControlsButtonPrimary>
         </Prompt.FooterControls>
       </Prompt.Footer>

@@ -6,23 +6,27 @@ import { Alert } from '../Dialog';
 import type { DeleteScheduledMessageAlertProps } from './types';
 
 export const DeleteScheduledMessageAlert = ({
+  channelName,
   onCancel,
   onDelete,
 }: DeleteScheduledMessageAlertProps) => {
   const { t } = useTranslationContext();
+
+  const description = channelName
+    ? t("This message to {{ name }} won't be sent. This can't be undone.", {
+        name: channelName,
+      })
+    : t("This message won't be sent. This can't be undone.");
 
   return (
     <Alert.Root
       className='str-chat__delete-scheduled-message-alert'
       data-testid='delete-scheduled-message-alert'
     >
-      <Alert.Header
-        description={t("This message won't be sent.")}
-        title={t('Delete scheduled message')}
-      />
+      <Alert.Header description={description} title={t('Delete scheduled message?')} />
       <Alert.Actions>
         <Button
-          appearance='outline'
+          appearance='solid'
           className='str-chat__delete-scheduled-message-alert__delete-button'
           onClick={onDelete}
           size='md'

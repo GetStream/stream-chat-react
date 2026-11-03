@@ -35,6 +35,9 @@ export const RescheduleMessageDialog = ({
   );
   const initialScheduledAt = new Date(scheduled_at);
   const errorMessage = t("Couldn't reschedule the message. Try again");
+  const scheduledTime = t('timestamp/ScheduledMessageSendTime', {
+    timestamp: initialScheduledAt,
+  });
 
   const reschedule = useCallback(
     async (scheduledAt: Date) => {
@@ -64,8 +67,10 @@ export const RescheduleMessageDialog = ({
       close={close}
       errorMessage={errorMessage}
       initialScheduledAt={initialScheduledAt}
+      previewLabel={t('Scheduled for {{ time }}', { time: scheduledTime })}
       previewMessage={previewMessage}
       submit={reschedule}
+      submitLabel={t('Save')}
       title={t('Reschedule message')}
     />
   );

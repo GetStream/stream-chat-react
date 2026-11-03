@@ -195,7 +195,8 @@ describe('ScheduledMessageActions', () => {
     await selectAction('delete');
     const alert = await screen.findByTestId('delete-scheduled-message-alert');
 
-    expect(alert).toHaveTextContent("This message won't be sent.");
+    expect(alert).toHaveTextContent('Delete scheduled message?');
+    expect(alert).toHaveTextContent("This message won't be sent. This can't be undone.");
     expect(deleteScheduledMessage).not.toHaveBeenCalled();
 
     await act(() => fireEvent.click(screen.getByRole('button', { name: 'Delete' })));
@@ -230,11 +231,12 @@ describe('ScheduledMessageActions', () => {
     const dialog = await screen.findByTestId('schedule-message-dialog');
 
     expect(dialog).toHaveTextContent('Reschedule message');
+    expect(dialog).toHaveTextContent('Scheduled for Thu, Oct 29 at 09:00');
     expect(screen.getByLabelText('Date')).toHaveValue('2026-10-29');
     expect(screen.getByLabelText('Time')).toHaveValue('09:00');
 
     fireEvent.change(screen.getByLabelText('Time'), { target: { value: '14:30' } });
-    await act(() => fireEvent.click(screen.getByRole('button', { name: 'Schedule' })));
+    await act(() => fireEvent.click(screen.getByRole('button', { name: 'Save' })));
 
     expect(updateScheduledMessage).toHaveBeenCalledWith(scheduledMessage.id, {
       scheduled_at: new Date(2026, 9, 29, 14, 30).toISOString(),
@@ -252,7 +254,7 @@ describe('ScheduledMessageActions', () => {
 
     await selectAction('reschedule');
     await screen.findByTestId('schedule-message-dialog');
-    await act(() => fireEvent.click(screen.getByRole('button', { name: 'Schedule' })));
+    await act(() => fireEvent.click(screen.getByRole('button', { name: 'Save' })));
 
     expect(
       await screen.findByText("Couldn't reschedule the message. Try again"),
