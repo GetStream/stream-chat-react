@@ -2414,12 +2414,14 @@ const AttachPollControls = ({ close }: PollCreationDialogControlsProps) => {
         </Prompt.FooterControlsButtonSecondary>
         <Prompt.FooterControlsButtonPrimary
           onClick={async () => {
-            close();
             try {
               // The poll waits in `messageComposer.state.pollId` and goes out with the message.
               await messageComposer.createPoll();
             } catch {
               // `createPoll()` already reported the failure as a notification.
+            } finally {
+              // Closed once the poll is attached, so a message sent meanwhile cannot miss it.
+              close();
             }
           }}
           type='submit'

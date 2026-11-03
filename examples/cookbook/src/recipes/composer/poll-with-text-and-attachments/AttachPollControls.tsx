@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { flushSync } from 'react-dom';
 import type { PollCreationDialogControlsProps } from 'stream-chat-react';
 import {
@@ -16,17 +17,23 @@ export const AttachPollControls = ({ close }: PollCreationDialogControlsProps) =
   const messageComposer = useMessageComposerController();
   const canCreatePoll = useCanCreatePoll();
 
+  const [isCreating, setIsCreating] = useState(false);
+
   const addPoll = async () => {
-    // Closes the dialog and focuses the composer in one step, so focus doesn't pass through the
-    // attachment button that opened the dialog.
-    flushSync(() => close());
-    textareaRef?.current?.focus();
+    setIsCreating(true);
     try {
       // Creates the poll on the server and sets `messageComposer.state.pollId`, so a new poll
       // replaces one already waiting in the composer.
       await messageComposer.createPoll();
     } catch {
       // `createPoll()` already reported the failure as a notification.
+    } finally {
+      setIsCreating(false);
+      // Closed only once the poll is attached: a message sent from the composer while the poll
+      // is still being created would go out without it. Closing and focusing the composer in one
+      // step keeps focus from passing through the attachment button that opened the dialog.
+      flushSync(() => close());
+      textareaRef?.current?.focus();
     }
   };
 
@@ -37,7 +44,7 @@ export const AttachPollControls = ({ close }: PollCreationDialogControlsProps) =
           Cancel
         </Prompt.FooterControlsButtonSecondary>
         <Prompt.FooterControlsButtonPrimary
-          disabled={!canCreatePoll}
+          disabled={!canCreatePoll || isCreating}
           onClick={() => void addPoll()}
           type='submit'
         >
