@@ -1,3 +1,5 @@
+import { isRecord } from './AIUIHelpers';
+
 /** A JSON Schema, as a component's parameters are described to the agent. */
 export type AIUIJSONSchema = Record<string, unknown>;
 
@@ -79,9 +81,6 @@ export const optionalAIUIParameter = (
 
 // The key that keeps the order of an object's fields, which JSON objects don't have.
 const ORDER_KEY = 'x-order';
-
-const isRecord = (value: unknown): value is Record<string, unknown> =>
-  typeof value === 'object' && value !== null && !Array.isArray(value);
 
 const strings = (value: unknown) =>
   Array.isArray(value)

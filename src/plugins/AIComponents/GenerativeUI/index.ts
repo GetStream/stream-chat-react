@@ -11,4 +11,5 @@ export {
 } from './AIUIEntrance';
 export * from './AIUIHost';
 export * from './AIUIRenderer';
+export * from './AIUIRuntimeLoader';
 export * from './AIUIView';

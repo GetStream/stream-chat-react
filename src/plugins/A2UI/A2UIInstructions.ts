@@ -2,6 +2,7 @@
 // load when the instructions are asked for.
 import type { AIUIComponent } from '../AIComponents/GenerativeUI/AIUIComponent';
 import type { AIUIComponentDefinition } from '../AIComponents/GenerativeUI/AIUIComponentDefinition';
+import { isRecord } from '../AIComponents/GenerativeUI/AIUIHelpers';
 import { A2UI_VERSION } from './A2UIStream';
 
 /**
@@ -41,9 +42,6 @@ export class A2UIInstructionsError extends Error {
     this.problems = problems;
   }
 }
-
-const isRecord = (value: unknown): value is Record<string, unknown> =>
-  typeof value === 'object' && value !== null && !Array.isArray(value);
 
 /** A description of the A2UI v1.0 messages and the rules that keep what they make valid. */
 export const A2UI_PROTOCOL_OVERVIEW = `# Generating user interfaces with A2UI v1.0

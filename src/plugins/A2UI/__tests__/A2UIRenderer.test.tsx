@@ -317,6 +317,27 @@ describe('a reply written in A2UI', () => {
     ]);
   });
 
+  it('shows the rest of the components a surface is made with when one of them is bad', async () => {
+    const { errors, ui } = setup();
+    const lines = [
+      line({
+        createSurface: {
+          components: [
+            { children: ['good', 'bad'], component: 'Column', id: 'root' },
+            { component: 'Text', id: 'good', text: 'Still here' },
+            { component: 'Slider', id: 'bad', value: 'not a number' },
+          ],
+          surfaceId: 's',
+        },
+      }),
+    ];
+    renderWithEnglish(<AIConversation messages={[question, replyWith(lines)]} ui={ui} />);
+    await waitFor(() => expect(document.body).toHaveTextContent('Still here'));
+    expect(errors).toEqual([
+      expect.objectContaining({ code: 'VALIDATION_FAILED', surfaceId: 's' }),
+    ]);
+  });
+
   it('says a message is not JSON, and shows the rest', async () => {
     const { errors, ui } = setup();
     const lines = [
@@ -479,24 +500,43 @@ describe('a reply written in A2UI', () => {
     await waitFor(() => expect(dialog.open).toBe(true));
   });
 
-  it('shows the text of a finished reply whose A2UI made no surface', async () => {
+  it('shows the text of a finished reply whose A2UI made no surface, from history too', async () => {
     const { ui } = setup();
-    const { rerender } = renderWithEnglish(
-      <AIConversation
-        messages={[question, replyWith([line({ deleteSurface: { surfaceId: 'x' } })])]}
-        ui={ui}
-      />,
-    );
-    // once the renderer has loaded, which the first reply's view starts
-    await act(async () => {
-      await new Promise((resolve) => setTimeout(resolve, 100));
-    });
-    rerender(
+    // The renderer is not loaded yet, as on a page that opens on the conversation.
+    renderWithEnglish(
       <AIConversation
         messages={[
           question,
           replyWith(
             [line({ deleteSurface: { surfaceId: 'x' } })],
+            'complete',
+            'Just words',
+          ),
+        ]}
+        ui={ui}
+      />,
+    );
+    await waitFor(() => expect(screen.getByText('Just words')).toBeInTheDocument());
+  });
+
+  it('shows the text of a reply whose A2UI turns out to make no surface once written', async () => {
+    const { ui } = setup();
+    const unfinished = [line({ deleteSurface: { surfaceId: 'x' } })];
+    const { rerender } = renderWithEnglish(
+      <AIConversation
+        messages={[question, replyWith(unfinished, 'streaming', '')]}
+        ui={ui}
+      />,
+    );
+    await waitFor(() =>
+      expect(document.querySelector('.str-chat__a2ui--loading')).toBeInTheDocument(),
+    );
+    rerender(
+      <AIConversation
+        messages={[
+          question,
+          replyWith(
+            [...unfinished, line({ deleteSurface: { surfaceId: 'y' } })],
             'complete',
             'Just words',
           ),

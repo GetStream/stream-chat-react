@@ -3,7 +3,6 @@
 // writes OpenUI.
 import React, {
   createContext,
-  type MouseEvent,
   useContext,
   useEffect,
   useMemo,
@@ -16,6 +15,7 @@ import {
   defineComponent,
   type OpenUIError as LangError,
   type Library,
+  type ParseResult,
   Renderer,
 } from '@openuidev/react-lang';
 import {
@@ -33,26 +33,19 @@ import {
   type AIUIDocument,
   aiUIDocumentText,
 } from '../AIComponents/GenerativeUI/AIUIDocument';
+import {
+  aiUILinkOpener,
+  aiUISentence,
+  aiUITypeName,
+  isRecord,
+} from '../AIComponents/GenerativeUI/AIUIHelpers';
 import type { OpenUIEngine, OpenUIError } from './OpenUIRenderer';
 
 /** A library of OpenUI components, as `createLibrary` of `@openuidev/react-lang` makes one. */
 export type OpenUILibrary = Library;
 
-const isRecord = (value: unknown): value is Record<string, unknown> =>
-  typeof value === 'object' && value !== null && !Array.isArray(value);
-
 /** The OpenUI type of one of the app's components, named as the library names its own. */
-export const openUITypeName = (name: string) =>
-  name
-    .split(/[_\- ]/)
-    .filter(Boolean)
-    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-    .join('');
-
-const sentence = (text: string) => {
-  const trimmed = text.trim();
-  return /[.!?]$/.test(trimmed) ? trimmed : `${trimmed}.`;
-};
+export const openUITypeName = aiUITypeName;
 
 /**
  * What an app's component is for, as the agent reads it: what it shows, what each parameter
@@ -72,7 +65,7 @@ export const openUIDescriptionOf = ({
     ...events.map((event) => event.description),
   ]
     .filter((note) => note.trim() !== '')
-    .map(sentence)
+    .map(aiUISentence)
     .join(' ');
 
 /** An app's component's parameters as the props of an OpenUI component, in their order. */
@@ -200,7 +193,7 @@ export const libraryOf = (engine: OpenUIEngine) => {
     library = withAppComponents(
       engine.options.library ?? openuiChatLibrary,
       engine.host.components,
-      (error) => engine.report(error, ''),
+      (error) => engine.report(error),
     );
     librariesByEngine.set(engine, library);
   }
@@ -262,15 +255,11 @@ const errorOf = ({ code, component, message, statementId }: LangError): OpenUIEr
   ...(statementId ? { statementId } : {}),
 });
 
-const reportedByEngine = new WeakMap<OpenUIEngine, Map<string, Set<string>>>();
-
 // Each error of a reply once, and only once the reply is written: while it streams, a program
 // is unfinished, and what it lacks is still coming.
 const reportOnce = (engine: OpenUIEngine, messageId: string, errors: LangError[]) => {
-  let replies = reportedByEngine.get(engine);
-  if (!replies) reportedByEngine.set(engine, (replies = new Map()));
-  let reported = replies.get(messageId);
-  if (!reported) replies.set(messageId, (reported = new Set()));
+  let reported = engine.reported.get(messageId);
+  if (!reported) engine.reported.set(messageId, (reported = new Set()));
   for (const error of errors) {
     if (error.severity === 'warning') continue;
     const key = [error.code, error.message, error.statementId].join('\u0000');
@@ -279,6 +268,11 @@ const reportOnce = (engine: OpenUIEngine, messageId: string, errors: LangError[]
     engine.report(errorOf(error), messageId);
   }
 };
+
+// Whether a program, as OpenUI read it, draws nothing: no root, such as words that aren't
+// OpenUI at all.
+const drawsNothing = (parsed: ParseResult | null) =>
+  !!parsed && !parsed.root && !parsed.rootExpression;
 
 /** A reply's UI, following its program as the agent writes it. */
 export const OpenUIReplyContent = ({
@@ -294,6 +288,7 @@ export const OpenUIReplyContent = ({
   const { isStreaming } = document;
   const program = aiUIDocumentText(document) ?? '';
   const errors = useRef<LangError[]>([]);
+  const parsed = useRef<ParseResult | null>(null);
   const reply = useMemo(
     () => ({ engine, isStreaming, messageId }),
     [engine, isStreaming, messageId],
@@ -315,16 +310,14 @@ export const OpenUIReplyContent = ({
       ),
     [engine],
   );
+  // Once the reply is written: what is wrong with its program, and whether it draws anything,
+  // as OpenUI last read it.
   useEffect(() => {
-    if (!isStreaming) reportOnce(engine, messageId, errors.current);
+    if (isStreaming) return;
+    reportOnce(engine, messageId, errors.current);
+    if (drawsNothing(parsed.current)) engine.drewNothing(messageId, program);
   }, [engine, isStreaming, messageId, program]);
-  const follow = (event: MouseEvent) => {
-    const link = (event.target as Element | null)?.closest?.('a[href]');
-    if (!link) return;
-    event.preventDefault();
-    event.stopPropagation();
-    engine.host.open(link.getAttribute('href') ?? '');
-  };
+  const follow = aiUILinkOpener(engine.host);
   return (
     <OpenUIReplyContext.Provider value={reply}>
       <div
@@ -340,6 +333,11 @@ export const OpenUIReplyContent = ({
           onError={(found) => {
             errors.current = found;
             if (!isStreaming) reportOnce(engine, messageId, found);
+          }}
+          onParseResult={(result) => {
+            parsed.current = result;
+            if (!isStreaming && drawsNothing(result))
+              engine.drewNothing(messageId, program);
           }}
           onStateUpdate={(state) => engine.host.setState(messageId, state)}
           response={program}

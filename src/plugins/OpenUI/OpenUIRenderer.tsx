@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 
 import type { AIUIComponent } from '../AIComponents/GenerativeUI/AIUIComponent';
 import {
@@ -7,6 +7,10 @@ import {
 } from '../AIComponents/GenerativeUI/AIUIDocument';
 import type { AIUIHost } from '../AIComponents/GenerativeUI/AIUIHost';
 import type { AIUIEngine, AIUIRenderer } from '../AIComponents/GenerativeUI/AIUIRenderer';
+import {
+  AIUIRuntimeLoader,
+  AIUIRuntimeView,
+} from '../AIComponents/GenerativeUI/AIUIRuntimeLoader';
 import { OpenUIPlaceholder } from './OpenUIPlaceholder';
 // Types only: the runtime, with the OpenUI packages, loads when a reply first shows OpenUI.
 import type { OpenUILibrary, OpenUIRuntime } from './runtime';
@@ -48,9 +52,11 @@ export type OpenUIRendererOptions = {
   library?: OpenUILibrary;
   /**
    * Tells the app what went wrong in a reply's program, such as a component the library
-   * doesn't have. The rest of the reply's UI still shows. Logged by default.
+   * doesn't have, with the reply's id. The rest of the reply's UI still shows. What is wrong
+   * with the renderer rather than a reply, such as an app's component that can't join the
+   * library or a runtime that couldn't load, comes without an id. Logged by default.
    */
-  onError?: (error: OpenUIError, messageId: string) => void;
+  onError?: (error: OpenUIError, messageId?: string) => void;
   /**
    * Runs the tools a program's `Query()` and `Mutation()` call. By default they are the host's
    * client tools, run in the page.
@@ -64,27 +70,42 @@ export type OpenUIRendererOptions = {
  */
 export class OpenUIEngine implements AIUIEngine {
   readonly host: AIUIHost;
+  /** Loads the runtime, the OpenUI packages, when a reply first shows OpenUI. */
+  readonly loader: AIUIRuntimeLoader<OpenUIRuntime>;
   readonly options: OpenUIRendererOptions;
-  /** The runtime, once loaded. */
-  runtime?: OpenUIRuntime;
+  /** What has been said about each reply's program, so each error is said once. */
+  readonly reported = new Map<string, Set<string>>();
 
-  private loading?: Promise<OpenUIRuntime>;
+  // The program of each finished reply that draws nothing, so the reply shows its text.
+  private readonly drawsNothing = new Map<string, string>();
 
   constructor(host: AIUIHost, options: OpenUIRendererOptions) {
     this.host = host;
     this.options = options;
+    this.loader = new AIUIRuntimeLoader(
+      host,
+      () => loadRuntime(options.devtools),
+      (error) =>
+        this.report({
+          code: 'runtime-error',
+          message: `The OpenUI renderer couldn't load: ${String(error)}`,
+        }),
+    );
   }
 
-  /** Loads the runtime, once. */
-  load() {
-    this.loading ??= loadRuntime(this.options.devtools).then((runtime) => {
-      this.runtime = runtime;
-      return runtime;
-    });
-    return this.loading;
+  /** Notes that a finished reply's program draws nothing, such as words that aren't OpenUI. */
+  drewNothing(messageId: string, program: string) {
+    if (this.drawsNothing.get(messageId) === program) return;
+    this.drawsNothing.set(messageId, program);
+    this.host.refresh();
   }
 
-  report(error: OpenUIError, messageId: string) {
+  remove(messageId: string) {
+    this.drawsNothing.delete(messageId);
+    this.reported.delete(messageId);
+  }
+
+  report(error: OpenUIError, messageId?: string) {
     if (this.options.onError) this.options.onError(error, messageId);
     else
       console.error(`A reply's OpenUI can't show: ${error.code} ${error.message}`, error);
@@ -92,48 +113,26 @@ export class OpenUIEngine implements AIUIEngine {
 
   view(document: AIUIDocument, messageId: string) {
     const program = aiUIDocumentText(document);
-    // A finished reply with no program shows its text instead.
-    if (program === undefined || (!document.isStreaming && program.trim() === '')) {
+    // A finished reply whose program draws nothing shows its text instead.
+    if (
+      program === undefined ||
+      this.loader.showsText(document) ||
+      (!document.isStreaming &&
+        (program.trim() === '' || this.drawsNothing.get(messageId) === program))
+    ) {
       return null;
     }
-    return <OpenUIReplyView document={document} engine={this} messageId={messageId} />;
+    return (
+      <AIUIRuntimeView
+        loader={this.loader}
+        placeholder={<OpenUIPlaceholder />}
+        render={({ OpenUIReplyContent }) => (
+          <OpenUIReplyContent document={document} engine={this} messageId={messageId} />
+        )}
+      />
+    );
   }
 }
-
-type OpenUIReplyViewProps = {
-  document: AIUIDocument;
-  engine: OpenUIEngine;
-  messageId: string;
-};
-
-// A reply's UI, once the runtime has loaded, which it does in the browser only, so the OpenUI
-// packages stay out of an app whose agent never writes OpenUI.
-const OpenUIReplyView = ({ document, engine, messageId }: OpenUIReplyViewProps) => {
-  const [runtime, setRuntime] = useState(engine.runtime);
-  useEffect(() => {
-    if (runtime) return;
-    let live = true;
-    engine.load().then(
-      (loaded) => {
-        if (live) setRuntime(loaded);
-      },
-      (error: unknown) =>
-        engine.report(
-          {
-            code: 'runtime-error',
-            message: `The OpenUI renderer couldn't load: ${String(error)}`,
-          },
-          messageId,
-        ),
-    );
-    return () => {
-      live = false;
-    };
-  }, [engine, messageId, runtime]);
-  if (!runtime) return <OpenUIPlaceholder />;
-  const { OpenUIReplyContent } = runtime;
-  return <OpenUIReplyContent document={document} engine={engine} messageId={messageId} />;
-};
 
 /**
  * The instructions that teach an agent's model to write OpenUI with the library and the app's

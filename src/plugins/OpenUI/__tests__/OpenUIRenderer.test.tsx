@@ -11,6 +11,7 @@ import {
   parseAIUIComponentDefinition,
 } from '../../AIComponents';
 import { renderWithEnglish } from '../../AIComponents/__tests__/renderWithEnglish';
+import { ResizeObserverMock } from '../../../mock-builders/browser';
 import { uiComponents } from '../../A2UI/__tests__/ohrid';
 import {
   createOpenUIRenderer,
@@ -25,11 +26,11 @@ import { ohridProgram } from './ohrid';
 
 // OpenUI's Tabs measure their list, and jsdom has no ResizeObserver to measure it with.
 beforeAll(() => {
-  globalThis.ResizeObserver ??= class {
-    disconnect() {}
-    observe() {}
-    unobserve() {}
-  };
+  vi.stubGlobal('ResizeObserver', ResizeObserverMock);
+});
+
+afterAll(() => {
+  vi.unstubAllGlobals();
 });
 
 const definitionOf = (name: string) => {
@@ -239,6 +240,51 @@ describe('a reply written in OpenUI', () => {
     rerender(<AIConversation messages={[question, replyWith(wrong)]} ui={ui} />);
     expect(errors).toHaveLength(reported);
     expect(document.body).toHaveTextContent('Two easy days by the lake');
+  });
+});
+
+describe('a reply whose OpenUI draws nothing', () => {
+  it('shows the reply’s text once it is written, from history too', async () => {
+    const { ui } = setup();
+    renderWithEnglish(
+      <AIConversation
+        messages={[
+          question,
+          replyWith(
+            'Here is your weekend:\n\n- Saturday: the old town\n- Sunday: the lake',
+            'complete',
+            'A weekend in Ohrid, in words.',
+          ),
+        ]}
+        ui={ui}
+      />,
+    );
+    await waitFor(() =>
+      expect(screen.getByText('A weekend in Ohrid, in words.')).toBeInTheDocument(),
+    );
+  });
+});
+
+describe('what is wrong with the renderer rather than a reply', () => {
+  it('is told without a reply’s id, such as an app’s component whose name OpenUI has', async () => {
+    const told: { code: string; messageId?: string }[] = [];
+    const card = defineAIUIComponent(
+      { ...definitionOf('place_card'), name: 'card' },
+      () => null,
+    );
+    const ui = new AIUIHost({
+      components: [card],
+      renderers: [
+        createOpenUIRenderer({
+          onError: ({ code }, messageId) => told.push({ code, messageId }),
+        }),
+      ],
+      send: vi.fn(),
+    });
+    show(ui, 'root = Card([TextContent("A weekend in Ohrid")])');
+    await waitFor(() =>
+      expect(told).toContainEqual({ code: 'component-name-taken', messageId: undefined }),
+    );
   });
 });
 

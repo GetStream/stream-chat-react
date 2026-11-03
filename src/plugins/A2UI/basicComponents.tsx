@@ -6,7 +6,6 @@ import React, {
   createContext,
   type CSSProperties,
   type KeyboardEvent,
-  type MouseEvent,
   type ReactNode,
   useCallback,
   useContext,
@@ -26,6 +25,7 @@ import { useStableId } from '../../components/UtilityComponents/useStableId';
 import { useComponentContextIcons } from '../../context/useComponentContextIcons';
 import { useTranslationContext } from '../../context/TranslationContext';
 import { AIMarkdown } from '../AIComponents/AIMarkdown';
+import { aiUILinkOpener } from '../AIComponents/GenerativeUI/AIUIHelpers';
 import { useAIUIEntrance } from '../AIComponents/GenerativeUI/AIUIEntrance';
 import type { A2UIEngine } from './A2UIRenderer';
 
@@ -156,13 +156,7 @@ const A2UITextPart = (props: TextProps) => {
       </p>
     );
   }
-  const follow = (event: MouseEvent) => {
-    const link = (event.target as Element | null)?.closest?.('a[href]');
-    if (!link) return;
-    event.preventDefault();
-    event.stopPropagation();
-    engine?.host.open(link.getAttribute('href') ?? '');
-  };
+  const follow = aiUILinkOpener(engine?.host);
   return (
     <div {...part} className={classes} onAuxClickCapture={follow} onClickCapture={follow}>
       <AIMarkdown>{text}</AIMarkdown>

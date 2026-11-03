@@ -37,6 +37,7 @@ import {
   AIUIComponentView,
 } from '../AIComponents/GenerativeUI/AIUIComponent';
 import type { AIUIDocument } from '../AIComponents/GenerativeUI/AIUIDocument';
+import { isRecord } from '../AIComponents/GenerativeUI/AIUIHelpers';
 import { A2UIPlaceholder } from './A2UIPlaceholder';
 import type { A2UIEngine, A2UIError } from './A2UIRenderer';
 import { A2UIEngineContext, STREAM_BASIC_COMPONENTS } from './basicComponents';
@@ -51,9 +52,6 @@ import {
 // A catalog entry, as web_core reads it. `@a2ui/react` types its entries against the Zod the app
 // resolves, which can be another major than web_core's own; at runtime only web_core's runs.
 type Entry = ComponentApi;
-
-const isRecord = (value: unknown): value is Record<string, unknown> =>
-  typeof value === 'object' && value !== null && !Array.isArray(value);
 
 type A2UIReplyContextValue = { isStreaming: boolean; messageId: string };
 
@@ -181,13 +179,10 @@ export const catalogsOf = (engine: A2UIEngine) => {
       );
       appComponents.push(implementation as unknown as Entry);
     } catch (error) {
-      engine.report(
-        {
-          code: 'CATALOG_ERROR',
-          message: `The component ${component.definition.name} can't join the catalog: ${String(error)}`,
-        },
-        '',
-      );
+      engine.report({
+        code: 'CATALOG_ERROR',
+        message: `The component ${component.definition.name} can't join the catalog: ${String(error)}`,
+      });
     }
   }
   // The basic catalog's components, Stream's where Stream draws them.
@@ -241,6 +236,7 @@ export class A2UIReplyState {
   private processor: MessageProcessor<Entry>;
   private reported = new Set<string>();
   private shown: SurfaceModel<Entry>[] = [];
+  private showedNothing = false;
   private stopWatching: () => void;
 
   constructor(engine: A2UIEngine, messageId: string) {
@@ -292,6 +288,13 @@ export class A2UIReplyState {
     }
     this.applied = messages;
     this.refresh();
+    // A finished reply that made no surface shows its text, which the host shows when asked
+    // again: it asked before these messages were applied.
+    const showsNothing = !isStreaming && this.shown.length === 0;
+    if (showsNothing !== this.showedNothing) {
+      this.showedNothing = showsNothing;
+      this.engine.host.refresh();
+    }
   }
 
   dispose() {
@@ -303,22 +306,37 @@ export class A2UIReplyState {
   // Feeds a message to the processor. A batch of components that one bad component spoils is
   // fed again a component at a time, so the rest show, as they would while being written.
   private feed(message: Record<string, unknown>) {
-    let errors = this.processor.processMessagesWithErrors(message);
-    const { updateComponents } = message;
-    if (
-      errors.length &&
-      isRecord(updateComponents) &&
-      Array.isArray(updateComponents.components) &&
-      updateComponents.components.length > 1
-    ) {
-      errors = updateComponents.components.flatMap((component) =>
-        this.processor.processMessagesWithErrors({
-          ...message,
-          updateComponents: { ...updateComponents, components: [component] },
-        }),
-      );
+    const errors = this.processor.processMessagesWithErrors(message);
+    const reported = errors.length ? (this.oneAtATime(message) ?? errors) : errors;
+    for (const { error } of reported) this.report(errorOf(error));
+  }
+
+  // The components of a message one at a time, with what goes wrong with each, or `undefined`
+  // when the message has no batch of them to feed again. A surface made with components is made
+  // before they are added, and stays when they fail, so they are added to it.
+  private oneAtATime(message: Record<string, unknown>) {
+    const { createSurface, updateComponents } = message;
+    const batch = isRecord(updateComponents)
+      ? updateComponents
+      : isRecord(createSurface)
+        ? createSurface
+        : undefined;
+    if (!batch || !Array.isArray(batch.components) || batch.components.length < 2) {
+      return undefined;
     }
-    for (const { error } of errors) this.report(errorOf(error));
+    const { surfaceId } = batch;
+    if (
+      batch === createSurface &&
+      (typeof surfaceId !== 'string' || !this.processor.model.getSurface(surfaceId))
+    ) {
+      return undefined;
+    }
+    return batch.components.flatMap((component: unknown) =>
+      this.processor.processMessagesWithErrors({
+        updateComponents: { components: [component], surfaceId },
+        version: message.version,
+      }),
+    );
   }
 
   private makeProcessor() {

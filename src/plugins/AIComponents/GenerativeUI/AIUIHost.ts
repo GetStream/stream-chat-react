@@ -31,6 +31,11 @@ export type AIUIHostOptions = {
   /** Tells the app that an action could not be sent. It is logged by default. */
   onError?: (error: unknown, action: AIUIAction) => void;
   /**
+   * Tells the app that a reply's UI failed to show, such as one of the app's components
+   * throwing, so the reply shows its text instead. It is logged by default.
+   */
+  onRenderError?: (error: unknown, messageId: string) => void;
+  /**
    * Opens a link from a reply's UI. By default, web and email links open and others don't: the
    * agent writes the links, so another could call someone or act in another app.
    */
@@ -68,11 +73,15 @@ export class AIUIHost {
   readonly renderers: AIUIRenderer[];
 
   private readonly engines = new Map<AIUIRenderer, AIUIEngine>();
+  private readonly failed = new Set<string>();
   private lastSend: Promise<void> = Promise.resolve();
+  private readonly listeners = new Set<() => void>();
   private readonly options: AIUIHostOptions;
   private readonly received = new Map<string, AIUIDocument>();
   private readonly states = new Map<string, unknown>();
   private readonly tools: Map<string, AIUIClientTool>;
+  private refreshing = false;
+  private version = 0;
 
   constructor(options: AIUIHostOptions) {
     this.options = options;
@@ -108,6 +117,7 @@ export class AIUIHost {
    * it on screen; `AIConversation` does it for every reply.
    */
   content(document: AIUIDocument, messageId: string): ReactNode | null {
+    if (this.failed.has(messageId)) return null;
     const renderer = this.renderers.find((candidate) =>
       aiUIRendererReads(candidate, document),
     );
@@ -132,6 +142,7 @@ export class AIUIHost {
       if (documents.has(messageId)) continue;
       this.received.delete(messageId);
       this.states.delete(messageId);
+      this.failed.delete(messageId);
       const renderer = this.renderers.find((candidate) =>
         aiUIRendererReads(candidate, document),
       );
@@ -171,6 +182,46 @@ export class AIUIHost {
     });
     return this.lastSend;
   }
+
+  /**
+   * Shows a reply's text in place of its UI, which failed to show, such as when one of the
+   * app's components threw while rendering, and tells the app. It lasts while the reply is in
+   * the conversation. `AIConversation` and `AIUIView` do it.
+   */
+  fail(messageId: string, error: unknown) {
+    if (this.failed.has(messageId)) return;
+    this.failed.add(messageId);
+    if (this.options.onRenderError) this.options.onRenderError(error, messageId);
+    else console.error(`A reply's UI failed to show, so its text shows instead`, error);
+    this.refresh();
+  }
+
+  /**
+   * Has the conversation show its replies again, because what one of them shows changed since
+   * it was last asked: its renderer's runtime loaded, or a finished reply turned out to show
+   * nothing of its own. Renderers call it; the conversation shows them again after the current
+   * render, however many times it is called in it.
+   */
+  refresh() {
+    if (this.refreshing) return;
+    this.refreshing = true;
+    queueMicrotask(() => {
+      this.refreshing = false;
+      this.version++;
+      this.listeners.forEach((listener) => listener());
+    });
+  }
+
+  /** Calls `listener` each time the conversation should show its replies again. */
+  subscribe = (listener: () => void) => {
+    this.listeners.add(listener);
+    return () => {
+      this.listeners.delete(listener);
+    };
+  };
+
+  /** A number that changes each time the conversation should show its replies again. */
+  getVersion = () => this.version;
 
   /** Runs one of the app's tools for a reply's UI, such as to load data on this device. */
   async runTool(name: string, args: Record<string, unknown> = {}): Promise<unknown> {

@@ -214,6 +214,23 @@ describe('a2uiProblems', () => {
       'surface s names the catalog someone-else, not getstream.io:app-catalog',
       'surface s defines root more than once in one message',
     ]);
+    expect(
+      await a2uiProblems(
+        [
+          ...surface([{ component: 'Text', id: 'root', text: 'One' }]),
+          line({ createSurface: { catalogId: A2UI_DEFAULT_CATALOG_ID, surfaceId: 's' } }),
+        ].join('\n'),
+      ),
+    ).toEqual([expect.stringMatching(/^surface s is created again/)]);
+    expect(
+      await a2uiProblems(
+        [
+          ...surface([{ component: 'Text', id: 'root', text: 'One' }]),
+          line({ deleteSurface: { surfaceId: 's' } }),
+          ...surface([{ component: 'Text', id: 'root', text: 'Two' }]),
+        ].join('\n'),
+      ),
+    ).toEqual([]);
     expect(await a2uiProblems('Just words.')).toEqual([
       'nothing renders: there is no createSurface',
     ]);

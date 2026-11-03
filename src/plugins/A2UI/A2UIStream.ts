@@ -1,4 +1,5 @@
 import type { AIUIDocument } from '../AIComponents/GenerativeUI/AIUIDocument';
+import { isRecord } from '../AIComponents/GenerativeUI/AIUIHelpers';
 
 /** The version of A2UI this renderer reads. */
 export const A2UI_VERSION = '1.0';
@@ -60,9 +61,6 @@ export const a2uiSourceOf = (document: AIUIDocument): string | undefined => {
   }
   return undefined;
 };
-
-const isRecord = (value: unknown): value is Record<string, unknown> =>
-  typeof value === 'object' && value !== null && !Array.isArray(value);
 
 /**
  * A message as the processor reads it: 1.0 in its own spelling, and a surface the agent made

@@ -1,11 +1,9 @@
 import type { AIUIJSONSchema, AIUIParameter } from './AIUIComponentDefinition';
 import { aiUIParametersOf } from './AIUIComponentDefinition';
+import { isRecord } from './AIUIHelpers';
 
 // Thrown inside decoding only, so a value that does not fit stops it at once.
 class DoesNotFit extends Error {}
-
-const isRecord = (value: unknown): value is Record<string, unknown> =>
-  typeof value === 'object' && value !== null && !Array.isArray(value);
 
 const RFC_3339 =
   /^\d{4}-\d{2}-\d{2}[Tt ]\d{2}:\d{2}:\d{2}(\.\d+)?([Zz]|[+-]\d{2}:\d{2})$/;

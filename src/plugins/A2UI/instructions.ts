@@ -12,6 +12,7 @@ import { basicCatalog } from '@a2ui/web_core/catalogs/basic/v1';
 
 import type { AIUIComponent } from '../AIComponents/GenerativeUI/AIUIComponent';
 import type { AIUIComponentDefinition } from '../AIComponents/GenerativeUI/AIUIComponentDefinition';
+import { isRecord } from '../AIComponents/GenerativeUI/AIUIHelpers';
 import {
   A2UI_PROTOCOL_OVERVIEW,
   type A2UIInstructionsConfig,
@@ -25,9 +26,6 @@ import { A2UI_VERSION, a2uiMessagesIn, normalizeA2UIMessage } from './A2UIStream
 import { A2UI_DEFAULT_CATALOG_ID, a2uiAppCatalogDocument } from './catalogDocument';
 
 type Entry = ComponentApi;
-
-const isRecord = (value: unknown): value is Record<string, unknown> =>
-  typeof value === 'object' && value !== null && !Array.isArray(value);
 
 const definitionOf = (component: AIUIComponent | AIUIComponentDefinition) =>
   'definition' in component ? component.definition : component;
@@ -127,6 +125,7 @@ const duplicates = (components: Record<string, unknown>[], surfaceId: string) =>
 export const a2uiProblemsWith = (text: string, catalog: Catalog<Entry>) => {
   const problems: string[] = [];
   const surfaces = new Map<string, Components>();
+  let created = false;
   for (const raw of a2uiMessagesIn(text)) {
     let json: unknown;
     try {
@@ -149,6 +148,13 @@ export const a2uiProblemsWith = (text: string, catalog: Catalog<Entry>) => {
     } else if (typeof surfaceId !== 'string' || !isRecord(body)) {
       problems.push(`a ${kind} names no surfaceId`);
     } else if (kind === 'createSurface') {
+      if (surfaces.has(surfaceId)) {
+        problems.push(
+          `surface ${surfaceId} is created again: delete it first, or change it with updateComponents and updateDataModel`,
+        );
+        continue;
+      }
+      created = true;
       const components = componentsOf(body.components);
       problems.push(...duplicates(components, surfaceId));
       if (typeof body.catalogId === 'string' && body.catalogId !== catalog.id) {
@@ -171,9 +177,12 @@ export const a2uiProblemsWith = (text: string, catalog: Catalog<Entry>) => {
       for (const component of components) kept.set(String(component.id), component);
     } else if (kind === 'updateDataModel' && !surfaces.has(surfaceId)) {
       problems.push(`surface ${surfaceId} gets data before it is created`);
+    } else if (kind === 'deleteSurface') {
+      // What a deleted surface held never shows; its id may be created again.
+      surfaces.delete(surfaceId);
     }
   }
-  if (surfaces.size === 0) problems.push('nothing renders: there is no createSurface');
+  if (!created) problems.push('nothing renders: there is no createSurface');
   for (const [surfaceId, components] of surfaces) {
     problems.push(...surfaceProblems(components, surfaceId, catalog));
   }

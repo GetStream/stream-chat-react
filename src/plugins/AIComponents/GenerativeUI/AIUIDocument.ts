@@ -1,4 +1,5 @@
 import isEqual from 'react-fast-compare';
+import { isRecord } from './AIUIHelpers';
 
 /**
  * The format a reply's UI is written in, such as `a2ui` or `openui`. Formats are an open set:
@@ -40,9 +41,6 @@ export type AIUIDocumentJSON = {
 export const AI_UI_CUSTOM_DATA_KEY = 'ai_ui';
 /** The newest version of the `ai_ui` field this SDK reads. */
 export const AI_UI_SUPPORTED_VERSION = 1;
-
-const isRecord = (value: unknown): value is Record<string, unknown> =>
-  typeof value === 'object' && value !== null && !Array.isArray(value);
 
 /**
  * Reads the document of a message's `ai_ui` field, or returns `undefined` when it carries none

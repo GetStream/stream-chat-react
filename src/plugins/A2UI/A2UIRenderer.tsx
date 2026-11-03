@@ -1,13 +1,12 @@
-import React, {
-  type ComponentPropsWithoutRef,
-  type ComponentType,
-  useEffect,
-  useState,
-} from 'react';
+import React, { type ComponentPropsWithoutRef, type ComponentType } from 'react';
 
 import type { AIUIDocument } from '../AIComponents/GenerativeUI/AIUIDocument';
 import type { AIUIHost } from '../AIComponents/GenerativeUI/AIUIHost';
 import type { AIUIEngine, AIUIRenderer } from '../AIComponents/GenerativeUI/AIUIRenderer';
+import {
+  AIUIRuntimeLoader,
+  AIUIRuntimeView,
+} from '../AIComponents/GenerativeUI/AIUIRuntimeLoader';
 import { A2UIPlaceholder } from './A2UIPlaceholder';
 import { A2UI_DEFAULT_CATALOG_ID } from './catalogDocument';
 import { A2UI_VERSION, a2uiSourceOf, supportsA2UIVersion } from './A2UIStream';
@@ -45,10 +44,12 @@ export type A2UIRendererOptions = {
   icons?: Partial<Record<string, ComponentType<ComponentPropsWithoutRef<'svg'>>>>;
   /**
    * Tells the app what went wrong in a reply's A2UI, such as a message that isn't JSON or a
-   * component the catalog doesn't have. The rest of the reply's UI still shows. Logged by
+   * component the catalog doesn't have, with the reply's id. The rest of the reply's UI still
+   * shows. What is wrong with the renderer rather than a reply, such as an app's component that
+   * can't join the catalog or a runtime that couldn't load, comes without an id. Logged by
    * default.
    */
-  onError?: (error: A2UIError, messageId: string) => void;
+  onError?: (error: A2UIError, messageId?: string) => void;
 };
 
 /**
@@ -60,12 +61,11 @@ export class A2UIEngine implements AIUIEngine {
   readonly host: AIUIHost;
   readonly iconFont?: string;
   readonly icons?: A2UIRendererOptions['icons'];
+  /** Loads the runtime, the A2UI packages, when a reply first shows A2UI. */
+  readonly loader: AIUIRuntimeLoader<A2UIRuntime>;
   /** Each reply's surfaces, by the reply's id. */
   readonly replies = new Map<string, A2UIReplyState>();
-  /** The runtime, once loaded. */
-  runtime?: A2UIRuntime;
 
-  private loading?: Promise<A2UIRuntime>;
   private readonly options: A2UIRendererOptions;
 
   constructor(host: AIUIHost, options: A2UIRendererOptions) {
@@ -74,18 +74,18 @@ export class A2UIEngine implements AIUIEngine {
     this.catalogId = options.catalogId ?? A2UI_DEFAULT_CATALOG_ID;
     this.iconFont = options.iconFont;
     this.icons = options.icons;
+    this.loader = new AIUIRuntimeLoader(
+      host,
+      () => import('./runtime'),
+      (error) =>
+        this.report({
+          code: 'EXECUTION_ERROR',
+          message: `The A2UI renderer couldn't load: ${String(error)}`,
+        }),
+    );
   }
 
-  /** Loads the runtime, once. */
-  load() {
-    this.loading ??= import('./runtime').then((runtime) => {
-      this.runtime = runtime;
-      return runtime;
-    });
-    return this.loading;
-  }
-
-  report(error: A2UIError, messageId: string) {
+  report(error: A2UIError, messageId?: string) {
     if (this.options.onError) this.options.onError(error, messageId);
     else
       console.error(`A reply's A2UI can't show: ${error.code} ${error.message}`, error);
@@ -97,47 +97,21 @@ export class A2UIEngine implements AIUIEngine {
   }
 
   view(document: AIUIDocument, messageId: string) {
-    if (a2uiSourceOf(document) === undefined) return null;
+    if (a2uiSourceOf(document) === undefined || this.loader.showsText(document))
+      return null;
     // A finished reply whose A2UI made no surface shows its text instead, once that is known.
-    if (this.runtime?.showsNothing(this, document, messageId)) return null;
-    return <A2UIReplyView document={document} engine={this} messageId={messageId} />;
+    if (this.loader.runtime?.showsNothing(this, document, messageId)) return null;
+    return (
+      <AIUIRuntimeView
+        loader={this.loader}
+        placeholder={<A2UIPlaceholder />}
+        render={({ A2UIReplyContent }) => (
+          <A2UIReplyContent document={document} engine={this} messageId={messageId} />
+        )}
+      />
+    );
   }
 }
-
-type A2UIReplyViewProps = {
-  document: AIUIDocument;
-  engine: A2UIEngine;
-  messageId: string;
-};
-
-// A reply's surfaces, once the runtime has loaded. Only in the browser: the A2UI packages
-// define custom elements, which a server has no way to.
-const A2UIReplyView = ({ document, engine, messageId }: A2UIReplyViewProps) => {
-  const [runtime, setRuntime] = useState(engine.runtime);
-  useEffect(() => {
-    if (runtime) return;
-    let live = true;
-    engine.load().then(
-      (loaded) => {
-        if (live) setRuntime(loaded);
-      },
-      (error: unknown) =>
-        engine.report(
-          {
-            code: 'EXECUTION_ERROR',
-            message: `The A2UI renderer couldn't load: ${String(error)}`,
-          },
-          messageId,
-        ),
-    );
-    return () => {
-      live = false;
-    };
-  }, [engine, messageId, runtime]);
-  if (!runtime) return <A2UIPlaceholder />;
-  const { A2UIReplyContent } = runtime;
-  return <A2UIReplyContent document={document} engine={engine} messageId={messageId} />;
-};
 
 /**
  * The renderer of [A2UI](https://a2ui.org) 1.0 for `AIUIHost`, on the official A2UI packages

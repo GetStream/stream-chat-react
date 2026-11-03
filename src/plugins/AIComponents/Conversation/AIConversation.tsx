@@ -13,7 +13,7 @@ import clsx from 'clsx';
 import { useTranslationContext } from '../../../context/TranslationContext';
 import { useComponentContextIcons } from '../../../context/useComponentContextIcons';
 import type { AIUIHost } from '../GenerativeUI/AIUIHost';
-import { AIUIGenerated } from '../GenerativeUI/AIUIView';
+import { AIUIGenerated, useAIUIHostRefresh } from '../GenerativeUI/AIUIView';
 import { AIAssistantMessage } from '../Message/AIAssistantMessage';
 import type { AIMessageAttachmentData } from '../Message/AIMessageAttachment';
 import { AIReplyActions, type AIReplyActionsProps } from '../Message/AIReplyActions';
@@ -205,7 +205,12 @@ const EntryView = ({
         text={showsUI ? '' : message.text}
       />
       {showsUI && (
-        <AIUIGenerated isStreaming={uiDocument.isStreaming}>{generated}</AIUIGenerated>
+        <AIUIGenerated
+          isStreaming={uiDocument.isStreaming}
+          onError={(error) => ui?.fail(message.id, error)}
+        >
+          {generated}
+        </AIUIGenerated>
       )}
       {ReplyActions && !message.isGenerating && hasAnswer && !isWritingUI && (
         <ReplyActions
@@ -276,7 +281,9 @@ export const AIConversation = ({
   const [clock] = useState(() => new AIThinkingClock());
 
   // Every reply's UI reaches its renderer before any row asks for its view, oldest first,
-  // whether or not the row is on screen. Only what arrived or changed is passed on.
+  // whether or not the row is on screen. Only what arrived or changed is passed on. The rows
+  // show again when the host says what one of them shows changed.
+  useAIUIHostRefresh(ui);
   ui?.receive(messages);
   const canShowUI = useMemo(() => (ui ? ui.canShow.bind(ui) : undefined), [ui]);
   const entries = useMemo(

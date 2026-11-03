@@ -5,6 +5,7 @@ import type {
   AIUIComponentDefinition,
   AIUIJSONSchema,
 } from '../AIComponents/GenerativeUI/AIUIComponentDefinition';
+import { aiUISentence, aiUITypeName } from '../AIComponents/GenerativeUI/AIUIHelpers';
 import { A2UI_VERSION } from './A2UIStream';
 
 /** The id of the catalog with the app's components, unless the renderer is given another. */
@@ -14,17 +15,7 @@ const definitionOf = (component: AIUIComponent | AIUIComponentDefinition) =>
   'definition' in component ? component.definition : component;
 
 /** The A2UI type of one of the app's components, named as the basic catalog names its own. */
-export const a2uiTypeName = (name: string) =>
-  name
-    .split(/[_\- ]/)
-    .filter(Boolean)
-    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-    .join('');
-
-const sentence = (text: string) => {
-  const trimmed = text.trim();
-  return /[.!?]$/.test(trimmed) ? trimmed : `${trimmed}.`;
-};
+export const a2uiTypeName = aiUITypeName;
 
 // A parameter as the agent may write it: the value its schema describes, bound to the data
 // model, or worked out by a function.
@@ -58,7 +49,7 @@ export const a2uiAppCatalogDocument = (
         ...definition.events.map((e) => e.description),
       ]
         .filter((note) => note.trim() !== '')
-        .map(sentence);
+        .map(aiUISentence);
       return [
         type,
         {

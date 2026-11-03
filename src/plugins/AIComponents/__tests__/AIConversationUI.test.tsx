@@ -7,6 +7,8 @@ import {
   AIUIComponentView,
   AIUIHost,
   type AIUIRenderer,
+  AIUIRuntimeLoader,
+  AIUIRuntimeView,
   AIUIView,
   defineAIUIComponent,
   fromStreamMessage,
@@ -228,6 +230,92 @@ describe('AIConversation with generated UI', () => {
     ];
     renderWithEnglish(<AIConversation messages={messages} ui={ui} />);
     expect(receive).toHaveBeenCalledWith(messages);
+  });
+
+  it('shows a reply’s text when its UI throws, and keeps the rest of the conversation', async () => {
+    const Throws = () => {
+      throw new Error('The map had no places');
+    };
+    const throwing: AIUIRenderer = {
+      createEngine: () => ({
+        view: (document) =>
+          document.content === 'boom' ? (
+            <Throws />
+          ) : (
+            <div data-testid='card'>{String(document.content)}</div>
+          ),
+      }),
+      format: 'a2ui',
+    };
+    const onRenderError = vi.fn();
+    const ui = new AIUIHost({ onRenderError, renderers: [throwing], send: vi.fn() });
+    // React reports what a boundary caught.
+    const logged = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+    renderWithEnglish(
+      <AIConversation
+        messages={[
+          user('u1', 'Plan'),
+          reply('a1', 'A weekend by the lake', { content: 'boom', format: 'a2ui' }),
+          user('u2', 'Again'),
+          reply('a2', 'Another', { content: 'Ohrid plan', format: 'a2ui' }),
+        ]}
+        ui={ui}
+      />,
+    );
+    await flushFrames();
+    expect(screen.getByText('A weekend by the lake')).toBeInTheDocument();
+    expect(screen.getByTestId('card')).toHaveTextContent('Ohrid plan');
+    expect(onRenderError).toHaveBeenCalledTimes(1);
+    expect(onRenderError).toHaveBeenCalledWith(expect.any(Error), 'a1');
+    logged.mockRestore();
+  });
+
+  it('shows the replies’ text when a renderer’s runtime can’t load, and tries again for one being written', async () => {
+    const importRuntime = vi.fn(() => Promise.reject(new Error('Failed to fetch')));
+    const onFailure = vi.fn();
+    const lazy: AIUIRenderer = {
+      createEngine: (host) => {
+        const loader = new AIUIRuntimeLoader(host, importRuntime, onFailure);
+        return {
+          view: (document) =>
+            loader.showsText(document) ? null : (
+              <AIUIRuntimeView
+                loader={loader}
+                placeholder={<div data-testid='loading' />}
+                render={() => <div data-testid='card' />}
+              />
+            ),
+        };
+      },
+      format: 'a2ui',
+    };
+    const ui = new AIUIHost({ renderers: [lazy], send: vi.fn() });
+    const history = [
+      user('u1', 'Plan'),
+      reply('a1', 'A weekend by the lake', { content: 'x', format: 'a2ui' }),
+      user('u2', 'Again'),
+      reply('a2', 'A day in the old town', { content: 'y', format: 'a2ui' }),
+    ];
+    const { rerender } = renderWithEnglish(<AIConversation messages={history} ui={ui} />);
+    await flushFrames();
+    expect(screen.getByText('A weekend by the lake')).toBeInTheDocument();
+    expect(screen.getByText('A day in the old town')).toBeInTheDocument();
+    expect(screen.queryByTestId('loading')).not.toBeInTheDocument();
+    expect(onFailure).toHaveBeenCalledTimes(1);
+
+    rerender(
+      <AIConversation
+        messages={[
+          ...history,
+          user('u3', 'And Sunday?'),
+          reply('a3', '', { content: 'z', format: 'a2ui', status: 'streaming' }),
+        ]}
+        ui={ui}
+      />,
+    );
+    await flushFrames();
+    expect(importRuntime).toHaveBeenCalledTimes(2);
+    expect(screen.getByText('A weekend by the lake')).toBeInTheDocument();
   });
 });
 
