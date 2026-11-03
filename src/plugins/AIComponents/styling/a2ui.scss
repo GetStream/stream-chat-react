@@ -64,9 +64,149 @@
   }
 }
 
-// Text's Markdown, wrapped only to follow its links: it takes no box of its own.
-.str-chat__a2ui-markdown {
-  display: contents;
+// The basic catalog's parts Stream draws. Each is its own flex item in the Row or Column it is
+// placed in, as the A2UI elements are.
+.str-chat__a2ui-text {
+  min-width: 0;
+  margin: 0;
+  color: ai-token(text-primary);
+  overflow-wrap: anywhere;
+
+  &--caption {
+    color: ai-token(text-secondary);
+    font-size: 0.8125rem;
+    line-height: 1.4;
+  }
+
+  // A Button's words.
+  &--label {
+    overflow-wrap: normal;
+    color: inherit;
+  }
+}
+
+.str-chat__a2ui-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  min-width: 0;
+  padding: 1rem;
+  border: 1px solid ai-token(card-border);
+  border-radius: var(--a2ui-border-radius);
+  background-color: ai-token(card-bg);
+  color: ai-token(text-primary);
+}
+
+.str-chat__a2ui-button {
+  align-self: flex-start;
+  max-width: 100%;
+}
+
+// A button's words as the agent wrote them, rather than in the case Stream's buttons use.
+.str-chat .str-chat__button.str-chat__a2ui-button,
+.str-chat .str-chat__button.str-chat__a2ui-chip {
+  text-transform: none;
+}
+
+.str-chat__a2ui-text-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  min-width: 0;
+
+  .str-chat__form-text-input {
+    width: 100%;
+  }
+
+  &__long {
+    min-height: 4.5rem;
+    resize: vertical;
+    font: inherit;
+  }
+}
+
+.str-chat__a2ui-problems {
+  font-size: 0.8125rem;
+}
+
+.str-chat__a2ui-choice-picker {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  min-width: 0;
+
+  &__label {
+    color: ai-token(text-primary);
+    font-size: 0.875rem;
+    font-weight: 600;
+  }
+
+  &__chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  &__options {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+
+  &__option {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 0.625rem;
+    padding: 0.25rem 0;
+    color: ai-token(text-primary);
+    cursor: pointer;
+
+    .str-chat__checkbox {
+      flex: none;
+    }
+  }
+
+  // The native input, for the keyboard and screen readers, under Stream's check mark.
+  &__input {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    padding: 0;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    border: 0;
+    white-space: nowrap;
+
+    &:focus-visible + .str-chat__checkbox {
+      @include ai-focus-ring;
+    }
+  }
+}
+
+.str-chat__a2ui-icon {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: var(--a2ui-icon-size, 1.5rem);
+  height: var(--a2ui-icon-size, 1.5rem);
+  color: currentColor;
+
+  svg {
+    width: 100%;
+    height: 100%;
+    fill: currentColor;
+  }
+
+  &__glyph {
+    font-size: var(--a2ui-icon-size, 1.5rem);
+    font-style: normal;
+    font-weight: normal;
+    line-height: 1;
+    font-variation-settings: 'FILL' 1;
+  }
 }
 
 // A Modal opens as a dialog, in the top layer above everything.

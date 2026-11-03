@@ -3,22 +3,16 @@
 // cannot, and are of no use to an app whose agent never writes A2UI.
 import React, {
   createContext,
-  type KeyboardEvent,
-  type MouseEvent,
   useContext,
   useEffect,
   useLayoutEffect,
   useMemo,
-  useRef,
-  useState,
 } from 'react';
 import { useSyncExternalStore } from 'use-sync-external-store/shim';
 import {
   A2uiSurface,
   createBinderlessComponentImplementation,
   createComponentImplementation,
-  MarkdownComponentContext,
-  type ReactA2uiComponentProps,
 } from '@a2ui/react';
 import {
   type ActionPayload,
@@ -38,8 +32,6 @@ import {
   OpenUrlApi,
 } from '@a2ui/web_core/catalogs/basic/v1';
 
-import { useTranslationContext } from '../../context/TranslationContext';
-import { AIMarkdown } from '../AIComponents/AIMarkdown';
 import {
   type AIUIComponent,
   AIUIComponentView,
@@ -48,6 +40,7 @@ import type { AIUIJSONSchema } from '../AIComponents/GenerativeUI/AIUIComponentD
 import type { AIUIDocument } from '../AIComponents/GenerativeUI/AIUIDocument';
 import { A2UIPlaceholder } from './A2UIPlaceholder';
 import type { A2UIEngine, A2UIError } from './A2UIRenderer';
+import { A2UIEngineContext, STREAM_BASIC_COMPONENTS } from './basicComponents';
 import {
   A2UI_VERSION,
   a2uiMessagesIn,
@@ -135,81 +128,6 @@ export const a2uiAppCatalogDocument = (
 type A2UIReplyContextValue = { isStreaming: boolean; messageId: string };
 
 const A2UIReplyContext = createContext<A2UIReplyContextValue | undefined>(undefined);
-
-// The engine of the surfaces below, for what in them reaches the host, such as links.
-const A2UIEngineContext = createContext<A2UIEngine | undefined>(undefined);
-
-/**
- * A Modal that opens as a dialog: focus moves into it and stays there while it is open, Escape
- * and the backdrop close it, focus goes back to what opened it, and it shows above everything,
- * whatever the reply's layout. A tap on its trigger opens it, and a Button's own action still
- * runs; another trigger opens from the keyboard too.
- */
-const A2UIModal = ({
-  buildChild,
-  context,
-  props,
-}: ReactA2uiComponentProps<{ content: string; trigger: string }>) => {
-  const { t } = useTranslationContext();
-  const dialog = useRef<HTMLDialogElement>(null);
-  const [isOpen, setOpen] = useState(false);
-  useEffect(() => {
-    const element = dialog.current;
-    if (!element || isOpen === element.open) return;
-    if (isOpen) {
-      if (typeof element.showModal === 'function') element.showModal();
-      else element.setAttribute('open', '');
-    } else if (typeof element.close === 'function') element.close();
-    else element.removeAttribute('open');
-  }, [isOpen]);
-  const opensItself = context.surfaceComponents.get(props.trigger)?.type === 'Button';
-  const open = () => setOpen(true);
-  return (
-    <>
-      <div
-        className='str-chat__a2ui-modal__trigger'
-        onClickCapture={open}
-        {...(opensItself
-          ? {}
-          : {
-              onKeyDown: (event: KeyboardEvent) => {
-                if (event.key !== 'Enter' && event.key !== ' ') return;
-                event.preventDefault();
-                open();
-              },
-              role: 'button',
-              tabIndex: 0,
-            })}
-      >
-        {buildChild(props.trigger)}
-      </div>
-      <dialog
-        className='str-chat__a2ui-modal'
-        onCancel={(event) => {
-          event.preventDefault();
-          setOpen(false);
-        }}
-        onClick={(event) => {
-          if (event.target === event.currentTarget) setOpen(false);
-        }}
-        onClose={() => setOpen(false)}
-        ref={dialog}
-      >
-        <div className='str-chat__a2ui-modal__content'>
-          <button
-            aria-label={t('Close')}
-            className='str-chat__a2ui-modal__close'
-            onClick={() => setOpen(false)}
-            type='button'
-          >
-            ×
-          </button>
-          {isOpen && buildChild(props.content)}
-        </div>
-      </dialog>
-    </>
-  );
-};
 
 // The declared parameters of an app's component as the agent wrote them, bindings and functions
 // worked out, following the data model and the component's updates.
@@ -342,17 +260,17 @@ export const catalogsOf = (engine: A2UIEngine) => {
       );
     }
   }
-  const basicModal = basicCatalog.components.get('Modal');
+  // The basic catalog's components, Stream's where Stream draws them.
   const components: Entry[] = [
-    ...[...basicCatalog.components.values()].filter((entry) => entry !== basicModal),
-    ...(basicModal
-      ? [
-          createComponentImplementation(
-            basicModal as never,
-            A2UIModal,
-          ) as unknown as Entry,
-        ]
-      : []),
+    ...[...basicCatalog.components.values()].map((entry) => {
+      const streamComponent = STREAM_BASIC_COMPONENTS[entry.name];
+      return streamComponent
+        ? (createComponentImplementation(
+            entry as never,
+            streamComponent as never,
+          ) as unknown as Entry)
+        : entry;
+    }),
     ...appComponents,
   ];
   const catalogs = [
@@ -557,30 +475,6 @@ export const showsNothing = (
 ) =>
   !document.isStreaming && replyOf(engine, document, messageId).surfaces().length === 0;
 
-/**
- * The Markdown of A2UI's Text, rendered as replies' is. Its links open the way the host allows,
- * since the agent writes them, rather than wherever they point.
- */
-const A2UIMarkdown = ({ markdown }: { markdown: string }) => {
-  const engine = useContext(A2UIEngineContext);
-  const follow = (event: MouseEvent) => {
-    const link = (event.target as Element | null)?.closest?.('a[href]');
-    if (!link) return;
-    event.preventDefault();
-    event.stopPropagation();
-    engine?.host.open(link.getAttribute('href') ?? '');
-  };
-  return (
-    <div
-      className='str-chat__a2ui-markdown'
-      onAuxClickCapture={follow}
-      onClickCapture={follow}
-    >
-      <AIMarkdown>{markdown}</AIMarkdown>
-    </div>
-  );
-};
-
 // The layout effect warns under server rendering; this module only runs in the browser, but
 // tests may render it either way.
 const useIsomorphicLayoutEffect =
@@ -609,19 +503,17 @@ export const A2UIReplyContent = ({
   );
   if (surfaces.length === 0) return isStreaming ? <A2UIPlaceholder /> : null;
   return (
-    <MarkdownComponentContext.Provider value={A2UIMarkdown}>
-      <A2UIEngineContext.Provider value={engine}>
-        <A2UIReplyContext.Provider value={replyContext}>
-          <div className='str-chat__a2ui'>
-            {surfaces.map((surface) => (
-              <div className='str-chat__a2ui__surface' key={surface.id}>
-                <A2uiSurface surface={surface as never} />
-              </div>
-            ))}
-          </div>
-        </A2UIReplyContext.Provider>
-      </A2UIEngineContext.Provider>
-    </MarkdownComponentContext.Provider>
+    <A2UIEngineContext.Provider value={engine}>
+      <A2UIReplyContext.Provider value={replyContext}>
+        <div className='str-chat__a2ui'>
+          {surfaces.map((surface) => (
+            <div className='str-chat__a2ui__surface' key={surface.id}>
+              <A2uiSurface surface={surface as never} />
+            </div>
+          ))}
+        </div>
+      </A2UIReplyContext.Provider>
+    </A2UIEngineContext.Provider>
   );
 };
 

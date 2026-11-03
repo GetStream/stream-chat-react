@@ -1,4 +1,9 @@
-import React, { useEffect, useState } from 'react';
+import React, {
+  type ComponentPropsWithoutRef,
+  type ComponentType,
+  useEffect,
+  useState,
+} from 'react';
 
 import type { AIUIDocument } from '../AIComponents/GenerativeUI/AIUIDocument';
 import type { AIUIHost } from '../AIComponents/GenerativeUI/AIUIHost';
@@ -29,6 +34,16 @@ export type A2UIRendererOptions = {
    */
   catalogId?: string;
   /**
+   * The icon font the page loads, such as `'Material Symbols Outlined'`, for the icons of A2UI's
+   * Icon that neither `icons` nor Stream draws. Without one, such an icon shows nothing.
+   */
+  iconFont?: string;
+  /**
+   * The app's icons for the names A2UI's Icon takes, such as `shoppingCart`, over Stream's.
+   * Stream draws about 30 of the 60 names.
+   */
+  icons?: Partial<Record<string, ComponentType<ComponentPropsWithoutRef<'svg'>>>>;
+  /**
    * Tells the app what went wrong in a reply's A2UI, such as a message that isn't JSON or a
    * component the catalog doesn't have. The rest of the reply's UI still shows. Logged by
    * default.
@@ -43,6 +58,8 @@ export type A2UIRendererOptions = {
 export class A2UIEngine implements AIUIEngine {
   readonly catalogId: string;
   readonly host: AIUIHost;
+  readonly iconFont?: string;
+  readonly icons?: A2UIRendererOptions['icons'];
   /** Each reply's surfaces, by the reply's id. */
   readonly replies = new Map<string, A2UIReplyState>();
   /** The runtime, once loaded. */
@@ -55,6 +72,8 @@ export class A2UIEngine implements AIUIEngine {
     this.host = host;
     this.options = options;
     this.catalogId = options.catalogId ?? A2UI_DEFAULT_CATALOG_ID;
+    this.iconFont = options.iconFont;
+    this.icons = options.icons;
   }
 
   /** Loads the runtime, once. */

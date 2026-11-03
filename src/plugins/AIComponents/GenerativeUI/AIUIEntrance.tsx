@@ -111,8 +111,13 @@ export const AIUIEntranceStage = ({
   className?: string;
 }) => {
   const [cascade] = useState(() => new AIUICascade());
+  // UI written before it showed shows whole, its parts with it.
+  const [isLive] = useState(isStreaming);
   const { delay, hasShown } = useEntrance(isStreaming, cascade);
-  const stage = useMemo(() => ({ cascade, isCarried: !hasShown }), [cascade, hasShown]);
+  const stage = useMemo(
+    () => ({ cascade, isCarried: !isLive || !hasShown }),
+    [cascade, hasShown, isLive],
+  );
   return (
     <AIUIStageContext.Provider value={stage}>
       <EntranceBox className={className} delay={delay} hasShown={hasShown}>
@@ -120,6 +125,34 @@ export const AIUIEntranceStage = ({
       </EntranceBox>
     </AIUIStageContext.Provider>
   );
+};
+
+/**
+ * What a part of a reply's generated UI needs to come in when it shows, for a renderer whose
+ * part is its own element, which a wrapping box would take out of its layout: the props for that
+ * element, and `scope`, to wrap what the part shows in, so what shows with it comes in with it.
+ * The same entrance as `AIUIEntrance`'s.
+ */
+export const useAIUIEntrance = () => {
+  const stage = useContext(AIUIStageContext);
+  const { delay, hasShown } = useEntrance(!!stage && !stage.isCarried, stage?.cascade);
+  const inner = useMemo(
+    () => stage && { cascade: stage.cascade, isCarried: stage.isCarried || !hasShown },
+    [hasShown, stage],
+  );
+  return {
+    props: {
+      className: clsx(
+        'str-chat__ai-ui-entrance',
+        !hasShown && 'str-chat__ai-ui-entrance--hidden',
+      ),
+      'data-entrance': hasShown ? 'shown' : 'hidden',
+      style: hasShown && delay > 0 ? { transitionDelay: `${delay}s` } : undefined,
+    },
+    scope: (children: ReactNode) => (
+      <AIUIStageContext.Provider value={inner}>{children}</AIUIStageContext.Provider>
+    ),
+  };
 };
 
 /**
@@ -137,17 +170,10 @@ export const AIUIEntrance = ({
   children: ReactNode;
   className?: string;
 }) => {
-  const stage = useContext(AIUIStageContext);
-  const { delay, hasShown } = useEntrance(!!stage && !stage.isCarried, stage?.cascade);
-  const inner = useMemo(
-    () => stage && { cascade: stage.cascade, isCarried: stage.isCarried || !hasShown },
-    [hasShown, stage],
-  );
+  const { props, scope } = useAIUIEntrance();
   return (
-    <AIUIStageContext.Provider value={inner}>
-      <EntranceBox className={className} delay={delay} hasShown={hasShown}>
-        {children}
-      </EntranceBox>
-    </AIUIStageContext.Provider>
+    <div {...props} className={clsx(props.className, className)}>
+      {scope(children)}
+    </div>
   );
 };

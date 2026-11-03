@@ -1,5 +1,5 @@
 import React from 'react';
-import { act, fireEvent, screen, waitFor } from '@testing-library/react';
+import { act, fireEvent, screen, waitFor, within } from '@testing-library/react';
 
 import {
   AIConversation,
@@ -14,6 +14,7 @@ import { renderWithEnglish } from '../../AIComponents/__tests__/renderWithEnglis
 import {
   A2UI_DEFAULT_CATALOG_ID,
   a2uiMessagesIn,
+  type A2UIRendererOptions,
   createA2UIRenderer,
   supportsA2UIVersion,
 } from '..';
@@ -63,14 +64,16 @@ const calendarCheck = defineAIUIComponent<{ end: Date; start: Date }>(
   ),
 );
 
-const setup = () => {
+const setup = (options: A2UIRendererOptions = {}) => {
   const sent: AIUIAction[] = [];
   const errors: { code: string; message: string }[] = [];
   const open = vi.fn();
   const ui = new AIUIHost({
     components: [placeCard, tripMap, calendarCheck],
     open,
-    renderers: [createA2UIRenderer({ onError: (error) => errors.push(error) })],
+    renderers: [
+      createA2UIRenderer({ ...options, onError: (error) => errors.push(error) }),
+    ],
     send: (action) => {
       sent.push(action);
     },
@@ -177,17 +180,11 @@ describe('a reply written in A2UI', () => {
 
   it('tells the agent what the person did, in their words', async () => {
     const { sent, ui } = setup();
-    const { container } = renderWithEnglish(
+    renderWithEnglish(
       <AIConversation messages={[question, replyWith(ohridLines)]} ui={ui} />,
     );
 
-    await waitFor(() =>
-      expect(container.querySelector('a2ui-basic-button button')).not.toBeNull(),
-    );
-    const update = [...container.querySelectorAll('a2ui-basic-button button')].find(
-      (button) => button.textContent?.includes('Update the plan'),
-    );
-    if (!update) throw new Error('no Update the plan button');
+    const update = await screen.findByRole('button', { name: 'Update the plan' });
     act(() => {
       fireEvent.click(update);
     });
@@ -234,14 +231,10 @@ describe('a reply written in A2UI', () => {
         },
       }),
     ];
-    const { container } = renderWithEnglish(
-      <AIConversation messages={[question, replyWith(lines)]} ui={ui} />,
-    );
-    await waitFor(() =>
-      expect(container.querySelector('a2ui-basic-button button')).not.toBeNull(),
-    );
+    renderWithEnglish(<AIConversation messages={[question, replyWith(lines)]} ui={ui} />);
+    const book = await screen.findByRole('button', { name: 'Book the boat' });
     act(() => {
-      fireEvent.click(container.querySelector('a2ui-basic-button button') as Element);
+      fireEvent.click(book);
     });
     await waitFor(() => expect(sent[0]?.label).toBe('Book the boat'));
   });
@@ -367,15 +360,11 @@ describe('a reply written in A2UI', () => {
         },
       }),
     ];
-    const { container } = renderWithEnglish(
-      <AIConversation messages={[question, replyWith(lines)]} ui={ui} />,
-    );
-    await waitFor(() =>
-      expect(container.querySelector('a2ui-basic-button button')).not.toBeNull(),
-    );
+    renderWithEnglish(<AIConversation messages={[question, replyWith(lines)]} ui={ui} />);
+    const read = await screen.findByRole('button', { name: 'Read about Ohrid' });
     expect(open).not.toHaveBeenCalled();
     act(() => {
-      fireEvent.click(container.querySelector('a2ui-basic-button button') as Element);
+      fireEvent.click(read);
     });
     await waitFor(() =>
       expect(open).toHaveBeenCalledWith(new URL('https://en.wikipedia.org/wiki/Ohrid')),
@@ -430,9 +419,7 @@ describe('a reply written in A2UI', () => {
     const { container } = renderWithEnglish(
       <AIConversation messages={[question, replyWith(lines)]} ui={ui} />,
     );
-    await waitFor(() =>
-      expect(container.querySelector('a2ui-basic-button button')).not.toBeNull(),
-    );
+    const trigger = await screen.findByRole('button', { name: 'Opening times' });
     const dialog = container.querySelector(
       'dialog.str-chat__a2ui-modal',
     ) as HTMLDialogElement;
@@ -440,7 +427,7 @@ describe('a reply written in A2UI', () => {
     expect(document.body).not.toHaveTextContent('Open daily, 9 to 5.');
 
     act(() => {
-      fireEvent.click(container.querySelector('a2ui-basic-button button') as Element);
+      fireEvent.click(trigger);
     });
     await waitFor(() => expect(dialog.open).toBe(true));
     await waitFor(() => expect(dialog).toHaveTextContent('Open daily, 9 to 5.'));
@@ -454,7 +441,7 @@ describe('a reply written in A2UI', () => {
     await waitFor(() => expect(dialog.open).toBe(false));
 
     act(() => {
-      fireEvent.click(container.querySelector('a2ui-basic-button button') as Element);
+      fireEvent.click(trigger);
     });
     await waitFor(() => expect(dialog.open).toBe(true));
     act(() => {
@@ -518,5 +505,291 @@ describe('a reply written in A2UI', () => {
       />,
     );
     await waitFor(() => expect(screen.getByText('Just words')).toBeInTheDocument());
+  });
+});
+
+const surfaceWith = (components: Record<string, unknown>[], dataModel = {}) => [
+  line({ createSurface: { dataModel, surfaceId: 's' } }),
+  line({ updateComponents: { components, surfaceId: 's' } }),
+];
+
+describe('the basic catalog in Stream’s look', () => {
+  it('draws Buttons as Stream’s, with their label as words', async () => {
+    const { ui } = setup();
+    const lines = surfaceWith([
+      { children: ['go', 'later'], component: 'Row', id: 'root' },
+      {
+        action: { event: { name: 'go' } },
+        child: 'go_label',
+        component: 'Button',
+        id: 'go',
+        variant: 'primary',
+      },
+      { component: 'Text', id: 'go_label', text: '**Book** it' },
+      {
+        action: { event: { name: 'later' } },
+        child: 'later_label',
+        component: 'Button',
+        id: 'later',
+        variant: 'borderless',
+      },
+      { component: 'Text', id: 'later_label', text: 'Later' },
+    ]);
+    renderWithEnglish(<AIConversation messages={[question, replyWith(lines)]} ui={ui} />);
+
+    const book = await screen.findByRole('button', { name: '**Book** it' });
+    expect(book).toHaveClass('str-chat__button--primary', 'str-chat__button--solid');
+    expect(book.querySelector('p, strong')).toBeNull();
+    expect(screen.getByRole('button', { name: 'Later' })).toHaveClass(
+      'str-chat__button--ghost',
+    );
+  });
+
+  it('draws Markdown and captions, in a Card', async () => {
+    const { ui } = setup();
+    const lines = surfaceWith([
+      { child: 'column', component: 'Card', id: 'root' },
+      { children: ['title', 'body', 'note'], component: 'Column', id: 'column' },
+      { component: 'Text', id: 'title', text: '### Saturday' },
+      { component: 'Text', id: 'body', text: 'Coffee by the **harbour**.' },
+      { component: 'Text', id: 'note', text: 'Opens at 8', variant: 'caption' },
+    ]);
+    const { container } = renderWithEnglish(
+      <AIConversation messages={[question, replyWith(lines)]} ui={ui} />,
+    );
+
+    const title = await screen.findByRole('heading', { level: 3, name: 'Saturday' });
+    expect(title.closest('.str-chat__a2ui-card')).not.toBeNull();
+    expect(screen.getByText('harbour').tagName).toBe('STRONG');
+    expect(screen.getByText('Opens at 8')).toHaveClass('str-chat__a2ui-text--caption');
+    expect(container.querySelector('a2ui-card, a2ui-basic-text')).toBeNull();
+  });
+
+  it('keeps what the person types in the data model, and says what its checks found', async () => {
+    const { sent, ui } = setup();
+    const lines = surfaceWith(
+      [
+        { children: ['name', 'notes', 'send'], component: 'Column', id: 'root' },
+        {
+          checks: [
+            {
+              condition: { '@call': 'required', args: { value: { '@path': '/name' } } },
+              message: 'Say who is coming',
+            },
+          ],
+          component: 'TextField',
+          id: 'name',
+          label: 'Who is coming',
+          value: { '@path': '/name' },
+        },
+        {
+          component: 'TextField',
+          id: 'notes',
+          label: 'Anything else',
+          value: { '@path': '/notes' },
+          variant: 'longText',
+        },
+        {
+          action: {
+            event: {
+              context: { name: { '@path': '/name' }, notes: { '@path': '/notes' } },
+              name: 'book',
+            },
+          },
+          child: 'send_label',
+          component: 'Button',
+          id: 'send',
+        },
+        { component: 'Text', id: 'send_label', text: 'Book' },
+      ],
+      { name: '', notes: '' },
+    );
+    renderWithEnglish(<AIConversation messages={[question, replyWith(lines)]} ui={ui} />);
+
+    const name = await screen.findByRole('textbox', { name: 'Who is coming' });
+    expect(name).toHaveAttribute('aria-invalid', 'true');
+    expect(name).toHaveAccessibleDescription('Say who is coming');
+    act(() => {
+      fireEvent.change(name, { target: { value: 'Ana and Marko' } });
+    });
+    await waitFor(() => expect(name).toHaveAttribute('aria-invalid', 'false'));
+    expect(screen.queryByText('Say who is coming')).not.toBeInTheDocument();
+
+    const notes = screen.getByRole('textbox', { name: 'Anything else' });
+    expect(notes.tagName).toBe('TEXTAREA');
+    act(() => {
+      fireEvent.change(notes, { target: { value: 'A room by the lake' } });
+    });
+    act(() => {
+      fireEvent.click(screen.getByRole('button', { name: 'Book' }));
+    });
+    await waitFor(() =>
+      expect(sent[0]?.payload).toMatchObject({
+        context: { name: 'Ana and Marko', notes: 'A room by the lake' },
+      }),
+    );
+  });
+
+  it('chooses one option or several, as chips or check marks, and filters them', async () => {
+    const { sent, ui } = setup();
+    const lines = surfaceWith(
+      [
+        { children: ['pace', 'interests', 'send'], component: 'Column', id: 'root' },
+        {
+          component: 'ChoicePicker',
+          displayStyle: 'chips',
+          id: 'pace',
+          label: 'Pace',
+          options: [
+            { label: 'Relaxed', value: 'relaxed' },
+            { label: 'Packed', value: 'packed' },
+          ],
+          value: { '@path': '/pace' },
+        },
+        {
+          component: 'ChoicePicker',
+          filterable: true,
+          id: 'interests',
+          label: 'More of',
+          options: [
+            { label: 'History', value: 'history' },
+            { label: 'Food', value: 'food' },
+            { label: 'Nature', value: 'nature' },
+          ],
+          value: { '@path': '/interests' },
+          variant: 'multipleSelection',
+        },
+        {
+          action: {
+            event: {
+              context: {
+                interests: { '@path': '/interests' },
+                pace: { '@path': '/pace' },
+              },
+              name: 'update_plan',
+            },
+          },
+          child: 'send_label',
+          component: 'Button',
+          id: 'send',
+        },
+        { component: 'Text', id: 'send_label', text: 'Update the plan' },
+      ],
+      { interests: [], pace: ['relaxed'] },
+    );
+    renderWithEnglish(<AIConversation messages={[question, replyWith(lines)]} ui={ui} />);
+
+    const pace = await screen.findByRole('group', { name: 'Pace' });
+    const relaxed = within(pace).getByRole('button', { name: 'Relaxed' });
+    const packed = within(pace).getByRole('button', { name: 'Packed' });
+    expect(relaxed).toHaveAttribute('aria-pressed', 'true');
+    act(() => {
+      fireEvent.click(packed);
+    });
+    await waitFor(() => expect(packed).toHaveAttribute('aria-pressed', 'true'));
+    expect(relaxed).toHaveAttribute('aria-pressed', 'false');
+
+    const interests = screen.getByRole('group', { name: 'More of' });
+    act(() => {
+      fireEvent.click(within(interests).getByRole('checkbox', { name: 'History' }));
+    });
+    act(() => {
+      fireEvent.click(within(interests).getByRole('checkbox', { name: 'Food' }));
+    });
+    act(() => {
+      fireEvent.change(within(interests).getByRole('searchbox', { name: 'Search' }), {
+        target: { value: 'nat' },
+      });
+    });
+    expect(within(interests).queryByRole('checkbox', { name: 'Food' })).toBeNull();
+    expect(within(interests).getByRole('checkbox', { name: 'Nature' })).not.toBeChecked();
+
+    act(() => {
+      fireEvent.click(screen.getByRole('button', { name: 'Update the plan' }));
+    });
+    await waitFor(() =>
+      expect(sent[0]?.payload).toMatchObject({
+        context: { interests: ['history', 'food'], pace: ['packed'] },
+      }),
+    );
+  });
+
+  it('draws icons as Stream’s or the app’s, in its icon font, or as nothing', async () => {
+    const Cart = () => <svg data-testid='cart' />;
+    const icons = (names: string[]) =>
+      surfaceWith([
+        { children: names, component: 'Row', id: 'root' },
+        ...names.map((name) => ({ component: 'Icon', id: name, name })),
+      ]);
+    const names = ['search', 'shoppingCart', 'payment'];
+
+    const withFont = setup({
+      iconFont: 'Material Symbols Outlined',
+      icons: { shoppingCart: Cart },
+    });
+    const { unmount } = renderWithEnglish(
+      <AIConversation messages={[question, replyWith(icons(names))]} ui={withFont.ui} />,
+    );
+    const search = await screen.findByRole('img', { name: 'search' });
+    expect(search.querySelector('svg.str-chat__icon--search')).not.toBeNull();
+    expect(
+      within(screen.getByRole('img', { name: 'shopping cart' })).getByTestId('cart'),
+    ).toBeInTheDocument();
+    expect(screen.getByRole('img', { name: 'payment' })).toHaveTextContent('payment');
+    unmount();
+
+    const { ui } = setup();
+    renderWithEnglish(
+      <AIConversation messages={[question, replyWith(icons(names))]} ui={ui} />,
+    );
+    await screen.findByRole('img', { name: 'search' });
+    expect(screen.getByRole('img', { name: 'payment' })).toHaveTextContent('');
+    expect(screen.getByRole('img', { name: 'shopping cart' })).toHaveTextContent('');
+  });
+});
+
+describe('a reply’s parts coming in', () => {
+  const text = (id: string, words: string) => ({ component: 'Text', id, text: words });
+  const column = (children: string[]) => ({ children, component: 'Column', id: 'root' });
+
+  it('shows a reply from history whole, its parts with it', async () => {
+    const { ui } = setup();
+    const lines = surfaceWith([
+      column(['a', 'b']),
+      text('a', 'First'),
+      text('b', 'Second'),
+    ]);
+    renderWithEnglish(<AIConversation messages={[question, replyWith(lines)]} ui={ui} />);
+    const second = await screen.findByText('Second');
+    expect(second.closest('[data-entrance]')).toHaveAttribute('data-entrance', 'shown');
+    expect(screen.getByText('First').closest('[data-entrance]')).toHaveAttribute(
+      'data-entrance',
+      'shown',
+    );
+  });
+
+  it('brings in a part the agent writes once the reply has come in', async () => {
+    const { ui } = setup();
+    const first = surfaceWith([column(['a']), text('a', 'First')]);
+    const { rerender } = renderWithEnglish(
+      <AIConversation messages={[question, replyWith(first, 'streaming', '')]} ui={ui} />,
+    );
+    const stage = (await screen.findByText('First')).closest('.str-chat__ai-ui');
+    await waitFor(() => expect(stage).toHaveAttribute('data-entrance', 'shown'));
+    const more = [
+      ...first,
+      line({
+        updateComponents: {
+          components: [column(['a', 'b']), text('b', 'Second')],
+          surfaceId: 's',
+        },
+      }),
+    ];
+    rerender(
+      <AIConversation messages={[question, replyWith(more, 'streaming', '')]} ui={ui} />,
+    );
+    const second = (await screen.findByText('Second')).closest('[data-entrance]');
+    expect(second).toHaveAttribute('data-entrance', 'hidden');
+    await waitFor(() => expect(second).toHaveAttribute('data-entrance', 'shown'));
   });
 });
