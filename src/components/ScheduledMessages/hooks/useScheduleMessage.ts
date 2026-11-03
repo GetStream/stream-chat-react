@@ -19,11 +19,13 @@ export const useScheduleMessage = () => {
 
   const notifyScheduled = useCallback(
     ({ scheduled_at }: ScheduledMessageResponse) => {
-      const time = t('timestamp/ScheduledMessage', { timestamp: new Date(scheduled_at) });
+      const time = t('timestamp/ScheduledMessageConfirmation', {
+        timestamp: new Date(scheduled_at),
+      });
 
       addNotification({
         emitter: SCHEDULE_MESSAGE_NOTIFICATION_EMITTER,
-        message: t('Scheduled for {{ time }}', { time }),
+        message: t('Message scheduled for {{ time }}', { time }),
         severity: 'success',
         type: ScheduledMessageNotificationType.CreateSucceeded,
       });

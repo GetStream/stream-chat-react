@@ -199,6 +199,26 @@ describe('ScheduleMessageButton', () => {
       expect(screen.getByText('Monday at 09:00')).toBeInTheDocument();
     });
 
+    it('confirms a time later today with the time only', async () => {
+      const { channel, client } = await renderComposer();
+      const scheduledMessage = generateScheduledMessage({
+        cid: channel.cid,
+        scheduled_at: new Date(2026, 9, 28, 10, 43).toISOString(),
+      });
+      mockSchedule(channel).mockResolvedValue(scheduledMessage);
+
+      await openMenu();
+      await act(() => fireEvent.click(screen.getByText('Tomorrow at 09:00')));
+
+      await waitFor(() =>
+        expect(getNotifications(client)).toEqual(
+          expect.arrayContaining([
+            expect.objectContaining({ message: 'Message scheduled for 10:43' }),
+          ]),
+        ),
+      );
+    });
+
     it('schedules at the picked preset and confirms with the server time', async () => {
       const { channel, client } = await renderComposer();
       const serverScheduledAt = new Date(2026, 9, 29, 9, 0);
@@ -216,7 +236,7 @@ describe('ScheduleMessageButton', () => {
         expect(getNotifications(client)).toEqual(
           expect.arrayContaining([
             expect.objectContaining({
-              message: 'Scheduled for Tomorrow at 09:00',
+              message: 'Message scheduled for Thu, Oct 29 at 09:00',
               severity: 'success',
               type: 'api:scheduled-message:create:success',
             }),
