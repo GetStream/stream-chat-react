@@ -199,7 +199,7 @@ yarn api-surface check --doc ai-docs/v15-breaking-changes.md --diff diff.json
 - Replacement: compare and sort the raw numbers. Convert at the render boundary with `convertTimestampToDate(ts)` (returns `Date | undefined`; handle the `undefined`), or `nsToDate` / `nsToMs` for values known to be present. Mint values with `nowNs()`, `msToNs(ms)`, `dateToNs(date)`, `asTimestampNS(n)`. All are exported from `stream-chat`. Presentational props still take `Date`: `DateSeparator.date: Date`, `formatDate?: (date: Date) => string`, `Timestamp.timestamp?: Date | string`. Outgoing request fields (filter bounds, `remind_at`) stay `Date`.
 - Evidence:
   - `release-v14:src/components/MessageList/utils.ts:34` `lastRead?: Date | null`, `:205` `insertIntro(…, headerPosition?: number)`, `:360` `lastReadDate?: Date`; `release-v14:src/components/MessageList/MessageList.tsx:529` `headerPosition?: number`; `release-v14:src/components/MessageList/VirtualizedMessageList.tsx:134` `lastReadDate?: Date`
-  - `master:src/components/MessageList/utils.ts:45` `lastRead?: TimestampNS | null`, `:223` `headerPosition?: TimestampNS`; `master:src/components/MessageList/MessageList.tsx:455` `headerPosition?: TimestampNS`; `master:src/components/MessageList/VirtualizedMessageList.tsx:127` `lastReadDate: TimestampNS | null`
+  - `master:src/components/MessageList/utils.ts:45` `lastRead?: TimestampNS | null`, `:223` `headerPosition?: TimestampNS`; `master:src/components/MessageList/MessageList.tsx:451` `headerPosition?: TimestampNS`; `master:src/components/MessageList/VirtualizedMessageList.tsx:130` `lastReadDate: TimestampNS | null`
   - `master:src/components/DateSeparator/DateSeparator.tsx:13,17` `date: Date`, `formatDate?: (date: Date) => string`; `master:src/components/Message/Timestamp.tsx:12` `timestamp?: Date | string`
   - `stream-chat@10.0.0-rc.22` `dist/types/utils/time.d.ts:39-85` `asTimestampNS`, `nsToMs`, `msToNs`, `nowNs`, `nsToDate`, `dateToNs`, `convertTimestampToDate`; re-exported at `dist/types/index.d.ts:42`
   - commits: `cb472c35f feat!: move to timestamps in response models` (PR #3278); `aaa7fa31e feat!: adopt stream-chat's branded TimestampNS` (PR #3297)
@@ -1371,7 +1371,7 @@ Note: a bare `AttachmentContextProvider` above the list does not reach message a
 - Replacement: `onMentionsClick` / `onMentionsHover` on `MessageList` (drilled to each message) or on `Message`; handler type `CustomMentionHandler` `(event, message: LocalMessage)`; read mention metadata from `message` (BC-083). `VirtualizedMessageList` has no such prop in v15 (v14 virtualized lists got the handlers only from `Channel`), so a virtualized list needs a custom message UI to handle mention clicks.
 - Evidence:
   - `release-v14:src/components/Channel/Channel.tsx:145-147`; `release-v14:src/components/Channel/index.ts:3`; `release-v14:src/components/Message/hooks/useMentionsHandler.ts:51-59` (fell back to the `Channel` handlers)
-  - `master:src/components/MessageList/MessageList.tsx:109-110,423-424` (`onMentionsClick`/`onMentionsHover` in `PropsDrilledToMessage`); `master:src/components/MessageList/VirtualizedMessageList.tsx:80-86` (not drilled); `master:src/components/Message/types.ts:51-53`
+  - `master:src/components/MessageList/MessageList.tsx:109-110,423-424` (`onMentionsClick`/`onMentionsHover` in `PropsDrilledToMessage`); `master:src/components/MessageList/VirtualizedMessageList.tsx:84-90` (not drilled); `master:src/components/Message/types.ts:56-58`
   - commit: `99cbe6704` (PR #3237)
 - Docs impact:
   - `02-ui-components/04-channel/01-channel.md`, `02-ui-components/04-channel/03-channel_action_context.md`, `03-ui-cookbook/04-message/03-mentions_actions.md`
@@ -2201,7 +2201,7 @@ export const RetryButton = () => {
 - Evidence:
   - `release-v14:src/components/Message/types.ts:60` `openThread?: ChannelActionContextValue['openThread']`; `release-v14:src/components/MessageList/MessageList.tsx:505` and `release-v14:src/components/MessageList/VirtualizedMessageList.tsx:88` drill `openThread`
   - `release-v14:src/components/Message/hooks/useOpenThreadHandler.ts:10` falls back to `useChannelActionContext().openThread`
-  - `master:src/components/Message/types.ts:59` `openThread?: (message: LocalMessage, event: BaseSyntheticEvent) => void`
+  - `master:src/components/Message/types.ts:64` `openThread?: (message: LocalMessage, event: BaseSyntheticEvent) => void`
   - `master:src/components/Message/hooks/useOpenThreadHandler.ts:17` `useWorkspaceNavigation()`, `:32` `void openThread({ channel, message })`
   - `master:src/components/Message/MessageRepliesCountButton.tsx` falls back to `MessageContext.handleOpenThread` when it has no `onClick` (restored in `fix/v15-dead-surface-cleanup`; before that it called `useWorkspaceNavigation().openThread` directly and ignored `Message.openThread`)
   - `master:src/context/WorkspaceNavigationContext.tsx:145` `defaultWorkspaceNavigation`, `:157` `openThread: () => undefined`, `:165` `WorkspaceNavigationProvider`
@@ -2311,7 +2311,7 @@ export const ChannelWithThread = ({ channel }: { channel: StreamChannel }) => {
   - `release-v14:src/components/MessageList/VirtualizedMessageList.tsx:678` `channelUnreadUiState`, `:701` `hasMore`, `:703` `hasMoreNewer`, `:714` `highlightedMessageId`, `:716` `loadingMore`, `:718` `loadingMoreNewer`, `:720` `loadMore`, `:722` `loadMoreNewer`, `:728` `messageLimit`
   - `master:src/components/MessageList/MessageList.tsx` `MessageListProps` keeps only `loadingMore` of these; `loadOlderMessages` raises `isLoadingOlder` only when a tailward page can load (`!isLoading && hasMoreTail`), and the loading row renders `(props.loadingMore ?? isLoadingOlder) && <LoadingIndicator />`. Before `fix/v15-dead-surface-cleanup` the type kept `hasMore`, `jumpToLatestMessage`, `loadingMoreNewer`, `messageLimit` unread, and the indicator required the prop.
   - `master:src/components/MessageList/MessageList.tsx:435` `InternalPaginatorProps`; `master:src/components/InfiniteScrollPaginator/InfiniteScrollPaginator.tsx:18` own props
-  - `master:src/components/MessageList/VirtualizedMessageList.tsx:269` reads `messages`, `hasMoreNewer`, `isLoading` from `messagePaginator.state`
+  - `master:src/components/MessageList/VirtualizedMessageList.tsx:275` reads `messages`, `hasMoreNewer`, `isLoading` from `messagePaginator.state`
   - `node_modules/stream-chat/dist/types/pagination/paginators/MessageIntervalPaginator.d.ts:153` `messageFocusSignal`, `:279` `jumpToMessage`, `:280` `jumpToTheLatestMessage`; `MessagePaginator.d.ts:87` `unreadStateSnapshot`
   - commits: `99cbe6704` (PR #3237); `088c795c1 feat(Channel)!: …` (PR #3286, search jump through `messagePaginator.jumpToMessage`)
 - Docs impact:
@@ -2360,8 +2360,8 @@ export const ChannelWithThread = ({ channel }: { channel: StreamChannel }) => {
   - `release-v14:src/components/MessageList/VirtualizedMessageList.tsx:708` `head?`, `:776` `threadList?`
   - `release-v14:src/components/TypingIndicator/TypingIndicator.tsx:23` `threadList?`; `release-v14:src/components/MessageList/ScrollToLatestMessageButton.tsx:19` `threadList?`
   - `master:src/components/TypingIndicator/TypingIndicator.tsx:36`–`:40` props are `isMessageListScrolledToBottom?`, `scrollToBottom?`
-  - `master:src/components/MessageList/hooks/useThreadHead.tsx:34` `useThreadHead` reads `ThreadHead` from `ComponentContext`; `master:src/context/ComponentContext.tsx:331` `ThreadHead?`
-  - `master:src/components/MessageList/VirtualizedMessageList.tsx:235` `useThreadHead(messageProps)`, `:608` `head: threadHead`
+  - `master:src/components/MessageList/hooks/useThreadHead.tsx:34` `useThreadHead` reads `ThreadHead` from `ComponentContext`; `master:src/context/ComponentContext.tsx:334` `ThreadHead?`
+  - `master:src/components/MessageList/VirtualizedMessageList.tsx:241` `useThreadHead(messageProps)`, `:602` `head: threadHead`
   - commits: `c2136f307 refactor!: align Thread with Channel - instance prop, provider, children` (PR #3289, "the `head` prop is removed"); `99cbe6704` (PR #3237)
   - corpus: `docs/03-ui-cookbook__05-message-composer__07-typing_indicator__1.tsx:14` TS2339 (`threadList` not on `TypingIndicatorProps`)
 - Docs impact:
@@ -2383,8 +2383,8 @@ export const ChannelWithThread = ({ channel }: { channel: StreamChannel }) => {
   - `release-v14:src/components/MessageList/MessageList.tsx:87` `disableDateSeparator = false`, `:515` prop
   - `release-v14:src/components/MessageList/VirtualizedMessageList.tsx:209` `disableDateSeparator = true`, `:304` `enableDateSeparator: !disableDateSeparator`
   - `release-v14:src/components/MessageList/utils.ts:28` `enableDateSeparator?`
-  - `master:src/components/MessageList/MessageList.tsx:496` `withDateSeparator?`, default `true` in `MessageListWithContext`
-  - `master:src/components/MessageList/VirtualizedMessageList.tsx:737` `withDateSeparator?`, default `false` (`:221`)
+  - `master:src/components/MessageList/MessageList.tsx:490` `withDateSeparator?`, default `true` in `MessageListWithContext`
+  - `master:src/components/MessageList/VirtualizedMessageList.tsx:724` `withDateSeparator?`, default `false` (`:224`)
   - `master:src/components/MessageList/utils.ts:47` `withDateSeparator?` in `ProcessMessagesContext`
   - commit: `c2136f307` (PR #3289)
 - Docs impact:
@@ -2511,7 +2511,7 @@ export const Stop = ({ channel }: { channel: Channel }) => {
 - Replacement: `VirtuosoContext` now carries a required `channel: Channel`. `head`, `firstUnreadMessageId`, `lastReadMessageId` are `… | null`; `lastReadDate` is `TimestampNS | null`; `loadingMore: boolean`; `unreadMessageCount: number`; `focusedMessageId?` is new. For thread detection use `useThreadContext()` (BC-048); for the message UI use the slots (BC-042).
 - Evidence:
   - `release-v14:src/components/MessageList/VirtualizedMessageList.tsx:94`–`:103` (`'head' | 'loadingMore' | 'Message' | 'threadList'` picked into the context), `:108` `VirtuosoContext`
-  - `master:src/components/MessageList/VirtualizedMessageList.tsx:97`–`:132`
+  - `master:src/components/MessageList/VirtualizedMessageList.tsx:100`–`:140`
   - commits: `07664893e` (PR #3268), `b541c45f9` (PR #3288), `c2136f307` (PR #3289), `aaa7fa31e feat!: adopt stream-chat's branded TimestampNS` (PR #3297)
 - Docs impact:
   - none found (`VirtuosoContext` is not documented in v14 docs)
@@ -2568,7 +2568,7 @@ export const Stop = ({ channel }: { channel: Channel }) => {
 - Replacement: pass `TimestampNS`, e.g. `message.created_at` or `msToNs(ms)` from `stream-chat`. Related: `ProcessMessagesParams.lastRead` is `TimestampNS | null` (was `Date | null`), and `VirtuosoContext.lastReadDate` is covered by BC-053.
 - Evidence:
   - `release-v14:src/components/MessageList/MessageList.tsx:529` `headerPosition?: number`; `release-v14:src/components/MessageList/utils.ts:205` `insertIntro(…, headerPosition?: number)`
-  - `master:src/components/MessageList/MessageList.tsx:455` `headerPosition?: TimestampNS`; `master:src/components/MessageList/utils.ts:221`–`:223`
+  - `master:src/components/MessageList/MessageList.tsx:451` `headerPosition?: TimestampNS`; `master:src/components/MessageList/utils.ts:221`–`:223`
   - `node_modules/stream-chat/dist/types/index.d.ts` exports `msToNs`, `asTimestampNS`, `nowNs`
   - commits: `cb472c35f feat!: move to timestamps in response models` (PR #3278); `aaa7fa31e` (PR #3297)
 - Docs impact:
@@ -2603,7 +2603,7 @@ export const Stop = ({ channel }: { channel: Channel }) => {
 - Evidence:
   - `master:src/context/useChannel.ts` throws when neither a thread nor `ChannelInstanceContext` supplies a channel
   - `master:src/components/Message/hooks/useOpenThreadHandler.ts:16` and `master:src/components/Message/hooks/useRetryHandler.ts:11` call `useChannel()` during every `Message` render
-  - `release-v14:src/components/Message/Message.tsx` `const highlighted = highlightedMessageId === message.id` from `useChannelStateContext('Message')`; `master:src/components/Message/Message.tsx` `highlighted={props.highlighted}`; `master:src/components/Message/types.ts:39`
+  - `release-v14:src/components/Message/Message.tsx` `const highlighted = highlightedMessageId === message.id` from `useChannelStateContext('Message')`; `master:src/components/Message/Message.tsx` `highlighted={props.highlighted}`; `master:src/components/Message/types.ts:44`
   - examples: `examples.diff:9258`–`:9322` (`ReactionsTab.tsx` swaps the two providers for `ChannelInstanceProvider` with `client.channelManager.ensure(...)`)
   - corpus: `examples/examples/vite/src/AppSettings/tabs/Reactions/ReactionsTab.tsx:3`, `:4` TS2724
   - commits: `99cbe6704` (PR #3237), `9194215f0` (PR #3267)
@@ -2765,7 +2765,7 @@ After (v15):
 - Replacement: pass them through `additionalVirtuosoProps`: `additionalVirtuosoProps.defaultItemHeight`, `additionalVirtuosoProps.overscan` (the `react-virtuoso` default is also `0`), and `additionalVirtuosoProps.scrollSeekConfiguration` with the placeholder in `additionalVirtuosoProps.components.ScrollSeekPlaceholder`; this keeps the scroll-seek behavior without the warning.
 - Evidence:
   - `release-v14:src/components/MessageList/VirtualizedMessageList.tsx:686-689`, `:732-735`, `:744-756`, `:643`, `:650-651`
-  - `master:src/components/MessageList/VirtualizedMessageList.tsx:640` (`{...overridingVirtuosoProps}`), `:683` `additionalVirtuosoProps`
+  - `master:src/components/MessageList/VirtualizedMessageList.tsx:633` (`{...overridingVirtuosoProps}`), `:676` `additionalVirtuosoProps`
   - commit: REACT-1467 (PR pending)
 - Docs impact:
   - `02-ui-components/07-message-list/02-virtualized_list.md`
@@ -2831,7 +2831,7 @@ const { canReply } = useMessagePermissions(message);
 - Replacement: the context fields are optional and set only when `onMentionsClick` / `onMentionsHover` was passed to `MessageList` or `Message`. `useMentionsHandler` returns each handler only when the matching one is passed to it, and `undefined` otherwise. Pass them as event props (`onClick={onMentionsClickMessage}`), or call them with `?.`. With `onMentionsClick` set, `MessageText` adds `str-chat__message-text-inner--mentions-clickable`, which gives mentions a pointer cursor.
 - Evidence:
   - `release-v14:src/context/MessageContext.tsx:63-66`; `release-v14:src/components/Message/Message.tsx:263` `onMentionsClickMessage={onMentionsClick}`; `release-v14:src/components/Message/hooks/useMentionsHandler.ts:55-59` (`|| (() => null)`)
-  - `master:src/context/MessageContext.tsx:44-47`; `master:src/components/Message/hooks/useMentionsHandler.ts:13-21`, `:28-49`; `master:src/components/Message/Message.tsx:189-190`; `master:src/components/Message/MessageText.tsx:82-83`, `:121-122`, `:125` (`onClick` only when mentions are interactive)
+  - `master:src/context/MessageContext.tsx:44-47`; `master:src/components/Message/hooks/useMentionsHandler.ts:13-21`, `:28-49`; `master:src/components/Message/Message.tsx:191-192`; `master:src/components/Message/MessageText.tsx:82-83`, `:121-122`, `:125` (`onClick` only when mentions are interactive)
   - commit: REACT-1467 (PR pending)
 - Docs impact:
   - `02-ui-components/08-message/02-message_context.md` (`onMentionsClickMessage`, `onMentionsHoverMessage`), `02-ui-components/08-message/04-message_hooks.md` (`useMentionsHandler`)
