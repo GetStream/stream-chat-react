@@ -1,3 +1,4 @@
+import clsx from 'clsx';
 import React, { useCallback, useMemo, useRef } from 'react';
 
 import {
@@ -8,20 +9,20 @@ import {
 import { Button } from '../Button';
 import { ContextMenu, useDialogIsOpen, useDialogOnNearestManager } from '../Dialog';
 import { GlobalModal } from '../Modal';
-import { SCHEDULED_MESSAGE_ACTIONS_MENU_ID } from './constants';
+import { SCHEDULED_MESSAGE_ACTIONS_MENU_ID, ScheduledMessageAction } from './constants';
 import { DeleteScheduledMessageAlert } from './DeleteScheduledMessageAlert';
 import { useScheduledMessageActionHandlers, useScheduleMessageDialog } from './hooks';
 import { RescheduleMessageDialog } from './RescheduleMessageDialog';
 import { ScheduledMessageActionsMenu } from './ScheduledMessageActionsMenu';
 import type { ScheduledMessageActionsProps } from './types';
-import { getScheduledMessageActions } from './utils';
+import { getScheduledMessageActions, hasScheduledMessageEditButton } from './utils';
 
 export const ScheduledMessageActions = ({
   onEdit,
   scheduledMessage,
 }: ScheduledMessageActionsProps) => {
   const { t } = useTranslationContext();
-  const { IconMore } = useComponentContextIcons();
+  const { IconEdit, IconMore } = useComponentContextIcons();
   const { ContextMenu: ContextMenuComponent = ContextMenu, Modal = GlobalModal } =
     useComponentContext();
 
@@ -42,6 +43,14 @@ export const ScheduledMessageActions = ({
     () => getScheduledMessageActions(scheduledMessage, { canEdit: !!onEdit }),
     [onEdit, scheduledMessage],
   );
+  const hasEditButton = hasScheduledMessageEditButton(scheduledMessage, actions);
+  const menuActions = useMemo(
+    () =>
+      hasEditButton
+        ? actions.filter((action) => action !== ScheduledMessageAction.Edit)
+        : actions,
+    [actions, hasEditButton],
+  );
 
   const toggleMenu = useCallback(() => menuDialog.toggle(), [menuDialog]);
 
@@ -60,22 +69,42 @@ export const ScheduledMessageActions = ({
   }, [deleteAlert, deleteScheduledMessage]);
 
   return (
-    <>
+    <div
+      className={clsx('str-chat__scheduled-message-actions', {
+        'str-chat__scheduled-message-actions--active': isMenuOpen,
+      })}
+    >
       <Button
         appearance='ghost'
         aria-expanded={isMenuOpen}
         aria-haspopup='menu'
         aria-label={t('aria/Open scheduled message actions')}
+        circular
         className='str-chat__scheduled-message-actions-button'
         data-testid='scheduled-message-actions-button'
-        disabled={!actions.length || isPending}
+        disabled={!menuActions.length || isPending}
         onClick={toggleMenu}
         ref={menuButtonRef}
-        size='sm'
+        size='xs'
         variant='secondary'
       >
         <IconMore />
       </Button>
+      {hasEditButton && (
+        <Button
+          appearance='ghost'
+          aria-label={t('Edit')}
+          circular
+          className='str-chat__scheduled-message-actions-button'
+          data-testid='scheduled-message-edit-button'
+          disabled={isPending}
+          onClick={editScheduledMessage}
+          size='xs'
+          variant='secondary'
+        >
+          <IconEdit />
+        </Button>
+      )}
       <ContextMenuComponent
         allowFlip
         aria-label={t('Scheduled message actions')}
@@ -89,7 +118,7 @@ export const ScheduledMessageActions = ({
         tabIndex={-1}
       >
         <ScheduledMessageActionsMenu
-          actions={actions}
+          actions={menuActions}
           onCopy={copyText}
           onDelete={deleteAlert.openDialog}
           onEdit={editScheduledMessage}
@@ -123,6 +152,6 @@ export const ScheduledMessageActions = ({
           />
         )}
       </Modal>
-    </>
+    </div>
   );
 };

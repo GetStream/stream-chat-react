@@ -22,7 +22,7 @@ export const ScheduledMessageActionsMenu = ({
     () => ({
       [ScheduledMessageAction.Copy]: {
         Icon: IconCopy,
-        label: t('Copy Message'),
+        label: t('Copy text'),
         onSelect: onCopy,
       },
       [ScheduledMessageAction.Delete]: {
@@ -66,7 +66,7 @@ export const ScheduledMessageActionsMenu = ({
       {actions.map((action, index) => {
         const { Icon, label, onSelect } = menuItems[action];
         const isDelete = action === ScheduledMessageAction.Delete;
-        const hasSeparator = isDelete && index > 0;
+        const hasSeparator = isDelete && index > 1;
 
         const selectAction = () => {
           closeMenu();

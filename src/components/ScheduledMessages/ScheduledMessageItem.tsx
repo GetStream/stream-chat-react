@@ -40,12 +40,10 @@ export const ScheduledMessageItem = ({
       })}
       data-testid='scheduled-message-item'
     >
-      <div className='str-chat__scheduled-message-item__header'>
-        <time className='str-chat__scheduled-message-item__time' dateTime={scheduled_at}>
-          {t('Send {{ time }}', { time: sendTime })}
-        </time>
-        <ScheduledMessageActions onEdit={onEdit} scheduledMessage={scheduledMessage} />
-      </div>
+      <time className='str-chat__scheduled-message-item__time' dateTime={scheduled_at}>
+        {t('Send {{ time }}', { time: sendTime })}
+      </time>
+      <ScheduledMessageActions onEdit={onEdit} scheduledMessage={scheduledMessage} />
       <div className='str-chat__scheduled-message-item__body'>
         <ChannelAvatar
           aria-hidden='true'

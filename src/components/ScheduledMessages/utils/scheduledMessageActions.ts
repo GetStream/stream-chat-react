@@ -40,3 +40,10 @@ export const getScheduledMessageActions = (
 
   return actions;
 };
+
+export const hasScheduledMessageEditButton = (
+  scheduledMessage: ScheduledMessageResponse,
+  actions: ScheduledMessageAction[],
+) =>
+  scheduledMessage.status !== ScheduledMessageStatus.Failed &&
+  actions.includes(ScheduledMessageAction.Edit);

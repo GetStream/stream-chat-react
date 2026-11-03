@@ -97,12 +97,14 @@ describe('ScheduledMessageActions', () => {
     vi.restoreAllMocks();
   });
 
-  it('offers Edit, Reschedule, Send now and Delete for a scheduled message', async () => {
+  it('offers an Edit button and Reschedule, Send now and Delete for a scheduled message', async () => {
     await renderActions({ onEdit: vi.fn() });
 
     await openActionsMenu();
 
-    expect(getMenuLabels()).toEqual(['Edit', 'Reschedule', 'Send now', 'Delete']);
+    expect(screen.getByTestId('scheduled-message-edit-button')).toBeInTheDocument();
+    expect(getMenuLabels()).toEqual(['Reschedule', 'Send now', 'Delete']);
+    expect(screen.getAllByRole('separator')).toHaveLength(1);
   });
 
   it('leaves out Edit when the list has no edit handler', async () => {
@@ -110,6 +112,7 @@ describe('ScheduledMessageActions', () => {
 
     await openActionsMenu();
 
+    expect(screen.queryByTestId('scheduled-message-edit-button')).not.toBeInTheDocument();
     expect(getMenuLabels()).toEqual(['Reschedule', 'Send now', 'Delete']);
   });
 
@@ -136,14 +139,15 @@ describe('ScheduledMessageActions', () => {
 
     await openActionsMenu();
 
-    expect(getMenuLabels()).toEqual(['Copy Message', 'Delete']);
+    expect(getMenuLabels()).toEqual(['Copy text', 'Delete']);
+    expect(screen.queryByRole('separator')).not.toBeInTheDocument();
   });
 
   it('hands the scheduled message to the edit handler', async () => {
     const onEdit = vi.fn();
     const { scheduledMessage } = await renderActions({ onEdit });
 
-    await selectAction('edit');
+    await act(() => fireEvent.click(screen.getByTestId('scheduled-message-edit-button')));
 
     expect(onEdit).toHaveBeenCalledWith(scheduledMessage);
   });
