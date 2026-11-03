@@ -3,7 +3,11 @@ import { ErrorFromResponse, ScheduledMessageErrorReason } from 'stream-chat';
 import type { LocalAttachment } from 'stream-chat';
 
 import { isScheduledMessageError } from '../scheduledMessageErrors';
-import { toScheduledMessagePreview } from '../scheduledMessagePreview';
+import {
+  toScheduledMessagePreview,
+  toStoredScheduledMessagePreview,
+} from '../scheduledMessagePreview';
+import { generateScheduledMessage } from '../../../../mock-builders';
 
 const createApiError = (code: number) =>
   new ErrorFromResponse('request failed', {
@@ -51,5 +55,33 @@ describe('toScheduledMessagePreview', () => {
       type: 'regular',
       updated_at: now,
     });
+  });
+});
+
+describe('toStoredScheduledMessagePreview', () => {
+  it('builds a pending local message dated at the scheduled time', () => {
+    const scheduledAt = new Date(2026, 9, 29, 9, 0);
+    const attachments = [{ type: 'image' }];
+    const scheduledMessage = generateScheduledMessage({
+      id: 'scheduled-id',
+      message: { attachments, text: 'Launch moved to Monday' },
+      scheduled_at: scheduledAt.toISOString(),
+    });
+
+    const previewMessage = toStoredScheduledMessagePreview(scheduledMessage);
+
+    expect(previewMessage).toMatchObject({
+      attachments,
+      created_at: scheduledAt,
+      id: 'scheduled-id',
+      status: 'pending',
+      text: 'Launch moved to Monday',
+    });
+  });
+
+  it('uses an empty attachment list when the message has none', () => {
+    const scheduledMessage = generateScheduledMessage({ message: { text: 'Hi' } });
+
+    expect(toStoredScheduledMessagePreview(scheduledMessage).attachments).toEqual([]);
   });
 });

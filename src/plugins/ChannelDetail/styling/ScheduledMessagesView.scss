@@ -1,0 +1,14 @@
+.str-chat__channel-detail__scheduled-messages-view {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+}
+
+.str-chat__channel-detail__scheduled-messages-view__body {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+}

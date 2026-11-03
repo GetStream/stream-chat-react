@@ -1,7 +1,13 @@
 import type { ChangeEventHandler, ReactNode } from 'react';
-import type { LocalAttachment, ScheduledMessageResponse } from 'stream-chat';
+import type { Attachment, ScheduledMessageResponse } from 'stream-chat';
 
-import type { ScheduleMessageNoticeSeverity, ScheduleTimeError } from './constants';
+import type { IconComponent } from '../Icons';
+
+import type {
+  ScheduledMessageGroupType,
+  ScheduleMessageNoticeSeverity,
+  ScheduleTimeError,
+} from './constants';
 
 export type UseScheduledMessagesParams = {
   cid?: string;
@@ -26,9 +32,38 @@ export type ScheduleTimeBounds = {
 };
 
 export type ScheduledMessagePreviewSource = {
-  attachments: LocalAttachment[];
+  attachments: Attachment[];
   id: string;
   text: string;
+};
+
+export type ScheduledMessageGroup = {
+  id: string;
+  scheduledMessages: ScheduledMessageResponse[];
+  type: ScheduledMessageGroupType;
+  day?: Date;
+};
+
+export type UseScheduledMessageGroupsParams = UseScheduledMessagesParams & {
+  searchQuery?: string;
+};
+
+export type ScheduledMessageGroups = {
+  groups: ScheduledMessageGroup[];
+  hasScheduledMessages: boolean;
+  isLoaded: boolean;
+};
+
+export type ScheduledMessagesLoadState = {
+  hasLoadFailed: boolean;
+  isFirstLoad: boolean;
+  reload: () => void;
+};
+
+export type ScheduledMessagesPagination = {
+  canLoadMore: boolean;
+  isLoading: boolean;
+  loadMore: () => void;
 };
 
 export type ScheduleTimeForm = {
@@ -71,4 +106,40 @@ export type ScheduleMessageDialogProps = {
 export type ScheduleMessageDialogNoticeProps = {
   children: ReactNode;
   severity: ScheduleMessageNoticeSeverity;
+};
+
+export type ScheduledMessageListProps = {
+  cid: string;
+  parentId?: string;
+  searchQuery?: string;
+};
+
+export type ScheduledMessagesEmptyStateProps = {
+  Icon: IconComponent;
+  title: string;
+  children?: ReactNode;
+  description?: string;
+};
+
+export type ScheduledMessagesLoadErrorProps = {
+  onRetry: () => void;
+};
+
+export type ScheduledMessageListDialogProps = Omit<
+  ScheduledMessageListProps,
+  'searchQuery'
+> & {
+  close: () => void;
+};
+
+export type ScheduledMessageGroupHeaderProps = {
+  group: ScheduledMessageGroup;
+};
+
+export type ScheduledMessageItemProps = {
+  scheduledMessage: ScheduledMessageResponse;
+};
+
+export type ScheduledMessageItemStatusProps = {
+  scheduledMessage: ScheduledMessageResponse;
 };
