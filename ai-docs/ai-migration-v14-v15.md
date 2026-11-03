@@ -1098,17 +1098,18 @@ These hit apps that never passed the props, because they were v14 defaults:
 
 ### `ChannelListUI` is removed; use the list slots
 
-`ChannelListUI`, `ChannelListUIProps` and the `ComponentContext.ChannelListUI` slot are removed. `ChannelList` renders an `InfiniteScrollPaginator` and reads these `ComponentContext` slots instead (only `ChannelList` reads them today):
+`ChannelListUI`, `ChannelListUIProps` and the `ComponentContext.ChannelListUI` slot are removed. `ChannelList` renders an `InfiniteScrollPaginator` and reads these `ComponentContext` slots instead (`ThreadList` reads `FirstPageLoadingIndicator` and `ListLoadErrorIndicator` too; only `ChannelList` reads the others today). To give the lists different overrides, wrap each in its own `WithComponents`; under `ChatView`, do it in `slotRenderers.channelList` / `slotRenderers.threadList`, which render `ChannelNavigation` and `ThreadList`. The slots:
 
-| Slot                        | Props                   | Default                   |
-| --------------------------- | ----------------------- | ------------------------- |
-| `EmptyListIndicator`        | none                    | the empty state           |
-| `EndReachedIndicator`       | `{ hasEnded, reached }` |                           |
-| `FirstPageLoadingIndicator` | none                    | `LoadingChannels`         |
-| `ListItem`                  | `{ item }`              | renders `ChannelListItem` |
-| `LoadingNextPageIndicator`  | `{ isLoading? }`        |                           |
+| Slot                        | Props                          | Default                                                           |
+| --------------------------- | ------------------------------ | ----------------------------------------------------------------- |
+| `EmptyListIndicator`        | none                           | the empty state                                                   |
+| `EndReachedIndicator`       | `{ hasEnded, reached }`        |                                                                   |
+| `FirstPageLoadingIndicator` | none                           | `LoadingChannels`                                                 |
+| `ListItem`                  | `{ item }`                     | renders `ChannelListItem`                                         |
+| `ListLoadErrorIndicator`    | `{ error, isRetrying, retry }` | an icon, the list's "Couldn't load …" text and a Try again button |
+| `LoadingNextPageIndicator`  | `{ isLoading? }`               |                                                                   |
 
-`ComponentContext.LoadingIndicator` no longer affects the channel list (the `LoadingErrorIndicator` slot is removed, [section 5](#channel-requires-channel-and-renders-no-placeholder-loading-or-error-state)), and query errors are reported as a notification. For a fully custom list, read `useChannelPaginatorState(paginator)` and render your own.
+`ComponentContext.LoadingIndicator` no longer affects the channel list (the `LoadingErrorIndicator` slot is removed, [section 5](#channel-requires-channel-and-renders-no-placeholder-loading-or-error-state)). A first page that fails to load renders `ListLoadErrorIndicator` in place of the list; its `retry` calls `paginator.reload()`. The list keeps it on screen while the retry runs, with `isRetrying` set, so a focused retry button keeps focus, also when the retry fails; a retry that loads the list is announced. A query error that happens while the list is mounted is also reported as an error notification in the `channel-list` panel, which `ChannelNavigation` renders; a `ChannelList` used without it renders no `NotificationList` for that panel. For a fully custom list, read `useChannelPaginatorState(paginator)` and render your own.
 
 ```tsx
 // v14
@@ -1358,6 +1359,7 @@ v14's `<ThreadProvider thread={t}>` rendered `<Channel channel={t.channel}>` aro
 - Mounting `ThreadList` calls `client.threads.reload({ force: true })` every time. v14 reloaded only when the manager was not ready, had unseen threads or a stale order.
 - Clicking a row calls `useWorkspaceNavigation().openThread(thread)`, and a row is active when `isThreadActive(id)` ([section 4](#4-selecting-channels-and-opening-threads-workspace-navigation)). v14 used `ThreadsViewContext`.
 - The list reads `client.threads.paginator.state`. Code reading `client.threads.state.threads` / `.pagination` breaks for `stream-chat` v10 reasons; read the paginator.
+- The first-load skeleton is the shared `FirstPageLoadingIndicator` slot (no props, default `LoadingChannels`), the same one the channel list reads. The shared `ListLoadErrorIndicator` slot (`{ error, isRetrying, retry }`) renders in place of the list when the first load fails; its `retry` calls `client.threads.reload({ force: true })`. A query error that happens while the list is mounted is also reported as an error notification in the `thread-list` panel.
 
 ---
 

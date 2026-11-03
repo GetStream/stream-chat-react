@@ -405,7 +405,7 @@ export const TypingCount = () => {
   - `Message` -> the `MessageUI` slot. `VirtualMessage` still overrides inside `VirtualizedMessageList` only. The `Message` _props_ on the lists and `Thread` belong to the message area's entry.
   - `ThreadHeader` -> render `<ThreadHeader />` (or your own header) as a child of `<Thread thread={thread}>`. `Thread` renders children and no header of its own.
   - `HeaderStartContent` -> the `StartContent` prop on `ChannelHeader` / `ThreadHeader`, which defaults to `WorkspaceNavigationBackButton`. `EndContent` defaults to `WorkspaceNavigationCloseButton`. `HeaderEndContent` stays on `ComponentContext` for the list headers.
-  - `ChannelListUI` -> no wrapper slot. `ChannelList` renders an `InfiniteScrollPaginator` and reads the new slots `EmptyListIndicator`, `EndReachedIndicator`, `FirstPageLoadingIndicator`, `ListItem` and `LoadingNextPageIndicator` from `ComponentContext`. Only `ChannelList` reads them today.
+  - `ChannelListUI` -> no wrapper slot. `ChannelList` renders an `InfiniteScrollPaginator` and reads the new slots `EmptyListIndicator`, `EndReachedIndicator`, `FirstPageLoadingIndicator`, `ListItem` and `LoadingNextPageIndicator` from `ComponentContext`. `ThreadList` reads `FirstPageLoadingIndicator` too, and both read the new `ListLoadErrorIndicator`; only `ChannelList` reads the others today.
 - Evidence:
   - `release-v14:src/context/ComponentContext.tsx:129` `ChannelListUI?`, `:179` `Message?` (`@deprecated use MessageUI`), `:288` `ThreadHeader?`, `:305` `HeaderStartContent?`
   - `master:src/context/ComponentContext.tsx` none of the four; `:187` `MessageUI?`, `:294` `ThreadHead?`, `:309` `HeaderEndContent?`, `:317` `VirtualMessage?`, `:88-102` the new list slots
@@ -959,10 +959,10 @@ To open threads without `ChatView`, also override `openThread` (a target is a `T
 - User impact: compile error reading `channelsQueryState` from `useChatContext()`; `undefined` in JS. `Channel` no longer renders a loading or error state for the channel-list query.
 - Old API:
   - `ChatContextValue.channelsQueryState` (`{ queryInProgress, error, setQueryInProgress, setError }`)
-- Replacement: the query state of a channel list is the `ChannelPaginator`'s own state: `useChannelPaginatorState(paginator)` returns `{ channels, hasMoreHead, hasMoreTail, isLoading, lastQueryError }` (main entry); `hasMoreTail` says whether `paginator.toTail()` has another page to load. `ChannelList` reports `lastQueryError` through `client.notifications.addError(...)` itself.
+- Replacement: the query state of a channel list is the `ChannelPaginator`'s own state: `useChannelPaginatorState(paginator)` returns `{ channels, hasMoreHead, hasMoreTail, isLoading, lastQueryError }` (main entry); `hasMoreTail` says whether `paginator.toTail()` has another page to load. `ChannelList` reports `lastQueryError` as an error notification in the `channel-list` panel, and renders `ListLoadErrorIndicator` (`{ error, isRetrying, retry }`) in place of a list whose first page failed.
 - Evidence:
   - `release-v14:src/context/ChatContext.tsx:30-33`; `release-v14:src/components/Channel/Channel.tsx:181-207` (`Channel` rendered `LoadingIndicator` / `LoadingErrorIndicator` from it)
-  - `master:src/context/ChatContext.tsx:27-46`; `master:src/components/ChannelList/hooks/useChannelPaginatorState.ts:5-29`; `master:src/components/ChannelList/ChannelList.tsx:77-83`
+  - `master:src/context/ChatContext.tsx:27-46`; `master:src/components/ChannelList/hooks/useChannelPaginatorState.ts:5-29`; `master:src/components/ChannelList/ChannelList.tsx:89-94`
   - commit: `99cbe6704` (PR #3237)
 - Docs impact:
   - `02-ui-components/03-chat/02-chat_context.md`
@@ -1517,7 +1517,7 @@ A single list can still be rendered on its own with `<ChannelList paginator={pag
 - Old API:
   - `ChannelListUI` (`{ error, loadedChannels?, loading?, setChannels? }`), `ChannelListUIProps`
   - `ComponentContextValue.ChannelListUI`
-- Replacement: per-part slots on `ComponentContext` that `ChannelList` reads: `EmptyListIndicator`, `EndReachedIndicator` (`{ hasEnded, reached }`), `FirstPageLoadingIndicator` (default `LoadingChannels`), `ListItem` (`{ item }`, default renders `ChannelListItem`), `LoadingNextPageIndicator` (`{ isLoading? }`). Query errors are reported as a notification. For a fully custom list, read `useChannelPaginatorState(paginator)` and render your own.
+- Replacement: per-part slots on `ComponentContext` that `ChannelList` reads: `EmptyListIndicator`, `EndReachedIndicator` (`{ hasEnded, reached }`), `FirstPageLoadingIndicator` (default `LoadingChannels`), `ListItem` (`{ item }`, default renders `ChannelListItem`), `ListLoadErrorIndicator` (`{ error, isRetrying, retry }`, rendered in place of a list whose first page failed), `LoadingNextPageIndicator` (`{ isLoading? }`). `ThreadList` reads `FirstPageLoadingIndicator` and `ListLoadErrorIndicator` too. Query errors are also reported as a notification. For a fully custom list, read `useChannelPaginatorState(paginator)` and render your own.
 - Evidence:
   - `release-v14:src/components/ChannelList/ChannelListUI.tsx:10,24`; `release-v14:src/context/ComponentContext.tsx:129`
   - `master:src/context/ComponentContext.tsx:90-102`; `master:src/components/ChannelList/ChannelList.tsx:48-54,78-83`
@@ -1557,7 +1557,7 @@ import type { Channel } from 'stream-chat';
 </WithComponents>;
 ```
 
-Note: these slots are generic "paginated list" slots; in v15 only `ChannelList` reads them.
+Note: these slots are generic "paginated list" slots. In v15 `ThreadList` also reads `FirstPageLoadingIndicator` and `ListLoadErrorIndicator`; only `ChannelList` reads the others.
 
 ---
 
