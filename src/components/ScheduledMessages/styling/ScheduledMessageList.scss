@@ -9,6 +9,11 @@
 
     .str-chat__scheduled-message-list-dialog__body {
       overflow-y: auto;
+
+      .str-chat__scheduled-message-group__item,
+      .str-chat__scheduled-message-list-loading__row {
+        margin-inline: calc(-1 * var(--str-chat__spacing-xl));
+      }
     }
   }
 
@@ -51,7 +56,6 @@
     }
 
     .str-chat__scheduled-message-group__item {
-      margin-inline: calc(-1 * var(--str-chat__spacing-xl));
       padding: var(--str-chat__spacing-md) var(--str-chat__spacing-xl);
       border-block-end: 1px solid var(--str-chat__border-core-subtle);
     }
@@ -165,7 +169,6 @@
       display: flex;
       flex-direction: column;
       gap: var(--str-chat__spacing-xs);
-      margin-inline: calc(-1 * var(--str-chat__spacing-xl));
       padding: var(--str-chat__spacing-md) var(--str-chat__spacing-xl);
       border-block-end: 1px solid var(--str-chat__border-core-subtle);
     }
