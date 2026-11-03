@@ -96,7 +96,7 @@ export const MessageActions: MessageActionsInterface = ({
   disableBaseMessageActionSetFilter = false,
   messageActionSet = defaultMessageActionSet,
 }) => {
-  const { isMyMessage, message, threadList } = useMessageContext();
+  const { isMyMessage, message } = useMessageContext();
   const { ContextMenu: ContextMenuComponent = ContextMenu } = useComponentContext();
   const { t } = useTranslationContext();
   const [actionsBoxButtonElement, setActionsBoxButtonElement] =
@@ -113,7 +113,6 @@ export const MessageActions: MessageActionsInterface = ({
   const messageActionsDialogId = MessageActions.getDialogId({ messageId: message.id });
   const reactionSelectorDialogId = ReactionSelector.getDialogId({
     messageId: message.id,
-    threadList,
   });
   const dropdownReactionSelectorDialogId = `${reactionSelectorDialogId}-dropdown`;
   const { dialog, dialogManager } = useDialogOnNearestManager({

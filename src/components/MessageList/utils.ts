@@ -270,16 +270,37 @@ const isNonEmptyRecord = (record: Record<string, unknown>) => {
   return false;
 };
 
-export const getGroupStyles = (
-  message: RenderedMessage,
-  previousMessage: RenderedMessage,
-  nextMessage: RenderedMessage,
-  noGroupByUser: boolean,
-  maxTimeBetweenGroupedMessages?: number,
-): GroupStyle => {
+/** What a group-style function reads to place a message among its neighbors. */
+export type GetGroupStylesParams = {
+  /**
+   * Whether the list groups consecutive messages from one user. With `false`, the default
+   * `getGroupStyles` returns `single` for every message; date separators and the intro always
+   * get `''`.
+   */
+  groupByUser: boolean;
+  /** The item to compute the group style for. */
+  message: RenderedMessage;
+  /** Maximum time (ms) between two messages for them to stay in the same group. */
+  maxTimeBetweenGroupedMessages?: number;
+  /** The item rendered after `message`, if any. */
+  nextMessage?: RenderedMessage;
+  /** The item rendered before `message`, if any. */
+  previousMessage?: RenderedMessage;
+};
+
+/** Computes the group style of a message from its neighbors. */
+export type GetGroupStyles = (params: GetGroupStylesParams) => GroupStyle;
+
+export const getGroupStyles: GetGroupStyles = ({
+  groupByUser,
+  maxTimeBetweenGroupedMessages,
+  message,
+  nextMessage,
+  previousMessage,
+}) => {
   if (isDateSeparatorMessage(message) || isIntroMessage(message)) return '';
 
-  if (noGroupByUser || message.attachments?.length !== 0) return 'single';
+  if (!groupByUser || message.attachments?.length !== 0) return 'single';
 
   const isTopMessage =
     !previousMessage ||
@@ -328,6 +349,42 @@ export const getGroupStyles = (
 
   return '';
 };
+
+/**
+ * The items to compute group styles for, the group-style function, and the list-wide options
+ * (`groupByUser`, `maxTimeBetweenGroupedMessages`) passed to it for each item.
+ */
+export type GetMessageGroupStylesParams = Omit<
+  GetGroupStylesParams,
+  'message' | 'nextMessage' | 'previousMessage'
+> & {
+  /** The rendered items in list order; each one's neighbors come from this array. */
+  messages: RenderedMessage[];
+  /** Computes the group style of each message. Defaults to `getGroupStyles`. */
+  getGroupStyles?: GetGroupStyles;
+};
+
+/**
+ * Maps the ID of each message to its group style, computed from its neighbors in `messages`.
+ * Items without a group style (such as date separators) or without an ID are left out.
+ */
+export const getMessageGroupStyles = ({
+  getGroupStyles: getStyle = getGroupStyles,
+  groupByUser,
+  maxTimeBetweenGroupedMessages,
+  messages,
+}: GetMessageGroupStylesParams) =>
+  messages.reduce<Record<string, GroupStyle>>((acc, message, i) => {
+    const style = getStyle({
+      groupByUser,
+      maxTimeBetweenGroupedMessages,
+      message,
+      nextMessage: messages[i + 1],
+      previousMessage: messages[i - 1],
+    });
+    if (style && message.id) acc[message.id] = style;
+    return acc;
+  }, {});
 
 // FIXME: once the pagination state is moved from Channel to MessageList, these should be moved as well.
 //  The MessageList should have configurable the limit for performing the requests.

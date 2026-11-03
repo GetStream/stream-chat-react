@@ -755,7 +755,6 @@ describe('<MessageActions />', () => {
                   <Message
                     lastReceivedId={lastReceivedId}
                     message={message}
-                    threadList={false}
                     {...messageProps}
                   />
                 </DialogManagerProvider>
@@ -860,7 +859,7 @@ describe('<MessageActions />', () => {
       await renderMarkUnreadUI({
         channelProps: { channel },
         chatProps: { client },
-        messageProps: { message: threadMessage, threadList: true },
+        messageProps: { message: threadMessage },
       });
       await toggleOpenMessageActions();
 

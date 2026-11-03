@@ -1871,7 +1871,8 @@ Code that drove these props uses the paginator:
 
 - `MessageList.threadList`, `VirtualizedMessageList.threadList`, `VirtuosoContext.threadList`, `TypingIndicatorProps.threadList` and `ScrollToLatestMessageButtonProps.threadList` are removed. The SDK no longer passes `threadList` to custom `TypingIndicator` / `ScrollToLatestMessageButton` overrides; in untyped code it is `undefined`, so a thread-aware override behaves as if it were in the channel list. Detect the thread with `const isThreadList = !!useThreadContext();`.
 - `MessageList.head` and `VirtualizedMessageList.head` are removed. Both lists render the parent message from the thread context. Override it with a `ThreadHead` slot (`ComponentType<MessageProps>`). On `VirtualizedMessageList`, `additionalVirtuosoProps.components.Header` still replaces the whole header slot.
-- `Message` / `MessageContext` still have a `threadList` field; only the list-level prop is gone.
+- `MessageProps.threadList` and `MessageContextValue.threadList` are removed too. A custom `MessageUI` or message child that read `useMessageContext().threadList` uses `!!useThreadContext()` instead.
+- `ReactionSelector.getDialogId` takes only `{ messageId }`, and the reaction selector's dialog id no longer has a `-thread` part. The channel list and the thread list each have their own dialog manager, so the same message open in both still gets two separate dialogs.
 
 ### `disableDateSeparator` → `withDateSeparator`
 
@@ -1903,6 +1904,41 @@ export const Lists = () => (
 );
 ```
 
+### Message grouping: `groupByUser` and `getGroupStyles`
+
+Both lists take `groupByUser`; the defaults are unchanged.
+
+| Component                | v14                                   | v15                             |
+| ------------------------ | ------------------------------------- | ------------------------------- |
+| `MessageList`            | `noGroupByUser` (default `false`)     | `groupByUser` (default `true`)  |
+| `VirtualizedMessageList` | `shouldGroupByUser` (default `false`) | `groupByUser` (default `false`) |
+
+The `groupStyles` prop of both lists is renamed `getGroupStyles`, and the function takes one object instead of five positional arguments: `{ groupByUser, maxTimeBetweenGroupedMessages, message, nextMessage, previousMessage }` (`GetGroupStylesParams`; `nextMessage` and `previousMessage` are `undefined` at the ends of the list). `groupByUser` replaces the inverted `noGroupByUser` argument. The exported default `getGroupStyles` takes the same object, so a custom function can still delegate to it. `useEnrichedMessages` takes `getGroupStyles` and `groupByUser` instead of `groupStyles` and `noGroupByUser`. `VirtuosoContext.shouldGroupByUser` is `groupByUser`.
+
+In untyped code the old props are ignored and the defaults apply: `MessageList noGroupByUser` groups again, `VirtualizedMessageList shouldGroupByUser` stops grouping, and a `groupStyles` function is never called. A positional function passed as `getGroupStyles` receives the object as its first argument and computes wrong styles without an error; TypeScript rejects it.
+
+```tsx
+// v14
+<MessageList noGroupByUser />
+<VirtualizedMessageList shouldGroupByUser />
+<MessageList
+  groupStyles={(message, previousMessage, nextMessage, noGroupByUser, maxTime) =>
+    'pinned' in message && message.pinned
+      ? 'single'
+      : getGroupStyles(message, previousMessage, nextMessage, noGroupByUser, maxTime)
+  }
+/>
+
+// v15
+<MessageList groupByUser={false} />
+<VirtualizedMessageList groupByUser />
+<MessageList
+  getGroupStyles={(params) =>
+    'pinned' in params.message && params.message.pinned ? 'single' : getGroupStyles(params)
+  }
+/>
+```
+
 ### Custom `renderMessages` gets different options
 
 - `RenderMessagesOptions.channel: Channel` is new and required.
@@ -1914,6 +1950,7 @@ export const Lists = () => (
 
 - Removed: `Message`, `messageActions`, `openThread`, `threadList`.
 - New and required: `channel: Channel`. New: `focusedMessageId?`.
+- Renamed: `shouldGroupByUser` → `groupByUser`.
 - `head`, `firstUnreadMessageId` and `lastReadMessageId` are `... | null` (checks written as `=== undefined` miss them); `lastReadDate` is `TimestampNS | null` (unix nanoseconds); `loadingMore: boolean`; `unreadMessageCount: number`.
 
 ### `headerPosition` and `insertIntro` take unix nanoseconds
@@ -2015,6 +2052,10 @@ export const MessagePreview = ({
 
 - `mutes` → `useChatContext().mutes` (now `UserMuteResponse[]`), for example `isUserMuted(message, useChatContext().mutes)`. In untyped code the removed field is `undefined`, so `isUserMuted(message, mutes)` returns `false`.
 - `messageIsUnread` has no successor. Derive it from the channel's read state, for example `!isMyMessage() && (channel.lastRead() == null || message.created_at > channel.lastRead())`, with `channel` from `useChannel()`. `channel.lastRead()` returns `TimestampNS | null | undefined` and is not reactive; to re-render on read changes, subscribe to `read` on `channel.state`.
+
+### `MessageContext` grouping flags are removed; read `groupStyles`
+
+`endOfGroup`, `firstOfGroup` and `groupedByUser` are removed from `MessageContextValue`. The message lists never set them, so in v14 they were always `undefined`. A message's place in its group of consecutive messages from one user is `groupStyles[0]` from `useMessageContext()`: `top`, `middle`, `bottom` or `single`. The default `MessageUI` renders the metadata on every message, and the default CSS hides it on `top` and `middle` list items (`.str-chat__li--top`, `.str-chat__li--middle`), so an app can show it again with CSS alone. The `str-chat__virtual-message__wrapper--end`, `--first` and `--group` classes these flags added are removed too ([section 19](#19-css-and-markup)).
 
 ### `retrySendMessage` and `useRetryHandler`
 
@@ -2812,6 +2853,7 @@ Four formatter keys carry English day words inside their `calendarFormats` (`tim
 | `.str-chat__channel-list-inner`, `.str-chat__channel-list-inner__main` (from `ChannelListUI`, which held `role="listbox"`)        | Gone. Target `.str-chat__channel-list .str-chat__infinite-scroll-paginator` (the `role="listbox"` scroll container, inside `ChannelNavigation`) and `.str-chat__infinite-scroll-paginator__content`. A bare `<ChannelList>` has no `.str-chat__channel-list` ancestor.                                                                                                                                                                                                                                                                                                                                                                                                                             |
 | The channel list root carried `str-chat <theme> str-chat__channel-list` and `customClasses.channelList`                           | Inside `ChatView` the `str-chat <theme>` scope comes from the `ChatView` root, and the channel list adds none of its own: a nested `.str-chat` would reset the tokens you override on the `ChatView` root. Outside `ChatView`, `ChannelNavigation`'s root renders `str-chat <theme> str-chat__channel-list`, and a bare `<ChannelList>` wraps itself in `div.str-chat.<theme>.str-chat__theme-scope` (`display: contents`). `customClasses.chat` replaces `str-chat` where the scope is applied; `customClasses.channelList` replaces `str-chat__channel-list` on `ChannelNavigation`'s root. App CSS that targeted the list root as a `.str-chat` element no longer matches it inside `ChatView`. |
 | `.str-chat__chat-view__channels` / `.str-chat__chat-view__threads`                                                                | Rendered only when `ChatView` is given `views`. With the built-in workspace layout, content sits in `.str-chat__chat-view__workspace-layout`, `.str-chat__chat-view__workspace-layout-slots`, `.str-chat__chat-view__slot` (`--hidden`) and `.str-chat__chat-view__slot-layer`.                                                                                                                                                                                                                                                                                                                                                                                                                    |
+| `str-chat__virtual-message__wrapper--end`, `--first`, `--group` on `.str-chat__message`                                           | Not applied; the SDK stylesheet never styled them. Target the list item's group class instead: `.str-chat__li--top`, `--middle`, `--bottom` or `--single`.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
 | `.str-chat__thread--virtualized` on the thread container                                                                          | Not applied. Scope by the list you render (`.str-chat__thread .str-chat__virtual-list`, or your own class).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
 | `.str-chat__quoted-message-preview` text inherited the surrounding colour                                                         | It sets `color: var(--str-chat__chat-text-incoming)`, and `--own` `var(--str-chat__chat-text-outgoing)`, matching the bubble backgrounds. In the default light theme your own quotes change to the outgoing bubble's text colour. Remove contrast workarounds written for v14; theme with those two tokens.                                                                                                                                                                                                                                                                                                                                                                                        |
 | `.str-chat__channel-list-item[aria-pressed=true]` and `.str-chat__thread-list-item[aria-pressed=true]` highlighted the active row | Only `[aria-selected=true]` is styled. A custom row UI sets `role="option"` and `aria-selected`, not `aria-pressed`: `aria-selected={active}` on a channel row, `aria-selected={isThreadActive(thread.id)}` (from `useWorkspaceNavigation()`) on a thread row                                                                                                                                                                                                                                                                                                                                                                                                                                      |
@@ -2819,7 +2861,7 @@ Four formatter keys carry English day words inside their `calendarFormats` (`tim
 Find every app rule that uses a removed class. They also hide inside combinators and pseudo-classes, where a rule does more than style the element: `.create-channel-panel + .str-chat__main-panel { display: none }` hid the channel while another panel was open, and without it both render side by side. Nothing reports such a rule; it simply stops matching.
 
 ```bash
-grep -rnE "str-chat__(main-panel(--[a-z-]+)?|container|channel-list-inner(__main)?|thread--virtualized)([^a-z0-9_-]|$)" \
+grep -rnE "str-chat__(main-panel(--[a-z-]+)?|container|channel-list-inner(__main)?|thread--virtualized|virtual-message__wrapper--(end|first|group))([^a-z0-9_-]|$)" \
   --include='*.css' --include='*.scss' --include='*.sass' --include='*.less' \
   --exclude-dir=node_modules --exclude-dir=build --exclude-dir=dist .
 ```
@@ -2956,3 +2998,5 @@ On narrow screens (`max-width: 767px`) the lists switch to an overlay sized by `
 | BC-075 | `ChatView` view wrappers                                                       | [19](#19-css-and-markup)                                                                                    |
 | BC-076 | `str-chat__thread--virtualized`                                                | [19](#19-css-and-markup)                                                                                    |
 | BC-077 | Quote and edit preview colours                                                 | [19](#19-css-and-markup)                                                                                    |
+| BC-079 | `MessageContext` grouping flags and `virtual-message__wrapper--*` classes      | [12](#messagecontext-grouping-flags-are-removed-read-groupstyles), [19](#19-css-and-markup)                 |
+| BC-080 | `groupByUser`, `getGroupStyles`                                                | [11](#message-grouping-groupbyuser-and-getgroupstyles)                                                      |
