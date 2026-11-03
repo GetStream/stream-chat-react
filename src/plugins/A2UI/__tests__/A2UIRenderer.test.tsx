@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { StrictMode } from 'react';
 import { act, fireEvent, screen, waitFor, within } from '@testing-library/react';
 
 import {
@@ -512,6 +512,38 @@ const surfaceWith = (components: Record<string, unknown>[], dataModel = {}) => [
   line({ createSurface: { dataModel, surfaceId: 's' } }),
   line({ updateComponents: { components, surfaceId: 's' } }),
 ];
+
+describe('a reply written in A2UI, under StrictMode', () => {
+  it('shows each surface once, follows the stream, and sends an action once', async () => {
+    const { errors, sent, ui } = setup();
+    const strict = (lines: string[], status: string) => (
+      <StrictMode>
+        <AIConversation messages={[question, replyWith(lines, status, '')]} ui={ui} />
+      </StrictMode>
+    );
+    const { container, rerender } = renderWithEnglish(
+      strict(ohridLines.slice(0, 2), 'streaming'),
+    );
+    await waitFor(() =>
+      expect(document.body).toHaveTextContent('Two easy days by the lake'),
+    );
+    rerender(strict(ohridLines, 'complete'));
+
+    const update = await screen.findByRole('button', { name: 'Update the plan' });
+    expect(container.querySelectorAll('.str-chat__a2ui__surface')).toHaveLength(1);
+    expect(
+      screen.getAllByText('Two easy days by the lake', { exact: false }),
+    ).toHaveLength(1);
+    expect(screen.getAllByTestId('trip-map')).toHaveLength(1);
+    act(() => {
+      fireEvent.click(update);
+    });
+    await waitFor(() => expect(sent).toHaveLength(1));
+    await new Promise((resolve) => setTimeout(resolve, 50));
+    expect(sent).toHaveLength(1);
+    expect(errors).toEqual([]);
+  });
+});
 
 describe('the basic catalog in Stream’s look', () => {
   it('draws Buttons as Stream’s, with their label as words', async () => {
