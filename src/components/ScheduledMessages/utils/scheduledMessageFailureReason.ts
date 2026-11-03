@@ -27,6 +27,6 @@ export const translateScheduledMessageFailureReason = (
     case ScheduledMessageFailureReason.PendingNotSupported:
       return t('This channel now holds messages for approval. Schedule it again');
     default:
-      return t('Something went wrong. Try again');
+      return t("Couldn't send. Try again");
   }
 };

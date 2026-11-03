@@ -66,10 +66,28 @@ const renderComposer = async () => {
   });
   const { messageComposer } = channel;
 
+  const failedMessage = generateScheduledMessage({
+    cid: channel.cid,
+    failure_reason: 'channel_frozen',
+    message: { text: 'Launch moved to Monday' },
+    status: 'failed',
+  });
+
   const startEditing = () =>
     act(() => messageComposer.editScheduledMessage(scheduledMessage));
 
-  return { channel, client, messageComposer, scheduledMessage, startEditing };
+  const startSchedulingAgain = () =>
+    act(() => messageComposer.rescheduleFailedMessage(failedMessage));
+
+  return {
+    channel,
+    client,
+    failedMessage,
+    messageComposer,
+    scheduledMessage,
+    startEditing,
+    startSchedulingAgain,
+  };
 };
 
 describe('editing a scheduled message in the composer', () => {
@@ -112,5 +130,45 @@ describe('editing a scheduled message in the composer', () => {
 
     expect(screen.queryByText('Edit scheduled message')).not.toBeInTheDocument();
     expect(messageComposer.textComposer.text).toBe('my unsent draft');
+  });
+
+  describe('scheduling a failed message again', () => {
+    it('shows the schedule-again preview and keeps the schedule button', async () => {
+      const { startSchedulingAgain } = await renderComposer();
+
+      await startSchedulingAgain();
+
+      expect(screen.getByText('Schedule again')).toBeInTheDocument();
+      expect(screen.getByTestId('schedule-message-button')).toBeInTheDocument();
+    });
+
+    it('restores the earlier draft when cancelled', async () => {
+      const { messageComposer, startSchedulingAgain } = await renderComposer();
+      await act(() => messageComposer.textComposer.setText('my unsent draft'));
+
+      await startSchedulingAgain();
+      await act(() =>
+        fireEvent.click(screen.getByRole('button', { name: /cancel|remove/i })),
+      );
+
+      expect(screen.queryByText('Schedule again')).not.toBeInTheDocument();
+      expect(messageComposer.textComposer.text).toBe('my unsent draft');
+    });
+
+    it('deletes the failed message after sending it now', async () => {
+      const { channel, client, failedMessage, startSchedulingAgain } =
+        await renderComposer();
+      vi.spyOn(channel, 'sendMessage').mockResolvedValue(
+        fromPartial({ message: { id: 'sent-id', text: 'Launch moved to Monday' } }),
+      );
+      const deleteScheduledMessage = vi
+        .spyOn(client.scheduledMessages, 'deleteScheduledMessage')
+        .mockResolvedValue(failedMessage);
+
+      await startSchedulingAgain();
+      await act(() => fireEvent.click(screen.getByTestId('send-button')));
+
+      expect(deleteScheduledMessage).toHaveBeenCalledWith(failedMessage.id);
+    });
   });
 });

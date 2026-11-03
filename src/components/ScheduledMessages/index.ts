@@ -7,6 +7,7 @@ export {
 } from './constants';
 export * from './DeleteScheduledMessageAlert';
 export * from './EditedScheduledMessagePreview';
+export * from './FailedScheduledMessagePreview';
 export * from './hooks';
 export * from './RescheduleMessageDialog';
 export * from './ScheduledMessageActions';

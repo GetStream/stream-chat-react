@@ -32,7 +32,7 @@ export const ScheduledMessageActionsMenu = ({
       },
       [ScheduledMessageAction.Edit]: {
         Icon: IconEdit,
-        label: t('Edit'),
+        label: t('Edit & reschedule'),
         onSelect: onEdit,
       },
       [ScheduledMessageAction.Reschedule]: {

@@ -1,11 +1,15 @@
 import clsx from 'clsx';
 import React, { useMemo } from 'react';
 
-import { useChatContext, useTranslationContext } from '../../context';
+import {
+  useChatContext,
+  useComponentContext,
+  useTranslationContext,
+} from '../../context';
 import { ChannelAvatar } from '../Avatar';
 import { useChannelPreviewInfo } from '../ChannelListItem/hooks/useChannelPreviewInfo';
 import { SummarizedMessagePreview } from '../SummarizedMessagePreview';
-import { ScheduledMessageActions } from './ScheduledMessageActions';
+import { ScheduledMessageActions as DefaultScheduledMessageActions } from './ScheduledMessageActions';
 import { ScheduledMessageItemStatus } from './ScheduledMessageItemStatus';
 import type { ScheduledMessageItemProps } from './types';
 import { isFailedScheduledMessage, toStoredScheduledMessagePreview } from './utils';
@@ -16,12 +20,18 @@ export const ScheduledMessageItem = ({
 }: ScheduledMessageItemProps) => {
   const { t } = useTranslationContext();
   const { client } = useChatContext();
+  const { ScheduledMessageActions: ScheduledMessageActionsOverride } =
+    useComponentContext();
 
   const { cid, scheduled_at } = scheduledMessage;
   const channel = client.activeChannels[cid];
   const { displayImage, displayTitle, groupChannelDisplayInfo } = useChannelPreviewInfo({
     channel,
   });
+  const ScheduledMessageActions =
+    ScheduledMessageActionsOverride === undefined
+      ? DefaultScheduledMessageActions
+      : ScheduledMessageActionsOverride;
 
   const previewMessage = useMemo(
     () => toStoredScheduledMessagePreview(scheduledMessage),
@@ -43,7 +53,9 @@ export const ScheduledMessageItem = ({
       <time className='str-chat__scheduled-message-item__time' dateTime={scheduled_at}>
         {t('Send {{ time }}', { time: sendTime })}
       </time>
-      <ScheduledMessageActions onEdit={onEdit} scheduledMessage={scheduledMessage} />
+      {ScheduledMessageActions && (
+        <ScheduledMessageActions onEdit={onEdit} scheduledMessage={scheduledMessage} />
+      )}
       <div className='str-chat__scheduled-message-item__body'>
         <ChannelAvatar
           aria-hidden='true'

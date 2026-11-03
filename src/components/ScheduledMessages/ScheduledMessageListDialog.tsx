@@ -1,11 +1,15 @@
 import React, { useCallback, useState } from 'react';
 import type { ChangeEvent } from 'react';
 
-import { useComponentContextIcons, useTranslationContext } from '../../context';
+import {
+  useComponentContext,
+  useComponentContextIcons,
+  useTranslationContext,
+} from '../../context';
 import { Prompt } from '../Dialog';
 import { TextInput } from '../Form';
 import { useScheduledMessageCount } from './hooks';
-import { ScheduledMessageList } from './ScheduledMessageList';
+import { ScheduledMessageList as DefaultScheduledMessageList } from './ScheduledMessageList';
 import type { ScheduledMessageListDialogProps } from './types';
 
 export const ScheduledMessageListDialog = ({
@@ -16,6 +20,7 @@ export const ScheduledMessageListDialog = ({
 }: ScheduledMessageListDialogProps) => {
   const { t } = useTranslationContext();
   const { IconSearch } = useComponentContextIcons();
+  const { ScheduledMessageList = DefaultScheduledMessageList } = useComponentContext();
 
   const scheduledMessageCount = useScheduledMessageCount({ cid, parentId });
 

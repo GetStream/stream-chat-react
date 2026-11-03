@@ -37,15 +37,18 @@ import {
 import { CommandChip as DefaultCommandChip } from './CommandChip';
 import { GeolocationPreview } from './AttachmentPreviewList/GeolocationPreview';
 import { EditedScheduledMessagePreview as DefaultEditedScheduledMessagePreview } from '../ScheduledMessages/EditedScheduledMessagePreview';
+import { FailedScheduledMessagePreview as DefaultFailedScheduledMessagePreview } from '../ScheduledMessages/FailedScheduledMessagePreview';
 import { ScheduledMessagesBanner as DefaultScheduledMessagesBanner } from '../ScheduledMessages/ScheduledMessagesBanner';
 
 const messageComposerStateSelector = ({
   editedMessage,
   editedScheduledMessage,
+  failedScheduledMessage,
   quotedMessage,
 }: MessageComposerState) => ({
   editedMessage,
   editedScheduledMessage,
+  failedScheduledMessage,
   quotedMessage,
 });
 
@@ -72,16 +75,15 @@ const MessageComposerPreviews = () => {
     AttachmentPreviewList = DefaultAttachmentPreviewList,
     EditedMessagePreview = DefaultEditedMessagePreview,
     EditedScheduledMessagePreview = DefaultEditedScheduledMessagePreview,
+    FailedScheduledMessagePreview = DefaultFailedScheduledMessagePreview,
     LinkPreviewList = DefaultLinkPreviewList,
     QuotedMessagePreview = DefaultQuotedMessagePreview,
     VoiceRecordingPreviewSlot = DefaultVoiceRecordingPreviewSlot,
   } = useComponentContext();
 
   const messageComposer = useMessageComposerController();
-  const { editedMessage, editedScheduledMessage, quotedMessage } = useStateStore(
-    messageComposer.state,
-    messageComposerStateSelector,
-  );
+  const { editedMessage, editedScheduledMessage, failedScheduledMessage, quotedMessage } =
+    useStateStore(messageComposer.state, messageComposerStateSelector);
 
   const { attachments } = useStateStore(
     messageComposer.attachmentManager.state,
@@ -105,7 +107,8 @@ const MessageComposerPreviews = () => {
     linkPreviews.length === 0 &&
     !location &&
     !editedMessage &&
-    !editedScheduledMessage
+    !editedScheduledMessage &&
+    !failedScheduledMessage
   )
     return null;
 
@@ -128,6 +131,15 @@ const MessageComposerPreviews = () => {
         <EditedScheduledMessagePreview
           onCancel={messageComposer.cancelEditScheduledMessage}
           scheduledMessage={editedScheduledMessage}
+        />
+      </div>
+    );
+  } else if (failedScheduledMessage) {
+    leadingPreview = (
+      <div className='str-chat__message-composer-previews'>
+        <FailedScheduledMessagePreview
+          onCancel={messageComposer.cancelRescheduleFailedMessage}
+          scheduledMessage={failedScheduledMessage}
         />
       </div>
     );

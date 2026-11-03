@@ -9,6 +9,7 @@ import {
   Streami18n,
 } from '../../../i18n';
 import { useLoadScheduledMessages } from './useLoadScheduledMessages';
+import { useScheduledMessageFailureNotifications } from './useScheduledMessageFailureNotifications';
 
 import type {
   AppSettingsAPIResponse,
@@ -80,6 +81,7 @@ export const useChat = ({
   }, [client]);
 
   useLoadScheduledMessages(client);
+  useScheduledMessageFailureNotifications(client);
 
   useEffect(() => {
     setMutes(clientMutes);

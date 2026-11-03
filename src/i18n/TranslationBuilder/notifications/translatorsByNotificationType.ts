@@ -11,6 +11,7 @@ import {
   translateScheduledMessageBlocked,
   translateScheduledMessageCompositionEnded,
   translateScheduledMessageCreateFailed,
+  translateScheduledMessageSendFailed,
 } from './translators';
 import type { Translator } from '../../index';
 
@@ -29,6 +30,7 @@ export const translatorsByNotificationType: Record<
   [ScheduledMessageNotificationType.DeleteFailed]: translateScheduledMessageActionFailed,
   [ScheduledMessageNotificationType.RescheduleFailed]:
     translateScheduledMessageActionFailed,
+  [ScheduledMessageNotificationType.SendFailed]: translateScheduledMessageSendFailed,
   [ScheduledMessageNotificationType.SendNowFailed]: translateScheduledMessageActionFailed,
   [ScheduledMessageNotificationType.UpdateFailed]: translateScheduledMessageActionFailed,
   'browser:audio:playback:error': translateBrowserAudioPlaybackError,

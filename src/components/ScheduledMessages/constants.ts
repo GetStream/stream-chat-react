@@ -6,6 +6,8 @@ export const SCHEDULED_MESSAGE_ACTIONS_MENU_ID = 'scheduled-message-actions-menu
 
 export const SCHEDULED_MESSAGE_ACTIONS_EMITTER = 'ScheduledMessageActions';
 
+export const SCHEDULED_MESSAGES_EMITTER = 'ScheduledMessages';
+
 export const SCHEDULE_MESSAGE_NOTIFICATION_EMITTER = 'ScheduleMessage';
 
 export const CLOCK_SKEW_BUFFER_MS = 60 * 1000;
@@ -41,6 +43,7 @@ export const ScheduledMessageNotificationType = {
   CreateSucceeded: 'api:scheduled-message:create:success',
   DeleteFailed: 'api:scheduled-message:delete:failed',
   RescheduleFailed: 'api:scheduled-message:reschedule:failed',
+  SendFailed: 'api:scheduled-message:send:failed',
   SendNowFailed: 'api:scheduled-message:send-now:failed',
   SendNowSucceeded: 'api:scheduled-message:send-now:success',
   UpdateFailed: 'api:scheduled-message:update:failed',

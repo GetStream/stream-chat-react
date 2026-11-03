@@ -144,6 +144,35 @@ describe('ScheduledMessagesBanner', () => {
     expect(queryBanner()).not.toHaveTextContent('1 scheduled messages');
   });
 
+  it('switches to the failed count when a scheduled message failed', async () => {
+    await renderComposer({
+      scheduledMessages: [
+        generateScheduledMessage({ cid }),
+        generateScheduledMessage({ cid, status: 'failed' }),
+      ],
+    });
+
+    expect(queryBanner()).toHaveTextContent('1 failed to send');
+    expect(queryBanner()).not.toHaveTextContent('scheduled messages');
+    expect(queryBanner()).toHaveClass('str-chat__scheduled-messages-banner--failed');
+  });
+
+  it('leaves out the failed count when nothing failed', async () => {
+    await renderComposer({ scheduledMessages: [generateScheduledMessage({ cid })] });
+
+    expect(queryBanner()).not.toHaveTextContent('failed');
+  });
+
+  it('disappears when the store is reset for another user', async () => {
+    const { client } = await renderComposer({
+      scheduledMessages: [generateScheduledMessage({ cid })],
+    });
+
+    act(() => client.scheduledMessages.resetState());
+
+    expect(queryBanner()).not.toBeInTheDocument();
+  });
+
   it('counts only the replies of the thread in a thread composer', async () => {
     await renderComposer({
       inThread: true,
@@ -241,6 +270,14 @@ describe('ScheduledMessagesBanner', () => {
 
   it('has no accessibility violations', async () => {
     await renderComposer({ scheduledMessages: [generateScheduledMessage({ cid })] });
+
+    expect(await axe(queryBanner() as HTMLElement)).toHaveNoViolations();
+  });
+
+  it('has no accessibility violations with failed messages', async () => {
+    await renderComposer({
+      scheduledMessages: [generateScheduledMessage({ cid, status: 'failed' })],
+    });
 
     expect(await axe(queryBanner() as HTMLElement)).toHaveNoViolations();
   });

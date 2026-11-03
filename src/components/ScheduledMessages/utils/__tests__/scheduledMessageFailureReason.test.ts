@@ -22,7 +22,7 @@ describe('translateScheduledMessageFailureReason', () => {
       ScheduledMessageFailureReason.PendingNotSupported,
       'This channel now holds messages for approval. Schedule it again',
     ],
-    [ScheduledMessageFailureReason.InternalError, 'Something went wrong. Try again'],
+    [ScheduledMessageFailureReason.InternalError, "Couldn't send. Try again"],
   ])('translates %s', (failureReason, expected) => {
     expect(translateScheduledMessageFailureReason(t, failureReason)).toBe(expected);
   });
@@ -37,8 +37,6 @@ describe('translateScheduledMessageFailureReason', () => {
   });
 
   it('falls back to the generic copy without a reason', () => {
-    expect(translateScheduledMessageFailureReason(t)).toBe(
-      'Something went wrong. Try again',
-    );
+    expect(translateScheduledMessageFailureReason(t)).toBe("Couldn't send. Try again");
   });
 });

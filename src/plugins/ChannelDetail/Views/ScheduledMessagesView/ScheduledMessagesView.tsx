@@ -1,18 +1,24 @@
 import React, { useCallback, useState } from 'react';
 import type { ScheduledMessageResponse } from 'stream-chat';
 
-import { useModalContext, useTranslationContext } from '../../../../context';
+import {
+  useComponentContext,
+  useModalContext,
+  useTranslationContext,
+} from '../../../../context';
 import { Prompt } from '../../../../components/Dialog';
 import {
-  ScheduledMessageList,
+  ScheduledMessageList as DefaultScheduledMessageList,
   useScheduledMessageCount,
 } from '../../../../components/ScheduledMessages';
+import { openScheduledMessageInComposer } from '../../../../components/ScheduledMessages/utils';
 import { ChannelDetailSearchInput } from '../../ChannelDetailSearchInput';
 import { useChannelDetailContext } from '../../ChannelDetailContext';
 import { SectionNavigatorHeader } from '../../SectionNavigator';
 
 export const ScheduledMessagesView = () => {
   const { t } = useTranslationContext();
+  const { ScheduledMessageList = DefaultScheduledMessageList } = useComponentContext();
   const { close } = useModalContext();
   const { channel } = useChannelDetailContext();
 
@@ -23,7 +29,7 @@ export const ScheduledMessagesView = () => {
   const editScheduledMessage = useCallback(
     (scheduledMessage: ScheduledMessageResponse) => {
       close();
-      channel.messageComposer.editScheduledMessage(scheduledMessage);
+      openScheduledMessageInComposer(channel.messageComposer, scheduledMessage);
     },
     [channel, close],
   );

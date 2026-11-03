@@ -16,7 +16,10 @@ const CHANNEL_DELETED_ACTIONS: ScheduledMessageAction[] = [
   ScheduledMessageAction.Delete,
 ];
 
-const FAILED_ACTIONS: ScheduledMessageAction[] = [ScheduledMessageAction.Delete];
+const FAILED_ACTIONS: ScheduledMessageAction[] = [
+  ScheduledMessageAction.Edit,
+  ScheduledMessageAction.Delete,
+];
 
 const NO_ACTIONS: ScheduledMessageAction[] = [];
 

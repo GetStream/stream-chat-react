@@ -1,3 +1,4 @@
+import clsx from 'clsx';
 import React, { useCallback, useRef } from 'react';
 import type { ScheduledMessageResponse } from 'stream-chat';
 
@@ -11,13 +12,17 @@ import { useMessageComposerController } from '../MessageComposer/hooks/useMessag
 import { GlobalModal } from '../Modal';
 import { Portal } from '../Portal/Portal';
 import { SCHEDULE_MESSAGE_CAPABILITY } from './constants';
-import { useScheduledMessageCount, useScheduleMessageDialog } from './hooks';
+import {
+  useFailedScheduledMessageCount,
+  useScheduledMessageCount,
+  useScheduleMessageDialog,
+} from './hooks';
 import { ScheduledMessageListDialog } from './ScheduledMessageListDialog';
-import { getChannelContainer } from './utils';
+import { getChannelContainer, openScheduledMessageInComposer } from './utils';
 
 export const ScheduledMessagesBanner = () => {
   const { t } = useTranslationContext();
-  const { IconClock } = useComponentContextIcons();
+  const { IconClock, IconExclamationMark } = useComponentContextIcons();
   const { Modal = GlobalModal } = useComponentContext();
   const { channelCapabilities } = useChannelStateContext('ScheduledMessagesBanner');
 
@@ -26,6 +31,7 @@ export const ScheduledMessagesBanner = () => {
   const { cid } = channel;
   const parentId = threadId ?? undefined;
   const scheduledMessageCount = useScheduledMessageCount({ cid, parentId });
+  const failedScheduledMessageCount = useFailedScheduledMessageCount({ cid, parentId });
 
   const viewButtonRef = useRef<HTMLButtonElement>(null);
 
@@ -35,16 +41,21 @@ export const ScheduledMessagesBanner = () => {
   const editScheduledMessage = useCallback(
     (scheduledMessage: ScheduledMessageResponse) => {
       closeDialog();
-      messageComposer.editScheduledMessage(scheduledMessage);
+      openScheduledMessageInComposer(messageComposer, scheduledMessage);
     },
     [closeDialog, messageComposer],
   );
 
   const hasCapability = !!channelCapabilities[SCHEDULE_MESSAGE_CAPABILITY];
   const isBannerVisible = hasCapability && scheduledMessageCount > 0;
-  const label = parentId
+  const hasFailedScheduledMessages = failedScheduledMessageCount > 0;
+  const scheduledLabel = parentId
     ? t('{{ count }} scheduled replies', { count: scheduledMessageCount })
     : t('{{ count }} scheduled messages', { count: scheduledMessageCount });
+  const label = hasFailedScheduledMessages
+    ? t('{{ count }} failed to send', { count: failedScheduledMessageCount })
+    : scheduledLabel;
+  const BannerIcon = hasFailedScheduledMessages ? IconExclamationMark : IconClock;
 
   if (!isBannerVisible && !isDialogOpen) return null;
 
@@ -52,10 +63,12 @@ export const ScheduledMessagesBanner = () => {
     <>
       {isBannerVisible && (
         <div
-          className='str-chat__scheduled-messages-banner'
+          className={clsx('str-chat__scheduled-messages-banner', {
+            'str-chat__scheduled-messages-banner--failed': hasFailedScheduledMessages,
+          })}
           data-testid='scheduled-messages-banner'
         >
-          <IconClock className='str-chat__scheduled-messages-banner__icon' />
+          <BannerIcon className='str-chat__scheduled-messages-banner__icon' />
           <span className='str-chat__scheduled-messages-banner__label'>{label}</span>
           <button
             className='str-chat__scheduled-messages-banner__view-button'
