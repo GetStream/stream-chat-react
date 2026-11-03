@@ -3,6 +3,7 @@ import { MediaRecorderController, MediaRecordingState } from '../classes';
 import { useTranslationContext } from '../../../context';
 import { useMessageComposerController } from '../../MessageComposer/hooks/useMessageComposerController';
 import { useInteractionAnnouncements } from '../../Accessibility';
+import { uploadAttachmentIfEnabled } from '../../MessageComposer/uploadAttachmentIfEnabled';
 
 import type { LocalVoiceRecordingAttachment } from 'stream-chat';
 import type { CustomAudioRecordingConfig } from '../classes';
@@ -55,7 +56,7 @@ export const useMediaRecorder = ({
     if (!recorder) return;
     const recording = await recorder.stop();
     if (!recording) return;
-    await messageComposer.attachmentManager.uploadAttachment(recording);
+    await uploadAttachmentIfEnabled(messageComposer.attachmentManager, recording);
     if (!asyncMessagesMultiSendEnabled) {
       await sendMessageFn();
       announceInteraction('voiceRecording.sent');
