@@ -102,8 +102,34 @@ describe('AIMessageComposer.AttachmentPreview', () => {
     expect(screen.getByText('b.txt')).toBeInTheDocument();
   });
 
-  it('renders nothing without children', () => {
+  it('renders nothing without children while nothing is picked', () => {
     const { container } = render(<AIMessageComposer.AttachmentPreview />);
     expect(container).toBeEmptyDOMElement();
+  });
+
+  it('shows the picked attachments, each removable, without children', () => {
+    const createObjectURL = vi.fn(() => 'blob:preview');
+    const revokeObjectURL = vi.fn();
+    Object.assign(URL, { createObjectURL, revokeObjectURL });
+    const { container, unmount } = render(
+      <AIMessageComposer>
+        <AIMessageComposer.FileInput name='attachments' />
+        <AIMessageComposer.AttachmentPreview className='custom' />
+      </AIMessageComposer>,
+    );
+    const input = container.querySelector('input[type="file"]') as HTMLInputElement;
+    const image = new File([new Uint8Array(4)], 'photo.png', { type: 'image/png' });
+    fireEvent.change(input, { target: { files: [textFile('a.txt'), image] } });
+
+    const preview = container.querySelector('.str-chat__ai-attachment-preview');
+    expect(preview).toHaveClass('str-chat__ai-attachment-preview', 'custom');
+    expect(screen.getByText('a.txt')).toBeInTheDocument();
+    expect(screen.getByAltText('photo.png')).toHaveAttribute('src', 'blob:preview');
+    expect(createObjectURL).toHaveBeenCalledWith(image);
+
+    fireEvent.click(screen.getAllByLabelText('Delete attachment')[0] as HTMLElement);
+    expect(screen.queryByText('a.txt')).toBeNull();
+    unmount();
+    expect(revokeObjectURL).toHaveBeenCalledWith('blob:preview');
   });
 });

@@ -30,6 +30,14 @@ describe('AIMessageComposer', () => {
     expect(screen.getByLabelText('b input')).toHaveValue('');
   });
 
+  it('keeps its own class next to a className it is given', () => {
+    const { container } = render(<AIMessageComposer className='floating' />);
+    expect(container.querySelector('form')).toHaveClass(
+      'str-chat__ai-message-composer__form',
+      'floating',
+    );
+  });
+
   it('renders without throwing when the Web Speech API is unavailable', () => {
     expect('SpeechRecognition' in window).toBe(false);
     expect(() => render(<Composer label='c' />)).not.toThrow();

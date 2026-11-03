@@ -63,6 +63,12 @@
     flex-grow: 1;
     font-size: 16px;
     padding-inline: 0.25rem;
+
+    // the form shows the focus; this beats the `.str-chat *:not(:disabled):focus-visible`
+    // outline, which a clicked text field matches
+    &:not(:disabled):focus-visible {
+      outline: none;
+    }
   }
 
   .str-chat__ai-message-composer__select {

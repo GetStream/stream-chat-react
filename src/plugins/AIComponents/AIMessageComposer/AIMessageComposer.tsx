@@ -20,6 +20,7 @@ import { useStateStore } from '../../../store';
 import { useStableCallback } from '../../../utils/useStableCallback';
 import { useStableId } from '../../../components/UtilityComponents/useStableId';
 import { AttachmentPreview } from './AttachmentPreview';
+import { ChatOptions as ChatOptionsBase, type ChatOptionsProps } from './ChatOptions';
 import { useSpeechToText, type UseSpeechToTextOptions } from './hooks/useSpeechToText';
 
 const nanoId = customAlphabet('abcdefghijklmnopqrstuvwxyz0123456789', 15);
@@ -268,10 +269,12 @@ interface AIMessageComposer {
   SubmitButton: typeof SubmitButton;
   ModelSelect: typeof ModelSelect;
   AttachmentPreview: typeof AttachmentPreview;
+  ChatOptions: typeof ChatOptions;
 }
 
 export const AIMessageComposer: AIMessageComposer = ({
   children,
+  className,
   disabled,
   nameMapping,
   onChange,
@@ -345,7 +348,7 @@ export const AIMessageComposer: AIMessageComposer = ({
   return (
     <AIMessageComposerContext.Provider value={stateStore}>
       <form
-        className='str-chat__ai-message-composer__form'
+        className={clsx('str-chat__ai-message-composer__form', className)}
         onChange={handleChange}
         onReset={handleReset}
         {...restProps}
@@ -466,6 +469,12 @@ const SubmitButton = ({
   );
 };
 
+// Follows the composer's disabled state unless told otherwise.
+const ChatOptions = (props: ChatOptionsProps) => {
+  const { disabled } = useIsDisabled();
+  return <ChatOptionsBase {...props} disabled={props.disabled ?? disabled} />;
+};
+
 const availableModels = [
   { label: 'GPT-4o mini', platform: 'openai', value: 'gpt-4o-mini' },
   { label: 'GPT-4o', platform: 'openai', value: 'gpt-4o' },
@@ -510,3 +519,4 @@ AIMessageComposer.SpeechToTextButton = SpeechToTextButton;
 AIMessageComposer.SubmitButton = SubmitButton;
 AIMessageComposer.ModelSelect = ModelSelect;
 AIMessageComposer.AttachmentPreview = AttachmentPreview;
+AIMessageComposer.ChatOptions = ChatOptions;

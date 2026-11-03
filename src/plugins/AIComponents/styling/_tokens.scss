@@ -130,6 +130,62 @@ $ai-tokens: (
     '--str-chat__background-core-elevation-0',
     #ffffff,
   ),
+  'accent': (
+    '--str-chat__accent-primary',
+    #005fff,
+  ),
+  'success': (
+    '--str-chat__accent-success',
+    #00a46e,
+  ),
+  'error': (
+    '--str-chat__accent-error',
+    #d92f26,
+  ),
+  'text-tertiary': (
+    '--str-chat__text-tertiary',
+    #7a7d87,
+  ),
+  'card-bg': (
+    '--str-chat__background-core-surface-card',
+    #f7f7f8,
+  ),
+  'card-border': (
+    '--str-chat__border-core-subtle',
+    #e9ecef,
+  ),
+  'elevated-bg': (
+    '--str-chat__background-core-elevation-1',
+    #ffffff,
+  ),
+  'user-message-bg': (
+    '--str-chat__chat-bg-outgoing',
+    #d2e3ff,
+  ),
+  'user-message-text': (
+    '--str-chat__chat-text-outgoing',
+    #001a4d,
+  ),
+  'button-primary-bg': (
+    '--str-chat__button-primary-bg',
+    #005fff,
+  ),
+  'button-primary-text': (
+    '--str-chat__button-primary-text-on-accent',
+    #ffffff,
+  ),
+  'button-secondary-bg': (
+    '--str-chat__background-core-elevation-1',
+    #ffffff,
+  ),
+  'button-secondary-text': (
+    '--str-chat__text-primary',
+    #353740,
+  ),
+  'button-secondary-border': (
+    '--str-chat__button-secondary-border',
+    #ccc,
+  ),
 );
 
 @function ai-token($name) {
