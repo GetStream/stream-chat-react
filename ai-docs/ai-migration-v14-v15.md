@@ -2,7 +2,7 @@
 
 Execution-only guide for a coding agent migrating a third-party app from `stream-chat-react` v14 to v15. Apply the changes below and fix each compile or runtime break before moving on. For evidence and edge cases, verify against the installed SDK source (see below).
 
-Every breaking change confirmed in [`ai-docs/v15-breaking-changes.md`](https://github.com/GetStream/stream-chat-react/blob/master/ai-docs/v15-breaking-changes.md) (the audit this guide is written from, `BC-001` to `BC-077`) is covered here. The [index at the end](#index-of-breaking-changes) maps each `BC` entry to its section.
+Every breaking change confirmed in [`ai-docs/v15-breaking-changes.md`](https://github.com/GetStream/stream-chat-react/blob/master/ai-docs/v15-breaking-changes.md) (the audit this guide is written from, `BC-001` to `BC-078`) is covered here. The [index at the end](#index-of-breaking-changes) maps each `BC` entry to its section.
 
 ## Source of truth
 
@@ -144,6 +144,7 @@ Each import below is now a compile error (`TS2305` / `TS2724`) and `undefined` i
 | `useLegacyThreadContext`                                                                                                                                                         | [Section 7](#thread-takes-a-thread-prop-and-renders-its-children)                         |
 | `MESSAGE_ACTIONS`, `OPTIONAL_MESSAGE_ACTIONS`, `getMessageActions`, `MessageActionsArray`, `Capabilities`                                                                        | [Section 10](#messageactions-and-message_actions-are-removed)                             |
 | `deTranslations` ... `trTranslations`, `enTranslations`, `isLanguageSupported`, `SupportedTranslations`, `DateFormatterOptions`                                                  | [Section 18](#18-i18n)                                                                    |
+| `DefaultCommandData`                                                                                                                                                             | [Section 17](#17-other-stream-chat-v10-data-shapes)                                       |
 
 New root exports: `useMessagePaginator()` returns the active list's paginator (the thread's inside a thread, the channel's otherwise), and `useIsCooldownActive()` tells whether slow mode is counting down.
 
@@ -2663,7 +2664,7 @@ export const DayDivider = ({ message }: { message: LocalMessage }) => {
 
 ## 17. Other `stream-chat` v10 data shapes
 
-React props typed with `stream-chat` types change with them. The React APIs are unchanged; build and read the values with the v10 shapes.
+React props typed with `stream-chat` types change with them. The React APIs are unchanged, apart from the removed `DefaultCommandData` (see the command names bullet under **Composer**); build and read the values with the v10 shapes.
 
 **Channel, chat context and search:**
 
@@ -2726,6 +2727,19 @@ export const DeleteForMe = () => {
 **Composer:**
 
 - `CommandChip.command`, `CommandItem.entity`, `MessageComposerCommand.command`: `CommandResponse` → `Command`, where `args`, `description` and `set` are required.
+- **Command names are `string`.** `stream-chat` v10 removes `CustomCommandData`, and `stream-chat-react` removes `DefaultCommandData` with it. In v14, `command.name` / `command.set` were `CommandVariants` (the built-in names plus the keys of `CustomCommandData`); in v15 they are plain `string`. Delete the `interface CustomCommandData extends DefaultCommandData {}` line from your `declare module 'stream-chat'` block and the `DefaultCommandData` import (`TS2305`). A leftover `CustomCommandData` augmentation without that import still compiles and does nothing, so search for the name. To keep a checked set of command names, declare the union in your app:
+
+  ```ts
+  import type { Command } from 'stream-chat';
+
+  type AppCommandName = 'giphy' | 'poll';
+
+  export const isAppCommand = (
+    command: Command,
+  ): command is Command & { name: AppCommandName } =>
+    command.name === 'giphy' || command.name === 'poll';
+  ```
+
 - `DefaultSuggestionListItemEntity`: `anon`, `channel_last_read_at`, `notifications_muted`, `privacy_settings`, `push_notifications`, `shadow_banned` and `username` are gone (v10 user custom fields live in `entity.custom`); dates are `TimestampNS`; `teams_role` is `Record<string, string>`.
 - `getQuotedMessageAuthor` (on `QuotedMessagePreview` and its props): `(message: LocalMessage | MessageResponse) => string`. A callback typed with `LocalMessage` only is rejected under `strictFunctionTypes`. `QuotedMessagePreviewUI.quotedMessage`: `LocalMessage | MessageResponse`.
 - `GeolocationPreviewProps.location`, `useAttachmentsForPreview().location`: `StaticLocationPreview`.
@@ -2956,3 +2970,4 @@ On narrow screens (`max-width: 767px`) the lists switch to an overlay sized by `
 | BC-075 | `ChatView` view wrappers                                                       | [19](#19-css-and-markup)                                                                                    |
 | BC-076 | `str-chat__thread--virtualized`                                                | [19](#19-css-and-markup)                                                                                    |
 | BC-077 | Quote and edit preview colours                                                 | [19](#19-css-and-markup)                                                                                    |
+| BC-078 | `CustomCommandData` / `DefaultCommandData` removed                             | [17](#17-other-stream-chat-v10-data-shapes)                                                                 |
