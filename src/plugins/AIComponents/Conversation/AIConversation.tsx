@@ -12,6 +12,8 @@ import clsx from 'clsx';
 
 import { useTranslationContext } from '../../../context/TranslationContext';
 import { useComponentContextIcons } from '../../../context/useComponentContextIcons';
+import type { AIUIHost } from '../GenerativeUI/AIUIHost';
+import { AIUIGenerated } from '../GenerativeUI/AIUIView';
 import { AIAssistantMessage } from '../Message/AIAssistantMessage';
 import type { AIMessageAttachmentData } from '../Message/AIMessageAttachment';
 import { AIReplyActions, type AIReplyActionsProps } from '../Message/AIReplyActions';
@@ -112,6 +114,12 @@ export type AIConversationProps = {
     message: AIMessage,
     context: { isLatestReply: boolean },
   ) => Omit<AIReplyActionsProps, 'text'> | undefined;
+  /**
+   * Shows the UI the agent writes for its replies (`AIMessage.uiDocument`) in place of their
+   * text, with the renderers of the formats it writes, such as A2UI. A reply whose UI none of
+   * them shows shows its text. Keep one host per conversation, for as long as it shows.
+   */
+  ui?: AIUIHost;
   /** The view of the person's messages. Defaults to `AIUserMessage`. */
   UserMessage?: ComponentType<AIConversationUserMessageProps>;
 };
@@ -144,6 +152,7 @@ type EntryViewProps = {
   ReplyActions: ComponentType<AIConversationReplyActionsProps> | null;
   UserMessage: ComponentType<AIConversationUserMessageProps>;
   approver?: AIToolApprover;
+  ui?: AIUIHost;
 };
 
 // Not memoised: an app's messages are new objects on every update while a reply streams, and a
@@ -153,6 +162,7 @@ const EntryView = ({
   AssistantMessage,
   entry,
   ReplyActions,
+  ui,
   UserMessage,
 }: EntryViewProps) => {
   const { message, pending } = entry;
@@ -174,6 +184,15 @@ const EntryView = ({
       />
     );
   }
+  // The UI the agent generated for the reply, when one of the host's renderers shows it. It
+  // shows in place of the reply's text, after the reply's steps.
+  const { uiDocument } = message;
+  const generated = ui && uiDocument ? ui.content(uiDocument, message.id) : null;
+  const showsUI = !!uiDocument && generated !== null && generated !== undefined;
+  // A finished reply has its actions under it whether it answers in text or in UI, once the
+  // UI is written.
+  const hasAnswer = message.text !== '' || showsUI;
+  const isWritingUI = showsUI && uiDocument.isStreaming;
   return (
     <div className='str-chat__ai-conversation__reply'>
       <AssistantMessage
@@ -183,9 +202,12 @@ const EntryView = ({
         message={message}
         parts={message.parts ?? []}
         reasoningText={message.reasoningText}
-        text={message.text}
+        text={showsUI ? '' : message.text}
       />
-      {ReplyActions && !message.isGenerating && message.text !== '' && (
+      {showsUI && (
+        <AIUIGenerated isStreaming={uiDocument.isStreaming}>{generated}</AIUIGenerated>
+      )}
+      {ReplyActions && !message.isGenerating && hasAnswer && !isWritingUI && (
         <ReplyActions
           isLatestReply={entry.isLatestReply}
           message={message}
@@ -244,6 +266,7 @@ export const AIConversation = ({
   pendingMessage,
   ReplyActions: ReplyActionsProp,
   replyActions,
+  ui,
   UserMessage = DefaultUserMessage,
 }: AIConversationProps) => {
   const { t } = useTranslationContext();
@@ -252,12 +275,17 @@ export const AIConversation = ({
   const [tracker] = useState(() => new AIPendingMessageTracker());
   const [clock] = useState(() => new AIThinkingClock());
 
+  // Every reply's UI reaches its renderer before any row asks for its view, oldest first,
+  // whether or not the row is on screen. Only what arrived or changed is passed on.
+  ui?.receive(messages);
+  const canShowUI = useMemo(() => (ui ? ui.canShow.bind(ui) : undefined), [ui]);
   const entries = useMemo(
-    () => tracker.entries(messages, pendingMessage),
-    [messages, pendingMessage, tracker],
+    () => tracker.entries(messages, pendingMessage, canShowUI),
+    [canShowUI, messages, pendingMessage, tracker],
   );
   // after `entries`, which matched the copies
-  const thinking = isThinking || tracker.isAwaitingReply(messages, pendingMessage);
+  const thinking =
+    isThinking || tracker.isAwaitingReply(messages, pendingMessage, canShowUI);
   const turns = useMemo(() => turnsOf(entries), [entries]);
   const latest = turns[turns.length - 1];
   const latestHasReplies = (latest?.entries.length ?? 0) > 1;
@@ -505,6 +533,7 @@ export const AIConversation = ({
               entry={entry}
               key={entry.id}
               ReplyActions={ReplyActions}
+              ui={ui}
               UserMessage={UserMessage}
             />
           ))}

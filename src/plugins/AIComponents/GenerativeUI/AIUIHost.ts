@@ -1,0 +1,226 @@
+import type { ReactNode } from 'react';
+
+import type { AIMessage } from '../Conversation/types';
+import { type AIUIAction, aiUIActionProblem } from './AIUIAction';
+import type { AIUIComponent } from './AIUIComponent';
+import { aiUIComponentDefinitionJSON } from './AIUIComponentDefinition';
+import { type AIUIDocument, isSameAIUIDocument } from './AIUIDocument';
+import { type AIUIEngine, type AIUIRenderer, aiUIRendererReads } from './AIUIRenderer';
+
+/**
+ * One of the app's tools a reply's UI can run, such as to load data on this device. It runs
+ * whenever the UI asks, without asking the person, so give the host only tools that are safe to
+ * run that way. It is apart from the tools the agent calls.
+ */
+export type AIUIClientTool = {
+  name: string;
+  /** Runs the tool. What it returns is the output the UI gets. */
+  run: (args: Record<string, unknown>) => unknown;
+};
+
+export type AIUIHostOptions = {
+  /** The renderer of each format the agent writes, the first one listed asked first. */
+  renderers: AIUIRenderer[];
+  /**
+   * Sends what the person did to the agent, as their next message, such as
+   * `session.responses.create(action.label, { uiAction: aiUIActionJSON(action) })`.
+   */
+  send: (action: AIUIAction) => Promise<unknown> | unknown;
+  /** The app's views the agent can place. */
+  components?: AIUIComponent[];
+  /** Tells the app that an action could not be sent. It is logged by default. */
+  onError?: (error: unknown, action: AIUIAction) => void;
+  /**
+   * Opens a link from a reply's UI. By default, web and email links open and others don't: the
+   * agent writes the links, so another could call someone or act in another app.
+   */
+  open?: (url: URL) => void;
+  /** The app's tools a reply's UI can run. */
+  tools?: AIUIClientTool[];
+};
+
+const WEB_OR_EMAIL = new Set(['http:', 'https:', 'mailto:']);
+
+/** Whether a link is one a reply's UI may open by default: a web or email link. */
+export const isWebOrEmailLink = (url: URL) =>
+  WEB_OR_EMAIL.has(url.protocol.toLowerCase());
+
+const openWebOrEmailLink = (url: URL) => {
+  if (!isWebOrEmailLink(url)) {
+    console.warn(
+      `A reply's UI asked to open ${url.href}, which isn't a web or email link`,
+    );
+    return;
+  }
+  if (typeof window === 'undefined') return;
+  if (url.protocol === 'mailto:') window.location.assign(url.href);
+  else window.open(url.href, '_blank', 'noopener,noreferrer');
+};
+
+/**
+ * The generated UI of one conversation: the renderers of the formats the agent writes, the
+ * app's components and tools, what each reply's UI was left in, and where what the person does
+ * goes. Give it to `AIConversation` as `ui`; keep one per conversation, for as long as it shows.
+ * The counterpart of `AIUIHost` in StreamChatAI.
+ */
+export class AIUIHost {
+  readonly components: AIUIComponent[];
+  readonly renderers: AIUIRenderer[];
+
+  private readonly engines = new Map<AIUIRenderer, AIUIEngine>();
+  private lastSend: Promise<void> = Promise.resolve();
+  private readonly options: AIUIHostOptions;
+  private readonly received = new Map<string, AIUIDocument>();
+  private readonly states = new Map<string, unknown>();
+  private readonly tools: Map<string, AIUIClientTool>;
+
+  constructor(options: AIUIHostOptions) {
+    this.options = options;
+    this.renderers = options.renderers;
+    this.components = options.components ?? [];
+    this.tools = new Map();
+    for (const tool of options.tools ?? []) {
+      if (!this.tools.has(tool.name)) this.tools.set(tool.name, tool);
+    }
+  }
+
+  /** The app's component the agent places by `name`. */
+  component(name: string) {
+    return this.components.find((component) => component.definition.name === name);
+  }
+
+  /**
+   * Whether one of its renderers reads `document`. The one that does can still show nothing of
+   * its own for a reply, which then shows its text, as `content` tells.
+   */
+  canShow(document: AIUIDocument) {
+    return this.renderers.some((renderer) => aiUIRendererReads(renderer, document));
+  }
+
+  /**
+   * The view of a reply's document from the first renderer that reads its format and version,
+   * or `null` when none shows anything of its own, so the reply shows its text. `AIUIView` puts
+   * it on screen; `AIConversation` does it for every reply.
+   */
+  content(document: AIUIDocument, messageId: string): ReactNode | null {
+    const renderer = this.renderers.find((candidate) =>
+      aiUIRendererReads(candidate, document),
+    );
+    return renderer ? (this.engineOf(renderer).view(document, messageId) ?? null) : null;
+  }
+
+  /**
+   * Gives its renderers the UI of the conversation's replies, oldest first, as each arrives or
+   * changes, whether or not the reply is on screen, so a format whose later replies change an
+   * earlier one's UI follows them all. It also tells them when a reply leaves the conversation,
+   * or its UI does, such as when it is deleted. `AIConversation` does it: call it with the
+   * conversation's messages when you show replies yourself with `AIUIView`.
+   */
+  receive(messages: AIMessage[]) {
+    const documents = new Map<string, AIUIDocument>();
+    for (const message of messages) {
+      if (message.role !== 'user' && message.uiDocument) {
+        documents.set(message.id, message.uiDocument);
+      }
+    }
+    for (const [messageId, document] of [...this.received]) {
+      if (documents.has(messageId)) continue;
+      this.received.delete(messageId);
+      this.states.delete(messageId);
+      const renderer = this.renderers.find((candidate) =>
+        aiUIRendererReads(candidate, document),
+      );
+      if (renderer) this.engineOf(renderer).remove?.(messageId);
+    }
+    for (const [messageId, document] of documents) {
+      if (isSameAIUIDocument(this.received.get(messageId), document)) continue;
+      this.received.set(messageId, document);
+      const renderer = this.renderers.find((candidate) =>
+        aiUIRendererReads(candidate, document),
+      );
+      if (renderer) this.engineOf(renderer).receive?.(document, messageId);
+    }
+  }
+
+  /**
+   * Sends what the person did to the agent, after everything sent before it, so the agent gets
+   * a reply's actions in the order they happened. One the agent's backend would refuse, or that
+   * fails to send, goes to `onError` and does not hold up the ones after it.
+   */
+  send(action: AIUIAction): Promise<void> {
+    const report = (error: unknown) => {
+      if (this.options.onError) this.options.onError(error, action);
+      else console.error("Couldn't send what the person did in a reply's UI", error);
+    };
+    const problem = aiUIActionProblem(action);
+    if (problem) {
+      report(new Error(problem));
+      return this.lastSend;
+    }
+    this.lastSend = this.lastSend.then(async () => {
+      try {
+        await this.options.send(action);
+      } catch (error) {
+        report(error);
+      }
+    });
+    return this.lastSend;
+  }
+
+  /** Runs one of the app's tools for a reply's UI, such as to load data on this device. */
+  async runTool(name: string, args: Record<string, unknown> = {}): Promise<unknown> {
+    const tool = this.tools.get(name);
+    if (!tool) throw new Error(`No tool named ${name}`);
+    return await tool.run(args);
+  }
+
+  /** Opens a link from a reply's UI, as the host's `open` allows. */
+  open(url: URL | string) {
+    let link: URL;
+    try {
+      link = typeof url === 'string' ? new URL(url) : url;
+    } catch {
+      console.warn(`A reply's UI asked to open ${String(url)}, which isn't a link`);
+      return;
+    }
+    (this.options.open ?? openWebOrEmailLink)(link);
+  }
+
+  /** The state a reply's UI was left in, such as a form's values, kept while the host is. */
+  state(messageId: string): unknown {
+    return this.states.get(messageId);
+  }
+
+  /** Keeps the state a reply's UI was left in. `undefined` forgets it. */
+  setState(messageId: string, state: unknown) {
+    if (state === undefined) this.states.delete(messageId);
+    else this.states.set(messageId, state);
+  }
+
+  /**
+   * What the agent's backend needs to write UI this app shows: each format it reads, with what
+   * its renderer adds, and the app's components.
+   */
+  get capabilities() {
+    return {
+      components: this.components.map(({ definition }) =>
+        aiUIComponentDefinitionJSON(definition),
+      ),
+      renderers: this.renderers.map((renderer) => ({
+        ...renderer.capabilities?.(this.components),
+        format: renderer.format,
+      })),
+      v: 1,
+    };
+  }
+
+  // The engine of a renderer, made the first time it is needed and kept as the host is.
+  private engineOf(renderer: AIUIRenderer) {
+    let engine = this.engines.get(renderer);
+    if (!engine) {
+      engine = renderer.createEngine(this);
+      this.engines.set(renderer, engine);
+    }
+    return engine;
+  }
+}

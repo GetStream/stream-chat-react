@@ -8,6 +8,8 @@ import {
   AIMessageComposer,
   AIStateIndicator,
   AISuggestions,
+  AIUIHost,
+  fromStreamMessage,
   parseMessageParts,
   StreamingMessage,
   VoiceGlow,
@@ -91,4 +93,37 @@ it('server-renders a conversation without touching browser globals', () => {
   ]) {
     expect(html).toContain(marker);
   }
+});
+
+it('server-renders a reply’s generated UI without touching browser globals', () => {
+  const ui = new AIUIHost({
+    renderers: [
+      {
+        createEngine: () => ({
+          view: (document) => <div>{String(document.content)}</div>,
+        }),
+        format: 'a2ui',
+      },
+    ],
+    send: () => undefined,
+  });
+  const html = renderToString(
+    <AIConversation
+      messages={[
+        { id: 'u1', role: 'user', text: 'Plan a weekend' },
+        fromStreamMessage({
+          ai_generated: true,
+          ai_ui: { content: 'ssr-ui-marker', format: 'a2ui', status: 'streaming' },
+          attachments: [],
+          generating: true,
+          id: 'a1',
+          text: 'ssr-hidden-text',
+        }),
+      ]}
+      ui={ui}
+    />,
+  );
+  expect(html).toContain('ssr-ui-marker');
+  expect(html).not.toContain('ssr-hidden-text');
+  expect(html).toContain('data-entrance="hidden"');
 });

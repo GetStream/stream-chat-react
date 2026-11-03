@@ -6,5 +6,6 @@
 @use './voice-glow-css.scss';
 @use './ai-message-parts.scss';
 @use './ai-conversation.scss';
+@use './ai-ui.scss';
 
 // Intentionally declares no `--str-chat__ai-*` custom properties; see _tokens.scss.

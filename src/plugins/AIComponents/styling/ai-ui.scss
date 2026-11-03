@@ -1,0 +1,34 @@
+// A reply's generated UI, and how its parts come in.
+
+.str-chat__ai-ui {
+  width: 100%;
+  min-width: 0;
+}
+
+// Fades in, rising into place and coming into focus. The curve settles like the spring the
+// other platforms use. Once shown, it keeps no transform or filter, which would otherwise
+// become the containing block of a fixed overlay inside it, such as a modal.
+.str-chat__ai-ui-entrance {
+  transform-origin: top center;
+  transition:
+    opacity 0.6s cubic-bezier(0.22, 1, 0.36, 1),
+    filter 0.6s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+
+  &--hidden {
+    opacity: 0;
+    filter: blur(8px);
+    transform: translateY(16px) scale(0.97);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .str-chat__ai-ui-entrance {
+    transition: opacity 0.3s ease-out;
+
+    &--hidden {
+      filter: none;
+      transform: none;
+    }
+  }
+}
