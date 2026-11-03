@@ -3,11 +3,7 @@ import type { ScheduledMessageManager } from 'stream-chat';
 
 import { useChatContext } from '../../../context';
 import { useStateStore } from '../../../store';
-
-export type UseScheduledMessageCountParams = {
-  cid: string;
-  parentId?: string;
-};
+import type { UseScheduledMessageCountParams } from '../types';
 
 const countThreadReplies = (
   manager: ScheduledMessageManager,

@@ -4,7 +4,7 @@ import { act, renderHook } from '@testing-library/react';
 import type { StreamChat } from 'stream-chat';
 
 import { useScheduledMessages } from '../useScheduledMessages';
-import type { UseScheduledMessagesParams } from '../useScheduledMessages';
+import type { UseScheduledMessagesParams } from '../../types';
 import { ChatProvider } from '../../../../context';
 import {
   generateScheduledMessage,
