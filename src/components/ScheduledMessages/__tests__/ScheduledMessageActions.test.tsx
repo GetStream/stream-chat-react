@@ -102,12 +102,14 @@ describe('ScheduledMessageActions', () => {
     vi.restoreAllMocks();
   });
 
-  it('offers Edit, Reschedule, Send now and Delete for a scheduled message', async () => {
+  it('offers an Edit button and Reschedule, Send now and Delete for a scheduled message', async () => {
     await renderActions({ onEdit: vi.fn() });
 
     await openActionsMenu();
 
-    expect(getMenuLabels()).toEqual(['Edit', 'Reschedule', 'Send now', 'Delete']);
+    expect(screen.getByTestId('scheduled-message-edit-button')).toBeInTheDocument();
+    expect(getMenuLabels()).toEqual(['Reschedule', 'Send now', 'Delete']);
+    expect(screen.getAllByRole('separator')).toHaveLength(1);
   });
 
   it('leaves out Edit when the list has no edit handler', async () => {
@@ -115,6 +117,7 @@ describe('ScheduledMessageActions', () => {
 
     await openActionsMenu();
 
+    expect(screen.queryByTestId('scheduled-message-edit-button')).not.toBeInTheDocument();
     expect(getMenuLabels()).toEqual(['Reschedule', 'Send now', 'Delete']);
   });
 
@@ -141,14 +144,15 @@ describe('ScheduledMessageActions', () => {
 
     await openActionsMenu();
 
-    expect(getMenuLabels()).toEqual(['Copy Message', 'Delete']);
+    expect(getMenuLabels()).toEqual(['Copy text', 'Delete']);
+    expect(screen.queryByRole('separator')).not.toBeInTheDocument();
   });
 
   it('hands the scheduled message to the edit handler', async () => {
     const onEdit = vi.fn();
     const { scheduledMessage } = await renderActions({ onEdit });
 
-    await selectAction('edit');
+    await act(() => fireEvent.click(screen.getByTestId('scheduled-message-edit-button')));
 
     expect(onEdit).toHaveBeenCalledWith(scheduledMessage);
   });
@@ -196,7 +200,8 @@ describe('ScheduledMessageActions', () => {
     await selectAction('delete');
     const alert = await screen.findByTestId('delete-scheduled-message-alert');
 
-    expect(alert).toHaveTextContent("This message won't be sent.");
+    expect(alert).toHaveTextContent('Delete scheduled message?');
+    expect(alert).toHaveTextContent("This message won't be sent. This can't be undone.");
     expect(deleteScheduledMessage).not.toHaveBeenCalled();
 
     await act(() => fireEvent.click(screen.getByRole('button', { name: 'Delete' })));
@@ -231,11 +236,12 @@ describe('ScheduledMessageActions', () => {
     const dialog = await screen.findByTestId('schedule-message-dialog');
 
     expect(dialog).toHaveTextContent('Reschedule message');
+    expect(dialog).toHaveTextContent('Scheduled for Thu, Oct 29 at 09:00');
     expect(screen.getByLabelText('Date')).toHaveValue('2026-10-29');
     expect(screen.getByLabelText('Time')).toHaveValue('09:00');
 
     fireEvent.change(screen.getByLabelText('Time'), { target: { value: '14:30' } });
-    await act(() => fireEvent.click(screen.getByRole('button', { name: 'Schedule' })));
+    await act(() => fireEvent.click(screen.getByRole('button', { name: 'Save' })));
 
     expect(updateScheduledMessage).toHaveBeenCalledWith(scheduledMessage.id, {
       scheduled_at: new Date(2026, 9, 29, 14, 30).toISOString(),
@@ -253,7 +259,7 @@ describe('ScheduledMessageActions', () => {
 
     await selectAction('reschedule');
     await screen.findByTestId('schedule-message-dialog');
-    await act(() => fireEvent.click(screen.getByRole('button', { name: 'Schedule' })));
+    await act(() => fireEvent.click(screen.getByRole('button', { name: 'Save' })));
 
     expect(
       await screen.findByText("Couldn't reschedule the message. Try again"),

@@ -198,7 +198,7 @@ describe('translateScheduledMessageCompositionEnded', () => {
     });
 
   it.each([
-    ['sent', 'This scheduled message was already sent'],
+    ['sent', 'This message was already sent'],
     ['deleted', 'This scheduled message was deleted'],
     ['failed', 'This scheduled message failed to send'],
     [undefined, 'This scheduled message can no longer be edited'],

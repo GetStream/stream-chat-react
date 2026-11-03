@@ -8,7 +8,6 @@ import {
   useComponentContextIcons,
   useTranslationContext,
 } from '../../context';
-import { Button } from '../Button';
 import { useMessageComposerController } from '../MessageComposer/hooks/useMessageComposerController';
 import { GlobalModal } from '../Modal';
 import { Portal } from '../Portal/Portal';
@@ -23,7 +22,7 @@ import { getChannelContainer, openScheduledMessageInComposer } from './utils';
 
 export const ScheduledMessagesBanner = () => {
   const { t } = useTranslationContext();
-  const { IconChevronRight, IconClock } = useComponentContextIcons();
+  const { IconClock } = useComponentContextIcons();
   const { Modal = GlobalModal } = useComponentContext();
   const { channelCapabilities } = useChannelStateContext('ScheduledMessagesBanner');
 
@@ -72,17 +71,14 @@ export const ScheduledMessagesBanner = () => {
               {t('{{ count }} failed', { count: failedScheduledMessageCount })}
             </span>
           )}
-          <Button
-            appearance='ghost'
+          <button
             className='str-chat__scheduled-messages-banner__view-button'
             onClick={openDialog}
             ref={viewButtonRef}
-            size='sm'
-            variant='secondary'
+            type='button'
           >
-            {t('View')}
-            <IconChevronRight />
-          </Button>
+            {t('View all')}
+          </button>
         </div>
       )}
       <Portal getPortalDestination={getChannelContainer} isOpen={isDialogOpen}>

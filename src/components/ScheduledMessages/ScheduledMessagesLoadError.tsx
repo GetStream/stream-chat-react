@@ -13,7 +13,6 @@ export const ScheduledMessagesLoadError = ({
 
   return (
     <ScheduledMessagesEmptyState
-      description={t('Check your connection and try again')}
       Icon={IconExclamationMark}
       title={t("Couldn't load scheduled messages")}
     >

@@ -218,7 +218,7 @@ export const translateScheduledMessageCompositionEnded: Translator<
   const { reason } = notification?.metadata ?? {};
 
   if (reason === ScheduledMessageCompositionEndReason.Sent) {
-    return t('This scheduled message was already sent');
+    return t('This message was already sent');
   }
 
   if (reason === ScheduledMessageCompositionEndReason.Deleted) {

@@ -1,27 +1,31 @@
+@use '../../../styling/utils';
+
 .str-chat {
   .str-chat__scheduled-messages-banner {
     display: flex;
     align-items: center;
-    gap: var(--str-chat__spacing-xs);
+    gap: var(--str-chat__spacing-sm);
     width: 100%;
-    padding-inline: var(--str-chat__spacing-sm);
-    border-radius: var(--str-chat__radius-md);
-    background-color: var(--str-chat__background-core-surface-subtle);
-    color: var(--str-chat__text-secondary);
-    font: var(--str-chat__font-caption-default);
+    min-height: var(--str-chat__button-visual-height-md);
+    box-sizing: border-box;
+    padding: var(--str-chat__spacing-xs) var(--str-chat__spacing-md);
+    border-radius: var(--str-chat__radius-max);
+    background-color: var(--str-chat__background-core-elevation-2);
+    box-shadow: var(--str-chat__box-shadow-3);
+    color: var(--str-chat__text-primary);
+    font: var(--str-chat__font-metadata-emphasis);
 
     .str-chat__scheduled-messages-banner__icon {
       flex-shrink: 0;
-      height: var(--str-chat__icon-size-sm);
-      width: var(--str-chat__icon-size-sm);
+      height: var(--str-chat__icon-size-md);
+      width: var(--str-chat__icon-size-md);
+      color: var(--str-chat__accent-primary);
     }
 
     .str-chat__scheduled-messages-banner__label {
+      @include utils.ellipsis-text();
       flex: 1;
       min-width: 0;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
     }
 
     .str-chat__scheduled-messages-banner__failed {
@@ -31,7 +35,15 @@
     }
 
     .str-chat__scheduled-messages-banner__view-button {
+      @include utils.button-reset;
       flex-shrink: 0;
+      cursor: pointer;
+      color: var(--str-chat__text-link);
+      font: var(--str-chat__font-metadata-default);
+
+      &:focus-visible {
+        @include utils.focusable;
+      }
     }
   }
 }

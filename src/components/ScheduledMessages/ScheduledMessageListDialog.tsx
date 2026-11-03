@@ -1,7 +1,14 @@
-import React from 'react';
+import React, { useCallback, useState } from 'react';
+import type { ChangeEvent } from 'react';
 
-import { useComponentContext, useTranslationContext } from '../../context';
+import {
+  useComponentContext,
+  useComponentContextIcons,
+  useTranslationContext,
+} from '../../context';
 import { Prompt } from '../Dialog';
+import { TextInput } from '../Form';
+import { useScheduledMessageCount } from './hooks';
 import { ScheduledMessageList as DefaultScheduledMessageList } from './ScheduledMessageList';
 import type { ScheduledMessageListDialogProps } from './types';
 
@@ -12,7 +19,17 @@ export const ScheduledMessageListDialog = ({
   parentId,
 }: ScheduledMessageListDialogProps) => {
   const { t } = useTranslationContext();
+  const { IconSearch } = useComponentContextIcons();
   const { ScheduledMessageList = DefaultScheduledMessageList } = useComponentContext();
+
+  const scheduledMessageCount = useScheduledMessageCount({ cid, parentId });
+
+  const [searchQuery, setSearchQuery] = useState('');
+
+  const updateSearchQuery = useCallback(
+    ({ target }: ChangeEvent<HTMLInputElement>) => setSearchQuery(target.value),
+    [],
+  );
 
   const title = parentId ? t('Scheduled replies') : t('Scheduled messages');
 
@@ -23,7 +40,24 @@ export const ScheduledMessageListDialog = ({
     >
       <Prompt.Header close={close} title={title} />
       <Prompt.Body className='str-chat__scheduled-message-list-dialog__body'>
-        <ScheduledMessageList cid={cid} onEdit={onEdit} parentId={parentId} />
+        {scheduledMessageCount > 0 && (
+          <TextInput
+            aria-label={t('Search')}
+            autoComplete='off'
+            className='str-chat__scheduled-message-list-dialog__search'
+            leading={<IconSearch />}
+            onChange={updateSearchQuery}
+            placeholder={t('Search')}
+            type='search'
+            value={searchQuery}
+          />
+        )}
+        <ScheduledMessageList
+          cid={cid}
+          onEdit={onEdit}
+          parentId={parentId}
+          searchQuery={searchQuery}
+        />
       </Prompt.Body>
     </Prompt.Root>
   );

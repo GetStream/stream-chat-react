@@ -36,11 +36,7 @@ export const ScheduledMessagesView = () => {
 
   return (
     <div className='str-chat__channel-detail__scheduled-messages-view'>
-      <SectionNavigatorHeader
-        close={close}
-        description={t('Messages waiting to be sent')}
-        title={t('Scheduled messages')}
-      />
+      <SectionNavigatorHeader close={close} title={t('Scheduled messages')} />
       <Prompt.Body className='str-chat__channel-detail__scheduled-messages-view__body'>
         {scheduledMessageCount > 0 && (
           <ChannelDetailSearchInput onSearchChange={setSearchQuery} />

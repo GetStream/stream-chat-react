@@ -124,6 +124,8 @@ export type ScheduleTimeDialogProps = {
   submit: SubmitScheduledAt;
   title: string;
   initialScheduledAt?: Date;
+  previewLabel?: string;
+  submitLabel?: string;
 };
 
 export type RescheduleMessageDialogProps = {
@@ -134,6 +136,7 @@ export type RescheduleMessageDialogProps = {
 export type DeleteScheduledMessageAlertProps = {
   onCancel: () => void;
   onDelete: () => void;
+  channelName?: string;
 };
 
 export type ScheduleMessageDialogNoticeProps = {
@@ -161,7 +164,10 @@ export type ScheduledMessagesLoadErrorProps = {
   onRetry: () => void;
 };
 
-export type ScheduledMessageListDialogProps = ScheduledMessageListProps & {
+export type ScheduledMessageListDialogProps = Omit<
+  ScheduledMessageListProps,
+  'searchQuery'
+> & {
   close: () => void;
 };
 
@@ -203,6 +209,6 @@ export type EditedScheduledMessagePreviewProps = {
 
 export type FailedScheduledMessagePreviewProps = EditedScheduledMessagePreviewProps;
 
-export type ScheduledMessageStatusBadgeProps = {
+export type ScheduledMessageItemStatusProps = {
   scheduledMessage: ScheduledMessageResponse;
 };

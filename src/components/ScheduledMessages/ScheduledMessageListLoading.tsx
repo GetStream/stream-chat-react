@@ -25,8 +25,14 @@ export const ScheduledMessageListLoading = () => {
           className='str-chat__scheduled-message-list-loading__row'
           key={key}
         >
-          <div className='str-chat__scheduled-message-list-loading__title' />
-          <div className='str-chat__scheduled-message-list-loading__subtitle' />
+          <div className='str-chat__scheduled-message-list-loading__time' />
+          <div className='str-chat__scheduled-message-list-loading__body'>
+            <div className='str-chat__scheduled-message-list-loading__avatar' />
+            <div className='str-chat__scheduled-message-list-loading__lines'>
+              <div className='str-chat__scheduled-message-list-loading__title' />
+              <div className='str-chat__scheduled-message-list-loading__subtitle' />
+            </div>
+          </div>
         </div>
       ))}
     </div>
