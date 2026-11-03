@@ -17,10 +17,6 @@ import type {
 import {
   ChannelPaginator,
   ChannelSearchSource,
-  createActiveCommandGuardMiddleware,
-  createCommandInjectionMiddleware,
-  createCommandStringExtractionMiddleware,
-  createDraftCommandInjectionMiddleware,
   createPollOnlyCompositionMiddleware,
   createPriorityOwnershipResolver,
   isVoiceRecordingAttachment,
@@ -557,31 +553,6 @@ const App = () => {
           return { delayMs: slowArmed ? slowUploadMs : 0, failureMode, upload };
         });
       }
-
-      // todo: find a way to register multiple setup functions so that the SDK can have own setup independent from the integrator setup
-      composer.compositionMiddlewareExecutor.insert({
-        middleware: [createCommandInjectionMiddleware(composer)],
-        position: { after: 'stream-io/message-composer-middleware/attachments' },
-        unique: true,
-      });
-
-      // `unique: true` matters now that this setup function re-runs whenever a Composer setting
-      // changes - without it each toggle would append another copy of the same middleware.
-      composer.draftCompositionMiddlewareExecutor.insert({
-        middleware: [createDraftCommandInjectionMiddleware(composer)],
-        position: { after: 'stream-io/message-composer-middleware/draft-attachments' },
-        unique: true,
-      });
-
-      composer.textComposer.middlewareExecutor.insert({
-        middleware: [createActiveCommandGuardMiddleware() as TextComposerMiddleware],
-        position: { before: 'stream-io/text-composer/commands-middleware' },
-      });
-
-      composer.textComposer.middlewareExecutor.insert({
-        middleware: [createCommandStringExtractionMiddleware() as TextComposerMiddleware],
-        position: { after: 'stream-io/text-composer/commands-middleware' },
-      });
 
       composer.textComposer.middlewareExecutor.insert({
         middleware: [
