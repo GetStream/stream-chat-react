@@ -1,9 +1,15 @@
 import type { ChangeEventHandler, ReactNode } from 'react';
-import type { Attachment, ScheduledMessageResponse } from 'stream-chat';
+import type {
+  Attachment,
+  Channel,
+  LocalMessageBase,
+  ScheduledMessageResponse,
+} from 'stream-chat';
 
 import type { IconComponent } from '../Icons';
 
 import type {
+  ScheduledMessageAction,
   ScheduledMessageGroupType,
   ScheduleMessageNoticeSeverity,
   ScheduleTimeError,
@@ -76,6 +82,13 @@ export type ScheduleTimeForm = {
   timeError?: ScheduleTimeError;
 };
 
+export type ScheduleTimeFormParams = {
+  channel: Channel;
+  initialScheduledAt?: Date;
+};
+
+export type SubmitScheduledAt = (scheduledAt: Date) => Promise<unknown>;
+
 export type ScheduleMessageSubmit = {
   hasFailed: boolean;
   isScheduling: boolean;
@@ -103,13 +116,39 @@ export type ScheduleMessageDialogProps = {
   close: () => void;
 };
 
+export type ScheduleTimeDialogProps = {
+  channel: Channel;
+  close: () => void;
+  errorMessage: string;
+  previewMessage: LocalMessageBase;
+  submit: SubmitScheduledAt;
+  title: string;
+  initialScheduledAt?: Date;
+  previewLabel?: string;
+  submitLabel?: string;
+};
+
+export type RescheduleMessageDialogProps = {
+  close: () => void;
+  scheduledMessage: ScheduledMessageResponse;
+};
+
+export type DeleteScheduledMessageAlertProps = {
+  onCancel: () => void;
+  onDelete: () => void;
+  channelName?: string;
+};
+
 export type ScheduleMessageDialogNoticeProps = {
   children: ReactNode;
   severity: ScheduleMessageNoticeSeverity;
 };
 
+export type EditScheduledMessage = (scheduledMessage: ScheduledMessageResponse) => void;
+
 export type ScheduledMessageListProps = {
   cid: string;
+  onEdit?: EditScheduledMessage;
   parentId?: string;
   searchQuery?: string;
 };
@@ -137,6 +176,34 @@ export type ScheduledMessageGroupHeaderProps = {
 };
 
 export type ScheduledMessageItemProps = {
+  scheduledMessage: ScheduledMessageResponse;
+  onEdit?: EditScheduledMessage;
+};
+
+export type ScheduledMessageActionsProps = ScheduledMessageItemProps;
+
+export type ScheduledMessageActionsOptions = {
+  canEdit: boolean;
+};
+
+export type ScheduledMessageActionsMenuProps = {
+  actions: ScheduledMessageAction[];
+  onCopy: () => void;
+  onDelete: () => void;
+  onEdit: () => void;
+  onReschedule: () => void;
+  onSendNow: () => void;
+};
+
+export type ScheduledMessageActionHandlers = {
+  copyText: () => void;
+  deleteScheduledMessage: () => Promise<void>;
+  isPending: boolean;
+  sendNow: () => Promise<void>;
+};
+
+export type EditedScheduledMessagePreviewProps = {
+  onCancel: () => void;
   scheduledMessage: ScheduledMessageResponse;
 };
 

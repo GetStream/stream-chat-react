@@ -11,6 +11,7 @@ import { ChannelStateProvider, ChatProvider } from '../../../../context';
 import { MessageComposerControllerProvider } from '../../../MessageComposer';
 import {
   generateMessage,
+  generateScheduledMessage,
   getTestClientWithUser,
   mockChannelStateContext,
   mockChatContext,
@@ -127,6 +128,16 @@ describe('useCanScheduleMessage', () => {
     });
 
     expect(result.current).toBe(expected);
+  });
+
+  it('is false while a scheduled message is edited', async () => {
+    const { composer, result } = await setup();
+
+    act(() => {
+      composer.state.partialNext({ editedScheduledMessage: generateScheduledMessage() });
+    });
+
+    expect(result.current).toBe(false);
   });
 
   it('is false when the text starts with a command of the channel', async () => {

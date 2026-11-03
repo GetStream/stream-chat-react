@@ -36,13 +36,16 @@ import {
 } from 'stream-chat';
 import { CommandChip as DefaultCommandChip } from './CommandChip';
 import { GeolocationPreview } from './AttachmentPreviewList/GeolocationPreview';
+import { EditedScheduledMessagePreview as DefaultEditedScheduledMessagePreview } from '../ScheduledMessages/EditedScheduledMessagePreview';
 import { ScheduledMessagesBanner as DefaultScheduledMessagesBanner } from '../ScheduledMessages/ScheduledMessagesBanner';
 
 const messageComposerStateSelector = ({
   editedMessage,
+  editedScheduledMessage,
   quotedMessage,
 }: MessageComposerState) => ({
   editedMessage,
+  editedScheduledMessage,
   quotedMessage,
 });
 
@@ -68,13 +71,14 @@ const MessageComposerPreviews = () => {
   const {
     AttachmentPreviewList = DefaultAttachmentPreviewList,
     EditedMessagePreview = DefaultEditedMessagePreview,
+    EditedScheduledMessagePreview = DefaultEditedScheduledMessagePreview,
     LinkPreviewList = DefaultLinkPreviewList,
     QuotedMessagePreview = DefaultQuotedMessagePreview,
     VoiceRecordingPreviewSlot = DefaultVoiceRecordingPreviewSlot,
   } = useComponentContext();
 
   const messageComposer = useMessageComposerController();
-  const { editedMessage, quotedMessage } = useStateStore(
+  const { editedMessage, editedScheduledMessage, quotedMessage } = useStateStore(
     messageComposer.state,
     messageComposerStateSelector,
   );
@@ -100,25 +104,39 @@ const MessageComposerPreviews = () => {
     attachments.length === 0 &&
     linkPreviews.length === 0 &&
     !location &&
-    !editedMessage
+    !editedMessage &&
+    !editedScheduledMessage
   )
     return null;
+
+  let leadingPreview = <QuotedMessagePreview />;
+
+  if (editedMessage) {
+    leadingPreview = (
+      <div className='str-chat__message-composer-previews'>
+        <EditedMessagePreview
+          message={editedMessage}
+          onCancel={() => {
+            restorePreEditSnapshot(messageComposer);
+          }}
+        />
+      </div>
+    );
+  } else if (editedScheduledMessage) {
+    leadingPreview = (
+      <div className='str-chat__message-composer-previews'>
+        <EditedScheduledMessagePreview
+          onCancel={messageComposer.cancelEditScheduledMessage}
+          scheduledMessage={editedScheduledMessage}
+        />
+      </div>
+    );
+  }
 
   // todo: pass the entity arrays from here so that the preview lists do not have to subscribe to the composer state changes too?
   return (
     <div className='str-chat__message-composer-previews'>
-      {editedMessage ? (
-        <div className='str-chat__message-composer-previews'>
-          <EditedMessagePreview
-            message={editedMessage}
-            onCancel={() => {
-              restorePreEditSnapshot(messageComposer);
-            }}
-          />
-        </div>
-      ) : (
-        <QuotedMessagePreview />
-      )}
+      {leadingPreview}
       <VoiceRecordingPreviewSlot />
       <AttachmentPreviewList />
       <LinkPreviewList />

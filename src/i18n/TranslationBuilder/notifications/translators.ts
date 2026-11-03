@@ -1,10 +1,14 @@
 import {
   ErrorFromResponse,
   getScheduledMessageErrorReason,
+  isScheduledMessageNotFoundError,
   ScheduledMessageBlockReason,
+  ScheduledMessageCompositionEndReason,
   ScheduledMessageErrorReason,
 } from 'stream-chat';
 import type { Notification } from 'stream-chat';
+
+import { ScheduledMessageNotificationType } from '../../../components/ScheduledMessages/constants';
 
 import type { NotificationTranslatorOptions } from './types';
 import type { TranslationTopicOptions, Translator } from '../../index';
@@ -143,4 +147,72 @@ export const translateScheduledMessageBlocked: Translator<
   }
 
   return t("This message can't be scheduled");
+};
+
+const translateScheduledMessageActionFallback = (
+  t: TranslationTopicOptions['i18next']['t'],
+  type?: string,
+) => {
+  if (type === ScheduledMessageNotificationType.RescheduleFailed) {
+    return t("Couldn't reschedule the message. Try again");
+  }
+
+  if (type === ScheduledMessageNotificationType.SendNowFailed) {
+    return t("Couldn't send the message. Try again");
+  }
+
+  if (type === ScheduledMessageNotificationType.DeleteFailed) {
+    return t("Couldn't delete the scheduled message. Try again");
+  }
+
+  return t("Couldn't update the scheduled message. Try again");
+};
+
+export const translateScheduledMessageActionFailed: Translator<
+  NotificationTranslatorOptions
+> = ({ options: { notification }, t }) => {
+  const error = notification?.originalError;
+  const reason = error ? getScheduledMessageErrorReason(error) : undefined;
+
+  if (error && isScheduledMessageNotFoundError(error)) return t('Already sent');
+
+  if (reason === ScheduledMessageErrorReason.Sending) {
+    return t('This message is being sent');
+  }
+
+  if (reason === ScheduledMessageErrorReason.Conflict) {
+    return t('Updated elsewhere. Try again');
+  }
+
+  if (reason === ScheduledMessageErrorReason.NotEditable) {
+    return t("Failed messages can't be edited");
+  }
+
+  if (reason === ScheduledMessageErrorReason.TooSoon) return t('Choose a later time');
+
+  if (reason === ScheduledMessageErrorReason.TooFar) return t('Choose an earlier time');
+
+  if (isForbiddenError(error)) return t("You can't schedule messages here");
+
+  return translateScheduledMessageActionFallback(t, notification?.type);
+};
+
+export const translateScheduledMessageCompositionEnded: Translator<
+  NotificationTranslatorOptions
+> = ({ options: { notification }, t }) => {
+  const { reason } = notification?.metadata ?? {};
+
+  if (reason === ScheduledMessageCompositionEndReason.Sent) {
+    return t('This message was already sent');
+  }
+
+  if (reason === ScheduledMessageCompositionEndReason.Deleted) {
+    return t('This scheduled message was deleted');
+  }
+
+  if (reason === ScheduledMessageCompositionEndReason.Failed) {
+    return t('This scheduled message failed to send');
+  }
+
+  return t('This scheduled message can no longer be edited');
 };

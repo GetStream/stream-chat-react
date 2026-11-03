@@ -32,9 +32,13 @@ const scheduledMessagesSelector = ({ isDisabled }: ScheduledMessageManagerState)
   isDisabled,
 });
 
-const messageComposerSelector = ({ editedMessage, pollId }: MessageComposerState) => ({
+const messageComposerSelector = ({
+  editedMessage,
+  editedScheduledMessage,
+  pollId,
+}: MessageComposerState) => ({
   hasPoll: !!pollId,
-  isEditingSentMessage: !!editedMessage,
+  isEditing: !!editedMessage || !!editedScheduledMessage,
 });
 
 const locationComposerSelector = ({ location }: LocationComposerState) => ({
@@ -62,7 +66,7 @@ export const useCanScheduleMessage = () => {
     client.scheduledMessages.state,
     scheduledMessagesSelector,
   );
-  const { hasPoll, isEditingSentMessage } = useStateStore(
+  const { hasPoll, isEditing } = useStateStore(
     messageComposer.state,
     messageComposerSelector,
   );
@@ -73,7 +77,7 @@ export const useCanScheduleMessage = () => {
   const compositionCanBeScheduled = !hasCommand && !hasPoll && !hasLocation;
 
   const canScheduleMessage =
-    hasCapability && !isDisabled && !isEditingSentMessage && compositionCanBeScheduled;
+    hasCapability && !isDisabled && !isEditing && compositionCanBeScheduled;
 
   return canScheduleMessage;
 };

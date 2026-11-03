@@ -4,7 +4,9 @@ import { ErrorFromResponse, ScheduledMessageBlockReason } from 'stream-chat';
 import type { Notification } from 'stream-chat';
 
 import {
+  translateScheduledMessageActionFailed,
   translateScheduledMessageBlocked,
+  translateScheduledMessageCompositionEnded,
   translateScheduledMessageCreateFailed,
 } from '../TranslationBuilder/notifications/translators';
 import { translatorsByNotificationType } from '../TranslationBuilder/notifications/translatorsByNotificationType';
@@ -95,7 +97,99 @@ describe('translateScheduledMessageBlocked', () => {
   });
 });
 
+const translateAction = (type: string, originalError?: Error) =>
+  translateScheduledMessageActionFailed({
+    key: '',
+    options: {
+      notification: fromPartial<Notification>({ originalError, type }),
+    },
+    t,
+    value: '',
+  });
+
+describe('translateScheduledMessageActionFailed', () => {
+  it('reports a message the server no longer has as already sent', () => {
+    expect(
+      translateAction('api:scheduled-message:send-now:failed', createApiError(16, 404)),
+    ).toBe('Already sent');
+  });
+
+  it.each([
+    [121, 'scheduled_message_sending', 'This message is being sent'],
+    [122, 'scheduled_message_conflict', 'Updated elsewhere. Try again'],
+    [120, 'scheduled_message_not_editable', "Failed messages can't be edited"],
+    [115, 'scheduled_at_too_soon', 'Choose a later time'],
+    [116, 'scheduled_at_too_far', 'Choose an earlier time'],
+  ])('translates error code %s (%s)', (code, reason, expected) => {
+    expect(
+      translateAction(
+        'api:scheduled-message:update:failed',
+        createApiError(code, 400, reason),
+      ),
+    ).toBe(expected);
+  });
+
+  it.each([
+    [
+      'api:scheduled-message:update:failed',
+      "Couldn't update the scheduled message. Try again",
+    ],
+    [
+      'api:scheduled-message:reschedule:failed',
+      "Couldn't reschedule the message. Try again",
+    ],
+    ['api:scheduled-message:send-now:failed', "Couldn't send the message. Try again"],
+    [
+      'api:scheduled-message:delete:failed',
+      "Couldn't delete the scheduled message. Try again",
+    ],
+  ])('falls back to the copy of %s', (type, expected) => {
+    expect(translateAction(type, new Error('network'))).toBe(expected);
+  });
+});
+
+describe('translateScheduledMessageCompositionEnded', () => {
+  const translateEnded = (reason?: string) =>
+    translateScheduledMessageCompositionEnded({
+      key: '',
+      options: {
+        notification: fromPartial<Notification>({
+          metadata: { reason },
+          type: 'validation:scheduled-message:composition:ended',
+        }),
+      },
+      t,
+      value: '',
+    });
+
+  it.each([
+    ['sent', 'This message was already sent'],
+    ['deleted', 'This scheduled message was deleted'],
+    ['failed', 'This scheduled message failed to send'],
+    [undefined, 'This scheduled message can no longer be edited'],
+  ])('explains why the edit ended (%s)', (reason, expected) => {
+    expect(translateEnded(reason)).toBe(expected);
+  });
+
+  it('is registered for the composition-ended warning', () => {
+    expect(
+      translatorsByNotificationType['validation:scheduled-message:composition:ended'],
+    ).toBe(translateScheduledMessageCompositionEnded);
+  });
+});
+
 describe('scheduled message notification types', () => {
+  it.each([
+    'api:scheduled-message:update:failed',
+    'api:scheduled-message:reschedule:failed',
+    'api:scheduled-message:send-now:failed',
+    'api:scheduled-message:delete:failed',
+  ])('registers the action failure translator for %s', (type) => {
+    expect(translatorsByNotificationType[type]).toBe(
+      translateScheduledMessageActionFailed,
+    );
+  });
+
   it('registers translators for the composer notifications', () => {
     expect(translatorsByNotificationType['api:scheduled-message:create:failed']).toBe(
       translateScheduledMessageCreateFailed,

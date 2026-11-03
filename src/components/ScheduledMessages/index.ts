@@ -1,10 +1,16 @@
 export {
   SCHEDULE_MESSAGE_CAPABILITY,
+  ScheduledMessageAction,
   ScheduledMessageGroupType,
   ScheduleMessageNoticeSeverity,
   ScheduleTimeError,
 } from './constants';
+export * from './DeleteScheduledMessageAlert';
+export * from './EditedScheduledMessagePreview';
 export * from './hooks';
+export * from './RescheduleMessageDialog';
+export * from './ScheduledMessageActions';
+export * from './ScheduledMessageActionsMenu';
 export * from './ScheduledMessageGroupHeader';
 export * from './ScheduledMessageItem';
 export * from './ScheduledMessageItemStatus';
@@ -22,4 +28,5 @@ export * from './ScheduleMessageDialogNotice';
 export * from './ScheduleMessageMenu';
 export * from './ScheduleMessageMenuHeader';
 export * from './ScheduleMessagePresetButton';
+export * from './ScheduleTimeDialog';
 export * from './types';

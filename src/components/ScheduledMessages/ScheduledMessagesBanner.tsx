@@ -1,4 +1,5 @@
-import React, { useRef } from 'react';
+import React, { useCallback, useRef } from 'react';
+import type { ScheduledMessageResponse } from 'stream-chat';
 
 import {
   useChannelStateContext,
@@ -20,7 +21,8 @@ export const ScheduledMessagesBanner = () => {
   const { Modal = GlobalModal } = useComponentContext();
   const { channelCapabilities } = useChannelStateContext('ScheduledMessagesBanner');
 
-  const { channel, threadId } = useMessageComposerController();
+  const messageComposer = useMessageComposerController();
+  const { channel, threadId } = messageComposer;
   const { cid } = channel;
   const parentId = threadId ?? undefined;
   const scheduledMessageCount = useScheduledMessageCount({ cid, parentId });
@@ -29,6 +31,14 @@ export const ScheduledMessagesBanner = () => {
 
   const { closeDialog, isDialogOpen, openDialog } =
     useScheduleMessageDialog(viewButtonRef);
+
+  const editScheduledMessage = useCallback(
+    (scheduledMessage: ScheduledMessageResponse) => {
+      closeDialog();
+      messageComposer.editScheduledMessage(scheduledMessage);
+    },
+    [closeDialog, messageComposer],
+  );
 
   const hasCapability = !!channelCapabilities[SCHEDULE_MESSAGE_CAPABILITY];
   const isBannerVisible = hasCapability && scheduledMessageCount > 0;
@@ -67,6 +77,7 @@ export const ScheduledMessagesBanner = () => {
             <ScheduledMessageListDialog
               cid={cid}
               close={closeDialog}
+              onEdit={editScheduledMessage}
               parentId={parentId}
             />
           )}

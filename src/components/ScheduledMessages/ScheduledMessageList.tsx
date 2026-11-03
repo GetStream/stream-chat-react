@@ -17,6 +17,7 @@ import type { ScheduledMessageListProps } from './types';
 
 export const ScheduledMessageList = ({
   cid,
+  onEdit,
   parentId,
   searchQuery,
 }: ScheduledMessageListProps) => {
@@ -55,7 +56,10 @@ export const ScheduledMessageList = ({
                 className='str-chat__scheduled-message-group__item'
                 key={scheduledMessage.id}
               >
-                <ScheduledMessageItem scheduledMessage={scheduledMessage} />
+                <ScheduledMessageItem
+                  onEdit={onEdit}
+                  scheduledMessage={scheduledMessage}
+                />
               </li>
             ))}
           </ul>

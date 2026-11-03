@@ -5,11 +5,15 @@ import { useChatContext, useTranslationContext } from '../../context';
 import { ChannelAvatar } from '../Avatar';
 import { useChannelPreviewInfo } from '../ChannelListItem/hooks/useChannelPreviewInfo';
 import { SummarizedMessagePreview } from '../SummarizedMessagePreview';
+import { ScheduledMessageActions } from './ScheduledMessageActions';
 import { ScheduledMessageItemStatus } from './ScheduledMessageItemStatus';
 import type { ScheduledMessageItemProps } from './types';
 import { isFailedScheduledMessage, toStoredScheduledMessagePreview } from './utils';
 
-export const ScheduledMessageItem = ({ scheduledMessage }: ScheduledMessageItemProps) => {
+export const ScheduledMessageItem = ({
+  onEdit,
+  scheduledMessage,
+}: ScheduledMessageItemProps) => {
   const { t } = useTranslationContext();
   const { client } = useChatContext();
 
@@ -39,6 +43,7 @@ export const ScheduledMessageItem = ({ scheduledMessage }: ScheduledMessageItemP
       <time className='str-chat__scheduled-message-item__time' dateTime={scheduled_at}>
         {t('Send {{ time }}', { time: sendTime })}
       </time>
+      <ScheduledMessageActions onEdit={onEdit} scheduledMessage={scheduledMessage} />
       <div className='str-chat__scheduled-message-item__body'>
         <ChannelAvatar
           aria-hidden='true'

@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useCallback, useState } from 'react';
+import type { ScheduledMessageResponse } from 'stream-chat';
 
 import { useModalContext, useTranslationContext } from '../../../../context';
 import { Prompt } from '../../../../components/Dialog';
@@ -19,6 +20,14 @@ export const ScheduledMessagesView = () => {
 
   const [searchQuery, setSearchQuery] = useState('');
 
+  const editScheduledMessage = useCallback(
+    (scheduledMessage: ScheduledMessageResponse) => {
+      close();
+      channel.messageComposer.editScheduledMessage(scheduledMessage);
+    },
+    [channel, close],
+  );
+
   return (
     <div className='str-chat__channel-detail__scheduled-messages-view'>
       <SectionNavigatorHeader close={close} title={t('Scheduled messages')} />
@@ -26,7 +35,11 @@ export const ScheduledMessagesView = () => {
         {scheduledMessageCount > 0 && (
           <ChannelDetailSearchInput onSearchChange={setSearchQuery} />
         )}
-        <ScheduledMessageList cid={channel.cid} searchQuery={searchQuery} />
+        <ScheduledMessageList
+          cid={channel.cid}
+          onEdit={editScheduledMessage}
+          searchQuery={searchQuery}
+        />
       </Prompt.Body>
     </div>
   );

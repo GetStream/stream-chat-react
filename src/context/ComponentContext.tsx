@@ -14,6 +14,7 @@ import {
   type ContextMenuContentProps,
   type ContextMenuProps,
   type DateSeparatorProps,
+  type EditedScheduledMessagePreviewProps,
   type EmojiSearchIndex,
   type EmptyStateIndicatorProps,
   type EventComponentProps,
@@ -149,6 +150,8 @@ export type ComponentContextValue = {
   FileSizeIndicator?: React.ComponentType<FileSizeIndicatorProps>;
   /** Custom UI component to override default preview of edited message, defaults to and accepts same props as: [EditedMessagePreview](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageComposer/EditedMessagePreview.tsx) */
   EditedMessagePreview?: React.ComponentType<EditedMessagePreviewProps>;
+  /** Custom UI component to override the composer preview shown while a scheduled message is edited, defaults to and accepts same props as: [EditedScheduledMessagePreview](https://github.com/GetStream/stream-chat-react/blob/master/src/components/ScheduledMessages/EditedScheduledMessagePreview.tsx) */
+  EditedScheduledMessagePreview?: React.ComponentType<EditedScheduledMessagePreviewProps>;
   /** Custom UI component for rendering button with emoji picker in MessageComposer */
   EmojiPicker?: React.ComponentType;
   /** Mechanism to be used with autocomplete and text replace features of the `MessageComposer` component, see [emoji-mart `SearchIndex`](https://github.com/missive/emoji-mart#%EF%B8%8F%EF%B8%8F-headless-search) */

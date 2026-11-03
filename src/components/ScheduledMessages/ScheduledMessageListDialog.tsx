@@ -11,6 +11,7 @@ import type { ScheduledMessageListDialogProps } from './types';
 export const ScheduledMessageListDialog = ({
   cid,
   close,
+  onEdit,
   parentId,
 }: ScheduledMessageListDialogProps) => {
   const { t } = useTranslationContext();
@@ -46,7 +47,12 @@ export const ScheduledMessageListDialog = ({
             value={searchQuery}
           />
         )}
-        <ScheduledMessageList cid={cid} parentId={parentId} searchQuery={searchQuery} />
+        <ScheduledMessageList
+          cid={cid}
+          onEdit={onEdit}
+          parentId={parentId}
+          searchQuery={searchQuery}
+        />
       </Prompt.Body>
     </Prompt.Root>
   );
