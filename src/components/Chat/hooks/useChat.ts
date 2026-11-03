@@ -6,6 +6,7 @@ import type {
   StreamChat,
   UserMuteResponse,
 } from 'stream-chat';
+import { useScheduledMessageFailureNotifications } from './useScheduledMessageFailureNotifications';
 
 export type UseChatParams = {
   client: StreamChat;
@@ -43,6 +44,7 @@ export const useChat = ({ client }: UseChatParams) => {
     client.polls.registerSubscriptions();
     client.reminders.registerSubscriptions();
     client.reminders.initTimers();
+    client.scheduledMessages.registerSubscriptions();
 
     return () => {
       releaseChannelManager();
@@ -50,6 +52,7 @@ export const useChat = ({ client }: UseChatParams) => {
       client.polls.unregisterSubscriptions();
       client.reminders.unregisterSubscriptions();
       client.reminders.clearTimers();
+      client.scheduledMessages.unregisterSubscriptions();
     };
   }, [client]);
 
@@ -64,6 +67,8 @@ export const useChat = ({ client }: UseChatParams) => {
     return () => subscription.unsubscribe();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [clientMutes?.length]);
+
+  useScheduledMessageFailureNotifications(client);
 
   return {
     getAppSettings,
