@@ -658,6 +658,44 @@ describe('keepLineBreaksPlugin', () => {
       expect(container).toMatchSnapshot();
     });
   });
+
+  describe('with the default plugins (remark-gfm tables)', () => {
+    const gfmTableText = '| h1 | h2 |\n| --- | --- |\n| a1 | a2 |\n| b1 | b2 |';
+
+    const renderDefault = (text: string) => render(renderText(text)).container;
+
+    it.each([
+      ['a basic table', gfmTableText],
+      [
+        'a table with an alignment row',
+        '| a | b |\n| :- | -: |\n| a1 | b1 |\n| a2 | b2 |',
+      ],
+      ['a table without outer pipes', 'h1 | h2\n-- | --\na1 | a2\nb1 | b2'],
+      ['a table in a blockquote', '> | h |\n> | - |\n> | a |\n> | b |'],
+    ])(
+      'does not insert a break between the header row and the first data row in %s',
+      (_, text) => {
+        const container = renderDefault(text);
+        const table = container.querySelector('table');
+
+        expect(table).toBeInTheDocument();
+        expect(table?.querySelector('br')).toBeNull();
+        expect(table?.querySelector('tbody')?.firstElementChild?.tagName).toBe('TR');
+        expect(table?.querySelectorAll('tbody > tr')).toHaveLength(2);
+      },
+    );
+
+    it('keeps the breaks between paragraphs around a table', () => {
+      const container = renderDefault(`a${lineBreaks}${gfmTableText}${lineBreaks}c`);
+      const table = container.querySelector('table');
+
+      expect(table?.querySelector('br')).toBeNull();
+      expect(table?.querySelectorAll('tbody > tr')).toHaveLength(2);
+      expect(
+        Array.from(container.children).map((element) => element.tagName.toLowerCase()),
+      ).toEqual(['p', 'br', 'br', 'table', 'br', 'br', 'p']);
+    });
+  });
 });
 
 describe('htmlToTextPlugin', () => {
