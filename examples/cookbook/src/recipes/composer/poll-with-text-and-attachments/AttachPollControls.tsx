@@ -40,7 +40,13 @@ export const AttachPollControls = ({ close }: PollCreationDialogControlsProps) =
   return (
     <Prompt.Footer>
       <Prompt.FooterControls>
-        <Prompt.FooterControlsButtonSecondary onClick={close} type='button'>
+        {/* Disabled while the poll is being created: the poll would still be attached after a
+            Cancel. */}
+        <Prompt.FooterControlsButtonSecondary
+          disabled={isCreating}
+          onClick={close}
+          type='button'
+        >
           Cancel
         </Prompt.FooterControlsButtonSecondary>
         <Prompt.FooterControlsButtonPrimary

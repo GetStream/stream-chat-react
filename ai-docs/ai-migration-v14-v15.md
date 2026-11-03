@@ -2396,6 +2396,7 @@ The default poll creation dialog sends the poll as soon as it is created. To hav
 2. Replace the dialog's footer through the new `PollCreationDialogControls` slot (`PollCreationDialogControls` and `PollCreationDialogControlsProps` are exported) and call `createPoll()` without `send()`:
 
 ```tsx
+import { useState } from 'react';
 import {
   type PollCreationDialogControlsProps,
   Prompt,
@@ -2405,21 +2406,30 @@ import {
 
 const AttachPollControls = ({ close }: PollCreationDialogControlsProps) => {
   const messageComposer = useMessageComposerController();
+  // Blocks a second request, and a Cancel that the pending poll would ignore.
+  const [isCreating, setIsCreating] = useState(false);
 
   return (
     <Prompt.Footer>
       <Prompt.FooterControls>
-        <Prompt.FooterControlsButtonSecondary onClick={close} type='button'>
+        <Prompt.FooterControlsButtonSecondary
+          disabled={isCreating}
+          onClick={close}
+          type='button'
+        >
           Cancel
         </Prompt.FooterControlsButtonSecondary>
         <Prompt.FooterControlsButtonPrimary
+          disabled={isCreating}
           onClick={async () => {
+            setIsCreating(true);
             try {
               // The poll waits in `messageComposer.state.pollId` and goes out with the message.
               await messageComposer.createPoll();
             } catch {
               // `createPoll()` already reported the failure as a notification.
             } finally {
+              setIsCreating(false);
               // Closed once the poll is attached, so a message sent meanwhile cannot miss it.
               close();
             }
