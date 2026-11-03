@@ -28,3 +28,13 @@ export const fromDateAndTimeInputValues = (dateValue: string, timeValue: string)
 
   return isValidDate ? scheduledAt : undefined;
 };
+
+export const fromDateInputValue = (dateValue: string) => {
+  if (!dateValue) return undefined;
+
+  const date = new Date(`${dateValue}T00:00`);
+
+  const isValidDate = !Number.isNaN(date.getTime());
+
+  return isValidDate ? date : undefined;
+};

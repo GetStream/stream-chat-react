@@ -16,7 +16,12 @@ import {
 } from './hooks';
 import { ScheduleMessageDialogNotice } from './ScheduleMessageDialogNotice';
 import type { ScheduleMessageDialogProps } from './types';
-import { formatTimeZoneOffset, openNativePicker, toDateInputValue } from './utils';
+import {
+  formatTimeZoneOffset,
+  fromDateInputValue,
+  openNativePicker,
+  toDateInputValue,
+} from './utils';
 
 const translateScheduleTimeError = (t: TFunction, timeError?: ScheduleTimeError) => {
   if (timeError === ScheduleTimeError.TooSoon) return t('Choose a later time');
@@ -28,7 +33,7 @@ const translateScheduleTimeError = (t: TFunction, timeError?: ScheduleTimeError)
 
 export const ScheduleMessageDialog = ({ close }: ScheduleMessageDialogProps) => {
   const { t } = useTranslationContext();
-  const { IconCalendar, IconClock } = useComponentContextIcons();
+  const { IconCalendar, IconCaretDown, IconClock } = useComponentContextIcons();
 
   const { channel } = useMessageComposerController();
   const channelDisplayName = useChannelDisplayName(channel);
@@ -48,6 +53,10 @@ export const ScheduleMessageDialog = ({ close }: ScheduleMessageDialogProps) => 
   const canSchedule = !!scheduledAt && !timeError && isOnline && !isScheduling;
   const timeErrorMessage = translateScheduleTimeError(t, timeError);
   const timeZone = formatTimeZoneOffset(scheduledAt ?? bounds.earliest);
+  const selectedDate = fromDateInputValue(dateValue);
+  const dateLabel = selectedDate
+    ? t('timestamp/ScheduleDate', { timestamp: selectedDate })
+    : undefined;
   const authorLabel = channelDisplayName
     ? t('Message to {{ name }}', { name: channelDisplayName })
     : t('Schedule message');
@@ -82,12 +91,23 @@ export const ScheduleMessageDialog = ({ close }: ScheduleMessageDialogProps) => 
           <TextInput
             className='str-chat__schedule-message-dialog__date'
             label={t('Date')}
-            leading={<IconCalendar />}
+            leading={
+              <>
+                <IconCalendar />
+                <span
+                  aria-hidden
+                  className='str-chat__schedule-message-dialog__date-value'
+                >
+                  {dateLabel}
+                </span>
+              </>
+            }
             max={toDateInputValue(bounds.latest)}
             min={toDateInputValue(bounds.earliest)}
             onChange={onDateChange}
             onClick={openNativePicker}
             required
+            trailing={<IconCaretDown />}
             type='date'
             value={dateValue}
           />
@@ -100,6 +120,7 @@ export const ScheduleMessageDialog = ({ close }: ScheduleMessageDialogProps) => 
             onChange={onTimeChange}
             onClick={openNativePicker}
             required
+            trailing={<IconCaretDown />}
             type='time'
             value={timeValue}
           />

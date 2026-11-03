@@ -1,5 +1,6 @@
 import {
   fromDateAndTimeInputValues,
+  fromDateInputValue,
   toDateInputValue,
   toTimeInputValue,
 } from '../dateTimeInputValues';
@@ -33,5 +34,14 @@ describe('dateTimeInputValues', () => {
     ['an invalid date', 'not-a-date', '07:04'],
   ])('returns undefined for %s', (_, dateValue, timeValue) => {
     expect(fromDateAndTimeInputValues(dateValue, timeValue)).toBeUndefined();
+  });
+
+  it('reads a date input value as local midnight', () => {
+    expect(fromDateInputValue('2026-11-03')).toEqual(new Date(2026, 10, 3));
+  });
+
+  it('returns undefined for an empty or invalid date input value', () => {
+    expect(fromDateInputValue('')).toBeUndefined();
+    expect(fromDateInputValue('2026-13-45')).toBeUndefined();
   });
 });

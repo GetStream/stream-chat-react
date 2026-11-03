@@ -25,6 +25,7 @@ export type IconSlots = Partial<
     | 'IconBookmarkRemove'
     | 'IconCalendar'
     | 'IconCamera'
+    | 'IconCaretDown'
     | 'IconCheckmark'
     | 'IconCheckmark1Small'
     | 'IconChecks'
