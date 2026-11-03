@@ -25,7 +25,7 @@ import { useStableId } from '../../components/UtilityComponents/useStableId';
 import { useComponentContextIcons } from '../../context/useComponentContextIcons';
 import { useTranslationContext } from '../../context/TranslationContext';
 import { AIMarkdown } from '../AIComponents/AIMarkdown';
-import { aiUILinkOpener } from '../AIComponents/GenerativeUI/AIUIHelpers';
+import { aiUILinkOpener, isRecord } from '../AIComponents/GenerativeUI/AIUIHelpers';
 import { useAIUIEntrance } from '../AIComponents/GenerativeUI/AIUIEntrance';
 import type { A2UIEngine } from './A2UIRenderer';
 
@@ -35,18 +35,48 @@ export const A2UIEngineContext = createContext<A2UIEngine | undefined>(undefined
 // Whether a Text is the label of a Button, where it shows as words rather than as Markdown.
 const A2UILabelContext = createContext(false);
 
-type Weighted = { weight?: unknown };
+type Weighted = { accessibility?: unknown; weight?: unknown };
 
 // A part's flex weight in its Row or Column, as the A2UI elements apply theirs.
 const weightOf = ({ weight }: Weighted): CSSProperties | undefined =>
   typeof weight === 'number' ? { flex: weight } : undefined;
 
-// A part that comes in when it shows, carrying its weight: the props of its element, and the
-// scope of what shows with it.
+type Accessibility = {
+  'aria-description'?: string;
+  'aria-hidden'?: boolean;
+  'aria-label'?: string;
+  'aria-live'?: 'assertive' | 'polite';
+};
+
+const said = (value: unknown) =>
+  value === undefined || value === null || value === '' ? undefined : String(value);
+
+// What the agent tells assistive technology about a part, with its `accessibility`, as the A2UI
+// elements tell it: what to call it, what more to say about it, whether to announce its changes,
+// and whether to leave it out.
+const accessibilityOf = ({ accessibility }: Weighted): Accessibility => {
+  if (!isRecord(accessibility)) return {};
+  const { description, hidden, label, live } = accessibility;
+  const named = said(label);
+  const described = said(description);
+  return {
+    ...(named ? { 'aria-label': named } : {}),
+    ...(described ? { 'aria-description': described } : {}),
+    ...(live === 'polite' || live === 'assertive' ? { 'aria-live': live } : {}),
+    ...(hidden === true ? { 'aria-hidden': true } : {}),
+  };
+};
+
+// A part that comes in when it shows, carrying its weight and what the agent tells assistive
+// technology about it: the props of its element, and the scope of what shows with it.
 const usePart = (props: Weighted) => {
   const { props: entrance, scope } = useAIUIEntrance();
   return {
-    part: { ...entrance, style: { ...entrance.style, ...weightOf(props) } },
+    part: {
+      ...entrance,
+      ...accessibilityOf(props),
+      style: { ...entrance.style, ...weightOf(props) },
+    },
     scope,
   };
 };
@@ -116,7 +146,11 @@ type CardProps = Weighted & { child?: unknown };
 export const A2UICard = ({ buildChild, props }: ReactA2uiComponentProps<CardProps>) => {
   const { part, scope } = usePart(props);
   return (
-    <div {...part} className={clsx('str-chat__a2ui-card', part.className)}>
+    <div
+      {...part}
+      className={clsx('str-chat__a2ui-card', part.className)}
+      role={part['aria-label'] ? 'group' : undefined}
+    >
       {scope(typeof props.child === 'string' ? buildChild(props.child) : null)}
     </div>
   );
@@ -149,16 +183,24 @@ const A2UITextPart = (props: TextProps) => {
     `str-chat__a2ui-text--${variant}`,
     part.className,
   );
+  // A generic element can't be named, so a Text the agent names is a group.
+  const role = part['aria-label'] ? 'group' : undefined;
   if (variant === 'caption') {
     return (
-      <p {...part} className={classes}>
+      <p {...part} className={classes} role={role}>
         {text}
       </p>
     );
   }
   const follow = aiUILinkOpener(engine?.host);
   return (
-    <div {...part} className={classes} onAuxClickCapture={follow} onClickCapture={follow}>
+    <div
+      {...part}
+      className={classes}
+      onAuxClickCapture={follow}
+      onClickCapture={follow}
+      role={role}
+    >
       <AIMarkdown>{text}</AIMarkdown>
     </div>
   );
@@ -175,7 +217,11 @@ type TextFieldProps = Checked &
 
 /** A2UI's TextField as Stream's text input, or a text area for long text. */
 export const A2UITextField = ({ props }: ReactA2uiComponentProps<TextFieldProps>) => {
-  const { part } = usePart(props);
+  // What names and describes the field goes on its input; the rest on the part.
+  const {
+    part: { 'aria-description': description, 'aria-label': name, ...part },
+  } = usePart(props);
+  const named = { 'aria-description': description, 'aria-label': name };
   const id = useStableId();
   const problemsId = `${id}-problems`;
   const errors = errorsOf(props);
@@ -201,6 +247,7 @@ export const A2UITextField = ({ props }: ReactA2uiComponentProps<TextFieldProps>
         <div className='str-chat__form-text-input__wrapper str-chat__form-text-input__wrapper--outline'>
           <div className='str-chat__form-text-input__control-row'>
             <textarea
+              {...named}
               aria-describedby={errors.length ? problemsId : undefined}
               aria-invalid={errors.length > 0}
               className='str-chat__form-text-input__input str-chat__a2ui-text-field__long'
@@ -215,6 +262,7 @@ export const A2UITextField = ({ props }: ReactA2uiComponentProps<TextFieldProps>
       </div>
     ) : (
       <TextInput
+        {...named}
         aria-describedby={errors.length ? problemsId : undefined}
         error={errors.length > 0}
         id={id}
@@ -301,7 +349,7 @@ export const A2UIChoicePicker = ({
     <div
       {...part}
       aria-describedby={errors.length ? `${id}-problems` : undefined}
-      aria-labelledby={label ? `${id}-label` : undefined}
+      aria-labelledby={label && !part['aria-label'] ? `${id}-label` : undefined}
       className={clsx('str-chat__a2ui-choice-picker', part.className)}
       role={isMultiple || isChips ? 'group' : 'radiogroup'}
     >
@@ -428,10 +476,14 @@ export const A2UIIcon = ({ props }: ReactA2uiComponentProps<IconProps>) => {
   const { name } = props;
   if (typeof name === 'object' && name !== null && 'svgPath' in name) {
     const { svgPath } = name as { svgPath?: unknown };
+    // A drawn icon says nothing unless the agent named it.
+    const spoken = part['aria-label']
+      ? { role: 'img' }
+      : { 'aria-hidden': part['aria-hidden'] ?? true };
     return (
       <svg
         {...part}
-        aria-hidden
+        {...spoken}
         className={classes}
         focusable={false}
         viewBox='0 0 24 24'
@@ -444,7 +496,8 @@ export const A2UIIcon = ({ props }: ReactA2uiComponentProps<IconProps>) => {
   const slot = STREAM_ICONS[iconName];
   const Drawn: React.ComponentType<ComponentPropsWithoutRef<'svg'>> | undefined =
     engine?.icons?.[iconName] ?? (slot ? streamIcons[slot] : undefined);
-  const label = { 'aria-label': wordsOf(iconName), role: 'img' };
+  // Called what the agent named it, else its name in words.
+  const label = { 'aria-label': part['aria-label'] ?? wordsOf(iconName), role: 'img' };
   if (Drawn) {
     return (
       <span {...part} {...label} className={classes}>
@@ -467,7 +520,7 @@ export const A2UIIcon = ({ props }: ReactA2uiComponentProps<IconProps>) => {
   );
 };
 
-type ModalProps = { content: string; trigger: string };
+type ModalProps = Weighted & { content: string; trigger: string };
 
 // The type of a component of the surface, following it: an agent may write a component after
 // the one that names it.
@@ -535,6 +588,7 @@ export const A2UIModal = ({
         {buildChild(props.trigger)}
       </div>
       <dialog
+        {...accessibilityOf(props)}
         className='str-chat__a2ui-modal'
         onCancel={(event) => {
           event.preventDefault();

@@ -64,6 +64,16 @@ export type OpenUIRendererOptions = {
   toolProvider?: Record<string, (args: Record<string, unknown>) => Promise<unknown>>;
 };
 
+const reportOpenUIError = (
+  options: OpenUIRendererOptions,
+  error: OpenUIError,
+  messageId?: string,
+) => {
+  if (options.onError) options.onError(error, messageId);
+  else
+    console.error(`A reply's OpenUI can't show: ${error.code} ${error.message}`, error);
+};
+
 /**
  * Shows the OpenUI of one conversation. Each reply's form values are kept in the host, so
  * they survive scrolling.
@@ -106,9 +116,7 @@ export class OpenUIEngine implements AIUIEngine {
   }
 
   report(error: OpenUIError, messageId?: string) {
-    if (this.options.onError) this.options.onError(error, messageId);
-    else
-      console.error(`A reply's OpenUI can't show: ${error.code} ${error.message}`, error);
+    reportOpenUIError(this.options, error, messageId);
   }
 
   view(document: AIUIDocument, messageId: string) {
@@ -153,7 +161,24 @@ export const openUIInstructions = async (
 export const createOpenUIRenderer = (
   options: OpenUIRendererOptions = {},
 ): AIUIRenderer => ({
-  capabilities: () => ({ fence: OPENUI_FENCE }),
+  // As StreamChatOpenUI's: the fence and the instructions, written with OpenUI's own prompt
+  // generator, which loads the OpenUI packages to write them. Without them, when they can't
+  // load, the fence still goes to the agent's backend.
+  capabilities: async (components) => {
+    let instructions: string | undefined;
+    try {
+      instructions = await openUIInstructions(components, options);
+    } catch (error) {
+      reportOpenUIError(options, {
+        code: 'runtime-error',
+        message: `The OpenUI instructions couldn't be written: ${String(error)}`,
+      });
+    }
+    return {
+      fence: OPENUI_FENCE,
+      ...(instructions === undefined ? {} : { instructions }),
+    };
+  },
   createEngine: (host) => new OpenUIEngine(host, options),
   format: 'openui',
 });

@@ -42,9 +42,12 @@ export type AIUIRenderer = {
   format: AIUIFormat;
   /**
    * What the agent's backend needs to have its model write UI this renderer shows with
-   * `components`, such as the model's instructions. None by default.
+   * `components`, such as the model's instructions, which may take loading the format's
+   * packages to write. None by default.
    */
-  capabilities?: (components: AIUIComponent[]) => Record<string, unknown>;
+  capabilities?: (
+    components: AIUIComponent[],
+  ) => Record<string, unknown> | Promise<Record<string, unknown>>;
   /** Whether it reads documents of `version`, or of no version. Every version by default. */
   supports?: (version: string | undefined) => boolean;
 };

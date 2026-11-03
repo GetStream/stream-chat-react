@@ -549,7 +549,7 @@ describe('AIUIHost', () => {
     await expect(ui.runTool('calendar')).rejects.toThrow('No tool named calendar');
   });
 
-  it('describes the formats it reads and the app’s components to the agent’s backend', () => {
+  it('describes the formats it reads and the app’s components to the agent’s backend', async () => {
     const renderer: AIUIRenderer = {
       capabilities: (components) => ({
         catalog_id: 'app',
@@ -558,16 +558,25 @@ describe('AIUIHost', () => {
       createEngine: () => ({ view: () => null }),
       format: 'a2ui',
     };
+    // One whose capabilities take writing, such as its instructions.
+    const written: AIUIRenderer = {
+      capabilities: () => Promise.resolve({ instructions: 'Write OpenUI.' }),
+      createEngine: () => ({ view: () => null }),
+      format: 'openui',
+    };
     const definition = parseAIUIComponentDefinition(uiComponents[0]);
     if (!definition) throw new Error('no definition');
     const ui = new AIUIHost({
       components: [defineAIUIComponent(definition, () => null)],
-      renderers: [renderer],
+      renderers: [renderer, written],
       send: vi.fn(),
     });
-    expect(ui.capabilities).toEqual({
+    expect(await ui.capabilities()).toEqual({
       components: [aiUIComponentDefinitionJSON(definition)],
-      renderers: [{ catalog_id: 'app', components: 1, format: 'a2ui' }],
+      renderers: [
+        { catalog_id: 'app', components: 1, format: 'a2ui' },
+        { format: 'openui', instructions: 'Write OpenUI.' },
+      ],
       v: 1,
     });
     expect(ui.component('place_card')?.definition).toBe(definition);

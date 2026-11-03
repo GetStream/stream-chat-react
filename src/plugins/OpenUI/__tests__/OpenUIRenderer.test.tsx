@@ -336,12 +336,11 @@ describe('what the agent is told', () => {
     );
   });
 
-  it('tells the agent’s backend its fence, and writes instructions with the app’s components', async () => {
+  it('tells the agent’s backend its fence and instructions with the app’s components, as StreamChatOpenUI does', async () => {
     const { ui } = setup();
-    expect(ui.capabilities.renderers).toEqual([
-      { fence: OPENUI_FENCE, format: 'openui' },
-    ]);
+    const { renderers } = await ui.capabilities();
     const instructions = await openUIInstructions([placeCard, tripMap, calendarCheck]);
+    expect(renderers).toEqual([{ fence: OPENUI_FENCE, format: 'openui', instructions }]);
     expect(instructions).toContain('PlaceCard(title: string, note?: string)');
     expect(instructions).toContain('TripMap(places:');
     expect(instructions).toMatch(

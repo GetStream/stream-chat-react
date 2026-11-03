@@ -151,11 +151,21 @@ describe('the A2UI versions and catalog it reads', () => {
     });
   });
 
-  it('tells the agent’s backend its fence and catalog', () => {
+  it('tells the agent’s backend its fence, catalog and instructions, as StreamChatA2UI does', async () => {
     const { ui } = setup();
-    expect(ui.capabilities.renderers).toEqual([
-      { catalog_id: A2UI_DEFAULT_CATALOG_ID, fence: 'ui:a2ui@1.0', format: 'a2ui' },
+    const { renderers } = await ui.capabilities();
+    expect(renderers).toEqual([
+      {
+        catalog_id: A2UI_DEFAULT_CATALOG_ID,
+        fence: 'ui:a2ui@1.0',
+        format: 'a2ui',
+        instructions: expect.any(String),
+      },
     ]);
+    const { instructions } = renderers[0] as { instructions: string };
+    expect(instructions).toContain('whose info string is `ui:a2ui@1.0`');
+    expect(instructions).toContain(`## The catalog \`${A2UI_DEFAULT_CATALOG_ID}\``);
+    expect(instructions).toContain('"PlaceCard"');
   });
 });
 
@@ -817,6 +827,80 @@ describe('the basic catalog in Stream’s look', () => {
     await screen.findByRole('img', { name: 'search' });
     expect(screen.getByRole('img', { name: 'payment' })).toHaveTextContent('');
     expect(screen.getByRole('img', { name: 'shopping cart' })).toHaveTextContent('');
+  });
+
+  it('tells assistive technology what the agent says about its parts, as A2UI’s own parts do', async () => {
+    const { ui } = setup();
+    const lines = surfaceWith(
+      [
+        {
+          accessibility: { label: 'The plan for Saturday' },
+          child: 'column',
+          component: 'Card',
+          id: 'root',
+        },
+        {
+          children: ['status', 'go', 'name', 'pace', 'pin'],
+          component: 'Column',
+          id: 'column',
+        },
+        {
+          accessibility: { live: 'polite' },
+          component: 'Text',
+          id: 'status',
+          text: 'Two places so far',
+        },
+        {
+          accessibility: {
+            description: 'Asks Juno to plan the boat ride',
+            label: { '@path': '/boat' },
+          },
+          action: { event: { name: 'go' } },
+          child: 'go_label',
+          component: 'Button',
+          id: 'go',
+        },
+        { component: 'Text', id: 'go_label', text: 'Go' },
+        {
+          accessibility: { label: 'Your name' },
+          component: 'TextField',
+          id: 'name',
+          label: 'Name',
+          value: { '@path': '/name' },
+        },
+        {
+          accessibility: { label: 'How busy the days are' },
+          component: 'ChoicePicker',
+          id: 'pace',
+          label: 'Pace',
+          options: [{ label: 'Easy', value: 'easy' }],
+          value: { '@path': '/pace' },
+        },
+        {
+          accessibility: { label: 'The meeting point' },
+          component: 'Icon',
+          id: 'pin',
+          name: 'locationOn',
+        },
+      ],
+      { boat: 'Book the boat to St. Naum', name: '', pace: [] },
+    );
+    renderWithEnglish(<AIConversation messages={[question, replyWith(lines)]} ui={ui} />);
+
+    const book = await screen.findByRole('button', { name: 'Book the boat to St. Naum' });
+    expect(book).toHaveAttribute('aria-description', 'Asks Juno to plan the boat ride');
+    expect(
+      screen.getByRole('group', { name: 'The plan for Saturday' }),
+    ).toBeInTheDocument();
+    expect(screen.getByText('Two places so far').closest('[aria-live]')).toHaveAttribute(
+      'aria-live',
+      'polite',
+    );
+    expect(screen.getByRole('textbox', { name: 'Your name' })).toBeInTheDocument();
+    expect(
+      screen.getByRole('radiogroup', { name: 'How busy the days are' }),
+    ).toBeInTheDocument();
+    expect(screen.getByRole('img', { name: 'The meeting point' })).toBeInTheDocument();
   });
 });
 

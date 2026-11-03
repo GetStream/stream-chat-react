@@ -10,6 +10,7 @@ import {
 import { A2UIPlaceholder } from './A2UIPlaceholder';
 import { A2UI_DEFAULT_CATALOG_ID } from './catalogDocument';
 import { A2UI_VERSION, a2uiSourceOf, supportsA2UIVersion } from './A2UIStream';
+import { a2uiInstructions } from './A2UIInstructions';
 // Types only: the runtime, with the A2UI packages, loads in the browser when a reply first
 // shows A2UI.
 import type { A2UIReplyState, A2UIRuntime } from './runtime';
@@ -52,6 +53,15 @@ export type A2UIRendererOptions = {
   onError?: (error: A2UIError, messageId?: string) => void;
 };
 
+const reportA2UIError = (
+  options: A2UIRendererOptions,
+  error: A2UIError,
+  messageId?: string,
+) => {
+  if (options.onError) options.onError(error, messageId);
+  else console.error(`A reply's A2UI can't show: ${error.code} ${error.message}`, error);
+};
+
 /**
  * Shows the A2UI of one conversation. Each reply's surfaces are its own, kept for as long as
  * the host keeps the engine, so what the person entered survives scrolling.
@@ -86,9 +96,7 @@ export class A2UIEngine implements AIUIEngine {
   }
 
   report(error: A2UIError, messageId?: string) {
-    if (this.options.onError) this.options.onError(error, messageId);
-    else
-      console.error(`A reply's A2UI can't show: ${error.code} ${error.message}`, error);
+    reportA2UIError(this.options, error, messageId);
   }
 
   remove(messageId: string) {
@@ -122,10 +130,26 @@ export class A2UIEngine implements AIUIEngine {
 export const createA2UIRenderer = (options: A2UIRendererOptions = {}): AIUIRenderer => {
   const catalogId = options.catalogId ?? A2UI_DEFAULT_CATALOG_ID;
   return {
-    capabilities: () => ({
-      catalog_id: catalogId,
-      fence: `ui:a2ui@${A2UI_VERSION}`,
-    }),
+    // As StreamChatA2UI's: the fence, the catalog and the instructions for both, written with
+    // the A2UI core, which loads to write them. Without them, when it can't load, the rest still
+    // goes to the agent's backend.
+    capabilities: async (components) => {
+      const fence = `ui:a2ui@${A2UI_VERSION}`;
+      let instructions: string | undefined;
+      try {
+        instructions = await a2uiInstructions({ catalogId, components, fence });
+      } catch (error) {
+        reportA2UIError(options, {
+          code: 'EXECUTION_ERROR',
+          message: `The A2UI instructions couldn't be written: ${String(error)}`,
+        });
+      }
+      return {
+        catalog_id: catalogId,
+        fence,
+        ...(instructions === undefined ? {} : { instructions }),
+      };
+    },
     createEngine: (host) => new A2UIEngine(host, options),
     format: 'a2ui',
     supports: supportsA2UIVersion,

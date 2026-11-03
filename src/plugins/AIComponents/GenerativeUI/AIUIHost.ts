@@ -255,17 +255,20 @@ export class AIUIHost {
 
   /**
    * What the agent's backend needs to write UI this app shows: each format it reads, with what
-   * its renderer adds, and the app's components.
+   * its renderer adds, such as the model's instructions, and the app's components. A renderer
+   * may load its format's packages to write them, so this resolves once they are written.
    */
-  get capabilities() {
+  async capabilities() {
     return {
       components: this.components.map(({ definition }) =>
         aiUIComponentDefinitionJSON(definition),
       ),
-      renderers: this.renderers.map((renderer) => ({
-        ...renderer.capabilities?.(this.components),
-        format: renderer.format,
-      })),
+      renderers: await Promise.all(
+        this.renderers.map(async (renderer) => ({
+          ...(await renderer.capabilities?.(this.components)),
+          format: renderer.format,
+        })),
+      ),
       v: 1,
     };
   }
