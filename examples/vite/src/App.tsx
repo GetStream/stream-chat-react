@@ -23,6 +23,7 @@ import {
   MessageSearchSource,
   POLL_ONLY_COMPOSITION_MIDDLEWARE_ID,
   SearchController,
+  USER_DATA_INJECTION_MIDDLEWARE_ID,
   UserSearchSource,
 } from 'stream-chat';
 import {
@@ -101,7 +102,7 @@ import {
 } from './ComposerPreviews/ConfigurableComposerPreviews.tsx';
 import { ConfigurablePollCreationDialogControls } from './ComposerPreviews/ConfigurablePollCreationDialogControls.tsx';
 import { ConfigurableMessageBubbleContent } from './MessageBubble/ConfigurableMessageBubbleContent.tsx';
-import { StreamDebugHandles } from './Debug';
+import { applySimulatedListQueryFailures, StreamDebugHandles } from './Debug';
 import {
   installUploadHarness,
   MOCK_CDN_UPLOAD_URL,
@@ -367,6 +368,10 @@ const App = () => {
     },
   });
 
+  // `?simulate=channel-list-error` / `thread-list-error`: patched during render, before the lists
+  // mount and send their first queries (see src/Debug/simulateListQueryFailures.ts).
+  if (chatClient) applySimulatedListQueryFailures(chatClient);
+
   const searchController = useMemo(() => {
     if (!chatClient) return undefined;
 
@@ -581,9 +586,7 @@ const App = () => {
       if (pollDisabled) {
         composer.compositionMiddlewareExecutor.insert({
           middleware: [createPollOnlyCompositionMiddleware(composer)],
-          position: {
-            after: 'stream-io/message-composer-middleware/user-data-injection',
-          },
+          position: { after: USER_DATA_INJECTION_MIDDLEWARE_ID },
           unique: true,
         });
       } else {

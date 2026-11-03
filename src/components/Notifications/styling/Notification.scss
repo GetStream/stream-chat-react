@@ -45,6 +45,13 @@
     }
   }
 
+  // Without actions to share the row with, a message wider than its panel wraps inside the pill
+  // instead of running past it; one that fits stays on one line.
+  &:not(:has(.str-chat__notification-actions)) .str-chat__notification-message {
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+
   .str-chat__notification-actions {
     display: flex;
     flex-basis: 100%;

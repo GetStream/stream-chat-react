@@ -2,10 +2,8 @@ import type { StreamChat } from 'stream-chat';
 import {
   createPollOnlyCompositionMiddleware,
   POLL_ONLY_COMPOSITION_MIDDLEWARE_ID,
+  USER_DATA_INJECTION_MIDDLEWARE_ID,
 } from 'stream-chat';
-
-const USER_DATA_INJECTION_MIDDLEWARE_ID =
-  'stream-io/message-composer-middleware/user-data-injection';
 
 /** Sends a poll with the text and attachments of its message. Returns a function that stops it. */
 export const installPollWithText = (client: StreamChat) => {

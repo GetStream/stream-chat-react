@@ -50,6 +50,7 @@ export const useBaseMessageActionSetFilter = (
     canFlag,
     canMarkUnread,
     canMute,
+    canPin,
     canQuote,
     canReact,
     canReply,
@@ -113,6 +114,7 @@ export const useBaseMessageActionSetFilter = (
         (type === 'flag' && !canFlag) ||
         (type === 'markUnread' && !canMarkUnread) ||
         (type === 'mute' && !canMute) ||
+        (type === 'pin' && !canPin) ||
         (type === 'quote' && !canQuote) ||
         (type === 'react' && !canReact) ||
         (type === 'reply' && !canReply) ||
@@ -133,6 +135,7 @@ export const useBaseMessageActionSetFilter = (
     canFlag,
     canMarkUnread,
     canMute,
+    canPin,
     canQuote,
     canReact,
     canReply,

@@ -63,7 +63,7 @@ yarn api-surface check --doc ai-docs/v15-breaking-changes.md --diff diff.json
 
 ## Index
 
-77 entries.
+80 entries.
 
 | ID                | Title                                                                                                                                                                                                                         | Group                                                |
 | ----------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------- |
@@ -144,6 +144,7 @@ yarn api-surface check --doc ai-docs/v15-breaking-changes.md --diff diff.json
 | [BC-075](#bc-075) | CSS, ChatView: `str-chat__chat-view__channels` / `__threads` render only in `views` mode                                                                                                                                      | CSS and markup                                       |
 | [BC-076](#bc-076) | CSS, Thread: `str-chat__thread--virtualized` is no longer applied                                                                                                                                                             | CSS and markup                                       |
 | [BC-077](#bc-077) | quote and edit previews set their text colour from the matching bubble token                                                                                                                                                  | CSS and markup                                       |
+| [BC-078](#bc-078) | `CustomCommandData` augmentation and `DefaultCommandData` are removed; command names are `string`                                                                                                                             | Types that follow stream-chat v10 (umbrella entries) |
 | [BC-079](#bc-079) | `MessageContext` grouping flags `endOfGroup` / `firstOfGroup` / `groupedByUser` and the `str-chat__virtual-message__wrapper--*` classes are removed                                                                           | Messages and message lists                           |
 | [BC-080](#bc-080) | message grouping: `groupByUser` replaces `noGroupByUser` / `shouldGroupByUser`; `getGroupStyles` replaces `groupStyles` and takes one object                                                                                  | Messages and message lists                           |
 
@@ -407,7 +408,7 @@ export const TypingCount = () => {
   - `Message` -> the `MessageUI` slot. `VirtualMessage` still overrides inside `VirtualizedMessageList` only. The `Message` _props_ on the lists and `Thread` belong to the message area's entry.
   - `ThreadHeader` -> render `<ThreadHeader />` (or your own header) as a child of `<Thread thread={thread}>`. `Thread` renders children and no header of its own.
   - `HeaderStartContent` -> the `StartContent` prop on `ChannelHeader` / `ThreadHeader`, which defaults to `WorkspaceNavigationBackButton`. `EndContent` defaults to `WorkspaceNavigationCloseButton`. `HeaderEndContent` stays on `ComponentContext` for the list headers.
-  - `ChannelListUI` -> no wrapper slot. `ChannelList` renders an `InfiniteScrollPaginator` and reads the new slots `EmptyListIndicator`, `EndReachedIndicator`, `FirstPageLoadingIndicator`, `ListItem` and `LoadingNextPageIndicator` from `ComponentContext`. Only `ChannelList` reads them today.
+  - `ChannelListUI` -> no wrapper slot. `ChannelList` renders an `InfiniteScrollPaginator` and reads the new slots `EmptyListIndicator`, `EndReachedIndicator`, `FirstPageLoadingIndicator`, `ListItem` and `LoadingNextPageIndicator` from `ComponentContext`. `ThreadList` reads `FirstPageLoadingIndicator` too, and both read the new `ListLoadErrorIndicator`; only `ChannelList` reads the others today.
 - Evidence:
   - `release-v14:src/context/ComponentContext.tsx:129` `ChannelListUI?`, `:179` `Message?` (`@deprecated use MessageUI`), `:288` `ThreadHeader?`, `:305` `HeaderStartContent?`
   - `master:src/context/ComponentContext.tsx` none of the four; `:187` `MessageUI?`, `:294` `ThreadHead?`, `:309` `HeaderEndContent?`, `:317` `VirtualMessage?`, `:88-102` the new list slots
@@ -961,10 +962,10 @@ To open threads without `ChatView`, also override `openThread` (a target is a `T
 - User impact: compile error reading `channelsQueryState` from `useChatContext()`; `undefined` in JS. `Channel` no longer renders a loading or error state for the channel-list query.
 - Old API:
   - `ChatContextValue.channelsQueryState` (`{ queryInProgress, error, setQueryInProgress, setError }`)
-- Replacement: the query state of a channel list is the `ChannelPaginator`'s own state: `useChannelPaginatorState(paginator)` returns `{ channels, hasMoreHead, hasMoreTail, isLoading, lastQueryError }` (main entry); `hasMoreTail` says whether `paginator.toTail()` has another page to load. `ChannelList` reports `lastQueryError` through `client.notifications.addError(...)` itself.
+- Replacement: the query state of a channel list is the `ChannelPaginator`'s own state: `useChannelPaginatorState(paginator)` returns `{ channels, hasMoreHead, hasMoreTail, isLoading, lastQueryError }` (main entry); `hasMoreTail` says whether `paginator.toTail()` has another page to load. `ChannelList` reports `lastQueryError` as an error notification in the `channel-list` panel, and renders `ListLoadErrorIndicator` (`{ error, isRetrying, retry }`) in place of a list whose first page failed.
 - Evidence:
   - `release-v14:src/context/ChatContext.tsx:30-33`; `release-v14:src/components/Channel/Channel.tsx:181-207` (`Channel` rendered `LoadingIndicator` / `LoadingErrorIndicator` from it)
-  - `master:src/context/ChatContext.tsx:27-46`; `master:src/components/ChannelList/hooks/useChannelPaginatorState.ts:5-29`; `master:src/components/ChannelList/ChannelList.tsx:77-83`
+  - `master:src/context/ChatContext.tsx:27-46`; `master:src/components/ChannelList/hooks/useChannelPaginatorState.ts:5-29`; `master:src/components/ChannelList/ChannelList.tsx:89-94`
   - commit: `99cbe6704` (PR #3237)
 - Docs impact:
   - `02-ui-components/03-chat/02-chat_context.md`
@@ -1519,7 +1520,7 @@ A single list can still be rendered on its own with `<ChannelList paginator={pag
 - Old API:
   - `ChannelListUI` (`{ error, loadedChannels?, loading?, setChannels? }`), `ChannelListUIProps`
   - `ComponentContextValue.ChannelListUI`
-- Replacement: per-part slots on `ComponentContext` that `ChannelList` reads: `EmptyListIndicator`, `EndReachedIndicator` (`{ hasEnded, reached }`), `FirstPageLoadingIndicator` (default `LoadingChannels`), `ListItem` (`{ item }`, default renders `ChannelListItem`), `LoadingNextPageIndicator` (`{ isLoading? }`). Query errors are reported as a notification. For a fully custom list, read `useChannelPaginatorState(paginator)` and render your own.
+- Replacement: per-part slots on `ComponentContext` that `ChannelList` reads: `EmptyListIndicator`, `EndReachedIndicator` (`{ hasEnded, reached }`), `FirstPageLoadingIndicator` (default `LoadingChannels`), `ListItem` (`{ item }`, default renders `ChannelListItem`), `ListLoadErrorIndicator` (`{ error, isRetrying, retry }`, rendered in place of a list whose first page failed), `LoadingNextPageIndicator` (`{ isLoading? }`). `ThreadList` reads `FirstPageLoadingIndicator` and `ListLoadErrorIndicator` too. Query errors are also reported as a notification. For a fully custom list, read `useChannelPaginatorState(paginator)` and render your own.
 - Evidence:
   - `release-v14:src/components/ChannelList/ChannelListUI.tsx:10,24`; `release-v14:src/context/ComponentContext.tsx:129`
   - `master:src/context/ComponentContext.tsx:90-102`; `master:src/components/ChannelList/ChannelList.tsx:48-54,78-83`
@@ -1559,7 +1560,7 @@ import type { Channel } from 'stream-chat';
 </WithComponents>;
 ```
 
-Note: these slots are generic "paginated list" slots; in v15 only `ChannelList` reads them.
+Note: these slots are generic "paginated list" slots. In v15 `ThreadList` also reads `FirstPageLoadingIndicator` and `ListLoadErrorIndicator`; only `ChannelList` reads the others.
 
 ---
 
@@ -3183,6 +3184,27 @@ export const DeleteForMe = () => {
   - `03-ui-cookbook/05-message-composer/06-suggestion_list.md` (custom `UserItem` reads `entity.name`, `entity.image`; still valid)
   - `02-ui-components/09-message-composer/05-ui_components.md` (`CommandChip`)
 - Example needed: no (belongs under the guide's "Dates on response types" and v10 data-shape umbrella, which other areas will also feed)
+
+### BC-078: `CustomCommandData` augmentation and `DefaultCommandData` are removed; command names are `string`
+
+- Status: confirmed
+- Area: custom data types, commands
+- User impact: compile error `TS2305` on `import type { DefaultCommandData } from 'stream-chat-react'`, and, with a `stream-chat` release after `10.0.0-rc.31`, on `import type { CustomCommandData } from 'stream-chat'` once no augmentation of it is left in the program. Command names lose their type: v14 typed `command.name` / `command.set` as `CommandVariants` (the built-in names plus the keys of `CustomCommandData`), so a typo such as `command.name === 'gihpy'` failed to compile; v15 types them as `string`, and it compiles. A leftover `interface CustomCommandData { … }` in `declare module 'stream-chat'` still compiles and has no effect, because nothing reads it.
+- Old API:
+  - `DefaultCommandData` (exported from `stream-chat-react`)
+  - `declare module 'stream-chat' { interface CustomCommandData extends DefaultCommandData {} }`
+- Replacement: delete the `CustomCommandData` augmentation and the `DefaultCommandData` import. `Command['name']` and `Command['set']` are `string`; an app that wants a checked set of names declares its own union and narrows `command.name` against it.
+- Evidence:
+  - `release-v14:src/types/defaultDataInterfaces.ts:11` `export interface DefaultCommandData {}`; `release-v14:src/@types/stream-chat-custom-data.d.ts:23` augments `CustomCommandData` with it
+  - `stream-chat` `v9.54.4:src/types.ts:2772-2781` `CommandVariants = 'all' | 'ban' | 'fun_set' | 'giphy' | 'moderation_set' | 'mute' | 'unban' | 'unmute' | keyof CustomCommandData`, used by `CommandResponse.name` / `set` (`:470-475`)
+  - `master:node_modules/stream-chat/src/gen/models/index.ts:2551-2568` `Command.name: string`, `Command.set: string`
+  - `stream-chat` `release-v10` removes `CustomCommandData` from `src/custom_types.ts` and the root exports after `10.0.0-rc.31` (REACT-1363); `10.0.0-rc.31`, which `master` pins, still exports it
+  - `master:src/types/defaultDataInterfaces.ts` has no `DefaultCommandData`
+  - examples: `release-v14:examples/ai-chatbot/src/components/stream-chat.d.ts:4,25` imported and augmented it
+- Docs impact:
+  - `02-state/01-state-and-entities/06-data-conventions.md` ("Custom data types": drop the `CustomCommandData` line)
+  - `08-release-guides/01-upgrade-to-v15.md` (add a row: delete `CustomCommandData` augmentations and the `DefaultCommandData` import)
+- Example needed: no
 
 ## CSS and markup
 
