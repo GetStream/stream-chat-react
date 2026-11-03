@@ -13,7 +13,7 @@
 .str-chat__ai-message-parts {
   display: flex;
   flex-direction: column;
-  gap: 0.625rem;
+  gap: ai-scale(space-xs);
   width: 100%;
 }
 
@@ -71,8 +71,8 @@
   display: flex;
   align-items: flex-start;
   gap: 0.5rem;
-  font-size: 0.9375rem;
-  line-height: 1.35;
+  font-size: ai-scale(font-sm);
+  line-height: ai-scale(line-normal);
 
   &__icon {
     display: inline-flex;
@@ -116,12 +116,12 @@
     -webkit-box-orient: vertical;
     -webkit-line-clamp: 2;
     color: ai-token(text-secondary);
-    font-size: 0.8125rem;
+    font-size: ai-scale(font-xs);
   }
 
   &__duration {
     color: ai-token(text-secondary);
-    font-size: 0.8125rem;
+    font-size: ai-scale(font-xs);
     font-variant-numeric: tabular-nums;
     white-space: nowrap;
   }
@@ -139,7 +139,7 @@
   border-radius: 1rem;
   background-color: ai-token(card-bg);
   color: ai-token(text-primary);
-  font-size: 0.9375rem;
+  font-size: ai-scale(font-sm);
 }
 
 .str-chat__ai-tool-approval-card {
@@ -167,7 +167,7 @@
 
   &__failure {
     color: ai-token(error);
-    font-size: 0.8125rem;
+    font-size: ai-scale(font-xs);
   }
 }
 
@@ -232,7 +232,8 @@
   position: relative;
   padding-inline-start: 0.75rem;
   color: ai-token(text-secondary);
-  font-size: 0.9375rem;
+  font-size: ai-scale(font-sm);
+  line-height: ai-scale(line-normal);
 
   // the rule along the reasoning
   &::before {
@@ -348,10 +349,8 @@
   }
 
   &__paragraph {
-    line-height: 1.5;
-
     & + & {
-      margin-top: 0.625rem;
+      margin-top: ai-scale(space-xs);
     }
 
     p {
@@ -362,7 +361,7 @@
   &__footnote {
     padding-top: 0.5rem;
     color: ai-token(text-tertiary);
-    font-size: 0.8125rem;
+    font-size: ai-scale(font-xs);
   }
 }
 
