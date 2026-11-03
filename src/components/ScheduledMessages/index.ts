@@ -7,6 +7,7 @@ export {
 export * from './hooks';
 export * from './ScheduledMessageGroupHeader';
 export * from './ScheduledMessageItem';
+export * from './ScheduledMessageItemStatus';
 export * from './ScheduledMessageList';
 export * from './ScheduledMessageListDialog';
 export * from './ScheduledMessageListLoading';
@@ -15,7 +16,6 @@ export * from './ScheduledMessagesEmptyList';
 export * from './ScheduledMessagesEmptyState';
 export * from './ScheduledMessagesLoadError';
 export * from './ScheduledMessagesNoResults';
-export * from './ScheduledMessageStatusBadge';
 export * from './ScheduleMessageButton';
 export * from './ScheduleMessageDialog';
 export * from './ScheduleMessageDialogNotice';

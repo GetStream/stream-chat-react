@@ -125,7 +125,10 @@ export type ScheduledMessagesLoadErrorProps = {
   onRetry: () => void;
 };
 
-export type ScheduledMessageListDialogProps = ScheduledMessageListProps & {
+export type ScheduledMessageListDialogProps = Omit<
+  ScheduledMessageListProps,
+  'searchQuery'
+> & {
   close: () => void;
 };
 
@@ -137,6 +140,6 @@ export type ScheduledMessageItemProps = {
   scheduledMessage: ScheduledMessageResponse;
 };
 
-export type ScheduledMessageStatusBadgeProps = {
+export type ScheduledMessageItemStatusProps = {
   scheduledMessage: ScheduledMessageResponse;
 };

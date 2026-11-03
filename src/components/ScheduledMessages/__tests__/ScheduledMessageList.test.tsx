@@ -73,7 +73,11 @@ describe('ScheduledMessageList', () => {
     await renderList();
 
     expect(screen.getByText('No scheduled messages')).toBeInTheDocument();
-    expect(screen.getByText('Messages you schedule appear here')).toBeInTheDocument();
+    expect(
+      screen.getByText(
+        'Click the arrow next to the send button in a channel to schedule a message.',
+      ),
+    ).toBeInTheDocument();
   });
 
   it('shows skeleton rows while the first page loads', async () => {
@@ -178,7 +182,7 @@ describe('ScheduledMessageList', () => {
     expect(getGroupHeaders()).toEqual(['Failed', 'Tomorrow', 'Friday']);
   });
 
-  it('shows the preview, scheduled time and status of each message', async () => {
+  it('shows the send time and preview of each message', async () => {
     await renderList({
       scheduledMessages: [
         generateScheduledMessage({
@@ -192,8 +196,8 @@ describe('ScheduledMessageList', () => {
     const item = screen.getByTestId('scheduled-message-item');
 
     expect(within(item).getByText('Launch moved to Monday')).toBeInTheDocument();
-    expect(within(item).getByText('Tomorrow at 09:00')).toBeInTheDocument();
-    expect(within(item).getByText('Scheduled')).toBeInTheDocument();
+    expect(within(item).getByText('Send Thu, Oct 29 at 09:00')).toBeInTheDocument();
+    expect(within(item).queryByText('Scheduled')).not.toBeInTheDocument();
   });
 
   it('summarises attachments when the message has no text', async () => {

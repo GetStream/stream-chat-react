@@ -1,40 +1,31 @@
 import clsx from 'clsx';
 import React, { useMemo } from 'react';
 
-import { useTranslationContext } from '../../context';
-import { ListItemLayout } from '../ListItemLayout';
+import { useChatContext, useTranslationContext } from '../../context';
+import { ChannelAvatar } from '../Avatar';
+import { useChannelPreviewInfo } from '../ChannelListItem/hooks/useChannelPreviewInfo';
 import { SummarizedMessagePreview } from '../SummarizedMessagePreview';
-import { ScheduledMessageStatusBadge } from './ScheduledMessageStatusBadge';
+import { ScheduledMessageItemStatus } from './ScheduledMessageItemStatus';
 import type { ScheduledMessageItemProps } from './types';
-import {
-  isFailedScheduledMessage,
-  toStoredScheduledMessagePreview,
-  translateScheduledMessageFailureReason,
-} from './utils';
+import { isFailedScheduledMessage, toStoredScheduledMessagePreview } from './utils';
 
 export const ScheduledMessageItem = ({ scheduledMessage }: ScheduledMessageItemProps) => {
   const { t } = useTranslationContext();
+  const { client } = useChatContext();
 
-  const { failure_reason, scheduled_at } = scheduledMessage;
+  const { cid, scheduled_at } = scheduledMessage;
+  const channel = client.activeChannels[cid];
+  const { displayImage, displayTitle, groupChannelDisplayInfo } = useChannelPreviewInfo({
+    channel,
+  });
 
   const previewMessage = useMemo(
     () => toStoredScheduledMessagePreview(scheduledMessage),
     [scheduledMessage],
   );
 
-  const StatusBadge = useMemo(
-    () =>
-      function ScheduledMessageItemStatusBadge() {
-        return <ScheduledMessageStatusBadge scheduledMessage={scheduledMessage} />;
-      },
-    [scheduledMessage],
-  );
-
   const isFailed = isFailedScheduledMessage(scheduledMessage);
-  const failureMessage = isFailed
-    ? translateScheduledMessageFailureReason(t, failure_reason)
-    : undefined;
-  const scheduledTime = t('timestamp/ScheduledMessage', {
+  const sendTime = t('timestamp/ScheduledMessageSendTime', {
     timestamp: new Date(scheduled_at),
   });
 
@@ -45,14 +36,27 @@ export const ScheduledMessageItem = ({ scheduledMessage }: ScheduledMessageItemP
       })}
       data-testid='scheduled-message-item'
     >
-      <ListItemLayout
-        description={failureMessage}
-        descriptionClassName='str-chat__scheduled-message-item__failure-reason'
-        subtitle={<time dateTime={scheduled_at}>{scheduledTime}</time>}
-        subtitleClassName='str-chat__scheduled-message-item__time'
-        title={<SummarizedMessagePreview latestMessage={previewMessage} />}
-        TrailingSlot={StatusBadge}
-      />
+      <time className='str-chat__scheduled-message-item__time' dateTime={scheduled_at}>
+        {t('Send {{ time }}', { time: sendTime })}
+      </time>
+      <div className='str-chat__scheduled-message-item__body'>
+        <ChannelAvatar
+          aria-hidden='true'
+          displayMembers={groupChannelDisplayInfo.members}
+          imageUrl={displayImage}
+          size='lg'
+          userName={displayTitle}
+        />
+        <div className='str-chat__scheduled-message-item__content'>
+          {displayTitle && (
+            <span className='str-chat__scheduled-message-item__channel-name'>
+              {displayTitle}
+            </span>
+          )}
+          <SummarizedMessagePreview latestMessage={previewMessage} />
+          <ScheduledMessageItemStatus scheduledMessage={scheduledMessage} />
+        </div>
+      </div>
     </div>
   );
 };
