@@ -49,6 +49,7 @@
     "./a2ui": {
       "types": "./dist/types/plugins/A2UI/index.d.ts",
       "import": "./dist/es/a2ui.mjs",
+      "require": "./dist/cjs/a2ui-require.js",
       "default": "./dist/es/a2ui.mjs"
     },
     "./dist/css/*": {

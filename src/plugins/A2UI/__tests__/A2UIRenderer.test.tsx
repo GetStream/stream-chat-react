@@ -382,6 +382,116 @@ describe('a reply written in A2UI', () => {
     );
   });
 
+  it('opens the links of its Markdown the way the host allows, not wherever they point', async () => {
+    const { open, ui } = setup();
+    const lines = [
+      line({ createSurface: { surfaceId: 's' } }),
+      line({
+        updateComponents: {
+          components: [
+            {
+              component: 'Text',
+              id: 'root',
+              text: 'Read [about Ohrid](https://en.wikipedia.org/wiki/Ohrid) first.',
+            },
+          ],
+          surfaceId: 's',
+        },
+      }),
+    ];
+    renderWithEnglish(<AIConversation messages={[question, replyWith(lines)]} ui={ui} />);
+    const link = await screen.findByRole('link', { name: 'about Ohrid' });
+    const followed = fireEvent.click(link);
+    expect(followed).toBe(false);
+    expect(open).toHaveBeenCalledWith(new URL('https://en.wikipedia.org/wiki/Ohrid'));
+  });
+
+  it('opens a Modal as a dialog from its trigger, and closes it from Escape and the backdrop', async () => {
+    const { sent, ui } = setup();
+    const lines = [
+      line({ createSurface: { surfaceId: 's' } }),
+      line({
+        updateComponents: {
+          components: [
+            { component: 'Modal', content: 'details', id: 'root', trigger: 'open' },
+            {
+              action: { event: { name: 'opened_details' } },
+              child: 'open_label',
+              component: 'Button',
+              id: 'open',
+            },
+            { component: 'Text', id: 'open_label', text: 'Opening times' },
+            { component: 'Text', id: 'details', text: 'Open daily, 9 to 5.' },
+          ],
+          surfaceId: 's',
+        },
+      }),
+    ];
+    const { container } = renderWithEnglish(
+      <AIConversation messages={[question, replyWith(lines)]} ui={ui} />,
+    );
+    await waitFor(() =>
+      expect(container.querySelector('a2ui-basic-button button')).not.toBeNull(),
+    );
+    const dialog = container.querySelector(
+      'dialog.str-chat__a2ui-modal',
+    ) as HTMLDialogElement;
+    expect(dialog.open).toBe(false);
+    expect(document.body).not.toHaveTextContent('Open daily, 9 to 5.');
+
+    act(() => {
+      fireEvent.click(container.querySelector('a2ui-basic-button button') as Element);
+    });
+    await waitFor(() => expect(dialog.open).toBe(true));
+    await waitFor(() => expect(dialog).toHaveTextContent('Open daily, 9 to 5.'));
+    expect(screen.getByRole('button', { name: 'Close' })).toBeInTheDocument();
+    // the trigger's own action still runs
+    await waitFor(() => expect(sent[0]?.name).toBe('opened_details'));
+
+    act(() => {
+      fireEvent(dialog, new Event('cancel', { cancelable: true }));
+    });
+    await waitFor(() => expect(dialog.open).toBe(false));
+
+    act(() => {
+      fireEvent.click(container.querySelector('a2ui-basic-button button') as Element);
+    });
+    await waitFor(() => expect(dialog.open).toBe(true));
+    act(() => {
+      fireEvent.click(dialog);
+    });
+    await waitFor(() => expect(dialog.open).toBe(false));
+  });
+
+  it('opens a Modal whose trigger is not a button from the keyboard', async () => {
+    const { ui } = setup();
+    const lines = [
+      line({ createSurface: { surfaceId: 's' } }),
+      line({
+        updateComponents: {
+          components: [
+            { component: 'Modal', content: 'details', id: 'root', trigger: 'label' },
+            { component: 'Text', id: 'label', text: 'See the opening times' },
+            { component: 'Text', id: 'details', text: 'Open daily, 9 to 5.' },
+          ],
+          surfaceId: 's',
+        },
+      }),
+    ];
+    const { container } = renderWithEnglish(
+      <AIConversation messages={[question, replyWith(lines)]} ui={ui} />,
+    );
+    const trigger = await screen.findByRole('button', { name: /See the opening times/ });
+    expect(trigger).toHaveAttribute('tabindex', '0');
+    act(() => {
+      fireEvent.keyDown(trigger, { key: 'Enter' });
+    });
+    const dialog = container.querySelector(
+      'dialog.str-chat__a2ui-modal',
+    ) as HTMLDialogElement;
+    await waitFor(() => expect(dialog.open).toBe(true));
+  });
+
   it('shows the text of a finished reply whose A2UI made no surface', async () => {
     const { ui } = setup();
     const { rerender } = renderWithEnglish(

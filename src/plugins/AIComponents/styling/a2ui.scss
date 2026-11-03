@@ -64,6 +64,70 @@
   }
 }
 
+// Text's Markdown, wrapped only to follow its links: it takes no box of its own.
+.str-chat__a2ui-markdown {
+  display: contents;
+}
+
+// A Modal opens as a dialog, in the top layer above everything.
+.str-chat__a2ui-modal {
+  width: min(32rem, calc(100vw - 2rem));
+  max-height: calc(100dvh - 4rem);
+  padding: 0;
+  border: none;
+  border-radius: 1rem;
+  background-color: var(--a2ui-color-surface);
+  color: var(--a2ui-color-on-surface);
+  box-shadow: 0 1rem 3rem
+    color-mix(in srgb, var(--a2ui-color-on-background) 22%, transparent);
+
+  &::backdrop {
+    background-color: color-mix(
+      in srgb,
+      var(--a2ui-color-on-background) 40%,
+      transparent
+    );
+  }
+
+  // A block, not `display: contents`, which takes a trigger that opens from the keyboard out of
+  // the focus order in some browsers.
+  &__trigger {
+    display: block;
+  }
+
+  &__content {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    padding: 1rem;
+  }
+
+  &__close {
+    all: unset;
+    box-sizing: border-box;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    align-self: flex-end;
+    width: 2rem;
+    height: 2rem;
+    border-radius: 9999px;
+    color: ai-token(text-secondary);
+    font-size: 1.25rem;
+    line-height: 1;
+    cursor: pointer;
+
+    &:hover {
+      background-color: ai-token(surface-hover);
+      color: ai-token(text-primary);
+    }
+
+    &:focus-visible {
+      @include ai-focus-ring;
+    }
+  }
+}
+
 .str-chat__theme-dark .str-chat__a2ui {
   color-scheme: dark;
 }

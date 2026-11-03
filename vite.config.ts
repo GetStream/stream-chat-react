@@ -24,6 +24,8 @@ export default defineConfig({
         'mp3-encoder': resolve(__dirname, './src/plugins/encoders/mp3.ts'),
         'ai-components': resolve(__dirname, './src/plugins/AIComponents/index.ts'),
         a2ui: resolve(__dirname, './src/plugins/A2UI/index.ts'),
+        // What `require` reaches: the renderer is an ES module only, and says so.
+        'a2ui-require': resolve(__dirname, './src/plugins/A2UI/esmOnly.ts'),
       },
     },
     // `yarn build` already wipes dist up front via `yarn clean`
