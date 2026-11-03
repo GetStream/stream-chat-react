@@ -1,8 +1,10 @@
 .str-chat {
-  .str-chat__scheduled-message-item__trailing {
+  .str-chat__scheduled-message-item__header {
     display: flex;
     align-items: center;
-    gap: var(--str-chat__spacing-xxs);
+    justify-content: space-between;
+    gap: var(--str-chat__spacing-xs);
+    min-height: var(--str-chat__button-visual-height-sm);
   }
 
   .str-chat__scheduled-message-actions-button {

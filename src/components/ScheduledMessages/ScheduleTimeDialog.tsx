@@ -14,7 +14,12 @@ import {
 } from './hooks';
 import { ScheduleMessageDialogNotice } from './ScheduleMessageDialogNotice';
 import type { ScheduleTimeDialogProps } from './types';
-import { formatTimeZoneOffset, openNativePicker, toDateInputValue } from './utils';
+import {
+  formatTimeZoneOffset,
+  fromDateInputValue,
+  openNativePicker,
+  toDateInputValue,
+} from './utils';
 
 const translateScheduleTimeError = (t: TFunction, timeError?: ScheduleTimeError) => {
   if (timeError === ScheduleTimeError.TooSoon) return t('Choose a later time');
@@ -34,7 +39,7 @@ export const ScheduleTimeDialog = ({
   title,
 }: ScheduleTimeDialogProps) => {
   const { t } = useTranslationContext();
-  const { IconCalendar, IconClock } = useComponentContextIcons();
+  const { IconCalendar, IconCaretDown, IconClock } = useComponentContextIcons();
 
   const channelDisplayName = useChannelDisplayName(channel);
   const isOnline = useIsConnectionOnline();
@@ -55,6 +60,10 @@ export const ScheduleTimeDialog = ({
   const canSchedule = !!scheduledAt && !timeError && isOnline && !isScheduling;
   const timeErrorMessage = translateScheduleTimeError(t, timeError);
   const timeZone = formatTimeZoneOffset(scheduledAt ?? bounds.earliest);
+  const selectedDate = fromDateInputValue(dateValue);
+  const dateLabel = selectedDate
+    ? t('timestamp/ScheduleDate', { timestamp: selectedDate })
+    : undefined;
   const authorLabel = channelDisplayName
     ? t('Message to {{ name }}', { name: channelDisplayName })
     : title;
@@ -89,12 +98,23 @@ export const ScheduleTimeDialog = ({
           <TextInput
             className='str-chat__schedule-message-dialog__date'
             label={t('Date')}
-            leading={<IconCalendar />}
+            leading={
+              <>
+                <IconCalendar />
+                <span
+                  aria-hidden
+                  className='str-chat__schedule-message-dialog__date-value'
+                >
+                  {dateLabel}
+                </span>
+              </>
+            }
             max={toDateInputValue(bounds.latest)}
             min={toDateInputValue(bounds.earliest)}
             onChange={onDateChange}
             onClick={openNativePicker}
             required
+            trailing={<IconCaretDown />}
             type='date'
             value={dateValue}
           />
@@ -107,6 +127,7 @@ export const ScheduleTimeDialog = ({
             onChange={onTimeChange}
             onClick={openNativePicker}
             required
+            trailing={<IconCaretDown />}
             type='time'
             value={timeValue}
           />

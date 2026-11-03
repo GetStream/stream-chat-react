@@ -79,7 +79,7 @@ export const ScheduledMessagesNavButton = (props: SectionNavigatorNavButtonProps
   <ChannelDetailNavButton
     {...props}
     LeadingIcon={ScheduledMessagesNavButtonIcon}
-    title='Scheduled messages'
+    title='Scheduled'
   />
 );
 

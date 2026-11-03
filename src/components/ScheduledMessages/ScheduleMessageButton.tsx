@@ -1,4 +1,3 @@
-import clsx from 'clsx';
 import React, { useCallback, useRef } from 'react';
 
 import {
@@ -68,14 +67,13 @@ export const ScheduleMessageButton = () => {
         aria-expanded={isMenuOpen}
         aria-haspopup='menu'
         aria-label={t('aria/Open schedule message menu')}
-        className={clsx('str-chat__schedule-message-button', {
-          'str-chat__schedule-message-button--selected': isMenuOpen,
-        })}
+        circular
+        className='str-chat__schedule-message-button'
         data-testid='schedule-message-button'
         disabled={!hasSendableData}
         onClick={toggleMenu}
         ref={menuButtonRef}
-        size='sm'
+        size='xs'
         variant='primary'
       >
         <IconChevronUp />

@@ -9,7 +9,9 @@ export const ScheduledMessagesEmptyList = () => {
 
   return (
     <ScheduledMessagesEmptyState
-      description={t('Messages you schedule appear here')}
+      description={t(
+        'Click the arrow next to the send button in a channel to schedule a message.',
+      )}
       Icon={IconClock}
       title={t('No scheduled messages')}
     />

@@ -305,6 +305,14 @@ export const IconCheckmark = createIcon(
   />,
 );
 
+export const IconCaretDown = createIcon(
+  'IconCaretDown',
+  <path
+    d='M4.84 7.38H15.16C15.69 7.38 15.96 8.02 15.58 8.4L10.42 13.56C10.19 13.79 9.81 13.79 9.58 13.56L4.42 8.4C4.04 8.02 4.31 7.38 4.84 7.38Z'
+    fill='currentColor'
+  />,
+);
+
 export const IconChevronDown = createIcon(
   'IconChevronDown',
   <path

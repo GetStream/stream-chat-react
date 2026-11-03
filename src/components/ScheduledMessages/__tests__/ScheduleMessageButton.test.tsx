@@ -199,6 +199,26 @@ describe('ScheduleMessageButton', () => {
       expect(screen.getByText('Monday at 09:00')).toBeInTheDocument();
     });
 
+    it('confirms a time later today with the time only', async () => {
+      const { channel, client } = await renderComposer();
+      const scheduledMessage = generateScheduledMessage({
+        cid: channel.cid,
+        scheduled_at: new Date(2026, 9, 28, 10, 43).toISOString(),
+      });
+      mockSchedule(channel).mockResolvedValue(scheduledMessage);
+
+      await openMenu();
+      await act(() => fireEvent.click(screen.getByText('Tomorrow at 09:00')));
+
+      await waitFor(() =>
+        expect(getNotifications(client)).toEqual(
+          expect.arrayContaining([
+            expect.objectContaining({ message: 'Message scheduled for 10:43' }),
+          ]),
+        ),
+      );
+    });
+
     it('schedules at the picked preset and confirms with the server time', async () => {
       const { channel, client } = await renderComposer();
       const serverScheduledAt = new Date(2026, 9, 29, 9, 0);
@@ -216,7 +236,7 @@ describe('ScheduleMessageButton', () => {
         expect(getNotifications(client)).toEqual(
           expect.arrayContaining([
             expect.objectContaining({
-              message: 'Scheduled for Tomorrow at 09:00',
+              message: 'Message scheduled for Thu, Oct 29 at 09:00',
               severity: 'success',
               type: 'api:scheduled-message:create:success',
             }),
@@ -278,6 +298,19 @@ describe('ScheduleMessageButton', () => {
       expect(screen.getByLabelText('Time')).toHaveValue('11:00');
       expect(dialog).toHaveTextContent('Sent in your time zone (GMT)');
       expect(screen.getByRole('button', { name: 'Schedule' })).toBeEnabled();
+    });
+
+    it('shows the picked date in the design format', async () => {
+      await renderComposer();
+
+      const dialog = await openDialog();
+      fireEvent.change(screen.getByLabelText('Date'), {
+        target: { value: '2026-11-03' },
+      });
+
+      expect(
+        dialog.querySelector('.str-chat__schedule-message-dialog__date-value'),
+      ).toHaveTextContent('Tue, Nov 3, 2026');
     });
 
     it('schedules at the picked date and time and closes', async () => {

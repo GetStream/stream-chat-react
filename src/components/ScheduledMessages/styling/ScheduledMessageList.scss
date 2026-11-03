@@ -1,35 +1,45 @@
+@use '../../../styling/utils';
+
 .str-chat {
-  --str-chat__scheduled-message-list-dialog-max-width: 504px;
+  --str-chat__scheduled-message-list-dialog-max-width: 520px;
 
   .str-chat__scheduled-message-list-dialog {
-    width: 100%;
-    max-width: var(--str-chat__scheduled-message-list-dialog-max-width);
+    width: var(--str-chat__scheduled-message-list-dialog-max-width);
+    max-width: 100%;
 
     .str-chat__scheduled-message-list-dialog__body {
       overflow-y: auto;
     }
   }
 
+  .str-chat__scheduled-message-list-dialog__search {
+    margin-block-end: var(--str-chat__spacing-xs);
+  }
+
   .str-chat__scheduled-message-list {
     display: flex;
     flex-direction: column;
-    gap: var(--str-chat__spacing-md);
 
     .str-chat__scheduled-message-list__load-more {
       align-self: center;
+      margin-block: var(--str-chat__spacing-sm);
     }
   }
 
   .str-chat__scheduled-message-group {
     display: flex;
     flex-direction: column;
-    gap: var(--str-chat__spacing-xxs);
 
     .str-chat__scheduled-message-group__header {
-      margin: 0;
-      padding-inline: var(--str-chat__spacing-sm);
-      color: var(--str-chat__text-secondary);
-      font: var(--str-chat__font-caption-emphasis);
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      margin: -1px;
+      padding: 0;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
     }
 
     .str-chat__scheduled-message-group__items {
@@ -39,25 +49,74 @@
       padding: 0;
       list-style: none;
     }
+
+    .str-chat__scheduled-message-group__item {
+      margin-inline: calc(-1 * var(--str-chat__spacing-xl));
+      padding: var(--str-chat__spacing-md) var(--str-chat__spacing-xl);
+      border-block-end: 1px solid var(--str-chat__border-core-subtle);
+    }
+  }
+
+  .str-chat__scheduled-message-group:last-of-type
+    .str-chat__scheduled-message-group__item:last-child {
+    border-block-end: none;
   }
 
   .str-chat__scheduled-message-item {
+    display: flex;
+    flex-direction: column;
+    gap: var(--str-chat__spacing-xs);
+    min-width: 0;
+
+    .str-chat__scheduled-message-item__time {
+      color: var(--str-chat__text-tertiary);
+      font: var(--str-chat__font-caption-default);
+    }
+
+    .str-chat__scheduled-message-item__body {
+      display: flex;
+      align-items: flex-start;
+      gap: var(--str-chat__spacing-sm);
+      min-width: 0;
+    }
+
+    .str-chat__scheduled-message-item__content {
+      display: flex;
+      flex: 1;
+      flex-direction: column;
+      min-width: 0;
+      color: var(--str-chat__text-primary);
+      font: var(--str-chat__font-body-default);
+    }
+
+    .str-chat__scheduled-message-item__channel-name {
+      @include utils.ellipsis-text();
+      color: var(--str-chat__text-secondary);
+      font: var(--str-chat__font-caption-emphasis);
+    }
+
     .str-chat__summarized-message-preview {
       min-width: 0;
     }
 
-    .str-chat__scheduled-message-item__time {
+    .str-chat__scheduled-message-item__status {
+      display: flex;
+      align-items: center;
+      gap: var(--str-chat__spacing-xxs);
+      margin-block-start: var(--str-chat__spacing-xxs);
       color: var(--str-chat__text-secondary);
-      font: var(--str-chat__font-caption-default);
+      font: var(--str-chat__font-metadata-default);
     }
 
-    .str-chat__scheduled-message-item__failure-reason {
+    .str-chat__scheduled-message-item__status--failed {
       color: var(--str-chat__accent-error);
       font: var(--str-chat__font-caption-default);
     }
 
-    .str-chat__scheduled-message-status-badge {
+    .str-chat__scheduled-message-item__status-icon {
       flex-shrink: 0;
+      height: var(--str-chat__icon-size-sm);
+      width: var(--str-chat__icon-size-sm);
     }
   }
 
@@ -105,12 +164,36 @@
     .str-chat__scheduled-message-list-loading__row {
       display: flex;
       flex-direction: column;
-      justify-content: center;
       gap: var(--str-chat__spacing-xs);
-      min-height: 64px;
-      padding-inline: var(--str-chat__spacing-sm);
+      margin-inline: calc(-1 * var(--str-chat__spacing-xl));
+      padding: var(--str-chat__spacing-md) var(--str-chat__spacing-xl);
+      border-block-end: 1px solid var(--str-chat__border-core-subtle);
     }
 
+    .str-chat__scheduled-message-list-loading__body {
+      display: flex;
+      align-items: center;
+      gap: var(--str-chat__spacing-sm);
+    }
+
+    .str-chat__scheduled-message-list-loading__lines {
+      display: flex;
+      flex: 1;
+      flex-direction: column;
+      gap: var(--str-chat__spacing-xs);
+    }
+
+    .str-chat__scheduled-message-list-loading__avatar {
+      flex-shrink: 0;
+      width: 40px;
+    }
+
+    .str-chat__scheduled-message-list-loading__time {
+      width: 30%;
+    }
+
+    .str-chat__scheduled-message-list-loading__time,
+    .str-chat__scheduled-message-list-loading__avatar,
     .str-chat__scheduled-message-list-loading__title,
     .str-chat__scheduled-message-list-loading__subtitle {
       height: var(--str-chat__size-12);
@@ -126,12 +209,16 @@
       animation: str-chat__scheduled-message-list-loading-shimmer 1.2s linear infinite;
     }
 
+    .str-chat__scheduled-message-list-loading__avatar {
+      height: 40px;
+    }
+
     .str-chat__scheduled-message-list-loading__title {
-      width: 70%;
+      width: 40%;
     }
 
     .str-chat__scheduled-message-list-loading__subtitle {
-      width: 40%;
+      width: 80%;
     }
   }
 }
@@ -147,6 +234,8 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .str-chat .str-chat__scheduled-message-list-loading__time,
+  .str-chat .str-chat__scheduled-message-list-loading__avatar,
   .str-chat .str-chat__scheduled-message-list-loading__title,
   .str-chat .str-chat__scheduled-message-list-loading__subtitle {
     animation: none;
