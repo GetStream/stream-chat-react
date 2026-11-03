@@ -198,7 +198,6 @@ export const Message = (props: MessageProps) => {
       renderText={props.renderText}
       returnAllReadData={props.returnAllReadData}
       sortReactions={sortReactions}
-      threadList={props.threadList}
       unsafeHTML={props.unsafeHTML}
     />
   );

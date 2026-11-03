@@ -20,6 +20,7 @@ import {
   type GalleryProps,
   type GiphyPreviewMessageProps,
   type ImagePlaceholderProps,
+  type ListLoadErrorIndicatorProps,
   type LoadingIndicatorProps,
   type MessageBouncePromptProps,
   type MessageComposerProps,
@@ -98,6 +99,8 @@ export type ComponentContextValue = {
   FirstPageLoadingIndicator?: React.ComponentType;
   /** Custom UI component rendered per item of a paginated list. */
   ListItem?: ComponentType<{ item: unknown }>;
+  /** Custom UI component rendered in place of a paginated list whose first page failed to load. */
+  ListLoadErrorIndicator?: React.ComponentType<ListLoadErrorIndicatorProps>;
   /** Custom UI component rendered while a paginated list loads its next page. */
   LoadingNextPageIndicator?: React.ComponentType<{ isLoading?: boolean }>;
   /** Actions between the textarea and the send actions. The default renders the `EmojiPicker`. */

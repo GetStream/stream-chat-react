@@ -436,6 +436,34 @@ describe('<MessageActions />', () => {
       expect(getByText('Unpin')).toBeInTheDocument();
     });
 
+    it('should not show Pin without the pin-message capability', async () => {
+      const message = generateMessage({ pinned: false });
+      await renderMessageActions({
+        channelStateOpts: {
+          channelCapabilities: { 'flag-message': true },
+        },
+        customMessageContext: { message },
+      });
+      await toggleOpenMessageActions();
+
+      expect(screen.getByText('Flag')).toBeInTheDocument();
+      expect(screen.queryByText('Pin')).not.toBeInTheDocument();
+    });
+
+    it('should not show Unpin without the pin-message capability', async () => {
+      const message = generateMessage({ pinned: true });
+      await renderMessageActions({
+        channelStateOpts: {
+          channelCapabilities: { 'flag-message': true },
+        },
+        customMessageContext: { message },
+      });
+      await toggleOpenMessageActions();
+
+      expect(screen.getByText('Flag')).toBeInTheDocument();
+      expect(screen.queryByText('Unpin')).not.toBeInTheDocument();
+    });
+
     it('should set quoted message when Quote button is clicked', async () => {
       const {
         channels: [channel],
@@ -755,7 +783,6 @@ describe('<MessageActions />', () => {
                   <Message
                     lastReceivedId={lastReceivedId}
                     message={message}
-                    threadList={false}
                     {...messageProps}
                   />
                 </DialogManagerProvider>
@@ -860,7 +887,7 @@ describe('<MessageActions />', () => {
       await renderMarkUnreadUI({
         channelProps: { channel },
         chatProps: { client },
-        messageProps: { message: threadMessage, threadList: true },
+        messageProps: { message: threadMessage },
       });
       await toggleOpenMessageActions();
 
@@ -1571,6 +1598,9 @@ describe('<MessageActions />', () => {
       });
 
       await renderMessageActions({
+        channelStateOpts: {
+          channelCapabilities: { 'pin-message': true },
+        },
         customMessageContext: { message },
       });
       await toggleOpenMessageActions();

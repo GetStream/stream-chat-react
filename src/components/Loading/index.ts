@@ -1,3 +1,4 @@
+export * from './ListLoadErrorIndicator';
 export * from './LoadingChannel';
 export * from './LoadingChannels';
 export * from './LoadingErrorIndicator';

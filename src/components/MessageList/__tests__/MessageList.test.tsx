@@ -1,5 +1,13 @@
 import React, { useEffect } from 'react';
-import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import {
+  act,
+  cleanup,
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+  within,
+} from '@testing-library/react';
 import { fromPartial } from '@total-typescript/shoehorn';
 import { axe } from '../../../../axe-helper';
 import {
@@ -41,6 +49,7 @@ import type { ChannelProps } from '../../Channel';
 import type { MessageListProps } from '../MessageList';
 import type { MessageProps } from '../../Message';
 import { convertDateToTimestamp } from '../../../mock-builders';
+import { ResizeObserverMock } from '../../../mock-builders/browser';
 
 const seedPaginator = (
   channel: ChannelType,
@@ -221,6 +230,7 @@ describe('MessageList', () => {
   afterEach(() => {
     cleanup();
     vi.clearAllMocks();
+    vi.unstubAllGlobals();
     markReadMock.mockRestore();
     Object.defineProperty(window, 'matchMedia', {
       configurable: true,
@@ -509,7 +519,9 @@ describe('MessageList', () => {
         channel,
       },
       chatClient,
-      msgListProps: fromPartial<MessageListProps>({ groupStyles: () => classNameSuffix }),
+      msgListProps: fromPartial<MessageListProps>({
+        getGroupStyles: () => classNameSuffix,
+      }),
     });
 
     await waitFor(() => {
@@ -929,9 +941,9 @@ describe('MessageList', () => {
           chatClient: client,
           msgListProps: {
             messages: replies,
-            threadList: true,
             withDateSeparator: false,
           },
+          thread: makeThreadStub(channel),
         });
       });
 
@@ -1050,8 +1062,8 @@ describe('MessageList', () => {
         components = {},
         dispatchMarkUnreadPayload = {},
         entries,
+        inThread = false,
         msgListProps = {},
-        threadList = false,
       }) => {
         const {
           channels: [channel],
@@ -1064,7 +1076,7 @@ describe('MessageList', () => {
             chatClient: client,
             components,
             msgListProps: { messages, ...msgListProps },
-            thread: threadList ? makeThreadStub(channel) : undefined,
+            thread: inThread ? makeThreadStub(channel) : undefined,
           });
         });
 
@@ -1188,7 +1200,7 @@ describe('MessageList', () => {
       it('should not display unread messages notification in thread', async () => {
         await setupTest({
           entries: observerEntriesScrolledBelowSeparator,
-          threadList: true,
+          inThread: true,
         });
         expect(
           screen.queryByTestId(UNREAD_MESSAGES_NOTIFICATION_TEST_ID),
@@ -1239,7 +1251,8 @@ describe('MessageList', () => {
               channel,
             },
             chatClient: client,
-            msgListProps: { messages, threadList: true },
+            msgListProps: { messages },
+            thread: makeThreadStub(channel),
           });
         });
 
@@ -1857,6 +1870,122 @@ describe('MessageList', () => {
           delete HTMLElement.prototype.scrollTo;
         }
       });
+    });
+  });
+
+  // The reaction selector's dialog ID is the same in both lists. Each list keeps its dialogs in its
+  // own dialog manager, which is what keeps the two dialogs for one message apart.
+  it.each([
+    ['channel-list', 'thread-list'],
+    ['thread-list', 'channel-list'],
+  ])(
+    'opens the reaction selector only in the list it was opened from (%s)',
+    async (openedList, otherList) => {
+      const reactionChannelData = generateChannel({
+        channel: { own_capabilities: ['send-reaction'] },
+        members: [generateMember({ user: user1 }), generateMember({ user: user2 })],
+        messages: [message1],
+      });
+      const client = await getTestClientWithUser({ id: user2.id });
+      useMockedApis(client, [getOrCreateChannelApi(reactionChannelData)]);
+      const reactionChannel = client.channel('messaging', reactionChannelData.channel.id);
+      await reactionChannel.watch();
+      seedPaginator(reactionChannel, [message1]);
+      // The open selector observes its own size to stay positioned.
+      vi.stubGlobal('ResizeObserver', ResizeObserverMock);
+
+      await act(() => {
+        render(
+          <Chat client={client}>
+            <Channel channel={reactionChannel}>
+              <div data-testid='channel-list'>
+                <MessageList />
+              </div>
+              {/* The thread stub reads the channel's paginator, so both lists render message1. */}
+              <ThreadProvider thread={makeThreadStub(reactionChannel)}>
+                <div data-testid='thread-list'>
+                  <MessageList />
+                </div>
+              </ThreadProvider>
+            </Channel>
+          </Chat>,
+        );
+      });
+
+      const reactionButtonIn = (listTestId: string) =>
+        within(screen.getByTestId(listTestId)).getByTestId('message-reaction-action');
+
+      await act(() => {
+        fireEvent.click(reactionButtonIn(openedList));
+      });
+
+      expect(reactionButtonIn(openedList)).toHaveAttribute('aria-expanded', 'true');
+      expect(reactionButtonIn(otherList)).toHaveAttribute('aria-expanded', 'false');
+      expect(screen.getAllByTestId('reaction-selector')).toHaveLength(1);
+      expect(
+        within(screen.getByTestId(openedList)).getByTestId('reaction-selector'),
+      ).toBeInTheDocument();
+    },
+  );
+
+  describe('groupByUser', () => {
+    // Three consecutive messages from one user, one second apart so their order is fixed.
+    const renderGroupStyles = async (msgListProps = {}) => {
+      const at = (second: number) => new Date(Date.UTC(2026, 0, 1, 12, 0, second));
+      const messages = [1, 2, 3].map((second) =>
+        generateMessage({ timestamp: at(second), user: user1 }),
+      );
+      let container: HTMLElement;
+      await act(() => {
+        ({ container } = renderComponent({
+          channelProps: { channel },
+          chatClient,
+          msgListProps: { messages, ...msgListProps },
+        }));
+      });
+      return messages.map(({ id }) =>
+        Array.from(container.querySelector(`[data-message-id="${id}"]`)!.classList).find(
+          (className) => className.startsWith('str-chat__li--'),
+        ),
+      );
+    };
+
+    it('groups consecutive messages from one user by default', async () => {
+      expect(await renderGroupStyles()).toEqual([
+        'str-chat__li--top',
+        'str-chat__li--middle',
+        'str-chat__li--bottom',
+      ]);
+    });
+
+    it.each([
+      [{}, true],
+      [{ groupByUser: false }, false],
+    ])(
+      'passes groupByUser and maxTimeBetweenGroupedMessages to a custom getGroupStyles (props: %j)',
+      async (props, expectedGroupByUser) => {
+        const getGroupStyles = vi.fn(() => 'single' as const);
+        await renderGroupStyles({
+          ...props,
+          getGroupStyles,
+          maxTimeBetweenGroupedMessages: 60_000,
+        });
+
+        expect(getGroupStyles).toHaveBeenCalledWith(
+          expect.objectContaining({
+            groupByUser: expectedGroupByUser,
+            maxTimeBetweenGroupedMessages: 60_000,
+          }),
+        );
+      },
+    );
+
+    it('does not group messages by user when set to false', async () => {
+      expect(await renderGroupStyles({ groupByUser: false })).toEqual([
+        'str-chat__li--single',
+        'str-chat__li--single',
+        'str-chat__li--single',
+      ]);
     });
   });
 

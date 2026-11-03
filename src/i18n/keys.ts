@@ -178,6 +178,8 @@ export type TranslationCatalog = {
   'channelHeader.online.online.label': '{{ watcherCount }} online';
   'channelList.channelList.ariaLabel': 'Channel list';
   'channelList.header.chats.text': 'Chats';
+  'channelList.loadError.text': "Couldn't load conversations";
+  'channelList.loaded.text': 'Conversations loaded';
   'channelListItem.archive.title': 'Archive';
   'channelListItem.attachment.ariaLabel': 'Attachment';
   'channelListItem.attachment.text': '🏙 Attachment...';
@@ -280,6 +282,7 @@ export type TranslationCatalog = {
   'common.search.ariaLabel': 'Search';
   'common.send.label': 'Send';
   'common.threads.text': 'Threads';
+  'common.tryAgain.label': 'Try again';
   'common.unblock.ariaLabel': 'Unblock';
   'common.unmute.title': 'Unmute';
   'common.unmuted.label': '{{ user }} has been unmuted';
@@ -589,6 +592,8 @@ export type TranslationCatalog = {
   'thread.header.thread.text': 'Thread';
   'threadList.chat.ariaLabel': 'Chat: {{ channelName }}';
   'threadList.empty.text': 'Reply to a message to start a thread';
+  'threadList.loadError.text': "Couldn't load threads";
+  'threadList.loaded.text': 'Threads loaded';
   'threadList.thread.ariaLabel': 'Thread: {{ messagePreview }}';
   'threadList.threadList.ariaLabel': 'Thread list';
   'threadList.unseenBanner.loading': 'Loading...';

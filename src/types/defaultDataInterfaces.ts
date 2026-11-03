@@ -8,8 +8,6 @@ export interface DefaultChannelData {
 
 export interface DefaultAttachmentData {}
 
-export interface DefaultCommandData {}
-
 export interface DefaultEventData {}
 
 export interface DefaultMemberData {}

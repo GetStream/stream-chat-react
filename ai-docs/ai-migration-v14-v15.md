@@ -2,7 +2,7 @@
 
 Execution-only guide for a coding agent migrating a third-party app from `stream-chat-react` v14 to v15. Apply the changes below and fix each compile or runtime break before moving on. For evidence and edge cases, verify against the installed SDK source (see below).
 
-Every breaking change confirmed in [`ai-docs/v15-breaking-changes.md`](https://github.com/GetStream/stream-chat-react/blob/master/ai-docs/v15-breaking-changes.md) (the audit this guide is written from, `BC-001` to `BC-085`) is covered here. The [index at the end](#index-of-breaking-changes) maps each `BC` entry to its section.
+Every breaking change confirmed in [`ai-docs/v15-breaking-changes.md`](https://github.com/GetStream/stream-chat-react/blob/master/ai-docs/v15-breaking-changes.md) (the audit this guide is written from, `BC-001` to `BC-088`) is covered here. The [index at the end](#index-of-breaking-changes) maps each `BC` entry to its section.
 
 ## Source of truth
 
@@ -147,6 +147,7 @@ Each import below is now a compile error (`TS2305` / `TS2724`) and `undefined` i
 | `MESSAGE_ACTIONS`, `OPTIONAL_MESSAGE_ACTIONS`, `getMessageActions`, `MessageActionsArray`, `Capabilities`                                                                        | [Section 10](#messageactions-and-message_actions-are-removed)                             |
 | `useUserRole`                                                                                                                                                                    | [Section 12](#useuserrole-is-renamed-to-usemessagepermissions)                            |
 | `deTranslations` ... `trTranslations`, `enTranslations`, `isLanguageSupported`, `SupportedTranslations`, `DateFormatterOptions`                                                  | [Section 18](#18-i18n)                                                                    |
+| `DefaultCommandData`                                                                                                                                                             | [Section 17](#17-other-stream-chat-v10-data-shapes)                                       |
 
 New root exports: `useMessagePaginator()` returns the active list's paginator (the thread's inside a thread, the channel's otherwise), `useIsCooldownActive()` tells whether slow mode is counting down, and `messageHasMentions(message)` tells whether a message mentions anyone (a user, `@channel`, `@here`, a role or a user group).
 
@@ -1102,17 +1103,18 @@ These hit apps that never passed the props, because they were v14 defaults:
 
 ### `ChannelListUI` is removed; use the list slots
 
-`ChannelListUI`, `ChannelListUIProps` and the `ComponentContext.ChannelListUI` slot are removed. `ChannelList` renders an `InfiniteScrollPaginator` and reads these `ComponentContext` slots instead (only `ChannelList` reads them today):
+`ChannelListUI`, `ChannelListUIProps` and the `ComponentContext.ChannelListUI` slot are removed. `ChannelList` renders an `InfiniteScrollPaginator` and reads these `ComponentContext` slots instead (`ThreadList` reads `FirstPageLoadingIndicator` and `ListLoadErrorIndicator` too; only `ChannelList` reads the others today). To give the lists different overrides, wrap each in its own `WithComponents`; under `ChatView`, do it in `slotRenderers.channelList` / `slotRenderers.threadList`, which render `ChannelNavigation` and `ThreadList`. The slots:
 
-| Slot                        | Props                   | Default                   |
-| --------------------------- | ----------------------- | ------------------------- |
-| `EmptyListIndicator`        | none                    | the empty state           |
-| `EndReachedIndicator`       | `{ hasEnded, reached }` |                           |
-| `FirstPageLoadingIndicator` | none                    | `LoadingChannels`         |
-| `ListItem`                  | `{ item }`              | renders `ChannelListItem` |
-| `LoadingNextPageIndicator`  | `{ isLoading? }`        |                           |
+| Slot                        | Props                          | Default                                                           |
+| --------------------------- | ------------------------------ | ----------------------------------------------------------------- |
+| `EmptyListIndicator`        | none                           | the empty state                                                   |
+| `EndReachedIndicator`       | `{ hasEnded, reached }`        |                                                                   |
+| `FirstPageLoadingIndicator` | none                           | `LoadingChannels`                                                 |
+| `ListItem`                  | `{ item }`                     | renders `ChannelListItem`                                         |
+| `ListLoadErrorIndicator`    | `{ error, isRetrying, retry }` | an icon, the list's "Couldn't load …" text and a Try again button |
+| `LoadingNextPageIndicator`  | `{ isLoading? }`               |                                                                   |
 
-`ComponentContext.LoadingIndicator` no longer affects the channel list (the `LoadingErrorIndicator` slot is removed, [section 5](#channel-requires-channel-and-renders-no-placeholder-loading-or-error-state)), and query errors are reported as a notification. For a fully custom list, read `useChannelPaginatorState(paginator)` and render your own.
+`ComponentContext.LoadingIndicator` no longer affects the channel list (the `LoadingErrorIndicator` slot is removed, [section 5](#channel-requires-channel-and-renders-no-placeholder-loading-or-error-state)). A first page that fails to load renders `ListLoadErrorIndicator` in place of the list; its `retry` calls `paginator.reload()`. The list keeps it on screen while the retry runs, with `isRetrying` set, so a focused retry button keeps focus, also when the retry fails; a retry that loads the list is announced. A query error that happens while the list is mounted is also reported as an error notification in the `channel-list` panel, which `ChannelNavigation` renders; a `ChannelList` used without it renders no `NotificationList` for that panel. For a fully custom list, read `useChannelPaginatorState(paginator)` and render your own.
 
 ```tsx
 // v14
@@ -1364,6 +1366,7 @@ v14's `<ThreadProvider thread={t}>` rendered `<Channel channel={t.channel}>` aro
 - Mounting `ThreadList` calls `client.threads.reload({ force: true })` every time. v14 reloaded only when the manager was not ready, had unseen threads or a stale order.
 - Clicking a row calls `useWorkspaceNavigation().openThread(thread)`, and a row is active when `isThreadActive(id)` ([section 4](#4-selecting-channels-and-opening-threads-workspace-navigation)). v14 used `ThreadsViewContext`.
 - The list reads `client.threads.paginator.state`. Code reading `client.threads.state.threads` / `.pagination` breaks for `stream-chat` v10 reasons; read the paginator.
+- The first-load skeleton is the shared `FirstPageLoadingIndicator` slot (no props, default `LoadingChannels`), the same one the channel list reads. The shared `ListLoadErrorIndicator` slot (`{ error, isRetrying, retry }`) renders in place of the list when the first load fails; its `retry` calls `client.threads.reload({ force: true })`. A query error that happens while the list is mounted is also reported as an error notification in the `thread-list` panel.
 
 ---
 
@@ -1876,7 +1879,8 @@ Code that drove these props uses the paginator:
 
 - `MessageList.threadList`, `VirtualizedMessageList.threadList`, `VirtuosoContext.threadList`, `TypingIndicatorProps.threadList` and `ScrollToLatestMessageButtonProps.threadList` are removed. The SDK no longer passes `threadList` to custom `TypingIndicator` / `ScrollToLatestMessageButton` overrides; in untyped code it is `undefined`, so a thread-aware override behaves as if it were in the channel list. Detect the thread with `const isThreadList = !!useThreadContext();`.
 - `MessageList.head` and `VirtualizedMessageList.head` are removed. Both lists render the parent message from the thread context. Override it with a `ThreadHead` slot (`ComponentType<MessageProps>`). On `VirtualizedMessageList`, `additionalVirtuosoProps.components.Header` still replaces the whole header slot.
-- `Message` / `MessageContext` still have a `threadList` field; only the list-level prop is gone.
+- `MessageProps.threadList` and `MessageContextValue.threadList` are removed too. A custom `MessageUI` or message child that read `useMessageContext().threadList` uses `!!useThreadContext()` instead.
+- `ReactionSelector.getDialogId` takes only `{ messageId }`, and the reaction selector's dialog id no longer has a `-thread` part. The channel list and the thread list each have their own dialog manager, so the same message open in both still gets two separate dialogs.
 
 ### `disableDateSeparator` → `withDateSeparator`
 
@@ -1908,6 +1912,41 @@ export const Lists = () => (
 );
 ```
 
+### Message grouping: `groupByUser` and `getGroupStyles`
+
+Both lists take `groupByUser`; the defaults are unchanged.
+
+| Component                | v14                                   | v15                             |
+| ------------------------ | ------------------------------------- | ------------------------------- |
+| `MessageList`            | `noGroupByUser` (default `false`)     | `groupByUser` (default `true`)  |
+| `VirtualizedMessageList` | `shouldGroupByUser` (default `false`) | `groupByUser` (default `false`) |
+
+The `groupStyles` prop of both lists is renamed `getGroupStyles`, and the function takes one object instead of five positional arguments: `{ groupByUser, maxTimeBetweenGroupedMessages, message, nextMessage, previousMessage }` (`GetGroupStylesParams`; `nextMessage` and `previousMessage` are `undefined` at the ends of the list). `groupByUser` replaces the inverted `noGroupByUser` argument. The exported default `getGroupStyles` takes the same object, so a custom function can still delegate to it. `useEnrichedMessages` takes `getGroupStyles` and `groupByUser` instead of `groupStyles` and `noGroupByUser`. `VirtuosoContext.shouldGroupByUser` is `groupByUser`.
+
+In untyped code the old props are ignored and the defaults apply: `MessageList noGroupByUser` groups again, `VirtualizedMessageList shouldGroupByUser` stops grouping, and a `groupStyles` function is never called. A positional function passed as `getGroupStyles` receives the object as its first argument and computes wrong styles without an error; TypeScript rejects it.
+
+```tsx
+// v14
+<MessageList noGroupByUser />
+<VirtualizedMessageList shouldGroupByUser />
+<MessageList
+  groupStyles={(message, previousMessage, nextMessage, noGroupByUser, maxTime) =>
+    'pinned' in message && message.pinned
+      ? 'single'
+      : getGroupStyles(message, previousMessage, nextMessage, noGroupByUser, maxTime)
+  }
+/>
+
+// v15
+<MessageList groupByUser={false} />
+<VirtualizedMessageList groupByUser />
+<MessageList
+  getGroupStyles={(params) =>
+    'pinned' in params.message && params.message.pinned ? 'single' : getGroupStyles(params)
+  }
+/>
+```
+
 ### Custom `renderMessages` gets different options
 
 - `RenderMessagesOptions.channel: Channel` is new and required.
@@ -1919,6 +1958,7 @@ export const Lists = () => (
 
 - Removed: `Message`, `messageActions`, `openThread`, `threadList`.
 - New and required: `channel: Channel`. New: `focusedMessageId?`.
+- Renamed: `shouldGroupByUser` → `groupByUser`.
 - `head`, `firstUnreadMessageId` and `lastReadMessageId` are `... | null` (checks written as `=== undefined` miss them); `lastReadDate` is `TimestampNS | null` (unix nanoseconds); `loadingMore: boolean`; `unreadMessageCount: number`.
 
 ### `VirtualizedMessageList`: `defaultItemHeight`, `overscan` and `scrollSeekPlaceHolder` are removed
@@ -2043,6 +2083,10 @@ export const MessagePreview = ({
 
 - `mutes` → `useChatContext().mutes` (now `UserMuteResponse[]`), for example `isUserMuted(message, useChatContext().mutes)`. In untyped code the removed field is `undefined`, so `isUserMuted(message, mutes)` returns `false`.
 - `messageIsUnread` has no successor. Derive it from the channel's read state, for example `!isMyMessage() && (channel.lastRead() == null || message.created_at > channel.lastRead())`, with `channel` from `useChannel()`. `channel.lastRead()` returns `TimestampNS | null | undefined` and is not reactive; to re-render on read changes, subscribe to `read` on `channel.state`.
+
+### `MessageContext` grouping flags are removed; read `groupStyles`
+
+`endOfGroup`, `firstOfGroup` and `groupedByUser` are removed from `MessageContextValue`. The message lists never set them, so in v14 they were always `undefined`. A message's place in its group of consecutive messages from one user is `groupStyles[0]` from `useMessageContext()`: `top`, `middle`, `bottom` or `single`. The default `MessageUI` renders the metadata on every message, and the default CSS hides it on `top` and `middle` list items (`.str-chat__li--top`, `.str-chat__li--middle`), so an app can show it again with CSS alone. The `str-chat__virtual-message__wrapper--end`, `--first` and `--group` classes these flags added are removed too ([section 19](#19-css-and-markup)).
 
 ### `retrySendMessage` and `useRetryHandler`
 
@@ -2815,7 +2859,7 @@ export const DayDivider = ({ message }: { message: LocalMessage }) => {
 
 ## 17. Other `stream-chat` v10 data shapes
 
-React props typed with `stream-chat` types change with them. The React APIs are unchanged; build and read the values with the v10 shapes.
+React props typed with `stream-chat` types change with them. The React APIs are unchanged, apart from the removed `DefaultCommandData` (see the command names bullet under **Composer**); build and read the values with the v10 shapes.
 
 **Channel, chat context and search:**
 
@@ -2878,6 +2922,19 @@ export const DeleteForMe = () => {
 **Composer:**
 
 - `CommandChip.command`, `CommandItem.entity`, `MessageComposerCommand.command`: `CommandResponse` → `Command`, where `args`, `description` and `set` are required.
+- **Command names are `string`.** `stream-chat` v10 removes `CustomCommandData`, and `stream-chat-react` removes `DefaultCommandData` with it. In v14, `command.name` / `command.set` were `CommandVariants` (the built-in names plus the keys of `CustomCommandData`); in v15 they are plain `string`. Delete the `interface CustomCommandData extends DefaultCommandData {}` line from your `declare module 'stream-chat'` block and the `DefaultCommandData` import (`TS2305`). A leftover `CustomCommandData` augmentation without that import still compiles and does nothing, so search for the name. To keep a checked set of command names, declare the union in your app:
+
+  ```ts
+  import type { Command } from 'stream-chat';
+
+  type AppCommandName = 'giphy' | 'poll';
+
+  export const isAppCommand = (
+    command: Command,
+  ): command is Command & { name: AppCommandName } =>
+    command.name === 'giphy' || command.name === 'poll';
+  ```
+
 - `DefaultSuggestionListItemEntity`: `anon`, `channel_last_read_at`, `notifications_muted`, `privacy_settings`, `push_notifications`, `shadow_banned` and `username` are gone (v10 user custom fields live in `entity.custom`); dates are `TimestampNS`; `teams_role` is `Record<string, string>`.
 - `getQuotedMessageAuthor` (on `QuotedMessagePreview` and its props): `(message: LocalMessage | MessageResponse) => string`. A callback typed with `LocalMessage` only is rejected under `strictFunctionTypes`. `QuotedMessagePreviewUI.quotedMessage`: `LocalMessage | MessageResponse`.
 - `GeolocationPreviewProps.location`, `useAttachmentsForPreview().location`: `StaticLocationPreview`.
@@ -2964,6 +3021,7 @@ Four formatter keys carry English day words inside their `calendarFormats` (`tim
 | `.str-chat__channel-list-inner`, `.str-chat__channel-list-inner__main` (from `ChannelListUI`, which held `role="listbox"`)        | Gone. Target `.str-chat__channel-list .str-chat__infinite-scroll-paginator` (the `role="listbox"` scroll container, inside `ChannelNavigation`) and `.str-chat__infinite-scroll-paginator__content`. A bare `<ChannelList>` has no `.str-chat__channel-list` ancestor.                                                                                                                                                                                                                                                                                                                                                                                                                             |
 | The channel list root carried `str-chat <theme> str-chat__channel-list` and `customClasses.channelList`                           | Inside `ChatView` the `str-chat <theme>` scope comes from the `ChatView` root, and the channel list adds none of its own: a nested `.str-chat` would reset the tokens you override on the `ChatView` root. Outside `ChatView`, `ChannelNavigation`'s root renders `str-chat <theme> str-chat__channel-list`, and a bare `<ChannelList>` wraps itself in `div.str-chat.<theme>.str-chat__theme-scope` (`display: contents`). `customClasses.chat` replaces `str-chat` where the scope is applied; `customClasses.channelList` replaces `str-chat__channel-list` on `ChannelNavigation`'s root. App CSS that targeted the list root as a `.str-chat` element no longer matches it inside `ChatView`. |
 | `.str-chat__chat-view__channels` / `.str-chat__chat-view__threads`                                                                | Rendered only when `ChatView` is given `views`. With the built-in workspace layout, content sits in `.str-chat__chat-view__workspace-layout`, `.str-chat__chat-view__workspace-layout-slots`, `.str-chat__chat-view__slot` (`--hidden`) and `.str-chat__chat-view__slot-layer`.                                                                                                                                                                                                                                                                                                                                                                                                                    |
+| `str-chat__virtual-message__wrapper--end`, `--first`, `--group` on `.str-chat__message`                                           | Not applied; the SDK stylesheet never styled them. Target the list item's group class instead: `.str-chat__li--top`, `--middle`, `--bottom` or `--single`.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
 | `.str-chat__thread--virtualized` on the thread container                                                                          | Not applied. Scope by the list you render (`.str-chat__thread .str-chat__virtual-list`, or your own class).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
 | `.str-chat__quoted-message-preview` text inherited the surrounding colour                                                         | It sets `color: var(--str-chat__chat-text-incoming)`, and `--own` `var(--str-chat__chat-text-outgoing)`, matching the bubble backgrounds. In the default light theme your own quotes change to the outgoing bubble's text colour. Remove contrast workarounds written for v14; theme with those two tokens.                                                                                                                                                                                                                                                                                                                                                                                        |
 | `.str-chat__channel-list-item[aria-pressed=true]` and `.str-chat__thread-list-item[aria-pressed=true]` highlighted the active row | Only `[aria-selected=true]` is styled. A custom row UI sets `role="option"` and `aria-selected`, not `aria-pressed`: `aria-selected={active}` on a channel row, `aria-selected={isThreadActive(thread.id)}` (from `useWorkspaceNavigation()`) on a thread row                                                                                                                                                                                                                                                                                                                                                                                                                                      |
@@ -2971,7 +3029,7 @@ Four formatter keys carry English day words inside their `calendarFormats` (`tim
 Find every app rule that uses a removed class. They also hide inside combinators and pseudo-classes, where a rule does more than style the element: `.create-channel-panel + .str-chat__main-panel { display: none }` hid the channel while another panel was open, and without it both render side by side. Nothing reports such a rule; it simply stops matching.
 
 ```bash
-grep -rnE "str-chat__(main-panel(--[a-z-]+)?|container|channel-list-inner(__main)?|thread--virtualized)([^a-z0-9_-]|$)" \
+grep -rnE "str-chat__(main-panel(--[a-z-]+)?|container|channel-list-inner(__main)?|thread--virtualized|virtual-message__wrapper--(end|first|group))([^a-z0-9_-]|$)" \
   --include='*.css' --include='*.scss' --include='*.sass' --include='*.less' \
   --exclude-dir=node_modules --exclude-dir=build --exclude-dir=dist .
 ```
@@ -3108,11 +3166,14 @@ On narrow screens (`max-width: 767px`) the lists switch to an overlay sized by `
 | BC-075 | `ChatView` view wrappers                                                                 | [19](#19-css-and-markup)                                                                                    |
 | BC-076 | `str-chat__thread--virtualized`                                                          | [19](#19-css-and-markup)                                                                                    |
 | BC-077 | Quote and edit preview colours                                                           | [19](#19-css-and-markup)                                                                                    |
-| BC-078 | `renderText(text, options)`                                                              | [12](#rendertext-takes-text-options)                                                                        |
-| BC-079 | Mention node lost `mentionedUser`                                                        | [12](#custom-mention-renderers-read-nodementionedentity)                                                    |
-| BC-080 | Mention handlers get `(event, message)`                                                  | [12](#mention-handlers-receive-event-message)                                                               |
-| BC-081 | `useUserRole` role flags removed                                                         | [12](#useuserrole-no-longer-returns-isadmin-ismoderator-or-isowner)                                         |
-| BC-082 | `VirtualizedMessageList` Virtuoso props removed                                          | [11](#virtualizedmessagelist-defaultitemheight-overscan-and-scrollseekplaceholder-are-removed)              |
-| BC-083 | `useUserRole` renamed to `useMessagePermissions`                                         | [12](#useuserrole-is-renamed-to-usemessagepermissions)                                                      |
-| BC-084 | Mention handlers in the message context and from `useMentionsHandler` can be `undefined` | [12](#onmentionsclickmessage-and-onmentionshovermessage-are-undefined-without-a-handler)                    |
-| BC-085 | `mentionsMarkdownPlugin` takes mention entities only                                     | [12](#mentionsmarkdownplugin-takes-mention-entities-only)                                                   |
+| BC-078 | `CustomCommandData` / `DefaultCommandData` removed                                       | [17](#17-other-stream-chat-v10-data-shapes)                                                                 |
+| BC-079 | `MessageContext` grouping flags and `virtual-message__wrapper--*` classes                | [12](#messagecontext-grouping-flags-are-removed-read-groupstyles), [19](#19-css-and-markup)                 |
+| BC-080 | `groupByUser`, `getGroupStyles`                                                          | [11](#message-grouping-groupbyuser-and-getgroupstyles)                                                      |
+| BC-081 | `renderText(text, options)`                                                              | [12](#rendertext-takes-text-options)                                                                        |
+| BC-082 | Mention node lost `mentionedUser`                                                        | [12](#custom-mention-renderers-read-nodementionedentity)                                                    |
+| BC-083 | Mention handlers get `(event, message)`                                                  | [12](#mention-handlers-receive-event-message)                                                               |
+| BC-084 | `useUserRole` role flags removed                                                         | [12](#useuserrole-no-longer-returns-isadmin-ismoderator-or-isowner)                                         |
+| BC-085 | `VirtualizedMessageList` Virtuoso props removed                                          | [11](#virtualizedmessagelist-defaultitemheight-overscan-and-scrollseekplaceholder-are-removed)              |
+| BC-086 | `useUserRole` renamed to `useMessagePermissions`                                         | [12](#useuserrole-is-renamed-to-usemessagepermissions)                                                      |
+| BC-087 | Mention handlers in the message context and from `useMentionsHandler` can be `undefined` | [12](#onmentionsclickmessage-and-onmentionshovermessage-are-undefined-without-a-handler)                    |
+| BC-088 | `mentionsMarkdownPlugin` takes mention entities only                                     | [12](#mentionsmarkdownplugin-takes-mention-entities-only)                                                   |

@@ -4,6 +4,7 @@ import { nanoid } from 'nanoid';
 
 import {
   dispatchMessageNewEvent,
+  dispatchMessageUpdatedEvent,
   generateChannel,
   generateMember,
   generateMessage,
@@ -501,6 +502,69 @@ describe('VirtualizedMessageList', () => {
         align: 'end',
         index: MESSAGE_COUNT - 1,
       });
+    });
+  });
+
+  describe('groupByUser', () => {
+    // Three consecutive messages from one user, with explicit IDs because the file-wide nanoid
+    // mock collapses generated ones.
+    const renderGroupStyles = async (listProps = {}) => {
+      const user = generateUser();
+      const messages = [0, 1, 2].map((i) =>
+        generateMessage({ id: `group-msg-${i}`, user }),
+      );
+      const mockedChannel = generateChannel({
+        members: [generateMember({ user })],
+        messages,
+      });
+      const client = await getTestClientWithUser({ id: 'id' });
+      useMockedApis(client, [getOrCreateChannelApi(mockedChannel)]); // eslint-disable-line react-hooks/rules-of-hooks
+      const channel = client.channel('messaging', mockedChannel.channel.id);
+      await channel.watch();
+      virtuosoProps.length = 0;
+
+      await act(() => {
+        render(
+          <Chat client={client}>
+            <Channel channel={channel}>
+              <VirtualizedMessageList {...listProps} />
+            </Channel>
+          </Chat>,
+        );
+      });
+      const readGroupStyles = () => {
+        const { messageGroupStyles } = virtuosoProps[virtuosoProps.length - 1].context;
+        return messages.map(({ id }) => messageGroupStyles[id]);
+      };
+      return { client, messages, mockedChannel, readGroupStyles };
+    };
+
+    it('does not group messages by user unless set', async () => {
+      const { readGroupStyles } = await renderGroupStyles();
+      expect(readGroupStyles()).toEqual(['single', 'single', 'single']);
+    });
+
+    it('groups consecutive messages from one user when set', async () => {
+      const { readGroupStyles } = await renderGroupStyles({ groupByUser: true });
+      expect(readGroupStyles()).toEqual(['top', 'middle', 'bottom']);
+    });
+
+    // An edited message ends its group, but the number of messages stays the same.
+    it('recomputes the group styles when a message is edited', async () => {
+      const { client, messages, mockedChannel, readGroupStyles } =
+        await renderGroupStyles({
+          groupByUser: true,
+        });
+
+      act(() => {
+        dispatchMessageUpdatedEvent(
+          client,
+          { ...messages[0], message_text_updated_at: messages[0].created_at },
+          mockedChannel.channel,
+        );
+      });
+
+      expect(readGroupStyles()).toEqual(['single', 'top', 'bottom']);
     });
   });
 });
