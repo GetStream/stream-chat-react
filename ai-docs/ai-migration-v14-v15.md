@@ -78,6 +78,7 @@ These compile cleanly, or are ignored in plain JS, and change behavior at runtim
 | Plain JS: a removed prop or override key (`Message`, `HeaderStartContent`, `do*Request`, `overrideSubmitHandler`, ...) does nothing                                               | Ignored without a warning                                                                                                                                    | Grep for each removed name listed in this guide                                                                                                                 |
 | A supplied composer keeps its content after `MessageComposer` unmounts                                                                                                            | A supplied composer is never cleared on unmount                                                                                                              | Call `composer.clear()` yourself ([section 13](#preventclearingonunmount-is-removed))                                                                           |
 | A voice message stops another one playing in a different panel                                                                                                                    | Playback is exclusive app-wide                                                                                                                               | Nothing to do ([section 12](#allowconcurrentplayback-is-removed-one-voice-message-plays-at-a-time))                                                             |
+| A custom composer without `CommandChip` loses `/giphy` from the text as soon as the command is typed                                                                              | `stream-chat` v10 installs the command middlewares, which move the active command out of the text                                                            | Remove the four command middlewares ([section 13](#command-middlewares-are-installed-by-stream-chat))                                                           |
 | The attachment menu offers different actions than before                                                                                                                          | Actions follow the composer's resolved configuration                                                                                                         | Set `customCdn` where it applies ([section 13](#attachment-and-poll-availability))                                                                              |
 | A custom `MessageTimestamp` does not show in the header of a gallery you build yourself                                                                                           | The gallery renders outside a message and reads the item; it uses the override only when the item carries its `message`                                      | Set `message` on each `GalleryItem` ([section 12](#the-gallery-header-renders-the-messagetimestamp-override-for-items-that-carry-their-message))                |
 | `dayjs(created_at)` renders `Invalid Date`                                                                                                                                        | Server timestamps are unix nanoseconds                                                                                                                       | Convert with `convertTimestampToDate` ([section 16](#16-dates-on-response-types-are-unix-nanosecond-numbers))                                                   |
@@ -2231,6 +2232,34 @@ export const InlineEditor = ({ composer }: { composer: Composer }) => (
 
 `client.setMessageComposerSetupFunction(fn)` still works in `stream-chat` v10 but is deprecated. Register composer setup (emoji or giphy middleware, composer config) with `client.config.setSetupFunction('messageComposer', fn)`; `fn` receives the same `{ composer }` and may return a teardown ([`instance-configuration.md`](https://github.com/GetStream/stream-chat-react/blob/master/ai-docs/instance-configuration.md#setup-functions-for-behaviour)).
 
+### Command middlewares are installed by `stream-chat`
+
+A `stream-chat` v10 change ([command middlewares installed by default](https://github.com/GetStream/stream-chat-js/blob/release-v10/ai-docs/v10-breaking-changes.md#composer-command-middlewares-default)). Every composer now installs the four command middlewares that v14 apps installed themselves, as the v14 examples did: `createActiveCommandGuardMiddleware` and `createCommandStringExtractionMiddleware` in the text chain, `createCommandInjectionMiddleware` and `createDraftCommandInjectionMiddleware` in the composition chains.
+
+- v14: without them, typing `/giphy cats` showed the `CommandChip` and kept `/giphy cats` in the text. A command picked from the Commands menu was sent without the command: the GIPHY chip with `cats` sent plain `cats`.
+- v15: typing `/giphy cats` moves `giphy` into the chip and leaves `cats` in the text. Typed or picked, the message is sent as `/giphy cats`, and the draft keeps `/giphy cats`. While a command is active, typing `/` suggests no other command.
+- A command that takes no arguments (empty `args`, for example a custom `/shrug`) is sent with the chip alone: the send button is enabled and `messageComposer.hasSendableData` is `true`. A command that takes arguments, such as `giphy`, still needs text.
+
+To migrate:
+
+- Delete your own installs of these middlewares, usually `insert()` calls in the composer setup function with the ids `stream-io/text-composer/active-command-guard`, `stream-io/text-composer/command-string-extraction`, `stream-io/message-composer-middleware/command-string-injection` and `stream-io/message-composer-middleware/draft-command-string-injection`.
+- A custom composer that shows the command in the text instead of rendering `CommandChip` removes all four, so the text keeps `/giphy cats` and is sent as typed. Removing only the guard and the extraction is not enough: the command stays active after the user deletes `/giphy` from the text, and the injection puts it back (`cats` is sent as `/giphy cats`). Without the injection, a command activated with `textComposer.setCommand()` is not added to the text, so such a UI writes `/giphy ` into the text itself.
+
+```ts
+client.config.setSetupFunction('messageComposer', ({ composer }) => {
+  composer.textComposer.middlewareExecutor.remove([
+    'stream-io/text-composer/active-command-guard',
+    'stream-io/text-composer/command-string-extraction',
+  ]);
+  composer.compositionMiddlewareExecutor.remove(
+    'stream-io/message-composer-middleware/command-string-injection',
+  );
+  composer.draftCompositionMiddlewareExecutor.remove(
+    'stream-io/message-composer-middleware/draft-command-string-injection',
+  );
+});
+```
+
 ### Attachment and poll availability
 
 `AttachmentSelector` used to decide which actions to offer from the channel type's raw server flags. It now reads the composer's resolved configuration (server flags ANDed with `client.config`). No React API changed, but the actions offered differ:
@@ -2396,6 +2425,7 @@ The default poll creation dialog sends the poll as soon as it is created. To hav
 2. Replace the dialog's footer through the new `PollCreationDialogControls` slot (`PollCreationDialogControls` and `PollCreationDialogControlsProps` are exported) and call `createPoll()` without `send()`:
 
 ```tsx
+import { useState } from 'react';
 import {
   type PollCreationDialogControlsProps,
   Prompt,
@@ -2405,21 +2435,32 @@ import {
 
 const AttachPollControls = ({ close }: PollCreationDialogControlsProps) => {
   const messageComposer = useMessageComposerController();
+  // Blocks a second request, and a Cancel that the pending poll would ignore.
+  const [isCreating, setIsCreating] = useState(false);
 
   return (
     <Prompt.Footer>
       <Prompt.FooterControls>
-        <Prompt.FooterControlsButtonSecondary onClick={close} type='button'>
+        <Prompt.FooterControlsButtonSecondary
+          disabled={isCreating}
+          onClick={close}
+          type='button'
+        >
           Cancel
         </Prompt.FooterControlsButtonSecondary>
         <Prompt.FooterControlsButtonPrimary
+          disabled={isCreating}
           onClick={async () => {
-            close();
+            setIsCreating(true);
             try {
               // The poll waits in `messageComposer.state.pollId` and goes out with the message.
               await messageComposer.createPoll();
             } catch {
               // `createPoll()` already reported the failure as a notification.
+            } finally {
+              setIsCreating(false);
+              // Closed once the poll is attached, so a message sent meanwhile cannot miss it.
+              close();
             }
           }}
           type='submit'

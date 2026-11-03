@@ -1,14 +1,14 @@
 import type { PropsWithChildren } from 'react';
 import { useEffect } from 'react';
 import { useChatContext, WithComponents } from 'stream-chat-react';
-import { AddPollDialog } from './AddPollDialog';
-import { MessageComposerUIWithPoll } from './ComposerPollPreview';
+import { AttachPollControls } from './AttachPollControls';
+import { MessageComposerPreviewsWithPoll } from './ComposerPollPreview';
 import { installPollWithText } from './installPollWithText';
 
 // Declared once, so WithComponents gets the same object on every render.
 const overrides = {
-  MessageComposerUI: MessageComposerUIWithPoll,
-  PollCreationDialog: AddPollDialog,
+  MessageComposerPreviews: MessageComposerPreviewsWithPoll,
+  PollCreationDialogControls: AttachPollControls,
 };
 
 const PollWithTextSetup = () => {

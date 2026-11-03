@@ -31,7 +31,6 @@ import data from '@emoji-mart/data';
 
 import './layout.css';
 import { apiKey, tokenProvider, userId, userName } from '../2-client-setup/credentials';
-import { setUpCommandMiddlewares } from '../2-client-setup/commandMiddlewares';
 
 const user: ClientUser = {
   id: userId,
@@ -98,14 +97,12 @@ const App = () => {
     userData: user,
   });
 
-  // Every composer the client creates - channel and thread alike - gets the command middlewares
-  // (see `setUpCommandMiddlewares`) and emoji autocomplete: typing a `:shortcode` suggests matching
-  // emojis. A setup function applies to composers created after it is set, so it is registered
-  // before the effects below create any.
+  // Every composer the client creates - channel and thread alike - gets emoji autocomplete: typing
+  // a `:shortcode` suggests matching emojis. A setup function applies to composers created after it
+  // is set, so it is registered before the effects below create any.
   useEffect(() => {
     if (!client) return;
     client.config.setSetupFunction('messageComposer', ({ composer }) => {
-      setUpCommandMiddlewares(composer);
       composer.textComposer.middlewareExecutor.insert({
         middleware: [
           createTextComposerEmojiMiddleware(SearchIndex) as TextComposerMiddleware,
