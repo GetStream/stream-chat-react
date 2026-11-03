@@ -2645,7 +2645,7 @@ export const Stop = ({ channel }: { channel: Channel }) => {
 - Evidence:
   - `release-v14:src/components/Message/renderText/renderText.tsx:118-134` (`mentionedUsers` `@deprecated` on the type and the function); `release-v14:src/components/Message/MessageText.tsx:73` `renderText(messageTextToRender, message.mentioned_users, { … })`
   - `master:src/components/Message/renderText/renderText.tsx:111` `RenderTextFunction = (text?: string, options?: RenderTextOptions) => ReactNode`, `:123` `messageMentionEntities = []`
-  - commit: REACT-1467 (PR pending)
+  - commit: REACT-1467 (PR #3387)
 - Docs impact:
   - `02-ui-components/08-message/06-render-text.md`
 - Example needed: yes
@@ -2677,7 +2677,7 @@ const customRenderText: RenderTextFunction = (text, options) =>
 - Evidence:
   - `release-v14:src/components/Message/renderText/componentRenderers/Mention.tsx:7-25`
   - `master:src/components/Message/renderText/componentRenderers/Mention.tsx:6-8`; `master:src/components/Message/renderText/rehypePlugins/mentionsMarkdownPlugin.ts` (`mentionsMarkdownPluginFromLookup` sets only `mentionedEntity`)
-  - commit: REACT-1467 (PR pending)
+  - commit: REACT-1467 (PR #3387)
 - Docs impact:
   - `02-ui-components/08-message/06-render-text.md`, `03-ui-cookbook/04-message/03-mentions_actions.md`
 - Example needed: yes
@@ -2716,7 +2716,7 @@ const CustomMention = ({ children, node: { mentionedEntity } }: MentionProps) =>
 - Evidence:
   - `release-v14:src/components/Message/hooks/useMentionsHandler.ts:8-14`, `:18-21` (`MentionedUserEventHandler`), `:39` `fn(event, message?.mentioned_users ?? [], message)`
   - `master:src/components/Message/hooks/useMentionsHandler.ts:8-11`, `:20` `handler(event, message)`
-  - commit: REACT-1467 (PR pending)
+  - commit: REACT-1467 (PR #3387)
 - Docs impact:
   - `03-ui-cookbook/04-message/03-mentions_actions.md`, `02-ui-components/07-message-list/01-message_list.md` (`onMentionsClick`, `onMentionsHover`)
 - Example needed: yes
@@ -2750,7 +2750,7 @@ After (v15):
 - Evidence:
   - `release-v14:src/components/Message/hooks/useUserRole.ts:9-31`, `:65-68`
   - `master:src/components/Message/hooks/useMessagePermissions.ts:34-47` (returns `can*` flags and `isMyMessage` only)
-  - commit: REACT-1467 (PR pending); tracked as REACT-83
+  - commit: REACT-1467 (PR #3387); tracked as REACT-83
 - Docs impact:
   - `02-ui-components/08-message/04-message_hooks.md` (`useMessagePermissions`)
 - Example needed: no
@@ -2766,7 +2766,7 @@ After (v15):
 - Evidence:
   - `release-v14:src/components/MessageList/VirtualizedMessageList.tsx:686-689`, `:732-735`, `:744-756`, `:643`, `:650-651`
   - `master:src/components/MessageList/VirtualizedMessageList.tsx:633` (`{...overridingVirtuosoProps}`), `:676` `additionalVirtuosoProps`
-  - commit: REACT-1467 (PR pending)
+  - commit: REACT-1467 (PR #3387)
 - Docs impact:
   - `02-ui-components/07-message-list/02-virtualized_list.md`
 - Example needed: yes
@@ -2796,7 +2796,7 @@ After (v15):
 - Evidence:
   - `release-v14:src/components/Message/hooks/useUserRole.ts:5`; `release-v14:src/components/Message/hooks/index.ts:12` `export * from './useUserRole'`
   - `master:src/components/Message/hooks/useMessagePermissions.ts:5`, `:34-47`; `master:src/components/Message/hooks/index.ts:13` `export * from './useMessagePermissions'`
-  - commit: REACT-1467 (PR pending)
+  - commit: REACT-1467 (PR #3387)
 - Docs impact:
   - `02-ui-components/08-message/04-message_hooks.md` (the `useUserRole` section, renamed to `useMessagePermissions`)
   - `03-ui-cookbook` recipes that gate buttons on the hook (custom message actions, pin indicator)
@@ -2832,7 +2832,7 @@ const { canReply } = useMessagePermissions(message);
 - Evidence:
   - `release-v14:src/context/MessageContext.tsx:63-66`; `release-v14:src/components/Message/Message.tsx:263` `onMentionsClickMessage={onMentionsClick}`; `release-v14:src/components/Message/hooks/useMentionsHandler.ts:55-59` (`|| (() => null)`)
   - `master:src/context/MessageContext.tsx:44-47`; `master:src/components/Message/hooks/useMentionsHandler.ts:13-21`, `:28-49`; `master:src/components/Message/Message.tsx:191-192`; `master:src/components/Message/MessageText.tsx:82-83`, `:121-122`, `:125` (`onClick` only when mentions are interactive)
-  - commit: REACT-1467 (PR pending)
+  - commit: REACT-1467 (PR #3387)
 - Docs impact:
   - `02-ui-components/08-message/02-message_context.md` (`onMentionsClickMessage`, `onMentionsHoverMessage`), `02-ui-components/08-message/04-message_hooks.md` (`useMentionsHandler`)
 - Example needed: yes
@@ -2863,7 +2863,7 @@ const onKeyDown = (event) => onMentionsClickMessage?.(event);
 - Evidence:
   - `release-v14:src/components/Message/renderText/rehypePlugins/mentionsMarkdownPlugin.ts:143`, `:270-271`, `:281-291`
   - `master:src/components/Message/renderText/rehypePlugins/mentionsMarkdownPlugin.ts:160`, `:260-262`, `:271-275`
-  - commit: REACT-1467 (PR pending)
+  - commit: REACT-1467 (PR #3387)
 - Docs impact:
   - `02-ui-components/08-message/06-render-text.md`
 - Example needed: yes
@@ -4154,7 +4154,7 @@ Non-gated items checked and ruled out: `Chat.isMessageAIGenerated`, `SummarizedM
 
 ### Diff items ruled out by the coordinator
 
-- `PinEnabledUserRoles` and `PinPermissions` (exported from `usePinHandler.ts` in v15 release candidates, `@deprecated`) were removed by REACT-1467. Ruled out as a v14 -> v15 change: v14 removed them before v14 stable (`8317b73a2`, PR #3086) and `99cbe6704` (PR #3237) brought them back on `master` by accident, so `release-v14` never exports them. Gate on `useMessagePermissions(message).canPin` instead.
+- `PinEnabledUserRoles` and `PinPermissions` (exported from `usePinHandler.ts` in v15 release candidates, `@deprecated`) were removed by REACT-1467 (PR #3387). Ruled out as a v14 -> v15 change: v14 removed them before v14 stable (`8317b73a2`, PR #3086) and `99cbe6704` (PR #3237) brought them back on `master` by accident, so `release-v14` never exports them. Gate on `useMessagePermissions(message).canPin` instead.
 - `ThreadContext` / `ThreadContextValue` members reported as `member-added-required`: `configState`, `handleMessageDeleted`, `handleMessageUpdated`, `handleNewReply`, `handleReactionChanged`, `handleRepliesRead`, `handleRepliesUnread`, `handleThreadUpdated`, `handleUserMessagesDeleted`, `initializeConfig`, `markRead`, `messageOperations`, `updateConfig`. Ruled out as LLC (stream-chat v10): `ThreadContextValue` is `Thread | undefined` on both branches, and these are methods and stores added to the `stream-chat` `Thread` class. Only a hand-built `Thread` mock is affected; build it from a real `client.threads` instance instead.
 - Corpus errors caused only by `stream-chat` v10 types, ruled out as LLC: the attachment `Action` type now requires `text` and `type` (`03-ui-cookbook/06-attachment/01-attachment_actions.md`); `StreamChat.unBlockUser` -> `unblockUser` and `queryUsers`-style id arguments (`04-guides/11-blocking-users.md`, `04-guides/04-typescript_and_custom_data_types.md`); custom fields on `MessageWithChannelResponse` (same page); `ReminderResponse` -> `ReminderResponseData` (`04-guides/12-message-reminders.md`); `MessageResponseBase`, and the narrowed `Event` / `EventPayload` unions (`examples/vite` WebSocket event tooling). Also: the `User` type no longer accepts `name` / `image` (type `userData` as `ClientUser`, as `useCreateChatClient` does; v14 tutorial steps 3-7); `ChannelResponse.name` on `Partial<ChannelResponse>`; channel `members` as `ChannelMemberRequest` objects instead of id strings (tutorial steps 3 and 6); `StreamChat.partialUpdateMessage` and other message methods taking `{ message_id }` objects; `delete_for_me` instead of `deleteForMe` in delete options; `ChannelState.messages` (use `channel.messagePaginator`); `ReactionResponse.custom` now required in hand-built fixtures; `LinkPreview.custom`.
 
