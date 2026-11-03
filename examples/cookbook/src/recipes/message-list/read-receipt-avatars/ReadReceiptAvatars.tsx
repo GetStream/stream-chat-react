@@ -7,6 +7,7 @@ import {
   useChatContext,
   useMessageContext,
   useStateStore,
+  useThreadContext,
   WithComponents,
 } from 'stream-chat-react';
 import './ReadReceiptAvatars.css';
@@ -20,14 +21,15 @@ const readersSelector = ({ readersByMessageId }: MessageReceiptsSnapshot) => ({
 const ReadReceiptAvatars = () => {
   const channel = useChannel();
   const { client } = useChatContext();
-  const { message, threadList } = useMessageContext();
+  const { message } = useMessageContext();
+  const isInThread = !!useThreadContext();
   const { readersByMessageId } = useStateStore(
     channel.messageReceiptsTracker.snapshotStore,
     readersSelector,
   );
 
   // Read positions belong to the channel's main list, so a thread shows none.
-  if (threadList) return null;
+  if (isInThread) return null;
 
   const readers = (readersByMessageId[message.id] ?? []).filter(
     (user) => user.id !== client.userId,

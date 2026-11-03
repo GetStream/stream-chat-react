@@ -222,7 +222,7 @@ const SecondChannelContent = ({ channel }: { channel: StreamChannel }) => {
         <ChannelHeader Avatar={ConfiguredAvatarWithChannelDetail} />
         <div className='app-chat-view__channel-body'>
           {virtualized ? (
-            <VirtualizedMessageList returnAllReadData shouldGroupByUser />
+            <VirtualizedMessageList groupByUser returnAllReadData />
           ) : (
             <MessageList returnAllReadData />
           )}
@@ -456,7 +456,7 @@ const ResponsiveChannelPanels = ({ mainChannel }: { mainChannel?: StreamChannel 
                     // VirtualizedMessageList drills a narrower prop set and doesn't forward
                     // onUserClick/onMentionsClick — wiring member-detail there would need a custom
                     // Message component. The demo's default list is the standard one below.
-                    <VirtualizedMessageList returnAllReadData shouldGroupByUser />
+                    <VirtualizedMessageList groupByUser returnAllReadData />
                   ) : (
                     <MessageList
                       onMentionsClick={(_event, mentionedUsers) =>
