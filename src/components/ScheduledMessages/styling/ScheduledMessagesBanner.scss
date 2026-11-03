@@ -28,10 +28,9 @@
       min-width: 0;
     }
 
-    .str-chat__scheduled-messages-banner__failed {
-      flex-shrink: 0;
+    &.str-chat__scheduled-messages-banner--failed
+      .str-chat__scheduled-messages-banner__icon {
       color: var(--str-chat__accent-error);
-      font: var(--str-chat__font-caption-emphasis);
     }
 
     .str-chat__scheduled-messages-banner__view-button {

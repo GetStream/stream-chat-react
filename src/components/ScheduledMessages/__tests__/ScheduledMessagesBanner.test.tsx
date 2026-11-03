@@ -144,7 +144,7 @@ describe('ScheduledMessagesBanner', () => {
     expect(queryBanner()).not.toHaveTextContent('1 scheduled messages');
   });
 
-  it('shows how many scheduled messages failed', async () => {
+  it('switches to the failed count when a scheduled message failed', async () => {
     await renderComposer({
       scheduledMessages: [
         generateScheduledMessage({ cid }),
@@ -152,8 +152,8 @@ describe('ScheduledMessagesBanner', () => {
       ],
     });
 
-    expect(queryBanner()).toHaveTextContent('2 scheduled messages');
-    expect(queryBanner()).toHaveTextContent('1 failed');
+    expect(queryBanner()).toHaveTextContent('1 failed to send');
+    expect(queryBanner()).not.toHaveTextContent('scheduled messages');
     expect(queryBanner()).toHaveClass('str-chat__scheduled-messages-banner--failed');
   });
 

@@ -22,7 +22,7 @@ import { getChannelContainer, openScheduledMessageInComposer } from './utils';
 
 export const ScheduledMessagesBanner = () => {
   const { t } = useTranslationContext();
-  const { IconClock } = useComponentContextIcons();
+  const { IconClock, IconExclamationMark } = useComponentContextIcons();
   const { Modal = GlobalModal } = useComponentContext();
   const { channelCapabilities } = useChannelStateContext('ScheduledMessagesBanner');
 
@@ -49,9 +49,13 @@ export const ScheduledMessagesBanner = () => {
   const hasCapability = !!channelCapabilities[SCHEDULE_MESSAGE_CAPABILITY];
   const isBannerVisible = hasCapability && scheduledMessageCount > 0;
   const hasFailedScheduledMessages = failedScheduledMessageCount > 0;
-  const label = parentId
+  const scheduledLabel = parentId
     ? t('{{ count }} scheduled replies', { count: scheduledMessageCount })
     : t('{{ count }} scheduled messages', { count: scheduledMessageCount });
+  const label = hasFailedScheduledMessages
+    ? t('{{ count }} failed to send', { count: failedScheduledMessageCount })
+    : scheduledLabel;
+  const BannerIcon = hasFailedScheduledMessages ? IconExclamationMark : IconClock;
 
   if (!isBannerVisible && !isDialogOpen) return null;
 
@@ -64,13 +68,8 @@ export const ScheduledMessagesBanner = () => {
           })}
           data-testid='scheduled-messages-banner'
         >
-          <IconClock className='str-chat__scheduled-messages-banner__icon' />
+          <BannerIcon className='str-chat__scheduled-messages-banner__icon' />
           <span className='str-chat__scheduled-messages-banner__label'>{label}</span>
-          {hasFailedScheduledMessages && (
-            <span className='str-chat__scheduled-messages-banner__failed'>
-              {t('{{ count }} failed', { count: failedScheduledMessageCount })}
-            </span>
-          )}
           <button
             className='str-chat__scheduled-messages-banner__view-button'
             onClick={openDialog}

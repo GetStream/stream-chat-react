@@ -174,7 +174,7 @@ describe('translateScheduledMessageSendFailed', () => {
 
   it('uses the generic reason for an unknown one', () => {
     expect(translateSendFailed('something_new')).toBe(
-      'Scheduled message not sent: Something went wrong. Try again',
+      "Scheduled message not sent: Couldn't send. Try again",
     );
   });
 
