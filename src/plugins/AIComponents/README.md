@@ -401,7 +401,7 @@ function ChatComposer({ attachments }: ChatComposerProps) {
 #### Sub-components
 
 - **`AIMessageComposer.FileInput`** - File input button for attaching files. Supports multiple file selection. The native `<input type="file">` is visually hidden but stays focusable (it is the keyboard stop, labelled `aria/File upload`, and opens the picker on Enter/Space); the round `<label>` that follows it is the pointer target and shows its focus ring. `labelProps` are spread onto that label.
-- **`AIMessageComposer.TextInput`** - Text input field for typing messages. Automatically syncs with composer state.
+- **`AIMessageComposer.TextInput`** - Where the message is written: a `textarea` that grows with its lines, up to 200 px, then scrolls. Enter sends, Shift+Enter starts a new line, and Enter while an input method is composing does neither. Automatically syncs with composer state.
 - **`AIMessageComposer.SpeechToTextButton`** - Button to toggle speech-to-text input using the Web Speech API.
 - **`AIMessageComposer.SubmitButton`** - Submit button for sending the message.
 - **`AIMessageComposer.ModelSelect`** - Dropdown for selecting AI models. Customizable via `options` prop.

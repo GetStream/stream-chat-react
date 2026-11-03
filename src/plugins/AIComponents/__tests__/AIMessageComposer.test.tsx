@@ -62,4 +62,31 @@ describe('AIMessageComposer', () => {
     fireEvent.reset(container.querySelector('form') as HTMLFormElement);
     expect(screen.getByLabelText('d input')).toHaveValue('');
   });
+
+  it('holds several lines, and sends on Enter but not Shift+Enter', () => {
+    const onSubmit = vi.fn((e: React.FormEvent) => e.preventDefault());
+    render(<Composer label='e' onSubmit={onSubmit} />);
+    const input = screen.getByLabelText('e input');
+
+    expect(input.tagName).toBe('TEXTAREA');
+    fireEvent.change(input, { target: { value: 'first line\nsecond line' } });
+    expect(input).toHaveValue('first line\nsecond line');
+
+    fireEvent.keyDown(input, { key: 'Enter', shiftKey: true });
+    expect(onSubmit).not.toHaveBeenCalled();
+
+    fireEvent.keyDown(input, { key: 'Enter' });
+    expect(onSubmit).toHaveBeenCalledTimes(1);
+  });
+
+  it('does not send while an input method is still composing', () => {
+    const onSubmit = vi.fn((e: React.FormEvent) => e.preventDefault());
+    render(<Composer label='f' onSubmit={onSubmit} />);
+
+    fireEvent.keyDown(screen.getByLabelText('f input'), {
+      isComposing: true,
+      key: 'Enter',
+    });
+    expect(onSubmit).not.toHaveBeenCalled();
+  });
 });
