@@ -1,6 +1,14 @@
 import React from 'react';
 import type { PropsWithChildren } from 'react';
-import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import {
+  act,
+  cleanup,
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+  within,
+} from '@testing-library/react';
 import { fromPartial } from '@total-typescript/shoehorn';
 import { formatMessage, ScheduledMessageEventType, SearchController } from 'stream-chat';
 import type { LocalMessage, ScheduledMessageResponse } from 'stream-chat';
@@ -179,14 +187,14 @@ describe('ScheduledMessagesBanner', () => {
     await waitFor(() => expect(queryBanner()).not.toBeInTheDocument());
   });
 
-  it('opens the scheduled message list from View', async () => {
+  it('opens the scheduled message list from View all', async () => {
     await renderComposer({
       scheduledMessages: [
         generateScheduledMessage({ cid, message: { text: 'Launch moved to Monday' } }),
       ],
     });
 
-    await act(() => fireEvent.click(screen.getByRole('button', { name: 'View' })));
+    await act(() => fireEvent.click(screen.getByRole('button', { name: 'View all' })));
 
     const dialog = await screen.findByTestId('scheduled-message-list-dialog');
 
@@ -194,10 +202,28 @@ describe('ScheduledMessagesBanner', () => {
     expect(dialog).toHaveTextContent('Launch moved to Monday');
   });
 
+  it('filters the scheduled message list with the search field', async () => {
+    await renderComposer({
+      scheduledMessages: [
+        generateScheduledMessage({ cid, message: { text: 'Launch moved to Monday' } }),
+        generateScheduledMessage({ cid, message: { text: 'Lunch at noon' } }),
+      ],
+    });
+
+    await act(() => fireEvent.click(screen.getByRole('button', { name: 'View all' })));
+    const dialog = await screen.findByTestId('scheduled-message-list-dialog');
+    fireEvent.change(within(dialog).getByRole('searchbox', { name: 'Search' }), {
+      target: { value: 'launch' },
+    });
+
+    expect(dialog).toHaveTextContent('Launch moved to Monday');
+    expect(dialog).not.toHaveTextContent('Lunch at noon');
+  });
+
   it('titles the list as replies in a thread', async () => {
     await renderComposer({ inThread: true, scheduledMessages: [threadReply()] });
 
-    await act(() => fireEvent.click(screen.getByRole('button', { name: 'View' })));
+    await act(() => fireEvent.click(screen.getByRole('button', { name: 'View all' })));
 
     expect(await screen.findByTestId('scheduled-message-list-dialog')).toHaveTextContent(
       'Scheduled replies',
