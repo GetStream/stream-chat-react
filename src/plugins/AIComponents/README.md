@@ -129,7 +129,7 @@ Behaviour:
 - A new question pins to the top of what is visible, and the reply writes out below it without moving what is on screen: the latest turn is at least as tall as the conversation (less `bottomInset`).
 - It opens at its end. A conversation replaced as a whole (another chat opened) opens at its end again.
 - A round button scrolls to the latest message while the end is out of view.
-- Steps render with `AIMessageParts`; the answer types out with `StreamingMessage` as it streams in, and a reply loaded from history shows at once.
+- Steps render with `AIMessageParts`; the answer types out with `StreamingMessage` as it streams in, catching up with what has arrived within about 400 ms, and a reply loaded from history shows at once. `letterIntervalMs` and `renderingLetterCount` set a fixed pace instead.
 
 ### Generated UI
 

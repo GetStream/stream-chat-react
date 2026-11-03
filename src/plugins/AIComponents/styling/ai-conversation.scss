@@ -256,7 +256,7 @@
   align-items: center;
   gap: 0.375rem;
   color: ai-token(text-secondary);
-  font-size: 0.9375rem;
+  font-size: ai-scale(font-sm);
 
   &__dots {
     display: inline-flex;
