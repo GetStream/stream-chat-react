@@ -18,6 +18,8 @@ import {
   parseAIUIDocument,
   requiredAIUIParameter,
 } from '..';
+import type { MessageResponse } from 'stream-chat';
+
 import type { AIMessage } from '..';
 
 // The components the Swift assistant describes once for every platform.
@@ -123,6 +125,25 @@ const recordingRenderer = (format: string, supports?: (version?: string) => bool
 };
 
 describe('AIUIDocument', () => {
+  it('types a reply’s ai_ui and a person’s ai_ui_action on Stream messages', () => {
+    const reply: MessageResponse = {
+      ai_generated: true,
+      ai_ui: { content: '{}', format: 'a2ui', status: 'complete', v: 1, version: '1.0' },
+      id: 'a1',
+      text: 'A weekend in Ohrid.',
+    } as MessageResponse;
+    const action = aiUIActionJSON({
+      format: 'a2ui',
+      label: 'Update the plan',
+      messageId: 'a1',
+      name: 'update_plan',
+      payload: {},
+    });
+    const asked: MessageResponse = { ai_ui_action: action, id: 'u2' } as MessageResponse;
+    expect(fromStreamMessage(reply).uiDocument?.format).toBe('a2ui');
+    expect(asked.ai_ui_action?.message_id).toBe('a1');
+  });
+
   it('reads the format, version, status and content of a reply’s ai_ui', () => {
     expect(
       parseAIUIDocument({

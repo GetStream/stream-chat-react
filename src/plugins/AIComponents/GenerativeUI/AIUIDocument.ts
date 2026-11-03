@@ -21,6 +21,21 @@ export type AIUIDocument = {
   version?: string;
 };
 
+/**
+ * A reply's `ai_ui` field as the agents router writes it. Typed on Stream messages through
+ * `DefaultMessageData`.
+ */
+export type AIUIDocumentJSON = {
+  /** The document in its format's own shape: usually text, such as A2UI's JSON lines. */
+  content: unknown;
+  format: AIUIFormat;
+  /** `streaming` while the agent writes it, then `complete`. */
+  status?: 'streaming' | 'complete' | (string & {});
+  /** The version of the field's own layout; a newer one than this SDK reads shows the text. */
+  v?: number;
+  version?: string;
+};
+
 /** The custom field of a message that holds its document. */
 export const AI_UI_CUSTOM_DATA_KEY = 'ai_ui';
 /** The newest version of the `ai_ui` field this SDK reads. */
