@@ -1,8 +1,10 @@
 import React from 'react';
 import clsx from 'clsx';
+import { sanitizeUrl } from '@braintree/sanitize-url';
 
 import { useTranslationContext } from '../../../context/TranslationContext';
 import { useComponentContextIcons } from '../../../context/useComponentContextIcons';
+import { prettifyFileSize } from '../../../components/MessageComposer/hooks/utils';
 
 /**
  * What a message carries besides its text, such as an image or a file. The counterpart of
@@ -34,31 +36,20 @@ const extensionOf = (attachment: AIMessageAttachmentData) => {
   return attachment.mimeType?.split('/')[1]?.split(/[+;]/)[0];
 };
 
-const formatSize = (bytes: number, locale: string) => {
-  const units = ['byte', 'kilobyte', 'megabyte', 'gigabyte'] as const;
-  let value = bytes;
-  let index = 0;
-  while (value >= 1000 && index < units.length - 1) {
-    value /= 1000;
-    index += 1;
-  }
-  try {
-    return new Intl.NumberFormat(locale, {
-      maximumFractionDigits: index === 0 ? 0 : 1,
-      style: 'unit',
-      unit: units[index],
-      unitDisplay: 'short',
-    }).format(value);
-  } catch {
-    return `${value.toFixed(index === 0 ? 0 : 1)} ${['B', 'KB', 'MB', 'GB'][index]}`;
-  }
-};
+// A web or blob URL as it is, and an image's data URL for its thumbnail (a photo just picked);
+// anything else, such as `javascript:`, is blanked as the rest of the SDK's links are.
+const safeUrl = (url: string, kind: AIMessageAttachmentData['kind']) =>
+  /^blob:/i.test(url) || (kind === 'image' && /^data:image\//i.test(url))
+    ? url
+    : sanitizeUrl(url);
 
-/** Its type and size, such as "PDF · 2.4 MB". */
-export const attachmentDetails = (attachment: AIMessageAttachmentData, locale = 'en') =>
+const BLANK_URL = 'about:blank';
+
+/** Its type and size, such as "PDF · 2.34 MB". */
+export const attachmentDetails = (attachment: AIMessageAttachmentData) =>
   [
     extensionOf(attachment)?.toUpperCase(),
-    attachment.size !== undefined ? formatSize(attachment.size, locale) : undefined,
+    attachment.size !== undefined ? prettifyFileSize(attachment.size) : undefined,
   ]
     .filter(Boolean)
     .join(' · ');
@@ -79,8 +70,9 @@ export const AIMessageAttachment = ({
   className,
   role = 'assistant',
 }: AIMessageAttachmentProps) => {
-  const { t, userLanguage } = useTranslationContext();
+  const { t } = useTranslationContext();
   const { IconFile } = useComponentContextIcons();
+  const url = attachment.url ? safeUrl(attachment.url, attachment.kind) : undefined;
   const name =
     attachment.name ||
     (attachment.url && !attachment.url.startsWith('data:')
@@ -95,19 +87,15 @@ export const AIMessageAttachment = ({
     className,
   );
 
-  if (attachment.kind === 'image' && attachment.url) {
+  if (attachment.kind === 'image' && url && url !== BLANK_URL) {
     return (
-      <a className={classes} href={attachment.url} rel='noreferrer' target='_blank'>
-        <img
-          alt={name}
-          className='str-chat__ai-message-attachment__image'
-          src={attachment.url}
-        />
+      <a className={classes} href={url} rel='noreferrer' target='_blank'>
+        <img alt={name} className='str-chat__ai-message-attachment__image' src={url} />
       </a>
     );
   }
 
-  const details = attachmentDetails(attachment, userLanguage);
+  const details = attachmentDetails(attachment);
   const content = (
     <>
       <span className='str-chat__ai-message-attachment__file-icon'>
@@ -122,11 +110,11 @@ export const AIMessageAttachment = ({
     </>
   );
 
-  return attachment.url ? (
+  return url && url !== BLANK_URL ? (
     <a
       className={classes}
       download={attachment.name}
-      href={attachment.url}
+      href={url}
       rel='noreferrer'
       target='_blank'
     >

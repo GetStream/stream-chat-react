@@ -141,10 +141,30 @@ describe('createPopupAuthorizer', () => {
     await expect(connecting).resolves.toBe(false);
   });
 
-  it('resolves false when the person closes the popup', async () => {
+  it('resolves false when the person closes the popup and is back on the page', async () => {
+    vi.spyOn(document, 'hasFocus').mockReturnValue(true);
     const connecting = authorizer().connect(call());
     postFromPopup(popup, { type: 'va.connector.oauth.ready' });
     popup.closed = true;
+    vi.advanceTimersByTime(500);
+    await expect(connecting).resolves.toBe(false);
+  });
+
+  it('keeps waiting while a provider page severs the popup and the person is still in it', async () => {
+    const hasFocus = vi.spyOn(document, 'hasFocus').mockReturnValue(false);
+    let settled = false;
+    const connecting = authorizer().connect(call());
+    void connecting.then(() => {
+      settled = true;
+    });
+    postFromPopup(popup, { type: 'va.connector.oauth.ready' });
+    // Google's consent page severs the popup, which then reads as closed.
+    popup.closed = true;
+    vi.advanceTimersByTime(5_000);
+    await Promise.resolve();
+    expect(settled).toBe(false);
+
+    hasFocus.mockReturnValue(true);
     vi.advanceTimersByTime(500);
     await expect(connecting).resolves.toBe(false);
   });

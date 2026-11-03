@@ -196,11 +196,20 @@ export const AIReasoning = ({
     durationProp ?? (part?.durationMs !== undefined ? part.durationMs / 1000 : undefined);
   const summary = summaryProp ?? part?.summary;
 
-  // The turn whose thinking this step takes over, when it is the turn's first step.
+  // The turn whose thinking this step takes over, when it is the first step of a turn that was
+  // seen thinking.
   const thinkingTurn =
-    part && turn && turn.clock.isFirstStep(part.id, turn.key) ? turn : undefined;
-  if (isThinking && thinkingTurn)
-    thinkingTurn.clock.firstStepIsStreaming(thinkingTurn.key);
+    part &&
+    turn &&
+    turn.firstStepId === part.id &&
+    turn.clock.start(turn.key) !== undefined
+      ? turn
+      : undefined;
+  const clock = thinkingTurn?.clock;
+  const turnKey = thinkingTurn?.key;
+  useEffect(() => {
+    if (isThinking && clock && turnKey !== undefined) clock.firstStepStreams(turnKey);
+  }, [clock, isThinking, turnKey]);
 
   // What the reader chose by clicking the header. Until they do, the reasoning is open while
   // the model thinks and folded once it is done.
@@ -234,16 +243,19 @@ export const AIReasoning = ({
     if (isThinking) {
       setThinkingSince(Date.now());
     } else {
+      if (clock && turnKey !== undefined) clock.firstStepDone(turnKey, ownDuration);
       setThoughtFor(Math.max(ownDuration ?? 0, (Date.now() - thinkingSince) / 1000));
     }
     setOpen(choice ?? opensByDefault(isThinking, showsLiveReasoning, initiallyExpanded));
   }, [
     choice,
+    clock,
     initiallyExpanded,
     isThinking,
     ownDuration,
     showsLiveReasoning,
     thinkingSince,
+    turnKey,
   ]);
 
   const start =

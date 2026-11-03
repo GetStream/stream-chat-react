@@ -168,10 +168,12 @@ export const createPopupAuthorizer = ({
       );
       stops.push(() => clearTimeout(expiryTimer));
 
-      // A provider's page can sever the popup from this window, which then looks closed while
-      // the person is still deciding. Your backend's change to the step is the record either way.
+      // A provider's page can sever the popup from this window (Google's consent does), which
+      // then looks closed while the person is still deciding there. So once handed off, a closed
+      // popup ends the sign-in only when the person is back on this page; until then the outcome
+      // or the expiry does. Your backend's change to the step is the record either way.
       const closedTimer = setInterval(() => {
-        if (popup.closed) finish(false);
+        if (popup.closed && (!handedOff || document.hasFocus())) finish(false);
       }, closedPollIntervalMs);
       stops.push(() => clearInterval(closedTimer));
     });

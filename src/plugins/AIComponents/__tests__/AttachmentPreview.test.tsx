@@ -129,6 +129,9 @@ describe('AIMessageComposer.AttachmentPreview', () => {
 
     fireEvent.click(screen.getAllByLabelText('Delete attachment')[0] as HTMLElement);
     expect(screen.queryByText('a.txt')).toBeNull();
+    // The photo that stays keeps its URL rather than getting a new one.
+    expect(createObjectURL).toHaveBeenCalledTimes(1);
+    expect(revokeObjectURL).not.toHaveBeenCalled();
     unmount();
     expect(revokeObjectURL).toHaveBeenCalledWith('blob:preview');
   });

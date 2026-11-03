@@ -1,6 +1,5 @@
 import React, {
   type ComponentType,
-  memo,
   type ReactNode,
   useCallback,
   useEffect,
@@ -39,6 +38,8 @@ const END_SLACK = 32;
 // How long the spinner above the turns stays in view before older messages load, so a list
 // that opens at its end does not load for the frame its start shows.
 const LOAD_OLDER_DELAY_MS = 300;
+// How long to wait before asking again after loading older messages failed.
+const LOAD_OLDER_RETRY_MS = 3000;
 
 export type AIConversationUserMessageProps = {
   /** What the person sent with it, such as images and files. */
@@ -145,52 +146,67 @@ type EntryViewProps = {
   approver?: AIToolApprover;
 };
 
-const EntryView = memo(
-  ({ approver, AssistantMessage, entry, ReplyActions, UserMessage }: EntryViewProps) => {
-    const { message, pending } = entry;
-    if (!message) {
-      return pending ? (
-        <UserMessage attachments={pending.attachments ?? []} text={pending.text} />
-      ) : null;
-    }
-    if (message.role === 'user') {
-      return (
-        <UserMessage
-          attachments={
-            entry.sentAttachments.length
-              ? entry.sentAttachments
-              : (message.attachments ?? [])
-          }
-          message={message}
-          text={message.text}
-        />
-      );
-    }
+// Not memoised: an app's messages are new objects on every update while a reply streams, and a
+// rating given through `replyActions` must reach the reply's actions whether or not they are.
+const EntryView = ({
+  approver,
+  AssistantMessage,
+  entry,
+  ReplyActions,
+  UserMessage,
+}: EntryViewProps) => {
+  const { message, pending } = entry;
+  if (!message) {
+    return pending ? (
+      <UserMessage attachments={pending.attachments ?? []} text={pending.text} />
+    ) : null;
+  }
+  if (message.role === 'user') {
     return (
-      <div className='str-chat__ai-conversation__reply'>
-        <AssistantMessage
-          approver={approver}
-          attachments={message.attachments ?? []}
-          isGenerating={!!message.isGenerating}
+      <UserMessage
+        attachments={
+          entry.sentAttachments.length
+            ? entry.sentAttachments
+            : (message.attachments ?? [])
+        }
+        message={message}
+        text={message.text}
+      />
+    );
+  }
+  return (
+    <div className='str-chat__ai-conversation__reply'>
+      <AssistantMessage
+        approver={approver}
+        attachments={message.attachments ?? []}
+        isGenerating={!!message.isGenerating}
+        message={message}
+        parts={message.parts ?? []}
+        reasoningText={message.reasoningText}
+        text={message.text}
+      />
+      {ReplyActions && !message.isGenerating && message.text !== '' && (
+        <ReplyActions
+          isLatestReply={entry.isLatestReply}
           message={message}
-          parts={message.parts ?? []}
-          reasoningText={message.reasoningText}
           text={message.text}
         />
-        {ReplyActions && !message.isGenerating && message.text !== '' && (
-          <ReplyActions
-            isLatestReply={entry.isLatestReply}
-            message={message}
-            text={message.text}
-          />
-        )}
-      </div>
-    );
-  },
-);
-EntryView.displayName = 'AIConversationEntry';
+      )}
+    </div>
+  );
+};
 
 type HeldTurn = { id: string; top: number };
+
+// The turn's first reasoning step, which takes over the seconds the turn was seen thinking.
+const firstStepOf = (turn: AIConversationTurn | undefined) => {
+  for (const { message } of turn?.entries ?? []) {
+    if (!message || message.role === 'user') continue;
+    const step = message.parts?.find((part) => part.reasoning);
+    if (step) return step.id;
+  }
+  return undefined;
+};
 
 const scrollScroller = (scroller: HTMLElement, top: number, smooth: boolean) => {
   if (typeof scroller.scrollTo !== 'function') {
@@ -244,8 +260,13 @@ export const AIConversation = ({
   const thinking = isThinking || tracker.isAwaitingReply(messages, pendingMessage);
   const turns = useMemo(() => turnsOf(entries), [entries]);
   const latest = turns[turns.length - 1];
-  // Repeats harmlessly on every render: a turn's thinking starts and ends once.
-  clock.update(latest?.id, thinking, (latest?.entries.length ?? 0) > 1);
+  const latestHasReplies = (latest?.entries.length ?? 0) > 1;
+  const latestHasFirstStep = firstStepOf(latest) !== undefined;
+  // Before the views below read it in their effects and next renders: a turn's thinking starts
+  // and ends once.
+  useIsomorphicLayoutEffect(() => {
+    clock.update(latest?.id, thinking, latestHasReplies, latestHasFirstStep);
+  }, [clock, latest?.id, latestHasFirstStep, latestHasReplies, thinking]);
 
   const replyActionsRef = useRef(replyActions);
   replyActionsRef.current = replyActions;
@@ -335,11 +356,17 @@ export const AIConversation = ({
       .map(({ element, id }) => ({ id, top: element.offsetTop - top }));
   }, []);
 
-  const scrollToTurnTop = (id: string, smooth: boolean) => {
-    const scroller = scrollerRef.current;
-    const element = turnElements.current.get(id);
-    if (scroller && element) scrollScroller(scroller, element.offsetTop, smooth);
+  // Noting where the turns are reads the layout of each, so scrolling does it once a frame.
+  const scrollFrame = useRef<number | undefined>(undefined);
+  const onScroll = () => {
+    if (scrollFrame.current !== undefined) return;
+    scrollFrame.current = requestAnimationFrame(() => {
+      scrollFrame.current = undefined;
+      noteHeld();
+      checkEnd();
+    });
   };
+  useEffect(() => () => cancelAnimationFrame(scrollFrame.current ?? 0), []);
 
   const scrollToEnd = useCallback((smooth: boolean) => {
     const scroller = scrollerRef.current;
@@ -357,6 +384,8 @@ export const AIConversation = ({
     mounted: boolean;
   }>({ height: 0, loadsOlder, mounted: false });
 
+  // Runs when the turns around what is in view change, not on every render: a reply streaming in
+  // grows only the latest turn, which the observers above follow.
   useIsomorphicLayoutEffect(() => {
     const previous = shown.current;
     shown.current = { firstTurnId, height, lastTurnId, loadsOlder, mounted: true };
@@ -383,13 +412,14 @@ export const AIConversation = ({
       // conversation replaced as a whole opens at its end.
       const continues =
         previous.lastTurnId !== undefined &&
-        turns.some((turn) => turn.id === previous.lastTurnId);
-      if (continues) scrollToTurnTop(lastTurnId, true);
+        turnElements.current.has(previous.lastTurnId);
+      const element = turnElements.current.get(lastTurnId);
+      if (continues && element) scrollScroller(scroller, element.offsetTop, true);
       else scroller.scrollTop = scroller.scrollHeight;
     }
     noteHeld();
     checkEnd();
-  });
+  }, [checkEnd, firstTurnId, height, lastTurnId, loadsOlder, noteHeld]);
 
   // Loads older messages once the spinner above the turns has been in view a moment, and again
   // whenever the first turn changes while it is in view.
@@ -409,16 +439,29 @@ export const AIConversation = ({
     }
     let timer: ReturnType<typeof setTimeout> | undefined;
     let loading = false;
+    let disposed = false;
     const observer = new IntersectionObserver(
       ([visible]) => {
         clearTimeout(timer);
         if (!visible?.isIntersecting || loading) return;
         timer = setTimeout(() => {
           loading = true;
+          let failed = false;
           Promise.resolve(loadOlderRef.current?.())
-            .catch(() => undefined)
+            .catch(() => {
+              failed = true;
+            })
             .finally(() => {
               loading = false;
+              if (disposed) return;
+              // Watching the spinner afresh reports whether it is still in view, so a load that
+              // failed, or brought nothing while there is more, asks again: after a pause when
+              // it failed. A load that brought older messages re-runs this effect instead.
+              observer.unobserve(spinner);
+              timer = setTimeout(
+                () => observer.observe(spinner),
+                failed ? LOAD_OLDER_RETRY_MS : 0,
+              );
             });
         }, LOAD_OLDER_DELAY_MS);
       },
@@ -426,6 +469,7 @@ export const AIConversation = ({
     );
     observer.observe(spinner);
     return () => {
+      disposed = true;
       clearTimeout(timer);
       observer.disconnect();
     };
@@ -451,7 +495,9 @@ export const AIConversation = ({
             : undefined
         }
       >
-        <AIThinkingTurnContext.Provider value={{ clock, key: turn.id }}>
+        <AIThinkingTurnContext.Provider
+          value={{ clock, firstStepId: firstStepOf(turn), key: turn.id }}
+        >
           {turn.entries.map((entry) => (
             <EntryView
               approver={approver}
@@ -474,10 +520,7 @@ export const AIConversation = ({
       <div className={clsx('str-chat__ai-conversation', className)}>
         <div
           className='str-chat__ai-conversation__scroller'
-          onScroll={() => {
-            noteHeld();
-            checkEnd();
-          }}
+          onScroll={onScroll}
           ref={scrollerRef}
         >
           {turns.length === 0 ? (

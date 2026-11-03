@@ -2,6 +2,8 @@ import {
   type ComponentPropsWithoutRef,
   type MouseEvent,
   useEffect,
+  useLayoutEffect,
+  useRef,
   useState,
 } from 'react';
 import { useAttachments } from './AIMessageComposer';
@@ -94,18 +96,38 @@ export const Item = ({
 
 type Attachments = ReturnType<typeof useAttachments>;
 
-// An object URL per picked image, revoked once it is removed or the preview unmounts.
+// The layout effect warns under server rendering, where nothing is picked anyway.
+const useIsomorphicLayoutEffect =
+  typeof window === 'undefined' ? useEffect : useLayoutEffect;
+
+// An object URL per picked image, made once per attachment, before the first paint, and revoked
+// once it is removed or the preview unmounts.
 const useImagePreviewSources = (attachments: Attachments['attachments']) => {
+  const urls = useRef(new Map<string, string>());
   const [sources, setSources] = useState<Record<string, string>>({});
-  useEffect(() => {
+  useIsomorphicLayoutEffect(() => {
     if (typeof URL.createObjectURL !== 'function') return;
-    const created: Record<string, string> = {};
+    const made = urls.current;
+    const images = new Set<string>();
     for (const { file, id } of attachments) {
-      if (file.type.startsWith('image/')) created[id] = URL.createObjectURL(file);
+      if (!file.type.startsWith('image/')) continue;
+      images.add(id);
+      if (!made.has(id)) made.set(id, URL.createObjectURL(file));
     }
-    setSources(created);
-    return () => Object.values(created).forEach((url) => URL.revokeObjectURL(url));
+    for (const [id, url] of made) {
+      if (images.has(id)) continue;
+      URL.revokeObjectURL(url);
+      made.delete(id);
+    }
+    setSources(Object.fromEntries(made));
   }, [attachments]);
+  useEffect(() => {
+    const made = urls.current;
+    return () => {
+      made.forEach((url) => URL.revokeObjectURL(url));
+      made.clear();
+    };
+  }, []);
   return sources;
 };
 

@@ -11,10 +11,8 @@ const ARRIVAL_WINDOW_MS = 1000;
 type Turn = {
   start: number;
   end?: number;
-  firstStep?: string;
+  // How long the first step thought, once it was done, in seconds.
   firstStepDuration?: number;
-  // When a first step that arrived done opened to show its reasoning.
-  firstStepShown?: number;
   firstStepStreamed: boolean;
   // Whether a reply of the turn showed.
   hadReplies: boolean;
@@ -23,6 +21,9 @@ type Turn = {
 /**
  * Times each turn's thinking, so the reply's first reasoning step takes over the seconds the
  * conversation counted while it showed the agent thinking. The counterpart of `AIThinkingClock`.
+ *
+ * It is written only from effects (`update`, `firstStepStreams`, `firstStepDone`) and read
+ * during render, so a render React throws away changes nothing.
  */
 export class AIThinkingClock {
   private turns = new Map<string, Turn>();
@@ -34,6 +35,7 @@ export class AIThinkingClock {
     latest: string | undefined,
     isThinking: boolean,
     hasReplies: boolean,
+    hasFirstStep: boolean,
     now = Date.now(),
   ) {
     if (latest === undefined) return;
@@ -50,7 +52,7 @@ export class AIThinkingClock {
     }
     if (hasReplies) timed.hadReplies = true;
     if (isThinking) {
-      if (timed.firstStep === undefined) timed.end = undefined;
+      if (!hasFirstStep) timed.end = undefined;
     } else if (timed.end === undefined) {
       timed.end = now;
     }
@@ -60,47 +62,47 @@ export class AIThinkingClock {
     return this.turns.get(turn)?.start;
   }
 
-  // Whether `step` takes over a turn's thinking: the first reasoning step to show in a turn that
-  // was seen thinking.
-  isFirstStep(step: string, turn: string) {
-    const timed = this.turns.get(turn);
-    if (!timed) return false;
-    timed.firstStep ??= step;
-    return timed.firstStep === step;
-  }
-
-  firstStepIsStreaming(turn: string) {
+  firstStepStreams(turn: string) {
     const timed = this.turns.get(turn);
     if (timed) timed.firstStepStreamed = true;
   }
 
-  // How long a turn's first step thought, in seconds: from when the turn started thinking until
-  // the step was done. The step's own time counts when it is longer.
+  // The first step stopped streaming: it thought from when the turn started thinking until now,
+  // or for its own time when that is longer.
+  firstStepDone(turn: string, own: number | undefined, now = Date.now()) {
+    const timed = this.turns.get(turn);
+    if (timed && timed.firstStepDuration === undefined) {
+      timed.firstStepDuration = Math.max(own ?? 0, (now - timed.start) / 1000);
+    }
+  }
+
+  // How long a turn's first step thought, in seconds. One that arrived done thought until the
+  // turn stopped thinking, which with no end yet is the render it arrives in; one that streamed,
+  // until `firstStepDone`.
   durationOfFirstStep(turn: string, own: number | undefined, now = Date.now()) {
     const timed = this.turns.get(turn);
     if (!timed) return own;
     if (timed.firstStepDuration !== undefined) return timed.firstStepDuration;
-    const done = timed.firstStepStreamed ? now : (timed.end ?? now);
-    const measured = Math.max(own ?? 0, (done - timed.start) / 1000);
-    timed.firstStepDuration = measured;
-    return measured;
+    if (timed.firstStepStreamed) return own;
+    return Math.max(own ?? 0, ((timed.end ?? now) - timed.start) / 1000);
   }
 
-  // Whether a turn's first step, which arrived done with the reply that ended the thinking, opens
-  // to show its reasoning before it folds and the answer starts.
+  // Whether a turn's first step, which arrived done with the reply that ends the thinking, opens
+  // to show its reasoning before it folds and the answer starts. The thinking's end is noted
+  // after the render the step arrives in, so no end yet counts as ending now.
   showsFirstStep(turn: string, now = Date.now()) {
     const timed = this.turns.get(turn);
     if (!timed || timed.firstStepStreamed) return false;
-    if (timed.firstStepShown !== undefined) {
-      return now - timed.firstStepShown < ARRIVAL_WINDOW_MS;
-    }
-    if (timed.end === undefined || now - timed.end >= ARRIVAL_WINDOW_MS) return false;
-    timed.firstStepShown = now;
-    return true;
+    return timed.end === undefined || now - timed.end < ARRIVAL_WINDOW_MS;
   }
 }
 
-export type AIThinkingTurn = { clock: AIThinkingClock; key: string };
+/** A turn's clock, and the id of its first reasoning step: the one that takes over its thinking. */
+export type AIThinkingTurn = {
+  clock: AIThinkingClock;
+  key: string;
+  firstStepId?: string;
+};
 
 export const AIThinkingTurnContext = createContext<AIThinkingTurn | undefined>(undefined);
 

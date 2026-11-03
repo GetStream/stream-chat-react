@@ -3,6 +3,7 @@ import { act, fireEvent, screen } from '@testing-library/react';
 
 import {
   AIConnectorSignInError,
+  AIMessageAttachment,
   AIMessageComposer,
   AIMessagePart,
   AIReasoning,
@@ -446,6 +447,51 @@ describe('AIMessageComposer.ChatOptions', () => {
       </AIMessageComposer>,
     );
     expect(screen.getByRole('button', { name: 'Chat options' })).toBeDisabled();
+  });
+});
+
+describe('AIMessageAttachment', () => {
+  it('links no script a message sends as an attachment URL', () => {
+    // spelt in parts, since a literal script URL is what the linter forbids
+    const script = (code: string) => ['javascript', code].join(':');
+    renderWithEnglish(
+      <>
+        <AIMessageAttachment
+          attachment={{ kind: 'file', name: 'plan.pdf', url: script('alert(1)') }}
+        />
+        <AIMessageAttachment
+          attachment={{ kind: 'image', name: 'cat.png', url: script('alert(2)') }}
+        />
+      </>,
+    );
+    expect(screen.queryByRole('link')).not.toBeInTheDocument();
+    expect(screen.queryByRole('img')).not.toBeInTheDocument();
+    expect(screen.getByText('plan.pdf')).toBeInTheDocument();
+  });
+
+  it('shows a photo just picked from its data URL, and links a web file', () => {
+    const photo = 'data:image/jpeg;base64,AAAA';
+    renderWithEnglish(
+      <>
+        <AIMessageAttachment
+          attachment={{ kind: 'image', name: 'cat.jpg', url: photo }}
+        />
+        <AIMessageAttachment
+          attachment={{
+            kind: 'file',
+            name: 'plan.pdf',
+            size: 2400,
+            url: 'https://cdn.example.com/plan.pdf',
+          }}
+        />
+      </>,
+    );
+    expect(screen.getByAltText('cat.jpg')).toHaveAttribute('src', photo);
+    expect(screen.getByRole('link', { name: /plan\.pdf/ })).toHaveAttribute(
+      'href',
+      'https://cdn.example.com/plan.pdf',
+    );
+    expect(screen.getByText('PDF · 2.34 kB')).toBeInTheDocument();
   });
 });
 

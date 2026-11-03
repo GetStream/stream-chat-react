@@ -1,15 +1,9 @@
-import React, {
-  type KeyboardEvent,
-  type ReactNode,
-  useEffect,
-  useRef,
-  useState,
-} from 'react';
+import React, { createContext, type ReactNode, useContext, useState } from 'react';
 import clsx from 'clsx';
 
 import { useTranslationContext } from '../../../context/TranslationContext';
 import { useComponentContextIcons } from '../../../context/useComponentContextIcons';
-import { useStableId } from '../../../components/UtilityComponents/useStableId';
+import { Dropdown, type DropdownTriggerProps } from '../../../components/Form/Dropdown';
 
 /**
  * A way to ask, which the person picks for their next message, such as "Think harder". The
@@ -32,86 +26,44 @@ export type AIChatOption = {
 export type ChatOptionsListProps = {
   onSelect: (option: AIChatOption) => void;
   options: AIChatOption[];
-  className?: string;
-  id?: string;
-  /** Called when the person leaves the list with Escape or Tab. */
-  onDismiss?: () => void;
   selectedId?: string | null;
 };
 
-/** The menu of chat options. The counterpart of `ChatOptionsList`. */
+/**
+ * The items of the chat options menu, one per option. `ChatOptions` shows them in the SDK's
+ * `Dropdown`, which moves focus between them and closes on Escape. The counterpart of
+ * `ChatOptionsList`.
+ */
 export const ChatOptionsList = ({
-  className,
-  id,
-  onDismiss,
   onSelect,
   options,
   selectedId,
-}: ChatOptionsListProps) => {
-  const { t } = useTranslationContext();
-  const listRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const items = listRef.current?.querySelectorAll<HTMLElement>(
-      '[role="menuitemradio"]',
-    );
-    const selected = [...(items ?? [])].find(
-      (item) => item.getAttribute('aria-checked') === 'true',
-    );
-    (selected ?? items?.[0])?.focus();
-  }, []);
-
-  const onKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
-    const items = [
-      ...(listRef.current?.querySelectorAll<HTMLElement>('[role="menuitemradio"]') ?? []),
-    ];
-    const index = items.indexOf(document.activeElement as HTMLElement);
-    const move = (to: number) => {
-      event.preventDefault();
-      items[(to + items.length) % items.length]?.focus();
-    };
-    if (event.key === 'ArrowDown') move(index + 1);
-    else if (event.key === 'ArrowUp') move(index - 1);
-    else if (event.key === 'Home') move(0);
-    else if (event.key === 'End') move(items.length - 1);
-    else if (event.key === 'Escape' || event.key === 'Tab') onDismiss?.();
-  };
-
-  return (
-    <div
-      aria-label={t('aria/Chat options')}
-      className={clsx('str-chat__ai-chat-options__list', className)}
-      id={id}
-      onKeyDown={onKeyDown}
-      ref={listRef}
-      role='menu'
-    >
-      {options.map((option) => (
-        <button
-          aria-checked={option.id === selectedId}
-          className='str-chat__ai-chat-options__item'
-          key={option.id}
-          onClick={() => onSelect(option)}
-          role='menuitemradio'
-          tabIndex={-1}
-          type='button'
-        >
-          {option.icon && (
-            <span className='str-chat__ai-chat-options__item-icon'>{option.icon}</span>
+}: ChatOptionsListProps) => (
+  <>
+    {options.map((option) => (
+      <button
+        aria-checked={option.id === selectedId}
+        className='str-chat__ai-chat-options__item'
+        key={option.id}
+        onClick={() => onSelect(option)}
+        role='menuitemradio'
+        type='button'
+      >
+        {option.icon && (
+          <span className='str-chat__ai-chat-options__item-icon'>{option.icon}</span>
+        )}
+        <span className='str-chat__ai-chat-options__item-text'>
+          <span className='str-chat__ai-chat-options__item-title'>{option.title}</span>
+          {option.description && (
+            <span className='str-chat__ai-chat-options__item-description'>
+              {option.description}
+            </span>
           )}
-          <span className='str-chat__ai-chat-options__item-text'>
-            <span className='str-chat__ai-chat-options__item-title'>{option.title}</span>
-            {option.description && (
-              <span className='str-chat__ai-chat-options__item-description'>
-                {option.description}
-              </span>
-            )}
-          </span>
-        </button>
-      ))}
-    </div>
-  );
-};
+        </span>
+      </button>
+    ))}
+  </>
+);
 
 export type SelectedChatOptionChipProps = {
   onRemove: () => void;
@@ -165,6 +117,36 @@ export type ChatOptionsProps = {
   selectedId?: string | null;
 };
 
+// What the menu button needs beyond what `Dropdown` hands its trigger.
+const ChatOptionsTriggerContext = createContext<{ disabled?: boolean; icon?: ReactNode }>(
+  {},
+);
+
+// Defined once, since `Dropdown` closes whenever its trigger component changes.
+const ChatOptionsTrigger = ({
+  onClick,
+  referenceRef,
+  ...props
+}: DropdownTriggerProps) => {
+  const { t } = useTranslationContext();
+  const { IconPlus } = useComponentContextIcons();
+  const { disabled, icon } = useContext(ChatOptionsTriggerContext);
+  return (
+    <button
+      {...props}
+      aria-haspopup='menu'
+      aria-label={t('aria/Chat options')}
+      className='str-chat__ai-message-composer__round-button'
+      disabled={disabled}
+      onClick={onClick}
+      ref={referenceRef as React.Ref<HTMLButtonElement>}
+      type='button'
+    >
+      {icon ?? <IconPlus />}
+    </button>
+  );
+};
+
 /**
  * A menu of ways to ask, such as "Think harder", and a chip for the one picked, with a button
  * that removes it. Place it inside `AIMessageComposer`; with `name`, the picked option's id is
@@ -181,23 +163,9 @@ export const ChatOptions = ({
   selectedId: selectedIdProp,
 }: ChatOptionsProps) => {
   const { t } = useTranslationContext();
-  const { IconPlus } = useComponentContextIcons();
-  const listId = `str-chat__ai-chat-options-${useStableId()}`;
-  const [isOpen, setIsOpen] = useState(false);
   const [uncontrolledId, setUncontrolledId] = useState(defaultSelectedId);
   const selectedId = selectedIdProp === undefined ? uncontrolledId : selectedIdProp;
   const selected = options.find((option) => option.id === selectedId);
-  const rootRef = useRef<HTMLDivElement>(null);
-  const buttonRef = useRef<HTMLButtonElement>(null);
-
-  useEffect(() => {
-    if (!isOpen) return;
-    const onPointerDown = (event: PointerEvent) => {
-      if (!rootRef.current?.contains(event.target as Node)) setIsOpen(false);
-    };
-    document.addEventListener('pointerdown', onPointerDown);
-    return () => document.removeEventListener('pointerdown', onPointerDown);
-  }, [isOpen]);
 
   const select = (option: AIChatOption | null) => {
     setUncontrolledId(option?.id ?? null);
@@ -205,36 +173,22 @@ export const ChatOptions = ({
   };
 
   return (
-    <div className={clsx('str-chat__ai-chat-options', className)} ref={rootRef}>
-      <button
-        aria-controls={isOpen ? listId : undefined}
-        aria-expanded={isOpen}
-        aria-haspopup='menu'
-        aria-label={t('aria/Chat options')}
-        className='str-chat__ai-message-composer__round-button'
-        disabled={disabled}
-        onClick={() => setIsOpen((open) => !open)}
-        ref={buttonRef}
-        type='button'
-      >
-        {icon ?? <IconPlus />}
-      </button>
-      {isOpen && (
-        <ChatOptionsList
-          id={listId}
-          onDismiss={() => {
-            setIsOpen(false);
-            buttonRef.current?.focus();
-          }}
-          onSelect={(option) => {
-            setIsOpen(false);
-            select(option.id === selectedId ? null : option);
-            buttonRef.current?.focus();
-          }}
-          options={options}
-          selectedId={selectedId}
-        />
-      )}
+    <div className={clsx('str-chat__ai-chat-options', className)}>
+      <ChatOptionsTriggerContext.Provider value={{ disabled, icon }}>
+        <Dropdown
+          className='str-chat__ai-chat-options__list'
+          placement='top-start'
+          TriggerComponent={ChatOptionsTrigger}
+        >
+          <div aria-label={t('aria/Chat options')} role='group'>
+            <ChatOptionsList
+              onSelect={(option) => select(option.id === selectedId ? null : option)}
+              options={options}
+              selectedId={selectedId}
+            />
+          </div>
+        </Dropdown>
+      </ChatOptionsTriggerContext.Provider>
       {selected && (
         <SelectedChatOptionChip
           disabled={disabled}

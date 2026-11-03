@@ -153,6 +153,22 @@ describe('AIConversation', () => {
     expect(screen.queryByRole('toolbar')).not.toBeInTheDocument();
   });
 
+  it('shows a new rating when the messages stay the same', () => {
+    const messages = [user('u1', 'One'), reply('a1', 'Done.')];
+    const rated = (rating: 'positive' | null) => (
+      <AIConversation
+        messages={messages}
+        replyActions={() => ({ onRate: vi.fn(), rating })}
+      />
+    );
+    const { rerender } = renderWithEnglish(rated(null));
+    rerender(rated('positive'));
+    expect(screen.getByRole('button', { name: 'Good response' })).toHaveAttribute(
+      'aria-pressed',
+      'true',
+    );
+  });
+
   it('renders messages through the slots', () => {
     const UserMessage = ({ text }: AIConversationUserMessageProps) => <p>user:{text}</p>;
     const AssistantMessage = ({ message, text }: AIConversationAssistantMessageProps) => (
@@ -224,17 +240,28 @@ describe('AIConversation', () => {
 
   describe('loading older messages', () => {
     let trigger: (isIntersecting: boolean) => void;
+    // Whether the spinner is in view, which a real observer reports when it starts watching.
+    let inView = false;
 
     beforeEach(() => {
       vi.useFakeTimers();
+      inView = false;
       vi.stubGlobal(
         'IntersectionObserver',
         class {
+          private callback: (entries: { isIntersecting: boolean }[]) => void;
           constructor(callback: (entries: { isIntersecting: boolean }[]) => void) {
-            trigger = (isIntersecting) => callback([{ isIntersecting }]);
+            this.callback = callback;
+            trigger = (isIntersecting) => {
+              inView = isIntersecting;
+              callback([{ isIntersecting }]);
+            };
           }
           disconnect() {}
-          observe() {}
+          observe() {
+            if (inView) this.callback([{ isIntersecting: true }]);
+          }
+          unobserve() {}
         },
       );
     });
@@ -269,6 +296,29 @@ describe('AIConversation', () => {
         />,
       );
       expect(screen.queryByRole('progressbar')).not.toBeInTheDocument();
+    });
+
+    it('asks again after a load that failed, while the spinner stays in view', async () => {
+      const loadOlderMessages = vi
+        .fn<() => Promise<void>>()
+        .mockRejectedValueOnce(new Error('offline'))
+        .mockResolvedValue(undefined);
+      renderWithEnglish(
+        <AIConversation
+          loadOlderMessages={loadOlderMessages}
+          messages={[user('u1', 'Hi'), reply('a1', 'Hello')]}
+        />,
+      );
+      act(() => trigger(true));
+      await act(async () => {
+        await vi.advanceTimersByTimeAsync(300);
+      });
+      expect(loadOlderMessages).toHaveBeenCalledTimes(1);
+
+      await act(async () => {
+        await vi.advanceTimersByTimeAsync(3000 + 300);
+      });
+      expect(loadOlderMessages).toHaveBeenCalledTimes(2);
     });
   });
 });

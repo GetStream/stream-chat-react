@@ -326,16 +326,14 @@
   gap: 0.5rem;
 
   // the composer's own round button styles apply inside its form; outside it, the same look
-  > .str-chat__ai-message-composer__round-button {
+  .str-chat__dropdown > .str-chat__ai-message-composer__round-button {
     @include ai-icon-button(2rem);
 
     @include ai-icon(1.5rem);
   }
 
-  &__list {
-    position: absolute;
-    bottom: calc(100% + 0.5rem);
-    inset-inline-start: 0;
+  // placed by the SDK's Dropdown; scoped past its own `.str-chat__dropdown__items` rules
+  .str-chat__dropdown &__list {
     z-index: 1;
     display: flex;
     flex-direction: column;
