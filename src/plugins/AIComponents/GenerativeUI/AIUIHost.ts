@@ -84,6 +84,11 @@ export class AIUIHost {
     }
   }
 
+  /** The names of the app's tools a reply's UI can run with `runTool`. */
+  get toolNames() {
+    return [...this.tools.keys()];
+  }
+
   /** The app's component the agent places by `name`. */
   component(name: string) {
     return this.components.find((component) => component.definition.name === name);

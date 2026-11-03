@@ -52,6 +52,12 @@
       "require": "./dist/cjs/a2ui-require.js",
       "default": "./dist/es/a2ui.mjs"
     },
+    "./openui": {
+      "types": "./dist/types/plugins/OpenUI/index.d.ts",
+      "import": "./dist/es/openui.mjs",
+      "require": "./dist/cjs/openui.js",
+      "default": "./dist/es/openui.mjs"
+    },
     "./dist/css/*": {
       "default": "./dist/css/*"
     },
@@ -72,6 +78,12 @@
       ],
       "ai-components": [
         "./dist/types/plugins/AIComponents/index.d.ts"
+      ],
+      "a2ui": [
+        "./dist/types/plugins/A2UI/index.d.ts"
+      ],
+      "openui": [
+        "./dist/types/plugins/OpenUI/index.d.ts"
       ]
     }
   },
@@ -132,11 +144,15 @@
     "@a2ui/web_core": "0.15.0",
     "@breezystack/lamejs": "^1.2.7",
     "@emoji-mart/data": "^1.1.0",
+    "@openuidev/react-headless": "0.18.1",
+    "@openuidev/react-lang": "1.0.2",
+    "@openuidev/react-ui": "0.18.1",
     "emoji-mart": "^5.4.0",
     "modern-normalize": "^3.0.1",
     "react": "^19.0.0 || ^18.0.0 || ^17.0.0",
     "react-dom": "^19.0.0 || ^18.0.0 || ^17.0.0",
-    "stream-chat": "^9.54.0"
+    "stream-chat": "^9.54.0",
+    "zustand": "^4.5.5"
   },
   "peerDependenciesMeta": {
     "@a2ui/react": {
@@ -151,10 +167,22 @@
     "@emoji-mart/data": {
       "optional": true
     },
+    "@openuidev/react-headless": {
+      "optional": true
+    },
+    "@openuidev/react-lang": {
+      "optional": true
+    },
+    "@openuidev/react-ui": {
+      "optional": true
+    },
     "emoji-mart": {
       "optional": true
     },
     "modern-normalize": {
+      "optional": true
+    },
+    "zustand": {
       "optional": true
     }
   },
@@ -171,6 +199,9 @@
     "@commitlint/config-conventional": "^21.0.1",
     "@emoji-mart/data": "^1.2.1",
     "@eslint/js": "^9.39.4",
+    "@openuidev/react-headless": "0.18.1",
+    "@openuidev/react-lang": "1.0.2",
+    "@openuidev/react-ui": "0.18.1",
     "@semantic-release/changelog": "^6.0.3",
     "@semantic-release/git": "^10.0.1",
     "@semantic-release/github": "^12.0.8",
@@ -215,7 +246,8 @@
     "typescript-eslint": "^8.59.4",
     "vite": "^8.1.3",
     "vitest": "^4.1.9",
-    "vitest-axe": "^0.1.0"
+    "vitest-axe": "^0.1.0",
+    "zustand": "4.5.7"
   },
   "scripts": {
     "clean": "rm -rf dist",

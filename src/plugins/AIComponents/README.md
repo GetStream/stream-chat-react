@@ -187,6 +187,39 @@ const ui = new AIUIHost({
 - Its Modal is a native dialog, which keeps focus in it while open, closes on Escape or its backdrop, gives focus back to what opened it, and shows above the reply's layout. A trigger other than a Button opens it from the keyboard too.
 - The A2UI packages load in the browser the first time a reply shows A2UI, so server rendering shows a placeholder and an app whose agent never writes A2UI never loads them. The entry is ESM only, and `require` of it throws saying so; it needs React 18 or later.
 
+### OpenUI
+
+`stream-chat-react/openui` is the renderer of [OpenUI](https://openui.com), the counterpart of StreamChatOpenUI. It is built on the official OpenUI packages, which the app installs: they are optional peers of this package, pinned to the versions it is tested with. Their styles are the app's to import, and `ai-components.css` themes them.
+
+```bash
+npm install @openuidev/react-lang@1.0.2 @openuidev/react-ui@0.18.1 @openuidev/react-headless@0.18.1 zustand@^4.5.5
+```
+
+```tsx
+import '@openuidev/react-ui/components.css';
+import { createOpenUIRenderer, openUIInstructions } from 'stream-chat-react/openui';
+
+const ui = new AIUIHost({
+  components: [placeCard, tripMap],
+  renderers: [createOpenUIRenderer({ onError: (error, messageId) => report(error) })],
+  send,
+});
+
+// What the agent's backend adds to its instructions, so its model writes OpenUI with them.
+const instructions = await openUIInstructions([placeCard, tripMap]);
+```
+
+- A reply's `content` is an OpenUI Lang program, which shows as the agent writes it, as OpenUI's own renderer shows it. A finished reply with no program shows its text.
+- The agent writes with OpenUI's chat library (`openuiChatLibrary`), or with the `library` the renderer is given. The app's components join it under their OpenUI name (`place_card` is `PlaceCard`), wherever the library's own content goes, such as a Card's children or a TabItem's content, as on iOS. One whose name the library already has is left out. A parameter takes the value its schema describes, and the component gets it once it fits, dates as dates.
+- What the person does goes to `host.send` as an `AIUIAction`, as on iOS: a button or follow-up is `continue_conversation`, with its words as the label and `{ context, params, form, values }` as its payload, where `values` are the values of the form it belongs to, without a field OpenUI marks secret; an app component's event has its own label and payload, plus `component`. `@OpenUrl` and the links of its Markdown open through `host.open`. A program's `Query()` and `Mutation()` run the host's client tools, or the renderer's `toolProvider`.
+- What the person chose in a reply's forms is kept by the host, so it survives scrolling.
+- What is wrong with a finished reply's program, such as a component the library lacks, goes to `onError` with OpenUI's error code, once, and the rest of the reply still shows. While the agent writes it, what a program lacks is still coming, so nothing is reported.
+- `.str-chat__openui` sets OpenUI's `--openui-*` variables from the AI components' tokens, so its components follow Stream's light and dark themes. The rest, such as its chart palette, stays OpenUI's own.
+- `createOpenUIRenderer().capabilities` tells the agent's backend the fence, `openui-lang`. `openUIInstructions(components)` writes the instructions with OpenUI's own prompt generator; it loads the OpenUI packages, so call it where that is fine, such as once at build time.
+- `@openuidev/react-lang` mounts OpenUI's inspector on the page in development, with offers of OpenUI's own; the renderer keeps it off unless `devtools: true`.
+- The OpenUI packages load the first time a reply shows OpenUI, so server rendering shows a placeholder and an app whose agent never writes OpenUI never loads them. It needs React 18.3 or later.
+- `@openuidev/lang-core`'s install script reports the install to OpenUI's analytics, anonymously, unless `OPENUI_TELEMETRY_DISABLED=1` or `DO_NOT_TRACK=1` is set. It sends nothing from a browser; on a server, only with `OPENUI_RUNTIME_TELEMETRY_ENABLED=1`.
+
 ### Steps, questions and sign-ins
 
 - `AIMessageParts` / `AIMessagePart`: a reply's steps, each as `AIReasoning`, `AIToolCall` (with `AIToolApproval` and `AIToolAuthorization` under it), or a neutral line for a step this SDK can't show.

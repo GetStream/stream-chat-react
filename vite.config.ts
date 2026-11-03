@@ -26,6 +26,7 @@ export default defineConfig({
         a2ui: resolve(__dirname, './src/plugins/A2UI/index.ts'),
         // What `require` reaches: the renderer is an ES module only, and says so.
         'a2ui-require': resolve(__dirname, './src/plugins/A2UI/esmOnly.ts'),
+        openui: resolve(__dirname, './src/plugins/OpenUI/index.ts'),
       },
     },
     // `yarn build` already wipes dist up front via `yarn clean`

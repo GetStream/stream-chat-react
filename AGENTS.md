@@ -327,6 +327,7 @@ Mock modules with `vi.mock('../../EmptyStateIndicator', () => ({ … }))`; use `
 | `stream-chat-react/emojis`         | `src/plugins/Emojis/`         |
 | `stream-chat-react/ai-components`  | `src/plugins/AIComponents/`   |
 | `stream-chat-react/a2ui`           | `src/plugins/A2UI/`           |
+| `stream-chat-react/openui`         | `src/plugins/OpenUI/`         |
 | `stream-chat-react/mp3-encoder`    | `src/plugins/encoders/mp3.ts` |
 | `stream-chat-react/css/*`          | `dist/css/*`                  |
 
