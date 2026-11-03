@@ -197,6 +197,28 @@ describe('AIConversation with generated UI', () => {
     expect(stageOf('Being written')).toHaveAttribute('data-entrance', 'shown');
   });
 
+  it('shows a UI being written even where no frame is painted', async () => {
+    const frames = vi.spyOn(window, 'requestAnimationFrame').mockImplementation(() => 0);
+    renderWithEnglish(
+      <AIConversation
+        messages={[
+          user('u1', 'Plan'),
+          reply('a1', '', {
+            content: 'In the background',
+            format: 'a2ui',
+            status: 'streaming',
+          }),
+        ]}
+        ui={makeHost()}
+      />,
+    );
+    const stage = screen.getByText('In the background').closest('.str-chat__ai-ui');
+    expect(stage).toHaveAttribute('data-entrance', 'hidden');
+    await flushFrames();
+    expect(stage).toHaveAttribute('data-entrance', 'shown');
+    frames.mockRestore();
+  });
+
   it('hands the replies’ documents to the host as they change', () => {
     const ui = makeHost();
     const receive = vi.spyOn(ui, 'receive');

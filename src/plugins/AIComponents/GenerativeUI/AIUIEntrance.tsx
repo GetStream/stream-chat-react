@@ -38,13 +38,26 @@ type AIUIStage = {
 
 const AIUIStageContext = createContext<AIUIStage | undefined>(undefined);
 
+// How long a part waits for a frame before it shows anyway, in milliseconds.
+const LONGEST_FRAME_WAIT = 50;
+
+// Calls back on the next frame, or a moment later where no frame comes: a page painting no
+// frames, such as one in the background or in some web views, still shows its UI.
 const nextFrame = (callback: () => void) => {
-  if (typeof requestAnimationFrame === 'function') {
-    const frame = requestAnimationFrame(callback);
-    return () => cancelAnimationFrame(frame);
-  }
-  const timer = setTimeout(callback, 0);
-  return () => clearTimeout(timer);
+  let done = false;
+  const run = () => {
+    if (done) return;
+    done = true;
+    callback();
+  };
+  const frame =
+    typeof requestAnimationFrame === 'function' ? requestAnimationFrame(run) : undefined;
+  const timer = setTimeout(run, LONGEST_FRAME_WAIT);
+  return () => {
+    done = true;
+    if (frame !== undefined) cancelAnimationFrame(frame);
+    clearTimeout(timer);
+  };
 };
 
 // Shows its content, fading it in after the cascade's delay when it starts hidden.
