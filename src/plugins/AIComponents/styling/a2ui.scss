@@ -1,0 +1,75 @@
+@use './tokens' as *;
+
+// A reply's A2UI: its surfaces, in Stream's look. The A2UI basic catalog reads `--a2ui-*`
+// variables, which it defines for the whole page with no specificity, so setting them here
+// themes every surface of a reply, and follows Stream's light and dark themes. The variants it
+// works out from the colours are worked out here again, from these colours.
+
+.str-chat__a2ui {
+  --a2ui-color-background: #{ai-token(bg-primary)};
+  --a2ui-color-on-background: #{ai-token(text-primary)};
+  --a2ui-color-surface: #{ai-token(card-bg)};
+  --a2ui-color-on-surface: #{ai-token(text-primary)};
+  --a2ui-color-primary: #{ai-token(button-primary-bg)};
+  --a2ui-color-on-primary: #{ai-token(button-primary-text)};
+  --a2ui-color-primary-light: color-mix(
+    in oklab,
+    var(--a2ui-color-primary) 20%,
+    var(--a2ui-color-background)
+  );
+  --a2ui-color-primary-dark: color-mix(
+    in oklab,
+    var(--a2ui-color-primary) 82%,
+    var(--a2ui-color-on-background)
+  );
+  --a2ui-color-primary-hover: var(--a2ui-color-primary-dark);
+  --a2ui-color-secondary: #{ai-token(button-secondary-bg)};
+  --a2ui-color-on-secondary: #{ai-token(button-secondary-text)};
+  --a2ui-color-secondary-light: color-mix(
+    in oklab,
+    var(--a2ui-color-secondary) 60%,
+    var(--a2ui-color-background)
+  );
+  --a2ui-color-secondary-dark: color-mix(
+    in oklab,
+    var(--a2ui-color-secondary) 90%,
+    var(--a2ui-color-on-background)
+  );
+  --a2ui-color-secondary-hover: #{ai-token(surface-hover)};
+  --a2ui-color-border: #{ai-token(border)};
+  --a2ui-border: var(--a2ui-border-width, 1px) solid var(--a2ui-color-border);
+  --a2ui-border-radius: 0.75rem;
+  --a2ui-color-input: #{ai-token(bg-primary)};
+  --a2ui-color-on-input: #{ai-token(text-primary)};
+  --a2ui-font-family-title: inherit;
+  --a2ui-font-size: 0.9375rem;
+
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  width: 100%;
+  min-width: 0;
+  color: ai-token(text-primary);
+  color-scheme: light;
+
+  &__surface {
+    min-width: 0;
+  }
+
+  &__placeholder {
+    height: 4rem;
+    border-radius: 0.75rem;
+    background-color: ai-token(bg-secondary);
+    animation: str-chat__ai-shimmer 1.6s ease-in-out infinite;
+  }
+}
+
+.str-chat__theme-dark .str-chat__a2ui {
+  color-scheme: dark;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .str-chat__a2ui__placeholder {
+    animation: none;
+  }
+}

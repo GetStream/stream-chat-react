@@ -159,6 +159,32 @@ const ui = useMemo(
 - The app's components are described once, in portable JSON shared with the iOS and Android apps (`parseAIUIComponentDefinition`: `name`, `description`, `parameters` as a JSON Schema object with `x-order`, `events`). `defineAIUIComponent(definition, Component)` gives the view `args` (camelCase keys, dates as `Date`s, once they fit the parameters) and `context.emit(event, label, payload)`. `host.capabilities` describes the formats and components to the agent's backend.
 - `AIUIView` shows one reply's UI outside `AIConversation`; call `host.receive(messages)` as the messages change.
 
+### A2UI
+
+`stream-chat-react/a2ui` is the renderer of [A2UI](https://a2ui.org) 1.0, the counterpart of StreamChatA2UI. It is built on the official A2UI packages, which the app installs: they are optional peers of this package, pinned to the version it is tested with.
+
+```bash
+npm install @a2ui/web_core@0.15.0 @a2ui/react@0.15.0
+```
+
+```tsx
+import { createA2UIRenderer } from 'stream-chat-react/a2ui';
+
+const ui = new AIUIHost({
+  components: [placeCard, tripMap],
+  renderers: [createA2UIRenderer({ onError: (error, messageId) => report(error) })],
+  send,
+});
+```
+
+- A reply's `content` is A2UI messages, one JSON object per line as the agents router passes them on (a JSON array, or JSON rather than text, reads the same). Each message shows as it completes, while the agent writes it. Messages the agent rewrites, rather than adds to, start the reply's surfaces again.
+- Each reply's surfaces are its own, kept for as long as the host is, so what the person entered survives scrolling. A finished reply whose A2UI made no surface shows its text.
+- The app's components join the catalog under their A2UI type (`place_card` is `PlaceCard`), in the catalog `getstream.io:app-catalog` (`catalogId` to name another) and in the basic catalog, as on iOS, so the same instructions serve both apps. A parameter takes the value its schema describes, or a binding (`@path`) or function (`@call`), which the component gets worked out.
+- What the person does goes to `host.send` as an `AIUIAction`: an A2UI event with its `userMessage` as the label (else what its button says, else its name) and `{ surfaceId, sourceComponentId, context }` as its payload; an app component's event with its own label and payload, plus `component`. `openUrl` opens through `host.open`, from a tap only. Text renders with `AIMarkdown`.
+- What goes wrong, such as a message that is not JSON or a component the catalog lacks, goes to `onError` with the A2UI error code, and the rest of the reply still shows. A batch of components that one bad component spoils shows the others.
+- The basic catalog draws with A2UI's own elements, themed with the AI components' tokens in `ai-components.css` (`.str-chat__a2ui` sets the `--a2ui-*` variables); its `Icon` uses the Material Symbols font, which the app loads.
+- The A2UI packages load in the browser the first time a reply shows A2UI, so server rendering shows a placeholder and an app whose agent never writes A2UI never loads them. The entry is ESM only and needs React 18 or later.
+
 ### Steps, questions and sign-ins
 
 - `AIMessageParts` / `AIMessagePart`: a reply's steps, each as `AIReasoning`, `AIToolCall` (with `AIToolApproval` and `AIToolAuthorization` under it), or a neutral line for a step this SDK can't show.

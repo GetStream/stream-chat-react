@@ -23,6 +23,7 @@ export default defineConfig({
         emojis: resolve(__dirname, './src/plugins/Emojis/index.ts'),
         'mp3-encoder': resolve(__dirname, './src/plugins/encoders/mp3.ts'),
         'ai-components': resolve(__dirname, './src/plugins/AIComponents/index.ts'),
+        a2ui: resolve(__dirname, './src/plugins/A2UI/index.ts'),
       },
     },
     // `yarn build` already wipes dist up front via `yarn clean`

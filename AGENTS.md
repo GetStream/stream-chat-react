@@ -314,7 +314,7 @@ Mock modules with `vi.mock('../../EmptyStateIndicator', () => ({ … }))`; use `
 `yarn build` = `yarn clean` + 4 steps in parallel via `concurrently`, each writing to a separate `dist/` subdirectory:
 
 1. **`build-translations`** — `i18next-cli extract` pulls `t()` calls from source into `src/i18n/*.json`
-2. **`vite build`** — bundles 5 entry points as ESM (`dist/es/*.mjs`) + CJS (`dist/cjs/*.js`)
+2. **`vite build`** — bundles 6 entry points as ESM (`dist/es/*.mjs`) + CJS (`dist/cjs/*.js`)
 3. **`tsc -p tsconfig.lib.json`** — `.d.ts` only → `dist/types/`
 4. **`build-styling`** — Sass → `dist/css/index.css`, `emoji-replacement.css`, `emoji-picker.css`, `channel-detail.css`, `ai-components.css`, plus `cp -r src/styling/assets dist/css/assets`
 
@@ -326,6 +326,7 @@ Mock modules with `vi.mock('../../EmptyStateIndicator', () => ({ … }))`; use `
 | `stream-chat-react/channel-detail` | `src/plugins/ChannelDetail/`  |
 | `stream-chat-react/emojis`         | `src/plugins/Emojis/`         |
 | `stream-chat-react/ai-components`  | `src/plugins/AIComponents/`   |
+| `stream-chat-react/a2ui`           | `src/plugins/A2UI/`           |
 | `stream-chat-react/mp3-encoder`    | `src/plugins/encoders/mp3.ts` |
 | `stream-chat-react/css/*`          | `dist/css/*`                  |
 

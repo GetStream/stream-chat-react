@@ -46,6 +46,11 @@
       "require": "./dist/cjs/ai-components.js",
       "default": "./dist/cjs/ai-components.js"
     },
+    "./a2ui": {
+      "types": "./dist/types/plugins/A2UI/index.d.ts",
+      "import": "./dist/es/a2ui.mjs",
+      "default": "./dist/es/a2ui.mjs"
+    },
     "./dist/css/*": {
       "default": "./dist/css/*"
     },
@@ -122,6 +127,8 @@
     "@stream-io/transliterate": "^1.5.5"
   },
   "peerDependencies": {
+    "@a2ui/react": "0.15.0",
+    "@a2ui/web_core": "0.15.0",
     "@breezystack/lamejs": "^1.2.7",
     "@emoji-mart/data": "^1.1.0",
     "emoji-mart": "^5.4.0",
@@ -131,6 +138,12 @@
     "stream-chat": "^9.54.0"
   },
   "peerDependenciesMeta": {
+    "@a2ui/react": {
+      "optional": true
+    },
+    "@a2ui/web_core": {
+      "optional": true
+    },
     "@breezystack/lamejs": {
       "optional": true
     },
@@ -150,6 +163,8 @@
     "README.md"
   ],
   "devDependencies": {
+    "@a2ui/react": "0.15.0",
+    "@a2ui/web_core": "0.15.0",
     "@breezystack/lamejs": "^1.2.7",
     "@commitlint/cli": "^21.0.1",
     "@commitlint/config-conventional": "^21.0.1",
