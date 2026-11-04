@@ -27,13 +27,11 @@ async function renderMessagePermissionsHook({
   channelProps = {},
   channelStateContextValue = {},
   clientContextValue = {},
-  disableQuotedMessages = undefined as boolean | undefined,
   message = generateMessage(),
 }: {
   channelProps?: { state?: { membership?: Partial<ChannelState['membership']> } };
   channelStateContextValue?: { channelCapabilities?: Record<string, boolean> };
   clientContextValue?: { client?: StreamChat };
-  disableQuotedMessages?: boolean;
   message?: LocalMessage;
 } = {}) {
   const client = clientContextValue.client ?? (await getTestClientWithUser(alice));
@@ -53,12 +51,7 @@ async function renderMessagePermissionsHook({
     </ChatProvider>
   );
 
-  const { result } = renderHook(
-    () => useMessagePermissions(message, disableQuotedMessages),
-    {
-      wrapper,
-    },
-  );
+  const { result } = renderHook(() => useMessagePermissions(message), { wrapper });
   return result.current;
 }
 
@@ -243,24 +236,18 @@ describe('useMessagePermissions', () => {
     );
 
     it.each([
-      [true, true, false],
-      [true, false, false],
-      [false, true, true],
-      [false, false, false],
-    ])(
-      'determine quote message permission',
-      async (disableQuotedMessages, quoteMessagePerm, expected) => {
-        const { canQuote } = await renderMessagePermissionsHook({
-          channelStateContextValue: {
-            channelCapabilities: {
-              'quote-message': quoteMessagePerm,
-            },
+      [true, true],
+      [false, false],
+    ])('determine quote message permission', async (quoteMessagePerm, expected) => {
+      const { canQuote } = await renderMessagePermissionsHook({
+        channelStateContextValue: {
+          channelCapabilities: {
+            'quote-message': quoteMessagePerm,
           },
-          disableQuotedMessages,
-        });
-        expect(canQuote).toBe(expected);
-      },
-    );
+        },
+      });
+      expect(canQuote).toBe(expected);
+    });
 
     it.each([
       [true, true],

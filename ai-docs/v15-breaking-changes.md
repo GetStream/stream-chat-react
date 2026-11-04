@@ -63,7 +63,7 @@ yarn api-surface check --doc ai-docs/v15-breaking-changes.md --diff diff.json
 
 ## Index
 
-88 entries.
+89 entries.
 
 | ID                | Title                                                                                                                                                                                                                         | Group                                                |
 | ----------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------- |
@@ -155,6 +155,7 @@ yarn api-surface check --doc ai-docs/v15-breaking-changes.md --diff diff.json
 | [BC-086](#bc-086) | `useUserRole` was renamed to `useMessagePermissions`                                                                                                                                                                          | Messages and message lists                           |
 | [BC-087](#bc-087) | `MessageContextValue.onMentionsClickMessage` / `onMentionsHoverMessage` and `useMentionsHandler`'s handlers are `undefined` without a handler                                                                                 | Messages and message lists                           |
 | [BC-088](#bc-088) | `mentionsMarkdownPlugin` and `createMentionPluginAndDisplayTextSet` take mention entities only                                                                                                                                | Messages and message lists                           |
+| [BC-089](#bc-089) | `disableQuotedMessages` is removed from `MessageProps`, `MessageListProps` and `useMessagePermissions`                                                                                                                        | Messages and message lists                           |
 
 ## Package and runtime
 
@@ -2494,7 +2495,7 @@ export const Stop = ({ channel }: { channel: Channel }) => {
 - Replacement: `useMessagePermissions(message).canPin` (newly returned; the hook was `useUserRole`, see BC-086). `usePinHandler(message, notifications?)` now returns `{ handlePin }`.
 - Evidence:
   - `release-v14:src/components/Message/hooks/usePinHandler.ts:8`, `:54` `return { canPin, handlePin }`
-  - `master:src/components/Message/hooks/usePinHandler.ts:16`, `:115` `return { handlePin }`; `master:src/components/Message/hooks/useMessagePermissions.ts:24` `canPin = channelCapabilities.has('pin-message')`, `:34-47`
+  - `master:src/components/Message/hooks/usePinHandler.ts:16`, `:115` `return { handlePin }`; `master:src/components/Message/hooks/useMessagePermissions.ts:21` `canPin = channelCapabilities.has('pin-message')`, `:31-44`
   - commit: `99cbe6704` (PR #3237)
 - Docs impact:
   - `02-ui-components/08-message/04-message_hooks.md` (`usePinHandler`, `useMessagePermissions`)
@@ -2764,7 +2765,7 @@ const getMentionedUserId = (event: React.BaseSyntheticEvent, message: LocalMessa
 - Replacement: gate on what the user may do, not on their role. `useMessagePermissions(message)` (renamed from `useUserRole`, see BC-086) returns permission flags built from the channel's capabilities (`canDelete`, `canEdit`, `canFlag`, `canMarkUnread`, `canMute`, `canPin`, `canQuote`, `canReact`, `canReply`, `canSendMessage`, `canBlockUser`, `isMyMessage`); for any other capability read `useChannelCapabilities({ cid: channel.cid })` (a `Set` of capability names). Where a role really is needed, read `client.user?.role` or `channel.state.membership` directly.
 - Evidence:
   - `release-v14:src/components/Message/hooks/useUserRole.ts:9-31`, `:65-68`
-  - `master:src/components/Message/hooks/useMessagePermissions.ts:34-47` (returns `can*` flags and `isMyMessage` only)
+  - `master:src/components/Message/hooks/useMessagePermissions.ts:31-44` (returns `can*` flags and `isMyMessage` only)
   - commit: REACT-1467 (PR #3387); tracked as REACT-83
 - Docs impact:
   - `02-ui-components/08-message/04-message_hooks.md` (`useMessagePermissions`)
@@ -2807,10 +2808,10 @@ After (v15):
 - User impact: compile error on importing `useUserRole`. In untyped code the import is `undefined`, so calling it throws `TypeError: useUserRole is not a function`.
 - Old API:
   - `useUserRole(message: LocalMessage, disableQuotedMessages?: boolean)`
-- Replacement: `useMessagePermissions(message: LocalMessage, disableQuotedMessages?: boolean)`, with the same arguments. It returns what the current user may do with that message, built from the channel's capabilities and the message's author: `canBlockUser`, `canDelete`, `canEdit`, `canFlag`, `canMarkUnread`, `canMute`, `canPin`, `canQuote`, `canReact`, `canReply`, `canSendMessage` and `isMyMessage`. It returns no role flags (BC-084).
+- Replacement: `useMessagePermissions(message: LocalMessage)`; the `disableQuotedMessages` argument is removed (BC-089). It returns what the current user may do with that message, built from the channel's capabilities and the message's author: `canBlockUser`, `canDelete`, `canEdit`, `canFlag`, `canMarkUnread`, `canMute`, `canPin`, `canQuote`, `canReact`, `canReply`, `canSendMessage` and `isMyMessage`. It returns no role flags (BC-084).
 - Evidence:
   - `release-v14:src/components/Message/hooks/useUserRole.ts:5`; `release-v14:src/components/Message/hooks/index.ts:12` `export * from './useUserRole'`
-  - `master:src/components/Message/hooks/useMessagePermissions.ts:5`, `:34-47`; `master:src/components/Message/hooks/index.ts:13` `export * from './useMessagePermissions'`
+  - `master:src/components/Message/hooks/useMessagePermissions.ts:5`, `:31-44`; `master:src/components/Message/hooks/index.ts:13` `export * from './useMessagePermissions'`
   - commit: REACT-1467 (PR #3387)
 - Docs impact:
   - `02-ui-components/08-message/04-message_hooks.md` (the `useUserRole` section, renamed to `useMessagePermissions`)
@@ -2903,6 +2904,55 @@ renderText(message.text, {
     ...plugins,
   ],
 });
+```
+
+### BC-089: `disableQuotedMessages` is removed from `MessageProps`, `MessageListProps` and `useMessagePermissions`
+
+- Status: confirmed
+- Area: message / message list
+- User impact: compile error on passing `disableQuotedMessages` to `MessageList` or `Message`, or a second argument to `useMessagePermissions`. In untyped code both are ignored. Nothing changes on screen: v14's default `MessageActions` already ignored the flag, because `useBaseMessageActionSetFilter` called `useUserRole(message)` without it, so the Quote action showed whether or not the flag was set. Only `MessageContext.getMessageActions()` honoured it, and no SDK component called that.
+- Old API:
+  - `MessageProps.disableQuotedMessages?: boolean`, also picked into `MessageListProps`
+  - `useUserRole(message, disableQuotedMessages?)`: `canQuote` was `false` when the flag was set
+- Replacement: hide the Quote action with a `messageActionSet` that leaves out the `quote` item (or gives it an `isVisible` rule), installed through the `MessageActions` slot (BC-041). `useMessagePermissions(message).canQuote` is the `quote-message` capability alone.
+- Evidence:
+  - `release-v14:src/components/Message/types.ts:27`; `release-v14:src/components/MessageList/MessageList.tsx:231`, `:497`; `release-v14:src/components/Message/Message.tsx:213`; `release-v14:src/components/Message/hooks/useUserRole.ts:5`, `:49`; `release-v14:src/components/MessageActions/hooks/useBaseMessageActionSetFilter.ts:46` `useUserRole(message)`
+  - `master:src/components/Message/hooks/useMessagePermissions.ts:5`, `:26`
+  - commit: REACT-1467 (PR #3387)
+- Docs impact:
+  - `02-ui-components/07-message-list/01-message_list.md`, `02-ui-components/08-message/01-message.md` (`disableQuotedMessages`), `02-ui-components/08-message/04-message_hooks.md` (`useMessagePermissions`)
+- Example needed: yes
+
+Before (v14):
+
+```tsx
+<MessageList disableQuotedMessages />
+```
+
+After (v15):
+
+```tsx
+import {
+  defaultMessageActionSet,
+  MessageActions,
+  MessageList,
+  WithComponents,
+} from 'stream-chat-react';
+
+const messageActionSet = defaultMessageActionSet.filter(
+  // the dropdown-toggle item has no `type`; keep it
+  (item) => !('type' in item) || item.type !== 'quote',
+);
+
+const MessageActionsWithoutQuote = () => (
+  <MessageActions messageActionSet={messageActionSet} />
+);
+
+export const List = () => (
+  <WithComponents overrides={{ MessageActions: MessageActionsWithoutQuote }}>
+    <MessageList />
+  </WithComponents>
+);
 ```
 
 ## Message composer
@@ -3953,7 +4003,9 @@ Non-gated items checked and ruled out: `Chat.isMessageAIGenerated`, `SummarizedM
   - `useRetryHandler` -> BC-044
   - `useUserRole.canPin` member-added-required -> ruled-out: additive return field
   - `useUserRole` removed, `useMessagePermissions` added -> BC-086
+  - `Message.disableQuotedMessages`, `MessageProps.disableQuotedMessages`, the `useMessagePermissions` second argument -> BC-089
 - components/MessageList
+  - `MessageList.disableQuotedMessages`, `MessageListProps.disableQuotedMessages`, `SharedMessageProps.disableQuotedMessages` -> BC-089
   - `getIsFirstUnreadMessage` -> BC-054
   - `insertIntro` -> BC-056
   - `MessageList.disableDateSeparator`, `MessageListProps.disableDateSeparator`, `ProcessMessagesParams.enableDateSeparator` -> BC-049

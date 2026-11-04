@@ -117,7 +117,6 @@ const MemoizedMessage = React.memo(
 export const Message = (props: MessageProps) => {
   const {
     closeReactionSelectorOnClick,
-    disableQuotedMessages,
     message,
     onMentionsClick: propOnMentionsClick,
     onMentionsHover: propOnMentionsHover,
@@ -130,7 +129,7 @@ export const Message = (props: MessageProps) => {
 
   const handleAction = useActionHandler(message);
   const handleReaction = useReactionHandler(message);
-  const permissions = useMessagePermissions(message, disableQuotedMessages);
+  const permissions = useMessagePermissions(message);
 
   const handleFetchReactions = useReactionsFetcher(message);
 
@@ -169,7 +168,6 @@ export const Message = (props: MessageProps) => {
       autoscrollToBottom={props.autoscrollToBottom}
       closeReactionSelectorOnClick={closeReactionSelectorOnClick}
       deliveredTo={props.deliveredTo}
-      disableQuotedMessages={props.disableQuotedMessages}
       formatDate={props.formatDate}
       groupStyles={props.groupStyles}
       handleAction={handleAction}
@@ -197,6 +195,7 @@ export const Message = (props: MessageProps) => {
       readBy={props.readBy}
       renderText={props.renderText}
       returnAllReadData={props.returnAllReadData}
+      showAvatar={props.showAvatar}
       sortReactions={sortReactions}
       unsafeHTML={props.unsafeHTML}
     />

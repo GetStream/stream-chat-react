@@ -2,7 +2,7 @@
 
 Execution-only guide for a coding agent migrating a third-party app from `stream-chat-react` v14 to v15. Apply the changes below and fix each compile or runtime break before moving on. For evidence and edge cases, verify against the installed SDK source (see below).
 
-Every breaking change confirmed in [`ai-docs/v15-breaking-changes.md`](https://github.com/GetStream/stream-chat-react/blob/master/ai-docs/v15-breaking-changes.md) (the audit this guide is written from, `BC-001` to `BC-088`) is covered here. The [index at the end](#index-of-breaking-changes) maps each `BC` entry to its section.
+Every breaking change confirmed in [`ai-docs/v15-breaking-changes.md`](https://github.com/GetStream/stream-chat-react/blob/master/ai-docs/v15-breaking-changes.md) (the audit this guide is written from, `BC-001` to `BC-089`) is covered here. The [index at the end](#index-of-breaking-changes) maps each `BC` entry to its section.
 
 ## Source of truth
 
@@ -1268,7 +1268,7 @@ export const CustomItem = ({
 
 **Defaults changed.** A `MessageList` inside a thread now shows date separators unless you pass `withDateSeparator={false}` (v14's `Thread` turned them off). `autoFocus` defaulted to `true`, so every v14 thread focused its composer on open, not only threads that passed the prop; in v15 the composer is focused only if you render `<MessageComposer focus />`.
 
-**The parent message** is rendered by the message list, inside the scroll container; both lists resolve it from the thread context. It gets the list-wide message props the replies get, so `onMentionsClick` or `onUserClick` on `MessageList` works on the parent message too. `MessageList` passes `onMentionsClick`, `onMentionsHover`, `onUserClick`, `onUserHover`, `renderText`, `formatDate`, `unsafeHTML`, `showAvatar`, `disableQuotedMessages`, `reactionDetailsSort`, `sortReactions`, `closeReactionSelectorOnClick` and `additionalMessageComposerProps`; `VirtualizedMessageList` passes the ones it has (`renderText`, `formatDate`, `showAvatar`, `reactionDetailsSort`, `sortReactions`, `closeReactionSelectorOnClick`, `additionalMessageComposerProps`). Only the props you set are passed, so a `ThreadHead` override receives them too, without overwriting its own defaults with `undefined`.
+**The parent message** is rendered by the message list, inside the scroll container; both lists resolve it from the thread context. It gets the list-wide message props the replies get, so `onMentionsClick` or `onUserClick` on `MessageList` works on the parent message too. `MessageList` passes `onMentionsClick`, `onMentionsHover`, `onUserClick`, `onUserHover`, `renderText`, `formatDate`, `unsafeHTML`, `showAvatar`, `reactionDetailsSort`, `sortReactions` and `closeReactionSelectorOnClick`; `VirtualizedMessageList` passes the ones it has (`renderText`, `formatDate`, `showAvatar`, `reactionDetailsSort`, `sortReactions`, `closeReactionSelectorOnClick`). Both lists also pass `additionalMessageComposerProps`, which no message component reads. Only the props you set are passed, so a `ThreadHead` override receives them too, without overwriting its own defaults with `undefined`.
 
 ```tsx
 // v14
@@ -2116,7 +2116,7 @@ export const RetryButton = () => {
 
 ### `useUserRole` is renamed to `useMessagePermissions`
 
-The hook returns what the current user may do with one message, not their role, so it is now `useMessagePermissions`. It takes the same arguments, `(message, disableQuotedMessages?)`, and returns `canBlockUser`, `canDelete`, `canEdit`, `canFlag`, `canMarkUnread`, `canMute`, `canPin`, `canQuote`, `canReact`, `canReply`, `canSendMessage` and `isMyMessage`. Rename the import and the call. In untyped code the old import is `undefined`, so the call throws `TypeError: useUserRole is not a function`.
+The hook returns what the current user may do with one message, not their role, so it is now `useMessagePermissions`. It takes only the message (the `disableQuotedMessages` argument is removed, see [The `disableQuotedMessages` prop is removed](#the-disablequotedmessages-prop-is-removed)) and returns `canBlockUser`, `canDelete`, `canEdit`, `canFlag`, `canMarkUnread`, `canMute`, `canPin`, `canQuote`, `canReact`, `canReply`, `canSendMessage` and `isMyMessage`. Rename the import and the call. In untyped code the old import is `undefined`, so the call throws `TypeError: useUserRole is not a function`.
 
 ```tsx
 // v14
@@ -2145,6 +2145,39 @@ const showModerationTools = isAdmin || isModerator;
 const channel = useChannel();
 const capabilities = useChannelCapabilities({ cid: channel.cid });
 const showModerationTools = capabilities.has('ban-channel-members');
+```
+
+### The `disableQuotedMessages` prop is removed
+
+`MessageList` and `Message` no longer take `disableQuotedMessages`, and `useMessagePermissions` takes only the message; its `canQuote` is the `quote-message` capability alone. Passing either is a compile error; in untyped code both are ignored. Nothing changes on screen: v14's default message actions already ignored the flag and showed Quote whether or not it was set. To hide Quote, leave it out of the action set ([section 10](#messageactions-and-message_actions-are-removed)):
+
+```tsx
+// v14
+<MessageList disableQuotedMessages />
+```
+
+```tsx
+import {
+  defaultMessageActionSet,
+  MessageActions,
+  MessageList,
+  WithComponents,
+} from 'stream-chat-react';
+
+const messageActionSet = defaultMessageActionSet.filter(
+  // the dropdown-toggle item has no `type`; keep it
+  (item) => !('type' in item) || item.type !== 'quote',
+);
+
+const MessageActionsWithoutQuote = () => (
+  <MessageActions messageActionSet={messageActionSet} />
+);
+
+export const List = () => (
+  <WithComponents overrides={{ MessageActions: MessageActionsWithoutQuote }}>
+    <MessageList />
+  </WithComponents>
+);
 ```
 
 ### `renderText` takes `(text, options)`
@@ -3192,3 +3225,4 @@ On narrow screens (`max-width: 767px`) the lists switch to an overlay sized by `
 | BC-086 | `useUserRole` renamed to `useMessagePermissions`                                         | [12](#useuserrole-is-renamed-to-usemessagepermissions)                                                      |
 | BC-087 | Mention handlers in the message context and from `useMentionsHandler` can be `undefined` | [12](#onmentionsclickmessage-and-onmentionshovermessage-are-undefined-without-a-handler)                    |
 | BC-088 | `mentionsMarkdownPlugin` takes mention entities only                                     | [12](#mentionsmarkdownplugin-takes-mention-entities-only)                                                   |
+| BC-089 | `disableQuotedMessages` removed                                                          | [12](#the-disablequotedmessages-prop-is-removed)                                                            |

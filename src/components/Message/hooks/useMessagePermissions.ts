@@ -2,10 +2,7 @@ import { useChannel, useChatContext } from '../../../context';
 import { useChannelCapabilities } from '../../Channel/hooks/useChannelCapabilities';
 import type { LocalMessage } from 'stream-chat';
 
-export const useMessagePermissions = (
-  message: LocalMessage,
-  disableQuotedMessages?: boolean,
-) => {
+export const useMessagePermissions = (message: LocalMessage) => {
   const channel = useChannel();
   const { client } = useChatContext();
   const channelCapabilities = useChannelCapabilities({ cid: channel.cid });
@@ -26,7 +23,7 @@ export const useMessagePermissions = (
   const canMute = !isMyMessage && channelCapabilities.has('mute-channel');
   const canBlockUser = !isMyMessage;
   const canMarkUnread = !isMyMessage && channelCapabilities.has('read-events');
-  const canQuote = !disableQuotedMessages && channelCapabilities.has('quote-message');
+  const canQuote = channelCapabilities.has('quote-message');
   const canReact = channelCapabilities.has('send-reaction');
   const canReply = channelCapabilities.has('send-reply');
   const canSendMessage = channelCapabilities.has('send-message');

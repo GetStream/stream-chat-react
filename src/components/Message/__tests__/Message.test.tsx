@@ -3,6 +3,7 @@ import { cleanup, render } from '@testing-library/react';
 import { fromPartial } from '@total-typescript/shoehorn';
 
 import { Message } from '../Message';
+import { MessageUI } from '../MessageUI';
 
 import { Channel } from '../../Channel';
 import { Chat } from '../../Chat';
@@ -427,6 +428,38 @@ describe('<Message /> component', () => {
 
     expect(context.onMentionsClickMessage).toBeUndefined();
     expect(context.onMentionsHoverMessage).toBeUndefined();
+  });
+
+  it('should provide showAvatar and its later changes in the message context', async () => {
+    const message = generateMessage({ user: alice });
+    let context: MessageContextValue;
+
+    const { rerenderWithProps } = await renderComponent({
+      contextCallback: (ctx) => {
+        context = ctx;
+      },
+      message,
+      props: { showAvatar: 'incoming' },
+    });
+    expect(context.showAvatar).toBe('incoming');
+
+    rerenderWithProps({ showAvatar: false });
+    expect(context.showAvatar).toBe(false);
+  });
+
+  it('should update the default MessageUI avatar class when showAvatar changes', async () => {
+    const message = generateMessage({ user: bob });
+
+    const { container, rerenderWithProps } = await renderComponent({
+      components: { MessageUI },
+      message,
+      props: { showAvatar: 'incoming' },
+    });
+    const messageElement = () => container.querySelector('.str-chat__message');
+    expect(messageElement()).toHaveClass('str-chat__message--with-avatar');
+
+    rerenderWithProps({ showAvatar: false });
+    expect(messageElement()).not.toHaveClass('str-chat__message--with-avatar');
   });
 
   it('should trigger channel onUserClick handler when a user element is clicked', async () => {

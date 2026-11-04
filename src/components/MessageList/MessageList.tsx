@@ -104,7 +104,6 @@ const MessageListWithContext = (props: MessageListWithContextProps) => {
   const messageProps: SharedMessageProps = {
     additionalMessageComposerProps: props.additionalMessageComposerProps,
     closeReactionSelectorOnClick: props.closeReactionSelectorOnClick,
-    disableQuotedMessages: props.disableQuotedMessages,
     formatDate: props.formatDate,
     onMentionsClick: props.onMentionsClick,
     onMentionsHover: props.onMentionsHover,
@@ -418,7 +417,6 @@ const MessageListWithContext = (props: MessageListWithContextProps) => {
 type PropsDrilledToMessage =
   | 'additionalMessageComposerProps'
   | 'closeReactionSelectorOnClick'
-  | 'disableQuotedMessages'
   | 'formatDate'
   | 'onMentionsClick'
   | 'onMentionsHover'
