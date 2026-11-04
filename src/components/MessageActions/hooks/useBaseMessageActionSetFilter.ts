@@ -10,14 +10,10 @@ import {
   isNetworkSendFailure,
 } from '../../Message/utils';
 
-import type { MessageActionSetItem } from '../MessageActions';
-import {
-  isAudioAttachment,
-  isFileAttachment,
-  isImageAttachment,
-  isVideoAttachment,
-  isVoiceRecordingAttachment,
-} from 'stream-chat';
+import type {
+  MessageActionSetItem,
+  MessageActionVisibilityFilterParams,
+} from '../MessageActions';
 import type { ChannelConfig } from 'stream-chat';
 import { useStateStore } from '../../../store';
 
@@ -26,11 +22,13 @@ const userMessageRemindersStateSelector = ({ userMessageReminders }: ChannelConf
 });
 
 /**
- * Filters a message action set by the user's capabilities, whether the message is a thread reply,
- * and the message type and status (including soft-deleted and failed messages).
+ * Filters a message action set by the user's capabilities, the features enabled on the server,
+ * whether the message is a thread reply, and the message type and status (including soft-deleted
+ * and failed messages). An action these allow still shows only while its own `isVisible` holds.
  *
  * @param messageActionSet - Actions to filter.
- * @param disable - Returns `messageActionSet` unfiltered when true. Defaults to false.
+ * @param disable - Skips the checks above when true, leaving only each action's `isVisible`.
+ * Defaults to false.
  * @returns The actions that apply to the message, none for bounced, initial, system, ephemeral,
  * sending or typeless messages.
  */
@@ -52,10 +50,12 @@ export const useBaseMessageActionSetFilter = (
     canFlag,
     canMarkUnread,
     canMute,
+    canPin,
     canQuote,
     canReact,
     canReply,
     canSendMessage,
+    isMyMessage,
   } = useUserRole(message);
   const isMessageThreadReply = typeof message.parent_id === 'string';
   const isBounced = isMessageBounced(message);
@@ -63,7 +63,17 @@ export const useBaseMessageActionSetFilter = (
   const hasNetworkSendFailure = isNetworkSendFailure(message);
 
   return useMemo(() => {
-    if (disable) return messageActionSet;
+    const visibilityFilterParams: MessageActionVisibilityFilterParams = {
+      isMyMessage,
+      isThreadReply: isMessageThreadReply,
+      message,
+    };
+    const passesOwnRule = (action: MessageActionSetItem) =>
+      action.placement === 'quick-dropdown-toggle' ||
+      !action.isVisible ||
+      action.isVisible(visibilityFilterParams);
+
+    if (disable) return messageActionSet.filter(passesOwnRule);
 
     // These messages get no actions.
     if (
@@ -76,7 +86,7 @@ export const useBaseMessageActionSetFilter = (
     )
       return [];
 
-    return messageActionSet.filter((action) => {
+    const allowedActions = messageActionSet.filter((action) => {
       if (action.placement === 'quick-dropdown-toggle') return true;
 
       const type = action.type;
@@ -99,21 +109,12 @@ export const useBaseMessageActionSetFilter = (
       if (
         type === 'resendMessage' ||
         (type === 'blockUser' && !canBlockUser) ||
-        (type === 'copyMessageText' && !message.text) ||
-        (type === 'download' &&
-          !message.attachments?.some(
-            (attachment) =>
-              isFileAttachment(attachment) ||
-              isImageAttachment(attachment) ||
-              isVideoAttachment(attachment) ||
-              isAudioAttachment(attachment) ||
-              isVoiceRecordingAttachment(attachment),
-          )) ||
         (type === 'delete' && (!canDelete || messageIsDeleted)) ||
         (type === 'edit' && !canEdit) ||
         (type === 'flag' && !canFlag) ||
         (type === 'markUnread' && !canMarkUnread) ||
         (type === 'mute' && !canMute) ||
+        (type === 'pin' && !canPin) ||
         (type === 'quote' && !canQuote) ||
         (type === 'react' && !canReact) ||
         (type === 'reply' && !canReply) ||
@@ -124,6 +125,8 @@ export const useBaseMessageActionSetFilter = (
 
       return true;
     });
+
+    return allowedActions.filter(passesOwnRule);
   }, [
     allowRetry,
     canBlockUser,
@@ -132,6 +135,7 @@ export const useBaseMessageActionSetFilter = (
     canFlag,
     canMarkUnread,
     canMute,
+    canPin,
     canQuote,
     canReact,
     canReply,
@@ -141,11 +145,8 @@ export const useBaseMessageActionSetFilter = (
     isInitialMessage,
     messageIsDeleted,
     isMessageThreadReply,
-    message.error,
-    message.attachments,
-    message.status,
-    message.text,
-    message.type,
+    isMyMessage,
+    message,
     disable,
     hasNetworkSendFailure,
     messageActionSet,

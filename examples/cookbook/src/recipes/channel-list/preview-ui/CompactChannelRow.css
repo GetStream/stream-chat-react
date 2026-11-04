@@ -1,0 +1,58 @@
+@layer stream-overrides {
+  .cookbook-channel-row {
+    display: flex;
+    align-items: center;
+    gap: var(--str-chat__spacing-sm);
+    width: 100%;
+    min-width: 0;
+    padding: var(--str-chat__spacing-xs) var(--str-chat__spacing-sm);
+    border: 0;
+    border-radius: var(--str-chat__radius-lg);
+    background: none;
+    color: var(--str-chat__text-primary);
+    text-align: start;
+    cursor: pointer;
+  }
+
+  .cookbook-channel-row:hover {
+    background: var(--str-chat__background-utility-hover);
+  }
+
+  .cookbook-channel-row[aria-selected='true'] {
+    background: var(--str-chat__background-utility-selected);
+  }
+
+  .cookbook-channel-row__main {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .cookbook-channel-row__top {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--str-chat__spacing-xs);
+  }
+
+  .cookbook-channel-row__title {
+    overflow: hidden;
+    font: var(--str-chat__font-body-emphasis);
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .cookbook-channel-row .str-chat__channel-list-item-timestamp {
+    color: var(--str-chat__text-tertiary);
+    font: var(--str-chat__font-caption-default);
+  }
+
+  .cookbook-channel-row__unread {
+    min-width: 20px;
+    padding: var(--str-chat__spacing-xxxs) var(--str-chat__spacing-xs);
+    border-radius: var(--str-chat__radius-full);
+    background: var(--str-chat__badge-bg-primary);
+    color: var(--str-chat__badge-text-on-accent);
+    font: var(--str-chat__font-caption-emphasis);
+    text-align: center;
+  }
+}

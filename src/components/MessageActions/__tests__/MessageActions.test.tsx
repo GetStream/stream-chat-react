@@ -3,7 +3,7 @@ import { act, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { fromPartial } from '@total-typescript/shoehorn';
 import { axe } from '../../../../axe-helper';
 
-import { MessageActions } from '../MessageActions';
+import { MessageActions, type MessageActionSetItem } from '../MessageActions';
 import { defaultMessageActionSet } from '../MessageActions.defaults';
 
 import { DialogManagerProvider, MessageProvider } from '../../../context';
@@ -434,6 +434,34 @@ describe('<MessageActions />', () => {
       await toggleOpenMessageActions();
 
       expect(getByText('Unpin')).toBeInTheDocument();
+    });
+
+    it('should not show Pin without the pin-message capability', async () => {
+      const message = generateMessage({ pinned: false });
+      await renderMessageActions({
+        channelStateOpts: {
+          channelCapabilities: { 'flag-message': true },
+        },
+        customMessageContext: { message },
+      });
+      await toggleOpenMessageActions();
+
+      expect(screen.getByText('Flag')).toBeInTheDocument();
+      expect(screen.queryByText('Pin')).not.toBeInTheDocument();
+    });
+
+    it('should not show Unpin without the pin-message capability', async () => {
+      const message = generateMessage({ pinned: true });
+      await renderMessageActions({
+        channelStateOpts: {
+          channelCapabilities: { 'flag-message': true },
+        },
+        customMessageContext: { message },
+      });
+      await toggleOpenMessageActions();
+
+      expect(screen.getByText('Flag')).toBeInTheDocument();
+      expect(screen.queryByText('Unpin')).not.toBeInTheDocument();
     });
 
     it('should set quoted message when Quote button is clicked', async () => {
@@ -1291,6 +1319,113 @@ describe('<MessageActions />', () => {
     });
   });
 
+  describe('Action visibility rules', () => {
+    const editCapability = { channelCapabilities: { 'update-own-message': true } };
+    const pollMessage = () =>
+      generateMessage({
+        poll: fromPartial({ id: 'poll-1' }),
+        poll_id: 'poll-1',
+        text: 'please vote',
+        user: alice,
+      });
+    const editItem = () =>
+      defaultMessageActionSet.find(
+        (item) => 'type' in item && item.type === 'edit',
+      ) as MessageActionSetItem;
+    // The default set with its edit item made editable for poll messages too.
+    const withPollEditing = () =>
+      defaultMessageActionSet.map((item) =>
+        'type' in item && item.type === 'edit'
+          ? { ...item, isVisible: () => true }
+          : item,
+      );
+    const queryEdit = () => screen.queryByRole('menuitem', { name: 'Edit Message' });
+
+    it('does not offer Edit for a poll message by default', async () => {
+      await renderMessageActions({
+        channelStateOpts: editCapability,
+        customMessageContext: { isMyMessage: () => true, message: pollMessage() },
+      });
+      await toggleOpenMessageActions();
+
+      expect(queryEdit()).not.toBeInTheDocument();
+    });
+
+    it('does not offer Edit for a poll message that failed to send', async () => {
+      // A local poll message, as the poll-only middleware builds it, has `poll_id` but no `poll`.
+      const message = generateMessage({
+        error: { status: 0 },
+        poll_id: 'poll-1',
+        status: 'failed',
+        text: '',
+        user: alice,
+      });
+      await renderMessageActions({
+        channelStateOpts: editCapability,
+        customMessageContext: { isMyMessage: () => true, message },
+      });
+      await toggleOpenMessageActions();
+
+      expect(screen.getByRole('menuitem', { name: /delete/i })).toBeInTheDocument();
+      expect(queryEdit()).not.toBeInTheDocument();
+    });
+
+    it('offers Edit for a poll message once the edit item allows it', async () => {
+      await renderMessageActions({
+        channelStateOpts: editCapability,
+        customMessageContext: { isMyMessage: () => true, message: pollMessage() },
+        messageActionsProps: { messageActionSet: withPollEditing() },
+      });
+      await toggleOpenMessageActions();
+
+      expect(queryEdit()).toBeInTheDocument();
+    });
+
+    it('passes the message, authorship and thread reply flag to isVisible', async () => {
+      const isVisible = vi.fn(() => true);
+      const message = pollMessage();
+      await renderMessageActions({
+        channelStateOpts: editCapability,
+        customMessageContext: { message },
+        messageActionsProps: {
+          messageActionSet: [
+            ...defaultMessageActionSet.filter((item) => item !== editItem()),
+            { ...editItem(), isVisible },
+          ],
+        },
+      });
+
+      expect(isVisible).toHaveBeenCalledWith({
+        isMyMessage: true,
+        isThreadReply: false,
+        message,
+      });
+    });
+
+    it('cannot show an action the user lacks the capability for', async () => {
+      await renderMessageActions({
+        customMessageContext: { isMyMessage: () => true, message: pollMessage() },
+        messageActionsProps: { messageActionSet: withPollEditing() },
+      });
+
+      expect(screen.queryByTestId(TOGGLE_ACTIONS_BUTTON_TEST_ID)).toBeInTheDocument();
+      await toggleOpenMessageActions();
+      expect(queryEdit()).not.toBeInTheDocument();
+    });
+
+    it('still applies the item rules when the base filter is disabled', async () => {
+      await renderMessageActions({
+        customMessageContext: { message: generateMessage({ text: '', user: alice }) },
+        messageActionsProps: { disableBaseMessageActionSetFilter: true },
+      });
+      await toggleOpenMessageActions();
+
+      expect(
+        screen.queryByRole('menuitem', { name: /copy message/i }),
+      ).not.toBeInTheDocument();
+    });
+  });
+
   describe('Custom message action sets', () => {
     it('should render custom dropdown action components', async () => {
       const CustomAction = () => <button data-testid='custom-action'>Custom</button>;
@@ -1550,6 +1685,9 @@ describe('<MessageActions />', () => {
       });
 
       await renderMessageActions({
+        channelStateOpts: {
+          channelCapabilities: { 'pin-message': true },
+        },
         customMessageContext: { message },
       });
       await toggleOpenMessageActions();

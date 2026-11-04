@@ -1,5 +1,6 @@
 import clsx from 'clsx';
 import React, { type ComponentPropsWithRef, useState } from 'react';
+import type { LocalMessage } from 'stream-chat';
 
 import {
   useComponentContext,
@@ -38,7 +39,21 @@ export type DefaultMessageActionType =
   | 'resendMessage'
   | 'saveForLater';
 
+/** What an action's `isVisible` rule is checked against. */
+export type MessageActionVisibilityFilterParams = {
+  /** Whether the connected user sent the message. */
+  isMyMessage: boolean;
+  /** Whether the message is a thread reply. */
+  isThreadReply: boolean;
+  message: LocalMessage;
+};
+
 type BaseMessageActionSetItem = {
+  /**
+   * Hides the action for a message, e.g. `edit` for a poll. Cannot show an action the base filter
+   * removes (capabilities, server features, message status). Shown when omitted.
+   */
+  isVisible?: (state: MessageActionVisibilityFilterParams) => boolean;
   type: DefaultMessageActionType | (string & {});
 };
 

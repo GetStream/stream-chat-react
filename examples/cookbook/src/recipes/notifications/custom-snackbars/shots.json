@@ -1,0 +1,12 @@
+[
+  {
+    "file": "custom-snackbars.png",
+    "query": {
+      "channel": "docs-v15-cb-design",
+      "simulate": "snackbars"
+    },
+    "waitFor": ".cookbook-snackbar--error",
+    "clip": ".str-chat__channel",
+    "padding": 0
+  }
+]

@@ -1,0 +1,18 @@
+@layer stream-overrides {
+  /* The composer's location preview takes the background of the user's own bubbles, so its text
+     takes their text color too. */
+  .str-chat__location-preview {
+    color: var(--str-chat__chat-text-outgoing);
+  }
+
+  /* The pin sits in a light box of its own, so it keeps a dark color. */
+  .str-chat__location-preview .str-chat__location-preview-image {
+    color: var(--str-chat__text-primary);
+  }
+
+  /* The status under the map sits on a light surface of its own, inside a bubble whose text can be
+     light, so it sets its own text color. */
+  .str-chat__message-attachment-geolocation__status {
+    color: var(--str-chat__text-primary);
+  }
+}

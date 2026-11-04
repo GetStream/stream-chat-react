@@ -1,0 +1,13 @@
+[
+  {
+    "file": "channel-members-online-status.png",
+    "query": {
+      "channel": "docs-v15-cb-design",
+      "simulate": "online",
+      "online": "docs-v15-ck-bob,docs-v15-ck-cara"
+    },
+    "waitFor": ".cookbook-channel-members__dot--online",
+    "clip": ".cookbook-channel-header-with-members",
+    "padding": 0
+  }
+]

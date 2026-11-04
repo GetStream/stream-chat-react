@@ -1,0 +1,79 @@
+[
+  {
+    "file": "custom-message-ui-0.png",
+    "variant": "plain-text",
+    "query": {
+      "channel": "docs-v15-cb-design"
+    },
+    "waitFor": ".str-chat__li[data-message-id=\"docs-v15-ck-design-7\"]",
+    "clip": ".str-chat__message-list .str-chat__ul",
+    "padding": 0,
+    "settleMs": 1500
+  },
+  {
+    "file": "custom-message-ui-1.png",
+    "variant": "sender-names",
+    "query": {
+      "channel": "docs-v15-cb-design"
+    },
+    "waitFor": ".str-chat__li[data-message-id=\"docs-v15-ck-design-7\"]",
+    "clip": ".str-chat__message-list .str-chat__ul",
+    "padding": 0,
+    "settleMs": 1500
+  },
+  {
+    "file": "custom-message-ui-2.png",
+    "variant": "avatars",
+    "query": {
+      "channel": "docs-v15-cb-design"
+    },
+    "waitFor": ".str-chat__li[data-message-id=\"docs-v15-ck-design-7\"]",
+    "clip": ".str-chat__message-list .str-chat__ul",
+    "padding": 0,
+    "settleMs": 1500
+  },
+  {
+    "file": "custom-message-ui-3.png",
+    "variant": "message-text",
+    "query": {
+      "channel": "docs-v15-cb-design"
+    },
+    "waitFor": ".str-chat__li[data-message-id=\"docs-v15-ck-design-7\"]",
+    "clip": ".str-chat__message-list .str-chat__ul",
+    "padding": 0,
+    "settleMs": 1500
+  },
+  {
+    "file": "custom-message-ui-4.png",
+    "variant": "metadata",
+    "query": {
+      "channel": "docs-v15-cb-design"
+    },
+    "waitFor": ".str-chat__li[data-message-id=\"docs-v15-ck-design-7\"]",
+    "clip": ".str-chat__message-list .str-chat__ul",
+    "padding": 0,
+    "settleMs": 1500
+  },
+  {
+    "file": "custom-message-ui-5.png",
+    "variant": "grouped-metadata",
+    "query": {
+      "channel": "docs-v15-cb-design"
+    },
+    "waitFor": ".str-chat__li[data-message-id=\"docs-v15-ck-design-7\"]",
+    "clip": ".str-chat__message-list .str-chat__ul",
+    "padding": 0,
+    "settleMs": 1500
+  },
+  {
+    "file": "custom-message-ui-7.png",
+    "variant": "default",
+    "query": {
+      "channel": "docs-v15-cb-design"
+    },
+    "waitFor": ".str-chat__li[data-message-id=\"docs-v15-ck-design-7\"]",
+    "clip": ".str-chat__message-list .str-chat__ul",
+    "padding": 0,
+    "settleMs": 1500
+  }
+]

@@ -1,0 +1,14 @@
+@layer stream-overrides {
+  .cookbook-voice-preview {
+    position: relative;
+    width: fit-content;
+    padding: var(--str-chat__spacing-xxs);
+    border: 1px solid var(--str-chat__border-core-default);
+    border-radius: var(--str-chat__radius-max);
+    background: var(--str-chat__background-core-surface-subtle);
+  }
+
+  .cookbook-voice-preview audio {
+    height: 32px;
+  }
+}

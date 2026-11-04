@@ -1,0 +1,11 @@
+@layer stream-overrides {
+  .cookbook-vote-actions {
+    display: flex;
+    gap: var(--str-chat__spacing-xs);
+    padding: var(--str-chat__spacing-xs);
+  }
+
+  .cookbook-vote-actions__button {
+    flex: 1;
+  }
+}

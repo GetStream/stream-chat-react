@@ -10,9 +10,8 @@ import { generateMessage, initClientWithChannels } from '../../../../mock-builde
 import { Channel } from '../../../Channel';
 import { Chat } from '../../../Chat';
 
-vi.spyOn(console, 'warn').mockImplementation(() => null);
-
 const event = fromPartial<React.BaseSyntheticEvent>({ preventDefault: vi.fn() });
+const missingMessageIdError = 'Mark unread handler does not have access to message id';
 const message = generateMessage() as unknown as LocalMessage;
 
 let channel: ChannelType;
@@ -47,22 +46,22 @@ describe('useMarkUnreadHandler', () => {
     vi.restoreAllMocks();
   });
 
-  it('does not call channel.markUnread if no message is provided', async () => {
+  it('throws without calling channel.markUnread if no message is provided', async () => {
     const markUnreadSpy = vi.spyOn(channel, 'markUnread');
     const handleMarkUnread = renderUseMarkUnreadHandlerHook();
     await act(async () => {
-      await handleMarkUnread(event);
+      await expect(handleMarkUnread(event)).rejects.toThrow(missingMessageIdError);
     });
     expect(markUnreadSpy).not.toHaveBeenCalled();
   });
 
-  it('does not call channel.markUnread if message is missing id', async () => {
+  it('throws without calling channel.markUnread if message is missing id', async () => {
     const markUnreadSpy = vi.spyOn(channel, 'markUnread');
     const handleMarkUnread = renderUseMarkUnreadHandlerHook({
       message: generateMessage({ id: undefined }) as unknown as LocalMessage,
     });
     await act(async () => {
-      await handleMarkUnread(event);
+      await expect(handleMarkUnread(event)).rejects.toThrow(missingMessageIdError);
     });
     expect(markUnreadSpy).not.toHaveBeenCalled();
   });

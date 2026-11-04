@@ -1,0 +1,21 @@
+@layer stream-overrides {
+  /* The title keeps the header's look: no button chrome, only an underline on hover. */
+  .cookbook-channel-title-button {
+    padding: 0 var(--str-chat__spacing-xs);
+    border: 0;
+    border-radius: var(--str-chat__radius-sm);
+    background: none;
+    color: inherit;
+    cursor: pointer;
+  }
+
+  .cookbook-channel-title-button:hover {
+    text-decoration: underline;
+  }
+
+  /* Drawn inside the button: the header's title column clips anything outside it. */
+  .cookbook-channel-title-button:focus-visible {
+    outline: 2px solid var(--str-chat__accent-primary);
+    outline-offset: -2px;
+  }
+}

@@ -1,0 +1,63 @@
+[
+  {
+    "file": "new-conversation-picker.png",
+    "query": {
+      "channel": "docs-v15-cb-design",
+      "simulate": "new-conversation",
+      "people": "Cara,Dan",
+      "name": "Plant swap"
+    },
+    "waitFor": ".cookbook-new-conversation__chip + .cookbook-new-conversation__chip",
+    "clip": ".cookbook-new-conversation",
+    "padding": 16,
+    "settleMs": 1500
+  },
+  {
+    "file": "new-conversation-button.png",
+    "query": {
+      "channel": "docs-v15-cb-design"
+    },
+    "waitFor": ".cookbook-channel-list-header button",
+    "clip": ".str-chat__channel-list",
+    "padding": 0
+  },
+  {
+    "file": "new-conversation-draft.png",
+    "query": {
+      "simulate": "new-conversation",
+      "people": "Dan",
+      "start": "1",
+      "draft": "Hi Dan, are you coming to the plant swap on Saturday?"
+    },
+    "waitFor": ".str-chat__channel textarea",
+    "settleMs": 2500
+  },
+  {
+    "file": "new-conversation-existing.png",
+    "query": {
+      "channel": "docs-v15-cb-design",
+      "simulate": "new-conversation",
+      "people": "Bob",
+      "name": "Lunch plans",
+      "start": "1"
+    },
+    "waitFor": ".str-chat__channel .str-chat__notification--info",
+    "clip": ".str-chat__channel",
+    "padding": 0,
+    "settleMs": 1000
+  },
+  {
+    "file": "new-conversation-sending.png",
+    "query": {
+      "simulate": "new-conversation",
+      "people": "Dan",
+      "start": "1",
+      "draft": "Hi Dan, are you coming to the plant swap on Saturday?",
+      "send": "1"
+    },
+    "waitFor": ".str-chat__message--sending",
+    "clip": ".str-chat__channel",
+    "padding": 0,
+    "settleMs": 1500
+  }
+]

@@ -1,0 +1,13 @@
+@layer stream-overrides {
+  /* The default header and the button share a row. */
+  .cookbook-channel-list-header {
+    display: flex;
+    align-items: center;
+    padding-inline-end: var(--str-chat__spacing-md);
+  }
+
+  .cookbook-channel-list-header__title {
+    flex: 1;
+    min-width: 0;
+  }
+}

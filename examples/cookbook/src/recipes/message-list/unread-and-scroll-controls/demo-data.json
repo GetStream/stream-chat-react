@@ -1,0 +1,127 @@
+{
+  "channels": [
+    {
+      "id": "docs-v15-cb-running",
+      "name": "Running club",
+      "members": [
+        "docs-v15-ck-cleo",
+        "docs-v15-ck-bob",
+        "docs-v15-ck-cara",
+        "docs-v15-ck-dan"
+      ],
+      "messages": [
+        {
+          "id": "docs-v15-ck-running-1",
+          "user": "docs-v15-ck-bob",
+          "text": "Who is in for the Sunday morning run?"
+        },
+        {
+          "id": "docs-v15-ck-running-2",
+          "user": "docs-v15-ck-cleo",
+          "text": "Me! Same loop around the lake as last time?"
+        },
+        {
+          "id": "docs-v15-ck-running-3",
+          "user": "docs-v15-ck-cara",
+          "text": "Yes please, the lake loop is perfect."
+        },
+        {
+          "id": "docs-v15-ck-running-4",
+          "user": "docs-v15-ck-dan",
+          "text": "I can join, but only for the first half."
+        },
+        {
+          "id": "docs-v15-ck-running-5",
+          "user": "docs-v15-ck-bob",
+          "text": "Great. Let's meet at the boathouse at eight."
+        },
+        {
+          "id": "docs-v15-ck-running-6",
+          "user": "docs-v15-ck-cleo",
+          "text": "Sounds good. I will bring a spare water bottle."
+        },
+        {
+          "id": "docs-v15-ck-running-7",
+          "user": "docs-v15-ck-cara",
+          "text": "I will check the weather on Saturday evening."
+        },
+        {
+          "id": "docs-v15-ck-running-8",
+          "user": "docs-v15-ck-cleo",
+          "text": "Thanks! See you all on Sunday."
+        },
+        {
+          "id": "docs-v15-ck-running-9",
+          "user": "docs-v15-ck-cara",
+          "text": "Quick update: rain is likely until nine on Sunday."
+        },
+        {
+          "id": "docs-v15-ck-running-10",
+          "user": "docs-v15-ck-bob",
+          "text": "Should we move the run to nine thirty then?"
+        },
+        {
+          "id": "docs-v15-ck-running-11",
+          "user": "docs-v15-ck-dan",
+          "text": "Nine thirty works better for me anyway."
+        },
+        {
+          "id": "docs-v15-ck-running-12",
+          "user": "docs-v15-ck-cara",
+          "text": "Same here. The path dries quickly after rain."
+        },
+        {
+          "id": "docs-v15-ck-running-13",
+          "user": "docs-v15-ck-bob",
+          "text": "Then nine thirty it is, still at the boathouse."
+        },
+        {
+          "id": "docs-v15-ck-running-14",
+          "user": "docs-v15-ck-dan",
+          "text": "Could we add the hill at the end? I need the practice."
+        },
+        {
+          "id": "docs-v15-ck-running-15",
+          "user": "docs-v15-ck-cara",
+          "text": "Only if we walk down it afterwards."
+        },
+        {
+          "id": "docs-v15-ck-running-16",
+          "user": "docs-v15-ck-bob",
+          "text": "Deal. The hill, then a slow walk down."
+        },
+        {
+          "id": "docs-v15-ck-running-17",
+          "user": "docs-v15-ck-dan",
+          "text": "I found a bakery near the boathouse for afterwards."
+        },
+        {
+          "id": "docs-v15-ck-running-18",
+          "user": "docs-v15-ck-cara",
+          "text": "Perfect, cinnamon rolls are the best recovery food."
+        },
+        {
+          "id": "docs-v15-ck-running-19",
+          "user": "docs-v15-ck-bob",
+          "text": "I will reserve a table for five."
+        },
+        {
+          "id": "docs-v15-ck-running-20",
+          "user": "docs-v15-ck-dan",
+          "text": "Make it six, my neighbor wants to come too."
+        },
+        {
+          "id": "docs-v15-ck-running-21",
+          "user": "docs-v15-ck-cara",
+          "text": "The more the merrier."
+        },
+        {
+          "id": "docs-v15-ck-running-22",
+          "user": "docs-v15-ck-bob",
+          "text": "Table for six is booked."
+        }
+      ],
+      "unreadFrom": "docs-v15-ck-running-9"
+    }
+  ]
+}

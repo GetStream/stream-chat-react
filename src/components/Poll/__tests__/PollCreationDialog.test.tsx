@@ -12,9 +12,13 @@ import {
 } from '@testing-library/react';
 import { Chat } from '../../Chat';
 import { Channel } from '../../Channel';
-import { MessageComposerContextProvider } from '../../../context';
+import { MessageComposerContextProvider, WithComponents } from '../../../context';
+import { useMessageComposerController } from '../../MessageComposer/hooks/useMessageComposerController';
 import { generateUser, initClientWithChannels } from '../../../mock-builders';
-import { PollCreationDialog } from '../PollCreationDialog';
+import {
+  PollCreationDialog,
+  type PollCreationDialogControlsProps,
+} from '../PollCreationDialog';
 import { fromPartial } from '@total-typescript/shoehorn';
 import type { Channel as ChannelType, StreamChat } from 'stream-chat';
 import type { MessageComposerContextValue } from '../../../context';
@@ -967,6 +971,63 @@ describe('PollCreationDialog', () => {
     await waitFor(() => {
       expect(sendMessageSpy).toHaveBeenCalledTimes(1);
     });
+    expect(close).toHaveBeenCalledTimes(1);
+  });
+
+  it('renders the PollCreationDialogControls slot in place of the default footer', async () => {
+    const {
+      channels: [channel],
+      client,
+    } = await initClientWithChannels();
+    vi.spyOn(client, 'createPoll').mockResolvedValue(
+      fromPartial({ poll: { id: 'attached-poll', options: [] } }),
+    );
+    const sendMessageSpy = spyOnSendMessage(channel);
+    const AttachPollControls = ({ close }: PollCreationDialogControlsProps) => {
+      const messageComposer = useMessageComposerController();
+      return (
+        <button
+          onClick={async () => {
+            await messageComposer.createPoll();
+            close();
+          }}
+          type='button'
+        >
+          Attach poll
+        </button>
+      );
+    };
+
+    await act(() => {
+      render(
+        <Chat client={client}>
+          <WithComponents overrides={{ PollCreationDialogControls: AttachPollControls }}>
+            <Channel channel={channel}>
+              <MessageComposerContextProvider
+                value={fromPartial<MessageComposerContextValue>({})}
+              >
+                <PollCreationDialog close={close} />
+              </MessageComposerContextProvider>
+            </Channel>
+          </WithComponents>
+        </Chat>,
+      );
+    });
+
+    expect(screen.queryByRole('button', { name: /send poll/i })).not.toBeInTheDocument();
+
+    await act(() => {
+      fireEvent.change(getNameInput(), { target: { value: 'Question' } });
+    });
+    await act(() => {
+      fireEvent.change(getOptionInput(), { target: { value: 'Option' } });
+    });
+    await act(() => {
+      fireEvent.click(screen.getByRole('button', { name: 'Attach poll' }));
+    });
+
+    await waitFor(() => expect(channel.messageComposer.pollId).toBe('attached-poll'));
+    expect(sendMessageSpy).not.toHaveBeenCalled();
     expect(close).toHaveBeenCalledTimes(1);
   });
 });

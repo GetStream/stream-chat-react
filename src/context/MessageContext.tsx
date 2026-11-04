@@ -32,6 +32,7 @@ export type MessageContextValue = {
   handleMute: ReactEventHandler;
   /** Opens the message's thread: the `openThread` prop of `Message`, else ChatView navigation. */
   handleOpenThread: ReactEventHandler;
+  /** Pins or unpins the message. Rejects with the request's error when it fails, after rolling back. */
   handlePin: ReactEventHandler;
   handleReaction: (
     reactionType: string,

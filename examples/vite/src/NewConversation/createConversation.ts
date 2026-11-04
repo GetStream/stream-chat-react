@@ -94,8 +94,10 @@ export const openOneToOne = async (
     : await client.queryChannelsAndHydrate(
         {
           filter_conditions: {
+            // Exactly the two of them: both are members, and there are two members. The server
+            // refuses `$eq` on `members`.
+            $and: memberIds.map((id) => ({ members: { $in: [id] } })),
             member_count: 2,
-            members: { $eq: memberIds },
             type: CHANNEL_TYPE,
           },
           limit: 10,

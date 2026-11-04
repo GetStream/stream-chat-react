@@ -1,5 +1,9 @@
 import { StateStore } from '@stream-io/state-store';
-import { useStateStore } from 'stream-chat-react';
+import {
+  defaultMessageBubbleContentSet,
+  defaultMessageComposerPreviewSet,
+  useStateStore,
+} from 'stream-chat-react';
 
 import { DEFAULT_LANGUAGE, streamI18n } from '../i18n';
 import type { UploadDestination, UploadFailureMode } from '../SendWhilePendingUploads';
@@ -88,6 +92,14 @@ export type PanelLayoutSettingsState = {
   threadPanel: ThreadPanelLayoutSettingsState;
 };
 
+export type MessageBubbleSettingsState = {
+  /**
+   * `MessageBubbleContentSetItem['type']`s in render order. A default type missing from it is
+   * appended (see `resolveBubbleContentOrder`).
+   */
+  contentOrder: string[];
+};
+
 export type MessageListSettingsState = {
   type: 'standard' | 'virtualized';
 };
@@ -102,6 +114,17 @@ export type LayoutSettingsState = {
 export type ComposerSettingsState = {
   /** The CDN upload endpoint used while `uploadDestination` is `custom-url`. */
   customCdnUrl: string;
+  /**
+   * `MessageComposerPreviewSetItem['type']`s left out of the composer. Held as what is turned
+   * *off* so a newly shipped default preview appears without a settings migration. Removing one
+   * also removes the composer's way into it (e.g. `attachments` drops the selector's File option).
+   */
+  disabledPreviewSections: string[];
+  /**
+   * The composer's preview sections in render order. A default preview missing from it is
+   * appended (see `resolvePreviewSectionOrder`).
+   */
+  previewSectionOrder: string[];
   /**
    * Allow sending a message while its attachments are still uploading.
    */
@@ -136,6 +159,7 @@ export type AppSettingsState = {
   language: LanguageSettingsState;
   layout: LayoutSettingsState;
   messageActions: MessageActionsSettingsState;
+  messageBubble: MessageBubbleSettingsState;
   messageList: MessageListSettingsState;
   notifications: NotificationsSettingsState;
   panelLayout: PanelLayoutSettingsState;
@@ -185,7 +209,9 @@ const defaultAppSettingsState: AppSettingsState = {
   },
   composer: {
     customCdnUrl: '',
+    disabledPreviewSections: [],
     failUploads: 'off',
+    previewSectionOrder: defaultMessageComposerPreviewSet.map(({ type }) => type),
     sendMessagesWithPendingUploads: false,
     slowUploadMs: 20000,
     slowUploads: false,
@@ -216,6 +242,9 @@ const defaultAppSettingsState: AppSettingsState = {
         viewMessageInfo: false,
       },
     },
+  },
+  messageBubble: {
+    contentOrder: defaultMessageBubbleContentSet.map(({ type }) => type),
   },
   messageList: {
     type: 'standard',

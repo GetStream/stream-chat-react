@@ -1,0 +1,15 @@
+@layer stream-overrides {
+  /* Two themes of your own, set through Chat's `theme`: rounder or squarer corners. */
+  .str-chat__theme-round {
+    --str-chat__radius-max: 9999px;
+    --str-chat__button-radius-full: 9999px;
+  }
+
+  .str-chat__theme-square {
+    --str-chat__radius-max: 6px;
+    --str-chat__button-radius-full: 6px;
+    --str-chat__message-bubble-radius-group-top: 6px;
+    --str-chat__message-bubble-radius-group-middle: 6px;
+    --str-chat__message-bubble-radius-group-bottom: 6px;
+  }
+}

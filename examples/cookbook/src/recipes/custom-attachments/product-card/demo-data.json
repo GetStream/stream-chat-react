@@ -1,0 +1,31 @@
+{
+  "channels": [
+    {
+      "id": "docs-v15-cb-shop",
+      "name": "Shop",
+      "members": ["docs-v15-ck-cleo", "docs-v15-ck-bob", "docs-v15-ck-cara"],
+      "messages": [
+        {
+          "id": "docs-v15-ck-shop-1",
+          "user": "docs-v15-ck-cara",
+          "text": "The office kitchen needs a new teapot. Any ideas?"
+        },
+        {
+          "id": "docs-v15-ck-shop-2",
+          "user": "docs-v15-ck-bob",
+          "text": "",
+          "attachments": [
+            {
+              "type": "product",
+              "title": "Glass teapot",
+              "image_url": "https://picsum.photos/id/225/480/360",
+              "currency": "EUR",
+              "price": 34,
+              "product_url": "https://example.com/shop/glass-teapot"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -59,6 +59,19 @@ describe('useDeleteHandler custom hook', () => {
     expect(typeof handleDelete).toBe('function');
   });
 
+  it('should throw without deleting when the message has no id', async () => {
+    const deleteSpy = vi.spyOn(channel.messageOperations, 'delete');
+    const handleDelete = await renderUseDeleteHandler(
+      generateMessage({ id: undefined }) as typeof testMessage,
+    );
+    await act(async () => {
+      await expect(handleDelete()).rejects.toThrow(
+        'useDeleteHandler was called but it is missing one or more necessary parameters.',
+      );
+    });
+    expect(deleteSpy).not.toHaveBeenCalled();
+  });
+
   it('should delete a message without options via the channel local-update path', async () => {
     const deleteSpy = vi
       .spyOn(channel.messageOperations, 'delete')
@@ -89,15 +102,25 @@ describe('useDeleteHandler custom hook', () => {
     });
   });
 
-  it('should notify (and not throw) when the delete request fails', async () => {
+  it('should notify and throw when the delete request fails', async () => {
     vi.spyOn(channel.messageOperations, 'delete').mockRejectedValue(
       new Error('delete failed'),
     );
     const notify = vi.fn();
     const handleDelete = await renderUseDeleteHandler(testMessage, { notify });
     await act(async () => {
-      await expect(handleDelete()).resolves.toBeUndefined();
+      await expect(handleDelete()).rejects.toThrow('delete failed');
     });
     expect(notify).toHaveBeenCalledWith('Error deleting message', 'error');
+  });
+
+  it('should throw when the delete request fails without notifications configured', async () => {
+    vi.spyOn(channel.messageOperations, 'delete').mockRejectedValue(
+      new Error('delete failed'),
+    );
+    const handleDelete = await renderUseDeleteHandler(testMessage);
+    await act(async () => {
+      await expect(handleDelete()).rejects.toThrow('delete failed');
+    });
   });
 });

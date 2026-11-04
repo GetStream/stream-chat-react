@@ -1,0 +1,64 @@
+@layer stream-overrides {
+  /* Sits between the search bar and the channel list, at the height its rows need, and
+     separated from the channels by a line. */
+  .cookbook-invitations {
+    border-bottom: 1px solid var(--str-chat__border-core-default);
+  }
+
+  .cookbook-invitations__title {
+    margin: 0;
+    padding: var(--str-chat__spacing-sm) var(--str-chat__spacing-md)
+      var(--str-chat__spacing-xs);
+    color: var(--str-chat__text-secondary);
+    font: var(--str-chat__font-caption-emphasis);
+  }
+
+  .cookbook-invitations__list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  /* The avatar beside the channel's name, who invited the user, and the two buttons. */
+  .cookbook-invitation {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--str-chat__spacing-sm);
+    padding: var(--str-chat__spacing-xs) var(--str-chat__spacing-md)
+      var(--str-chat__spacing-sm);
+  }
+
+  .cookbook-invitation__body {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    gap: var(--str-chat__spacing-xxs);
+    min-width: 0;
+  }
+
+  .cookbook-invitation__title {
+    margin: 0;
+    overflow: hidden;
+    color: var(--str-chat__text-primary);
+    font: var(--str-chat__font-body-emphasis);
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .cookbook-invitation__by {
+    margin: 0;
+    color: var(--str-chat__text-secondary);
+    font: var(--str-chat__font-caption-default);
+  }
+
+  .cookbook-invitation__actions {
+    display: flex;
+    gap: var(--str-chat__spacing-xs);
+    margin-top: var(--str-chat__spacing-xs);
+  }
+
+  .cookbook-invitations__more {
+    display: flex;
+    padding: 0 var(--str-chat__spacing-md) var(--str-chat__spacing-xs);
+  }
+}

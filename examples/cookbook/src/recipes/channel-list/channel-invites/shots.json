@@ -1,0 +1,24 @@
+[
+  {
+    "file": "channel-list-invitations.png",
+    "query": {
+      "channel": "docs-v15-cb-design"
+    },
+    "waitFor": ".cookbook-invitation + .cookbook-invitation",
+    "clip": ".str-chat__channel-list",
+    "padding": 0,
+    "settleMs": 1500
+  },
+  {
+    "file": "channel-list-invitation-joining.png",
+    "query": {
+      "channel": "docs-v15-cb-design",
+      "simulate": "accept",
+      "row": "Bird walk"
+    },
+    "waitFor": ".cookbook-invitation [aria-busy='true']",
+    "clip": ".cookbook-invitations",
+    "padding": 0,
+    "settleMs": 1000
+  }
+]

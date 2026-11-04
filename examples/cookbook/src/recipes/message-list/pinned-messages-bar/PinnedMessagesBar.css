@@ -1,0 +1,37 @@
+@layer stream-overrides {
+  .cookbook-pinned-bar {
+    display: block;
+    width: 100%;
+    padding: var(--str-chat__spacing-xs) var(--str-chat__spacing-md);
+    border: 0;
+    border-bottom: 1px solid var(--str-chat__border-core-default);
+    background: var(--str-chat__background-core-elevation-1);
+    color: var(--str-chat__text-primary);
+    text-align: start;
+    cursor: pointer;
+  }
+
+  .cookbook-pinned-bar:hover {
+    background: var(--str-chat__background-utility-hover);
+  }
+
+  .cookbook-pinned-bar__content {
+    display: flex;
+    flex-direction: column;
+    gap: var(--str-chat__spacing-xxxs);
+    padding-inline-start: var(--str-chat__spacing-sm);
+    border-inline-start: 2px solid var(--str-chat__accent-primary);
+  }
+
+  .cookbook-pinned-bar__title {
+    color: var(--str-chat__accent-primary);
+    font: var(--str-chat__font-caption-emphasis);
+  }
+
+  .cookbook-pinned-bar__text {
+    overflow: hidden;
+    font: var(--str-chat__font-caption-default);
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}

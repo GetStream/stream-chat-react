@@ -1,0 +1,70 @@
+@layer stream-overrides {
+  .cookbook-lightbox {
+    display: flex;
+    flex-direction: column;
+    gap: var(--str-chat__spacing-md);
+    width: min(880px, 90vw);
+    padding: var(--str-chat__spacing-lg);
+    border-radius: var(--str-chat__radius-xl);
+    background: var(--str-chat__background-core-elevation-1);
+    color: var(--str-chat__text-primary);
+  }
+
+  .cookbook-lightbox__header {
+    display: flex;
+    align-items: center;
+    gap: var(--str-chat__spacing-sm);
+  }
+
+  .cookbook-lightbox__sender {
+    flex: 1;
+    font: var(--str-chat__font-heading-xs);
+  }
+
+  .cookbook-lightbox__position {
+    color: var(--str-chat__text-secondary);
+    font: var(--str-chat__font-caption-default);
+  }
+
+  .cookbook-lightbox__stage {
+    display: flex;
+    align-items: center;
+    gap: var(--str-chat__spacing-sm);
+  }
+
+  /* A horizontal swipe on the figure is the lightbox's; a vertical one still scrolls the page. */
+  .cookbook-lightbox__figure {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--str-chat__spacing-sm);
+    min-width: 0;
+    margin: 0;
+    touch-action: pan-y;
+    user-select: none;
+  }
+
+  .cookbook-lightbox__button {
+    display: grid;
+    flex-shrink: 0;
+    place-items: center;
+    width: 40px;
+    height: 40px;
+    padding: 0;
+    border: 1px solid var(--str-chat__border-core-default);
+    border-radius: var(--str-chat__radius-full);
+    background: var(--str-chat__background-core-elevation-0);
+    color: var(--str-chat__text-primary);
+    cursor: pointer;
+  }
+
+  .cookbook-lightbox__button:hover:not(:disabled) {
+    background: var(--str-chat__background-utility-hover);
+  }
+
+  .cookbook-lightbox__button:disabled {
+    color: var(--str-chat__text-disabled);
+    cursor: default;
+  }
+}

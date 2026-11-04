@@ -15,11 +15,9 @@ type MessageDeliveredEvent = {
   channel_member_count: number;
   channel_type: string;
   cid: string;
-  // `created_at` is unix nanoseconds like other wire timestamps, but the spec declares
-  // `last_delivered_at` as a plain string, so it arrives as RFC3339.
   created_at: TimestampNS;
   custom: CustomEventData;
-  last_delivered_at: string;
+  last_delivered_at: TimestampNS;
   last_delivered_message_id: string;
   user: UserResponse;
 };
@@ -35,7 +33,7 @@ export const makeMessageDeliveredEvent = (
   cid: 'messaging:test',
   created_at: convertDateToTimestamp('2025-09-16T13:25:57.996011272Z'),
   custom: {},
-  last_delivered_at: '2025-09-16T13:25:57Z',
+  last_delivered_at: convertDateToTimestamp('2025-09-16T13:25:57Z'),
   last_delivered_message_id: 'aefbf38a-0e02-4ba6-a480-e595c37ec78a',
   type: 'message.delivered',
   user: {
@@ -74,7 +72,7 @@ export const dispatchMessageDeliveredEvent = ({
       channel_type: channel.type,
       cid: channel.cid,
       created_at: convertDateToTimestamp(),
-      last_delivered_at: deliveredAt,
+      last_delivered_at: convertDateToTimestamp(deliveredAt),
       last_delivered_message_id: lastDeliveredMessageId,
       user,
     }),

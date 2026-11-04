@@ -1,0 +1,12 @@
+@layer stream-overrides {
+  .cookbook-app-layout {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+  }
+
+  .cookbook-app-layout__body {
+    flex: 1;
+    min-height: 0;
+  }
+}

@@ -1,0 +1,32 @@
+@layer stream-overrides {
+  .cookbook-search-trigger {
+    padding: var(--str-chat__spacing-xs) var(--str-chat__spacing-md);
+  }
+
+  /* Looks like a search field, so it sits where the search bar was. */
+  .cookbook-search-trigger__button {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    padding: var(--str-chat__spacing-xs) var(--str-chat__spacing-md);
+    border: 1px solid var(--str-chat__border-core-default);
+    border-radius: var(--str-chat__radius-full);
+    background: var(--str-chat__background-core-elevation-1);
+    color: var(--str-chat__text-secondary);
+    font: var(--str-chat__font-body-default);
+    cursor: pointer;
+  }
+
+  .cookbook-search-trigger__button:hover {
+    background: var(--str-chat__background-utility-hover);
+  }
+
+  .cookbook-search-trigger__shortcut {
+    padding: var(--str-chat__spacing-xxxs) var(--str-chat__spacing-xs);
+    border: 1px solid var(--str-chat__border-core-subtle);
+    border-radius: var(--str-chat__radius-sm);
+    color: var(--str-chat__text-tertiary);
+    font: var(--str-chat__font-caption-default);
+  }
+}

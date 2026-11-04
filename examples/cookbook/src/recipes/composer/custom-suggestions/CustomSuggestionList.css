@@ -1,0 +1,21 @@
+@layer stream-overrides {
+  .cookbook-suggestion-row {
+    display: flex;
+    align-items: center;
+    gap: var(--str-chat__spacing-sm);
+    width: 100%;
+    padding: var(--str-chat__spacing-xs) var(--str-chat__spacing-sm);
+    border: 0;
+    border-radius: var(--str-chat__radius-lg);
+    background: none;
+    color: var(--str-chat__text-primary);
+    font: var(--str-chat__font-body-default);
+    text-align: start;
+    cursor: pointer;
+  }
+
+  /* The SDK marks the row the arrow keys reached with this class. */
+  .cookbook-suggestion-row.str-chat__suggestion-list-item--selected {
+    background: var(--str-chat__background-utility-selected);
+  }
+}

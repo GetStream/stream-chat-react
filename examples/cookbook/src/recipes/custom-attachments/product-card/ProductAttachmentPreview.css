@@ -1,0 +1,40 @@
+@layer stream-overrides {
+  .cookbook-product-preview {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: var(--str-chat__spacing-sm);
+    min-width: 220px;
+    padding: var(--str-chat__spacing-xs);
+    padding-inline-end: var(--str-chat__spacing-lg);
+    border: 1px solid var(--str-chat__border-core-default);
+    border-radius: var(--str-chat__radius-lg);
+    background: var(--str-chat__background-core-surface-card);
+  }
+
+  .cookbook-product-preview__image {
+    width: 48px;
+    height: 48px;
+    border-radius: var(--str-chat__radius-md);
+    object-fit: cover;
+  }
+
+  .cookbook-product-preview__details {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+  }
+
+  .cookbook-product-preview__title {
+    overflow: hidden;
+    color: var(--str-chat__text-primary);
+    font: var(--str-chat__font-caption-emphasis);
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .cookbook-product-preview__price {
+    color: var(--str-chat__text-secondary);
+    font: var(--str-chat__font-caption-default);
+  }
+}

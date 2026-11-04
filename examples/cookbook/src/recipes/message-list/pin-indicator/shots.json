@@ -1,0 +1,23 @@
+[
+  {
+    "file": "custom-pin-indicator.png",
+    "recipe": "base",
+    "query": { "channel": "docs-v15-cb-design" },
+    "clip": ".str-chat__li",
+    "hasText": "Review is on Thursday"
+  },
+  {
+    "file": "custom-pin-indicator-css.png",
+    "variant": "css",
+    "query": { "channel": "docs-v15-cb-design" },
+    "clip": ".str-chat__li",
+    "hasText": "Review is on Thursday"
+  },
+  {
+    "file": "custom-pin-indicator-component.png",
+    "variant": "component",
+    "query": { "channel": "docs-v15-cb-design" },
+    "clip": ".str-chat__li",
+    "hasText": "Review is on Thursday"
+  }
+]

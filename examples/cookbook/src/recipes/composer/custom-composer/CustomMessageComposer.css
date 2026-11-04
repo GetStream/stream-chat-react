@@ -1,0 +1,34 @@
+@layer stream-overrides {
+  .cookbook-composer {
+    display: flex;
+    align-items: flex-end;
+    gap: var(--str-chat__spacing-sm);
+    padding: var(--str-chat__spacing-sm) var(--str-chat__spacing-md);
+  }
+
+  .cookbook-composer__center {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    gap: var(--str-chat__spacing-xs);
+    min-width: 0;
+    padding: var(--str-chat__spacing-xs) var(--str-chat__spacing-sm);
+    border: 1px solid var(--str-chat__border-core-default);
+    border-radius: var(--str-chat__radius-xl);
+    background: var(--str-chat__background-core-elevation-1);
+  }
+
+  .cookbook-composer__input {
+    display: flex;
+    align-items: center;
+    gap: var(--str-chat__spacing-xs);
+  }
+
+  .cookbook-composer__also-send {
+    display: flex;
+    align-items: center;
+    gap: var(--str-chat__spacing-xs);
+    color: var(--str-chat__text-secondary);
+    font: var(--str-chat__font-caption-default);
+  }
+}

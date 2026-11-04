@@ -104,8 +104,8 @@
     "@braintree/sanitize-url": "^7.1.2",
     "@floating-ui/react": "^0.27.19",
     "@react-aria/focus": "^3.22.0",
-    "@stream-io/i18n": "^1.0.2",
-    "@stream-io/state-store": "^1.1.6",
+    "@stream-io/i18n": "^1.1.0",
+    "@stream-io/state-store": "^1.2.0",
     "chart.js": "^4.5.1",
     "clsx": "^2.1.1",
     "emoji-regex": "^9.2.2",
@@ -144,7 +144,7 @@
     "modern-normalize": "^3.0.1",
     "react": "^19.0.0 || ^18.0.0 || ^17.0.0",
     "react-dom": "^19.0.0 || ^18.0.0 || ^17.0.0",
-    "stream-chat": "^10.0.0-rc.25"
+    "stream-chat": "^10.0.0-rc.31"
   },
   "peerDependenciesMeta": {
     "@breezystack/lamejs": {
@@ -210,7 +210,7 @@
     "react-dom": "^19.2.6",
     "sass": "^1.100.0",
     "semantic-release": "^25.0.3",
-    "stream-chat": "10.0.0-rc.25",
+    "stream-chat": "10.0.0-rc.31",
     "typescript": "^6.0.3",
     "typescript-eslint": "^8.59.4",
     "vite": "^8.1.3",
@@ -235,6 +235,7 @@
     "start:css": "node scripts/watch-styling.mjs",
     "start:ai-chatbot": "yarn workspace @stream-io/stream-chat-react-ai-chatbot dev",
     "start:tutorial": "yarn workspace @stream-io/stream-chat-react-tutorial dev",
+    "start:cookbook": "yarn workspace @stream-io/stream-chat-react-cookbook dev",
     "start:vite": "yarn workspace @stream-io/stream-chat-react-vite dev",
     "postinstall": "node -e \"require('fs').existsSync('scripts/install-husky.mjs') && import('./scripts/install-husky.mjs')\"",
     "test": "vitest run",

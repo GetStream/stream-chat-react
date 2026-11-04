@@ -1,0 +1,75 @@
+@layer stream-overrides {
+  .cookbook-thread-row {
+    display: flex;
+    flex-direction: column;
+    gap: var(--str-chat__spacing-xxs);
+    width: 100%;
+    padding: var(--str-chat__spacing-sm) var(--str-chat__spacing-md);
+    border: 0;
+    border-bottom: 1px solid var(--str-chat__border-core-subtle);
+    background: none;
+    color: var(--str-chat__text-secondary);
+    font: var(--str-chat__font-body-default);
+    text-align: start;
+    cursor: pointer;
+  }
+
+  .cookbook-thread-row:hover {
+    background: var(--str-chat__background-utility-hover);
+  }
+
+  .cookbook-thread-row[aria-selected='true'] {
+    background: var(--str-chat__background-utility-selected);
+  }
+
+  .cookbook-thread-row--new {
+    background: var(--str-chat__background-core-highlight);
+  }
+
+  .cookbook-thread-row__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--str-chat__spacing-xs);
+  }
+
+  .cookbook-thread-row__channel {
+    color: var(--str-chat__text-primary);
+    font: var(--str-chat__font-caption-emphasis);
+  }
+
+  .cookbook-thread-row--unread .cookbook-thread-row__parent {
+    color: var(--str-chat__text-primary);
+    font: var(--str-chat__font-body-emphasis);
+  }
+
+  .cookbook-thread-row__parent,
+  .cookbook-thread-row__latest-reply {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .cookbook-thread-row__latest-reply {
+    color: var(--str-chat__text-tertiary);
+    font: var(--str-chat__font-caption-default);
+  }
+
+  .cookbook-thread-row__author {
+    margin-inline-end: var(--str-chat__spacing-xxs);
+    font-weight: inherit;
+  }
+
+  .cookbook-thread-row__author::after {
+    content: ':';
+  }
+
+  .cookbook-thread-row__footer {
+    display: flex;
+    align-items: center;
+    gap: var(--str-chat__spacing-xs);
+    margin-block-start: var(--str-chat__spacing-xxs);
+    color: var(--str-chat__text-link);
+    font: var(--str-chat__font-caption-emphasis);
+  }
+}

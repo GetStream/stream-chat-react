@@ -1,0 +1,18 @@
+[
+  {
+    "file": "attachment-actions-before.png",
+    "query": { "channel": "docs-v15-cb-photos" },
+    "waitFor": ".cookbook-vote-actions",
+    "clip": ".str-chat__li",
+    "hasText": "from the ridge",
+    "padding": 0
+  },
+  {
+    "file": "attachment-actions-after.png",
+    "query": { "channel": "docs-v15-cb-photos", "vote": "love" },
+    "waitFor": ".str-chat__message-reactions",
+    "clip": ".str-chat__li",
+    "hasText": "from the ridge",
+    "padding": 0
+  }
+]

@@ -278,12 +278,27 @@ describe('<Message /> component', () => {
       message,
     });
 
-    const ingestSpy = vi.spyOn(lastChannel.messagePaginator, 'ingestItem');
-    sendReaction.mockImplementationOnce(() => Promise.reject());
+    lastChannel.messagePaginator.ingestItem({ ...message, cid: lastChannel.cid });
+    let rejectRequest: () => void = () => undefined;
+    sendReaction.mockImplementationOnce(
+      () => new Promise((_, reject) => (rejectRequest = reject)),
+    );
 
-    await context.handleReaction(reaction.type);
-    // On failure the optimistic update is reverted by re-ingesting the original message.
-    expect(ingestSpy).toHaveBeenCalledWith(expect.objectContaining({ id: message.id }));
+    const pending = context.handleReaction(reaction.type);
+    expect(
+      lastChannel.getClient().messageStore.get(message.id)?.own_reactions,
+    ).toHaveLength(1);
+    rejectRequest();
+    await pending;
+    expect(sendReaction).toHaveBeenCalledWith(
+      { id: message.id },
+      expect.objectContaining({
+        reaction: expect.objectContaining({ type: reaction.type }),
+      }),
+    );
+    expect(lastChannel.getClient().messageStore.get(message.id)?.own_reactions).toEqual(
+      [],
+    );
   });
 
   it('should update message after an action', async () => {
@@ -492,7 +507,7 @@ describe('<Message /> component', () => {
       message,
     });
 
-    await context.handleMute(mouseEventMock);
+    await expect(context.handleMute(mouseEventMock)).rejects.toThrow('mute failed');
 
     expect(muteUser).toHaveBeenCalledWith({ target_ids: [bob.id] });
   });
@@ -539,7 +554,7 @@ describe('<Message /> component', () => {
       message,
     });
 
-    await context.handleMute(mouseEventMock);
+    await expect(context.handleMute(mouseEventMock)).rejects.toThrow('unmute failed');
 
     expect(unmuteUser).toHaveBeenCalledWith({ target_ids: [bob.id] });
   });

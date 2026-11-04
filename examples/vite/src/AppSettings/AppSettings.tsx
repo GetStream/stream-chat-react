@@ -22,6 +22,7 @@ import { ChannelDetailTab } from './tabs/ChannelDetail';
 import { ComposerTab } from './tabs/Composer';
 import { ConfigurationTab } from './tabs/Configuration';
 import { GeneralTab } from './tabs/General';
+import { MessageTab } from './tabs/Message';
 import { MessageActionsTab } from './tabs/MessageActions';
 import { NotificationsTab } from './tabs/Notifications';
 import { ReactionsTab } from './tabs/Reactions';
@@ -44,6 +45,7 @@ type TabId =
   | 'composer'
   | 'configuration'
   | 'general'
+  | 'message'
   | 'messageActions'
   | 'notifications'
   | 'reactions'
@@ -68,6 +70,7 @@ const settingsSectionConfig: SettingsSectionConfig[] = [
     id: 'channelDetail',
     title: 'Channel Detail',
   },
+  { Content: MessageTab, Icon: IconMessageBubble, id: 'message', title: 'Message' },
   {
     Content: MessageActionsTab,
     Icon: IconMessageBubble,

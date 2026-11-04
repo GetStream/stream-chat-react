@@ -20,6 +20,7 @@ import {
   type GalleryProps,
   type GiphyPreviewMessageProps,
   type ImagePlaceholderProps,
+  type ListLoadErrorIndicatorProps,
   type LoadingIndicatorProps,
   type MessageBouncePromptProps,
   type MessageComposerProps,
@@ -38,6 +39,7 @@ import {
   type NotificationListProps,
   type NotificationProps,
   type PinIndicatorProps,
+  type PollCreationDialogControlsProps,
   type PollCreationDialogProps,
   type PollOptionSelectorProps,
   type QuotedMessagePreviewProps,
@@ -97,6 +99,8 @@ export type ComponentContextValue = {
   FirstPageLoadingIndicator?: React.ComponentType;
   /** Custom UI component rendered per item of a paginated list. */
   ListItem?: ComponentType<{ item: unknown }>;
+  /** Custom UI component rendered in place of a paginated list whose first page failed to load. */
+  ListLoadErrorIndicator?: React.ComponentType<ListLoadErrorIndicatorProps>;
   /** Custom UI component rendered while a paginated list loads its next page. */
   LoadingNextPageIndicator?: React.ComponentType<{ isLoading?: boolean }>;
   /** Actions between the textarea and the send actions. The default renders the `EmojiPicker`. */
@@ -190,6 +194,11 @@ export type ComponentContextValue = {
    * overriding one icon leaves the rest intact. Read with `useComponentContextIcons`.
    */
   icons?: IconSlots;
+  /**
+   * Previews above the composer's textarea. The default renders `defaultMessageComposerPreviewSet`;
+   * render `MessageComposerPreviews` with your own `messageComposerPreviewSet` to change it.
+   */
+  MessageComposerPreviews?: React.ComponentType;
   /** How the message composer renders. */
   MessageComposerUI?: React.ComponentType<MessageComposerProps>;
   /** Link previews in the message composer. */
@@ -198,6 +207,11 @@ export type ComponentContextValue = {
   LoadingIndicator?: React.ComponentType<LoadingIndicatorProps>;
   /** Determinate progress from 0 to 100. */
   ProgressIndicator?: React.ComponentType<ProgressIndicatorProps>;
+  /**
+   * What a message bubble holds. The default renders `defaultMessageBubbleContentSet`; render
+   * `MessageBubbleContent` with your own `messageBubbleContentSet` to change it.
+   */
+  MessageBubbleContent?: React.ComponentType;
   /** Renders a message in the standard `MessageList`. */
   MessageUI?: React.ComponentType<MessageUIComponentProps>;
   /** Message actions popup, rendered without props. */
@@ -250,6 +264,12 @@ export type ComponentContextValue = {
   PollContent?: React.ComponentType;
   /** Contents of the poll creation dialog. */
   PollCreationDialog?: React.ComponentType<PollCreationDialogProps>;
+  /**
+   * Footer of the poll creation dialog. The default cancels, or creates the poll and sends it at
+   * once. Calling `messageComposer.createPoll()` without `send()` instead leaves the poll in the
+   * composer (`state.pollId`) to go out with the next message.
+   */
+  PollCreationDialogControls?: React.ComponentType<PollCreationDialogControlsProps>;
   /** Poll header in a message. */
   PollHeader?: React.ComponentType;
   /** Poll option selector. */
