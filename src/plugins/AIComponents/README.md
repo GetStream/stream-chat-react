@@ -29,11 +29,144 @@ Load `ai-components.css` in addition to `stream-chat-react/css/index.css`.
 
 From `stream-chat-react/ai-components`:
 
-- Components: `AIMarkdown`, `AIMessageComposer` (with the static sub-components `FileInput`, `TextInput`, `SpeechToTextButton`, `SubmitButton`, `ModelSelect`, `AttachmentPreview`, `AttachmentPreview.Item`), `StreamingMessage`, `AIStateIndicator`, `VoiceWave`, `VoiceGlow`
-- Hooks: `useAttachments`, `useText`, `useIsDisabled`, `useAIMessageComposerContext`, `useSpeechToText`, `useAudioLevel`, `useHeardText`
-- Types: `AIMessageComposerStore`, `StreamingMessageRef`, `UseMessageTextStreamingProps`, `ToolComponentProps`, `UseSpeechToTextOptions`, `VoiceAgentState`, `VoiceGlowRendering`, `VoiceVisualizationProps`, `VoiceWaveProps`, `VoiceGlowProps`, `HeardTextProgress`, `HeardTextFunction`, `HeardTextSubscribe`, `UseHeardTextParams`, `UseHeardTextResult`
+- Components: `AIMarkdown`, `AIMessageComposer` (with the static sub-components `FileInput`, `TextInput`, `SpeechToTextButton`, `SubmitButton`, `ModelSelect`, `ChatOptions`, `AttachmentPreview`, `AttachmentPreview.Item`), `StreamingMessage`, `AIStateIndicator`, `VoiceWave`, `VoiceGlow`
+- Agent conversations (see [Agent conversations](#agent-conversations)): `AIConversation`, `AIUserMessage`, `AIAssistantMessage`, `AIMessageAttachment`, `AIReplyActions`, `AITypingIndicator`, `AISuggestions`, `AIMessageParts`, `AIMessagePart`, `AIToolCall`, `AIToolApproval`, `AIToolApprovalCard`, `AIToolAuthorization`, `AIToolAuthorizationCard`, `AIReasoning`, `AIThinking`, `AIToolApproverProvider`, `ChatOptionsList`, `SelectedChatOptionChip`
+- Functions: `parseMessageParts`, `parseMessagePart`, `isAwaitingApproval`, `isAwaitingAuthorization`, `isAwaitingClient`, `isDeclined`, `isToolCallFinished`, `isSupportedPart`, `isAuthorizationExpired`, `fromStreamMessage`, `createPopupAuthorizer`, `completeConnectorSignIn`, `readConnectorSignInResult`, `AIClientIdentity.installId()`
+- Hooks: `useAttachments`, `useText`, `useIsDisabled`, `useAIMessageComposerContext`, `useSpeechToText`, `useAudioLevel`, `useHeardText`, `useAIToolApprover`
+- Types: `AIMessageComposerStore`, `StreamingMessageRef`, `UseMessageTextStreamingProps`, `ToolComponentProps`, `UseSpeechToTextOptions`, `VoiceAgentState`, `VoiceGlowRendering`, `VoiceVisualizationProps`, `VoiceWaveProps`, `VoiceGlowProps`, `HeardTextProgress`, `HeardTextFunction`, `HeardTextSubscribe`, `UseHeardTextParams`, `UseHeardTextResult`, `AIMessage`, `AIMessageRole`, `AIPendingMessage`, `AIMessagePartData`, `AIReasoningPart`, `AIToolCallPart`, `AIToolApprovalData`, `AIToolAuthorizationData`, `AIToolApprover`, `AIToolAuthorizer`, `AIToolApprovalState`, `AIToolAuthorizationState`, `AIMessageAttachmentData`, `AIMessageRating`, `AIChatOption`, `PopupAuthorizerOptions`, `ConnectorSignInResult`
 
 `useMessageTextStreaming` is not exported from here; import it from the main entry point (`stream-chat-react`).
+
+## Agent conversations
+
+The components of a conversation with an AI agent, such as a personal assistant, that mirror StreamChatAI (iOS) and `stream-chat-android-ai-compose` (Android): the same names, the same message parts, and the same behaviour, in React idiom. A web app built on them renders the same conversations as the iOS and Android apps.
+
+> Until the `stream-chat-react` 14.x release that includes them is published, build the package from the `release-v14` branch and install the tarball: `yarn install && yarn build && npm pack`, then `npm install ./stream-chat-react-0.0.0-development.tgz` in the app. Pin the release once it ships.
+
+### Message parts
+
+An agent writes each step it takes while replying as a custom attachment on its reply, in order: a round of reasoning (`ai_reasoning`) or a tool call (`ai_tool_call`), at format version `v: 1`. The answer stays in the message text, shown after the steps.
+
+```ts
+import { parseMessageParts } from 'stream-chat-react/ai-components';
+
+const parts = parseMessageParts(message.attachments);
+for (const part of parts) {
+  if (part.reasoning) {
+    /* part.reasoning: { id, status, summary?, preview?, durationMs? } */
+  } else if (part.toolCall) {
+    /* part.toolCall: { id, name, displayTitle?, status, executor, approval?, authorization?, … } */
+  } else {
+    /* a kind of your own, or a newer one: part.kind, part.payload */
+  }
+}
+```
+
+- Attachments that are not AI steps (images, files) are skipped. Decoding is lenient: a field of the wrong type reads as missing, missing fields get defaults (`status` is `completed` for reasoning and `running` for a tool call, `executor` is `server`), and a step of a newer version keeps its `payload` without a typed view.
+- A tool call's `status` is one of `running`, `awaiting_client`, `awaiting_approval`, `awaiting_authorization`, `completed`, `failed` or `cancelled`. Treat one you don't know as still in progress.
+- `approval` is the question a call asks before it runs (`title`, `message`, `reason`, `allowTitle`, `declineTitle`) and the person's `decision` (`allowed` or `declined`).
+- `authorization` is the sign-in a call waits for (`type`, `provider`, `providerName`, `title`, `message`, `url`, `handoffToken`, `expiresAt`, and `status`: `connected`, `declined`, `expired` or `failed` once over).
+- `isAwaitingApproval(call, userId, clientId)` is true for a call waiting for this person on this install. A call with no `targetClientId` (a server tool) may be answered from any of their installs. `isAwaitingAuthorization(call, userId)` is true for a sign-in waiting for them, from any install. `isDeclined(call)` is true when they declined the call or its sign-in.
+
+The data types are named `AIMessagePartData`, `AIToolApprovalData` and `AIToolAuthorizationData`, since `AIMessagePart`, `AIToolApproval` and `AIToolAuthorization` are the components that show them.
+
+### `AIConversation`
+
+The conversation laid out by turn, the counterpart of `AIConversationView`. Each of the person's questions starts a turn, with the agent's reply under it.
+
+```tsx
+import {
+  AIClientIdentity,
+  AIConversation,
+  createPopupAuthorizer,
+  fromStreamMessage,
+} from 'stream-chat-react/ai-components';
+
+const approver = {
+  authorizer: createPopupAuthorizer({
+    decline: (call) => backend.declineSignIn(call.id),
+    returnUrl: `${window.location.origin}/connected`,
+  }),
+  clientId: AIClientIdentity.installId(),
+  decide: (call, allowed) => backend.answerApproval(call.id, allowed),
+  userId: client.userID,
+};
+
+<AIConversation
+  approver={approver}
+  bottomInset={composerHeight}
+  emptyContent={<AISuggestions onSelect={send} suggestions={starters} />}
+  footer={failed && <RetryPill />}
+  isThinking={isThinking}
+  loadOlderMessages={hasMore ? loadOlder : undefined}
+  messages={messages.map((message) =>
+    fromStreamMessage(message, { reasoningText: liveReasoning.get }),
+  )}
+  pendingMessage={pending}
+  replyActions={(message) => ({
+    onRate: (rating) => rate(message.id, rating),
+    rating: ratings[message.id],
+  })}
+/>;
+```
+
+| Prop                                              | Description                                                                                                                                                                                                                                                                                              |
+| ------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `messages`                                        | `AIMessage[]`, oldest first: `{ id, role, text, isGenerating?, attachments?, parts?, reasoningText?(stepId) }`. `role` is `user` or `assistant`. `fromStreamMessage(message, options?)` makes one from a Stream message: a reply has `ai_generated: true` and is being written while `generating: true`. |
+| `pendingMessage`                                  | `{ id, text, attachments? }`: a message the person sent that is not in `messages` yet. It shows at once, with the agent thinking under it. Keep passing it until its reply starts; its copy takes over its row (matched by `id` when it is the id you sent it with, else by where it lands).             |
+| `isThinking`                                      | The agent is answering and its reply shows nothing yet. The latest turn then ends with `AIThinking`, whose seconds the reply's first reasoning step takes over. Also inferred while `pendingMessage` waits and while the latest reply is generating with nothing to show.                                |
+| `approver`                                        | Who answers tool calls' questions and sign-ins on this device. Also provided to the parts below through `AIToolApproverProvider`.                                                                                                                                                                        |
+| `loadOlderMessages`                               | Called once a spinner above the first turn has been in view for 300 ms, and again when the first turn changes while it is. What is on screen stays in place as older messages arrive. Pass `undefined` once there are none left.                                                                         |
+| `footer`                                          | Rendered under the latest turn's messages, such as what the agent is doing (`AITypingIndicator`) or an error with a way to retry.                                                                                                                                                                        |
+| `emptyContent`                                    | Shown, centred, while there are no messages.                                                                                                                                                                                                                                                             |
+| `bottomInset`                                     | Room in pixels under the latest turn for a composer floating over the conversation. The scroll-to-latest button sits above it.                                                                                                                                                                           |
+| `UserMessage`, `AssistantMessage`, `ReplyActions` | Slots for the person's messages, the agent's replies and the actions under each finished reply (`null` for none). Default to `AIUserMessage`, `AIAssistantMessage` and `AIReplyActions`.                                                                                                                 |
+| `replyActions`                                    | `(message, { isLatestReply }) => ({ rating?, onRate?, onRegenerate? })` for the default reply actions.                                                                                                                                                                                                   |
+
+Behaviour:
+
+- A new question pins to the top of what is visible, and the reply writes out below it without moving what is on screen: the latest turn is at least as tall as the conversation (less `bottomInset`).
+- It opens at its end. A conversation replaced as a whole (another chat opened) opens at its end again.
+- A round button scrolls to the latest message while the end is out of view.
+- Steps render with `AIMessageParts`; the answer types out with `StreamingMessage` as it streams in, catching up with what has arrived within about 400 ms, and a reply loaded from history shows at once. `letterIntervalMs` and `renderingLetterCount` set a fixed pace instead.
+
+### Steps, questions and sign-ins
+
+- `AIMessageParts` / `AIMessagePart`: a reply's steps, each as `AIReasoning`, `AIToolCall` (with `AIToolApproval` and `AIToolAuthorization` under it), or a neutral line for a step this SDK can't show.
+- `AIToolCall`: the call's `displayTitle` (else its name), what it waits for or how it ended, and its duration once finished.
+- `AIToolApproval`: the question of a call that waits for this person here, sent with `approver.decide(call, allowed)`. The buttons wait until the call's step changes; a rejected `decide` shows "Your answer couldn't be sent. Try again." and lets them answer again (`AIToolApprovalState`: `isSending`, `failed`). `AIToolApprovalCard` is the same question on its own, such as on a voice call: `<AIToolApprovalCard approval={call.approval} onDecide={…} state={…} />`.
+- `AIToolAuthorization`: the sign-in of a call that waits for this person, with Connect and Not now, run by `approver.authorizer`. Connect reads "Connecting…" until the call's step changes; Not now stays available meanwhile. `AIToolAuthorizationCard` also says how a sign-in ended (connected, declined, failed, expired) and stops offering Connect past `expiresAt`.
+- `AIReasoning`: a round of reasoning. While the model thinks the header counts ("Thinking… 7s") and the reasoning streams in; once done it says "Thought for 12s" with the step's summary and folds away. Clicking the header opens or folds it. Pass `part` and `reasoningText` (the live reasoning, by step id), or `text`, `isThinking`, `duration` and `summary` yourself. `AIThinking` is the thinking before a reply shows anything.
+
+### Signing in at a provider
+
+`createPopupAuthorizer({ returnUrl, decline })` returns an `AIToolAuthorizer` that runs a call's sign-in in a popup, the web counterpart of the web authentication session on iOS:
+
+1. Connect opens `authorization.url` (the router's launch page) in a popup, in the click itself, so the browser does not block it.
+2. The page posts `{ type: 'va.connector.oauth.ready' }` to this window; the authorizer answers `{ type: 'va.connector.oauth.handoff', handoff_token }`, to the page's origin only.
+3. The page goes to the provider, which sends the person back through the router to `returnUrl` with `connection_id` and `status` in its query.
+4. The return page calls `completeConnectorSignIn()`, which reports the outcome over a `BroadcastChannel` and closes the popup.
+
+`connect` resolves `true` once connected (the card then waits for the call's step to change), `false` when the person closed the popup or the sign-in ended otherwise, and rejects with an `AIConnectorSignInError` when the popup was blocked (`reason: 'blocked'`) or the launch page never asked for the handoff within 15 s (`'unreachable'`). Give your sessions `returnUrl` as their `return_url`: the launch page takes the handoff only from a page of its origin.
+
+```html
+<!-- connected.html, the return page -->
+<script type="module">
+  import { completeConnectorSignIn } from 'stream-chat-react/ai-components';
+  completeConnectorSignIn();
+</script>
+```
+
+### Addressing
+
+`AIClientIdentity.installId()` is a stable id for this browser profile (`web-…`), kept in `localStorage` (in memory where storage is unavailable). Send it in the custom data of the person's message (`client_id`) so the agent can address client tools and questions to this install, and pass it to the approver as `clientId`.
+
+### Reply actions, suggestions and chat options
+
+- `AIReplyActions`: copy, share (`navigator.share` where the browser has it, else a copy), regenerate (with `onRegenerate`) and a thumbs up or down rating (with `onRate`; `AIMessageRating` is `positive` or `negative`, and `null` takes a rating back).
+- `AISuggestions`: starter chips for an empty conversation; picking one calls `onSelect(text)`.
+- `AIMessageComposer.ChatOptions`: a menu of ways to ask, such as "Think harder" (`AIChatOption`: `id`, `title`, `description?`, `icon?`, `shortTitle?`, `customData?`), and a chip for the one picked with a button that removes it. Controlled with `selectedId` and `onSelectedChange`, or uncontrolled with `defaultSelectedId`; with `name`, the picked id is submitted with the form. `ChatOptionsList` and `SelectedChatOptionChip` are its parts, for layouts of your own.
+- `AIUserMessage`, `AIAssistantMessage`, `AIMessageAttachment` (an image thumbnail, or a file with its name, type and size) and `AITypingIndicator` (a label with three pulsing dots) are the views `AIConversation` uses, for lists of your own.
 
 ## Migrating from `@stream-io/chat-react-ai`
 
@@ -192,6 +325,20 @@ Precedence for every token except the code palette is: your `--str-chat__ai-*` o
 | `scrollbar-thumb`          | attachment list scrollbar thumb                         | `border-core-default`             | `#ddd`           |
 | `voice-color`              | `VoiceWave` / `VoiceGlow` color when `colors` is unset  | `accent-primary`                  | `#005fff`        |
 | `voice-backdrop`           | what `VoiceWave` / `VoiceGlow` sit on (light or dark)   | `background-core-elevation-0`     | `#ffffff`        |
+| `accent`                   | tool call icons, reasoning rule while thinking, chips   | `accent-primary`                  | `#005fff`        |
+| `success`                  | completed tool calls, connected sign-ins                | `accent-success`                  | `#00a46e`        |
+| `error`                    | failed tool calls, answers that couldn't be sent        | `accent-error`                    | `#d92f26`        |
+| `text-tertiary`            | reasoning footnote                                      | `text-tertiary`                   | `#7a7d87`        |
+| `card-bg`                  | approval and sign-in cards, files, suggestions          | `background-core-surface-card`    | `#f7f7f8`        |
+| `card-border`              | approval and sign-in cards, files                       | `border-core-subtle`              | `#e9ecef`        |
+| `elevated-bg`              | scroll-to-latest button, chat options menu              | `background-core-elevation-1`     | `#ffffff`        |
+| `user-message-bg`          | the person's message bubble                             | `chat-bg-outgoing`                | `#d2e3ff`        |
+| `user-message-text`        | the person's message text                               | `chat-text-outgoing`              | `#001a4d`        |
+| `button-primary-bg`        | Allow and Connect buttons                               | `button-primary-bg`               | `#005fff`        |
+| `button-primary-text`      | Allow and Connect button text                           | `button-primary-text-on-accent`   | `#ffffff`        |
+| `button-secondary-bg`      | Don't Allow and Not now buttons                         | `background-core-elevation-1`     | `#ffffff`        |
+| `button-secondary-text`    | Don't Allow and Not now button text                     | `text-primary`                    | `#353740`        |
+| `button-secondary-border`  | Don't Allow and Not now button border                   | `button-secondary-border`         | `#ccc`           |
 | `syntax-*`                 | code palette (see below)                                | none                              | built-in palette |
 
 The code palette tokens are `--str-chat__ai-syntax-text`, `-selection-bg`, `-comment`, `-punctuation`, `-number`, `-keyword`, `-tag`, `-string`, `-function`, `-cyan`, `-error` and `-whitespace`.
@@ -254,7 +401,7 @@ function ChatComposer({ attachments }: ChatComposerProps) {
 #### Sub-components
 
 - **`AIMessageComposer.FileInput`** - File input button for attaching files. Supports multiple file selection. The native `<input type="file">` is visually hidden but stays focusable (it is the keyboard stop, labelled `aria/File upload`, and opens the picker on Enter/Space); the round `<label>` that follows it is the pointer target and shows its focus ring. `labelProps` are spread onto that label.
-- **`AIMessageComposer.TextInput`** - Text input field for typing messages. Automatically syncs with composer state.
+- **`AIMessageComposer.TextInput`** - Where the message is written: a `textarea` that grows with its lines, up to 200 px, then scrolls. Enter sends, Shift+Enter starts a new line, and Enter while an input method is composing does neither. Automatically syncs with composer state.
 - **`AIMessageComposer.SpeechToTextButton`** - Button to toggle speech-to-text input using the Web Speech API.
 - **`AIMessageComposer.SubmitButton`** - Submit button for sending the message.
 - **`AIMessageComposer.ModelSelect`** - Dropdown for selecting AI models. Customizable via `options` prop.

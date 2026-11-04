@@ -10,6 +10,11 @@ const lightTheme = readTheme('light');
 const darkTheme = readTheme('dark');
 const declaredIn = (theme: string, token: string) => new RegExp(`${token}:`).test(theme);
 
+// The type, spacing and radius scale is the same in every theme: light.scss declares it on
+// `.str-chat`, which a dark `.str-chat` has too, and dark.scss redeclares only colours.
+const isScaleToken = (token: string) =>
+  /^--str-chat__(spacing|typography|radius)-/.test(token);
+
 describe('AI components stylesheet token contract', () => {
   it('never declares --str-chat__ai-* custom properties (consumer overrides must win)', () => {
     expect(css).not.toMatch(/--str-chat__ai-[a-z-]+\s*:/);
@@ -17,7 +22,7 @@ describe('AI components stylesheet token contract', () => {
 
   it('reads themable tokens through override > SCR token > literal fallback chains', () => {
     expect(css).toContain(
-      'var(--str-chat__ai-bg-primary, var(--str-chat__background-core-elevation-0, #ffffff))',
+      'var(--str-chat__ai-bg-secondary, var(--str-chat__background-core-surface-default, #f7f7f8))',
     );
     expect(css).toContain('var(--str-chat__ai-syntax-keyword, #8b5cf6)');
     expect(css).toContain(
@@ -32,6 +37,15 @@ describe('AI components stylesheet token contract', () => {
     expect(css).toContain(
       'var(--str-chat__ai-voice-backdrop, var(--str-chat__background-core-elevation-0, #ffffff))',
     );
+  });
+
+  it('reads the SCR scale with a literal fallback, for rendering outside .str-chat', () => {
+    expect(css).toContain('var(--str-chat__spacing-sm, 0.75rem)');
+    expect(css).toContain('var(--str-chat__typography-line-height-relaxed, 1.5rem)');
+    const bare = [
+      ...css.matchAll(/var\((--str-chat__(?:spacing|typography|radius)-[a-z0-9-]+)\)/g),
+    ];
+    expect(bare.map(([, token]) => token)).toEqual([]);
   });
 
   it('uses no colour literal outside a var() fallback (so SCR dark mode applies)', () => {
@@ -57,7 +71,7 @@ describe('AI components stylesheet token contract', () => {
           ([, token]) => token,
         ),
       ),
-    ];
+    ].filter((token) => !isScaleToken(token));
     expect(scrTokens.length).toBeGreaterThan(5);
     const missing = scrTokens.filter((token) => {
       if (!declaredIn(lightTheme, token)) return true;
