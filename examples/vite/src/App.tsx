@@ -17,16 +17,13 @@ import type {
 import {
   ChannelPaginator,
   ChannelSearchSource,
-  createActiveCommandGuardMiddleware,
-  createCommandInjectionMiddleware,
-  createCommandStringExtractionMiddleware,
-  createDraftCommandInjectionMiddleware,
   createPollOnlyCompositionMiddleware,
   createPriorityOwnershipResolver,
   isVoiceRecordingAttachment,
   MessageSearchSource,
   POLL_ONLY_COMPOSITION_MIDDLEWARE_ID,
   SearchController,
+  USER_DATA_INJECTION_MIDDLEWARE_ID,
   UserSearchSource,
 } from 'stream-chat';
 import {
@@ -105,7 +102,7 @@ import {
 } from './ComposerPreviews/ConfigurableComposerPreviews.tsx';
 import { ConfigurablePollCreationDialogControls } from './ComposerPreviews/ConfigurablePollCreationDialogControls.tsx';
 import { ConfigurableMessageBubbleContent } from './MessageBubble/ConfigurableMessageBubbleContent.tsx';
-import { StreamDebugHandles } from './Debug';
+import { applySimulatedListQueryFailures, StreamDebugHandles } from './Debug';
 import {
   installUploadHarness,
   MOCK_CDN_UPLOAD_URL,
@@ -371,6 +368,10 @@ const App = () => {
     },
   });
 
+  // `?simulate=channel-list-error` / `thread-list-error`: patched during render, before the lists
+  // mount and send their first queries (see src/Debug/simulateListQueryFailures.ts).
+  if (chatClient) applySimulatedListQueryFailures(chatClient);
+
   const searchController = useMemo(() => {
     if (!chatClient) return undefined;
 
@@ -558,31 +559,6 @@ const App = () => {
         });
       }
 
-      // todo: find a way to register multiple setup functions so that the SDK can have own setup independent from the integrator setup
-      composer.compositionMiddlewareExecutor.insert({
-        middleware: [createCommandInjectionMiddleware(composer)],
-        position: { after: 'stream-io/message-composer-middleware/attachments' },
-        unique: true,
-      });
-
-      // `unique: true` matters now that this setup function re-runs whenever a Composer setting
-      // changes - without it each toggle would append another copy of the same middleware.
-      composer.draftCompositionMiddlewareExecutor.insert({
-        middleware: [createDraftCommandInjectionMiddleware(composer)],
-        position: { after: 'stream-io/message-composer-middleware/draft-attachments' },
-        unique: true,
-      });
-
-      composer.textComposer.middlewareExecutor.insert({
-        middleware: [createActiveCommandGuardMiddleware() as TextComposerMiddleware],
-        position: { before: 'stream-io/text-composer/commands-middleware' },
-      });
-
-      composer.textComposer.middlewareExecutor.insert({
-        middleware: [createCommandStringExtractionMiddleware() as TextComposerMiddleware],
-        position: { after: 'stream-io/text-composer/commands-middleware' },
-      });
-
       composer.textComposer.middlewareExecutor.insert({
         middleware: [
           createTextComposerEmojiMiddleware(SearchIndex) as TextComposerMiddleware,
@@ -610,9 +586,7 @@ const App = () => {
       if (pollDisabled) {
         composer.compositionMiddlewareExecutor.insert({
           middleware: [createPollOnlyCompositionMiddleware(composer)],
-          position: {
-            after: 'stream-io/message-composer-middleware/user-data-injection',
-          },
+          position: { after: USER_DATA_INJECTION_MIDDLEWARE_ID },
           unique: true,
         });
       } else {

@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import type { ListLoadErrorIndicatorProps } from 'stream-chat-react';
 import {
   Button,
   IconExclamationCircleFill,
@@ -10,17 +11,14 @@ import './ChannelListState.css';
 const title = 'Couldn’t load your conversations';
 
 /**
- * Shown in place of the channel list when its first page failed to load. `onRetry` queries the first
- * page again. The view stays mounted while the retry runs, so the Retry button keeps focus: it turns
- * busy, and reads Retry again if the retry fails.
+ * Shown in place of the channel list when its first page failed to load. `retry` queries the first
+ * page again. The list keeps this view on screen while the retry runs, so the Retry button keeps
+ * focus: it turns busy, and reads Retry again if the retry fails.
  */
 export const ChannelListLoadError = ({
   isRetrying,
-  onRetry,
-}: {
-  isRetrying: boolean;
-  onRetry: () => void;
-}) => {
+  retry,
+}: ListLoadErrorIndicatorProps) => {
   const announce = useAriaLiveAnnouncer();
 
   // Announced when the error first shows and again whenever a retry fails. Polite, so it follows
@@ -45,7 +43,7 @@ export const ChannelListLoadError = ({
         appearance='outline'
         aria-busy={isRetrying}
         aria-disabled={isRetrying}
-        onClick={onRetry}
+        onClick={retry}
         size='md'
         variant='secondary'
       >

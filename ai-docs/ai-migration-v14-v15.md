@@ -2,7 +2,7 @@
 
 Execution-only guide for a coding agent migrating a third-party app from `stream-chat-react` v14 to v15. It covers the root package and its subpath entry points (`stream-chat-react/slot-layout`, `/slot-geometry`, `/channel-detail`, `/emojis`, `/ai-components`, `/mp3-encoder` and the `css/*` stylesheets). v15 requires `stream-chat` v10, itself a breaking client release, so upgrade both together; this guide covers the `stream-chat` changes a React app usually hits, and the [stream-chat guide](#companion-documents) covers the rest. The i18n runtime now comes from `@stream-io/i18n` and the state store from `@stream-io/state-store`, both installed as dependencies of this package.
 
-Every breaking change in [`v15-breaking-changes.md`](https://github.com/GetStream/stream-chat-react/blob/master/ai-docs/v15-breaking-changes.md) (`BC-001` to `BC-083`) is covered here. The [index at the end](#index-of-breaking-changes) maps each `BC` entry to its section.
+Every breaking change in [`v15-breaking-changes.md`](https://github.com/GetStream/stream-chat-react/blob/master/ai-docs/v15-breaking-changes.md) (`BC-001` to `BC-084`) is covered here. The [index at the end](#index-of-breaking-changes) maps each `BC` entry to its section.
 
 Verified against `master` @ `1c02ba07f` (`stream-chat-react@0.0.0-development`, after the `v15.0.0-rc.3` tag; `stream-chat` peer `^10.0.0-rc.29`, checked against stream-chat-js `release-v10` @ `fdfcb296`), 2026-11-03.
 
@@ -151,7 +151,7 @@ code '\bmessages=\{|\b(loadMore|loadMoreNewer|hasMore|hasMoreNewer|loadingMoreNe
 # §12 messages
 code '<Message\b|\b(messageIsUnread|retrySendMessage|useRetryHandler|usePinHandler|canPin|allowConcurrentPlayback|WithAudioPlayback|GalleryItem|handlePin|handleDelete|handleMute|handleFlag|handleMarkUnread)\b|useMessageContext\(\)\.mutes'
 # §13 message composer
-code '\b(overrideSubmitHandler|handleSubmit|preventClearingOnUnmount|setMessageComposerSetupFunction|hasCustomDoUploadRequest|doUploadRequest|AttachmentPreviewList|VoiceRecordingPreviewSlot|LinkPreviewList|MessageComposerControllerProvider|PollCreationDialog)\b'
+code '\b(overrideSubmitHandler|handleSubmit|preventClearingOnUnmount|setMessageComposerSetupFunction|hasCustomDoUploadRequest|doUploadRequest|AttachmentPreviewList|VoiceRecordingPreviewSlot|LinkPreviewList|MessageComposerControllerProvider|PollCreationDialog)\b|stream-io/(text-composer/(active-command-guard|command-string-extraction)|message-composer-middleware/(draft-)?command-string-injection)'
 # §14 request handlers
 code '\b(doSendMessageRequest|doUpdateMessageRequest|doDeleteMessageRequest|doMarkReadRequest|useChannelEditMessageHandler)\b'
 # §15 resolved configuration (review hits; most are covered by §9 and §13)
@@ -159,7 +159,7 @@ code '\b(channelConfig|typing_events|read_events|user_message_reminders|shared_l
 # §16 dates (review every hit that reads a server timestamp)
 code 'new Date\([^)]*_at\b|dayjs\([^)]*_at\b|moment\([^)]*_at\b|_at\??\.getTime\(|\blast_read\b'
 # §17 other stream-chat v10 data shapes
-code '\.data\??\.(name|image)\b|members:\s*\[|\b(ReactionSort|reactionDetailsSort|deleteForMe|hardDelete|moderation_details|CommandResponse|unBlockUser|ReminderResponse|UserSort|queryUsers|queryChannels|flagMessage|getThread|updateFields|addMembers|removeMembers)\b'
+code '\.data\??\.(name|image)\b|members:\s*\[|\b(ReactionSort|reactionDetailsSort|deleteForMe|hardDelete|moderation_details|CommandResponse|DefaultCommandData|CustomCommandData|unBlockUser|ReminderResponse|UserSort|queryUsers|queryChannels|flagMessage|getThread|updateFields|addMembers|removeMembers)\b'
 # §18 i18n
 code '\b(Streami18n|registerTranslation|translationsForLanguage|useTranslationContext|isLanguageSupported|SupportedTranslations|DateFormatterOptions|getTranslators|registerSetLanguageCallback|getAvailableLanguages|geti18Instance|[a-z]{2}Translations)\b|\bt\([\x27"`]|dayjs/locale'
 # §19 CSS and markup (styles, and CSS-in-JS / className strings in code)
@@ -251,6 +251,7 @@ Old → new for the most common changes. Ctrl-F the v14 name; the section has th
 | `new Date(message.created_at)`, `dayjs(created_at)`                                                                  | `convertTimestampToDate(created_at)` from `stream-chat` (may return `undefined`)                                                                           | [16](#16-dates-on-response-types-are-unix-nanosecond-numbers)                     |
 | `channel.data?.name` / `.image`                                                                                      | `channel.data?.custom?.name` / `.image`                                                                                                                    | [17](#17-other-stream-chat-v10-data-shapes)                                       |
 | `handleDelete({ deleteForMe, hardDelete })`                                                                          | `handleDelete({ delete_for_me, hard })`                                                                                                                    | [17](#17-other-stream-chat-v10-data-shapes)                                       |
+| `DefaultCommandData` import, `declare module 'stream-chat' { interface CustomCommandData … }`                        | Delete both; `Command['name']` is `string`                                                                                                                 | [17](#17-other-stream-chat-v10-data-shapes)                                       |
 | `client.flagMessage(id)` / `channel.addMembers(ids)` / `client.getThread(id, options)`                               | `client.moderation.flagMessage({ message_id })` / `channel.addMembers({ members: ids })` / `client.getThreadAndHydrate({ message_id }, { watch: true })`   | [17](#17-other-stream-chat-v10-data-shapes)                                       |
 | `t('English text')`                                                                                                  | `t('namespaced.key', 'English text')`, or `t(asDynamicKey('myApp.key'), 'English text')` for app strings                                                   | [18](#18-i18n)                                                                    |
 | `deTranslations` ... `trTranslations`, `isLanguageSupported`                                                         | Register your own dictionaries; `i18n.registeredLanguages.has(lang)`                                                                                       | [18](#18-i18n)                                                                    |
@@ -263,7 +264,7 @@ Old → new for the most common changes. Ctrl-F the v14 name; the section has th
 These compile cleanly, or are ignored in plain JS, and change behavior at runtime. Check each one explicitly; the absence of an error does not mean the app is migrated. **Detect** lists `rg` patterns (run them with the `code` / `styles` helpers from [Detection](#detection)) or what to review; a row with no hit and nothing to review does not apply.
 
 | Symptom                                                                                                                                                                           | Cause                                                                                                                                                        | Fix                                                                                                                                                                               | Detect                                                                                                                |
-| --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------- |
+| --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------- |
 | Clicking a channel-list row, a search result, a thread-list row or a message's reply button does nothing; no row shows active                                                     | Selection and thread opening go through workspace navigation, whose default outside `ChatView` is a no-op (it logs a one-time console warning per operation) | Use `ChatView`, or provide `WorkspaceNavigationProvider` ([section 4](#4-selecting-channels-and-opening-threads-workspace-navigation))                                            | `<ChannelList`, `<ThreadList`, `<Search`, `openThread` with no `ChatView` or `WorkspaceNavigationProvider` in the app |
 | No channel is open when the app loads                                                                                                                                             | v14 `ChannelList.setActiveChannelOnMount` defaulted to `true`; v15 selects nothing                                                                           | Open the first channel yourself ([section 6](#v14-list-defaults-that-changed))                                                                                                    | `<ChannelList` without `setActiveChannelOnMount={false}`                                                              |
 | Inside `ChatView`, returning from the threads view shows the first channel instead of the one that was open, and the channel list reloads                                         | `ChatView` unmounts the inactive view, so an auto-open guarded by a `useRef`, or a paginator created inside the view, starts over on every switch            | Create the paginator above `ChatView`; auto-open only while `openChannels` is empty ([section 6](#v14-list-defaults-that-changed))                                                | `new ChannelPaginator` or a `useRef` open-once guard inside `views`                                                   |
@@ -291,6 +292,7 @@ These compile cleanly, or are ignored in plain JS, and change behavior at runtim
 | Plain JS: a removed prop or override key (`Message`, `HeaderStartContent`, `do*Request`, `overrideSubmitHandler`, ...) does nothing                                               | Ignored without a warning                                                                                                                                    | Grep for each removed name listed in this guide                                                                                                                                   | The [leftover-identifier grep](#verification)                                                                         |
 | A supplied composer keeps its content after `MessageComposer` unmounts                                                                                                            | A supplied composer is never cleared on unmount                                                                                                              | Call `composer.clear()` yourself ([section 13](#preventclearingonunmount-is-removed))                                                                                             | `MessageComposerControllerProvider`                                                                                   |
 | A voice message stops another one playing in a different panel                                                                                                                    | Playback is exclusive app-wide                                                                                                                               | Nothing to do ([section 12](#allowconcurrentplayback-is-removed-one-voice-message-plays-at-a-time))                                                                               | `allowConcurrent`                                                                                                     |
+| A custom composer without `CommandChip` loses `/giphy` from the text as soon as the command is typed                                                                              | `stream-chat` v10 installs the command middlewares, which move the active command out of the text                                                            | Remove the four command middlewares ([section 13](#command-middlewares-are-installed-by-stream-chat))                                                                             | `stream-io/text-composer/(active-command-guard                                                                        | command-string-extraction)`, `command-string-injection`, a custom composer that renders no `CommandChip` |
 | The attachment menu offers different actions than before                                                                                                                          | Actions follow the composer's resolved configuration                                                                                                         | Set `customCdn` where it applies ([section 13](#attachment-and-poll-availability))                                                                                                | `doUploadRequest`, `customCdn`                                                                                        |
 | A custom `MessageTimestamp` does not show in the header of a gallery you build yourself                                                                                           | The gallery renders outside a message and reads the item; it uses the override only when the item carries its `message`                                      | Set `message` on each `GalleryItem` ([section 12](#the-gallery-header-renders-the-messagetimestamp-override-for-items-that-carry-their-message))                                  | `GalleryItem`, `<Gallery`                                                                                             |
 | `dayjs(created_at)` renders `Invalid Date`                                                                                                                                        | Server timestamps are unix nanoseconds                                                                                                                       | Convert with `convertTimestampToDate` ([section 16](#16-dates-on-response-types-are-unix-nanosecond-numbers))                                                                     | The section 16 detection pattern                                                                                      |
@@ -362,6 +364,7 @@ Each import below is now a compile error (`TS2305` / `TS2724`) and `undefined` i
 | `useLegacyThreadContext`                                                                                                                                                         | [Section 7](#thread-takes-a-thread-prop-and-renders-its-children)                         |
 | `MESSAGE_ACTIONS`, `OPTIONAL_MESSAGE_ACTIONS`, `getMessageActions`, `MessageActionsArray`, `Capabilities`                                                                        | [Section 10](#messageactions-and-message_actions-are-removed)                             |
 | `deTranslations` ... `trTranslations`, `enTranslations`, `isLanguageSupported`, `SupportedTranslations`, `DateFormatterOptions`                                                  | [Section 18](#18-i18n)                                                                    |
+| `DefaultCommandData`                                                                                                                                                             | [Section 17](#17-other-stream-chat-v10-data-shapes)                                       |
 
 New root exports: `useMessagePaginator()` returns the active list's paginator (the thread's inside a thread, the channel's otherwise), and `useIsCooldownActive()` tells whether slow mode is counting down.
 
@@ -1318,17 +1321,18 @@ These hit apps that never passed the props, because they were v14 defaults:
 
 ### `ChannelListUI` is removed; use the list slots
 
-`ChannelListUI`, `ChannelListUIProps` and the `ComponentContext.ChannelListUI` slot are removed. `ChannelList` renders an `InfiniteScrollPaginator` and reads these `ComponentContext` slots instead (only `ChannelList` reads them today):
+`ChannelListUI`, `ChannelListUIProps` and the `ComponentContext.ChannelListUI` slot are removed. `ChannelList` renders an `InfiniteScrollPaginator` and reads these `ComponentContext` slots instead (`ThreadList` reads `FirstPageLoadingIndicator` and `ListLoadErrorIndicator` too; only `ChannelList` reads the others today). To give the lists different overrides, wrap each in its own `WithComponents`; under `ChatView`, do it in `slotRenderers.channelList` / `slotRenderers.threadList`, which render `ChannelNavigation` and `ThreadList`. The slots:
 
-| Slot                        | Props                   | Default                   |
-| --------------------------- | ----------------------- | ------------------------- |
-| `EmptyListIndicator`        | none                    | the empty state           |
-| `EndReachedIndicator`       | `{ hasEnded, reached }` |                           |
-| `FirstPageLoadingIndicator` | none                    | `LoadingChannels`         |
-| `ListItem`                  | `{ item }`              | renders `ChannelListItem` |
-| `LoadingNextPageIndicator`  | `{ isLoading? }`        |                           |
+| Slot                        | Props                          | Default                                                           |
+| --------------------------- | ------------------------------ | ----------------------------------------------------------------- |
+| `EmptyListIndicator`        | none                           | the empty state                                                   |
+| `EndReachedIndicator`       | `{ hasEnded, reached }`        |                                                                   |
+| `FirstPageLoadingIndicator` | none                           | `LoadingChannels`                                                 |
+| `ListItem`                  | `{ item }`                     | renders `ChannelListItem`                                         |
+| `ListLoadErrorIndicator`    | `{ error, isRetrying, retry }` | an icon, the list's "Couldn't load …" text and a Try again button |
+| `LoadingNextPageIndicator`  | `{ isLoading? }`               |                                                                   |
 
-`ComponentContext.LoadingIndicator` no longer affects the channel list (the `LoadingErrorIndicator` slot is removed, [section 5](#channel-requires-channel-and-renders-no-placeholder-loading-or-error-state)), and query errors are reported as a notification. For a fully custom list, read `useChannelPaginatorState(paginator)` and render your own.
+`ComponentContext.LoadingIndicator` no longer affects the channel list (the `LoadingErrorIndicator` slot is removed, [section 5](#channel-requires-channel-and-renders-no-placeholder-loading-or-error-state)). A first page that fails to load renders `ListLoadErrorIndicator` in place of the list; its `retry` calls `paginator.reload()`. The list keeps it on screen while the retry runs, with `isRetrying` set, so a focused retry button keeps focus, also when the retry fails; a retry that loads the list is announced. A query error that happens while the list is mounted is also reported as an error notification in the `channel-list` panel, which `ChannelNavigation` renders; a `ChannelList` used without it renders no `NotificationList` for that panel. For a fully custom list, read `useChannelPaginatorState(paginator)` and render your own.
 
 ```tsx
 // v14
@@ -1578,6 +1582,7 @@ v14's `<ThreadProvider thread={t}>` rendered `<Channel channel={t.channel}>` aro
 - Mounting `ThreadList` calls `client.threads.reload({ force: true })` every time. v14 reloaded only when the manager was not ready, had unseen threads or a stale order.
 - Clicking a row calls `useWorkspaceNavigation().openThread(thread)`, and a row is active when `isThreadActive(id)` ([section 4](#4-selecting-channels-and-opening-threads-workspace-navigation)). v14 used `ThreadsViewContext`.
 - The list reads `client.threads.paginator.state`. Code reading `client.threads.state.threads` / `.pagination` breaks for `stream-chat` v10 reasons; read the paginator.
+- The first-load skeleton is the shared `FirstPageLoadingIndicator` slot (no props, default `LoadingChannels`), the same one the channel list reads. The shared `ListLoadErrorIndicator` slot (`{ error, isRetrying, retry }`) renders in place of the list when the first load fails; its `retry` calls `client.threads.reload({ force: true })`. A query error that happens while the list is mounted is also reported as an error notification in the `thread-list` panel.
 
 ---
 
@@ -2475,6 +2480,34 @@ export const InlineEditor = ({ composer }: { composer: Composer }) => (
 
 `client.setMessageComposerSetupFunction(fn)` still works in `stream-chat` v10 but is deprecated. Register composer setup (emoji or giphy middleware, composer config) with `client.config.setSetupFunction('messageComposer', fn)`; `fn` receives the same `{ composer }` and may return a teardown ([`instance-configuration.md`](https://github.com/GetStream/stream-chat-react/blob/master/ai-docs/instance-configuration.md#setup-functions-for-behaviour)).
 
+### Command middlewares are installed by `stream-chat`
+
+A `stream-chat` v10 change ([command middlewares installed by default](https://github.com/GetStream/stream-chat-js/blob/release-v10/ai-docs/v10-breaking-changes.md#composer-command-middlewares-default)). Every composer now installs the four command middlewares that v14 apps installed themselves, as the v14 examples did: `createActiveCommandGuardMiddleware` and `createCommandStringExtractionMiddleware` in the text chain, `createCommandInjectionMiddleware` and `createDraftCommandInjectionMiddleware` in the composition chains.
+
+- v14: without them, typing `/giphy cats` showed the `CommandChip` and kept `/giphy cats` in the text. A command picked from the Commands menu was sent without the command: the GIPHY chip with `cats` sent plain `cats`.
+- v15: typing `/giphy cats` moves `giphy` into the chip and leaves `cats` in the text. Typed or picked, the message is sent as `/giphy cats`, and the draft keeps `/giphy cats`. While a command is active, typing `/` suggests no other command.
+- A command that takes no arguments (empty `args`, for example a custom `/shrug`) is sent with the chip alone: the send button is enabled and `messageComposer.hasSendableData` is `true`. A command that takes arguments, such as `giphy`, still needs text.
+
+To migrate:
+
+- Delete your own installs of these middlewares, usually `insert()` calls in the composer setup function with the ids `stream-io/text-composer/active-command-guard`, `stream-io/text-composer/command-string-extraction`, `stream-io/message-composer-middleware/command-string-injection` and `stream-io/message-composer-middleware/draft-command-string-injection`.
+- A custom composer that shows the command in the text instead of rendering `CommandChip` removes all four, so the text keeps `/giphy cats` and is sent as typed. Removing only the guard and the extraction is not enough: the command stays active after the user deletes `/giphy` from the text, and the injection puts it back (`cats` is sent as `/giphy cats`). Without the injection, a command activated with `textComposer.setCommand()` is not added to the text, so such a UI writes `/giphy ` into the text itself.
+
+```ts
+client.config.setSetupFunction('messageComposer', ({ composer }) => {
+  composer.textComposer.middlewareExecutor.remove([
+    'stream-io/text-composer/active-command-guard',
+    'stream-io/text-composer/command-string-extraction',
+  ]);
+  composer.compositionMiddlewareExecutor.remove(
+    'stream-io/message-composer-middleware/command-string-injection',
+  );
+  composer.draftCompositionMiddlewareExecutor.remove(
+    'stream-io/message-composer-middleware/draft-command-string-injection',
+  );
+});
+```
+
 ### Attachment and poll availability
 
 `AttachmentSelector` used to decide which actions to offer from the channel type's raw server flags. It now reads the composer's resolved configuration (server flags ANDed with `client.config`). No React API changed, but the actions offered differ:
@@ -2640,6 +2673,7 @@ The default poll creation dialog sends the poll as soon as it is created. To hav
 2. Replace the dialog's footer through the new `PollCreationDialogControls` slot (`PollCreationDialogControls` and `PollCreationDialogControlsProps` are exported) and call `createPoll()` without `send()`:
 
 ```tsx
+import { useState } from 'react';
 import {
   type PollCreationDialogControlsProps,
   Prompt,
@@ -2649,21 +2683,32 @@ import {
 
 const AttachPollControls = ({ close }: PollCreationDialogControlsProps) => {
   const messageComposer = useMessageComposerController();
+  // Blocks a second request, and a Cancel that the pending poll would ignore.
+  const [isCreating, setIsCreating] = useState(false);
 
   return (
     <Prompt.Footer>
       <Prompt.FooterControls>
-        <Prompt.FooterControlsButtonSecondary onClick={close} type='button'>
+        <Prompt.FooterControlsButtonSecondary
+          disabled={isCreating}
+          onClick={close}
+          type='button'
+        >
           Cancel
         </Prompt.FooterControlsButtonSecondary>
         <Prompt.FooterControlsButtonPrimary
+          disabled={isCreating}
           onClick={async () => {
-            close();
+            setIsCreating(true);
             try {
               // The poll waits in `messageComposer.state.pollId` and goes out with the message.
               await messageComposer.createPoll();
             } catch {
               // `createPoll()` already reported the failure as a notification.
+            } finally {
+              setIsCreating(false);
+              // Closed once the poll is attached, so a message sent meanwhile cannot miss it.
+              close();
             }
           }}
           type='submit'
@@ -2866,7 +2911,7 @@ export const DayDivider = ({ message }: { message: LocalMessage }) => {
 
 ## 17. Other `stream-chat` v10 data shapes
 
-React props typed with `stream-chat` types change with them. The React APIs are unchanged; build and read the values with the v10 shapes.
+React props typed with `stream-chat` types change with them. The React APIs are unchanged, apart from the removed `DefaultCommandData` (see the command names bullet under **Composer**); build and read the values with the v10 shapes.
 
 **Channel, chat context and search:**
 
@@ -2929,6 +2974,19 @@ export const DeleteForMe = () => {
 **Composer:**
 
 - `CommandChip.command`, `CommandItem.entity`, `MessageComposerCommand.command`: `CommandResponse` → `Command`, where `args`, `description` and `set` are required.
+- **Command names are `string`.** `stream-chat` v10 removes `CustomCommandData`, and `stream-chat-react` removes `DefaultCommandData` with it. In v14, `command.name` / `command.set` were `CommandVariants` (the built-in names plus the keys of `CustomCommandData`); in v15 they are plain `string`. Delete the `interface CustomCommandData extends DefaultCommandData {}` line from your `declare module 'stream-chat'` block and the `DefaultCommandData` import (`TS2305`). A leftover `CustomCommandData` augmentation without that import still compiles and does nothing, so search for the name. To keep a checked set of command names, declare the union in your app:
+
+  ```ts
+  import type { Command } from 'stream-chat';
+
+  type AppCommandName = 'giphy' | 'poll';
+
+  export const isAppCommand = (
+    command: Command,
+  ): command is Command & { name: AppCommandName } =>
+    command.name === 'giphy' || command.name === 'poll';
+  ```
+
 - `DefaultSuggestionListItemEntity`: `anon`, `channel_last_read_at`, `notifications_muted`, `privacy_settings`, `push_notifications`, `shadow_banned` and `username` are gone (v10 user custom fields live in `entity.custom`); dates are `TimestampNS`; `teams_role` is `Record<string, string>`.
 - `getQuotedMessageAuthor` (on `QuotedMessagePreview` and its props): `(message: LocalMessage | MessageResponse) => string`. A callback typed with `LocalMessage` only is rejected under `strictFunctionTypes`. `QuotedMessagePreviewUI.quotedMessage`: `LocalMessage | MessageResponse`.
 - `GeolocationPreviewProps.location`, `useAttachmentsForPreview().location`: `StaticLocationPreview`.
@@ -3086,7 +3144,7 @@ Run after every section is applied.
 2. **Leftover identifiers.** Every v14 name below was removed or renamed. In a plain-JS app this grep is the only thing that finds them. It must print nothing outside comments, changelogs and app identifiers that only share the name (record those in the report). Uses the `code` / `styles` helpers from [Detection](#detection).
 
    ```bash
-   code '\b(WindowProps|ChannelStateContext|ChannelStateContextValue|ChannelStateProvider|useChannelStateContext|ChannelActionContext|ChannelActionContextValue|ChannelActionProvider|useChannelActionContext|ChannelNotifications|MarkReadWrapperOptions|RetrySendMessage|TypingContext|TypingContextValue|TypingProvider|useTypingContext|ChannelUnreadUiState|channelUnreadUiState|setChannelUnreadUiState|updateChannelUiUnreadState|useThreadsViewContext|ThreadsViewContextValue|ThreadAdapter|activeChatView|setActiveChatView|setActiveChannel|setActiveChannelOnMount|customActiveChannel|channelsQueryState|latestMessageDatesByChannels|useChannelEditMessageHandler|useChannelMentionsHandler|ChannelListUI|ChannelListUIProps|usePaginatedChannels|useConnectionRecoveredListener|CustomQueryChannelParams|CustomQueryChannelsFn|EffectiveQueryParams|moveChannelUpwards|findLastPinnedChannelIndex|extractSortValue|isChannelPinned|isChannelArchived|shouldConsiderPinnedChannels|shouldConsiderArchivedChannels|allowNewMessagesFromUnfilteredChannels|lockChannelOrder|showChannelSearch|sendChannelsToList|renderChannels|channelRenderFilterFn|customQueryChannels|recoveryThrottleIntervalMs|onMessageNewHandler|channelUpdateCount|useLegacyThreadContext|additionalMessageComposerProps|additionalMessageListProps|additionalVirtualizedMessageListProps|additionalParentMessageProps|enableDateSeparator|disableDateSeparator|HeaderStartContent|MESSAGE_ACTIONS|OPTIONAL_MESSAGE_ACTIONS|getMessageActions|MessageActionsArray|actionsEnabled|messageIsUnread|initializeOnMount|channelQueryOptions|markReadOnMount|activeUnreadHandler|skipMessageDataMemoization|allowConcurrentAudioPlayback|allowConcurrentPlayback|doSendMessageRequest|doUpdateMessageRequest|doDeleteMessageRequest|doMarkReadRequest|overrideSubmitHandler|preventClearingOnUnmount|loadMoreNewer|loadMoreThread|loadingMoreNewer|jumpToLatestMessage|jumpToFirstUnreadMessage|highlightedMessageId|threadSuppressAutoscroll|loadingMoreForJumpToChannelMessage|messageLimit|hasPendingUploadState|recoverStateOnReconnect|wsUrlParams|isLocalUnreadCountEnabled|StreamChatOptions|isLanguageSupported|SupportedTranslations|DateFormatterOptions|getTranslators|registerSetLanguageCallback|getAvailableLanguages|geti18Instance|deTranslations|enTranslations|esTranslations|frTranslations|hiTranslations|itTranslations|jaTranslations|koTranslations|nlTranslations|ptTranslations|ruTranslations|trTranslations|ChannelSort|UserSort|ReactionSort|WatcherState|unBlockUser|ReminderResponse|CommandResponse|chatContainer)\b|<Window\b|ChatView\.(Channels|Threads)\b|\.(read|typing|members|watcher|ownCapabilities|mutedUsers)Store\b|getConfig\(|\bMessage=\{|\b(Message|ThreadHeader):\s|use[A-Za-z]+Context\([\x27"]|messageActions=|connection\.changed'
+   code '\b(WindowProps|ChannelStateContext|ChannelStateContextValue|ChannelStateProvider|useChannelStateContext|ChannelActionContext|ChannelActionContextValue|ChannelActionProvider|useChannelActionContext|ChannelNotifications|MarkReadWrapperOptions|RetrySendMessage|TypingContext|TypingContextValue|TypingProvider|useTypingContext|ChannelUnreadUiState|channelUnreadUiState|setChannelUnreadUiState|updateChannelUiUnreadState|useThreadsViewContext|ThreadsViewContextValue|ThreadAdapter|activeChatView|setActiveChatView|setActiveChannel|setActiveChannelOnMount|customActiveChannel|channelsQueryState|latestMessageDatesByChannels|useChannelEditMessageHandler|useChannelMentionsHandler|ChannelListUI|ChannelListUIProps|usePaginatedChannels|useConnectionRecoveredListener|CustomQueryChannelParams|CustomQueryChannelsFn|EffectiveQueryParams|moveChannelUpwards|findLastPinnedChannelIndex|extractSortValue|isChannelPinned|isChannelArchived|shouldConsiderPinnedChannels|shouldConsiderArchivedChannels|allowNewMessagesFromUnfilteredChannels|lockChannelOrder|showChannelSearch|sendChannelsToList|renderChannels|channelRenderFilterFn|customQueryChannels|recoveryThrottleIntervalMs|onMessageNewHandler|channelUpdateCount|useLegacyThreadContext|additionalMessageComposerProps|additionalMessageListProps|additionalVirtualizedMessageListProps|additionalParentMessageProps|enableDateSeparator|disableDateSeparator|HeaderStartContent|MESSAGE_ACTIONS|OPTIONAL_MESSAGE_ACTIONS|getMessageActions|MessageActionsArray|actionsEnabled|messageIsUnread|initializeOnMount|channelQueryOptions|markReadOnMount|activeUnreadHandler|skipMessageDataMemoization|allowConcurrentAudioPlayback|allowConcurrentPlayback|doSendMessageRequest|doUpdateMessageRequest|doDeleteMessageRequest|doMarkReadRequest|overrideSubmitHandler|preventClearingOnUnmount|loadMoreNewer|loadMoreThread|loadingMoreNewer|jumpToLatestMessage|jumpToFirstUnreadMessage|highlightedMessageId|threadSuppressAutoscroll|loadingMoreForJumpToChannelMessage|messageLimit|hasPendingUploadState|recoverStateOnReconnect|wsUrlParams|isLocalUnreadCountEnabled|StreamChatOptions|isLanguageSupported|SupportedTranslations|DateFormatterOptions|getTranslators|registerSetLanguageCallback|getAvailableLanguages|geti18Instance|deTranslations|enTranslations|esTranslations|frTranslations|hiTranslations|itTranslations|jaTranslations|koTranslations|nlTranslations|ptTranslations|ruTranslations|trTranslations|ChannelSort|UserSort|ReactionSort|WatcherState|unBlockUser|ReminderResponse|CommandResponse|DefaultCommandData|CustomCommandData|chatContainer)\b|<Window\b|ChatView\.(Channels|Threads)\b|\.(read|typing|members|watcher|ownCapabilities|mutedUsers)Store\b|getConfig\(|\bMessage=\{|\b(Message|ThreadHeader):\s|use[A-Za-z]+Context\([\x27"]|messageActions=|connection\.changed'
    styles 'str-chat__(main-panel|container|channel-list-inner|thread--virtualized)([^a-z0-9_-]|$)|aria-pressed'
    ```
 
@@ -3192,9 +3250,10 @@ Run after every section is applied.
 | BC-075 | `ChatView` view wrappers                                                       | [19](#19-css-and-markup)                                                                                                       |
 | BC-076 | `str-chat__thread--virtualized`                                                | [19](#19-css-and-markup)                                                                                                       |
 | BC-077 | Quote and edit preview colours                                                 | [19](#19-css-and-markup)                                                                                                       |
-| BC-078 | `useUserRole().canEdit` is the permission alone                                | [10](#messageactions-and-message_actions-are-removed)                                                                          |
-| BC-079 | Action rules moved onto `defaultMessageActionSet` items (`isVisible`)          | [10](#messageactions-and-message_actions-are-removed)                                                                          |
-| BC-080 | Quote above poll; `--has-poll` / `--has-single-attachment`                     | [12](#new-the-message-bubbles-content-is-a-configurable-set-the-quoted-message-renders-above-a-poll), [19](#19-css-and-markup) |
-| BC-081 | Custom preview slots mount only while their item is visible                    | [13](#new-composer-previews-are-a-configurable-set)                                                                            |
-| BC-082 | Message action handlers reject                                                 | [12](#message-action-handlers-reject-when-they-fail)                                                                           |
-| BC-083 | First message loses its top padding                                            | [19](#19-css-and-markup)                                                                                                       |
+| BC-078 | `CustomCommandData` / `DefaultCommandData` removed                             | [17](#17-other-stream-chat-v10-data-shapes)                                                                                    |
+| BC-079 | `useUserRole().canEdit` is the permission alone                                | [10](#messageactions-and-message_actions-are-removed)                                                                          |
+| BC-080 | Action rules moved onto `defaultMessageActionSet` items (`isVisible`)          | [10](#messageactions-and-message_actions-are-removed)                                                                          |
+| BC-081 | Quote above poll; `--has-poll` / `--has-single-attachment`                     | [12](#new-the-message-bubbles-content-is-a-configurable-set-the-quoted-message-renders-above-a-poll), [19](#19-css-and-markup) |
+| BC-082 | Custom preview slots mount only while their item is visible                    | [13](#new-composer-previews-are-a-configurable-set)                                                                            |
+| BC-083 | Message action handlers reject                                                 | [12](#message-action-handlers-reject-when-they-fail)                                                                           |
+| BC-084 | First message loses its top padding                                            | [19](#19-css-and-markup)                                                                                                       |

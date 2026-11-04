@@ -5,7 +5,15 @@ import type { Channel, ChannelPaginator, ChannelPaginatorState } from 'stream-ch
 import { ChannelListItem } from '../ChannelListItem';
 import { EmptyStateIndicator } from '../EmptyStateIndicator';
 import { InfiniteScrollWithComponents } from '../InfiniteScrollPaginator/InfiniteScrollWithComponents';
-import { LoadingChannels, LoadingIndicator } from '../Loading';
+import {
+  ListLoadErrorIndicator as BaseListLoadErrorIndicator,
+  type ListLoadErrorIndicatorProps,
+  LoadingChannels,
+  LoadingIndicator,
+} from '../Loading';
+import { getFirstPageLoadError } from '../Loading/getFirstPageLoadError';
+import { useFirstPageLoadRetry } from '../Loading/hooks/useFirstPageLoadRetry';
+import { useAddNotificationOnError } from '../Notifications/hooks/useAddNotificationOnError';
 import { useChatContext } from '../../context/ChatContext';
 import { useComponentContext } from '../../context/ComponentContext';
 import { useTranslationContext } from '../../context/TranslationContext';
@@ -27,8 +35,11 @@ export type ChannelListProps = {
 const channelPaginatorStateSelector = (state: ChannelPaginatorState) => ({
   // `items === undefined` means "never queried": the initial state, and where a paginator returns
   // when its data is discarded (e.g. `client.disconnectUser` resets every registered list). An
-  // empty array is a loaded empty page and must not trigger a query.
-  isUnloaded: state.items === undefined,
+  // empty array is a loaded empty page and must not trigger a query. A failed first page leaves
+  // `items` undefined too, but holds the error until a retry or a reset; with `throwErrors` set,
+  // that error is all that keeps the list from querying again and again.
+  awaitsFirstPage: state.items === undefined && !state.isLoading && !state.lastQueryError,
+  firstPageLoadError: getFirstPageLoadError(state),
   lastQueryError: state.lastQueryError,
 });
 
@@ -42,9 +53,9 @@ export const ChannelList = ({
   loadMoreThresholdPx,
   paginator,
 }: ChannelListProps) => {
-  const { channelManager, client } = useChatContext();
+  const { channelManager } = useChatContext();
   const { t } = useTranslationContext();
-  const { isUnloaded, lastQueryError } = useStateStore(
+  const { awaitsFirstPage, firstPageLoadError, lastQueryError } = useStateStore(
     paginator.state,
     channelPaginatorStateSelector,
   );
@@ -53,6 +64,7 @@ export const ChannelList = ({
     EndReachedIndicator = DefaultEndReachedIndicator,
     FirstPageLoadingIndicator = LoadingChannels,
     ListItem = DefaultListItem,
+    ListLoadErrorIndicator = DefaultListLoadErrorIndicator,
     LoadingNextPageIndicator = DefaultLoadingNextPageIndicator,
   } = useComponentContext();
 
@@ -68,18 +80,38 @@ export const ChannelList = ({
 
   // Loads the first page, and again whenever the list returns to "never queried": the paginator
   // outlives this component, so querying only on mount would leave a reset list permanently empty.
+  // An initialized paginator has queried already; its pages arrive through that query or its
+  // recovery, and a query from here would load the next page.
   useEffect(() => {
-    if (!isUnloaded) return;
+    if (!awaitsFirstPage || paginator.isInitialized) return;
     paginator.toTailDebounced();
-  }, [isUnloaded, paginator]);
+  }, [awaitsFirstPage, paginator]);
 
-  useEffect(() => {
-    if (!lastQueryError) return;
-    client.notifications.addError({
-      message: lastQueryError.message,
-      origin: { context: { reason: 'channel query error' }, emitter: 'ChannelList' },
-    });
-  }, [client, lastQueryError]);
+  useAddNotificationOnError(lastQueryError, {
+    emitter: 'ChannelList',
+    message: t('channelList.loadError.text', "Couldn't load conversations"),
+    targetPanels: ['channel-list'],
+    type: 'api:channel:query:failed',
+  });
+
+  const firstPageLoadRetry = useFirstPageLoadRetry({
+    firstPageLoadError,
+    loadedMessage: t('channelList.loaded.text', 'Conversations loaded'),
+    paginator,
+    reload: paginator.reload,
+  });
+
+  if (firstPageLoadRetry.error) {
+    return (
+      <ThemeScope>
+        <ListLoadErrorIndicator
+          error={firstPageLoadRetry.error}
+          isRetrying={firstPageLoadRetry.isRetrying}
+          retry={firstPageLoadRetry.retry}
+        />
+      </ThemeScope>
+    );
+  }
 
   // Rendered without `ChannelNavigation` or `ChatView` above it, the list brings the theme scope.
   return (
@@ -104,6 +136,10 @@ export const ChannelList = ({
     </ThemeScope>
   );
 };
+
+const DefaultListLoadErrorIndicator = (props: ListLoadErrorIndicatorProps) => (
+  <BaseListLoadErrorIndicator {...props} listType='channel' />
+);
 
 const DefaultEmptyChannelList = () => <EmptyStateIndicator listType='channel' />;
 
