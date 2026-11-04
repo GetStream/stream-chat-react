@@ -3342,7 +3342,7 @@ export const DeleteForMe = () => {
 
 - Status: confirmed
 - Area: custom data types, commands
-- User impact: compile error `TS2305` on `import type { DefaultCommandData } from 'stream-chat-react'`, and, with a `stream-chat` release after `10.0.0-rc.31`, on `import type { CustomCommandData } from 'stream-chat'` once no augmentation of it is left in the program. Command names lose their type: v14 typed `command.name` / `command.set` as `CommandVariants` (the built-in names plus the keys of `CustomCommandData`), so a typo such as `command.name === 'gihpy'` failed to compile; v15 types them as `string`, and it compiles. A leftover `interface CustomCommandData { … }` in `declare module 'stream-chat'` still compiles and has no effect, because nothing reads it.
+- User impact: compile error `TS2305` on `import type { DefaultCommandData } from 'stream-chat-react'`, and, with a `stream-chat` release after `10.0.0-rc.32`, on `import type { CustomCommandData } from 'stream-chat'` once no augmentation of it is left in the program. Command names lose their type: v14 typed `command.name` / `command.set` as `CommandVariants` (the built-in names plus the keys of `CustomCommandData`), so a typo such as `command.name === 'gihpy'` failed to compile; v15 types them as `string`, and it compiles. A leftover `interface CustomCommandData { … }` in `declare module 'stream-chat'` still compiles and has no effect, because nothing reads it.
 - Old API:
   - `DefaultCommandData` (exported from `stream-chat-react`)
   - `declare module 'stream-chat' { interface CustomCommandData extends DefaultCommandData {} }`
@@ -3351,7 +3351,7 @@ export const DeleteForMe = () => {
   - `release-v14:src/types/defaultDataInterfaces.ts:11` `export interface DefaultCommandData {}`; `release-v14:src/@types/stream-chat-custom-data.d.ts:23` augments `CustomCommandData` with it
   - `stream-chat` `v9.54.4:src/types.ts:2772-2781` `CommandVariants = 'all' | 'ban' | 'fun_set' | 'giphy' | 'moderation_set' | 'mute' | 'unban' | 'unmute' | keyof CustomCommandData`, used by `CommandResponse.name` / `set` (`:470-475`)
   - `master:node_modules/stream-chat/src/gen/models/index.ts:2551-2568` `Command.name: string`, `Command.set: string`
-  - `stream-chat` `release-v10` removes `CustomCommandData` from `src/custom_types.ts` and the root exports after `10.0.0-rc.31` (REACT-1363); `10.0.0-rc.31`, which `master` pins, still exports it
+  - `stream-chat` `release-v10` removes `CustomCommandData` from `src/custom_types.ts` and the root exports after `10.0.0-rc.32` (GetStream/stream-chat-js#1989, REACT-1363); `10.0.0-rc.32` and earlier still export it, including `10.0.0-rc.31`, which `master` pins
   - `master:src/types/defaultDataInterfaces.ts` has no `DefaultCommandData`
   - examples: `release-v14:examples/ai-chatbot/src/components/stream-chat.d.ts:4,25` imported and augmented it
 - Docs impact:
