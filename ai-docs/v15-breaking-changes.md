@@ -3956,7 +3956,7 @@ Found by the staleness pass of 2026-11-03: commits that landed on `master` after
 - Area: MessageList / VirtualizedMessageList / getGroupStyles / useEnrichedMessages
 - User impact:
   - compile errors on `noGroupByUser`, `shouldGroupByUser` and `groupStyles`, on positional calls of `getGroupStyles`, and on the old `useEnrichedMessages` options
-  - in untyped code the old props are ignored and the defaults apply: `MessageList noGroupByUser` groups again, `VirtualizedMessageList shouldGroupByUser` stops grouping, and a `groupStyles` function is never called. A positional function passed as `getGroupStyles` receives the object as `message` and computes wrong styles without an error.
+  - in untyped code the old props are ignored and the defaults apply: `MessageList noGroupByUser` groups again, `VirtualizedMessageList shouldGroupByUser` stops grouping, and a `groupStyles` function is never called. A positional function passed as `getGroupStyles` receives the object as `message` and `undefined` for the other arguments, so it computes wrong styles or throws (for example on `previousMessage.created_at`).
 - Old API:
   - `MessageList.noGroupByUser` (default `false`), `VirtualizedMessageList.shouldGroupByUser` (default `false`), `VirtuosoContext.shouldGroupByUser`
   - `MessageList.groupStyles`, `VirtualizedMessageList.groupStyles`: `(message, previousMessage, nextMessage, noGroupByUser, maxTimeBetweenGroupedMessages?) => GroupStyle`
