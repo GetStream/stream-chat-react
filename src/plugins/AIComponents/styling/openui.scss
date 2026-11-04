@@ -152,7 +152,8 @@
     }
   }
 
-  // Chips: pills on a quiet fill, and the chosen ones in the accent colour, ticked.
+  // Chips: pills on a quiet fill, and the chosen ones in the accent colour, the same size either
+  // way, so choosing one moves nothing.
   .openui-chip-item {
     gap: 0.375rem;
     padding: 0.4375rem ai-scale(space-sm);
@@ -173,10 +174,6 @@
     border-color: ai-token(accent);
     background-color: color-mix(in srgb, #{ai-token(accent)} 14%, transparent);
     color: ai-token(accent);
-
-    &::after {
-      @include ai-ui-glyph($ai-ui-glyph-check, 0.75rem);
-    }
   }
 
   // Buttons: pills as wide as their row shares, but the tertiary one, which is as its words.

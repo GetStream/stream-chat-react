@@ -109,16 +109,46 @@ type ButtonProps = Checked &
     variant?: unknown;
   };
 
+const isBorderlessButton = (context: ComponentContext, id: unknown) => {
+  if (typeof id !== 'string') return false;
+  const component = context.surfaceComponents.get(id);
+  return component?.type === 'Button' && component.properties.variant === 'borderless';
+};
+
+/**
+ * Where a borderless Button is among the follow-ups of a Column: `first`, or `after` another
+ * borderless Button, which a hairline then parts it from. A borderless Button anywhere else, such
+ * as in a Row, is not a follow-up, and reads as a link.
+ */
+const followUpPlaceOf = (
+  context: ComponentContext | undefined,
+): 'first' | 'after' | undefined => {
+  if (!context) return undefined;
+  const { id } = context.componentModel;
+  for (const parent of context.surfaceComponents.values) {
+    const { children } = parent.properties;
+    if (parent.type !== 'Column' || !Array.isArray(children)) continue;
+    const index = children.indexOf(id);
+    if (index < 0) continue;
+    return index > 0 && isBorderlessButton(context, children[index - 1])
+      ? 'after'
+      : 'first';
+  }
+  return undefined;
+};
+
 /**
  * A2UI's Button as Stream's: primary for the main call to action, and borderless as a ghost
  * button in the accent colour, which the spec means to read as a link, as it does on iOS.
  */
 export const A2UIButton = ({
   buildChild,
+  context,
   props,
 }: ReactA2uiComponentProps<ButtonProps>) => {
   const { part, scope } = usePart(props);
   const isDisabled = props.isValid === false;
+  const followUp = props.variant === 'borderless' ? followUpPlaceOf(context) : undefined;
   const look =
     props.variant === 'primary'
       ? ({ appearance: 'solid', variant: 'primary' } as const)
@@ -136,6 +166,10 @@ export const A2UIButton = ({
             ? props.variant
             : 'default'
         }`,
+        {
+          'str-chat__a2ui-button--follow-up': followUp,
+          'str-chat__a2ui-button--follow-up-after': followUp === 'after',
+        },
         part.className,
       )}
       disabled={isDisabled}

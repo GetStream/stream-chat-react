@@ -1,4 +1,4 @@
-import React, { type ComponentType } from 'react';
+import React, { type ComponentType, useMemo } from 'react';
 
 import { decodeAIUIArguments } from './AIUIArguments';
 import type { AIUIComponentDefinition } from './AIUIComponentDefinition';
@@ -75,17 +75,26 @@ export const AIUIComponentView = ({
   component: AIUIComponent;
   context: AIUIComponentContext;
 }) => {
-  const decoded = decodeAIUIArguments(args, component.definition.parameters);
+  const { host, isStreaming, messageId } = context;
+  // Worked out again only when the arguments change, for a renderer that keeps the same object
+  // while they don't, as the A2UI renderer does.
+  const decoded = useMemo(
+    () => decodeAIUIArguments(args, component.definition.parameters),
+    [args, component],
+  );
+  const resetKey = useMemo(
+    () => (decoded === undefined ? undefined : attemptOf(decoded, isStreaming)),
+    [decoded, isStreaming],
+  );
   if (decoded === undefined) return null;
   const { Component } = component;
-  const { host, isStreaming, messageId } = context;
   return (
     <AIUIErrorBoundary
       onError={(error) => {
         // While the reply streams, what the component was given may still be incomplete.
         if (!isStreaming) host.reportRenderError(error, messageId);
       }}
-      resetKey={attemptOf(decoded, isStreaming)}
+      resetKey={resetKey}
     >
       <AIUIEntrance>
         <Component args={decoded as never} context={context} />

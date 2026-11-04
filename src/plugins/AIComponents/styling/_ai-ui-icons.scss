@@ -21,17 +21,7 @@
   content: $glyph;
 }
 
-// A glyph in the colour of its text, such as a chosen chip's tick.
-@mixin ai-ui-glyph($glyph, $size) {
-  flex: none;
-  font-size: $size;
-  font-weight: 600;
-  line-height: 1;
-  content: $glyph;
-}
-
 $ai-ui-glyph-info: 'i';
 $ai-ui-glyph-success: '\2713';
 $ai-ui-glyph-warning: '!';
 $ai-ui-glyph-danger: '\00d7';
-$ai-ui-glyph-check: '\2713';

@@ -148,8 +148,8 @@
 }
 
 // Buttons, chips and follow-ups as OpenUI's are drawn, so a reply looks the same in either format:
-// buttons as pills, the main one as wide as the reply, and borderless ones as follow-ups, their
-// words in the accent colour, as on iOS, with a hairline between them.
+// buttons as pills, the main one as wide as the reply, and the borderless ones of a Column as
+// follow-ups, their words in the accent colour, as on iOS, with a hairline between them.
 .str-chat .str-chat__a2ui {
   .str-chat__button.str-chat__a2ui-button {
     border-radius: var(--str-chat__radius-max, 9999px);
@@ -161,7 +161,13 @@
     align-self: stretch;
   }
 
+  // A borderless Button reads as a link; in a Column, as a follow-up: a row of its own in the
+  // accent colour, with a hairline parting it from the one before.
   .str-chat__button.str-chat__a2ui-button.str-chat__a2ui-button--borderless {
+    font-weight: 500;
+  }
+
+  .str-chat__button.str-chat__a2ui-button.str-chat__a2ui-button--follow-up {
     align-self: stretch;
     justify-content: flex-start;
     gap: ai-scale(space-xs);
@@ -172,15 +178,12 @@
     padding: 0.625rem ai-scale(space-sm);
     border-radius: ai-scale(radius-lg);
     color: ai-token(accent);
-    font-weight: 500;
     text-align: start;
     white-space: normal;
   }
 
-  // The hairline between follow-ups, in the gap of the column that holds them.
-  a2ui-react-button:has(> .str-chat__a2ui-button--borderless)
-    + a2ui-react-button
-    > .str-chat__button.str-chat__a2ui-button.str-chat__a2ui-button--borderless {
+  // The hairline, in the gap of the Column that holds them.
+  .str-chat__button.str-chat__a2ui-button.str-chat__a2ui-button--follow-up-after {
     margin-top: -0.5rem;
     background-image: linear-gradient(ai-token(border), ai-token(border));
     background-position: ai-scale(space-sm) 0;

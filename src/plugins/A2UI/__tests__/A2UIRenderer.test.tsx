@@ -652,10 +652,48 @@ describe('the basic catalog in Stream’s look', () => {
     const book = await screen.findByRole('button', { name: '**Book** it' });
     expect(book).toHaveClass('str-chat__button--primary', 'str-chat__button--solid');
     expect(book.querySelector('p, strong')).toBeNull();
-    // Borderless reads as a link, in the accent colour, rather than as grey words.
-    expect(screen.getByRole('button', { name: 'Later' })).toHaveClass(
-      'str-chat__button--ghost',
-      'str-chat__button--primary',
+    // Borderless reads as a link, in the accent colour, rather than as grey words; in a Row it
+    // is no follow-up.
+    const later = screen.getByRole('button', { name: 'Later' });
+    expect(later).toHaveClass('str-chat__button--ghost', 'str-chat__button--primary');
+    expect(later).not.toHaveClass('str-chat__a2ui-button--follow-up');
+  });
+
+  it('draws the borderless Buttons of a Column as follow-ups, parted by hairlines', async () => {
+    const { ui } = setup();
+    const followUp = (id: string, text: string) => [
+      {
+        action: { event: { name: 'ask', userMessage: text } },
+        child: `${id}_label`,
+        component: 'Button',
+        id,
+        variant: 'borderless',
+      },
+      { component: 'Text', id: `${id}_label`, text },
+    ];
+    const lines = surfaceWith([
+      { children: ['go', 'hotel', 'eat'], component: 'Column', id: 'root' },
+      {
+        action: { event: { name: 'go' } },
+        child: 'go_label',
+        component: 'Button',
+        id: 'go',
+        variant: 'primary',
+      },
+      { component: 'Text', id: 'go_label', text: 'Update the plan' },
+      ...followUp('hotel', 'Find a hotel'),
+      ...followUp('eat', 'Where should we eat?'),
+    ]);
+    renderWithEnglish(<AIConversation messages={[question, replyWith(lines)]} ui={ui} />);
+
+    const hotel = await screen.findByRole('button', { name: 'Find a hotel' });
+    const eat = screen.getByRole('button', { name: 'Where should we eat?' });
+    expect(hotel).toHaveClass('str-chat__a2ui-button--follow-up');
+    // The first follows the primary Button, not another follow-up, so no hairline.
+    expect(hotel).not.toHaveClass('str-chat__a2ui-button--follow-up-after');
+    expect(eat).toHaveClass(
+      'str-chat__a2ui-button--follow-up',
+      'str-chat__a2ui-button--follow-up-after',
     );
   });
 
