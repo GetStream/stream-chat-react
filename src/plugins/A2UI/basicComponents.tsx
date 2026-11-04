@@ -129,7 +129,15 @@ export const A2UIButton = ({
     <Button
       {...look}
       {...part}
-      className={clsx('str-chat__a2ui-button', part.className)}
+      className={clsx(
+        'str-chat__a2ui-button',
+        `str-chat__a2ui-button--${
+          props.variant === 'primary' || props.variant === 'borderless'
+            ? props.variant
+            : 'default'
+        }`,
+        part.className,
+      )}
       disabled={isDisabled}
       onClick={() => {
         if (!isDisabled && typeof props.action === 'function') props.action();
@@ -377,13 +385,15 @@ export const A2UIChoicePicker = ({
             const isSelected = selected.includes(option.value);
             return (
               <Button
-                appearance={isSelected ? 'solid' : 'outline'}
+                appearance='ghost'
                 aria-pressed={isSelected}
-                className='str-chat__a2ui-chip'
+                className={clsx('str-chat__a2ui-chip', {
+                  'str-chat__a2ui-chip--selected': isSelected,
+                })}
                 key={option.value}
                 onClick={() => toggle(option.value)}
                 size='sm'
-                variant={isSelected ? 'primary' : 'secondary'}
+                variant='secondary'
               >
                 {option.label}
               </Button>

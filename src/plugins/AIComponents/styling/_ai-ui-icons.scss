@@ -1,0 +1,37 @@
+@use './tokens' as *;
+
+// The marks a reply's generated UI draws, the same in A2UI and OpenUI: glyphs and shapes in CSS,
+// so they follow the theme and need no image a page's content policy could block.
+
+// A filled circle in `$color` with `$glyph` in it, such as a callout's `i`.
+@mixin ai-ui-badge($glyph, $color, $size: 1.125rem) {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: $size;
+  height: $size;
+  border-radius: 50%;
+  background-color: $color;
+  color: ai-token(button-primary-text);
+  font-size: calc(#{$size} * 0.7);
+  font-style: normal;
+  font-weight: 700;
+  line-height: 1;
+  content: $glyph;
+}
+
+// A glyph in the colour of its text, such as a chosen chip's tick.
+@mixin ai-ui-glyph($glyph, $size) {
+  flex: none;
+  font-size: $size;
+  font-weight: 600;
+  line-height: 1;
+  content: $glyph;
+}
+
+$ai-ui-glyph-info: 'i';
+$ai-ui-glyph-success: '\2713';
+$ai-ui-glyph-warning: '!';
+$ai-ui-glyph-danger: '\00d7';
+$ai-ui-glyph-check: '\2713';
