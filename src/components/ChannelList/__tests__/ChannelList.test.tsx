@@ -82,6 +82,45 @@ describe('ChannelList', () => {
     expect(queryChannels).not.toHaveBeenCalled();
   });
 
+  // A live event can route a channel into a list that was never queried (e.g. a message makes a
+  // channel unread before the "Unread" list was ever shown): `items` is then defined, but no page
+  // was loaded, so the first query still has to run.
+  it('queries the first page of a list that a live event reached first', async () => {
+    const { client, queryChannels } = await setupClient();
+    const paginator = new ChannelPaginator({ client, id: 'channels:a' });
+    paginator.ingestItem(client.channel('messaging', 'ingested'));
+    expect(paginator.items).toHaveLength(1);
+
+    renderList(client, paginator);
+
+    await waitFor(() => expect(queryChannels).toHaveBeenCalledTimes(1));
+  });
+
+  it('queries the first page of a list that a live event reached and left again', async () => {
+    const { client, queryChannels } = await setupClient();
+    const paginator = new ChannelPaginator({ client, id: 'channels:a' });
+    const channel = client.channel('messaging', 'ingested');
+    paginator.ingestItem(channel);
+    paginator.removeItem({ item: channel });
+    expect(paginator.items).toEqual([]);
+
+    renderList(client, paginator);
+
+    await waitFor(() => expect(queryChannels).toHaveBeenCalledTimes(1));
+  });
+
+  it('does not query a seeded list that a live event reached', async () => {
+    const { client, queryChannels } = await setupClient();
+    const paginator = new ChannelPaginator({ client, id: 'channels:a' });
+    paginator.setItems({ isLastPage: true, valueOrFactory: [] });
+    paginator.ingestItem(client.channel('messaging', 'ingested'));
+
+    renderList(client, paginator);
+
+    await waitFor(() => expect(paginator.items).toHaveLength(1));
+    expect(queryChannels).not.toHaveBeenCalled();
+  });
+
   it('re-queries when the list data is discarded while it stays mounted', async () => {
     const { client, queryChannels } = await setupClient();
     const paginator = new ChannelPaginator({ client, id: 'channels:a' });
