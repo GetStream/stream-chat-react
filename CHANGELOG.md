@@ -1,3 +1,9 @@
+## [14.16.0](https://github.com/GetStream/stream-chat-react/compare/v14.15.0...v14.16.0) (2026-11-04)
+
+### Features
+
+* **ai-components:** generated UI, with A2UI and OpenUI renderers ([#3388](https://github.com/GetStream/stream-chat-react/issues/3388)) ([d0a17b3](https://github.com/GetStream/stream-chat-react/commit/d0a17b3e1061427047b5d6233799c8bb6e420486)), closes [GetStream/Vision-Agents#1516](https://github.com/GetStream/Vision-Agents/issues/1516) [GetStream/stream-chat-swift#4370](https://github.com/GetStream/stream-chat-swift/issues/4370) [GetStream/stream-chat-swift#4373](https://github.com/GetStream/stream-chat-swift/issues/4373) [GetStream/stream-chat-swift#4374](https://github.com/GetStream/stream-chat-swift/issues/4374) [GetStream/Vision-Agents#1712](https://github.com/GetStream/Vision-Agents/issues/1712)
+
 ## [14.15.0](https://github.com/GetStream/stream-chat-react/compare/v14.14.1...v14.15.0) (2026-11-04)
 
 ### Bug Fixes
