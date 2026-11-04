@@ -2,25 +2,10 @@ import { useChannel, useChatContext } from '../../../context';
 import { useChannelCapabilities } from '../../Channel/hooks/useChannelCapabilities';
 import type { LocalMessage } from 'stream-chat';
 
-export const useUserRole = (message: LocalMessage, disableQuotedMessages?: boolean) => {
+export const useMessagePermissions = (message: LocalMessage) => {
   const channel = useChannel();
   const { client } = useChatContext();
   const channelCapabilities = useChannelCapabilities({ cid: channel.cid });
-
-  /** @deprecated Relies on the deprecated `membership.role`. Use `channelCapabilities` instead. */
-  const isAdmin =
-    client.user?.role === 'admin' || channel.state.membership.role === 'admin';
-
-  /** @deprecated Relies on the deprecated `membership.role`. Use `channelCapabilities` instead. */
-  const isOwner = channel.state.membership.role === 'owner';
-
-  /** @deprecated Relies on the deprecated `membership.role`. Use `channelCapabilities` instead. */
-  const isModerator =
-    client.user?.role === 'channel_moderator' ||
-    channel.state.membership.role === 'channel_moderator' ||
-    channel.state.membership.role === 'moderator' ||
-    channel.state.membership.is_moderator === true ||
-    channel.state.membership.channel_role === 'channel_moderator';
 
   const isMyMessage = client.userID === message.user?.id;
 
@@ -38,7 +23,7 @@ export const useUserRole = (message: LocalMessage, disableQuotedMessages?: boole
   const canMute = !isMyMessage && channelCapabilities.has('mute-channel');
   const canBlockUser = !isMyMessage;
   const canMarkUnread = !isMyMessage && channelCapabilities.has('read-events');
-  const canQuote = !disableQuotedMessages && channelCapabilities.has('quote-message');
+  const canQuote = channelCapabilities.has('quote-message');
   const canReact = channelCapabilities.has('send-reaction');
   const canReply = channelCapabilities.has('send-reply');
   const canSendMessage = channelCapabilities.has('send-message');
@@ -55,9 +40,6 @@ export const useUserRole = (message: LocalMessage, disableQuotedMessages?: boole
     canReact,
     canReply,
     canSendMessage,
-    isAdmin,
-    isModerator,
     isMyMessage,
-    isOwner,
   };
 };

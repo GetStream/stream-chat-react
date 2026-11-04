@@ -1,27 +1,10 @@
 import type { PropsWithChildren } from 'react';
 import React from 'react';
 
-import type { UserResponse } from 'stream-chat';
 import type { RenderTextMentionEntity } from '../rehypePlugins/mentionsMarkdownPlugin';
 
-type UserMentionNode = {
-  mentionedEntity: Extract<RenderTextMentionEntity, { mentionType: 'user' }>;
-  /**
-   * @deprecated Use `mentionedEntity` instead.
-   */
-  mentionedUser: UserResponse;
-};
-
-type NonUserMentionNode = {
-  mentionedEntity: Exclude<RenderTextMentionEntity, { mentionType: 'user' }>;
-  /**
-   * @deprecated Use `mentionedEntity` instead.
-   */
-  mentionedUser?: undefined;
-};
-
 export type MentionProps = PropsWithChildren<{
-  node: UserMentionNode | NonUserMentionNode;
+  node: { mentionedEntity: RenderTextMentionEntity };
 }>;
 
 export const Mention = ({ children, node: { mentionedEntity } }: MentionProps) => (

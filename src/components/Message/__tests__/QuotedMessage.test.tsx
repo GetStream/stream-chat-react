@@ -189,7 +189,9 @@ describe('QuotedMessage', () => {
       },
     });
 
-    expect(fn).toHaveBeenCalled();
+    expect(fn).toHaveBeenCalledWith(messageText, {
+      messageMentionEntities: expect.any(Array),
+    });
     expect((await findByTestId('quoted-message-text')).textContent).toEqual(messageText);
     const results = await axe(container);
     expect(results).toHaveNoViolations();

@@ -64,7 +64,7 @@ yarn api-surface check --doc ai-docs/v15-breaking-changes.md --diff diff.json
 
 ## Index
 
-86 entries.
+95 entries.
 
 | ID                | Title                                                                                                                                                                                                                         | Group                                                |
 | ----------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------- |
@@ -154,6 +154,15 @@ yarn api-surface check --doc ai-docs/v15-breaking-changes.md --diff diff.json
 | [BC-084](#bc-084) | CSS, the first message of a channel list loses its `4.5rem` top padding                                                                                                                                                       | CSS and markup                                       |
 | [BC-085](#bc-085) | `MessageContext` grouping flags `endOfGroup` / `firstOfGroup` / `groupedByUser` and the `str-chat__virtual-message__wrapper--*` classes are removed                                                                           | Messages and message lists                           |
 | [BC-086](#bc-086) | message grouping: `groupByUser` replaces `noGroupByUser` / `shouldGroupByUser`; `getGroupStyles` replaces `groupStyles` and takes one object                                                                                  | Messages and message lists                           |
+| [BC-087](#bc-087) | `renderText` no longer takes a `mentionedUsers` argument; `RenderTextFunction` is `(text, options)`                                                                                                                           | Messages and message lists                           |
+| [BC-088](#bc-088) | the `mention` node passed to a custom mention renderer no longer carries `mentionedUser`                                                                                                                                      | Messages and message lists                           |
+| [BC-089](#bc-089) | `onMentionsClick` / `onMentionsHover` handlers receive `(event, message)`; the `mentioned_users` argument was removed                                                                                                         | Messages and message lists                           |
+| [BC-090](#bc-090) | `useUserRole` no longer returns `isAdmin`, `isModerator` or `isOwner`                                                                                                                                                         | Messages and message lists                           |
+| [BC-091](#bc-091) | `VirtualizedMessageList` props `defaultItemHeight`, `overscan` and `scrollSeekPlaceHolder` were removed                                                                                                                       | Messages and message lists                           |
+| [BC-092](#bc-092) | `useUserRole` was renamed to `useMessagePermissions`                                                                                                                                                                          | Messages and message lists                           |
+| [BC-093](#bc-093) | `MessageContextValue.onMentionsClickMessage` / `onMentionsHoverMessage` and `useMentionsHandler`'s handlers are `undefined` without a handler                                                                                 | Messages and message lists                           |
+| [BC-094](#bc-094) | `mentionsMarkdownPlugin` and `createMentionPluginAndDisplayTextSet` take mention entities only                                                                                                                                | Messages and message lists                           |
+| [BC-095](#bc-095) | `disableQuotedMessages` is removed from `MessageProps`, `MessageListProps` and `useMessagePermissions`                                                                                                                        | Messages and message lists                           |
 
 ## Package and runtime
 
@@ -202,7 +211,7 @@ yarn api-surface check --doc ai-docs/v15-breaking-changes.md --diff diff.json
 - Replacement: compare and sort the raw numbers. Convert at the render boundary with `convertTimestampToDate(ts)` (returns `Date | undefined`; handle the `undefined`), or `nsToDate` / `nsToMs` for values known to be present. Mint values with `nowNs()`, `msToNs(ms)`, `dateToNs(date)`, `asTimestampNS(n)`. All are exported from `stream-chat`. Presentational props still take `Date`: `DateSeparator.date: Date`, `formatDate?: (date: Date) => string`, `Timestamp.timestamp?: Date | string`. Outgoing request fields (filter bounds, `remind_at`) stay `Date`.
 - Evidence:
   - `release-v14:src/components/MessageList/utils.ts:34` `lastRead?: Date | null`, `:205` `insertIntro(…, headerPosition?: number)`, `:360` `lastReadDate?: Date`; `release-v14:src/components/MessageList/MessageList.tsx:529` `headerPosition?: number`; `release-v14:src/components/MessageList/VirtualizedMessageList.tsx:134` `lastReadDate?: Date`
-  - `master:src/components/MessageList/utils.ts:47` `lastRead?: TimestampNS | null`, `:223` `headerPosition?: TimestampNS`; `master:src/components/MessageList/MessageList.tsx:474` `headerPosition?: TimestampNS`; `master:src/components/MessageList/VirtualizedMessageList.tsx:135` `lastReadDate: TimestampNS | null`
+  - `master:src/components/MessageList/utils.ts:45` `lastRead?: TimestampNS | null`, `:223` `headerPosition?: TimestampNS`; `master:src/components/MessageList/MessageList.tsx:449` `headerPosition?: TimestampNS`; `master:src/components/MessageList/VirtualizedMessageList.tsx:130` `lastReadDate: TimestampNS | null`
   - `master:src/components/DateSeparator/DateSeparator.tsx:13,17` `date: Date`, `formatDate?: (date: Date) => string`; `master:src/components/Message/Timestamp.tsx:12` `timestamp?: Date | string`
   - `stream-chat@10.0.0-rc.22` `dist/types/utils/time.d.ts:39-85` `asTimestampNS`, `nsToMs`, `msToNs`, `nowNs`, `nsToDate`, `dateToNs`, `convertTimestampToDate`; re-exported at `dist/types/index.d.ts:42`
   - commits: `cb472c35f feat!: move to timestamps in response models` (PR #3278); `aaa7fa31e feat!: adopt stream-chat's branded TimestampNS` (PR #3297)
@@ -296,7 +305,7 @@ export const DayDivider = ({ message }: { message: LocalMessage }) => {
   - `master:src/context/ChannelInstanceContext.tsx:28` `useChannelInstanceContext(): Partial<ChannelInstanceContextValue>`
   - `master:src/context/AttachmentContext.tsx:19-24,40` `AttachmentContextValue` { `giphyVersion`, `imageAttachmentSizeHandler`, `shouldGenerateVideoThumbnail`, `videoAttachmentSizeHandler` }, `useAttachmentContext`
   - `master:src/components/Channel/hooks/useChannelCapabilities.ts:10` `useChannelCapabilities({ cid })`
-  - `master:src/components/MessageList/MessageList.tsx:243` older page via `messagePaginator.toTail()`; `:388` newer via `messagePaginator.toHead`
+  - `master:src/components/MessageList/MessageList.tsx:238` older page via `messagePaginator.toTail()`; `:372` newer via `messagePaginator.toHead`
   - `master:src/components/Message/hooks/useRetryHandler.ts:16` `(thread ?? channel).messageOperations.retry(params)`; `master:src/components/Message/hooks/useDeleteHandler.ts:36` `entity.messageOperations.delete(...)`
   - `master:src/components/Threads/hooks/useCloseThread.ts:14`; `master:src/context/WorkspaceNavigationContext.tsx:102,136` `closeThread`, `openThread`
   - `stream-chat@10.0.0-rc.22` `dist/types/pagination/paginators/BasePaginator.d.ts:505-516` `hasMoreTail` / `hasMoreHead` (the `hasNext` / `hasPrev` aliases are `@deprecated`), `:1154-1163` `toTail` / `toHead` (`next` / `prev` are `@deprecated`); `MessageIntervalPaginator.d.ts:279-280`, `MessagePaginator.d.ts:144,148,199,200`
@@ -613,7 +622,7 @@ export const CustomEmojiPicker = () => {
   - `release-v14:src/types/types.ts:54` `export type ChannelUnreadUiState = Omit<ValuesType<StreamChannelState['read']>, 'user'>`; `release-v14:src/types/index.ts:1`
   - `master:src/types/index.ts:1` and `master:src/types/types.ts:34`: both commented out
   - `stream-chat@10.0.0-rc.22` `dist/types/pagination/paginators/MessagePaginator.d.ts:49-55` `UnreadSnapshotState`, `:87` `unreadStateSnapshot: StateStore<UnreadSnapshotState>`, `:200` `setUnreadSnapshot`
-  - `master:src/components/MessageList/MessageList.tsx:136` reads `messagePaginator.unreadStateSnapshot`
+  - `master:src/components/MessageList/MessageList.tsx:146` reads `messagePaginator.unreadStateSnapshot`
   - commit: `99cbe6704` (PR #3237)
 - Docs impact:
   - `02-ui-components/04-channel/01-channel.md`, `02-ui-components/04-channel/04-channel_state_context.md`, `04-guides/05-channel_read_state.md`
@@ -1417,10 +1426,10 @@ Note: a bare `AttachmentContextProvider` above the list does not reach message a
 - Old API:
   - `ChannelProps.onMentionsClick?: OnMentionAction`, `ChannelProps.onMentionsHover?: OnMentionAction`
   - `useChannelMentionsHandler(onMentionsHover?, onMentionsClick?)`
-- Replacement: `onMentionsClick` / `onMentionsHover` on `MessageList` (drilled to each message) or on `Message`; handler type `CustomMentionHandler` `(event, mentioned_users: UserResponse[], message: LocalMessage)` (the second argument is `@deprecated`; read mention metadata from `message`). `VirtualizedMessageList` has no such prop in v15 (v14 virtualized lists got the handlers only from `Channel`), so a virtualized list needs a custom message UI to handle mention clicks.
+- Replacement: `onMentionsClick` / `onMentionsHover` on `MessageList` (drilled to each message) or on `Message`; handler type `CustomMentionHandler` `(event, message: LocalMessage)`; read mention metadata from `message` (BC-089). `VirtualizedMessageList` has no such prop in v15 (v14 virtualized lists got the handlers only from `Channel`), so a virtualized list needs a custom message UI to handle mention clicks.
 - Evidence:
   - `release-v14:src/components/Channel/Channel.tsx:145-147`; `release-v14:src/components/Channel/index.ts:3`; `release-v14:src/components/Message/hooks/useMentionsHandler.ts:51-59` (fell back to the `Channel` handlers)
-  - `master:src/components/MessageList/MessageList.tsx:215-216,440-441,458` (`onMentionsClick`/`onMentionsHover` in `PropsDrilledToMessage`); `master:src/components/MessageList/VirtualizedMessageList.tsx:85-91` (not drilled); `master:src/components/Message/types.ts:44-47`
+  - `master:src/components/MessageList/MessageList.tsx:108-109,421-422` (`onMentionsClick`/`onMentionsHover` in `PropsDrilledToMessage`); `master:src/components/MessageList/VirtualizedMessageList.tsx:84-90` (not drilled); `master:src/components/Message/types.ts:54-56`
   - commit: `99cbe6704` (PR #3237)
 - Docs impact:
   - `02-ui-components/04-channel/01-channel.md`, `02-ui-components/04-channel/03-channel_action_context.md`, `03-ui-cookbook/04-message/03-mentions_actions.md`
@@ -1858,7 +1867,7 @@ const HeaderStart = () => (
   - `<Thread />` reading the thread from `ChannelStateContext` / `ThreadContext`
   - `ThreadProps`: `additionalMessageComposerProps`, `additionalMessageListProps`, `additionalParentMessageProps`, `additionalVirtualizedMessageListProps`, `autoFocus`, `enableDateSeparator`, `Message`, `messageActions`, `virtualized`
   - `useLegacyThreadContext`
-- Replacement: `<Thread thread={thread}>` + children (`ThreadHeader`, `MessageList` or `VirtualizedMessageList`, `MessageComposer focus`). Get the instance from `client.threads.ensure({ channel, parentMessage })` / `client.threads.get(...)`, from a `ThreadSlot`, or from workspace navigation. Per prop: list/composer props go on the children; `additionalParentMessageProps` -> a `ThreadHead` override on `ComponentContext`; `Message` -> a `MessageUI` override scoped with `WithComponents`; `messageActions` -> removed (message-actions area); `enableDateSeparator` -> `withDateSeparator` on the list.
+- Replacement: `<Thread thread={thread}>` + children (`ThreadHeader`, `MessageList` or `VirtualizedMessageList`, `MessageComposer focus`). Get the instance from `client.threads.ensure({ channel, parentMessage })` / `client.threads.get(...)`, from a `ThreadSlot`, or from workspace navigation. Per prop: list/composer props go on the children; `additionalParentMessageProps` -> the list's own message props, which `MessageList` and `VirtualizedMessageList` also pass to the parent message (`master:src/components/MessageList/hooks/useThreadHead.tsx`), or a `ThreadHead` override on `ComponentContext`; `Message` -> a `MessageUI` override scoped with `WithComponents`; `messageActions` -> removed (message-actions area); `enableDateSeparator` -> `withDateSeparator` on the list.
 - Evidence:
   - `release-v14:src/components/Thread/Thread.tsx:26-45` (`ThreadProps`), `:51-66` (reads `ChannelStateContext`, keys on thread id), `:184-207` (renders header, list, composer); `release-v14:src/components/Thread/LegacyThreadContext.ts:8`; `release-v14:src/components/Thread/index.ts:4`
   - `master:src/components/Thread/Thread.tsx:17-25` (`ThreadProps = PropsWithChildren<{ thread: StreamThread }>`), `:66-113`; `master:src/components/Thread/index.ts:1-3`
@@ -2290,7 +2299,7 @@ export const RetryButton = () => {
 - Evidence:
   - `release-v14:src/components/Message/types.ts:60` `openThread?: ChannelActionContextValue['openThread']`; `release-v14:src/components/MessageList/MessageList.tsx:505` and `release-v14:src/components/MessageList/VirtualizedMessageList.tsx:88` drill `openThread`
   - `release-v14:src/components/Message/hooks/useOpenThreadHandler.ts:10` falls back to `useChannelActionContext().openThread`
-  - `master:src/components/Message/types.ts:53` `openThread?: (message: LocalMessage, event: BaseSyntheticEvent) => void`
+  - `master:src/components/Message/types.ts:64` `openThread?: (message: LocalMessage, event: BaseSyntheticEvent) => void`
   - `master:src/components/Message/hooks/useOpenThreadHandler.ts:17` `useWorkspaceNavigation()`, `:32` `void openThread({ channel, message })`
   - `master:src/components/Message/MessageRepliesCountButton.tsx` falls back to `MessageContext.handleOpenThread` when it has no `onClick` (restored in `fix/v15-dead-surface-cleanup`; before that it called `useWorkspaceNavigation().openThread` directly and ignored `Message.openThread`)
   - `master:src/context/WorkspaceNavigationContext.tsx:145` `defaultWorkspaceNavigation`, `:157` `openThread: () => undefined`, `:165` `WorkspaceNavigationProvider`
@@ -2401,8 +2410,8 @@ export const ChannelWithThread = ({ channel }: { channel: StreamChannel }) => {
   - `release-v14:src/components/MessageList/MessageList.tsx:541` `loadingMoreForJumpToChannelMessage`, `:545` `loadMore`, `:547` `loadMoreNewer`, `:551` `messageLimit`; `:265`–`:275` forward `messageLimit` to `loadMore`
   - `release-v14:src/components/MessageList/VirtualizedMessageList.tsx:678` `channelUnreadUiState`, `:701` `hasMore`, `:703` `hasMoreNewer`, `:714` `highlightedMessageId`, `:716` `loadingMore`, `:718` `loadingMoreNewer`, `:720` `loadMore`, `:722` `loadMoreNewer`, `:728` `messageLimit`
   - `master:src/components/MessageList/MessageList.tsx` `MessageListProps` keeps only `loadingMore` of these; `loadOlderMessages` raises `isLoadingOlder` only when a tailward page can load (`!isLoading && hasMoreTail`), and the loading row renders `(props.loadingMore ?? isLoadingOlder) && <LoadingIndicator />`. Before `fix/v15-dead-surface-cleanup` the type kept `hasMore`, `jumpToLatestMessage`, `loadingMoreNewer`, `messageLimit` unread, and the indicator required the prop.
-  - `master:src/components/MessageList/MessageList.tsx:452` `InternalPaginatorProps`; `master:src/components/InfiniteScrollPaginator/InfiniteScrollPaginator.tsx:18` own props
-  - `master:src/components/MessageList/VirtualizedMessageList.tsx:288` reads `messages`, `hasMoreNewer`, `isLoading` from `messagePaginator.state`
+  - `master:src/components/MessageList/MessageList.tsx:435` `InternalPaginatorProps`; `master:src/components/InfiniteScrollPaginator/InfiniteScrollPaginator.tsx:18` own props
+  - `master:src/components/MessageList/VirtualizedMessageList.tsx:275` reads `messages`, `hasMoreNewer`, `isLoading` from `messagePaginator.state`
   - `node_modules/stream-chat/dist/types/pagination/paginators/MessageIntervalPaginator.d.ts:153` `messageFocusSignal`, `:279` `jumpToMessage`, `:280` `jumpToTheLatestMessage`; `MessagePaginator.d.ts:87` `unreadStateSnapshot`
   - commits: `99cbe6704` (PR #3237); `088c795c1 feat(Channel)!: …` (PR #3286, search jump through `messagePaginator.jumpToMessage`)
 - Docs impact:
@@ -2448,15 +2457,15 @@ export const ChannelWithThread = ({ channel }: { channel: StreamChannel }) => {
 - Replacement:
   - thread detection: `const thread = useThreadContext(); const isThreadList = !!thread;` (the SDK's own components do this), also in place of `useMessageContext().threadList`
   - reaction selector dialog id: `ReactionSelector.getDialogId({ messageId })`. Each message list has its own dialog manager, which keeps the channel's and the thread's dialogs for one message apart.
-  - parent message: both lists render it from `ThreadContext` via `useThreadHead()`. Override it with the `ThreadHead` slot: `<WithComponents overrides={{ ThreadHead: Custom }}>`, typed `React.ComponentType<MessageProps>`.
+  - parent message: both lists render it from `ThreadContext` via `useThreadHead`, with the list-wide message props their replies get, except the read state: `returnAllReadData`, `readBy` and `deliveredTo` do not reach it (`MessageStatus` shows no read state inside a thread anyway), so a `ThreadHead` override that needs them sets them itself. Override it with the `ThreadHead` slot: `<WithComponents overrides={{ ThreadHead: Custom }}>`, typed `React.ComponentType<MessageProps>`.
   - `VirtuosoContext.head` is now `ReactElement | null` and always present
 - Evidence:
   - `release-v14:src/components/MessageList/MessageList.tsx:527` `head?`, `:578` `threadList?`
   - `release-v14:src/components/MessageList/VirtualizedMessageList.tsx:708` `head?`, `:776` `threadList?`
   - `release-v14:src/components/TypingIndicator/TypingIndicator.tsx:23` `threadList?`; `release-v14:src/components/MessageList/ScrollToLatestMessageButton.tsx:19` `threadList?`
   - `master:src/components/TypingIndicator/TypingIndicator.tsx:36`–`:40` props are `isMessageListScrolledToBottom?`, `scrollToBottom?`
-  - `master:src/components/MessageList/hooks/useThreadHead.tsx:19` `useThreadHead` reads `ThreadHead` from `ComponentContext`; `master:src/context/ComponentContext.tsx:294` `ThreadHead?`
-  - `master:src/components/MessageList/VirtualizedMessageList.tsx:256` `useThreadHead()`, `:631` `head: threadHead`
+  - `master:src/components/MessageList/hooks/useThreadHead.tsx:34` `useThreadHead` reads `ThreadHead` from `ComponentContext`; `master:src/context/ComponentContext.tsx:334` `ThreadHead?`
+  - `master:src/components/MessageList/VirtualizedMessageList.tsx:241` `useThreadHead(messageProps)`, `:602` `head: threadHead`
   - commits: `c2136f307 refactor!: align Thread with Channel - instance prop, provider, children` (PR #3289, "the `head` prop is removed"); `99cbe6704` (PR #3237)
   - corpus: `docs/03-ui-cookbook__05-message-composer__07-typing_indicator__1.tsx:14` TS2339 (`threadList` not on `TypingIndicatorProps`)
 - Docs impact:
@@ -2480,9 +2489,9 @@ export const ChannelWithThread = ({ channel }: { channel: StreamChannel }) => {
   - `release-v14:src/components/MessageList/MessageList.tsx:87` `disableDateSeparator = false`, `:515` prop
   - `release-v14:src/components/MessageList/VirtualizedMessageList.tsx:209` `disableDateSeparator = true`, `:304` `enableDateSeparator: !disableDateSeparator`
   - `release-v14:src/components/MessageList/utils.ts:28` `enableDateSeparator?`
-  - `master:src/components/MessageList/MessageList.tsx:526` `withDateSeparator?`, default `true` in `MessageListWithContext`
-  - `master:src/components/MessageList/VirtualizedMessageList.tsx:803` `withDateSeparator?`, default `false` (`:252`)
-  - `master:src/components/MessageList/utils.ts:49` `withDateSeparator?` in `ProcessMessagesContext`
+  - `master:src/components/MessageList/MessageList.tsx:490` `withDateSeparator?`, default `true` in `MessageListWithContext`
+  - `master:src/components/MessageList/VirtualizedMessageList.tsx:724` `withDateSeparator?`, default `false` (`:224`)
+  - `master:src/components/MessageList/utils.ts:47` `withDateSeparator?` in `ProcessMessagesContext`
   - commit: `c2136f307` (PR #3289)
 - Docs impact:
   - `02-ui-components/07-message-list/01-message_list.md`, `02-ui-components/07-message-list/02-virtualized_list.md`, `02-ui-components/08-message/13-date_separator.md`
@@ -2594,13 +2603,13 @@ export const Stop = ({ channel }: { channel: Channel }) => {
 - User impact: compile error on destructuring `canPin`. In untyped code it is `undefined`, so a pin button gated on it never shows.
 - Old API:
   - `usePinHandler(message): { canPin: boolean; handlePin }`
-- Replacement: `useUserRole(message).canPin` (newly returned). `usePinHandler(message, notifications?)` now returns `{ handlePin }`.
+- Replacement: `useMessagePermissions(message).canPin` (newly returned; the hook was `useUserRole`, see BC-092). `usePinHandler(message, notifications?)` now returns `{ handlePin }`.
 - Evidence:
   - `release-v14:src/components/Message/hooks/usePinHandler.ts:8`, `:54` `return { canPin, handlePin }`
-  - `master:src/components/Message/hooks/usePinHandler.ts:43`, `:110` `return { handlePin }`; `master:src/components/Message/hooks/useUserRole.ts:45` `canPin = channelCapabilities.has('pin-message')`, `:62`
+  - `master:src/components/Message/hooks/usePinHandler.ts:16`, `:115` `return { handlePin }`; `master:src/components/Message/hooks/useMessagePermissions.ts:21` `canPin = channelCapabilities.has('pin-message')`, `:31-44`
   - commit: `99cbe6704` (PR #3237)
 - Docs impact:
-  - `02-ui-components/08-message/04-message_hooks.md` (`usePinHandler`, `useUserRole`)
+  - `02-ui-components/08-message/04-message_hooks.md` (`usePinHandler`, `useMessagePermissions`)
 - Example needed: no
 
 <a id="bc-053"></a>
@@ -2616,7 +2625,7 @@ export const Stop = ({ channel }: { channel: Channel }) => {
 - Replacement: `VirtuosoContext` now carries a required `channel: Channel`. `head`, `firstUnreadMessageId`, `lastReadMessageId` are `… | null`; `lastReadDate` is `TimestampNS | null`; `loadingMore: boolean`; `unreadMessageCount: number`; `focusedMessageId?` is new. For thread detection use `useThreadContext()` (BC-048); for the message UI use the slots (BC-042).
 - Evidence:
   - `release-v14:src/components/MessageList/VirtualizedMessageList.tsx:94`–`:103` (`'head' | 'loadingMore' | 'Message' | 'threadList'` picked into the context), `:108` `VirtuosoContext`
-  - `master:src/components/MessageList/VirtualizedMessageList.tsx:93`–`:146`
+  - `master:src/components/MessageList/VirtualizedMessageList.tsx:100`–`:140`
   - commits: `07664893e` (PR #3268), `b541c45f9` (PR #3288), `c2136f307` (PR #3289), `aaa7fa31e feat!: adopt stream-chat's branded TimestampNS` (PR #3297)
 - Docs impact:
   - none found (`VirtuosoContext` is not documented in v14 docs)
@@ -2679,7 +2688,7 @@ export const Stop = ({ channel }: { channel: Channel }) => {
 - Replacement: pass `TimestampNS`, e.g. `message.created_at` or `msToNs(ms)` from `stream-chat`. Related: `ProcessMessagesParams.lastRead` is `TimestampNS | null` (was `Date | null`), and `VirtuosoContext.lastReadDate` is covered by BC-053.
 - Evidence:
   - `release-v14:src/components/MessageList/MessageList.tsx:529` `headerPosition?: number`; `release-v14:src/components/MessageList/utils.ts:205` `insertIntro(…, headerPosition?: number)`
-  - `master:src/components/MessageList/MessageList.tsx:474` `headerPosition?: TimestampNS`; `master:src/components/MessageList/utils.ts:221`–`:223`
+  - `master:src/components/MessageList/MessageList.tsx:449` `headerPosition?: TimestampNS`; `master:src/components/MessageList/utils.ts:221`–`:223`
   - `node_modules/stream-chat/dist/types/index.d.ts` exports `msToNs`, `asTimestampNS`, `nowNs`
   - commits: `cb472c35f feat!: move to timestamps in response models` (PR #3278); `aaa7fa31e` (PR #3297)
 - Docs impact:
@@ -2718,7 +2727,7 @@ export const Stop = ({ channel }: { channel: Channel }) => {
 - Evidence:
   - `master:src/context/useChannel.ts` throws when neither a thread nor `ChannelInstanceContext` supplies a channel
   - `master:src/components/Message/hooks/useOpenThreadHandler.ts:16` and `master:src/components/Message/hooks/useRetryHandler.ts:11` call `useChannel()` during every `Message` render
-  - `release-v14:src/components/Message/Message.tsx` `const highlighted = highlightedMessageId === message.id` from `useChannelStateContext('Message')`; `master:src/components/Message/Message.tsx` `highlighted={props.highlighted}`; `master:src/components/Message/types.ts:33`
+  - `release-v14:src/components/Message/Message.tsx` `const highlighted = highlightedMessageId === message.id` from `useChannelStateContext('Message')`; `master:src/components/Message/Message.tsx` `highlighted={props.highlighted}`; `master:src/components/Message/types.ts:44`
   - examples: `examples.diff:9258`–`:9322` (`ReactionsTab.tsx` swaps the two providers for `ChannelInstanceProvider` with `client.channelManager.ensure(...)`)
   - corpus: `examples/examples/vite/src/AppSettings/tabs/Reactions/ReactionsTab.tsx:3`, `:4` TS2724
   - commits: `99cbe6704` (PR #3237), `9194215f0` (PR #3267)
@@ -2746,6 +2755,348 @@ export const Stop = ({ channel }: { channel: Channel }) => {
 - Docs impact:
   - none found
 - Example needed: no
+
+<a id="bc-087"></a>
+
+### BC-087: `renderText` no longer takes a `mentionedUsers` argument; `RenderTextFunction` is `(text, options)`
+
+- Status: confirmed
+- Area: message text
+- User impact:
+  - Compile error on a three-argument call `renderText(text, mentionedUsers, options)` and on a custom `renderText` prop typed with the old `RenderTextFunction`.
+  - In untyped code, the options object lands in the second position: a call that still passes `mentionedUsers` second has its options ignored, and its mentions are no longer highlighted.
+  - A custom `renderText` prop on `MessageList`, `VirtualizedMessageList`, `Message`, `MessageText`, `QuotedMessage` or `QuotedMessagePreview` is now called as `renderText(text, options)`, so one written for the old order reads the options object as `mentionedUsers` and gets `undefined` as `options`.
+- Old API:
+  - `renderText(text?, mentionedUsers?: UserResponse[], options?: RenderTextOptions)` (`mentionedUsers` was `@deprecated`)
+  - `RenderTextFunction = (text?, mentionedUsers?, options?) => ReactNode`
+- Replacement: `renderText(text?, options?)` and `RenderTextFunction = (text?, options?) => ReactNode`. Pass mentions as `options.messageMentionEntities`; it also covers `@channel`, `@here`, roles and user groups. Build the entities from a message with `getRenderTextMentionEntities(message)`. Without `messageMentionEntities` nothing is highlighted as a mention.
+- Evidence:
+  - `release-v14:src/components/Message/renderText/renderText.tsx:118-134` (`mentionedUsers` `@deprecated` on the type and the function); `release-v14:src/components/Message/MessageText.tsx:73` `renderText(messageTextToRender, message.mentioned_users, { … })`
+  - `master:src/components/Message/renderText/renderText.tsx:111` `RenderTextFunction = (text?: string, options?: RenderTextOptions) => ReactNode`, `:123` `messageMentionEntities = []`
+  - commit: REACT-1467 (PR #3387)
+- Docs impact:
+  - `02-ui-components/08-message/06-render-text.md`
+- Example needed: yes
+
+Before (v14):
+
+```tsx
+const customRenderText: RenderTextFunction = (text, mentionedUsers, options) =>
+  renderText(text, mentionedUsers, { ...options, customMarkDownRenderers });
+```
+
+After (v15):
+
+```tsx
+const customRenderText: RenderTextFunction = (text, options) =>
+  renderText(text, { ...options, customMarkDownRenderers });
+```
+
+---
+
+<a id="bc-088"></a>
+
+### BC-088: the `mention` node passed to a custom mention renderer no longer carries `mentionedUser`
+
+- Status: confirmed
+- Area: message text
+- User impact: compile error on `node.mentionedUser` in a custom `customMarkDownRenderers.mention` component. In untyped code it is `undefined`, so a renderer that reads the user from it renders without one.
+- Old API:
+  - `MentionProps['node'].mentionedUser: UserResponse` for user mentions, `undefined` otherwise (`@deprecated`)
+- Replacement: `node.mentionedEntity` (`RenderTextMentionEntity`). For a user mention, `mentionedEntity.mentionType === 'user'` and the entity carries the user's fields (`id`, `name`, …). `MentionProps['node']` is now `{ mentionedEntity: RenderTextMentionEntity }`.
+- Evidence:
+  - `release-v14:src/components/Message/renderText/componentRenderers/Mention.tsx:7-25`
+  - `master:src/components/Message/renderText/componentRenderers/Mention.tsx:6-8`; `master:src/components/Message/renderText/rehypePlugins/mentionsMarkdownPlugin.ts` (`mentionsMarkdownPluginFromLookup` sets only `mentionedEntity`)
+  - commit: REACT-1467 (PR #3387)
+- Docs impact:
+  - `02-ui-components/08-message/06-render-text.md`, `03-ui-cookbook/04-message/03-mentions_actions.md`
+- Example needed: yes
+
+Before (v14):
+
+```tsx
+const CustomMention = ({ children, node }: MentionProps) => (
+  <span data-user-id={node.mentionedUser?.id}>{children}</span>
+);
+```
+
+After (v15):
+
+```tsx
+const CustomMention = ({ children, node: { mentionedEntity } }: MentionProps) => (
+  <span
+    data-user-id={mentionedEntity.mentionType === 'user' ? mentionedEntity.id : undefined}
+  >
+    {children}
+  </span>
+);
+```
+
+---
+
+<a id="bc-089"></a>
+
+### BC-089: `onMentionsClick` / `onMentionsHover` handlers receive `(event, message)`; the `mentioned_users` argument was removed
+
+- Status: confirmed
+- Area: message / mentions
+- User impact: compile error in a handler typed with three parameters. In untyped code the message lands in the second parameter, so a handler that reads `mentionedUsers[0]` gets `undefined` and one that reads the third parameter gets nothing.
+- Old API:
+  - `CustomMentionHandler = (event, mentioned_users: UserResponse[], message: LocalMessage) => void` (`mentioned_users` was `@deprecated`)
+  - `MentionedUserEventHandler = (event, mentionedUsers: UserResponse[]) => void`, exported and unused by the SDK
+- Replacement: `CustomMentionHandler = (event, message: LocalMessage) => void`; `MentionedUserEventHandler` is removed, type such handlers as `CustomMentionHandler`. Read `message.mentioned_users`, `mentioned_channel`, `mentioned_here`, `mentioned_roles` and `mentioned_groups`. To know which mention was clicked, read the target element's `data-mention-id`, `data-mention-type` or `data-user-id`. Enter or Space on the focused message text also calls the handler; its target is the text element, not a mention.
+- Evidence:
+  - `release-v14:src/components/Message/hooks/useMentionsHandler.ts:8-14`, `:18-21` (`MentionedUserEventHandler`), `:39` `fn(event, message?.mentioned_users ?? [], message)`
+  - `master:src/components/Message/hooks/useMentionsHandler.ts:8-11`, `:20` `handler(event, message)`
+  - commit: REACT-1467 (PR #3387)
+- Docs impact:
+  - `03-ui-cookbook/04-message/03-mentions_actions.md`, `02-ui-components/07-message-list/01-message_list.md` (`onMentionsClick`, `onMentionsHover`)
+- Example needed: yes
+
+Before (v14):
+
+```tsx
+<MessageList
+  onMentionsClick={(event, mentionedUsers) => openProfile(mentionedUsers[0]?.id)}
+/>
+```
+
+After (v15), reading the clicked mention:
+
+```tsx
+const getMentionedUserId = (event: React.BaseSyntheticEvent, message: LocalMessage) => {
+  // Enter or Space targets the message text, not a mention, so it identifies a user only when
+  // the message's one mention is a user (no second user, @channel, @here, role or group).
+  if (event.type === 'keydown') {
+    const [mention, ...otherMentions] = getRenderTextMentionEntities(message);
+    if (otherMentions.length || mention?.mentionType !== 'user') return undefined;
+    return mention.id;
+  }
+  return (event.target as HTMLElement).closest<HTMLElement>('[data-user-id]')?.dataset
+    .userId;
+};
+
+<MessageList
+  onMentionsClick={(event, message) => {
+    const userId = getMentionedUserId(event, message);
+    if (userId) openProfile(userId);
+  }}
+/>;
+```
+
+---
+
+<a id="bc-090"></a>
+
+### BC-090: `useUserRole` no longer returns `isAdmin`, `isModerator` or `isOwner`
+
+- Status: confirmed
+- Area: message hooks
+- User impact: compile error on destructuring the three flags. In untyped code they are `undefined`, so UI gated on them never shows.
+- Old API:
+  - `useUserRole(message).isAdmin`, `.isModerator`, `.isOwner` (all `@deprecated`; derived from `client.user.role` and the deprecated `channel.state.membership.role` / `is_moderator` / `channel_role`)
+- Replacement: gate on what the user may do, not on their role. `useMessagePermissions(message)` (renamed from `useUserRole`, see BC-092) returns permission flags built from the channel's capabilities (`canDelete`, `canEdit`, `canFlag`, `canMarkUnread`, `canMute`, `canPin`, `canQuote`, `canReact`, `canReply`, `canSendMessage`, `canBlockUser`, `isMyMessage`); for any other capability read `useChannelCapabilities({ cid: channel.cid })` (a `Set` of capability names). Where a role really is needed, read `client.user?.role` or `channel.state.membership` directly.
+- Evidence:
+  - `release-v14:src/components/Message/hooks/useUserRole.ts:9-31`, `:65-68`
+  - `master:src/components/Message/hooks/useMessagePermissions.ts:31-44` (returns `can*` flags and `isMyMessage` only)
+  - commit: REACT-1467 (PR #3387); tracked as REACT-83
+- Docs impact:
+  - `02-ui-components/08-message/04-message_hooks.md` (`useMessagePermissions`)
+- Example needed: no
+
+<a id="bc-091"></a>
+
+### BC-091: `VirtualizedMessageList` props `defaultItemHeight`, `overscan` and `scrollSeekPlaceHolder` were removed
+
+- Status: confirmed
+- Area: VirtualizedMessageList
+- User impact: compile error on the props. In untyped code they are ignored: a list that set `overscan` or `defaultItemHeight` falls back to the `react-virtuoso` defaults.
+- Old API:
+  - `defaultItemHeight?: number`, `overscan?: number` (default `0`), `scrollSeekPlaceHolder?: ScrollSeekConfiguration & { placeholder }`, all `@deprecated`. `defaultItemHeight` and `scrollSeekPlaceHolder` were spread after `additionalVirtuosoProps`, so they won over it; `overscan` came before it, so `additionalVirtuosoProps.overscan` already won. `scrollSeekPlaceHolder` was forwarded to `react-virtuoso`'s deprecated `scrollSeek` prop, which applied it and logged a deprecation warning.
+- Replacement: pass them through `additionalVirtuosoProps`: `additionalVirtuosoProps.defaultItemHeight`, `additionalVirtuosoProps.overscan` (the `react-virtuoso` default is also `0`), and `additionalVirtuosoProps.scrollSeekConfiguration` with the placeholder in `additionalVirtuosoProps.components.ScrollSeekPlaceholder`; this keeps the scroll-seek behavior without the warning.
+- Evidence:
+  - `release-v14:src/components/MessageList/VirtualizedMessageList.tsx:686-689`, `:732-735`, `:744-756`, `:643`, `:650-651`
+  - `master:src/components/MessageList/VirtualizedMessageList.tsx:633` (`{...overridingVirtuosoProps}`), `:676` `additionalVirtuosoProps`
+  - commit: REACT-1467 (PR #3387)
+- Docs impact:
+  - `02-ui-components/07-message-list/02-virtualized_list.md`
+- Example needed: yes
+
+Before (v14):
+
+```tsx
+<VirtualizedMessageList defaultItemHeight={80} overscan={200} />
+```
+
+After (v15):
+
+```tsx
+<VirtualizedMessageList
+  additionalVirtuosoProps={{ defaultItemHeight: 80, overscan: 200 }}
+/>
+```
+
+<a id="bc-092"></a>
+
+### BC-092: `useUserRole` was renamed to `useMessagePermissions`
+
+- Status: confirmed
+- Area: message hooks
+- User impact: compile error on importing `useUserRole`. In untyped code the import is `undefined`, so calling it throws `TypeError: useUserRole is not a function`.
+- Old API:
+  - `useUserRole(message: LocalMessage, disableQuotedMessages?: boolean)`
+- Replacement: `useMessagePermissions(message: LocalMessage)`; the `disableQuotedMessages` argument is removed (BC-095). It returns what the current user may do with that message, built from the channel's capabilities and the message's author: `canBlockUser`, `canDelete`, `canEdit`, `canFlag`, `canMarkUnread`, `canMute`, `canPin`, `canQuote`, `canReact`, `canReply`, `canSendMessage` and `isMyMessage`. It returns no role flags (BC-090).
+- Evidence:
+  - `release-v14:src/components/Message/hooks/useUserRole.ts:5`; `release-v14:src/components/Message/hooks/index.ts:12` `export * from './useUserRole'`
+  - `master:src/components/Message/hooks/useMessagePermissions.ts:5`, `:31-44`; `master:src/components/Message/hooks/index.ts:13` `export * from './useMessagePermissions'`
+  - commit: REACT-1467 (PR #3387)
+- Docs impact:
+  - `02-ui-components/08-message/04-message_hooks.md` (the `useUserRole` section, renamed to `useMessagePermissions`)
+  - `03-ui-cookbook` recipes that gate buttons on the hook (custom message actions, pin indicator)
+- Example needed: yes
+
+Before (v14):
+
+```tsx
+import { useUserRole } from 'stream-chat-react';
+
+const { canReply } = useUserRole(message);
+```
+
+After (v15):
+
+```tsx
+import { useMessagePermissions } from 'stream-chat-react';
+
+const { canReply } = useMessagePermissions(message);
+```
+
+<a id="bc-093"></a>
+
+### BC-093: `MessageContextValue.onMentionsClickMessage` / `onMentionsHoverMessage` and `useMentionsHandler`'s handlers are `undefined` without a handler
+
+- Status: confirmed
+- Area: message context
+- User impact:
+  - compile error (`TS2722`) on calling `onMentionsClickMessage(event)` or `onMentionsHoverMessage(event)` from `useMessageContext()`, or the `onMentionsClick` / `onMentionsHover` that `useMentionsHandler()` returns, without a check. In untyped code the call throws `TypeError: onMentionsClickMessage is not a function` (or the same for the other handler) on a message rendered without `onMentionsClick` / `onMentionsHover`.
+  - Without `onMentionsClick`, mentions in `MessageText` are no longer interactive: the text is not a separate focus stop, Enter and Space do nothing, and mentions keep the default cursor.
+- Old API:
+  - `onMentionsClickMessage: ReactEventHandler` and `onMentionsHoverMessage: ReactEventHandler`, always set; a no-op when no handler was passed
+  - `useMentionsHandler(message, handlers)` returned `{ onMentionsClick, onMentionsHover }`, both always functions
+- Replacement: the context fields are optional and set only when `onMentionsClick` / `onMentionsHover` was passed to `MessageList` or `Message`. `useMentionsHandler` returns each handler only when the matching one is passed to it, and `undefined` otherwise. Pass them as event props (`onClick={onMentionsClickMessage}`), or call them with `?.`. With `onMentionsClick` set, `MessageText` adds `str-chat__message-text-inner--mentions-clickable`, which gives mentions a pointer cursor.
+- Evidence:
+  - `release-v14:src/context/MessageContext.tsx:63-66`; `release-v14:src/components/Message/Message.tsx:263` `onMentionsClickMessage={onMentionsClick}`; `release-v14:src/components/Message/hooks/useMentionsHandler.ts:55-59` (`|| (() => null)`)
+  - `master:src/context/MessageContext.tsx:44-47`; `master:src/components/Message/hooks/useMentionsHandler.ts:13-21`, `:28-49`; `master:src/components/Message/Message.tsx:191-192`; `master:src/components/Message/MessageText.tsx:82-83`, `:121-122`, `:125` (`onClick` only when mentions are interactive)
+  - commit: REACT-1467 (PR #3387)
+- Docs impact:
+  - `02-ui-components/08-message/02-message_context.md` (`onMentionsClickMessage`, `onMentionsHoverMessage`), `02-ui-components/08-message/04-message_hooks.md` (`useMentionsHandler`)
+- Example needed: yes
+
+Before (v14):
+
+```tsx
+const { onMentionsClickMessage } = useMessageContext();
+const onKeyDown = (event) => onMentionsClickMessage(event);
+```
+
+After (v15):
+
+```tsx
+const { onMentionsClickMessage } = useMessageContext();
+const onKeyDown = (event) => onMentionsClickMessage?.(event);
+```
+
+<a id="bc-094"></a>
+
+### BC-094: `mentionsMarkdownPlugin` and `createMentionPluginAndDisplayTextSet` take mention entities only
+
+- Status: confirmed
+- Area: message text
+- User impact: compile error on passing a users array (`message.mentioned_users`, `UserResponse[]`). In untyped code a user without `mentionType` matches by name and by ID, and renders with `data-mention-id` but without `data-mention-type="user"` or `data-user-id`, so a click handler that reads `data-user-id` finds nothing and a custom mention renderer's `mentionType === 'user'` check is false.
+- Old API:
+  - `mentionsMarkdownPlugin(mentionedUsers: UserResponse[])` and `mentionsMarkdownPlugin(mentionEntities: RenderTextMentionEntity[])` (overloads)
+  - `createMentionPluginAndDisplayTextSet(mentionEntitiesOrUsers: RenderTextMentionEntity[] | UserResponse[])`
+- Replacement: pass `RenderTextMentionEntity[]`. Build it from a message with `getRenderTextMentionEntities(message)`, which also covers `@channel`, `@here`, roles and user groups; a bare user becomes `{ ...user, mentionType: 'user' }`.
+- Evidence:
+  - `release-v14:src/components/Message/renderText/rehypePlugins/mentionsMarkdownPlugin.ts:143`, `:270-271`, `:281-291`
+  - `master:src/components/Message/renderText/rehypePlugins/mentionsMarkdownPlugin.ts:160`, `:260-262`, `:271-275`
+  - commit: REACT-1467 (PR #3387)
+- Docs impact:
+  - `02-ui-components/08-message/06-render-text.md`
+- Example needed: yes
+
+Before (v14):
+
+```tsx
+renderText(message.text, {
+  getRehypePlugins: (plugins) => [
+    mentionsMarkdownPlugin(message.mentioned_users ?? []),
+    ...plugins,
+  ],
+});
+```
+
+After (v15):
+
+```tsx
+renderText(message.text, {
+  getRehypePlugins: (plugins) => [
+    mentionsMarkdownPlugin(getRenderTextMentionEntities(message)),
+    ...plugins,
+  ],
+});
+```
+
+<a id="bc-095"></a>
+
+### BC-095: `disableQuotedMessages` is removed from `MessageProps`, `MessageListProps` and `useMessagePermissions`
+
+- Status: confirmed
+- Area: message / message list
+- User impact: compile error on passing `disableQuotedMessages` to `MessageList` or `Message`, or a second argument to `useMessagePermissions`. In untyped code both are ignored. Nothing changes on screen: v14's default `MessageActions` already ignored the flag, because `useBaseMessageActionSetFilter` called `useUserRole(message)` without it, so the Quote action showed whether or not the flag was set. Only `MessageContext.getMessageActions()` honoured it, and no SDK component called that.
+- Old API:
+  - `MessageProps.disableQuotedMessages?: boolean`, also picked into `MessageListProps`
+  - `useUserRole(message, disableQuotedMessages?)`: `canQuote` was `false` when the flag was set
+- Replacement: hide the Quote action with a `messageActionSet` that leaves out the `quote` item (or gives it an `isVisible` rule), installed through the `MessageActions` slot (BC-041). `useMessagePermissions(message).canQuote` is the `quote-message` capability alone.
+- Evidence:
+  - `release-v14:src/components/Message/types.ts:27`; `release-v14:src/components/MessageList/MessageList.tsx:231`, `:497`; `release-v14:src/components/Message/Message.tsx:213`; `release-v14:src/components/Message/hooks/useUserRole.ts:5`, `:49`; `release-v14:src/components/MessageActions/hooks/useBaseMessageActionSetFilter.ts:46` `useUserRole(message)`
+  - `master:src/components/Message/hooks/useMessagePermissions.ts:5`, `:26`
+  - commit: REACT-1467 (PR #3387)
+- Docs impact:
+  - `02-ui-components/07-message-list/01-message_list.md`, `02-ui-components/08-message/01-message.md` (`disableQuotedMessages`), `02-ui-components/08-message/04-message_hooks.md` (`useMessagePermissions`)
+- Example needed: yes
+
+Before (v14):
+
+```tsx
+<MessageList disableQuotedMessages />
+```
+
+After (v15):
+
+```tsx
+import {
+  defaultMessageActionSet,
+  MessageActions,
+  MessageList,
+  WithComponents,
+} from 'stream-chat-react';
+
+const messageActionSet = defaultMessageActionSet.filter(
+  // the dropdown-toggle item has no `type`; keep it
+  (item) => !('type' in item) || item.type !== 'quote',
+);
+
+const MessageActionsWithoutQuote = () => (
+  <MessageActions messageActionSet={messageActionSet} />
+);
+
+export const List = () => (
+  <WithComponents overrides={{ MessageActions: MessageActionsWithoutQuote }}>
+    <MessageList />
+  </WithComponents>
+);
+```
 
 ## Message composer
 
@@ -3268,7 +3619,7 @@ const hasFr = i18n.registeredLanguages.has('fr');
 - Evidence:
   - diff `components/Attachment`, `components/Message`, `components/MessageList`, `components/Poll`, `components/Reactions`, `components/EventComponent`, `context` (`MessageContext.handleDelete` / `handleFetchReactions` / `reactionDetailsSort`)
   - `master:src/context/MessageContext.tsx` imports `DeleteMessageOptions`, `SortParamRequest` from `stream-chat`; `node_modules/stream-chat/dist/types/types.d.ts:284` `DeleteMessageOptions = NonNullable<Parameters<ChatApi['deleteMessage']>[1]>`; `gen/models/index.d.ts:8432` `SortParamRequest { direction?, field?, type? }`
-  - `master:src/components/Message/utils.tsx:42` `isUserMuted(message, mutes?: UserMuteResponse[])`
+  - `master:src/components/Message/utils.tsx:48` `isUserMuted(message, mutes?: UserMuteResponse[])`
   - examples: `examples.diff:12306`–`:12307` `onDelete({ deleteForMe, hardDelete })` -> `onDelete({ delete_for_me: deleteForMe, hard: hardDelete })`
   - commits: `99cbe6704` (PR #3237, "attachment `duration`/`file_size`/`mime_type`/`waveform_data` from `attachment.custom` … `moderation_details` is gone"), `ccccce5e4 fix: adapt to removed stream-chat-js hand-written types` (PR #3274), `cb472c35f` (PR #3278)
   - corpus: `examples/examples/vite/src/CustomMessageActions/ConfigurableMessageActions.tsx:119` TS2561 (`deleteForMe`); `docs/03-ui-cookbook__06-attachment__03-geolocation_attachment__1.tsx:13`, `:14` TS2339 (location union)
@@ -3481,10 +3832,10 @@ Found by the staleness pass of 2026-11-03: commits that landed on `master` after
 - Replacement: add `!message.poll_id && message.command !== 'giphy'` where the old rule is wanted.
 - Evidence:
   - `release-v14:src/components/Message/hooks/useUserRole.ts:35-38`
-  - `master:src/components/Message/hooks/useUserRole.ts:29-31`
+  - `master:src/components/Message/hooks/useMessagePermissions.ts:14-16` (`useUserRole` is renamed, see BC-092)
   - commit: `1c02ba07f` (PR #3365, `BREAKING CHANGE` footer)
 - Docs impact:
-  - `02-ui-components/08-message/04-message_hooks.md` (`useUserRole`)
+  - `02-ui-components/08-message/04-message_hooks.md` (`useMessagePermissions`)
 - Example needed: no
 
 <a id="bc-080"></a>
@@ -3498,7 +3849,7 @@ Found by the staleness pass of 2026-11-03: commits that landed on `master` after
   - `useBaseMessageActionSetFilter` rules for `edit`, `copyMessageText`, `download` (`release-v14:src/components/MessageActions/hooks/useBaseMessageActionSetFilter.ts:79-100`)
 - Replacement: `MessageActionSetItem.isVisible({ isMyMessage, isThreadReply, message })`; copy the default item's `isVisible` into a hand-written item to keep the rule.
 - Evidence:
-  - `master:src/components/MessageActions/MessageActions.defaults.tsx:834,845,857`
+  - `master:src/components/MessageActions/MessageActions.defaults.tsx:830,841,853`
   - `master:src/components/MessageActions/hooks/useBaseMessageActionSetFilter.ts`
   - commit: `1c02ba07f` (PR #3365, `BREAKING CHANGE` footer)
 - Docs impact:
@@ -3516,7 +3867,7 @@ Found by the staleness pass of 2026-11-03: commits that landed on `master` after
   - `release-v14:src/components/Message/MessageUI.tsx:134` (`hasSingleAttachment`), `:246-247` (poll, then quote)
 - Replacement: reorder with a custom `messageBubbleContentSet` installed through the `MessageBubbleContent` slot; target `.str-chat__message--has-poll`.
 - Evidence:
-  - `master:src/components/Message/MessageUI.tsx:108-109,130-132`
+  - `master:src/components/Message/MessageUI.tsx:105-106,126-128`
   - `master:src/components/Message/MessageBubbleContent.defaults.tsx`
   - commit: `1c02ba07f` (PR #3365, `BREAKING CHANGE` footer)
 - Docs impact:
@@ -3553,7 +3904,7 @@ Found by the staleness pass of 2026-11-03: commits that landed on `master` after
   - `release-v14:src/components/Message/hooks/useMuteHandler.ts:22-24`, `useFlagHandler.ts:18-19`, `useMarkUnreadHandler.ts:12-13`, `useDeleteHandler.ts:17-27`
 - Replacement: catch the rejection in custom UI (`handlePin(event).catch(...)`). `missingUseMuteHandlerParamsWarning` / `missingUseFlagHandlerParameterWarning` are kept and are now the error messages.
 - Evidence:
-  - `master:src/components/Message/hooks/usePinHandler.ts:81,109,137`, `useMuteHandler.ts:33,59,83`, `useDeleteHandler.ts:30-32`, `useFlagHandler.ts:18`, `useMarkUnreadHandler.ts:24`
+  - `master:src/components/Message/hooks/usePinHandler.ts:54,82,110`, `useMuteHandler.ts:33,59,83`, `useDeleteHandler.ts:30-32`, `useFlagHandler.ts:18`, `useMarkUnreadHandler.ts:24`
   - commits: `d88dbf02a` (PR #3360), `290d2dbaf` (PR #3362); v14 counterpart for pin only: `cf6c8f9ab` (PR #3359, unreleased on `release-v14` at the time of writing)
 - Docs impact:
   - `02-ui-components/08-message/04-message_hooks.md`
@@ -3588,7 +3939,7 @@ Found by the staleness pass of 2026-11-03: commits that landed on `master` after
   - `MessageContextValue.endOfGroup`, `.firstOfGroup`, `.groupedByUser`
   - `str-chat__virtual-message__wrapper--end`, `--first`, `--group` on `.str-chat__message`
 - Replacement:
-  - `useMessageContext().groupStyles[0]`: `top`, `middle`, `bottom` or `single`
+  - `useMessageContext().groupStyles?.[0]`: `top`, `middle`, `bottom` or `single`; `undefined` for a message no list groups (a standalone `<Message>`, or the thread's parent message)
   - CSS: the list item's `.str-chat__li--top`, `--middle`, `--bottom`, `--single`. The default `MessageUI` renders the metadata on every message, and the default CSS hides it on `top` and `middle` items.
 - Evidence:
   - `release-v14:src/components/Message/MessageUI.tsx:144` `showMetadata = !groupedByUser || endOfGroup`, with no list setting either flag
@@ -3946,7 +4297,10 @@ Non-gated items checked and ruled out: `Chat.isMessageAIGenerated`, `SummarizedM
   - `usePinHandler.canPin` member-removed, `usePinHandler` return -> BC-052
   - `useRetryHandler` -> BC-044
   - `useUserRole.canPin` member-added-required -> ruled-out: additive return field
+  - `useUserRole` removed, `useMessagePermissions` added -> BC-092
+  - `Message.disableQuotedMessages`, `MessageProps.disableQuotedMessages`, the `useMessagePermissions` second argument -> BC-095
 - components/MessageList
+  - `MessageList.disableQuotedMessages`, `MessageListProps.disableQuotedMessages`, `SharedMessageProps.disableQuotedMessages` -> BC-095
   - `getIsFirstUnreadMessage` -> BC-054
   - `insertIntro` -> BC-056
   - `MessageList.disableDateSeparator`, `MessageListProps.disableDateSeparator`, `ProcessMessagesParams.enableDateSeparator` -> BC-049
@@ -4162,6 +4516,7 @@ Non-gated items checked and ruled out: `Chat.isMessageAIGenerated`, `SummarizedM
 
 ### Diff items ruled out by the coordinator
 
+- `PinEnabledUserRoles` and `PinPermissions` (exported from `usePinHandler.ts` in v15 release candidates, `@deprecated`) were removed by REACT-1467 (PR #3387). Ruled out as a v14 -> v15 change: v14 removed them before v14 stable (`8317b73a2`, PR #3086) and `99cbe6704` (PR #3237) brought them back on `master` by accident, so `release-v14` never exports them. Gate on `useMessagePermissions(message).canPin` instead.
 - `ThreadContext` / `ThreadContextValue` members reported as `member-added-required`: `configState`, `handleMessageDeleted`, `handleMessageUpdated`, `handleNewReply`, `handleReactionChanged`, `handleRepliesRead`, `handleRepliesUnread`, `handleThreadUpdated`, `handleUserMessagesDeleted`, `initializeConfig`, `markRead`, `messageOperations`, `updateConfig`. Ruled out as LLC (stream-chat v10): `ThreadContextValue` is `Thread | undefined` on both branches, and these are methods and stores added to the `stream-chat` `Thread` class. Only a hand-built `Thread` mock is affected; build it from a real `client.threads` instance instead.
 - Corpus errors caused only by `stream-chat` v10 types, ruled out as LLC: the attachment `Action` type now requires `text` and `type` (`03-ui-cookbook/06-attachment/01-attachment_actions.md`); `StreamChat.unBlockUser` -> `unblockUser` and `queryUsers`-style id arguments (`04-guides/11-blocking-users.md`, `04-guides/04-typescript_and_custom_data_types.md`); custom fields on `MessageWithChannelResponse` (same page); `ReminderResponse` -> `ReminderResponseData` (`04-guides/12-message-reminders.md`); `MessageResponseBase`, and the narrowed `Event` / `EventPayload` unions (`examples/vite` WebSocket event tooling). Also: the `User` type no longer accepts `name` / `image` (type `userData` as `ClientUser`, as `useCreateChatClient` does; v14 tutorial steps 3-7); `ChannelResponse.name` on `Partial<ChannelResponse>`; channel `members` as `ChannelMemberRequest` objects instead of id strings (tutorial steps 3 and 6); `StreamChat.partialUpdateMessage` and other message methods taking `{ message_id }` objects; `delete_for_me` instead of `deleteForMe` in delete options; `ChannelState.messages` (use `channel.messagePaginator`); `ReactionResponse.custom` now required in hand-built fixtures; `LinkPreview.custom`.
 

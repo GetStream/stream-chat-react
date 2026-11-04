@@ -8,8 +8,8 @@ import {
   useChatContext,
   useComponentContext,
   useMessageContext,
+  useMessagePermissions,
   useThreadContext,
-  useUserRole,
 } from 'stream-chat-react';
 import './CustomMessageUi.css';
 
@@ -65,6 +65,9 @@ const CustomMessageUiMetadata = () => {
     readBy = [],
   } = useMessageContext();
   const { client } = useChatContext();
+  // Read and delivery cursors sit on channel messages, so a thread list's `readBy` / `deliveredTo`
+  // say nothing about its replies, and the parent gets none. As in the SDK's `MessageStatus`, a
+  // message shown in a thread is never read, delivered or sent here.
   const isInThread = !!useThreadContext();
 
   const createdAt = convertTimestampToDate(message.created_at);
@@ -115,8 +118,11 @@ const CustomMessageUiActions = () => {
     handleReaction,
     message,
   } = useMessageContext();
+  // Pinning and replying work on the channel list, so the thread's messages, the parent
+  // included, offer neither, as in the SDK's default message actions.
   const isInThread = !!useThreadContext();
-  const { canDelete, canFlag, canPin, canReact, canReply } = useUserRole(message);
+  const { canDelete, canFlag, canPin, canReact, canReply } =
+    useMessagePermissions(message);
   const { reactionOptions } = useComponentContext();
   const quickReactions =
     reactionOptions && 'quick' in reactionOptions ? reactionOptions.quick : {};

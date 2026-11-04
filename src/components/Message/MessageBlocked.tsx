@@ -1,7 +1,7 @@
 import React from 'react';
 import clsx from 'clsx';
 
-import { useUserRole } from './hooks/useUserRole';
+import { useMessagePermissions } from './hooks/useMessagePermissions';
 import { useTranslationContext } from '../../context/TranslationContext';
 import { useMessageContext } from '../../context';
 
@@ -9,7 +9,7 @@ export const MessageBlocked = () => {
   const { message } = useMessageContext();
   const { t } = useTranslationContext();
 
-  const { isMyMessage } = useUserRole(message);
+  const { isMyMessage } = useMessagePermissions(message);
 
   const messageClasses = clsx(
     'str-chat__message str-chat__message--blocked',

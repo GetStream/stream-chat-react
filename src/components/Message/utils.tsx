@@ -84,13 +84,14 @@ function areMessagesEqual(prevMessage: LocalMessage, nextMessage: LocalMessage):
   );
 }
 
+type MemoizedMessageProps = MessageProps &
+  Pick<MessageContextValue, 'onMentionsClickMessage' | 'onMentionsHoverMessage'> & {
+    showDetailedReactions?: boolean;
+  };
+
 export const areMessagePropsEqual = (
-  prevProps: MessageProps & {
-    showDetailedReactions?: boolean;
-  },
-  nextProps: MessageProps & {
-    showDetailedReactions?: boolean;
-  },
+  prevProps: MemoizedMessageProps,
+  nextProps: MemoizedMessageProps,
 ) => {
   const { message: prevMessage } = prevProps;
   const { message: nextMessage } = nextProps;
@@ -102,6 +103,17 @@ export const areMessagePropsEqual = (
   }
 
   if (nextProps.closeReactionSelectorOnClick !== prevProps.closeReactionSelectorOnClick) {
+    return false;
+  }
+
+  if (nextProps.showAvatar !== prevProps.showAvatar) return false;
+
+  // Whether a mention handler is set decides if mentions are interactive, so a handler set or
+  // removed after the first render has to reach the message. Their identity is not compared.
+  if (
+    !!nextProps.onMentionsClickMessage !== !!prevProps.onMentionsClickMessage ||
+    !!nextProps.onMentionsHoverMessage !== !!prevProps.onMentionsHoverMessage
+  ) {
     return false;
   }
 
@@ -137,6 +149,7 @@ export const areMessageUIPropsEqual = (
   if (prevProps.readBy?.length !== nextProps.readBy?.length) return false;
   if (prevProps.deliveredTo?.length !== nextProps.deliveredTo?.length) return false;
   if (prevProps.groupStyles !== nextProps.groupStyles) return false;
+  if (prevProps.showAvatar !== nextProps.showAvatar) return false;
 
   if (prevProps.showDetailedReactions !== nextProps.showDetailedReactions) {
     return false;

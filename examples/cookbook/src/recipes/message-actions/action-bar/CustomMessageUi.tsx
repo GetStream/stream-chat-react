@@ -6,8 +6,8 @@ import {
   MessageText,
   useChatContext,
   useMessageContext,
+  useMessagePermissions,
   useThreadContext,
-  useUserRole,
 } from 'stream-chat-react';
 import './CustomMessageUi.css';
 
@@ -63,6 +63,9 @@ const CustomMessageUiMetadata = () => {
     readBy = [],
   } = useMessageContext();
   const { client } = useChatContext();
+  // Read and delivery cursors sit on channel messages, so a thread list's `readBy` / `deliveredTo`
+  // say nothing about its replies, and the parent gets none. As in the SDK's `MessageStatus`, a
+  // message shown in a thread is never read, delivered or sent here.
   const isInThread = !!useThreadContext();
 
   const createdAt = convertTimestampToDate(message.created_at);
@@ -107,8 +110,10 @@ const CustomMessageUiMetadata = () => {
 const CustomMessageUiActions = () => {
   const { handleDelete, handleFlag, handleOpenThread, handlePin, message } =
     useMessageContext();
+  // Pinning and replying work on the channel list, so the thread's messages, the parent
+  // included, offer neither, as in the SDK's default message actions.
   const isInThread = !!useThreadContext();
-  const { canDelete, canFlag, canPin, canReply } = useUserRole(message);
+  const { canDelete, canFlag, canPin, canReply } = useMessagePermissions(message);
 
   return (
     <div className='cookbook-message-ui__actions'>

@@ -28,8 +28,6 @@ export type MessageProps = {
   closeReactionSelectorOnClick?: boolean;
   /** Users that have confirmed the message delivery to their device. */
   deliveredTo?: UserResponse[];
-  /** If true, users cannot quote messages. Defaults to false. */
-  disableQuotedMessages?: boolean;
   // todo: remove
   /** Overrides the date formatting. Receives the original date and returns a string. */
   formatDate?: (date: Date) => string;

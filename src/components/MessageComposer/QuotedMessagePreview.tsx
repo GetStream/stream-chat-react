@@ -434,7 +434,7 @@ export const QuotedMessagePreviewUI = ({
               });
       }
     } else if (renderText) {
-      renderedText = renderText(quotedMessageText, quotedMessage?.mentioned_users, {
+      renderedText = renderText(quotedMessageText, {
         messageMentionEntities: quotedMessageMentionEntities,
       });
     } else {

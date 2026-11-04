@@ -70,10 +70,10 @@ const UnMemoizedMessageTextComponent = (props: MessageTextProps) => {
 
   const messageText = useMemo(
     () =>
-      renderText(messageTextToRender, message.mentioned_users, {
+      renderText(messageTextToRender, {
         messageMentionEntities: renderTextMentionEntities,
       }),
-    [message.mentioned_users, messageTextToRender, renderText, renderTextMentionEntities],
+    [messageTextToRender, renderText, renderTextMentionEntities],
   );
 
   const wrapperClass = customWrapperClass || 'str-chat__message-text';
@@ -97,7 +97,7 @@ const UnMemoizedMessageTextComponent = (props: MessageTextProps) => {
     }
 
     event.preventDefault();
-    onMentionsClickMessage(event);
+    onMentionsClickMessage?.(event);
   };
 
   if (!messageTextToRender) return null;
@@ -115,12 +115,14 @@ const UnMemoizedMessageTextComponent = (props: MessageTextProps) => {
       <div
         aria-labelledby={isMentionsInteractionEnabled ? messageLabelledBy : undefined}
         className={clsx(innerClass, {
-          [` str-chat__message-text-inner--is-emoji`]:
+          'str-chat__message-text-inner--has-attachment': hasAttachment,
+          'str-chat__message-text-inner--is-emoji':
             messageTextHasEmojisOnly(message) && !message.quoted_message,
-          [`str-chat__message-text-inner--has-attachment`]: hasAttachment,
+          'str-chat__message-text-inner--mentions-clickable':
+            isMentionsInteractionEnabled,
         })}
         data-testid='message-text-inner-wrapper'
-        onClick={onMentionsClickMessage}
+        onClick={isMentionsInteractionEnabled ? onMentionsClickMessage : undefined}
         onKeyDown={isMentionsInteractionEnabled ? handleMentionsKeyDown : undefined}
         onMouseOver={onMentionsHoverMessage}
         tabIndex={isMentionsInteractionEnabled ? 0 : undefined}

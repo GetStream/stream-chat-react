@@ -41,10 +41,10 @@ export type MessageContextValue = {
   handleRetry: (message: LocalMessage) => Promise<void> | void;
   isMyMessage: () => boolean;
   message: LocalMessage;
-  /** Click handler for an @mention in the message. */
-  onMentionsClickMessage: ReactEventHandler;
-  /** Hover handler for an @mention in the message. */
-  onMentionsHoverMessage: ReactEventHandler;
+  /** Click handler for an @mention in the message; `undefined` when no `onMentionsClick` handler is set. */
+  onMentionsClickMessage?: ReactEventHandler;
+  /** Hover handler for an @mention in the message; `undefined` when no `onMentionsHover` handler is set. */
+  onMentionsHoverMessage?: ReactEventHandler;
   /** Click handler for the user who posted the message. */
   onUserClick: ReactEventHandler;
   /** Hover handler for the user who posted the message. */
