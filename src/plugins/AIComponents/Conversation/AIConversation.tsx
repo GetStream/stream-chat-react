@@ -91,7 +91,7 @@ export type AIConversationProps = {
    * scrolls to its start. It shows a spinner meanwhile, and what is on screen stays in place as
    * they arrive. Pass `undefined` once there are none left.
    */
-  loadOlderMessages?: () => Promise<void> | void;
+  loadOlderMessages?: () => Promise<unknown> | void;
   /**
    * A message the person sent that is not in `messages` yet. Keep passing it until its reply
    * starts: the conversation stops showing it once its copy arrives.
