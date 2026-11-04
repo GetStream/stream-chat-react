@@ -25,7 +25,7 @@ type MessageStatusParams = {
   ownUserId: string;
   deliveredTo: UserResponse[];
   readBy: UserResponse[];
-  isInThread: boolean;
+  isThreadReply: boolean;
 };
 
 const getMessageStatus = ({
@@ -33,19 +33,24 @@ const getMessageStatus = ({
   message,
   ownUserId,
   readBy,
-  isInThread,
+  isThreadReply,
 }: MessageStatusParams): keyof typeof statusIconMap => {
   const [firstReader] = readBy;
   const [firstDeliveredUser] = deliveredTo;
 
   const justReadByMe = readBy?.length === 1 && firstReader?.id === ownUserId;
-  const read = !!(readBy?.length && !justReadByMe && !isInThread);
+  const read = !!(readBy?.length && !justReadByMe && !isThreadReply);
 
   const deliveredOnlyToMe =
     deliveredTo?.length === 1 && firstDeliveredUser?.id === ownUserId;
-  const delivered = !!(deliveredTo?.length && !deliveredOnlyToMe && !read && !isInThread);
+  const delivered = !!(
+    deliveredTo?.length &&
+    !deliveredOnlyToMe &&
+    !read &&
+    !isThreadReply
+  );
 
-  const sent = message.status === 'received' && !delivered && !read && !isInThread;
+  const sent = message.status === 'received' && !delivered && !read && !isThreadReply;
   const sending = message.status === 'sending';
 
   if (read) return 'read';
@@ -151,10 +156,12 @@ const CustomMessageUiMetadata = ({
   const {
     deliveredTo = [],
     handleOpenThread,
+    initialMessage,
     message,
     readBy = [],
   } = useMessageContext();
-  const isInThread = !!useThreadContext();
+  // The thread parent is a channel message, so only replies count as thread messages here.
+  const isThreadReply = !!useThreadContext() && !initialMessage;
   const { client } = useChatContext();
   const {
     created_at: createdAt,
@@ -169,9 +176,9 @@ const CustomMessageUiMetadata = ({
         ownUserId: client.user?.id ?? '',
         deliveredTo,
         readBy,
-        isInThread,
+        isThreadReply,
       }),
-    [message, client, deliveredTo, readBy, isInThread],
+    [message, client, deliveredTo, readBy, isThreadReply],
   );
 
   return (
@@ -240,11 +247,17 @@ export const CustomMessageUi_V5 = CustomMessageUi_V4;
 // ─── Actions Component ────────────────────────────────────────────
 
 const CustomMessageUiActions = () => {
-  const { handleDelete, handleFlag, handleOpenThread, handlePin, message } =
-    useMessageContext();
-  const isInThread = !!useThreadContext();
+  const {
+    handleDelete,
+    handleFlag,
+    handleOpenThread,
+    handlePin,
+    initialMessage,
+    message,
+  } = useMessageContext();
+  const isThreadReply = !!useThreadContext() && !initialMessage;
 
-  if (isInThread) return null;
+  if (isThreadReply) return null;
 
   return (
     <div className='custom-message-ui__actions'>

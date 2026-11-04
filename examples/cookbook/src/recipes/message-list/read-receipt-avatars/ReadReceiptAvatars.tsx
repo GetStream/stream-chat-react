@@ -21,15 +21,16 @@ const readersSelector = ({ readersByMessageId }: MessageReceiptsSnapshot) => ({
 const ReadReceiptAvatars = () => {
   const channel = useChannel();
   const { client } = useChatContext();
-  const { message } = useMessageContext();
-  const isInThread = !!useThreadContext();
+  const { initialMessage, message } = useMessageContext();
+  const isThreadReply = !!useThreadContext() && !initialMessage;
   const { readersByMessageId } = useStateStore(
     channel.messageReceiptsTracker.snapshotStore,
     readersSelector,
   );
 
-  // Read positions belong to the channel's main list, so a thread shows none.
-  if (isInThread) return null;
+  // Read positions belong to the channel's main list, so thread replies show none. The thread
+  // parent is a channel message and keeps its readers.
+  if (isThreadReply) return null;
 
   const readers = (readersByMessageId[message.id] ?? []).filter(
     (user) => user.id !== client.userId,
