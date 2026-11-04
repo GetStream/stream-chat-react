@@ -35,7 +35,7 @@ it('server-renders without touching browser globals', () => {
   expect(html).toContain('<strong>bold</strong>');
   expect(html).toContain('streamed-ssr-marker');
   expect(html).toContain('Thinking');
-  expect(html).toContain('<input');
+  expect(html).toContain('<textarea');
   expect(html).toContain(
     'class="str-chat__ai-voice-visualization str-chat__ai-voice-wave"',
   );

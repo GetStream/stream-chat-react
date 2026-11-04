@@ -62,7 +62,15 @@
     all: unset;
     flex-grow: 1;
     font-size: 16px;
+    line-height: 1.5;
     padding-inline: 0.25rem;
+    // A textarea: several lines, grown by TextInput to fit them, then scrolled.
+    resize: none;
+    // Its height is set to its scrollHeight, which counts any padding, so the padding is inside.
+    box-sizing: border-box;
+    overflow-y: auto;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
 
     // the form shows the focus; this beats the `.str-chat *:not(:disabled):focus-visible`
     // outline, which a clicked text field matches
