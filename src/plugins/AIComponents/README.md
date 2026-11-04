@@ -6,7 +6,7 @@ These components used to ship as the separate package `@stream-io/chat-react-ai`
 
 ## Installation
 
-Requires the first `stream-chat-react` release that includes `ai-components` (expected 14.13.0; the exact number is set by semantic-release).
+Requires `stream-chat-react` 14.15.0 or later, the first release that includes `ai-components`.
 
 ```bash
 yarn add stream-chat-react stream-chat
@@ -163,7 +163,7 @@ const ui = useMemo(
 
 ### A2UI
 
-`stream-chat-react/a2ui` is the renderer of [A2UI](https://a2ui.org) 1.0, the counterpart of StreamChatA2UI. It is built on the official A2UI packages, which the app installs: they are optional peers of this package, pinned to the version it is tested with.
+`stream-chat-react/a2ui` is the renderer of [A2UI](https://a2ui.org) 1.0, the counterpart of StreamChatA2UI. It is built on the official A2UI packages, which the app installs: they are optional peers of this package, which takes the patch releases of the version it is tested with (`~0.15.0`), since the 0.x packages change their API between minor versions.
 
 ```bash
 npm install @a2ui/web_core@0.15.0 @a2ui/react@0.15.0
@@ -194,7 +194,7 @@ const ui = new AIUIHost({
 
 ### OpenUI
 
-`stream-chat-react/openui` is the renderer of [OpenUI](https://openui.com), the counterpart of StreamChatOpenUI. It is built on the official OpenUI packages, which the app installs: they are optional peers of this package, pinned to the versions it is tested with. Their styles are the app's to import, and `ai-components.css` themes them.
+`stream-chat-react/openui` is the renderer of [OpenUI](https://openui.com), the counterpart of StreamChatOpenUI. It is built on the official OpenUI packages, which the app installs: they are optional peers of this package, which takes the patch releases of the versions it is tested with (`~`). Their styles are the app's to import, and `ai-components.css` themes them.
 
 ```bash
 npm install @openuidev/react-lang@1.0.2 @openuidev/react-ui@0.18.1 @openuidev/react-headless@0.18.1 zustand@^4.5.5

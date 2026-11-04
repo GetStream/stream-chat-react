@@ -12554,13 +12554,13 @@ __metadata:
     zod: "npm:^4.1.12"
     zustand: "npm:4.5.7"
   peerDependencies:
-    "@a2ui/react": 0.15.0
-    "@a2ui/web_core": 0.15.0
+    "@a2ui/react": ~0.15.0
+    "@a2ui/web_core": ~0.15.0
     "@breezystack/lamejs": ^1.2.7
     "@emoji-mart/data": ^1.1.0
-    "@openuidev/react-headless": 0.18.1
-    "@openuidev/react-lang": 1.0.2
-    "@openuidev/react-ui": 0.18.1
+    "@openuidev/react-headless": ~0.18.1
+    "@openuidev/react-lang": ~1.0.2
+    "@openuidev/react-ui": ~0.18.1
     emoji-mart: ^5.4.0
     modern-normalize: ^3.0.1
     react: ^19.0.0 || ^18.0.0 || ^17.0.0
