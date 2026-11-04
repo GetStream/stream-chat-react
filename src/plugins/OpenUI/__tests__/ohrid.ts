@@ -1,0 +1,25 @@
+// The Swift assistant's "Plan a weekend in Ohrid" example, as its OpenUI instructions
+// (`openui/instructions.md`) teach the agent to write it.
+export const ohridProgram = [
+  'root = Card([header, intro, map, calendar, days, tip, refine, next])',
+  'header = CardHeader("A weekend in Ohrid", "The old town, the lake and St. Naum")',
+  'intro = TextContent("Two easy days by the lake: the old town on Saturday, a boat to St. Naum on Sunday.")',
+  'map = TripMap([{name: "Church of St. John at Kaneo", latitude: 41.1112, longitude: 20.7881}, {name: "Plaošnik", latitude: 41.1131, longitude: 20.7903}, {name: "Samuel\'s Fortress, Ohrid", latitude: 41.1162, longitude: 20.7928}, {name: "Monastery of Saint Naum", latitude: 40.9139, longitude: 20.7406}, {name: "Bay of Bones", latitude: 41.0118, longitude: 20.7988}])',
+  'calendar = CalendarCheck("2026-11-14", "2026-11-15")',
+  'days = Tabs([saturday, sunday])',
+  'saturday = TabItem("saturday", "Saturday", [saturdaySteps, plaosnik, fortress, kaneo])',
+  'saturdaySteps = Steps([StepsItem("Morning", "Coffee by the harbour, then up through the old town to Plaošnik."), StepsItem("Afternoon", "Samuel\'s Fortress for the view over the lake."), StepsItem("Sunset", "St. John at Kaneo, on the cliff above the water.")])',
+  'plaosnik = PlaceCard("Plaošnik", "1 hour")',
+  'fortress = PlaceCard("Samuel\'s Fortress, Ohrid", "2 hours")',
+  'kaneo = PlaceCard("Church of St. John at Kaneo", "Best at sunset")',
+  'sunday = TabItem("sunday", "Sunday", [sundaySteps, naum, bones])',
+  'sundaySteps = Steps([StepsItem("Morning", "The boat from the harbour to St. Naum."), StepsItem("Afternoon", "The Bay of Bones on the way back.")])',
+  'naum = PlaceCard("Monastery of Saint Naum", "Take the 10:00 boat")',
+  'bones = PlaceCard("Bay of Bones", "1 hour")',
+  'tip = Callout("info", "Good to know", "Book the St. Naum boat the day before: it fills up at weekends.")',
+  'refine = Form("refine", refineButtons, [pace, interests])',
+  'pace = FormControl("Pace", Chips("pace", "single", [ChipItem("relaxed", "Relaxed"), ChipItem("packed", "Packed")], null, "relaxed"))',
+  'interests = FormControl("More of", Chips("interests", "multiple", [ChipItem("history", "History"), ChipItem("food", "Food"), ChipItem("nature", "Nature"), ChipItem("swimming", "Swimming")]))',
+  'refineButtons = Buttons([Button("Update the plan", Action([@ToAssistant("Update the plan with my choices")]), "primary")])',
+  'next = FollowUpBlock([FollowUpItem("Find a hotel by the lake"), FollowUpItem("Where should we eat?"), FollowUpItem("Make it three days")])',
+].join('\n');
