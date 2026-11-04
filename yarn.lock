@@ -2197,7 +2197,7 @@ __metadata:
     react: "npm:^19.2.6"
     react-dom: "npm:^19.2.6"
     sass: "npm:^1.100.0"
-    stream-chat: "npm:10.0.0-rc.31"
+    stream-chat: "npm:10.0.0-rc.32"
     stream-chat-react: "workspace:^"
     typescript: "npm:^6.0.3"
   languageName: unknown
@@ -2219,7 +2219,7 @@ __metadata:
     react: "npm:^19.2.6"
     react-dom: "npm:^19.2.6"
     react-leaflet: "npm:^5.0.0"
-    stream-chat: "npm:10.0.0-rc.31"
+    stream-chat: "npm:10.0.0-rc.32"
     stream-chat-react: "workspace:^"
     typescript: "npm:^6.0.3"
     vite: "npm:^8.1.3"
@@ -2237,7 +2237,7 @@ __metadata:
     emoji-mart: "npm:^5.6.0"
     react: "npm:^19.2.6"
     react-dom: "npm:^19.2.6"
-    stream-chat: "npm:10.0.0-rc.31"
+    stream-chat: "npm:10.0.0-rc.32"
     stream-chat-react: "workspace:^"
     typescript: "npm:^6.0.3"
     vite: "npm:^8.1.3"
@@ -2265,7 +2265,7 @@ __metadata:
     react: "npm:^19.2.6"
     react-dom: "npm:^19.2.6"
     sass: "npm:^1.100.0"
-    stream-chat: "npm:10.0.0-rc.31"
+    stream-chat: "npm:10.0.0-rc.32"
     stream-chat-react: "workspace:^"
     typescript: "npm:^6.0.3"
     vite: "npm:^8.1.3"
@@ -10340,7 +10340,7 @@ __metadata:
     remark-parse: "npm:^11.0.0"
     sass: "npm:^1.100.0"
     semantic-release: "npm:^25.0.3"
-    stream-chat: "npm:10.0.0-rc.31"
+    stream-chat: "npm:10.0.0-rc.32"
     typescript: "npm:^6.0.3"
     typescript-eslint: "npm:^8.59.4"
     unified: "npm:^11.0.5"
@@ -10358,7 +10358,7 @@ __metadata:
     modern-normalize: ^3.0.1
     react: ^19.0.0 || ^18.0.0 || ^17.0.0
     react-dom: ^19.0.0 || ^18.0.0 || ^17.0.0
-    stream-chat: ^10.0.0-rc.31
+    stream-chat: ^10.0.0-rc.32
   dependenciesMeta:
     "@parcel/watcher":
       built: true
@@ -10382,9 +10382,9 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"stream-chat@npm:10.0.0-rc.31":
-  version: 10.0.0-rc.31
-  resolution: "stream-chat@npm:10.0.0-rc.31"
+"stream-chat@npm:10.0.0-rc.32":
+  version: 10.0.0-rc.32
+  resolution: "stream-chat@npm:10.0.0-rc.32"
   dependencies:
     "@stream-io/logger": "npm:^2.1.0"
     "@stream-io/state-store": "npm:^1.2.0"
@@ -10395,7 +10395,7 @@ __metadata:
       built: true
     husky:
       built: true
-  checksum: 10c0/aa6dfa9c4b9adb6d7a3c86afe2f819e0f1f27f4903f2e29596a8e4e19ffdef7f7bc8b7fd579a9e6a25b95a4984137ce7f96557ef8932a4c4a127624a34c13374
+  checksum: 10c0/8343c560f6f85b16029c55f76386502027d05675894379439992df65d7c5a396b9cf98f97a7ceea88f16eb6468675868817f839ad3d955d5436f24010e7fdb63
   languageName: node
   linkType: hard
 
