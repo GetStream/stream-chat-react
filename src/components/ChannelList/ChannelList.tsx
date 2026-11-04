@@ -1,5 +1,5 @@
 import type { ComponentType } from 'react';
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useMemo, useRef } from 'react';
 import type { Channel, ChannelPaginator, ChannelPaginatorState } from 'stream-chat';
 
 import { ChannelListItem } from '../ChannelListItem';
@@ -32,16 +32,20 @@ export type ChannelListProps = {
   loadMoreThresholdPx?: number;
 };
 
-const channelPaginatorStateSelector = (state: ChannelPaginatorState) => ({
-  // `items === undefined` means "never queried": the initial state, and where a paginator returns
-  // when its data is discarded (e.g. `client.disconnectUser` resets every registered list). An
-  // empty array is a loaded empty page and must not trigger a query. A failed first page leaves
-  // `items` undefined too, but holds the error until a retry or a reset; with `throwErrors` set,
-  // that error is all that keeps the list from querying again and again.
-  awaitsFirstPage: state.items === undefined && !state.isLoading && !state.lastQueryError,
-  firstPageLoadError: getFirstPageLoadError(state),
-  lastQueryError: state.lastQueryError,
-});
+const createChannelPaginatorStateSelector =
+  (paginator: ChannelPaginator) => (state: ChannelPaginatorState) => ({
+    // No loaded page: the initial state, and where a paginator returns when its data is discarded
+    // (e.g. `client.disconnectUser` resets every registered list). Not `items === undefined`: a
+    // live event can route a channel into a list that was never queried, which defines `items`
+    // without loading a page. A loaded empty page (also one set with `setItems`, e.g. a catch-all
+    // list seeded so it never queries) must not trigger a query. A failed first page loads none
+    // either, but holds the error until a retry or a reset; with `throwErrors` set, that error is
+    // all that keeps the list from querying again and again.
+    awaitsFirstPage:
+      !paginator.hasLoadedPage && !state.isLoading && !state.lastQueryError,
+    firstPageLoadError: getFirstPageLoadError(state),
+    lastQueryError: state.lastQueryError,
+  });
 
 /**
  * Channel list driven by a single `ChannelPaginator`: it renders the paginator's state and drives
@@ -55,6 +59,10 @@ export const ChannelList = ({
 }: ChannelListProps) => {
   const { channelManager } = useChatContext();
   const { t } = useTranslationContext();
+  const channelPaginatorStateSelector = useMemo(
+    () => createChannelPaginatorStateSelector(paginator),
+    [paginator],
+  );
   const { awaitsFirstPage, firstPageLoadError, lastQueryError } = useStateStore(
     paginator.state,
     channelPaginatorStateSelector,
@@ -78,12 +86,12 @@ export const ChannelList = ({
   // Ref-counted, so `Chat` and other lists can register the same subscriptions.
   useEffect(() => channelManager.registerSubscriptions(), [channelManager]);
 
-  // Loads the first page, and again whenever the list returns to "never queried": the paginator
+  // Loads the first page, and again whenever the list returns to "no page loaded": the paginator
   // outlives this component, so querying only on mount would leave a reset list permanently empty.
-  // An initialized paginator has queried already; its pages arrive through that query or its
-  // recovery, and a query from here would load the next page.
+  // A paginator with a loaded page has queried already (or was seeded); its pages arrive through
+  // that query or its recovery, and a query from here would load the next page.
   useEffect(() => {
-    if (!awaitsFirstPage || paginator.isInitialized) return;
+    if (!awaitsFirstPage) return;
     paginator.toTailDebounced();
   }, [awaitsFirstPage, paginator]);
 
