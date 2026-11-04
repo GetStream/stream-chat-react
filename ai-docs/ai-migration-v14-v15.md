@@ -2133,7 +2133,7 @@ Both lists take `groupByUser`; the defaults are unchanged.
 
 The `groupStyles` prop of both lists is renamed `getGroupStyles`, and the function takes one object instead of five positional arguments: `{ groupByUser, maxTimeBetweenGroupedMessages, message, nextMessage, previousMessage }` (`GetGroupStylesParams`; `nextMessage` and `previousMessage` are `undefined` at the ends of the list). `groupByUser` replaces the inverted `noGroupByUser` argument. The exported default `getGroupStyles` takes the same object, so a custom function can still delegate to it. `useEnrichedMessages` takes `getGroupStyles` and `groupByUser` instead of `groupStyles` and `noGroupByUser`. `VirtuosoContext.shouldGroupByUser` is `groupByUser`.
 
-In untyped code the old props are ignored and the defaults apply: `MessageList noGroupByUser` groups again, `VirtualizedMessageList shouldGroupByUser` stops grouping, and a `groupStyles` function is never called. A positional function passed as `getGroupStyles` receives the object as its first argument and computes wrong styles without an error; TypeScript rejects it.
+In untyped code the old props are ignored and the defaults apply: `MessageList noGroupByUser` groups again, `VirtualizedMessageList shouldGroupByUser` stops grouping, and a `groupStyles` function is never called. A positional function passed as `getGroupStyles` receives the object as its first argument and `undefined` for the others, so it computes wrong styles or throws, for example on `previousMessage.created_at`; TypeScript rejects it.
 
 ```tsx
 // v14
