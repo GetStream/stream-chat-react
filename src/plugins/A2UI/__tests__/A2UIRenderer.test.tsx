@@ -622,8 +622,10 @@ describe('the basic catalog in Stream’s look', () => {
     const book = await screen.findByRole('button', { name: '**Book** it' });
     expect(book).toHaveClass('str-chat__button--primary', 'str-chat__button--solid');
     expect(book.querySelector('p, strong')).toBeNull();
+    // Borderless reads as a link, in the accent colour, rather than as grey words.
     expect(screen.getByRole('button', { name: 'Later' })).toHaveClass(
       'str-chat__button--ghost',
+      'str-chat__button--primary',
     );
   });
 

@@ -109,7 +109,10 @@ type ButtonProps = Checked &
     variant?: unknown;
   };
 
-/** A2UI's Button as Stream's: primary for the main call to action, ghost when borderless. */
+/**
+ * A2UI's Button as Stream's: primary for the main call to action, and borderless as a ghost
+ * button in the accent colour, which the spec means to read as a link, as it does on iOS.
+ */
 export const A2UIButton = ({
   buildChild,
   props,
@@ -120,7 +123,7 @@ export const A2UIButton = ({
     props.variant === 'primary'
       ? ({ appearance: 'solid', variant: 'primary' } as const)
       : props.variant === 'borderless'
-        ? ({ appearance: 'ghost', variant: 'secondary' } as const)
+        ? ({ appearance: 'ghost', variant: 'primary' } as const)
         : ({ appearance: 'outline', variant: 'secondary' } as const);
   return (
     <Button
