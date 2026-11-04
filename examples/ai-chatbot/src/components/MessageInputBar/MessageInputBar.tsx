@@ -138,7 +138,8 @@ export const MessageInputBar = () => {
                 ]);
               }}
               onRetry={() => {
-                composer.attachmentManager.uploadAttachment(
+                if (!composer.attachmentManager.isUploadEnabled) return;
+                composer.attachmentManager.uploadFile(
                   attachment as LocalUploadAttachment,
                 );
               }}

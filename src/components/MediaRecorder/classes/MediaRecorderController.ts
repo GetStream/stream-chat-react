@@ -235,9 +235,12 @@ export class MediaRecorderController {
     this.startTime = undefined;
   };
 
-  cleanUp = () => {
-    this.resetRecordingState();
-    if (this.recordingUri) URL.revokeObjectURL(this.recordingUri);
+  /**
+   * Stops the microphone and the amplitude recorder and detaches the MediaRecorder's `dataavailable`
+   * and `error` listeners, keeping the recording and its object URL. {@link cleanUp} does this and
+   * also drops the recording.
+   */
+  releaseMicrophone = () => {
     this.amplitudeRecorder?.close();
     if (this.mediaRecorder) {
       disposeOfMediaStream(this.mediaRecorder.stream);
@@ -247,6 +250,13 @@ export class MediaRecorderController {
       );
       this.mediaRecorder.removeEventListener('error', this.handleErrorEvent);
     }
+  };
+
+  /** Releases the microphone and drops the recording and its object URL. */
+  cleanUp = () => {
+    this.resetRecordingState();
+    if (this.recordingUri) URL.revokeObjectURL(this.recordingUri);
+    this.releaseMicrophone();
   };
 
   start = async () => {

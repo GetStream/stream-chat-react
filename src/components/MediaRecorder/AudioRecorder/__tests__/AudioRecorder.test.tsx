@@ -70,7 +70,8 @@ vi.spyOn(HTMLDivElement.prototype, 'getBoundingClientRect').mockReturnValue(
 
 // Renders a real <Chat>/<Channel> tree. A caller may pass an initialized channel and client (e.g.
 // with preset composer text or attachments) via `channelStateCtx.channel` / `chatCtx.client`;
-// otherwise a fresh pair is created. `componentCtx` is applied through `WithComponents`.
+// otherwise a fresh pair is created, with a channel that allows uploads, which a recording needs.
+// `componentCtx` is applied through `WithComponents`.
 const renderComponent = async ({
   channelStateCtx,
   chatCtx,
@@ -83,7 +84,9 @@ const renderComponent = async ({
     ({
       channels: [channel],
       client,
-    } = await initClientWithChannels());
+    } = await initClientWithChannels({
+      channelsData: [{ channel: { own_capabilities: ['upload-file'] } }],
+    }));
   }
   let result: RenderResult;
   await act(async () => {
@@ -175,6 +178,55 @@ describe('MessageInput', () => {
     const btn = screen.queryByTestId(START_RECORDING_AUDIO_BUTTON_TEST_ID);
     expect(btn).toBeInTheDocument();
     expect(btn).toBeEnabled();
+  });
+
+  it.each([
+    [
+      'the channel does not allow uploads',
+      async () => {
+        const {
+          channels: [channel],
+          client,
+        } = await initClientWithChannels();
+        return { channel, client };
+      },
+    ],
+    [
+      'the composer has attachments disabled',
+      async () => {
+        const {
+          channels: [channel],
+          client,
+        } = await initClientWithChannels({
+          channelsData: [{ channel: { own_capabilities: ['upload-file'] } }],
+        });
+        channel.messageComposer.updateConfig({ attachments: { enabled: false } });
+        return { channel, client };
+      },
+    ],
+  ])('disables the start recording button when %s', async (_, setUp) => {
+    const { channel, client } = await setUp();
+    await renderComponent({ channelStateCtx: { channel }, chatCtx: { client } });
+    expect(screen.getByTestId(START_RECORDING_AUDIO_BUTTON_TEST_ID)).toBeDisabled();
+  });
+
+  it('enables and disables the start recording button as composer uploads are turned on and off', async () => {
+    const {
+      channels: [channel],
+      client,
+    } = await initClientWithChannels({
+      channelsData: [{ channel: { own_capabilities: ['upload-file'] } }],
+    });
+    await renderComponent({ channelStateCtx: { channel }, chatCtx: { client } });
+    expect(screen.getByTestId(START_RECORDING_AUDIO_BUTTON_TEST_ID)).toBeEnabled();
+    await act(() => {
+      channel.messageComposer.updateConfig({ attachments: { enabled: false } });
+    });
+    expect(screen.getByTestId(START_RECORDING_AUDIO_BUTTON_TEST_ID)).toBeDisabled();
+    await act(() => {
+      channel.messageComposer.updateConfig({ attachments: { enabled: true } });
+    });
+    expect(screen.getByTestId(START_RECORDING_AUDIO_BUTTON_TEST_ID)).toBeEnabled();
   });
 
   it('does not render start recording button when message input contains text', async () => {
@@ -486,6 +538,22 @@ describe('AudioRecorder', () => {
         recordingState: state,
       });
       expect(container).toMatchSnapshot();
+    },
+  );
+
+  it.each([
+    [MediaRecordingState.RECORDING, false],
+    [MediaRecordingState.PAUSED, false],
+    [MediaRecordingState.STOPPED, true],
+  ])(
+    'disables the pause/resume toggle only when stopped (%s)',
+    async (recordingState, disabled) => {
+      const { container } = await renderAudioRecorder({ recordingState });
+      // The pause/resume toggle has no test ID, so it is selected by class.
+      const toggleBtn = container.querySelector(
+        '.str-chat__audio_recorder__toggle-recording-button',
+      );
+      expect((toggleBtn as HTMLButtonElement).disabled).toBe(disabled);
     },
   );
 

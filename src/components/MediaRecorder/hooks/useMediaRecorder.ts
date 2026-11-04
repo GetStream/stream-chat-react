@@ -3,10 +3,24 @@ import { MediaRecorderController, MediaRecordingState } from '../classes';
 import { useTranslationContext } from '../../../context';
 import { useMessageComposerController } from '../../MessageComposer/hooks/useMessageComposerController';
 import { useInteractionAnnouncements } from '../../Accessibility';
+import { uploadAttachmentIfEnabled } from '../../MessageComposer/uploadAttachmentIfEnabled';
 
-import type { LocalVoiceRecordingAttachment } from 'stream-chat';
+import type {
+  AttachmentManager,
+  LocalAttachment,
+  LocalVoiceRecordingAttachment,
+} from 'stream-chat';
 import type { CustomAudioRecordingConfig } from '../classes';
 import type { MessageComposerContextValue } from '../../../context';
+
+/**
+ * Whether `attachment` is among the composer's attachments: the upload filter and the upload
+ * middleware can leave an attachment out, and there is none to check while uploads are off.
+ */
+const isInComposer = (
+  attachmentManager: AttachmentManager,
+  attachment: LocalAttachment | undefined,
+) => !!attachment && !!attachmentManager.attachmentsById[attachment.localMetadata.id];
 
 export type RecordingController = {
   completeRecording: () => void;
@@ -55,10 +69,20 @@ export const useMediaRecorder = ({
     if (!recorder) return;
     const recording = await recorder.stop();
     if (!recording) return;
-    await messageComposer.attachmentManager.uploadAttachment(recording);
+    const { attachmentManager } = messageComposer;
+    const recordingAfterUpload = await uploadAttachmentIfEnabled(
+      attachmentManager,
+      recording,
+    );
+    // Uploads can be off, and the upload filter and middleware can leave the recording out. It then
+    // stays with the recorder, so it is neither sent nor lost, and only the microphone is released.
+    if (!isInComposer(attachmentManager, recordingAfterUpload)) {
+      recorder.releaseMicrophone();
+      return;
+    }
     if (!asyncMessagesMultiSendEnabled) {
-      await sendMessageFn();
-      announceInteraction('voiceRecording.sent');
+      const sendResult = await sendMessageFn();
+      if (sendResult === 'sent') announceInteraction('voiceRecording.sent');
     } else {
       announceInteraction('voiceRecording.attached');
     }
