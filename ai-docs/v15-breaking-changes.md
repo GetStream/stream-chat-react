@@ -64,7 +64,7 @@ yarn api-surface check --doc ai-docs/v15-breaking-changes.md --diff diff.json
 
 ## Index
 
-84 entries.
+86 entries.
 
 | ID                | Title                                                                                                                                                                                                                         | Group                                                |
 | ----------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------- |
@@ -152,6 +152,8 @@ yarn api-surface check --doc ai-docs/v15-breaking-changes.md --diff diff.json
 | [BC-082](#bc-082) | custom `AttachmentPreviewList`, `VoiceRecordingPreviewSlot` and `LinkPreviewList` mount only while their preview item is visible                                                                                              | Message composer                                     |
 | [BC-083](#bc-083) | message action handlers reject when the request fails or when called without the message                                                                                                                                      | Messages and message lists                           |
 | [BC-084](#bc-084) | CSS, the first message of a channel list loses its `4.5rem` top padding                                                                                                                                                       | CSS and markup                                       |
+| [BC-085](#bc-085) | `MessageContext` grouping flags `endOfGroup` / `firstOfGroup` / `groupedByUser` and the `str-chat__virtual-message__wrapper--*` classes are removed                                                                           | Messages and message lists                           |
+| [BC-086](#bc-086) | message grouping: `groupByUser` replaces `noGroupByUser` / `shouldGroupByUser`; `getGroupStyles` replaces `groupStyles` and takes one object                                                                                  | Messages and message lists                           |
 
 ## Package and runtime
 
@@ -2436,13 +2438,16 @@ export const ChannelWithThread = ({ channel }: { channel: StreamChannel }) => {
 - Area: MessageList / VirtualizedMessageList / TypingIndicator / ScrollToLatestMessageButton
 - User impact:
   - compile errors on `threadList` / `head` props, and in custom `TypingIndicator` / `ScrollToLatestMessageButton` overrides that destructure `threadList`, which the SDK no longer passes
+  - compile errors in custom `MessageUI` or message children that read `threadList` from `useMessageContext()`, and on `ReactionSelector.getDialogId({ messageId, threadList })`
   - in untyped overrides, `threadList` is `undefined`, so a thread-aware custom component behaves as if it were in the channel list
 - Old API:
   - `MessageList.threadList`, `VirtualizedMessageList.threadList`, `VirtuosoContext.threadList`
   - `TypingIndicatorProps.threadList`, `ScrollToLatestMessageButtonProps.threadList`
+  - `MessageProps.threadList`, `MessageContextValue.threadList`; `ReactionSelector.getDialogId`'s `threadList` argument and the `-thread` part of the reaction selector dialog id
   - `MessageList.head`, `VirtualizedMessageList.head` (the thread's parent message element)
 - Replacement:
-  - thread detection: `const thread = useThreadContext(); const isThreadList = !!thread;` (the SDK's own components do this)
+  - thread detection: `const thread = useThreadContext(); const isThreadList = !!thread;` (the SDK's own components do this), also in place of `useMessageContext().threadList`
+  - reaction selector dialog id: `ReactionSelector.getDialogId({ messageId })`. Each message list has its own dialog manager, which keeps the channel's and the thread's dialogs for one message apart.
   - parent message: both lists render it from `ThreadContext` via `useThreadHead()`. Override it with the `ThreadHead` slot: `<WithComponents overrides={{ ThreadHead: Custom }}>`, typed `React.ComponentType<MessageProps>`.
   - `VirtuosoContext.head` is now `ReactElement | null` and always present
 - Evidence:
@@ -2457,7 +2462,7 @@ export const ChannelWithThread = ({ channel }: { channel: StreamChannel }) => {
 - Docs impact:
   - `02-ui-components/07-message-list/01-message_list.md`, `02-ui-components/07-message-list/02-virtualized_list.md` (`threadList`, `head`)
   - `02-ui-components/12-indicators.md`, `03-ui-cookbook/05-message-composer/07-typing_indicator.md` (`threadList`)
-  - `02-ui-components/08-message/01-message.md`, `02-ui-components/08-message/02-message_context.md`, `03-ui-cookbook/04-message/01-message_ui.md` mention `threadList`, which is still a `Message` / `MessageContext` field; only the list-level prop is gone, so check each mention
+  - `02-ui-components/08-message/01-message.md`, `02-ui-components/08-message/02-message_context.md`, `03-ui-cookbook/04-message/01-message_ui.md` mention `threadList` as a `Message` / `MessageContext` field, which is removed too; replace each mention with `useThreadContext()`
 - Example needed: no (see BC-004 for a custom `TypingIndicator`)
 
 <a id="bc-049"></a>
@@ -3570,6 +3575,53 @@ Found by the staleness pass of 2026-11-03: commits that landed on `master` after
   - none
 - Example needed: no
 
+<a id="bc-085"></a>
+
+### BC-085: `MessageContext` grouping flags and the `str-chat__virtual-message__wrapper--*` classes are removed
+
+- Status: confirmed
+- Area: Message / MessageUI / CSS
+- User impact:
+  - compile errors in custom `MessageUI` or message children that read `endOfGroup`, `firstOfGroup` or `groupedByUser` from `useMessageContext()`. The lists never set them, so at runtime they were already `undefined`.
+  - app CSS keyed on `str-chat__virtual-message__wrapper--end`, `--first` or `--group` stops matching. The SDK stylesheet never styled them.
+- Old API:
+  - `MessageContextValue.endOfGroup`, `.firstOfGroup`, `.groupedByUser`
+  - `str-chat__virtual-message__wrapper--end`, `--first`, `--group` on `.str-chat__message`
+- Replacement:
+  - `useMessageContext().groupStyles[0]`: `top`, `middle`, `bottom` or `single`
+  - CSS: the list item's `.str-chat__li--top`, `--middle`, `--bottom`, `--single`. The default `MessageUI` renders the metadata on every message, and the default CSS hides it on `top` and `middle` items.
+- Evidence:
+  - `release-v14:src/components/Message/MessageUI.tsx:144` `showMetadata = !groupedByUser || endOfGroup`, with no list setting either flag
+  - `master:src/components/Message/styling/Message.scss` `.str-chat__li--middle, .str-chat__li--top` hide `.str-chat__message-metadata`
+- Docs impact:
+  - `02-ui-components/08-message/02-message_context.md` and `03-ui-cookbook/04-message/01-message_ui.md`, if they mention the three flags
+- Example needed: no
+
+<a id="bc-086"></a>
+
+### BC-086: message grouping: `noGroupByUser` / `shouldGroupByUser` → `groupByUser`, `groupStyles` → `getGroupStyles` with one object argument
+
+- Status: confirmed
+- Area: MessageList / VirtualizedMessageList / getGroupStyles / useEnrichedMessages
+- User impact:
+  - compile errors on `noGroupByUser`, `shouldGroupByUser` and `groupStyles`, on positional calls of `getGroupStyles`, and on the old `useEnrichedMessages` options
+  - in untyped code the old props are ignored and the defaults apply: `MessageList noGroupByUser` groups again, `VirtualizedMessageList shouldGroupByUser` stops grouping, and a `groupStyles` function is never called. A positional function passed as `getGroupStyles` receives the object as `message` and `undefined` for the other arguments, so it computes wrong styles or throws (for example on `previousMessage.created_at`).
+- Old API:
+  - `MessageList.noGroupByUser` (default `false`), `VirtualizedMessageList.shouldGroupByUser` (default `false`), `VirtuosoContext.shouldGroupByUser`
+  - `MessageList.groupStyles`, `VirtualizedMessageList.groupStyles`: `(message, previousMessage, nextMessage, noGroupByUser, maxTimeBetweenGroupedMessages?) => GroupStyle`
+  - `getGroupStyles(message, previousMessage, nextMessage, noGroupByUser, maxTimeBetweenGroupedMessages?)`
+  - `useEnrichedMessages({ groupStyles, noGroupByUser })`
+- Replacement:
+  - `groupByUser` on both lists. `MessageList` defaults to `true`, `VirtualizedMessageList` to `false`. `VirtuosoContext.groupByUser`.
+  - `getGroupStyles?: GetGroupStyles` on both lists, called with `GetGroupStylesParams`: `{ groupByUser, maxTimeBetweenGroupedMessages?, message, nextMessage?, previousMessage? }`. The exported `getGroupStyles` takes the same object.
+  - `useEnrichedMessages({ getGroupStyles, groupByUser })`
+- Evidence:
+  - `release-v14:src/components/MessageList/MessageList.tsx:105` `noGroupByUser = false`, `:517` positional `groupStyles`, `:555` `noGroupByUser?`
+  - `release-v14:src/components/MessageList/VirtualizedMessageList.tsx:236` `shouldGroupByUser = false`, `:102` picked into the context, `:693` positional `groupStyles`
+- Docs impact:
+  - `02-ui-components/07-message-list/01-message_list.md`, `02-ui-components/07-message-list/02-virtualized_list.md`
+- Example needed: no (the guide section has one)
+
 ## Pending (open PRs)
 
 - `GetStream/stream-chat-react#3306` `feat: adopt TS generator changes` (open, targets `master`). It changes the request shapes for sending, editing and deleting messages, reactions, reminders and poll-option suggestions to follow `GetStream/stream-chat-js#1896`. If it merges before the stable release, re-run the surface diff and update the request-handler entries (search this file for `sendMessageRequest`).
@@ -3898,6 +3950,7 @@ Non-gated items checked and ruled out: `Chat.isMessageAIGenerated`, `SummarizedM
   - `getIsFirstUnreadMessage` -> BC-054
   - `insertIntro` -> BC-056
   - `MessageList.disableDateSeparator`, `MessageListProps.disableDateSeparator`, `ProcessMessagesParams.enableDateSeparator` -> BC-049
+  - `MessageList.noGroupByUser`, `MessageList.groupStyles` (+ `MessageListProps`), `getGroupStyles` signature, `useEnrichedMessages` options -> BC-086
   - `MessageList.head`, `MessageListProps.head`, `MessageList.threadList`, `MessageListProps.threadList` -> BC-048
   - `MessageList.loadingMoreForJumpToChannelMessage`, `.loadMore`, `.loadMoreNewer` (+ `MessageListProps`) -> BC-046
   - `MessageList.Message`, `MessageListProps.Message`, `SharedMessageProps.Message` -> BC-042
@@ -3911,6 +3964,7 @@ Non-gated items checked and ruled out: `Chat.isMessageAIGenerated`, `SummarizedM
   - `useEnrichedMessages`, `useNewMessageNotification`, `UseScrollLocationLogicParams.disableAutoScrollToBottom` / `.disableScrollManagement` -> BC-055
   - `VirtualizedMessageList.channelUnreadUiState` / `hasMore` / `hasMoreNewer` / `highlightedMessageId` / `loadingMore` / `loadingMoreNewer` / `loadMore` / `loadMoreNewer` / `messageLimit` (+ `VirtualizedMessageListProps`) -> BC-046
   - `VirtualizedMessageList.disableDateSeparator` (+ Props) -> BC-049
+  - `VirtualizedMessageList.shouldGroupByUser`, `VirtualizedMessageList.groupStyles` (+ Props), `VirtuosoContext.shouldGroupByUser` -> BC-086
   - `VirtualizedMessageList.head`, `.threadList` (+ Props) -> BC-048
   - `VirtualizedMessageList.Message` (+ Props) -> BC-042
   - `VirtualizedMessageList.messageActions` (+ Props) -> BC-041
@@ -4047,7 +4101,7 @@ Non-gated items checked and ruled out: `Chat.isMessageAIGenerated`, `SummarizedM
 
 #### diff.md "CSS"
 
-- Classes removed from markup: `str-chat__main-panel`, `str-chat__main-panel---with-thread-opn`, `str-chat__main-panel--thread-open` -> BC-073; `str-chat__channel-list-inner`, `str-chat__channel-list-inner__main` -> BC-074; `str-chat__chat-view__channels`, `str-chat__chat-view__threads` -> BC-075 (partially a false positive); `str-chat__thread--virtualized` -> BC-076
+- Classes removed from markup: `str-chat__main-panel`, `str-chat__main-panel---with-thread-opn`, `str-chat__main-panel--thread-open` -> BC-073; `str-chat__channel-list-inner`, `str-chat__channel-list-inner__main` -> BC-074; `str-chat__chat-view__channels`, `str-chat__chat-view__threads` -> BC-075 (partially a false positive); `str-chat__thread--virtualized` -> BC-076; `str-chat__virtual-message__wrapper--end`, `--first`, `--group` -> BC-085
 - Classes removed from stylesheets (diff reports 0): actually `str-chat__container`, `str-chat__main-panel` -> BC-073
 - Custom properties removed: 0 (confirmed by own diff of `--str-chat*` declarations)
 

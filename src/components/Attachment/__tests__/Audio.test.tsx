@@ -293,15 +293,14 @@ describe('Audio', () => {
   it('differentiates between in thread and in channel audio player', async () => {
     const message = generateMessage();
     // A thread player is told apart from a channel player by a Thread instance (useThreadContext),
-    // not the message-context `threadList` flag, so the thread widget gets a ThreadProvider to
-    // have its own requester namespace.
+    // so the thread widget gets a ThreadProvider to have its own requester namespace.
     render(
       <WithAudioPlayback>
         <MessageProvider value={mockMessageContext({ message })}>
           <Audio attachment={audioAttachment} />
         </MessageProvider>
         <ThreadProvider thread={fromPartial<Thread>({})}>
-          <MessageProvider value={mockMessageContext({ message, threadList: true })}>
+          <MessageProvider value={mockMessageContext({ message })}>
             <Audio attachment={audioAttachment} />
           </MessageProvider>
         </ThreadProvider>

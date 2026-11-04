@@ -32,8 +32,13 @@ import {
 import { useIncomingMessageAnnouncements } from '../Accessibility';
 import { NewMessageNotification as DefaultNewMessageNotification } from './NewMessageNotification';
 import { MessageListMainPanel as DefaultMessageListMainPanel } from './MessageListMainPanel';
-import type { GroupStyle, ProcessMessagesParams, RenderedMessage } from './utils';
-import { getGroupStyles, getLastReceived, processMessages } from './utils';
+import type {
+  GetGroupStyles,
+  GroupStyle,
+  ProcessMessagesParams,
+  RenderedMessage,
+} from './utils';
+import { getLastReceived, getMessageGroupStyles, processMessages } from './utils';
 import type { MessageProps } from '../Message';
 import { UnreadMessagesNotification as DefaultUnreadMessagesNotification } from './UnreadMessagesNotification';
 import {
@@ -94,9 +99,8 @@ type VirtualizedMessageListPropsForContext =
   | PropsDrilledToMessage
   | 'closeReactionSelectorOnClick'
   | 'customMessageRenderer'
-  // | 'loadingMore'
-  | 'returnAllReadData'
-  | 'shouldGroupByUser';
+  | 'groupByUser'
+  | 'returnAllReadData';
 
 /** Virtuoso `context`, handed to the components and callbacks that Virtuoso invokes. */
 export type VirtuosoContext = Required<
@@ -208,7 +212,8 @@ const VirtualizedMessageListWithContext = (
     customMessageRenderer,
     defaultItemHeight,
     formatDate,
-    groupStyles,
+    getGroupStyles,
+    groupByUser = false,
     hideDeletedMessages = false,
     hideNewMessageSeparator = false,
     maxTimeBetweenGroupedMessages,
@@ -221,7 +226,6 @@ const VirtualizedMessageListWithContext = (
     scrollSeekPlaceHolder,
     scrollToLatestMessageOnFocus = false,
     separateGiphyPreview = false,
-    shouldGroupByUser = false,
     showAvatar,
     showUnreadNotificationAlways,
     sortReactions,
@@ -353,28 +357,15 @@ const VirtualizedMessageListWithContext = (
     [processedMessages],
   );
 
-  const groupStylesFn = groupStyles || getGroupStyles;
   const messageGroupStyles = useMemo(
     () =>
-      processedMessages.reduce<Record<string, GroupStyle>>((acc, message, i) => {
-        const style = groupStylesFn(
-          message,
-          processedMessages[i - 1],
-          processedMessages[i + 1],
-          !shouldGroupByUser,
-          maxTimeBetweenGroupedMessages,
-        );
-        if (style && message.id) acc[message.id] = style;
-        return acc;
-      }, {}),
-    // `processedMessages` can be rebuilt with a new identity, hence the `.length` dependency.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [
-      maxTimeBetweenGroupedMessages,
-      processedMessages.length,
-      shouldGroupByUser,
-      groupStylesFn,
-    ],
+      getMessageGroupStyles({
+        getGroupStyles,
+        groupByUser,
+        maxTimeBetweenGroupedMessages,
+        messages: processedMessages,
+      }),
+    [getGroupStyles, groupByUser, maxTimeBetweenGroupedMessages, processedMessages],
   );
 
   const {
@@ -606,6 +597,7 @@ const VirtualizedMessageListWithContext = (
                 firstUnreadMessageId: channelUnreadUiState?.firstUnreadMessageId,
                 focusedMessageId,
                 formatDate,
+                groupByUser,
                 head: threadHead,
                 lastOwnMessage,
                 lastReadDate: channelUnreadUiState?.lastReadAt,
@@ -621,7 +613,6 @@ const VirtualizedMessageListWithContext = (
                 reactionDetailsSort,
                 renderText,
                 returnAllReadData,
-                shouldGroupByUser,
                 showAvatar,
                 sortReactions,
                 unreadMessageCount: channelUnreadUiState?.unreadCount,
@@ -702,14 +693,10 @@ export type VirtualizedMessageListProps = Partial<
    * @deprecated Use additionalVirtuosoProps.defaultItemHeight instead. Will be removed with next major release - `v11.0.0`.
    */
   defaultItemHeight?: number;
-  /** Computes the group style of a message from its neighbors. */
-  groupStyles?: (
-    message: RenderedMessage,
-    previousMessage: RenderedMessage,
-    nextMessage: RenderedMessage,
-    noGroupByUser: boolean,
-    maxTimeBetweenGroupedMessages?: number,
-  ) => GroupStyle;
+  /** Computes the group style of a message from its neighbors. Defaults to `getGroupStyles`. */
+  getGroupStyles?: GetGroupStyles;
+  /** Groups consecutive messages from the same user. Defaults to `false`. */
+  groupByUser?: boolean;
   /** Hides deleted messages from the list. Defaults to `false`. */
   hideDeletedMessages?: boolean;
   /** Hides the date separator before the first unread incoming message. Defaults to `false`. */
@@ -755,8 +742,6 @@ export type VirtualizedMessageListProps = Partial<
    * to `false`.
    */
   separateGiphyPreview?: boolean;
-  /** Groups consecutive messages from the same user. Defaults to `false`. */
-  shouldGroupByUser?: boolean;
   /**
    * Shows the unread notification whenever the `UnreadMessagesSeparator` is out of view. Defaults
    * to `false`: it shows only when the separator is scrolled above the viewport.

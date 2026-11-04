@@ -22,7 +22,7 @@ export const ReactionSelectorWithButton = ({
   ReactionIcon,
 }: ReactionSelectorWithButtonProps) => {
   const { t } = useTranslationContext();
-  const { isMyMessage, message, threadList } = useMessageContext();
+  const { isMyMessage, message } = useMessageContext();
   const { ReactionSelector = DefaultReactionSelector } = useComponentContext();
   const { IconEmoji } = useComponentContextIcons();
   // The prop wins: it targets one message's button, while the icon slot applies to all of them.
@@ -31,10 +31,7 @@ export const ReactionSelectorWithButton = ({
   // Must equal the ID `MessageActions` derives from `ReactionSelector.getDialogId`: it keeps
   // `.str-chat__message-options--active` applied while the dialog is open. A mismatch hides the
   // button when focus moves into the portal, collapsing the popover's reference element.
-  const dialogId = DefaultReactionSelector.getDialogId({
-    messageId: message.id,
-    threadList,
-  });
+  const dialogId = DefaultReactionSelector.getDialogId({ messageId: message.id });
   const { dialog, dialogManager } = useDialogOnNearestManager({ id: dialogId });
   const dialogIsOpen = useDialogIsOpen(dialogId, dialogManager?.id);
 

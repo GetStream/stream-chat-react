@@ -64,7 +64,6 @@ const onMentionsClickMock = vi.fn();
 const defaultProps = {
   initialMessage: false,
   message: generateMessage(),
-  threadList: false,
 };
 
 function generateAliceMessage(messageOptions) {

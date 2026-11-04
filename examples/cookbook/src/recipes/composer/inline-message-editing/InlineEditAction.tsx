@@ -6,20 +6,22 @@ import {
   useComponentContextIcons,
   useContextMenuContext,
   useMessageContext,
+  useThreadContext,
 } from 'stream-chat-react';
 import { useInlineEdit } from './InlineEditContext';
 
 const InlineEditAction = () => {
   const { IconEdit } = useComponentContextIcons();
   const { closeMenu } = useContextMenuContext();
-  const { message, threadList = false } = useMessageContext();
+  const { message } = useMessageContext();
+  const isInThread = !!useThreadContext();
   const { startEditing } = useInlineEdit();
 
   return (
     <ContextMenuButton
       Icon={IconEdit}
       onClick={() => {
-        startEditing(message, threadList);
+        startEditing(message, isInThread);
         closeMenu();
       }}
     >

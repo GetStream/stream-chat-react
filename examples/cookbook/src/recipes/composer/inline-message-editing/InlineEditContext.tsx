@@ -15,13 +15,13 @@ import { useChatContext } from 'stream-chat-react';
 /** The message being edited, the list it is edited in, and the composer that holds the edit. */
 export type InlineEdit = {
   composer: MessageComposerController;
+  isInThread: boolean;
   messageId: string;
-  threadList: boolean;
 };
 
 type InlineEditContextValue = {
   edit: InlineEdit | null;
-  startEditing: (message: LocalMessage, threadList: boolean) => void;
+  startEditing: (message: LocalMessage, isInThread: boolean) => void;
 };
 
 const InlineEditContext = createContext<InlineEditContextValue>({
@@ -46,7 +46,7 @@ export const InlineEditProvider = ({ children }: PropsWithChildren) => {
   }, [edit]);
 
   const startEditing = useCallback(
-    (message: LocalMessage, threadList: boolean) => {
+    (message: LocalMessage, isInThread: boolean) => {
       // The composition context is the message, so this composer edits only that message.
       const composer = new MessageComposerController({
         client,
@@ -54,7 +54,7 @@ export const InlineEditProvider = ({ children }: PropsWithChildren) => {
         compositionContext: message,
       });
       editRef.current?.composer.clear();
-      setEdit({ composer, messageId: message.id, threadList });
+      setEdit({ composer, isInThread, messageId: message.id });
     },
     [client],
   );

@@ -10,6 +10,7 @@ import {
 import {
   getGroupStyles,
   getLastReceived,
+  getMessageGroupStyles,
   insertIntro,
   isDateSeparatorMessage,
   makeDateMessageId,
@@ -566,7 +567,7 @@ describe('getGroupStyles', () => {
   let message: LocalMessage;
   let previousMessage: LocalMessage;
   let nextMessage: LocalMessage;
-  let noGroupByUser: boolean;
+  let groupByUser: boolean;
   beforeEach(() => {
     message = generateMessage({ created_at: convertDateToTimestamp(new Date(2)), user });
     previousMessage = generateMessage({
@@ -577,7 +578,7 @@ describe('getGroupStyles', () => {
       created_at: convertDateToTimestamp(new Date(100)),
       user,
     });
-    noGroupByUser = false;
+    groupByUser = true;
   });
 
   describe.each([
@@ -591,7 +592,7 @@ describe('getGroupStyles', () => {
       if (position === 'top') {
         previousMessage = undefined;
       }
-      expect(getGroupStyles(message, previousMessage, nextMessage, noGroupByUser)).toBe(
+      expect(getGroupStyles({ groupByUser, message, nextMessage, previousMessage })).toBe(
         position,
       );
     });
@@ -609,7 +610,7 @@ describe('getGroupStyles', () => {
           customType: CUSTOM_MESSAGE_TYPE.intro,
         } as LocalMessage;
       }
-      expect(getGroupStyles(message, previousMessage, nextMessage, noGroupByUser)).toBe(
+      expect(getGroupStyles({ groupByUser, message, nextMessage, previousMessage })).toBe(
         position,
       );
     });
@@ -630,7 +631,7 @@ describe('getGroupStyles', () => {
         } as LocalMessage;
       }
 
-      expect(getGroupStyles(message, previousMessage, nextMessage, noGroupByUser)).toBe(
+      expect(getGroupStyles({ groupByUser, message, nextMessage, previousMessage })).toBe(
         position,
       );
     });
@@ -642,7 +643,7 @@ describe('getGroupStyles', () => {
       if (position === 'top') {
         previousMessage = { ...previousMessage, type: 'system' };
       }
-      expect(getGroupStyles(message, previousMessage, nextMessage, noGroupByUser)).toBe(
+      expect(getGroupStyles({ groupByUser, message, nextMessage, previousMessage })).toBe(
         position,
       );
     });
@@ -654,7 +655,7 @@ describe('getGroupStyles', () => {
       if (position === 'top') {
         previousMessage = { ...previousMessage, type: 'error' };
       }
-      expect(getGroupStyles(message, previousMessage, nextMessage, noGroupByUser)).toBe(
+      expect(getGroupStyles({ groupByUser, message, nextMessage, previousMessage })).toBe(
         position,
       );
     });
@@ -666,7 +667,7 @@ describe('getGroupStyles', () => {
       if (position === 'top') {
         previousMessage = { ...previousMessage, attachments: [generateFileAttachment()] };
       }
-      expect(getGroupStyles(message, previousMessage, nextMessage, noGroupByUser)).toBe(
+      expect(getGroupStyles({ groupByUser, message, nextMessage, previousMessage })).toBe(
         position,
       );
     });
@@ -679,7 +680,7 @@ describe('getGroupStyles', () => {
       if (position === 'top') {
         previousMessage = { ...previousMessage, user };
       }
-      expect(getGroupStyles(message, previousMessage, nextMessage, noGroupByUser)).toBe(
+      expect(getGroupStyles({ groupByUser, message, nextMessage, previousMessage })).toBe(
         position,
       );
     });
@@ -696,7 +697,7 @@ describe('getGroupStyles', () => {
         };
       }
       // deleted_at on adjacent messages does not break groups.
-      expect(getGroupStyles(message, previousMessage, nextMessage, noGroupByUser)).toBe(
+      expect(getGroupStyles({ groupByUser, message, nextMessage, previousMessage })).toBe(
         'middle',
       );
     });
@@ -707,7 +708,7 @@ describe('getGroupStyles', () => {
       ...message,
       message_text_updated_at: convertDateToTimestamp(new Date().toISOString()),
     };
-    expect(getGroupStyles(message, previousMessage, nextMessage, noGroupByUser)).toBe(
+    expect(getGroupStyles({ groupByUser, message, nextMessage, previousMessage })).toBe(
       'bottom',
     );
   });
@@ -717,7 +718,7 @@ describe('getGroupStyles', () => {
       ...previousMessage,
       message_text_updated_at: convertDateToTimestamp(new Date().toISOString()),
     };
-    expect(getGroupStyles(message, previousMessage, nextMessage, noGroupByUser)).toBe(
+    expect(getGroupStyles({ groupByUser, message, nextMessage, previousMessage })).toBe(
       'top',
     );
   });
@@ -727,7 +728,7 @@ describe('getGroupStyles', () => {
       ...message,
       reaction_groups: fromPartial<LocalMessage['reaction_groups']>({ X: 'Y' }),
     };
-    expect(getGroupStyles(message, previousMessage, nextMessage, noGroupByUser)).toBe(
+    expect(getGroupStyles({ groupByUser, message, nextMessage, previousMessage })).toBe(
       'top',
     );
   });
@@ -737,7 +738,7 @@ describe('getGroupStyles', () => {
       ...nextMessage,
       reaction_groups: fromPartial<LocalMessage['reaction_groups']>({ X: 'Y' }),
     };
-    expect(getGroupStyles(message, previousMessage, nextMessage, noGroupByUser)).toBe(
+    expect(getGroupStyles({ groupByUser, message, nextMessage, previousMessage })).toBe(
       'bottom',
     );
   });
@@ -745,13 +746,13 @@ describe('getGroupStyles', () => {
   it('marks a message as top when next message is created later than maxTimeBetweenGroupedMessages milliseconds', () => {
     const maxTimeBetweenGroupedMessages = 10;
     expect(
-      getGroupStyles(
-        message,
-        previousMessage,
-        nextMessage,
-        noGroupByUser,
+      getGroupStyles({
+        groupByUser,
         maxTimeBetweenGroupedMessages,
-      ),
+        message,
+        nextMessage,
+        previousMessage,
+      }),
     ).toBe('bottom');
   });
 
@@ -760,13 +761,13 @@ describe('getGroupStyles', () => {
     message = { ...message, created_at: msToNs(12) };
     nextMessage = { ...nextMessage, created_at: msToNs(14) };
     expect(
-      getGroupStyles(
-        message,
-        previousMessage,
-        nextMessage,
-        noGroupByUser,
+      getGroupStyles({
+        groupByUser,
         maxTimeBetweenGroupedMessages,
-      ),
+        message,
+        nextMessage,
+        previousMessage,
+      }),
     ).toBe('top');
   });
 
@@ -774,31 +775,38 @@ describe('getGroupStyles', () => {
     const maxTimeBetweenGroupedMessages = 10;
     message = { ...message, created_at: msToNs(12) };
     expect(
-      getGroupStyles(
-        message,
-        previousMessage,
-        nextMessage,
-        noGroupByUser,
+      getGroupStyles({
+        groupByUser,
         maxTimeBetweenGroupedMessages,
-      ),
+        message,
+        nextMessage,
+        previousMessage,
+      }),
     ).toBe('single');
   });
 
   it('marks a message as middle when next message is created earlier than maxTimeBetweenGroupedMessages milliseconds', () => {
     const maxTimeBetweenGroupedMessages = 1000;
     expect(
-      getGroupStyles(
-        message,
-        previousMessage,
-        nextMessage,
-        noGroupByUser,
+      getGroupStyles({
+        groupByUser,
         maxTimeBetweenGroupedMessages,
-      ),
+        message,
+        nextMessage,
+        previousMessage,
+      }),
     ).toBe('middle');
   });
 
+  it('marks every message as single when grouping by user is off', () => {
+    groupByUser = false;
+    expect(getGroupStyles({ groupByUser, message, nextMessage, previousMessage })).toBe(
+      'single',
+    );
+  });
+
   it('marks message as middle if not being top, neither bottom message', () => {
-    expect(getGroupStyles(message, previousMessage, nextMessage, noGroupByUser)).toBe(
+    expect(getGroupStyles({ groupByUser, message, nextMessage, previousMessage })).toBe(
       'middle',
     );
   });
@@ -806,14 +814,14 @@ describe('getGroupStyles', () => {
   // deleted_at on the message itself does not force 'single'.
   it('marks message as middle even when deleted (deleted_at does not affect grouping)', () => {
     message = { ...message, deleted_at: convertDateToTimestamp(new Date()) };
-    expect(getGroupStyles(message, previousMessage, nextMessage, noGroupByUser)).toBe(
+    expect(getGroupStyles({ groupByUser, message, nextMessage, previousMessage })).toBe(
       'middle',
     );
   });
 
   it('marks message as single if not being top, neither bottom message being error message', () => {
     message = { ...message, type: 'error' };
-    expect(getGroupStyles(message, previousMessage, nextMessage, noGroupByUser)).toBe(
+    expect(getGroupStyles({ groupByUser, message, nextMessage, previousMessage })).toBe(
       'single',
     );
   });
@@ -822,7 +830,7 @@ describe('getGroupStyles', () => {
   it('marks message at the bottom as bottom even when deleted', () => {
     message = { ...message, deleted_at: convertDateToTimestamp(new Date()) };
     nextMessage = undefined;
-    expect(getGroupStyles(message, previousMessage, nextMessage, noGroupByUser)).toBe(
+    expect(getGroupStyles({ groupByUser, message, nextMessage, previousMessage })).toBe(
       'bottom',
     );
   });
@@ -830,7 +838,7 @@ describe('getGroupStyles', () => {
   it('marks message at the bottom as single being error message', () => {
     message = { ...message, type: 'error' };
     nextMessage = undefined;
-    expect(getGroupStyles(message, previousMessage, nextMessage, noGroupByUser)).toBe(
+    expect(getGroupStyles({ groupByUser, message, nextMessage, previousMessage })).toBe(
       'single',
     );
   });
@@ -847,13 +855,13 @@ describe('getGroupStyles', () => {
       // 12ms apart, so the previous message must not be grouped with this one. A truthiness guard
       // skips the comparison and reports 'bottom' instead.
       expect(
-        getGroupStyles(
-          message,
-          previousMessage,
-          nextMessage,
-          noGroupByUser,
+        getGroupStyles({
+          groupByUser,
           maxTimeBetweenGroupedMessages,
-        ),
+          message,
+          nextMessage,
+          previousMessage,
+        }),
       ).toBe('single');
     });
 
@@ -864,14 +872,61 @@ describe('getGroupStyles', () => {
 
       // The symmetric branch: a truthiness guard reports 'middle' and glues the next message on.
       expect(
-        getGroupStyles(
-          message,
-          previousMessage,
-          nextMessage,
-          noGroupByUser,
+        getGroupStyles({
+          groupByUser,
           maxTimeBetweenGroupedMessages,
-        ),
+          message,
+          nextMessage,
+          previousMessage,
+        }),
       ).toBe('bottom');
+    });
+  });
+});
+
+describe('getMessageGroupStyles', () => {
+  const user = generateUser();
+  const dateSeparator = fromPartial<LocalMessage>({
+    customType: CUSTOM_MESSAGE_TYPE.date,
+    date: new Date(),
+    id: 'date-separator',
+  });
+  const [first, second] = [1, 2].map((ms) =>
+    generateMessage({ created_at: convertDateToTimestamp(new Date(ms)), user }),
+  );
+
+  it('maps each message ID to its group style and leaves out items without one', () => {
+    expect(
+      getMessageGroupStyles({
+        groupByUser: true,
+        messages: [dateSeparator, first, second],
+      }),
+    ).toEqual({ [first.id]: 'top', [second.id]: 'bottom' });
+  });
+
+  it('calls a custom function with each message and its neighbors', () => {
+    const getStyle = vi.fn(() => 'single' as const);
+
+    getMessageGroupStyles({
+      getGroupStyles: getStyle,
+      groupByUser: false,
+      maxTimeBetweenGroupedMessages: 10,
+      messages: [first, second],
+    });
+
+    expect(getStyle).toHaveBeenNthCalledWith(1, {
+      groupByUser: false,
+      maxTimeBetweenGroupedMessages: 10,
+      message: first,
+      nextMessage: second,
+      previousMessage: undefined,
+    });
+    expect(getStyle).toHaveBeenNthCalledWith(2, {
+      groupByUser: false,
+      maxTimeBetweenGroupedMessages: 10,
+      message: second,
+      nextMessage: undefined,
+      previousMessage: first,
     });
   });
 });

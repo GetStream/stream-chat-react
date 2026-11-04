@@ -133,6 +133,7 @@ describe('<MessageSimple />', () => {
 
   async function renderMessageSimple({
     components = {} as Partial<ComponentContextValue>,
+    inThread = false,
     message,
     props = {} as Partial<MessageContextValue>,
     renderer = render,
@@ -142,17 +143,16 @@ describe('<MessageSimple />', () => {
     channelCapabilities?: Record<string, boolean>;
     channelConfigOverrides?: Record<string, unknown>;
     components?: Partial<ComponentContextValue>;
+    /** Renders the message under a `ThreadProvider`, which is how a message knows it is in a thread. */
+    inThread?: boolean;
     message: ReturnType<typeof generateMessage>;
     props?: Partial<MessageContextValue>;
     renderer?: typeof render;
   }) {
-    // "In a thread" is derived from useThreadContext(), so `props.threadList` wraps the message in
-    // a ThreadProvider.
     const messageElement = (
       <Message
         {...fromPartial<MessageProps>({
           message,
-          threadList: false,
           ...props,
         })}
       />
@@ -170,7 +170,7 @@ describe('<MessageSimple />', () => {
                 ...components,
               }}
             >
-              {props.threadList ? (
+              {inThread ? (
                 <ThreadProvider thread={fromPartial<Thread>({})}>
                   {messageElement}
                 </ThreadProvider>
@@ -526,11 +526,11 @@ describe('<MessageSimple />', () => {
     it('should not render status when rendered in a thread list and was delivered to other members', async () => {
       const message = generateAliceMessage();
       const { container, queryByTestId } = await renderMessageSimple({
+        inThread: true,
         message,
         props: {
           deliveredTo: [alice, bob],
           readBy: [alice],
-          threadList: true,
         },
       });
       expect(queryByTestId(/message-status/)).not.toBeInTheDocument();
@@ -541,10 +541,10 @@ describe('<MessageSimple />', () => {
     it('should not render status when rendered in a thread list and was read by other members', async () => {
       const message = generateAliceMessage();
       const { container, queryByTestId } = await renderMessageSimple({
+        inThread: true,
         message,
         props: {
           readBy: [alice, bob, carol],
-          threadList: true,
         },
       });
       expect(queryByTestId(/message-status/)).not.toBeInTheDocument();
@@ -833,6 +833,19 @@ describe('<MessageSimple />', () => {
     const results = await axe(container);
     expect(results).toHaveNoViolations();
   });
+
+  // Grouped messages keep their metadata in the DOM; the default CSS hides it on `top` and `middle`
+  // list items, so an app can show it again with CSS alone.
+  it.each([['top'], ['middle'], ['bottom'], ['single']] as const)(
+    'should render the metadata of a %s group message',
+    async (groupStyle) => {
+      const { container } = await renderMessageSimple({
+        message: generateAliceMessage(),
+        props: { groupStyles: [groupStyle] },
+      });
+      expect(container.querySelector('.str-chat__message-metadata')).toBeInTheDocument();
+    },
+  );
 
   // A bounced message has `type: 'error'` and `moderation.action === 'bounce'`.
   describe.each<
