@@ -6,7 +6,7 @@ These components used to ship as the separate package `@stream-io/chat-react-ai`
 
 ## Installation
 
-Requires `stream-chat-react` 14.15.0 or later, the first release that includes `ai-components`.
+Requires `stream-chat-react` 14.15.0 or later, the first release that includes `ai-components`. [Generated UI](#generated-ui), with its `stream-chat-react/a2ui` and `stream-chat-react/openui` renderers, requires 14.16.0 or later.
 
 ```bash
 yarn add stream-chat-react stream-chat
@@ -134,6 +134,8 @@ Behaviour:
 ### Generated UI
 
 An agent can answer with UI rather than text, such as a card, a form or a map, in a format such as [A2UI](https://a2ui.org) or OpenUI. The agents router puts it in the reply's `ai_ui` field (`{ v, format, version?, status, content }`) and keeps the words around it as the reply's text, which shows wherever the UI can't. The counterpart of StreamChatAI's generative UI; these components know no format themselves, and renderers plug one in.
+
+Generated UI, `stream-chat-react/a2ui` and `stream-chat-react/openui` require `stream-chat-react` 14.16.0 or later.
 
 ```tsx
 const ui = useMemo(
