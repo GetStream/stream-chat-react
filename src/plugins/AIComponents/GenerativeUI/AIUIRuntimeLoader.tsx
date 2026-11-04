@@ -7,8 +7,8 @@ import type { AIUIHost } from './AIUIHost';
  * Loads the runtime of a renderer, its format's packages, once and in the browser only, when a
  * reply first shows the format: the packages may not run on a server, and are of no use to an
  * app whose agent never writes it. When the runtime can't load, such as when a deploy replaced
- * the file it is in, the replies already written show their text, and the next reply the agent
- * writes in the format tries again.
+ * the file it is in, the replies already written show their text, the next reply the agent
+ * writes in the format tries again, and the failure is reported once.
  */
 export class AIUIRuntimeLoader<Runtime> {
   /** The runtime, once loaded. */
@@ -54,13 +54,10 @@ export class AIUIRuntimeLoader<Runtime> {
 
   /**
    * Whether a reply shows its text because the runtime couldn't load: one already written does,
-   * and one the agent is writing tries to load it again.
+   * and one the agent is writing shows its placeholder while the runtime loads again.
    */
   showsText(document: AIUIDocument) {
-    if (!this.failed || this.runtime) return false;
-    if (!document.isStreaming) return true;
-    this.failed = false;
-    return false;
+    return this.failed && !this.runtime && !document.isStreaming;
   }
 }
 

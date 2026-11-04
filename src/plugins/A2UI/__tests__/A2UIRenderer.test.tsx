@@ -13,12 +13,10 @@ import {
 import { renderWithEnglish } from '../../AIComponents/__tests__/renderWithEnglish';
 import {
   A2UI_DEFAULT_CATALOG_ID,
-  a2uiMessagesIn,
   type A2UIRendererOptions,
   createA2UIRenderer,
-  supportsA2UIVersion,
 } from '..';
-import { normalizeA2UIMessage } from '../A2UIStream';
+import { a2uiMessagesIn, normalizeA2UIMessage, supportsA2UIVersion } from '../A2UIStream';
 import { a2uiAppCatalogDocument, a2uiTypeName } from '../catalogDocument';
 import { ohridLines, uiComponents } from './ohrid';
 
@@ -562,6 +560,38 @@ const surfaceWith = (components: Record<string, unknown>[], dataModel = {}) => [
   line({ createSurface: { dataModel, surfaceId: 's' } }),
   line({ updateComponents: { components, surfaceId: 's' } }),
 ];
+
+describe('what goes wrong in a reply’s A2UI', () => {
+  it('is told after the conversation renders, so the app may set state then', async () => {
+    const logged = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+    const App = () => {
+      const [count, setCount] = React.useState(0);
+      const [ui] = React.useState(
+        () =>
+          new AIUIHost({
+            renderers: [createA2UIRenderer({ onError: () => setCount((n) => n + 1) })],
+            send: vi.fn(),
+          }),
+      );
+      return (
+        <>
+          <span data-testid='errors'>{count}</span>
+          <AIConversation
+            messages={[question, replyWith(['{"broken": }', ...ohridLines])]}
+            ui={ui}
+          />
+        </>
+      );
+    };
+    renderWithEnglish(<App />);
+    await waitFor(() => expect(screen.getByTestId('errors')).not.toHaveTextContent('0'));
+    const warnings = logged.mock.calls.filter((call) =>
+      String(call[0]).includes('Cannot update a component'),
+    );
+    expect(warnings).toEqual([]);
+    logged.mockRestore();
+  });
+});
 
 describe('a reply written in A2UI, under StrictMode', () => {
   it('shows each surface once, follows the stream, and sends an action once', async () => {

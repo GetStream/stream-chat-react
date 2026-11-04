@@ -95,8 +95,12 @@ export class A2UIEngine implements AIUIEngine {
     );
   }
 
+  /**
+   * Tells the app what went wrong, after the current render: a reply's messages are applied
+   * as it first shows, and an app may set state when told.
+   */
   report(error: A2UIError, messageId?: string) {
-    reportA2UIError(this.options, error, messageId);
+    queueMicrotask(() => reportA2UIError(this.options, error, messageId));
   }
 
   remove(messageId: string) {

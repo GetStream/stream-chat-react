@@ -23,8 +23,8 @@ export type AIUIDocument = {
 };
 
 /**
- * A reply's `ai_ui` field as the agents router writes it. Typed on Stream messages through
- * `DefaultMessageData`.
+ * A reply's `ai_ui` field as the agents router writes it. An app that reads it from its Stream
+ * messages types it there with `ai_ui?: AIUIDocumentJSON` in its `CustomMessageData`.
  */
 export type AIUIDocumentJSON = {
   /** The document in its format's own shape: usually text, such as A2UI's JSON lines. */

@@ -1,38 +1,16 @@
-import React, { Component, type ReactNode } from 'react';
+import React, { type ReactNode } from 'react';
 import { useSyncExternalStore } from 'use-sync-external-store/shim';
 
 import type { AIUIDocument } from './AIUIDocument';
 import { AIUIEntranceStage } from './AIUIEntrance';
+import { AIUIErrorBoundary } from './AIUIErrorBoundary';
 import type { AIUIHost } from './AIUIHost';
-
-type AIUIErrorBoundaryProps = {
-  children: ReactNode;
-  onError: (error: unknown) => void;
-};
-
-// Keeps a reply's UI that throws while it renders, such as an app's component given what it
-// didn't expect, from taking the conversation down with it. It shows nothing and says so, and
-// the host shows the reply's text.
-class AIUIErrorBoundary extends Component<AIUIErrorBoundaryProps, { hasError: boolean }> {
-  state = { hasError: false };
-
-  static getDerivedStateFromError() {
-    return { hasError: true };
-  }
-
-  componentDidCatch(error: unknown) {
-    this.props.onError(error);
-  }
-
-  render() {
-    return this.state.hasError ? null : this.props.children;
-  }
-}
 
 /**
  * A reply's generated UI as it shows in place of the reply's text: as wide as the reply, coming
  * in as it first shows while the agent writes it. UI that throws while it renders shows nothing,
- * and `onError` is told, such as to have the host show the reply's text.
+ * and `onError` is told, such as to have the host show the reply's text. An app's component
+ * that throws only leaves itself out.
  */
 export const AIUIGenerated = ({
   children,

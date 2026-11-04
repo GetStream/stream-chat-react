@@ -4,7 +4,7 @@ export {
   type A2UIRendererOptions,
   createA2UIRenderer,
 } from './A2UIRenderer';
-export { A2UI_VERSION, a2uiMessagesIn, supportsA2UIVersion } from './A2UIStream';
+export { A2UI_VERSION } from './A2UIStream';
 export {
   A2UI_PROTOCOL_OVERVIEW,
   type A2UIInstructionsConfig,

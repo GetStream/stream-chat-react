@@ -150,12 +150,12 @@ const ui = useMemo(
 <AIConversation messages={messages.map((m) => fromStreamMessage(m))} ui={ui} />;
 ```
 
-- `fromStreamMessage` reads a reply's `ai_ui` into `uiDocument` (`parseAIUIDocument`). A person's message never has one. A document of a newer `v` than this SDK reads is ignored.
+- `fromStreamMessage` reads a reply's `ai_ui` into `uiDocument` (`parseAIUIDocument`). A person's message never has one. A document of a newer `v` than this SDK reads is ignored. To read the fields yourself, type them on your messages: `ai_ui?: AIUIDocumentJSON` and `ai_ui_action?: AIUIActionJSON` in `CustomMessageData`.
 - The first renderer whose `format` matches and that `supports(version)` shows it, through the engine the host makes for it once and keeps (`AIUIRenderer`, `AIUIEngine`). When none does, or its engine shows nothing of its own (`view` returns `null`), the reply shows its text. An engine whose answer changes after a reply first shows, such as once its format's packages load, calls `host.refresh()`, and the conversation shows its replies again.
-- A reply's UI that throws while it renders, such as an app's component given what it didn't expect, shows the reply's text instead, and the rest of the conversation stays; `onRenderError(error, messageId)` is told, and it is logged by default.
+- One of the app's components that throws while it renders, such as when given what it didn't expect, leaves only itself out of the reply's UI, and is tried again when what it is given changes. A reply's UI that throws elsewhere shows the reply's text instead, and a reply still being written tries again once it is written. Either way the rest of the conversation stays, and `onRenderError(error, messageId)` is told once the reply is written; it is logged by default.
 - A reply whose UI shows is no longer empty: the agent's thinking gives way to it as soon as it starts streaming in. A finished reply has its actions under it whether it answers in text or in UI, once the UI is written (`status` other than `streaming`).
 - A live reply's UI fades and rises in as it first shows, and its parts after it, 0.1 s apart and at most 0.4 s later (`AIUIEntrance`); with reduced motion they only fade. A reply from history shows at once.
-- What the person does is an `AIUIAction` (`messageId`, `format`, `name`, `label`, `payload`). `host.send` sends them in order; one the router would refuse (no reply, format or name, or over 8 KB as JSON) goes to `onError` instead. `label` is the person's message and `aiUIActionJSON(action)` the router's `ui_action`, which it keeps on that message as `ai_ui_action`.
+- What the person does is an `AIUIAction` (`messageId`, `format`, `name`, `label`, `payload`). `host.send` sends them in order and resolves to whether it sent one; one the router would refuse (no reply, format or name, or over 8 KB as JSON), or that fails to send, goes to `onError` instead. `label` is the person's message and `aiUIActionJSON(action)` the router's `ui_action`, which it keeps on that message as `ai_ui_action`.
 - Links from a reply's UI open through `host.open`: web and email links by default, since the agent writes them. Pass `open` to decide yourself.
 - The app's components are described once, in portable JSON shared with the iOS and Android apps (`parseAIUIComponentDefinition`: `name`, `description`, `parameters` as a JSON Schema object with `x-order`, `events`). `defineAIUIComponent(definition, Component)` gives the view `args` (camelCase keys, dates as `Date`s, once they fit the parameters) and `context.emit(event, label, payload)`. `await host.capabilities()` describes the formats and components to the agent's backend, with each renderer's instructions for its model, as on iOS.
 - `AIUIView` shows one reply's UI outside `AIConversation`; call `host.receive(messages)` as the messages change, and show the reply's text when `host.content(document, messageId)` is `null`, again whenever `host.subscribe` calls back.
@@ -194,7 +194,7 @@ const ui = new AIUIHost({
 
 ### OpenUI
 
-`stream-chat-react/openui` is the renderer of [OpenUI](https://openui.com), the counterpart of StreamChatOpenUI. It is built on the official OpenUI packages, which the app installs: they are optional peers of this package, which takes the patch releases of the versions it is tested with (`~`). Their styles are the app's to import, and `ai-components.css` themes them.
+`stream-chat-react/openui` is the renderer of [OpenUI](https://openui.com), the counterpart of StreamChatOpenUI. It is built on the official OpenUI packages, which the app installs: they are optional peers of this package, which takes the patch releases of the versions it is tested with (`~`). `@openuidev/react-ui` needs `@openuidev/react-headless` and `zustand` beside it. Their styles are the app's to import, and `ai-components.css` themes them.
 
 ```bash
 npm install @openuidev/react-lang@1.0.2 @openuidev/react-ui@0.18.1 @openuidev/react-headless@0.18.1 zustand@^4.5.5

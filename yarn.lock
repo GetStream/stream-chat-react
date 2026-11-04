@@ -12551,14 +12551,13 @@ __metadata:
     vite: "npm:^8.1.3"
     vitest: "npm:^4.1.9"
     vitest-axe: "npm:^0.1.0"
-    zod: "npm:^4.1.12"
+    zod: "npm:^4.2.0"
     zustand: "npm:4.5.7"
   peerDependencies:
     "@a2ui/react": ~0.15.0
     "@a2ui/web_core": ~0.15.0
     "@breezystack/lamejs": ^1.2.7
     "@emoji-mart/data": ^1.1.0
-    "@openuidev/react-headless": ~0.18.1
     "@openuidev/react-lang": ~1.0.2
     "@openuidev/react-ui": ~0.18.1
     emoji-mart: ^5.4.0
@@ -12566,7 +12565,6 @@ __metadata:
     react: ^19.0.0 || ^18.0.0 || ^17.0.0
     react-dom: ^19.0.0 || ^18.0.0 || ^17.0.0
     stream-chat: ^9.54.0
-    zustand: ^4.5.5
   dependenciesMeta:
     "@parcel/watcher":
       built: true
@@ -12587,8 +12585,6 @@ __metadata:
       optional: true
     "@emoji-mart/data":
       optional: true
-    "@openuidev/react-headless":
-      optional: true
     "@openuidev/react-lang":
       optional: true
     "@openuidev/react-ui":
@@ -12596,8 +12592,6 @@ __metadata:
     emoji-mart:
       optional: true
     modern-normalize:
-      optional: true
-    zustand:
       optional: true
   languageName: unknown
   linkType: soft
@@ -14255,10 +14249,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"zod@npm:^4.1.12":
-  version: 4.6.5
-  resolution: "zod@npm:4.6.5"
-  checksum: 10c0/32eb6c5e98becbe045675b2141c3611451c16ba567f9779231d79af41c4d651ca1c22f154aef7e6c6e77b929f23e43f1154ca05b82e119e922353725d6776af5
+"zod@npm:^4.2.0":
+  version: 4.6.7
+  resolution: "zod@npm:4.6.7"
+  checksum: 10c0/4ce2eb14034317b7254e347ca37b5ad591cf8333147030cf05b9b5d31692d45073f7f2747aa50cf8c6b29012194d2b22978cecc89969cf34a0d18e89d0ee7d7b
   languageName: node
   linkType: hard
 

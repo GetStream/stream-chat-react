@@ -3,10 +3,8 @@ import {
   type AIUIAction,
   aiUIActionJSON,
   aiUIActionProblem,
-  aiUICamelCase,
   AIUICascade,
   aiUIComponentDefinitionJSON,
-  aiUIDate,
   AIUIHost,
   AIUIParameterType,
   type AIUIRenderer,
@@ -18,6 +16,8 @@ import {
   parseAIUIDocument,
   requiredAIUIParameter,
 } from '..';
+import { aiUICamelCase, aiUIDate } from '../GenerativeUI/AIUIArguments';
+import { aiUILinkOpener } from '../GenerativeUI/AIUIHelpers';
 import type { MessageResponse } from 'stream-chat';
 
 import type { AIMessage } from '..';
@@ -448,15 +448,32 @@ describe('AIUIHost', () => {
     ]);
   });
 
-  it('tells the engine when a reply or its UI leaves, and forgets its state', () => {
+  it('tells the engine when a reply or its UI leaves, and forgets its state', async () => {
     const { log, renderer } = recordingRenderer('a2ui');
     const ui = host([renderer]);
     ui.receive([reply('a1', { content: 'one', format: 'a2ui' })]);
     ui.setState('a1', { pace: 'relaxed' });
     expect(ui.state('a1')).toEqual({ pace: 'relaxed' });
     ui.receive([reply('a1')]);
+    // after the render that left it out, which may be thrown away
+    expect(log).not.toContain('remove a1');
+    await Promise.resolve();
     expect(log).toContain('remove a1');
     expect(ui.state('a1')).toBeUndefined();
+  });
+
+  it('keeps the state of a reply that comes back in the same render', async () => {
+    const { log, renderer } = recordingRenderer('a2ui');
+    const ui = host([renderer]);
+    const first = reply('a1', { content: 'one', format: 'a2ui' });
+    ui.receive([first]);
+    ui.setState('a1', { pace: 'relaxed' });
+    // a render React throws away, then the one it keeps
+    ui.receive([]);
+    ui.receive([first]);
+    await Promise.resolve();
+    expect(log).not.toContain('remove a1');
+    expect(ui.state('a1')).toEqual({ pace: 'relaxed' });
   });
 
   it('sends a reply’s actions in the order they happened, past one that fails', async () => {
@@ -482,11 +499,12 @@ describe('AIUIHost', () => {
       name,
       payload: {},
     });
-    ui.send(action('first'));
-    ui.send(action('second'));
+    const first = ui.send(action('first'));
+    const second = ui.send(action('second'));
     const last = ui.send(action('third'));
     release();
-    await last;
+    // each says whether it was sent
+    expect(await Promise.all([first, second, last])).toEqual([true, false, true]);
     expect(sent).toEqual(['first', 'third']);
     expect(onError).toHaveBeenCalledTimes(1);
     expect(onError.mock.calls[0]?.[1]).toMatchObject({ name: 'second' });
@@ -496,15 +514,38 @@ describe('AIUIHost', () => {
     const send = vi.fn();
     const onError = vi.fn();
     const ui = new AIUIHost({ onError, renderers: [], send });
-    await ui.send({
+    const sent = await ui.send({
       format: 'a2ui',
       label: 'Go',
       messageId: '',
       name: 'go',
       payload: {},
     });
+    expect(sent).toBe(false);
     expect(send).not.toHaveBeenCalled();
     expect(onError).toHaveBeenCalledTimes(1);
+  });
+
+  it('opens a link of a reply’s UI on a click or a middle click, and leaves the menu’s button alone', () => {
+    const open = vi.fn();
+    const ui = new AIUIHost({ open, renderers: [], send: vi.fn() });
+    const link = document.createElement('a');
+    link.href = 'https://en.wikipedia.org/wiki/Ohrid';
+    const follow = aiUILinkOpener(ui);
+    const event = (type: string, button: number) => ({
+      button,
+      preventDefault: vi.fn(),
+      stopPropagation: vi.fn(),
+      target: link,
+      type,
+    });
+    const menu = event('auxclick', 2);
+    follow(menu);
+    expect(open).not.toHaveBeenCalled();
+    expect(menu.preventDefault).not.toHaveBeenCalled();
+    follow(event('auxclick', 1));
+    follow(event('click', 0));
+    expect(open).toHaveBeenCalledTimes(2);
   });
 
   it('opens only web and email links by default, as the agent writes them', () => {

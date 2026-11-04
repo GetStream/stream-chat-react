@@ -24,17 +24,22 @@ export const aiUISentence = (text: string) => {
 };
 
 type ClickEvent = {
+  /** Which button was pressed: 0 the main one, 1 the middle one, 2 the one for a menu. */
+  button?: number;
   preventDefault: () => void;
   stopPropagation: () => void;
   target: EventTarget | null;
+  type?: string;
 };
 
 /**
  * A click handler that opens the links of a reply's UI the way `host` allows, rather than
  * wherever they point, since the agent writes them. Give it to the element around them as its
- * capturing click and auxclick handler.
+ * capturing click and auxclick handler: of the other buttons, only the middle one opens a link,
+ * and the one for a menu shows the menu.
  */
 export const aiUILinkOpener = (host: AIUIHost | undefined) => (event: ClickEvent) => {
+  if (event.type === 'auxclick' && event.button !== 1) return;
   const link = (event.target as Element | null)?.closest?.('a[href]');
   if (!link) return;
   event.preventDefault();

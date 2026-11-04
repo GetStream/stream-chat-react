@@ -31,8 +31,9 @@ export type AIUIHostOptions = {
   /** Tells the app that an action could not be sent. It is logged by default. */
   onError?: (error: unknown, action: AIUIAction) => void;
   /**
-   * Tells the app that a reply's UI failed to show, such as one of the app's components
-   * throwing, so the reply shows its text instead. It is logged by default.
+   * Tells the app that a reply's UI, or a part of it, failed to show: a reply's UI that throws
+   * shows the reply's text instead, and one of the app's components that throws leaves only
+   * itself out. It is logged by default.
    */
   onRenderError?: (error: unknown, messageId: string) => void;
   /**
@@ -138,32 +139,48 @@ export class AIUIHost {
         documents.set(message.id, message.uiDocument);
       }
     }
+    const left: [string, AIUIDocument][] = [];
     for (const [messageId, document] of [...this.received]) {
       if (documents.has(messageId)) continue;
       this.received.delete(messageId);
-      this.states.delete(messageId);
-      this.failed.delete(messageId);
-      const renderer = this.renderers.find((candidate) =>
-        aiUIRendererReads(candidate, document),
-      );
-      if (renderer) this.engineOf(renderer).remove?.(messageId);
+      left.push([messageId, document]);
     }
     for (const [messageId, document] of documents) {
-      if (isSameAIUIDocument(this.received.get(messageId), document)) continue;
+      const before = this.received.get(messageId);
+      if (isSameAIUIDocument(before, document)) continue;
       this.received.set(messageId, document);
+      // A reply whose UI failed while it was written gets one more try once it is written.
+      if (before && !document.isStreaming) this.failed.delete(messageId);
       const renderer = this.renderers.find((candidate) =>
         aiUIRendererReads(candidate, document),
       );
       if (renderer) this.engineOf(renderer).receive?.(document, messageId);
     }
+    // Forgets the replies that left once the conversation has rendered without them, since
+    // this runs while it renders, and a render React throws away must not lose what a reply
+    // was left in.
+    if (left.length) {
+      queueMicrotask(() => {
+        for (const [messageId, document] of left) {
+          if (this.received.has(messageId)) continue;
+          this.states.delete(messageId);
+          this.failed.delete(messageId);
+          const renderer = this.renderers.find((candidate) =>
+            aiUIRendererReads(candidate, document),
+          );
+          if (renderer) this.engineOf(renderer).remove?.(messageId);
+        }
+      });
+    }
   }
 
   /**
    * Sends what the person did to the agent, after everything sent before it, so the agent gets
-   * a reply's actions in the order they happened. One the agent's backend would refuse, or that
-   * fails to send, goes to `onError` and does not hold up the ones after it.
+   * a reply's actions in the order they happened. Resolves to whether it was sent: one the
+   * agent's backend would refuse, or that fails to send, goes to `onError`, resolves to
+   * `false`, and does not hold up the ones after it.
    */
-  send(action: AIUIAction): Promise<void> {
+  send(action: AIUIAction): Promise<boolean> {
     const report = (error: unknown) => {
       if (this.options.onError) this.options.onError(error, action);
       else console.error("Couldn't send what the person did in a reply's UI", error);
@@ -171,22 +188,25 @@ export class AIUIHost {
     const problem = aiUIActionProblem(action);
     if (problem) {
       report(new Error(problem));
-      return this.lastSend;
+      return Promise.resolve(false);
     }
-    this.lastSend = this.lastSend.then(async () => {
+    const sent = this.lastSend.then(async () => {
       try {
         await this.options.send(action);
+        return true;
       } catch (error) {
         report(error);
+        return false;
       }
     });
-    return this.lastSend;
+    this.lastSend = sent.then(() => undefined);
+    return sent;
   }
 
   /**
-   * Shows a reply's text in place of its UI, which failed to show, such as when one of the
-   * app's components threw while rendering, and tells the app. It lasts while the reply is in
-   * the conversation. `AIConversation` and `AIUIView` do it.
+   * Shows a reply's text in place of its UI, which failed to show, and tells the app. It lasts
+   * while the reply is in the conversation, or, for a reply still being written, until it is
+   * written. `AIConversation` and `AIUIView` do it.
    */
   fail(messageId: string, error: unknown) {
     if (this.failed.has(messageId)) return;
@@ -194,6 +214,15 @@ export class AIUIHost {
     if (this.options.onRenderError) this.options.onRenderError(error, messageId);
     else console.error(`A reply's UI failed to show, so its text shows instead`, error);
     this.refresh();
+  }
+
+  /**
+   * Tells the app that a part of a reply's UI failed to show, such as one of the app's
+   * components that threw, while the rest of it still shows. `AIUIComponentView` calls it.
+   */
+  reportRenderError(error: unknown, messageId: string) {
+    if (this.options.onRenderError) this.options.onRenderError(error, messageId);
+    else console.error(`A part of a reply's UI failed to show, so it is left out`, error);
   }
 
   /**

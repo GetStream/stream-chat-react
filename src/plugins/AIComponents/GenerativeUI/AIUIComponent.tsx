@@ -3,6 +3,7 @@ import React, { type ComponentType } from 'react';
 import { decodeAIUIArguments } from './AIUIArguments';
 import type { AIUIComponentDefinition } from './AIUIComponentDefinition';
 import { AIUIEntrance } from './AIUIEntrance';
+import { AIUIErrorBoundary } from './AIUIErrorBoundary';
 import type { AIUIHost } from './AIUIHost';
 
 /** Where an app's component is shown, and how it tells the agent what the person did. */
@@ -50,10 +51,20 @@ export const defineAIUIComponent = <Arguments,>(
   definition,
 });
 
+// What an app's component was given, to try it again once that changes or the reply is written.
+const attemptOf = (args: Record<string, unknown>, isStreaming: boolean) => {
+  try {
+    return `${isStreaming}\u0000${JSON.stringify(args)}`;
+  } catch {
+    return args;
+  }
+};
+
 /**
  * An app's component for the arguments the agent wrote, coming in as it shows, or nothing
  * while they don't fit its parameters, such as while they are still streaming in. Renderers
- * place the app's components with it.
+ * place the app's components with it. One that throws leaves only itself out of the reply's
+ * UI, is tried again when its arguments change, and is reported once the reply is written.
  */
 export const AIUIComponentView = ({
   args,
@@ -67,9 +78,18 @@ export const AIUIComponentView = ({
   const decoded = decodeAIUIArguments(args, component.definition.parameters);
   if (decoded === undefined) return null;
   const { Component } = component;
+  const { host, isStreaming, messageId } = context;
   return (
-    <AIUIEntrance>
-      <Component args={decoded as never} context={context} />
-    </AIUIEntrance>
+    <AIUIErrorBoundary
+      onError={(error) => {
+        // While the reply streams, what the component was given may still be incomplete.
+        if (!isStreaming) host.reportRenderError(error, messageId);
+      }}
+      resetKey={attemptOf(decoded, isStreaming)}
+    >
+      <AIUIEntrance>
+        <Component args={decoded as never} context={context} />
+      </AIUIEntrance>
+    </AIUIErrorBoundary>
   );
 };

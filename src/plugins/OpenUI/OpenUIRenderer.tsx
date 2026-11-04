@@ -115,8 +115,12 @@ export class OpenUIEngine implements AIUIEngine {
     this.reported.delete(messageId);
   }
 
+  /**
+   * Tells the app what went wrong, after the current render: the library is made as a reply
+   * first shows, and an app may set state when told.
+   */
   report(error: OpenUIError, messageId?: string) {
-    reportOpenUIError(this.options, error, messageId);
+    queueMicrotask(() => reportOpenUIError(this.options, error, messageId));
   }
 
   view(document: AIUIDocument, messageId: string) {

@@ -134,7 +134,7 @@
     "unist-builder": "^4.0.0",
     "unist-util-visit": "^5.1.0",
     "use-sync-external-store": "^1.6.0",
-    "zod": "^4.1.12"
+    "zod": "^4.2.0"
   },
   "optionalDependencies": {
     "@stream-io/transliterate": "^1.5.5"
@@ -144,15 +144,13 @@
     "@a2ui/web_core": "~0.15.0",
     "@breezystack/lamejs": "^1.2.7",
     "@emoji-mart/data": "^1.1.0",
-    "@openuidev/react-headless": "~0.18.1",
     "@openuidev/react-lang": "~1.0.2",
     "@openuidev/react-ui": "~0.18.1",
     "emoji-mart": "^5.4.0",
     "modern-normalize": "^3.0.1",
     "react": "^19.0.0 || ^18.0.0 || ^17.0.0",
     "react-dom": "^19.0.0 || ^18.0.0 || ^17.0.0",
-    "stream-chat": "^9.54.0",
-    "zustand": "^4.5.5"
+    "stream-chat": "^9.54.0"
   },
   "peerDependenciesMeta": {
     "@a2ui/react": {
@@ -167,9 +165,6 @@
     "@emoji-mart/data": {
       "optional": true
     },
-    "@openuidev/react-headless": {
-      "optional": true
-    },
     "@openuidev/react-lang": {
       "optional": true
     },
@@ -180,9 +175,6 @@
       "optional": true
     },
     "modern-normalize": {
-      "optional": true
-    },
-    "zustand": {
       "optional": true
     }
   },

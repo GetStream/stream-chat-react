@@ -315,7 +315,119 @@ describe('AIConversation with generated UI', () => {
     );
     await flushFrames();
     expect(importRuntime).toHaveBeenCalledTimes(2);
+    // the finished replies keep their text while the one being written tries again, and the
+    // failure is said once
     expect(screen.getByText('A weekend by the lake')).toBeInTheDocument();
+    expect(screen.getByText('A day in the old town')).toBeInTheDocument();
+    expect(screen.getAllByTestId('loading')).toHaveLength(1);
+    expect(onFailure).toHaveBeenCalledTimes(1);
+  });
+
+  it('tries a reply’s UI that failed while it was written again once it is written', async () => {
+    const Throws = () => {
+      throw new Error('Half a map');
+    };
+    const throwing: AIUIRenderer = {
+      createEngine: () => ({
+        view: (document) =>
+          document.isStreaming ? (
+            <Throws />
+          ) : (
+            <div data-testid='card'>{String(document.content)}</div>
+          ),
+      }),
+      format: 'a2ui',
+    };
+    const onRenderError = vi.fn();
+    const ui = new AIUIHost({ onRenderError, renderers: [throwing], send: vi.fn() });
+    const logged = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+    const { rerender } = renderWithEnglish(
+      <AIConversation
+        messages={[
+          user('u1', 'Plan'),
+          reply('a1', 'A weekend by the lake', {
+            content: 'Ohrid',
+            format: 'a2ui',
+            status: 'streaming',
+          }),
+        ]}
+        ui={ui}
+      />,
+    );
+    await flushFrames();
+    expect(screen.getByText('A weekend by the lake')).toBeInTheDocument();
+    rerender(
+      <AIConversation
+        messages={[
+          user('u1', 'Plan'),
+          reply('a1', 'A weekend by the lake', { content: 'Ohrid plan', format: 'a2ui' }),
+        ]}
+        ui={ui}
+      />,
+    );
+    await flushFrames();
+    expect(screen.getByTestId('card')).toHaveTextContent('Ohrid plan');
+    expect(onRenderError).toHaveBeenCalledTimes(1);
+    logged.mockRestore();
+  });
+
+  it('leaves out only an app’s component that throws, and says so once the reply is written', async () => {
+    const definition = parseAIUIComponentDefinition({
+      description: 'A map.',
+      name: 'trip_map',
+      parameters: { properties: { title: { type: 'string' } }, required: ['title'] },
+    });
+    if (!definition) throw new Error('no definition');
+    const tripMap = defineAIUIComponent<{ title: string }>(definition, ({ args }) => {
+      if (args.title === 'nowhere') throw new Error('No places');
+      return <div data-testid='map'>{args.title}</div>;
+    });
+    const withMap: AIUIRenderer = {
+      createEngine: (host) => ({
+        view: (document, messageId) => (
+          <div>
+            <div data-testid='card'>Plan</div>
+            <AIUIComponentView
+              args={{ title: String(document.content) }}
+              component={tripMap}
+              context={{
+                emit: vi.fn(),
+                host,
+                isStreaming: document.isStreaming,
+                messageId,
+              }}
+            />
+          </div>
+        ),
+      }),
+      format: 'a2ui',
+    };
+    const onRenderError = vi.fn();
+    const ui = new AIUIHost({ onRenderError, renderers: [withMap], send: vi.fn() });
+    const logged = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+    const messages = (content: string, status: string) => [
+      user('u1', 'Plan'),
+      reply('a1', 'A weekend by the lake', { content, format: 'a2ui', status }),
+    ];
+    const { rerender } = renderWithEnglish(
+      <AIConversation messages={messages('nowhere', 'streaming')} ui={ui} />,
+    );
+    await flushFrames();
+    expect(screen.getByTestId('card')).toBeInTheDocument();
+    expect(screen.queryByTestId('map')).not.toBeInTheDocument();
+    expect(onRenderError).not.toHaveBeenCalled();
+
+    rerender(<AIConversation messages={messages('Ohrid', 'streaming')} ui={ui} />);
+    await flushFrames();
+    expect(screen.getByTestId('map')).toHaveTextContent('Ohrid');
+
+    rerender(<AIConversation messages={messages('nowhere', 'complete')} ui={ui} />);
+    await flushFrames();
+    expect(screen.getByTestId('card')).toBeInTheDocument();
+    expect(screen.queryByText('A weekend by the lake')).not.toBeInTheDocument();
+    expect(onRenderError).toHaveBeenCalledTimes(1);
+    expect(onRenderError).toHaveBeenCalledWith(expect.any(Error), 'a1');
+    logged.mockRestore();
   });
 });
 
