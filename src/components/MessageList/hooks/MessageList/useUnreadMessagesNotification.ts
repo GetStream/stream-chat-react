@@ -83,7 +83,9 @@ export const useUnreadMessagesNotification = ({
       return;
     }
 
-    const [observedTarget] = document.getElementsByClassName(
+    // Only this list's separator: with several lists on screen (channels side by side), the first one
+    // in the page can belong to another list.
+    const [observedTarget] = scrollRoot.getElementsByClassName(
       UNREAD_MESSAGE_SEPARATOR_CLASS,
     );
     if (!observedTarget) {
