@@ -22,7 +22,7 @@ type MessageStatusParams = {
   message: LocalMessage;
   ownUserId: string;
   readBy: UserResponse[];
-  isInThread: boolean;
+  isThreadReply: boolean;
 };
 
 const getMessageStatus = ({
@@ -30,19 +30,20 @@ const getMessageStatus = ({
   message,
   ownUserId,
   readBy,
-  isInThread,
+  isThreadReply,
 }: MessageStatusParams): keyof typeof statusIconMap => {
   const [firstReader] = readBy;
   const [firstDeliveredUser] = deliveredTo;
 
   const justReadByMe = readBy.length === 1 && firstReader?.id === ownUserId;
-  const read = readBy.length > 0 && !justReadByMe && !isInThread;
+  const read = readBy.length > 0 && !justReadByMe && !isThreadReply;
 
   const deliveredOnlyToMe =
     deliveredTo.length === 1 && firstDeliveredUser?.id === ownUserId;
-  const delivered = deliveredTo.length > 0 && !deliveredOnlyToMe && !read && !isInThread;
+  const delivered =
+    deliveredTo.length > 0 && !deliveredOnlyToMe && !read && !isThreadReply;
 
-  const sent = message.status === 'received' && !delivered && !read && !isInThread;
+  const sent = message.status === 'received' && !delivered && !read && !isThreadReply;
   const sending = message.status === 'sending';
 
   if (read) return 'read';
@@ -53,9 +54,16 @@ const getMessageStatus = ({
 };
 
 const CustomMessageUiMetadata = () => {
-  const { deliveredTo = [], isMyMessage, message, readBy = [] } = useMessageContext();
+  const {
+    deliveredTo = [],
+    initialMessage,
+    isMyMessage,
+    message,
+    readBy = [],
+  } = useMessageContext();
   const { client } = useChatContext();
-  const isInThread = !!useThreadContext();
+  // The thread parent is a channel message, so only replies count as thread messages here.
+  const isThreadReply = !!useThreadContext() && !initialMessage;
 
   const createdAt = convertTimestampToDate(message.created_at);
   const editedAt = convertTimestampToDate(message.message_text_updated_at);
@@ -66,7 +74,7 @@ const CustomMessageUiMetadata = () => {
         message,
         ownUserId: client.user?.id ?? '',
         readBy,
-        isInThread,
+        isThreadReply,
       })
     ];
 

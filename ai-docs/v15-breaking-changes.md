@@ -2729,11 +2729,15 @@ Before (v14):
 />
 ```
 
-After (v15):
+After (v15), reading the clicked mention:
 
 ```tsx
 <MessageList
-  onMentionsClick={(event, message) => openProfile(message.mentioned_users?.[0]?.id)}
+  onMentionsClick={(event) => {
+    const userId = (event.target as HTMLElement).closest<HTMLElement>('[data-user-id]')
+      ?.dataset.userId;
+    if (userId) openProfile(userId);
+  }}
 />
 ```
 

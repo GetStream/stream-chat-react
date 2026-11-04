@@ -249,7 +249,11 @@ describe(`renderText`, () => {
   it('highlights the mention entities passed to the exported mentionsMarkdownPlugin', () => {
     const Markdown = renderText('Hello @alice', {
       getRehypePlugins: (defaultPlugins) => [
-        mentionsMarkdownPlugin([{ id: 'alice-id', mentionType: 'user', name: 'alice' }]),
+        mentionsMarkdownPlugin(
+          getRenderTextMentionEntities({
+            mentioned_users: [generateUser({ id: 'alice-id', name: 'alice' })],
+          }),
+        ),
         ...defaultPlugins,
       ],
     });
