@@ -5,7 +5,7 @@ import {
   useMessageComposerContext,
   useTranslationContext,
 } from '../../../context';
-import { isRecording } from './recordingStateIdentity';
+import { isRecording, isStopped } from './recordingStateIdentity';
 import { Button } from '../../Button';
 import { useNotificationApi } from '../../Notifications';
 import { UploadProgressIndicator } from '../../Loading/UploadProgressIndicator';
@@ -35,6 +35,8 @@ const ToggleRecordingButton = () => {
       }
       circular
       className='str-chat__audio_recorder__toggle-recording-button'
+      // A stopped recording cannot be resumed.
+      disabled={isStopped(recordingState)}
       onClick={() => (recording ? recorder?.pause() : recorder?.resume())}
       size='sm'
       variant='secondary'
