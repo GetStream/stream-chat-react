@@ -6,7 +6,7 @@ These components used to ship as the separate package `@stream-io/chat-react-ai`
 
 ## Installation
 
-Requires the first `stream-chat-react` release that includes `ai-components` (expected 14.13.0; the exact number is set by semantic-release).
+Requires `stream-chat-react` 14.15.0 or later, the first release that includes `ai-components`. [Generated UI](#generated-ui), with its `stream-chat-react/a2ui` and `stream-chat-react/openui` renderers, requires 14.16.0 or later.
 
 ```bash
 yarn add stream-chat-react stream-chat
@@ -122,6 +122,7 @@ const approver = {
 | `bottomInset`                                     | Room in pixels under the latest turn for a composer floating over the conversation. The scroll-to-latest button sits above it.                                                                                                                                                                           |
 | `UserMessage`, `AssistantMessage`, `ReplyActions` | Slots for the person's messages, the agent's replies and the actions under each finished reply (`null` for none). Default to `AIUserMessage`, `AIAssistantMessage` and `AIReplyActions`.                                                                                                                 |
 | `replyActions`                                    | `(message, { isLatestReply }) => ({ rating?, onRate?, onRegenerate? })` for the default reply actions.                                                                                                                                                                                                   |
+| `ui`                                              | An `AIUIHost`: shows the UI the agent writes for a reply (`AIMessage.uiDocument`) in place of its text. See [Generated UI](#generated-ui).                                                                                                                                                               |
 
 Behaviour:
 
@@ -129,6 +130,102 @@ Behaviour:
 - It opens at its end. A conversation replaced as a whole (another chat opened) opens at its end again.
 - A round button scrolls to the latest message while the end is out of view.
 - Steps render with `AIMessageParts`; the answer types out with `StreamingMessage` as it streams in, catching up with what has arrived within about 400 ms, and a reply loaded from history shows at once. `letterIntervalMs` and `renderingLetterCount` set a fixed pace instead.
+
+### Generated UI
+
+An agent can answer with UI rather than text, such as a card, a form or a map, in a format such as [A2UI](https://a2ui.org) or OpenUI. The agents router puts it in the reply's `ai_ui` field (`{ v, format, version?, status, content }`) and keeps the words around it as the reply's text, which shows wherever the UI can't. The counterpart of StreamChatAI's generative UI; these components know no format themselves, and renderers plug one in.
+
+Generated UI, `stream-chat-react/a2ui` and `stream-chat-react/openui` require `stream-chat-react` 14.16.0 or later.
+
+```tsx
+const ui = useMemo(
+  () =>
+    new AIUIHost({
+      components: [placeCard], // the app's own views, which the agent can place
+      renderers: [a2uiRenderer],
+      send: (action) =>
+        session.responses.create(action.label, { uiAction: aiUIActionJSON(action) }),
+    }),
+  [session],
+);
+
+<AIConversation messages={messages.map((m) => fromStreamMessage(m))} ui={ui} />;
+```
+
+- `fromStreamMessage` reads a reply's `ai_ui` into `uiDocument` (`parseAIUIDocument`). A person's message never has one. A document of a newer `v` than this SDK reads is ignored. To read the fields yourself, type them on your messages: `ai_ui?: AIUIDocumentJSON` and `ai_ui_action?: AIUIActionJSON` in `CustomMessageData`.
+- The first renderer whose `format` matches and that `supports(version)` shows it, through the engine the host makes for it once and keeps (`AIUIRenderer`, `AIUIEngine`). When none does, or its engine shows nothing of its own (`view` returns `null`), the reply shows its text. An engine whose answer changes after a reply first shows, such as once its format's packages load, calls `host.refresh()`, and the conversation shows its replies again.
+- One of the app's components that throws while it renders, such as when given what it didn't expect, leaves only itself out of the reply's UI, and is tried again when what it is given changes. A reply's UI that throws elsewhere shows the reply's text instead, and a reply still being written tries again once it is written. Either way the rest of the conversation stays, and `onRenderError(error, messageId)` is told once the reply is written; it is logged by default.
+- A reply whose UI shows is no longer empty: the agent's thinking gives way to it as soon as it starts streaming in. A finished reply has its actions under it whether it answers in text or in UI, once the UI is written (`status` other than `streaming`).
+- A live reply's UI fades and rises in as it first shows, and its parts after it, 0.1 s apart and at most 0.4 s later (`AIUIEntrance`); with reduced motion they only fade. A reply from history shows at once.
+- What the person does is an `AIUIAction` (`messageId`, `format`, `name`, `label`, `payload`). `host.send` sends them in order and resolves to whether it sent one; one the router would refuse (no reply, format or name, or over 8 KB as JSON), or that fails to send, goes to `onError` instead. `label` is the person's message and `aiUIActionJSON(action)` the router's `ui_action`, which it keeps on that message as `ai_ui_action`.
+- Links from a reply's UI open through `host.open`: web and email links by default, since the agent writes them. Pass `open` to decide yourself.
+- The app's components are described once, in portable JSON shared with the iOS and Android apps (`parseAIUIComponentDefinition`: `name`, `description`, `parameters` as a JSON Schema object with `x-order`, `events`). `defineAIUIComponent(definition, Component)` gives the view `args` (camelCase keys, dates as `Date`s, once they fit the parameters) and `context.emit(event, label, payload)`. `await host.capabilities()` describes the formats and components to the agent's backend, with each renderer's instructions for its model, as on iOS.
+- `AIUIView` shows one reply's UI outside `AIConversation`; call `host.receive(messages)` as the messages change, and show the reply's text when `host.content(document, messageId)` is `null`, again whenever `host.subscribe` calls back.
+- A renderer of your own can load its format's packages the first time a reply shows it with `AIUIRuntimeLoader` and `AIUIRuntimeView`, as the A2UI and OpenUI renderers do. When they can't load, such as after a deploy replaced the file they are in, the replies already written show their text, and the next reply the agent writes in the format tries again.
+
+### A2UI
+
+`stream-chat-react/a2ui` is the renderer of [A2UI](https://a2ui.org) 1.0, the counterpart of StreamChatA2UI. It is built on the official A2UI packages, which the app installs: they are optional peers of this package, which takes the patch releases of the version it is tested with (`~0.15.0`), since the 0.x packages change their API between minor versions.
+
+```bash
+npm install @a2ui/web_core@0.15.0 @a2ui/react@0.15.0
+```
+
+```tsx
+import { createA2UIRenderer } from 'stream-chat-react/a2ui';
+
+const ui = new AIUIHost({
+  components: [placeCard, tripMap],
+  renderers: [createA2UIRenderer({ onError: (error, messageId) => report(error) })],
+  send,
+});
+```
+
+- A reply's `content` is A2UI messages, one JSON object per line as the agents router passes them on (a JSON array, or JSON rather than text, reads the same). Each message shows as it completes, while the agent writes it. Messages the agent rewrites, rather than adds to, start the reply's surfaces again.
+- Each reply's surfaces are its own, kept for as long as the host is, so what the person entered survives scrolling. A finished reply whose A2UI made no surface shows its text.
+- The app's components join the catalog under their A2UI type (`place_card` is `PlaceCard`), in the catalog `getstream.io:app-catalog` (`catalogId` to name another) and in the basic catalog, as on iOS, so the same instructions serve both apps. A parameter takes the value its schema describes, or a binding (`@path`) or function (`@call`), which the component gets worked out.
+- What the person does goes to `host.send` as an `AIUIAction`: an A2UI event with its `userMessage` as the label (else what its button says, else its name) and `{ surfaceId, sourceComponentId, context }` as its payload; an app component's event with its own label and payload, plus `component`. `openUrl` opens through `host.open`, from a tap only. Text renders with `AIMarkdown`, and its links open through `host.open` too, since the agent writes them.
+- What goes wrong, such as a message that is not JSON or a component the catalog lacks, goes to `onError` with the A2UI error code and the reply's id, and the rest of the reply still shows. A batch of components that one bad component spoils shows the others, whether in `updateComponents` or in the `createSurface` that makes the surface. What is wrong with the renderer rather than a reply, such as an app's component that can't join the catalog or packages that couldn't load, comes without an id.
+- The parts a person sees most are Stream's: Button, Text, Card, TextField, ChoicePicker and Icon draw with this package's components and follow its theme, and the rest of the basic catalog, its layouts and media, draws with A2UI's own elements, themed with the AI components' tokens in `ai-components.css` (`.str-chat__a2ui` sets the `--a2ui-*` variables). A Button's words are the agent's, in the case it wrote them. A reply looks as it does in OpenUI: each surface is the reply's card, a Card in it a panel on it, a quote a callout behind its icon, chips pills with the chosen ones in the accent colour, a primary Button a pill as wide as the reply, and borderless Buttons follow-ups in the accent colour with a hairline between them. What the agent says about a part with its `accessibility` (`label`, `description`, `live`, `hidden`) reaches assistive technology as on A2UI's own parts and on iOS: a field's name is its input's, and a Card or Text the agent names is a group. A live reply's parts come in as the agent writes them, like an app component's, and a reply from history shows whole.
+- `Icon` draws Stream's icon for about half of A2UI's 60 names, restyled like any SDK icon with `WithComponents`'s `icons`. `icons` gives the renderer the app's own for any name (`{ shoppingCart: CartIcon }`), and `iconFont` names an icon font the page loads, such as `'Material Symbols Outlined'`, for the rest. An icon none of them draws takes its place but shows nothing, rather than its name as words.
+- Its Modal is a native dialog, which keeps focus in it while open, closes on Escape or its backdrop, gives focus back to what opened it, and shows above the reply's layout. A trigger other than a Button opens it from the keyboard too.
+- `createA2UIRenderer().capabilities` tells the agent's backend the fence, the catalog id and the instructions for both with the app's components, as StreamChatA2UI's do. It loads the A2UI core to write them; without them, when it can't load, the rest still goes.
+- `a2uiInstructions(config)` writes what the agent's backend adds to its instructions, so its model writes A2UI this renderer shows: how a reply carries its UI, the protocol, the catalog's guidelines, and the catalog itself as JSON, with the app's components. It takes what StreamChatA2UI's `prompt.json` takes (`components`, `catalogId`, `fence`, `keep`, `preamble`, `notes`, `rules`, `examples`), and writes the app's components as iOS does, from the A2UI core's own catalog. It runs on a server or in a build, and rejects with an `A2UIInstructionsError` listing what is wrong when an example would not render: a broken example teaches the model broken UI.
+- `a2uiProblems(text, config)` lists what is wrong with A2UI messages for that catalog, or nothing: messages that aren't JSON or come out of order, a surface created again without being deleted, components the catalog lacks or that don't fit their schemas, references that lead nowhere, a missing root, components nothing holds, and cycles. Each component is checked as the renderer checks it.
+- The A2UI packages load in the browser the first time a reply shows A2UI, so server rendering shows a placeholder and an app whose agent never writes A2UI never loads them. The entry is ESM only, and `require` of it throws saying so; it needs React 18 or later.
+
+### OpenUI
+
+`stream-chat-react/openui` is the renderer of [OpenUI](https://openui.com), the counterpart of StreamChatOpenUI. It is built on the official OpenUI packages, which the app installs: they are optional peers of this package, which takes the patch releases of the versions it is tested with (`~`). `@openuidev/react-ui` needs `@openuidev/react-headless` and `zustand` beside it. Their styles are the app's to import, and `ai-components.css` themes them.
+
+```bash
+npm install @openuidev/react-lang@1.0.2 @openuidev/react-ui@0.18.1 @openuidev/react-headless@0.18.1 zustand@^4.5.5
+```
+
+```tsx
+import '@openuidev/react-ui/components.css';
+import { createOpenUIRenderer, openUIInstructions } from 'stream-chat-react/openui';
+
+const ui = new AIUIHost({
+  components: [placeCard, tripMap],
+  renderers: [createOpenUIRenderer({ onError: (error, messageId) => report(error) })],
+  send,
+});
+
+// What the agent's backend adds to its instructions, so its model writes OpenUI with them.
+const instructions = await openUIInstructions([placeCard, tripMap]);
+```
+
+- A reply's `content` is an OpenUI Lang program, which shows as the agent writes it, as OpenUI's own renderer shows it. A finished reply with no program, or one that draws nothing, such as words that aren't OpenUI, shows its text.
+- The agent writes with OpenUI's chat library (`openuiChatLibrary`), or with the `library` the renderer is given. The app's components join it under their OpenUI name (`place_card` is `PlaceCard`), wherever the library's own content goes, such as a Card's children or a TabItem's content, as on iOS. One whose name the library already has is left out. A parameter takes the value its schema describes, and the component gets it once it fits, dates as dates.
+- What the person does goes to `host.send` as an `AIUIAction`, as on iOS: a button or follow-up is `continue_conversation`, with its words as the label and `{ context, params, form, values }` as its payload, where `values` are the values of the form it belongs to, without a field OpenUI marks secret; an app component's event has its own label and payload, plus `component`. `@OpenUrl` and the links of its Markdown open through `host.open`. A program's `Query()` and `Mutation()` run the host's client tools, or the renderer's `toolProvider`.
+- What the person chose in a reply's forms is kept by the host, so it survives scrolling.
+- What is wrong with a finished reply's program, such as a component the library lacks, goes to `onError` with OpenUI's error code and the reply's id, once, and the rest of the reply still shows. An app's component left out of the library, or packages that couldn't load, come without an id. While the agent writes it, what a program lacks is still coming, so nothing is reported.
+- `.str-chat__openui` sets OpenUI's `--openui-*` variables from the AI components' tokens, so its components follow Stream's light and dark themes, and draws the parts a person sees most as StreamChatOpenUI does on iOS, as the A2UI renderer does too: the reply's card on a raised surface, callouts tinted in their variant's colour with its icon, chips as pills with the chosen ones ticked in the accent colour, buttons as pills sharing their row, and follow-ups in the accent colour with no heading. The rest, such as its chart palette, stays OpenUI's own.
+- `createOpenUIRenderer().capabilities` tells the agent's backend the fence, `openui-lang`, and the instructions with the app's components, as StreamChatOpenUI's do. `openUIInstructions(components)` writes the same instructions on their own, with OpenUI's own prompt generator. Both load the OpenUI packages, so ask for them where that is fine, such as once at build time or when the app starts its conversation.
+- `@openuidev/react-lang` mounts OpenUI's inspector on the page in development, with offers of OpenUI's own; the renderer keeps it off unless `devtools: true`.
+- The OpenUI packages load the first time a reply shows OpenUI, so server rendering shows a placeholder and an app whose agent never writes OpenUI never loads them. It needs React 18.3 or later.
+- `@openuidev/lang-core`'s install script reports the install to OpenUI's analytics, anonymously, unless `OPENUI_TELEMETRY_DISABLED=1` or `DO_NOT_TRACK=1` is set. It sends nothing from a browser; on a server, only with `OPENUI_RUNTIME_TELEMETRY_ENABLED=1`.
 
 ### Steps, questions and sign-ins
 
