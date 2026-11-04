@@ -200,7 +200,7 @@ yarn api-surface check --doc ai-docs/v15-breaking-changes.md --diff diff.json
 - Replacement: compare and sort the raw numbers. Convert at the render boundary with `convertTimestampToDate(ts)` (returns `Date | undefined`; handle the `undefined`), or `nsToDate` / `nsToMs` for values known to be present. Mint values with `nowNs()`, `msToNs(ms)`, `dateToNs(date)`, `asTimestampNS(n)`. All are exported from `stream-chat`. Presentational props still take `Date`: `DateSeparator.date: Date`, `formatDate?: (date: Date) => string`, `Timestamp.timestamp?: Date | string`. Outgoing request fields (filter bounds, `remind_at`) stay `Date`.
 - Evidence:
   - `release-v14:src/components/MessageList/utils.ts:34` `lastRead?: Date | null`, `:205` `insertIntro(…, headerPosition?: number)`, `:360` `lastReadDate?: Date`; `release-v14:src/components/MessageList/MessageList.tsx:529` `headerPosition?: number`; `release-v14:src/components/MessageList/VirtualizedMessageList.tsx:134` `lastReadDate?: Date`
-  - `master:src/components/MessageList/utils.ts:45` `lastRead?: TimestampNS | null`, `:223` `headerPosition?: TimestampNS`; `master:src/components/MessageList/MessageList.tsx:451` `headerPosition?: TimestampNS`; `master:src/components/MessageList/VirtualizedMessageList.tsx:130` `lastReadDate: TimestampNS | null`
+  - `master:src/components/MessageList/utils.ts:45` `lastRead?: TimestampNS | null`, `:223` `headerPosition?: TimestampNS`; `master:src/components/MessageList/MessageList.tsx:449` `headerPosition?: TimestampNS`; `master:src/components/MessageList/VirtualizedMessageList.tsx:130` `lastReadDate: TimestampNS | null`
   - `master:src/components/DateSeparator/DateSeparator.tsx:13,17` `date: Date`, `formatDate?: (date: Date) => string`; `master:src/components/Message/Timestamp.tsx:12` `timestamp?: Date | string`
   - `stream-chat@10.0.0-rc.22` `dist/types/utils/time.d.ts:39-85` `asTimestampNS`, `nsToMs`, `msToNs`, `nowNs`, `nsToDate`, `dateToNs`, `convertTimestampToDate`; re-exported at `dist/types/index.d.ts:42`
   - commits: `cb472c35f feat!: move to timestamps in response models` (PR #3278); `aaa7fa31e feat!: adopt stream-chat's branded TimestampNS` (PR #3297)
@@ -1372,7 +1372,7 @@ Note: a bare `AttachmentContextProvider` above the list does not reach message a
 - Replacement: `onMentionsClick` / `onMentionsHover` on `MessageList` (drilled to each message) or on `Message`; handler type `CustomMentionHandler` `(event, message: LocalMessage)`; read mention metadata from `message` (BC-083). `VirtualizedMessageList` has no such prop in v15 (v14 virtualized lists got the handlers only from `Channel`), so a virtualized list needs a custom message UI to handle mention clicks.
 - Evidence:
   - `release-v14:src/components/Channel/Channel.tsx:145-147`; `release-v14:src/components/Channel/index.ts:3`; `release-v14:src/components/Message/hooks/useMentionsHandler.ts:51-59` (fell back to the `Channel` handlers)
-  - `master:src/components/MessageList/MessageList.tsx:109-110,423-424` (`onMentionsClick`/`onMentionsHover` in `PropsDrilledToMessage`); `master:src/components/MessageList/VirtualizedMessageList.tsx:84-90` (not drilled); `master:src/components/Message/types.ts:56-58`
+  - `master:src/components/MessageList/MessageList.tsx:108-109,421-422` (`onMentionsClick`/`onMentionsHover` in `PropsDrilledToMessage`); `master:src/components/MessageList/VirtualizedMessageList.tsx:84-90` (not drilled); `master:src/components/Message/types.ts:54-56`
   - commit: `99cbe6704` (PR #3237)
 - Docs impact:
   - `02-ui-components/04-channel/01-channel.md`, `02-ui-components/04-channel/03-channel_action_context.md`, `03-ui-cookbook/04-message/03-mentions_actions.md`
@@ -2569,7 +2569,7 @@ export const Stop = ({ channel }: { channel: Channel }) => {
 - Replacement: pass `TimestampNS`, e.g. `message.created_at` or `msToNs(ms)` from `stream-chat`. Related: `ProcessMessagesParams.lastRead` is `TimestampNS | null` (was `Date | null`), and `VirtuosoContext.lastReadDate` is covered by BC-053.
 - Evidence:
   - `release-v14:src/components/MessageList/MessageList.tsx:529` `headerPosition?: number`; `release-v14:src/components/MessageList/utils.ts:205` `insertIntro(…, headerPosition?: number)`
-  - `master:src/components/MessageList/MessageList.tsx:451` `headerPosition?: TimestampNS`; `master:src/components/MessageList/utils.ts:221`–`:223`
+  - `master:src/components/MessageList/MessageList.tsx:449` `headerPosition?: TimestampNS`; `master:src/components/MessageList/utils.ts:221`–`:223`
   - `node_modules/stream-chat/dist/types/index.d.ts` exports `msToNs`, `asTimestampNS`, `nowNs`
   - commits: `cb472c35f feat!: move to timestamps in response models` (PR #3278); `aaa7fa31e` (PR #3297)
 - Docs impact:
@@ -2735,11 +2735,11 @@ After (v15), reading the clicked mention:
 ```tsx
 const getMentionedUserId = (event: React.BaseSyntheticEvent, message: LocalMessage) => {
   // Enter or Space targets the message text, not a mention, so it identifies a user only when
-  // the message mentions exactly one.
+  // the message's one mention is a user (no second user, @channel, @here, role or group).
   if (event.type === 'keydown') {
-    const users = message.mentioned_users ?? [];
-    if (users.length !== 1) return undefined;
-    return users[0].id;
+    const [mention, ...otherMentions] = getRenderTextMentionEntities(message);
+    if (otherMentions.length || mention?.mentionType !== 'user') return undefined;
+    return mention.id;
   }
   return (event.target as HTMLElement).closest<HTMLElement>('[data-user-id]')?.dataset
     .userId;

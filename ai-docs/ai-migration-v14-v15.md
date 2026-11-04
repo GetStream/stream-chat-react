@@ -2253,11 +2253,11 @@ const CustomMention = ({ children, node: { mentionedEntity } }: MentionProps) =>
 ```tsx
 const getMentionedUserId = (event: React.BaseSyntheticEvent, message: LocalMessage) => {
   // Enter or Space targets the message text, not a mention, so it identifies a user only when
-  // the message mentions exactly one.
+  // the message's one mention is a user (no second user, @channel, @here, role or group).
   if (event.type === 'keydown') {
-    const users = message.mentioned_users ?? [];
-    if (users.length !== 1) return undefined;
-    return users[0].id;
+    const [mention, ...otherMentions] = getRenderTextMentionEntities(message);
+    if (otherMentions.length || mention?.mentionType !== 'user') return undefined;
+    return mention.id;
   }
   return (event.target as HTMLElement).closest<HTMLElement>('[data-user-id]')?.dataset
     .userId;
