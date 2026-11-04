@@ -1,3 +1,14 @@
+## [14.15.0](https://github.com/GetStream/stream-chat-react/compare/v14.14.1...v14.15.0) (2026-11-04)
+
+### Bug Fixes
+
+* **ai-components:** restart useHeardText for a new text and treat Infinity as fully heard ([#3349](https://github.com/GetStream/stream-chat-react/issues/3349)) ([1ad45b9](https://github.com/GetStream/stream-chat-react/commit/1ad45b97b7bb73cdceda6d6638eef54de05b35f0))
+* **Message:** show error notification when pinning or unpinning fails ([#3359](https://github.com/GetStream/stream-chat-react/issues/3359)) ([cf6c8f9](https://github.com/GetStream/stream-chat-react/commit/cf6c8f9abd03c9e93b98c3e38c771fd43f065c5a))
+
+### Features
+
+* **ai-components:** agent conversations, reply steps, approvals and sign-in ([#3376](https://github.com/GetStream/stream-chat-react/issues/3376)) ([23e1dad](https://github.com/GetStream/stream-chat-react/commit/23e1dad7cf6156a43d28caeb84066775c40f61a4))
+
 ## [14.14.1](https://github.com/GetStream/stream-chat-react/compare/v14.14.0...v14.14.1) (2026-10-22)
 
 ### Bug Fixes
