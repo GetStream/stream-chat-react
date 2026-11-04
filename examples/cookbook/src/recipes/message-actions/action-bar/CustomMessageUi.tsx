@@ -24,7 +24,7 @@ type MessageStatusParams = {
   message: LocalMessage;
   ownUserId: string;
   readBy: UserResponse[];
-  isThreadReply: boolean;
+  isInThread: boolean;
 };
 
 const getMessageStatus = ({
@@ -32,20 +32,19 @@ const getMessageStatus = ({
   message,
   ownUserId,
   readBy,
-  isThreadReply,
+  isInThread,
 }: MessageStatusParams): keyof typeof statusIconMap => {
   const [firstReader] = readBy;
   const [firstDeliveredUser] = deliveredTo;
 
   const justReadByMe = readBy.length === 1 && firstReader?.id === ownUserId;
-  const read = readBy.length > 0 && !justReadByMe && !isThreadReply;
+  const read = readBy.length > 0 && !justReadByMe && !isInThread;
 
   const deliveredOnlyToMe =
     deliveredTo.length === 1 && firstDeliveredUser?.id === ownUserId;
-  const delivered =
-    deliveredTo.length > 0 && !deliveredOnlyToMe && !read && !isThreadReply;
+  const delivered = deliveredTo.length > 0 && !deliveredOnlyToMe && !read && !isInThread;
 
-  const sent = message.status === 'received' && !delivered && !read && !isThreadReply;
+  const sent = message.status === 'received' && !delivered && !read && !isInThread;
   const sending = message.status === 'sending';
 
   if (read) return 'read';
@@ -59,14 +58,15 @@ const CustomMessageUiMetadata = () => {
   const {
     deliveredTo = [],
     handleOpenThread,
-    initialMessage,
     isMyMessage,
     message,
     readBy = [],
   } = useMessageContext();
   const { client } = useChatContext();
-  // The thread parent is a channel message, so only replies count as thread messages here.
-  const isThreadReply = !!useThreadContext() && !initialMessage;
+  // Read and delivery cursors sit on channel messages, so a thread list's `readBy` / `deliveredTo`
+  // say nothing about its replies, and the parent gets none. As in the SDK's `MessageStatus`, a
+  // message shown in a thread is never read, delivered or sent here.
+  const isInThread = !!useThreadContext();
 
   const createdAt = convertTimestampToDate(message.created_at);
   const editedAt = convertTimestampToDate(message.message_text_updated_at);
@@ -77,7 +77,7 @@ const CustomMessageUiMetadata = () => {
         message,
         ownUserId: client.user?.id ?? '',
         readBy,
-        isThreadReply,
+        isInThread,
       })
     ];
 
@@ -92,7 +92,7 @@ const CustomMessageUiMetadata = () => {
         </span>
       )}
       {editedAt && <span title={editedAt.toLocaleString()}>Edited</span>}
-      {!isThreadReply && message.reply_count > 0 && (
+      {!isInThread && message.reply_count > 0 && (
         <span>
           <button
             className='cookbook-message-ui__reply-count'
@@ -108,21 +108,17 @@ const CustomMessageUiMetadata = () => {
 };
 
 const CustomMessageUiActions = () => {
-  const {
-    handleDelete,
-    handleFlag,
-    handleOpenThread,
-    handlePin,
-    initialMessage,
-    message,
-  } = useMessageContext();
-  const isThreadReply = !!useThreadContext() && !initialMessage;
+  const { handleDelete, handleFlag, handleOpenThread, handlePin, message } =
+    useMessageContext();
+  // Pinning and replying work on the channel list, so the thread's messages, the parent
+  // included, offer neither, as in the SDK's default message actions.
+  const isInThread = !!useThreadContext();
   const { canDelete, canFlag, canPin, canReply } = useMessagePermissions(message);
 
   return (
     <div className='cookbook-message-ui__actions'>
       <div className='cookbook-message-ui__actions-group'>
-        {canPin && !isThreadReply && (
+        {canPin && !isInThread && (
           <button
             aria-label={message.pinned ? 'Unpin' : 'Pin'}
             onClick={handlePin}
@@ -142,7 +138,7 @@ const CustomMessageUiActions = () => {
             <span aria-hidden='true'>🗑️</span>
           </button>
         )}
-        {canReply && !isThreadReply && (
+        {canReply && !isInThread && (
           <button
             aria-label='Open thread'
             onClick={handleOpenThread}

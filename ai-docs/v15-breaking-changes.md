@@ -2457,7 +2457,7 @@ export const ChannelWithThread = ({ channel }: { channel: StreamChannel }) => {
 - Replacement:
   - thread detection: `const thread = useThreadContext(); const isThreadList = !!thread;` (the SDK's own components do this), also in place of `useMessageContext().threadList`
   - reaction selector dialog id: `ReactionSelector.getDialogId({ messageId })`. Each message list has its own dialog manager, which keeps the channel's and the thread's dialogs for one message apart.
-  - parent message: both lists render it from `ThreadContext` via `useThreadHead`, with the list-wide message props their replies get. Override it with the `ThreadHead` slot: `<WithComponents overrides={{ ThreadHead: Custom }}>`, typed `React.ComponentType<MessageProps>`.
+  - parent message: both lists render it from `ThreadContext` via `useThreadHead`, with the list-wide message props their replies get, except the read state: `returnAllReadData`, `readBy` and `deliveredTo` do not reach it (`MessageStatus` shows no read state inside a thread anyway), so a `ThreadHead` override that needs them sets them itself. Override it with the `ThreadHead` slot: `<WithComponents overrides={{ ThreadHead: Custom }}>`, typed `React.ComponentType<MessageProps>`.
   - `VirtuosoContext.head` is now `ReactElement | null` and always present
 - Evidence:
   - `release-v14:src/components/MessageList/MessageList.tsx:527` `head?`, `:578` `threadList?`
@@ -3939,7 +3939,7 @@ Found by the staleness pass of 2026-11-03: commits that landed on `master` after
   - `MessageContextValue.endOfGroup`, `.firstOfGroup`, `.groupedByUser`
   - `str-chat__virtual-message__wrapper--end`, `--first`, `--group` on `.str-chat__message`
 - Replacement:
-  - `useMessageContext().groupStyles[0]`: `top`, `middle`, `bottom` or `single`
+  - `useMessageContext().groupStyles?.[0]`: `top`, `middle`, `bottom` or `single`; `undefined` for a message no list groups (a standalone `<Message>`, or the thread's parent message)
   - CSS: the list item's `.str-chat__li--top`, `--middle`, `--bottom`, `--single`. The default `MessageUI` renders the metadata on every message, and the default CSS hides it on `top` and `middle` items.
 - Evidence:
   - `release-v14:src/components/Message/MessageUI.tsx:144` `showMetadata = !groupedByUser || endOfGroup`, with no list setting either flag

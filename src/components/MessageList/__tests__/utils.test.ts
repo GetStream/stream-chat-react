@@ -892,7 +892,11 @@ describe('getMessageGroupStyles', () => {
     id: 'date-separator',
   });
   const [first, second] = [1, 2].map((ms) =>
-    generateMessage({ created_at: convertDateToTimestamp(new Date(ms)), user }),
+    generateMessage({
+      created_at: convertDateToTimestamp(new Date(ms)),
+      id: `message-${ms}`,
+      user,
+    }),
   );
 
   it('maps each message ID to its group style and leaves out items without one', () => {

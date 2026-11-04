@@ -1,10 +1,12 @@
 import clsx from 'clsx';
 import type {
   ChannelMemberResponse,
+  LocalMessage,
   Channel as StreamChannel,
   Thread as ThreadType,
 } from 'stream-chat';
 import {
+  type BaseSyntheticEvent,
   type MouseEvent,
   type PropsWithChildren,
   useCallback,
@@ -19,6 +21,7 @@ import {
   ChannelHeader,
   ChannelListItem,
   MessageComposerUI as DefaultMessageComposerUI,
+  getRenderTextMentionEntities,
   MessageComposer,
   MessageList,
   type MessageListProps,
@@ -79,6 +82,20 @@ export const CHANNEL_LIST_TARGET_ID = 'app-channel-list';
 export const THREAD_LIST_TARGET_ID = 'app-thread-list';
 export const CHANNELS_SELECTOR_BUTTON_TARGET_QUERY =
   '[id^="str-chat__chat-view-"][id$="-tab-channels"]';
+
+/**
+ * The user behind the clicked mention. Enter or Space targets the message text, not a mention, so
+ * it identifies a user only when the message's one mention is a user.
+ */
+const getMentionedUserId = (event: BaseSyntheticEvent, message: LocalMessage) => {
+  if (event.type === 'keydown') {
+    const [mention, ...otherMentions] = getRenderTextMentionEntities(message);
+    if (otherMentions.length || mention?.mentionType !== 'user') return undefined;
+    return mention.id;
+  }
+  return (event.target as HTMLElement).closest<HTMLElement>('[data-user-id]')?.dataset
+    .userId;
+};
 
 // Whether the app-settings "message list" toggle is set to the virtualized list. Read the same
 // way everywhere so every channel and thread honors the setting (not just the primary channel).
@@ -192,8 +209,8 @@ const ChannelThreadPanel = ({
           <ReturnToSkipNavigation />
           <ThreadHeader />
           <ThreadMessageList
-            onMentionsClick={(_event, message) =>
-              onOpenMemberDetail(message.mentioned_users?.[0]?.id)
+            onMentionsClick={(event, message) =>
+              onOpenMemberDetail(getMentionedUserId(event, message))
             }
             onUserClick={(_event, user) => onOpenMemberDetail(user.id)}
           />
@@ -459,8 +476,8 @@ const ResponsiveChannelPanels = ({ mainChannel }: { mainChannel?: StreamChannel 
                     <VirtualizedMessageList groupByUser returnAllReadData />
                   ) : (
                     <MessageList
-                      onMentionsClick={(_event, message) =>
-                        openMemberDetail(message.mentioned_users?.[0]?.id)
+                      onMentionsClick={(event, message) =>
+                        openMemberDetail(getMentionedUserId(event, message))
                       }
                       onUserClick={(_event, user) => openMemberDetail(user.id)}
                       returnAllReadData
