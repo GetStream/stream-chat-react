@@ -1,0 +1,39 @@
+.str-chat__list-load-error {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--str-chat__spacing-sm);
+  padding: var(--str-chat__spacing-3xl) var(--str-chat__spacing-xl);
+  text-align: center;
+
+  .str-chat__list-load-error__icon {
+    width: var(--str-chat__icon-size-lg);
+    height: var(--str-chat__icon-size-lg);
+    color: var(--str-chat__text-tertiary);
+    // The design draws the icon's outline at its own weight, without the stroke the SDK icon adds.
+    stroke: none;
+  }
+
+  .str-chat__list-load-error__content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--str-chat__spacing-xl);
+    width: 100%;
+  }
+
+  .str-chat__list-load-error__title {
+    max-width: 320px;
+    margin: 0;
+    color: var(--str-chat__text-primary);
+    font: var(--str-chat__font-heading-xs);
+    overflow-wrap: break-word;
+  }
+}
+
+// The label is sentence case ("Try again"), not the capitalized label of other SDK buttons.
+.str-chat .str-chat__button.str-chat__list-load-error__retry-button {
+  text-transform: none;
+}

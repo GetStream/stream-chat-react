@@ -81,7 +81,7 @@ const renderMessage = async ({
       <Chat client={client}>
         <Channel channel={channel}>
           <WithComponents overrides={components}>
-            <Message {...fromPartial<MessageProps>({ message, threadList: false })} />
+            <Message {...fromPartial<MessageProps>({ message })} />
           </WithComponents>
         </Channel>
       </Chat>,

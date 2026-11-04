@@ -134,7 +134,6 @@ export const areMessageUIPropsEqual = (
   const { lastReceivedId: nextLastReceivedId, message: nextMessage } = nextProps;
 
   if (prevProps.highlighted !== nextProps.highlighted) return false;
-  if (prevProps.endOfGroup !== nextProps.endOfGroup) return false;
   if (prevProps.readBy?.length !== nextProps.readBy?.length) return false;
   if (prevProps.deliveredTo?.length !== nextProps.deliveredTo?.length) return false;
   if (prevProps.groupStyles !== nextProps.groupStyles) return false;

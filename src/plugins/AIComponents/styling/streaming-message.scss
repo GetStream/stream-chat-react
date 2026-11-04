@@ -1,28 +1,150 @@
 @use './tokens' as *;
 
+// The agent's answer, without a bubble: long-form text set in the SCR type scale, at a relaxed
+// line height for reading, with the space between blocks doing the structuring. It starts at the
+// steps' edge, so the reply reads as one column.
 .str-chat__ai-streaming-message {
-  padding: 0.5rem 0.75rem;
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
+  min-width: 0;
+  color: ai-token(text-primary);
+  font-size: ai-scale(font-md);
+  line-height: ai-scale(line-relaxed);
+  overflow-wrap: anywhere;
+
+  // Paragraphs anywhere (in list items and quotes too) start with no margin. `:where` keeps this
+  // as weak as the spacing rules after it, which then win by coming later.
+  :where(p) {
+    margin: 0;
+  }
+
+  > * {
+    margin-block: 0;
+  }
+
+  > * + * {
+    margin-block-start: ai-scale(space-sm);
+  }
+
+  // Headings: a step up the scale, more room above than below, so each sits with what follows it.
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    color: ai-token(text-primary);
+    font-weight: ai-scale(weight-semi-bold);
+    line-height: ai-scale(line-relaxed);
+  }
+
+  h1 {
+    font-size: ai-scale(font-xl);
+  }
+
+  h2 {
+    font-size: ai-scale(font-lg);
+  }
+
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-size: ai-scale(font-md);
+  }
+
+  > :is(h1, h2, h3, h4, h5, h6):not(:first-child) {
+    margin-block-start: ai-scale(space-lg);
+  }
+
+  > :is(h1, h2, h3, h4, h5, h6) + * {
+    margin-block-start: ai-scale(space-xs);
+  }
+
+  strong {
+    font-weight: ai-scale(weight-semi-bold);
+  }
+
+  ul,
+  ol {
+    padding-inline-start: ai-scale(space-lg);
+
+    li + li,
+    li > ul,
+    li > ol {
+      margin-block-start: ai-scale(space-xxs);
+    }
+
+    li::marker {
+      color: ai-token(text-tertiary);
+    }
+  }
+
+  a {
+    color: ai-token(link);
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 2px;
+
+    &:hover {
+      text-decoration-thickness: 2px;
+    }
+  }
+
+  blockquote {
+    margin-inline: 0;
+    padding-inline-start: ai-scale(space-sm);
+    border-inline-start: 2px solid ai-token(border);
+    color: ai-token(text-secondary);
+  }
+
+  hr {
+    height: 1px;
+    border: none;
+    background-color: ai-token(border-subtle);
+  }
+
+  > hr {
+    margin-block: ai-scale(space-lg);
+  }
+
+  img {
+    max-width: 100%;
+    border-radius: ai-scale(radius-lg);
+  }
+
+  // Inline code, wherever it is: in a paragraph, a list item, a heading or a table cell.
+  :not(pre) > .str-chat__ai-code {
+    padding: 0.125em 0.375em;
+    border-radius: ai-scale(radius-sm);
+    background-color: ai-token(inline-code-bg);
+    // The SCR mono face first; a system one when the page has not loaded it.
+    font-family:
+      #{ai-scale(font-mono)},
+      ui-monospace,
+      SFMono-Regular,
+      Menlo,
+      Consolas,
+      monospace;
+    font-size: 0.875em;
+  }
 
   > table {
+    display: block;
     width: 100%;
+    overflow-x: auto;
     border-collapse: collapse;
     border-spacing: 0;
-    overflow-x: auto;
-    border-radius: 0.5rem;
+    font-size: ai-scale(font-sm);
+    line-height: ai-scale(line-normal);
 
     thead {
       background-color: ai-token(table-header-bg);
-      border-bottom: 2px solid ai-token(table-border);
 
       th {
-        padding: 0.75rem;
-        text-align: left;
-        font-weight: 600;
+        padding: ai-scale(space-xs) ai-scale(space-sm);
+        text-align: start;
+        font-weight: ai-scale(weight-semi-bold);
         color: ai-token(table-header-text);
-        border-bottom: 2px solid ai-token(table-border);
+        border-bottom: 1px solid ai-token(table-border);
       }
     }
 
@@ -30,18 +152,15 @@
       tr {
         border-bottom: 1px solid ai-token(border-subtle);
 
-        &:hover {
-          background-color: ai-token(table-header-bg);
-        }
-
         &:last-child {
           border-bottom: none;
         }
       }
 
       td {
-        padding: 0.75rem;
+        padding: ai-scale(space-xs) ai-scale(space-sm);
         color: ai-token(table-text);
+        vertical-align: top;
       }
     }
   }
@@ -55,23 +174,33 @@
 
   .str-chat__ai-syntax-highlighter-pre {
     overflow-x: auto;
-    background-color: ai-token(bg-primary);
-    border-radius: 0.5rem;
-    padding: 0.5rem;
+    background-color: ai-token(bg-secondary);
+    border: 1px solid ai-token(border-subtle);
+    border-radius: ai-scale(radius-lg);
+    padding: ai-scale(space-sm);
     margin: 0;
+    font-size: ai-scale(font-sm);
+    line-height: ai-scale(line-normal);
 
     code[class*='language-'] {
       // background: #272b33;
       color: ai-token(syntax-text);
       // text-shadow: 0 1px rgba(0, 0, 0, 0.3);
       font-family:
-        'Fira Code', 'Fira Mono', Menlo, Consolas, 'DejaVu Sans Mono', monospace;
+        #{ai-scale(font-mono)},
+        ui-monospace,
+        SFMono-Regular,
+        'Fira Code',
+        Menlo,
+        Consolas,
+        monospace;
       direction: ltr;
       text-align: left;
       white-space: pre;
       word-spacing: normal;
       word-break: normal;
-      line-height: 1.5;
+      font-size: inherit;
+      line-height: inherit;
       -moz-tab-size: 2;
       -o-tab-size: 2;
       tab-size: 2;
@@ -312,17 +441,5 @@
 
   .str-chat__ai-chart {
     max-height: 20rem;
-  }
-
-  > p {
-    margin: 0;
-
-    .str-chat__ai-code {
-      font-size: 0.85rem;
-      background-color: ai-token(inline-code-bg);
-      padding: 0.1rem 0.25rem;
-      border-radius: 0.5rem;
-      font-family: monospace;
-    }
   }
 }

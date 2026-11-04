@@ -33,7 +33,12 @@ export type MessageProps = {
   // todo: remove
   /** Overrides the date formatting. Receives the original date and returns a string. */
   formatDate?: (date: Date) => string;
-  /** Styles to apply to this message, e.g. top, bottom, single. */
+  /**
+   * The message's position in its group of consecutive messages from one user: `top`, `middle`,
+   * `bottom` or `single`. The message lists add it to the list item as `str-chat__li--<style>`
+   * (unless `customClasses.message` or `customClasses.virtualMessage` replaces the item's class),
+   * which the default CSS uses to hide the metadata and avatar of `top` and `middle` messages.
+   */
   groupStyles?: GroupStyle[];
   /** Whether to highlight the message. The message lists set it on the focused message. */
   highlighted?: boolean;
@@ -81,8 +86,6 @@ export type MessageProps = {
   returnAllReadData?: boolean;
   /** Comparator to sort reactions. Defaults to first reaction time, else reaction type. */
   sortReactions?: ReactionsComparator;
-  /** If true, the message is rendered inside a thread's reply list. */
-  threadList?: boolean;
   /**
    * Renders `message.html` instead of the Markdown text. Posting HTML is only allowed server-side.
    */

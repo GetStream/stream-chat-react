@@ -3,7 +3,6 @@ import 'stream-chat';
 import {
   DefaultAttachmentData,
   DefaultChannelData,
-  DefaultCommandData,
   DefaultEventData,
   DefaultMemberData,
   DefaultMessageComposerData,
@@ -19,8 +18,6 @@ declare module 'stream-chat' {
   interface CustomChannelData extends DefaultChannelData {}
 
   interface CustomAttachmentData extends DefaultAttachmentData {}
-
-  interface CustomCommandData extends DefaultCommandData {}
 
   interface CustomEventData extends DefaultEventData {}
 

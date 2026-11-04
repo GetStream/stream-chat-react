@@ -10,7 +10,6 @@ import {
 import type { VirtuosoContext } from '../VirtualizedMessageList';
 import {
   generateMessage,
-  generateUser,
   initClientWithChannels,
   mockComponentContext,
   mockTranslationContextValue,
@@ -25,7 +24,6 @@ import type { ComponentContextValue } from '../../../context';
 import { Chat } from '../../Chat';
 import { Channel as ChannelComponent } from '../../Channel';
 import { ThreadProvider } from '../../Threads';
-import { MessageUI } from '../../Message';
 import { UnreadMessagesSeparator } from '../UnreadMessagesSeparator';
 import type { GroupStyle, RenderedMessage } from '../utils';
 import type { Channel, StreamChat, Thread } from 'stream-chat';
@@ -36,8 +34,6 @@ import { convertDateToTimestamp } from '../../../mock-builders';
 const threadStub = {} as unknown as Thread;
 
 const prependOffset = 0;
-const user1 = generateUser();
-const user2 = generateUser();
 let client: StreamChat;
 let channel: Channel;
 
@@ -256,11 +252,7 @@ describe('VirtualizedMessageComponents', () => {
     });
 
     it('should render empty for thread by default', () => {
-      const { container } = renderElements(
-        <EmptyPlaceholder context={{ threadList: true } as unknown as VirtuosoContext} />,
-        undefined,
-        threadStub,
-      );
+      const { container } = renderElements(<EmptyPlaceholder />, undefined, threadStub);
       expect(container).toBeEmptyDOMElement();
     });
     it('should render custom EmptyStateIndicator for main message list', () => {
@@ -270,7 +262,7 @@ describe('VirtualizedMessageComponents', () => {
 
     it('should render custom EmptyStateIndicator for thread', () => {
       const { container } = renderElements(
-        <EmptyPlaceholder context={{ threadList: true } as unknown as VirtuosoContext} />,
+        <EmptyPlaceholder />,
         componentContext,
         threadStub,
       );
@@ -286,8 +278,9 @@ describe('VirtualizedMessageComponents', () => {
     it('should render empty in thread if EmptyStateIndicator nullified', () => {
       const componentContext = { EmptyStateIndicator: NullEmptyStateIndicator };
       const { container } = renderElements(
-        <EmptyPlaceholder context={{ threadList: true } as unknown as VirtuosoContext} />,
+        <EmptyPlaceholder />,
         componentContext,
+        threadStub,
       );
       expect(container).toBeEmptyDOMElement();
     });
@@ -355,6 +348,7 @@ describe('VirtualizedMessageComponents', () => {
           messageGroupStyles[processedMessages[0].id],
         ]);
       });
+
       it('should render nothing if MessageSystem component is undefined for system messages', () => {
         const virtuosoContext = {
           numItemsPrepended,
@@ -611,83 +605,6 @@ describe('VirtualizedMessageComponents', () => {
           expect(container.querySelector('.message-component')).toBeInTheDocument();
         });
       });
-
-      // `messageRenderer` does not derive the grouping CSS classes: `messageGroupStyles` only sets
-      // the `groupStyles` prop of `Message`, and the --group/--first/--end classes need the
-      // `groupedByUser`, `firstOfGroup` and `endOfGroup` props passed directly.
-      it.each([
-        ['not ', 'by default', 'not ', false],
-        ['not ', '(grouping CSS classes are set by the caller)', 'not ', true],
-      ])(
-        'should %sgroup messages %s and mark the first and the last group message',
-        (_, __, ___, shouldGroupByUser) => {
-          const virtuosoRef = { current: {} };
-          const user1MessageGroup = [
-            generateMessage({ user: user1 }),
-            generateMessage({ user: user1 }),
-            generateMessage({ user: user1 }),
-            generateMessage({ user: user1 }),
-          ];
-          const processedMessages = [
-            generateMessage({ user: user2 }),
-            ...user1MessageGroup,
-            generateMessage({ user: user2 }),
-          ];
-
-          // Grouping is pre-computed and passed via `messageGroupStyles`, not computed in
-          // `messageRenderer` from `shouldGroupByUser`.
-          const messageGroupStyles = {};
-          if (shouldGroupByUser) {
-            messageGroupStyles[processedMessages[0].id] = 'single';
-            messageGroupStyles[processedMessages[1].id] = 'top';
-            messageGroupStyles[processedMessages[2].id] = 'middle';
-            messageGroupStyles[processedMessages[3].id] = 'middle';
-            messageGroupStyles[processedMessages[4].id] = 'bottom';
-            messageGroupStyles[processedMessages[5].id] = 'single';
-          }
-
-          const { container } = renderWithChannel(
-            <>
-              {processedMessages.map((_, numItemsPrepended) => {
-                const virtuosoContext = {
-                  messageGroupStyles,
-                  numItemsPrepended,
-                  ownMessagesDeliveredToOthers: {},
-                  ownMessagesReadByOthers: {},
-                  prependOffset,
-                  processedMessages,
-                  shouldGroupByUser,
-                  virtuosoRef,
-                };
-                return (
-                  <div key={numItemsPrepended}>
-                    {messageRenderer(
-                      virtuosoIndex,
-                      undefined,
-                      virtuosoContext as unknown as VirtuosoContext,
-                    )}
-                  </div>
-                );
-              })}
-            </>,
-            { MessageUI },
-          );
-          const messageElements = container.querySelectorAll('.str-chat__message');
-
-          // `messageRenderer` does not apply the grouping classes (--group, --first, --end), so
-          // verify that messages render without them.
-          const firstGroupItemClass = 'str-chat__virtual-message__wrapper--first';
-          const lastGroupItemClass = 'str-chat__virtual-message__wrapper--end';
-          expect(
-            container.getElementsByClassName('str-chat__virtual-message__wrapper--group'),
-          ).toHaveLength(0);
-
-          expect(container.getElementsByClassName(firstGroupItemClass)).toHaveLength(0);
-          expect(container.getElementsByClassName(lastGroupItemClass)).toHaveLength(0);
-
-          expect(messageElements.length).toBe(processedMessages.length);
-        },
-      );
     });
   });
 });

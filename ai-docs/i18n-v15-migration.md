@@ -36,7 +36,7 @@ imported and copied into `Streami18n` at construction, so they shipped even if y
 
 ## Renaming your keys
 
-Every old key that v15 still has maps to exactly one new key ([some were removed](#keys-removed-without-a-replacement)). The full table (627 rows, including the 24 `aiComponents.*` keys of `stream-chat-react/ai-components`) is
+Every old key that v15 still has maps to a new key ([some were removed](#keys-removed-without-a-replacement)). A few now feed two: their entry lists the second under `also`, and the translation goes on both. The full table (661 rows, covering the `aiComponents.*` keys of `stream-chat-react/ai-components` except the attachment's `Image`, which the plugin README maps) is
 [`i18n-v15-key-map.json`](https://github.com/GetStream/stream-chat-react/blob/master/ai-docs/i18n-v15-key-map.json):
 
 ```json
