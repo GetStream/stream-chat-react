@@ -1,7 +1,18 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
 
-import { AIMessageComposer, AIStateIndicator, VoiceGlow, VoiceWave } from '..';
+import {
+  AIMessageComposer,
+  AIReasoning,
+  AIReplyActions,
+  AIStateIndicator,
+  AISuggestions,
+  AIToolApprovalCard,
+  AIToolAuthorizationCard,
+  AIToolCall,
+  VoiceGlow,
+  VoiceWave,
+} from '..';
 import { Item } from '../AIMessageComposer/AttachmentPreview';
 import { TranslationProvider } from '../../../context';
 import {
@@ -142,6 +153,64 @@ describe('AI components i18n', () => {
           name: 'T:aiComponents.voiceVisualization.voiceAgent.ariaLabel|T:aiComponents.voiceVisualization.ready.text',
         }),
       ).toBeInTheDocument();
+    });
+    it('uses the v15 keys for the conversation parts', () => {
+      render(
+        <WithKeyEcho>
+          <>
+            <AIToolCall
+              part={{
+                executor: 'server',
+                id: 'c',
+                name: 'get_weather',
+                status: 'cancelled',
+              }}
+            />
+            <AIToolApprovalCard
+              approval={{ title: 'Share your location?' }}
+              onDecide={() => undefined}
+            />
+            <AIToolAuthorizationCard
+              authorization={{
+                provider: 'linear',
+                providerName: 'Linear',
+                title: 'Connect Linear',
+                type: 'oauth',
+                url: 'https://router.example.com/launch/abc',
+              }}
+              onConnect={() => undefined}
+              onDecline={() => undefined}
+            />
+            <AIReasoning text='First thought.' />
+            <AIReplyActions text='The answer' />
+            <AISuggestions onSelect={() => undefined} suggestions={['Plan my day']} />
+            <AIMessageComposer>
+              <AIMessageComposer.ChatOptions
+                options={[{ id: 'think', title: 'Think harder' }]}
+              />
+            </AIMessageComposer>
+          </>
+        </WithKeyEcho>,
+      );
+      for (const text of [
+        'T:aiComponents.toolCall.cancelled.text',
+        'T:aiComponents.toolApproval.allow.label',
+        'T:aiComponents.toolApproval.dontAllow.label',
+        'T:aiComponents.toolAuthorization.connect.label',
+        'T:aiComponents.toolAuthorization.notNow.label',
+        'T:aiComponents.reasoning.thoughtProcess.title',
+      ]) {
+        expect(screen.getByText(text)).toBeInTheDocument();
+      }
+      for (const label of [
+        'T:aiComponents.replyActions.replyActions.ariaLabel',
+        'T:aiComponents.replyActions.copy.ariaLabel',
+        'T:aiComponents.replyActions.share.ariaLabel',
+        'T:aiComponents.suggestions.suggestions.ariaLabel',
+        'T:aiComponents.chatOptions.chatOptions.ariaLabel',
+      ]) {
+        expect(screen.getByLabelText(label)).toBeInTheDocument();
+      }
     });
   });
 
