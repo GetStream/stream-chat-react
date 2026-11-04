@@ -161,7 +161,7 @@ Some components also take component props for their own parts — `Attachment` (
 
 When adding a customizable component: add the slot to `ComponentContextValue` (`src/context/ComponentContext.tsx`), provide a default implementation, and read it through `useComponentContext()`.
 
-Request customization is not a component prop either: `sendMessageRequest`, `updateMessageRequest`, `deleteMessageRequest` and `markReadRequest` handlers are registered on `client.config` (see "Per-component request-handler props removed" in `ai-docs/ai-migration-v14-v15.md`).
+Request customization is not a component prop either: `sendMessageRequest`, `updateMessageRequest`, `deleteMessageRequest` and `markReadRequest` handlers are registered on `client.config` (see [section 14, "Request handlers"](ai-docs/ai-migration-v14-v15.md#14-request-handlers) of the v14 → v15 migration guide).
 
 ### `useStateStore` requires a selector
 
