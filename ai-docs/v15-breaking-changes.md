@@ -3575,6 +3575,8 @@ Found by the staleness pass of 2026-11-03: commits that landed on `master` after
   - none
 - Example needed: no
 
+<a id="bc-085"></a>
+
 ### BC-085: `MessageContext` grouping flags and the `str-chat__virtual-message__wrapper--*` classes are removed
 
 - Status: confirmed
@@ -3594,6 +3596,8 @@ Found by the staleness pass of 2026-11-03: commits that landed on `master` after
 - Docs impact:
   - `02-ui-components/08-message/02-message_context.md` and `03-ui-cookbook/04-message/01-message_ui.md`, if they mention the three flags
 - Example needed: no
+
+<a id="bc-086"></a>
 
 ### BC-086: message grouping: `noGroupByUser` / `shouldGroupByUser` → `groupByUser`, `groupStyles` → `getGroupStyles` with one object argument
 
