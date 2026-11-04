@@ -5,9 +5,22 @@ import { useMessageComposerController } from '../../MessageComposer/hooks/useMes
 import { useInteractionAnnouncements } from '../../Accessibility';
 import { uploadAttachmentIfEnabled } from '../../MessageComposer/uploadAttachmentIfEnabled';
 
-import type { LocalVoiceRecordingAttachment } from 'stream-chat';
+import type {
+  AttachmentManager,
+  LocalAttachment,
+  LocalVoiceRecordingAttachment,
+} from 'stream-chat';
 import type { CustomAudioRecordingConfig } from '../classes';
 import type { MessageComposerContextValue } from '../../../context';
+
+/**
+ * Whether `attachment` is among the composer's attachments: the upload filter and the upload
+ * middleware can leave an uploaded attachment out.
+ */
+const isInComposer = (
+  attachmentManager: AttachmentManager,
+  attachment: LocalAttachment,
+) => !!attachmentManager.attachmentsById[attachment.localMetadata.id];
 
 export type RecordingController = {
   completeRecording: () => void;
@@ -56,7 +69,14 @@ export const useMediaRecorder = ({
     if (!recorder) return;
     const recording = await recorder.stop();
     if (!recording) return;
-    await uploadAttachmentIfEnabled(messageComposer.attachmentManager, recording);
+    const { attachmentManager } = messageComposer;
+    const uploadedRecording = await uploadAttachmentIfEnabled(
+      attachmentManager,
+      recording,
+    );
+    // No result means uploads are off, and the message is sent without the recording.
+    // A recording the composer did not take stays with the recorder instead of going unsent.
+    if (uploadedRecording && !isInComposer(attachmentManager, uploadedRecording)) return;
     if (!asyncMessagesMultiSendEnabled) {
       await sendMessageFn();
       announceInteraction('voiceRecording.sent');
