@@ -75,7 +75,7 @@ $ai-tokens: (
     #ddd,
   ),
   'syntax-text': (
-    null,
+    '--str-chat__text-primary',
     #2e3440,
   ),
   'syntax-selection-bg': (
@@ -83,11 +83,11 @@ $ai-tokens: (
     #d8dee9,
   ),
   'syntax-comment': (
-    null,
+    '--str-chat__text-tertiary',
     #6b7280,
   ),
   'syntax-punctuation': (
-    null,
+    '--str-chat__text-secondary',
     #4b5563,
   ),
   'syntax-number': (
@@ -130,7 +130,140 @@ $ai-tokens: (
     '--str-chat__background-core-elevation-0',
     #ffffff,
   ),
+  'accent': (
+    '--str-chat__accent-primary',
+    #005fff,
+  ),
+  'success': (
+    '--str-chat__accent-success',
+    #00a46e,
+  ),
+  'error': (
+    '--str-chat__accent-error',
+    #d92f26,
+  ),
+  'text-tertiary': (
+    '--str-chat__text-tertiary',
+    #7a7d87,
+  ),
+  'card-bg': (
+    '--str-chat__background-core-surface-card',
+    #f7f7f8,
+  ),
+  'card-border': (
+    '--str-chat__border-core-subtle',
+    #e9ecef,
+  ),
+  'elevated-bg': (
+    '--str-chat__background-core-elevation-1',
+    #ffffff,
+  ),
+  'user-message-bg': (
+    '--str-chat__chat-bg-outgoing',
+    #d2e3ff,
+  ),
+  'user-message-text': (
+    '--str-chat__chat-text-outgoing',
+    #001a4d,
+  ),
+  'button-primary-bg': (
+    '--str-chat__button-primary-bg',
+    #005fff,
+  ),
+  'button-primary-text': (
+    '--str-chat__button-primary-text-on-accent',
+    #ffffff,
+  ),
+  'button-secondary-bg': (
+    '--str-chat__background-core-elevation-1',
+    #ffffff,
+  ),
+  'button-secondary-text': (
+    '--str-chat__text-primary',
+    #353740,
+  ),
+  'button-secondary-border': (
+    '--str-chat__button-secondary-border',
+    #ccc,
+  ),
+  'link': (
+    '--str-chat__text-link',
+    #005fff,
+  ),
 );
+
+// The SCR type, spacing and radius scale, for sizes, with literal fallbacks for rendering outside
+// `.str-chat`. Not themable on their own: they follow the SCR theme.
+$ai-scale: (
+  'space-xxs': (
+    '--str-chat__spacing-xxs',
+    0.25rem,
+  ),
+  'space-xs': (
+    '--str-chat__spacing-xs',
+    0.5rem,
+  ),
+  'space-sm': (
+    '--str-chat__spacing-sm',
+    0.75rem,
+  ),
+  'space-lg': (
+    '--str-chat__spacing-lg',
+    1.25rem,
+  ),
+  'font-xs': (
+    '--str-chat__typography-font-size-xs',
+    0.75rem,
+  ),
+  'font-sm': (
+    '--str-chat__typography-font-size-sm',
+    0.875rem,
+  ),
+  'font-md': (
+    '--str-chat__typography-font-size-md',
+    1rem,
+  ),
+  'font-lg': (
+    '--str-chat__typography-font-size-lg',
+    1.125rem,
+  ),
+  'font-xl': (
+    '--str-chat__typography-font-size-xl',
+    1.25rem,
+  ),
+  'line-normal': (
+    '--str-chat__typography-line-height-normal',
+    1.25rem,
+  ),
+  'line-relaxed': (
+    '--str-chat__typography-line-height-relaxed',
+    1.5rem,
+  ),
+  'weight-semi-bold': (
+    '--str-chat__typography-font-weight-semi-bold',
+    600,
+  ),
+  'radius-sm': (
+    '--str-chat__radius-sm',
+    0.375rem,
+  ),
+  'radius-lg': (
+    '--str-chat__radius-lg',
+    0.75rem,
+  ),
+  'font-mono': (
+    '--str-chat__typography-font-family-mono',
+    monospace,
+  ),
+);
+
+@function ai-scale($name) {
+  $entry: map.get($ai-scale, $name);
+  @if $entry == null {
+    @error 'Unknown AI scale step: #{$name}';
+  }
+  @return string.unquote('var(#{list.nth($entry, 1)}, #{list.nth($entry, 2)})');
+}
 
 @function ai-token($name) {
   $entry: map.get($ai-tokens, $name);
