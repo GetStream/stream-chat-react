@@ -1,5 +1,5 @@
 import React from 'react';
-import type { Attachment } from 'stream-chat';
+import type { Attachment, LocalMessage } from 'stream-chat';
 import { act, fireEvent, render, screen } from '@testing-library/react';
 
 import {
@@ -382,6 +382,23 @@ describe('fromStreamMessage', () => {
         text: 'Done',
       }),
     ).toMatchObject({ isGenerating: false, role: 'assistant' });
+  });
+
+  it('takes a LocalMessage, and hands isAssistant the same type', () => {
+    const local = {
+      attachments: [],
+      created_at: 0,
+      custom: {},
+      id: 'm3',
+      status: 'received',
+      text: 'From the agent',
+      type: 'regular',
+      updated_at: 0,
+      user: { id: 'juno' },
+    } as unknown as LocalMessage;
+    expect(
+      fromStreamMessage(local, { isAssistant: (message) => message.user?.id === 'juno' }),
+    ).toMatchObject({ role: 'assistant', text: 'From the agent' });
   });
 
   it('adapts the person’s message', () => {
