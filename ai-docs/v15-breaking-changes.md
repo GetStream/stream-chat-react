@@ -2712,7 +2712,7 @@ const CustomMention = ({ children, node: { mentionedEntity } }: MentionProps) =>
 - Old API:
   - `CustomMentionHandler = (event, mentioned_users: UserResponse[], message: LocalMessage) => void` (`mentioned_users` was `@deprecated`)
   - `MentionedUserEventHandler = (event, mentionedUsers: UserResponse[]) => void`, exported and unused by the SDK
-- Replacement: `CustomMentionHandler = (event, message: LocalMessage) => void`; `MentionedUserEventHandler` is removed, type such handlers as `CustomMentionHandler`. Read `message.mentioned_users`, `mentioned_channel`, `mentioned_here`, `mentioned_roles` and `mentioned_groups`. To know which mention was clicked, read the target element's `data-mention-id`, `data-mention-type` or `data-user-id`.
+- Replacement: `CustomMentionHandler = (event, message: LocalMessage) => void`; `MentionedUserEventHandler` is removed, type such handlers as `CustomMentionHandler`. Read `message.mentioned_users`, `mentioned_channel`, `mentioned_here`, `mentioned_roles` and `mentioned_groups`. To know which mention was clicked, read the target element's `data-mention-id`, `data-mention-type` or `data-user-id`. Enter or Space on the focused message text also calls the handler; its target is the text element, not a mention.
 - Evidence:
   - `release-v14:src/components/Message/hooks/useMentionsHandler.ts:8-14`, `:18-21` (`MentionedUserEventHandler`), `:39` `fn(event, message?.mentioned_users ?? [], message)`
   - `master:src/components/Message/hooks/useMentionsHandler.ts:8-11`, `:20` `handler(event, message)`
@@ -2732,13 +2732,24 @@ Before (v14):
 After (v15), reading the clicked mention:
 
 ```tsx
+const getMentionedUserId = (event: React.BaseSyntheticEvent, message: LocalMessage) => {
+  // Enter or Space targets the message text, not a mention, so it identifies a user only when
+  // the message mentions exactly one.
+  if (event.type === 'keydown') {
+    const users = message.mentioned_users ?? [];
+    if (users.length !== 1) return undefined;
+    return users[0].id;
+  }
+  return (event.target as HTMLElement).closest<HTMLElement>('[data-user-id]')?.dataset
+    .userId;
+};
+
 <MessageList
-  onMentionsClick={(event) => {
-    const userId = (event.target as HTMLElement).closest<HTMLElement>('[data-user-id]')
-      ?.dataset.userId;
+  onMentionsClick={(event, message) => {
+    const userId = getMentionedUserId(event, message);
     if (userId) openProfile(userId);
   }}
-/>
+/>;
 ```
 
 ---
