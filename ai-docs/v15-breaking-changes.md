@@ -64,7 +64,7 @@ yarn api-surface check --doc ai-docs/v15-breaking-changes.md --diff diff.json
 
 ## Index
 
-95 entries.
+97 entries.
 
 | ID                | Title                                                                                                                                                                                                                         | Group                                                |
 | ----------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------- |
@@ -163,6 +163,8 @@ yarn api-surface check --doc ai-docs/v15-breaking-changes.md --diff diff.json
 | [BC-093](#bc-093) | `MessageContextValue.onMentionsClickMessage` / `onMentionsHoverMessage` and `useMentionsHandler`'s handlers are `undefined` without a handler                                                                                 | Messages and message lists                           |
 | [BC-094](#bc-094) | `mentionsMarkdownPlugin` and `createMentionPluginAndDisplayTextSet` take mention entities only                                                                                                                                | Messages and message lists                           |
 | [BC-095](#bc-095) | `disableQuotedMessages` is removed from `MessageProps`, `MessageListProps` and `useMessagePermissions`                                                                                                                        | Messages and message lists                           |
+| [BC-097](#bc-097) | channel detail views render no close button outside a modal without `onClose`; `ChannelDetail` calls `onLayoutChange`                                                                                                         | Contexts and customization                           |
+| [BC-098](#bc-098) | the channel members header action set uses `Component`, `placement: 'dropdown'`, `isVisible` and a `quick-dropdown-toggle` item                                                                                               | Contexts and customization                           |
 
 ## Package and runtime
 
@@ -627,6 +629,115 @@ export const CustomEmojiPicker = () => {
 - Docs impact:
   - `02-ui-components/04-channel/01-channel.md`, `02-ui-components/04-channel/04-channel_state_context.md`, `04-guides/05-channel_read_state.md`
 - Example needed: no
+
+<a id="bc-098"></a>
+
+### BC-098: the channel members header action set uses `Component`, `placement: 'dropdown'`, `isVisible` and a `quick-dropdown-toggle` item
+
+- Status: confirmed
+- Area: channel detail (`stream-chat-react/channel-detail`)
+- User impact: compile error on a custom `headerActionSet` item with `component`, `filter` or `placement: 'menu'`, on `HeaderActionsMenuTrigger`, and on imports of `DefaultHeaderActionsMenuTrigger` or `ChannelMembersHeaderActionsMenuTriggerProps`. `ChannelMembersHeaderActionItem` is a union whose `quick-dropdown-toggle` member has no `type` or `isVisible`, so reading `item.type` or `item.isVisible` on an unnarrowed item fails to compile, and a `switch` over `ChannelMembersHeaderActionPlacement` gets a new `'quick-dropdown-toggle'` case. In untyped code a `menu` item is skipped (`DefaultHeaderActions` renders only the `quick` and `dropdown` placements), an item's `filter` is ignored, so an app-defined action it hid shows to every user, a `quick` item that still sets `component` instead of `Component` crashes the members view (`Element type is invalid … got: undefined`), and a `HeaderActionsMenuTrigger` prop is ignored. A dropdown item that calls the `closeMenu` prop throws `TypeError: closeMenu is not a function` (or leaves the menu open with `closeMenu?.()`). A set without a `quick-dropdown-toggle` item renders no menu at all, whatever its `dropdown` items. Dropdown items must render inside a `ContextMenu` (`useContextMenuContext()` throws outside one), so a custom `HeaderActions` renders the set's `quick-dropdown-toggle` item (passing it the ref the menu anchors to, `aria-expanded` and an `onClick` that toggles the menu) and its `dropdown` items in a `ContextMenu` opened with `useDialogOnNearestManager({ id })`, with an `id` unique to the component instance (e.g. React's `useId()`), as `DefaultHeaderActions` does. A toggle that ignores the props it receives renders but never opens the menu.
+- Old API:
+  - `ChannelMembersHeaderActionItem.component`; `ChannelMembersHeaderActionPlacement = 'quick' | 'menu'`; `ChannelMembersHeaderActionItem.filter?: (ctx: { channel: Channel }) => boolean`
+  - `ChannelMembersHeaderActionComponentProps.closeMenu?: () => void`, passed to menu items by `DefaultHeaderActions`
+  - `ChannelMembersViewProps.HeaderActionsMenuTrigger` and `ChannelMembersHeaderActionsProps.HeaderActionsMenuTrigger`, typed by `ChannelMembersHeaderActionsMenuTriggerProps` (`aria-expanded`, `onClick`, `referenceRef`); default `DefaultHeaderActionsMenuTrigger`
+- Replacement: the names the message actions and the channel-list row actions use.
+  - Items have a `Component` field. `ChannelMembersHeaderActionItem` is a union of `QuickChannelMembersHeaderActionItem` (`placement: 'quick'`), `DropdownChannelMembersHeaderActionItem` (`placement: 'dropdown'`) and `QuickDropdownToggleChannelMembersHeaderActionItem` (`placement: 'quick-dropdown-toggle'`, no `type` or `isVisible`).
+  - The menu trigger is the set's `quick-dropdown-toggle` item: a `forwardRef` button. `DefaultHeaderActions` passes it the ref the menu anchors to, `aria-expanded` and an `onClick` that toggles the menu; the button spreads the props, so it never looks up the menu's dialog. A v14 trigger forwards the ref instead of reading `referenceRef`. Unlike the message and channel-list toggles, which look up their dialog through `getDialogId`, this toggle must spread the props it receives: one that ignores them never opens the menu.
+  - `DefaultHeaderActions` creates its menu's dialog id once per instance, so two members views under one dialog manager (e.g. side-by-side panels of the same channel) never open each other's menu. While the members list is shown and the `HeaderActions` component keeps its identity, `ChannelMembersView` keeps it mounted across re-renders (e.g. with an inline `headerActionSet`), so an open menu stays open; a `HeaderActions` defined inline mounts anew on every render. `defaultChannelMembersHeaderActionSet` starts with `DefaultChannelMembersHeaderActions.QuickDropdownToggle`, so a set built from it keeps the trigger; a set written from scratch adds that item. The toggle renders only while the set has a `dropdown` item that passes the filter.
+  - Dropdown items read `closeMenu` from `useContextMenuContext()`.
+  - `filter` → `isVisible`, as on message actions and composer previews: `isVisible?: (state: ChannelMembersHeaderActionVisibilityFilterParams) => boolean`, called with `{ channel }`. It hides an action; it cannot show `addMembers` without the `update-channel-members` capability. A shared rule is typed with `ChannelMembersHeaderActionVisibilityFilterParams`.
+- Evidence:
+  - `release-v14:src/plugins/ChannelDetail/Views/ChannelMembersView/ChannelMembersHeaderActions.defaults.tsx:26`, `:31`, `:34`, `:93-107`, `:128-160`, `:176-207`; `release-v14:src/plugins/ChannelDetail/Views/ChannelMembersView/ChannelMembersView.tsx` (`HeaderActionsMenuTrigger`)
+  - `master:src/plugins/ChannelDetail/Views/ChannelMembersView/ChannelMembersHeaderActions.defaults.tsx` (`DefaultHeaderActions`, `DefaultChannelMembersHeaderActions`, `defaultChannelMembersHeaderActionSet`)
+  - shared shape: `master:src/components/MessageActions/MessageActions.tsx` (`MessageActionSetItem`), `master:src/components/ChannelListItem/ChannelListItemActionButtons.defaults.tsx` (`defaultChannelActionSet`), `master:src/components/Chat/hooks/useSplitActionSet.ts`
+  - commit: REACT-1477
+- Docs impact:
+  - UI › Customizing › Actions; the channel details reference for `ChannelMembersView` (`headerActionSet`, `HeaderActionsMenuTrigger`)
+- Example needed: yes
+
+Before (v14):
+
+```tsx
+import {
+  ChannelMembersView,
+  type ChannelMembersHeaderActionComponentProps,
+  type ChannelMembersHeaderActionItem,
+  type ChannelMembersHeaderActionsMenuTriggerProps,
+  defaultChannelMembersHeaderActionSet,
+  type SectionNavigatorSectionContentProps,
+} from 'stream-chat-react/channel-detail';
+import { ContextMenuButton } from 'stream-chat-react';
+
+const MyTrigger = ({
+  referenceRef,
+  ...props
+}: ChannelMembersHeaderActionsMenuTriggerProps) => (
+  <button ref={referenceRef} {...props}>
+    Actions
+  </button>
+);
+
+const ExportMembers = ({ closeMenu }: ChannelMembersHeaderActionComponentProps) => (
+  <ContextMenuButton onClick={() => closeMenu?.()}>Export</ContextMenuButton>
+);
+
+const headerActionSet: ChannelMembersHeaderActionItem[] = [
+  ...defaultChannelMembersHeaderActionSet,
+  { component: ExportMembers, placement: 'menu', type: 'exportMembers' },
+];
+
+// `SectionContent` of the `channel-members` section in `defaultChannelDetailSections`
+const MembersSection = (props: SectionNavigatorSectionContentProps) => (
+  <ChannelMembersView
+    {...props}
+    headerActionSet={headerActionSet}
+    HeaderActionsMenuTrigger={MyTrigger}
+  />
+);
+```
+
+After (v15):
+
+```tsx
+import { type ComponentPropsWithoutRef, forwardRef } from 'react';
+import {
+  ChannelMembersView,
+  type ChannelMembersHeaderActionItem,
+  defaultChannelMembersHeaderActionSet,
+  type SectionNavigatorSectionContentProps,
+} from 'stream-chat-react/channel-detail';
+import { ContextMenuButton, useContextMenuContext } from 'stream-chat-react';
+
+// receives `aria-expanded` and `onClick` from `DefaultHeaderActions`
+const MyTrigger = forwardRef<HTMLButtonElement, ComponentPropsWithoutRef<'button'>>(
+  function MyTrigger(props, ref) {
+    return (
+      <button ref={ref} {...props}>
+        Actions
+      </button>
+    );
+  },
+);
+
+const ExportMembers = () => {
+  const { closeMenu } = useContextMenuContext();
+  return <ContextMenuButton onClick={() => closeMenu()}>Export</ContextMenuButton>;
+};
+
+const headerActionSet: ChannelMembersHeaderActionItem[] = [
+  // the default set already holds the `quick-dropdown-toggle` item
+  ...defaultChannelMembersHeaderActionSet.map((item) =>
+    item.placement === 'quick-dropdown-toggle' ? { ...item, Component: MyTrigger } : item,
+  ),
+  { Component: ExportMembers, placement: 'dropdown', type: 'exportMembers' },
+];
+
+// `SectionContent` of the `channel-members` section in `defaultChannelDetailSections`
+const MembersSection = (props: SectionNavigatorSectionContentProps) => (
+  <ChannelMembersView {...props} headerActionSet={headerActionSet} />
+);
+```
 
 ## Chat, ChatView and layout
 
@@ -4545,6 +4656,17 @@ Non-gated items checked and ruled out: `Chat.isMessageAIGenerated`, `SummarizedM
 - `PinEnabledUserRoles` and `PinPermissions` (exported from `usePinHandler.ts` in v15 release candidates, `@deprecated`) were removed by REACT-1467 (PR #3387). Ruled out as a v14 -> v15 change: v14 removed them before v14 stable (`8317b73a2`, PR #3086) and `99cbe6704` (PR #3237) brought them back on `master` by accident, so `release-v14` never exports them. Gate on `useMessagePermissions(message).canPin` instead.
 - `ThreadContext` / `ThreadContextValue` members reported as `member-added-required`: `configState`, `handleMessageDeleted`, `handleMessageUpdated`, `handleNewReply`, `handleReactionChanged`, `handleRepliesRead`, `handleRepliesUnread`, `handleThreadUpdated`, `handleUserMessagesDeleted`, `initializeConfig`, `markRead`, `messageOperations`, `updateConfig`. Ruled out as LLC (stream-chat v10): `ThreadContextValue` is `Thread | undefined` on both branches, and these are methods and stores added to the `stream-chat` `Thread` class. Only a hand-built `Thread` mock is affected; build it from a real `client.threads` instance instead.
 - Corpus errors caused only by `stream-chat` v10 types, ruled out as LLC: the attachment `Action` type now requires `text` and `type` (`03-ui-cookbook/06-attachment/01-attachment_actions.md`); `StreamChat.unBlockUser` -> `unblockUser` and `queryUsers`-style id arguments (`04-guides/11-blocking-users.md`, `04-guides/04-typescript_and_custom_data_types.md`); custom fields on `MessageWithChannelResponse` (same page); `ReminderResponse` -> `ReminderResponseData` (`04-guides/12-message-reminders.md`); `MessageResponseBase`, and the narrowed `Event` / `EventPayload` unions (`examples/vite` WebSocket event tooling). Also: the `User` type no longer accepts `name` / `image` (type `userData` as `ClientUser`, as `useCreateChatClient` does; v14 tutorial steps 3-7); `ChannelResponse.name` on `Partial<ChannelResponse>`; channel `members` as `ChannelMemberRequest` objects instead of id strings (tutorial steps 3 and 6); `StreamChat.partialUpdateMessage` and other message methods taking `{ message_id }` objects; `delete_for_me` instead of `deleteForMe` in delete options; `ChannelState.messages` (use `channel.messagePaginator`); `ReactionResponse.custom` now required in hand-built fixtures; `LinkPreview.custom`.
+
+### Channel members header actions (REACT-1477, after the audit)
+
+| Item                                                                                                                                                                 | Mapping |
+| -------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------- |
+| `DefaultHeaderActionsMenuTrigger`, `ChannelMembersHeaderActionsMenuTriggerProps` (removed exports)                                                                   | BC-098  |
+| `ChannelMembersViewProps.HeaderActionsMenuTrigger`, `ChannelMembersHeaderActionsProps.HeaderActionsMenuTrigger` (removed props)                                      | BC-098  |
+| `ChannelMembersHeaderActionItem.component` → `Component`, `ChannelMembersHeaderActionPlacement` `'menu'` → `'dropdown'`                                              | BC-098  |
+| `ChannelMembersHeaderActionComponentProps.closeMenu` (removed member)                                                                                                | BC-098  |
+| `ChannelMembersHeaderActionItem.filter` → `isVisible`, typed with `ChannelMembersHeaderActionVisibilityFilterParams` (added)                                         | BC-098  |
+| `ChannelMembersHeaderActionItem` (union with a toggle member without `type` or `isVisible`), `ChannelMembersHeaderActionPlacement` `'quick-dropdown-toggle'` (added) | BC-098  |
 
 ## Notes For Migration Guide Drafting
 

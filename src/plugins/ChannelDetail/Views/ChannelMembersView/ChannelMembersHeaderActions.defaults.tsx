@@ -1,5 +1,10 @@
 import type { Channel } from 'stream-chat';
-import React, { useMemo, useState } from 'react';
+import React, {
+  type ComponentPropsWithoutRef,
+  forwardRef,
+  useMemo,
+  useState,
+} from 'react';
 
 import {
   useComponentContext,
@@ -7,12 +12,15 @@ import {
   useTranslationContext,
 } from '../../../../context';
 import { Button } from '../../../../components/Button';
+import { useSplitActionSet } from '../../../../components/Chat/hooks/useSplitActionSet';
 import {
   ContextMenu,
   ContextMenuButton,
+  useContextMenuContext,
   useDialogIsOpen,
   useDialogOnNearestManager,
 } from '../../../../components/Dialog';
+import { useStableId } from '../../../../components/UtilityComponents/useStableId';
 import { useChannelDetailContext } from '../../ChannelDetailContext';
 import { canUpdateChannelMembers } from './ChannelMembersView.utils';
 import type {
@@ -23,28 +31,70 @@ import type {
 export type ChannelMembersHeaderActionType = 'addMembers' | (string & {});
 
 export type ChannelMembersHeaderActionComponentProps = {
-  closeMenu?: () => void;
   modeController: ChannelMembersModeController;
 };
 
-/** Where a header action renders: inline (`quick`) or inside the actions menu. */
-export type ChannelMembersHeaderActionPlacement = 'quick' | 'menu';
+/** What a header action's `isVisible` rule is checked against. */
+export type ChannelMembersHeaderActionVisibilityFilterParams = {
+  /** The channel whose members are shown, e.g. to read `channel.data.own_capabilities`. */
+  channel: Channel;
+};
 
-export type ChannelMembersHeaderActionItem = {
-  component: React.ComponentType<ChannelMembersHeaderActionComponentProps>;
-  placement: ChannelMembersHeaderActionPlacement;
-  type: ChannelMembersHeaderActionType;
+type BaseChannelMembersHeaderActionItem = {
+  Component: React.ComponentType<ChannelMembersHeaderActionComponentProps>;
   /**
-   * Visibility gate for app-defined actions, which are responsible for their own permission checks
-   * (the predicate receives the `channel` to read `own_capabilities`). The SDK's own actions are
-   * gated internally.
+   * Hides the action for a channel, e.g. an app-defined action the user lacks the capability for.
+   * Cannot show an action the base filter removes (`addMembers` without `update-channel-members`).
+   * Shown when omitted.
    */
-  filter?: (ctx: { channel: Channel }) => boolean;
+  isVisible?: (state: ChannelMembersHeaderActionVisibilityFilterParams) => boolean;
+  type: ChannelMembersHeaderActionType;
+};
+
+/** Rendered inline in the members header. */
+export type QuickChannelMembersHeaderActionItem = BaseChannelMembersHeaderActionItem & {
+  placement: 'quick';
 };
 
 /**
- * Drops header actions the user cannot use: `addMembers` requires `update-channel-members`, and an
- * action's own `filter` predicate must pass. Applied by {@link DefaultHeaderActions}.
+ * Rendered inside the actions dropdown menu, so the component can close the menu with `closeMenu`
+ * from `useContextMenuContext()`.
+ */
+export type DropdownChannelMembersHeaderActionItem =
+  BaseChannelMembersHeaderActionItem & {
+    placement: 'dropdown';
+  };
+
+/**
+ * The button that opens the actions dropdown menu. Rendered only while at least one `dropdown` item
+ * passes the filter. It receives the ref the menu anchors to, `aria-expanded` and the `onClick`
+ * that toggles the menu; a custom toggle is a `forwardRef` component (so the ref reaches its button
+ * on every supported React version) that spreads the props onto its button. A toggle that ignores
+ * the props never opens the menu.
+ */
+export type QuickDropdownToggleChannelMembersHeaderActionItem = {
+  Component: React.ForwardRefExoticComponent<
+    ComponentPropsWithoutRef<'button'> & React.RefAttributes<HTMLButtonElement>
+  >;
+  placement: 'quick-dropdown-toggle';
+};
+
+export type ChannelMembersHeaderActionItem =
+  | QuickChannelMembersHeaderActionItem
+  | DropdownChannelMembersHeaderActionItem
+  | QuickDropdownToggleChannelMembersHeaderActionItem;
+
+/**
+ * Where a header action renders: inline (`quick`), inside the actions dropdown menu (`dropdown`),
+ * or as the button that opens that menu (`quick-dropdown-toggle`).
+ */
+export type ChannelMembersHeaderActionPlacement =
+  ChannelMembersHeaderActionItem['placement'];
+
+/**
+ * Drops header actions the user cannot use: `addMembers` requires `update-channel-members`. An
+ * action that rule allows still shows only while its own `isVisible` holds. The dropdown toggle is
+ * always kept. Applied by {@link DefaultHeaderActions}.
  *
  * @param channelMembersHeaderActionSet - Actions to filter.
  * @returns The actions to show.
@@ -55,16 +105,25 @@ export const useBaseChannelMembersHeaderActionSetFilter = (
   const { channel } = useChannelDetailContext();
   const canManageChannelMembers = canUpdateChannelMembers(channel);
 
-  return useMemo(
-    () =>
-      channelMembersHeaderActionSet.filter((action) => {
-        const allowedByCapability =
-          action.type !== 'addMembers' || canManageChannelMembers;
+  return useMemo(() => {
+    const visibilityFilterParams: ChannelMembersHeaderActionVisibilityFilterParams = {
+      channel,
+    };
 
-        return allowedByCapability && (action.filter?.({ channel }) ?? true);
-      }),
-    [canManageChannelMembers, channel, channelMembersHeaderActionSet],
-  );
+    const passesBaseRule = (action: ChannelMembersHeaderActionItem) =>
+      action.placement === 'quick-dropdown-toggle' ||
+      action.type !== 'addMembers' ||
+      canManageChannelMembers;
+
+    const passesOwnRule = (action: ChannelMembersHeaderActionItem) =>
+      action.placement === 'quick-dropdown-toggle' ||
+      !action.isVisible ||
+      action.isVisible(visibilityFilterParams);
+
+    return channelMembersHeaderActionSet.filter(
+      (action) => passesBaseRule(action) && passesOwnRule(action),
+    );
+  }, [canManageChannelMembers, channel, channelMembersHeaderActionSet]);
 };
 
 const AddMembersHeaderAction = ({
@@ -92,11 +151,11 @@ const AddMembersHeaderAction = ({
 };
 
 const AddMembersMenuAction = ({
-  closeMenu,
   modeController,
 }: ChannelMembersHeaderActionComponentProps) => {
   const { IconUserAdd } = useComponentContextIcons();
   const { t } = useTranslationContext();
+  const { closeMenu } = useContextMenuContext();
 
   if (modeController.mode !== 'browse') return null;
 
@@ -109,7 +168,7 @@ const AddMembersMenuAction = ({
       Icon={IconUserAdd}
       onClick={() => {
         modeController.setMode('add');
-        closeMenu?.();
+        closeMenu();
       }}
     >
       {t('channelDetail.channelMembersHeader.add.text', 'Add')}
@@ -117,29 +176,10 @@ const AddMembersMenuAction = ({
   );
 };
 
-export const DefaultChannelMembersHeaderActions = {
-  AddMembers: AddMembersHeaderAction,
-  AddMembersMenu: AddMembersMenuAction,
-};
-
-export const defaultChannelMembersHeaderActionSet: ChannelMembersHeaderActionItem[] = [
-  {
-    component: DefaultChannelMembersHeaderActions.AddMembers,
-    placement: 'quick',
-    type: 'addMembers',
-  },
-];
-
-export type ChannelMembersHeaderActionsMenuTriggerProps = {
-  'aria-expanded': boolean;
-  onClick: () => void;
-  referenceRef?: React.Ref<HTMLButtonElement>;
-};
-
-export const DefaultHeaderActionsMenuTrigger = ({
-  referenceRef,
-  ...props
-}: ChannelMembersHeaderActionsMenuTriggerProps) => {
+const QuickDropdownToggle = forwardRef<
+  HTMLButtonElement,
+  ComponentPropsWithoutRef<'button'>
+>(function QuickDropdownToggle(props, ref) {
   const { t } = useTranslationContext();
 
   return (
@@ -150,7 +190,7 @@ export const DefaultHeaderActionsMenuTrigger = ({
         'Open members actions',
       )}
       className='str-chat__channel-detail__channel-members-view__actions-button'
-      ref={referenceRef}
+      ref={ref}
       size='md'
       variant='secondary'
       {...props}
@@ -158,51 +198,67 @@ export const DefaultHeaderActionsMenuTrigger = ({
       {t('channelDetail.channelMembersHeader.actions.text', 'Actions')}
     </Button>
   );
+});
+
+export const DefaultChannelMembersHeaderActions = {
+  AddMembers: AddMembersHeaderAction,
+  AddMembersMenu: AddMembersMenuAction,
+  QuickDropdownToggle,
 };
 
-const getHeaderActionsDialogId = (channelId?: string) =>
-  `channel-members-header-actions-${channelId ?? 'unknown'}`;
+export const defaultChannelMembersHeaderActionSet: ChannelMembersHeaderActionItem[] = [
+  {
+    Component: DefaultChannelMembersHeaderActions.QuickDropdownToggle,
+    placement: 'quick-dropdown-toggle',
+  },
+  {
+    Component: DefaultChannelMembersHeaderActions.AddMembers,
+    placement: 'quick',
+    type: 'addMembers',
+  },
+];
 
+/**
+ * Renders the `quick` actions inline, followed by the `quick-dropdown-toggle` item and the
+ * `dropdown` actions in the menu it opens. Renders nothing when no quick or dropdown action passes
+ * {@link useBaseChannelMembersHeaderActionSetFilter}. Each instance opens its own menu dialog, so
+ * two members views under one dialog manager never open each other's menu.
+ */
 export const DefaultHeaderActions = ({
   headerActionSet,
-  HeaderActionsMenuTrigger = DefaultHeaderActionsMenuTrigger,
   modeController,
 }: ChannelMembersHeaderActionsProps) => {
   const { ContextMenu: ContextMenuComponent = ContextMenu } = useComponentContext();
-  const { channel } = useChannelDetailContext();
   const actions = useBaseChannelMembersHeaderActionSetFilter(headerActionSet);
+  const { dropdownActionSet, quickActionSet, quickDropdownToggleAction } =
+    useSplitActionSet(actions);
   const [referenceElement, setReferenceElement] = useState<HTMLButtonElement | null>(
     null,
   );
-  const dialogId = getHeaderActionsDialogId(channel.id);
-  const { dialog, dialogManager } = useDialogOnNearestManager({ id: dialogId });
-  const dialogManagerId = dialogManager?.id;
-  const dialogIsOpen = useDialogIsOpen(dialogId, dialogManagerId);
+  const instanceId = useStableId();
+  const dropdownDialogId = `channel-members-header-actions-${instanceId}`;
+  const { dialog, dialogManager } = useDialogOnNearestManager({ id: dropdownDialogId });
+  const dialogIsOpen = useDialogIsOpen(dropdownDialogId, dialogManager?.id);
 
-  if (!actions.length) return null;
-
-  const quickActions = actions.filter((action) => action.placement === 'quick');
-  const menuActions = actions.filter((action) => action.placement === 'menu');
+  if (quickActionSet.length + dropdownActionSet.length === 0) return null;
 
   return (
     <div className='str-chat__channel-detail__channel-members-view__header-actions'>
-      {quickActions.map(({ component: QuickComponent, type }) => (
-        <QuickComponent key={type} modeController={modeController} />
+      {quickActionSet.map(({ Component, type }) => (
+        <Component key={type} modeController={modeController} />
       ))}
 
-      {menuActions.length > 0 && (
+      {quickDropdownToggleAction && dropdownActionSet.length > 0 && (
         <>
-          <HeaderActionsMenuTrigger
+          <quickDropdownToggleAction.Component
             aria-expanded={dialogIsOpen}
-            onClick={() => {
-              dialog.toggle();
-            }}
-            referenceRef={setReferenceElement}
+            onClick={() => dialog.toggle()}
+            ref={setReferenceElement}
           />
           <ContextMenuComponent
             aria-label='Members actions'
             className='str-chat__channel-detail__channel-members-view__header-actions-menu'
-            dialogManagerId={dialogManagerId}
+            dialogManagerId={dialogManager?.id}
             id={dialog.id}
             onClose={() => dialog.close()}
             placement='bottom-start'
@@ -210,12 +266,8 @@ export const DefaultHeaderActions = ({
             tabIndex={-1}
             trapFocus
           >
-            {menuActions.map(({ component: MenuComponent, type }) => (
-              <MenuComponent
-                closeMenu={() => dialog.close()}
-                key={type}
-                modeController={modeController}
-              />
+            {dropdownActionSet.map(({ Component, type }) => (
+              <Component key={type} modeController={modeController} />
             ))}
           </ContextMenuComponent>
         </>

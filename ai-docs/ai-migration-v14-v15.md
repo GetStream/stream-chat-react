@@ -2,7 +2,7 @@
 
 Execution-only guide for a coding agent migrating a third-party app from `stream-chat-react` v14 to v15. It covers the root package and its subpath entry points (`stream-chat-react/slot-layout`, `/slot-geometry`, `/channel-detail`, `/emojis`, `/ai-components`, `/mp3-encoder` and the `css/*` stylesheets). v15 requires `stream-chat` v10, itself a breaking client release, so upgrade both together; this guide covers the `stream-chat` changes a React app usually hits, and the [stream-chat guide](#companion-documents) covers the rest. The i18n runtime now comes from `@stream-io/i18n` and the state store from `@stream-io/state-store`, both installed as dependencies of this package.
 
-Every breaking change in [`v15-breaking-changes.md`](https://github.com/GetStream/stream-chat-react/blob/master/ai-docs/v15-breaking-changes.md) (`BC-001` to `BC-097`) is covered here. The [index at the end](#index-of-breaking-changes) maps each `BC` entry to its section.
+Every breaking change in [`v15-breaking-changes.md`](https://github.com/GetStream/stream-chat-react/blob/master/ai-docs/v15-breaking-changes.md) (`BC-001` to `BC-098`) is covered here. The [index at the end](#index-of-breaking-changes) maps each `BC` entry to its section.
 
 Verified against `master` @ `1c02ba07f` (`stream-chat-react@0.0.0-development`, after the `v15.0.0-rc.3` tag; `stream-chat` peer `^10.0.0-rc.29`, checked against stream-chat-js `release-v10` @ `fdfcb296`), 2026-11-03.
 
@@ -144,8 +144,8 @@ code '<Thread\b|<ThreadProvider\b|\b(useLegacyThreadContext|additionalMessageCom
 code '\b(HeaderStartContent|HeaderEndContent)\b|<(Channel|Thread)Header\b'
 # §9 channel state and actions
 code '\b(ChannelStateContext|ChannelStateContextValue|ChannelStateProvider|useChannelStateContext|ChannelActionContext|ChannelActionContextValue|ChannelActionProvider|useChannelActionContext|ChannelNotifications|MarkReadWrapperOptions|RetrySendMessage|TypingContext|TypingContextValue|TypingProvider|useTypingContext|ChannelUnreadUiState|channelUnreadUiState|setChannelUnreadUiState|channelConfig|WatcherState)\b|getConfig\(|\.(read|typing|members|watcher|ownCapabilities|mutedUsers)Store\b|\.disconnected\b|\.(hasNext|hasPrev)\b'
-# §10 component overrides, context hook arguments, message actions
-code '\bMessage=\{|\b(Message|ThreadHeader|HeaderStartContent|ChannelListUI|LoadingErrorIndicator):|use[A-Za-z]+Context\([^)]|\b(messageActions|MESSAGE_ACTIONS|OPTIONAL_MESSAGE_ACTIONS|getMessageActions|MessageActionsArray|Capabilities|actionsEnabled|canEdit|messageActionSet|disableBaseMessageActionSetFilter)\b'
+# §10 component overrides, context hook arguments, message actions, channel members header actions
+code '\bMessage=\{|\b(Message|ThreadHeader|HeaderStartContent|ChannelListUI|LoadingErrorIndicator):|use[A-Za-z]+Context\([^)]|\b(messageActions|MESSAGE_ACTIONS|OPTIONAL_MESSAGE_ACTIONS|getMessageActions|MessageActionsArray|Capabilities|actionsEnabled|canEdit|messageActionSet|disableBaseMessageActionSetFilter|headerActionSet|HeaderActionsMenuTrigger|DefaultHeaderActionsMenuTrigger|ChannelMembersHeaderActionsMenuTriggerProps|ChannelMembersHeaderActionComponentProps|ChannelMembersHeaderActionItem|ChannelMembersHeaderActionPlacement|defaultChannelMembersHeaderActionSet)\b'
 # §11 message lists
 code '\bmessages=\{|\b(loadMore|loadMoreNewer|hasMore|hasMoreNewer|loadingMoreNewer|jumpToLatestMessage|messageLimit|highlightedMessageId|threadList|disableDateSeparator|renderMessages|RenderMessagesOptions|getIsFirstUnreadMessage|additionalVirtuosoProps|headerPosition|insertIntro|DateSeparatorMessage|useEnrichedMessages|useNewMessageNotification|useScrollLocationLogic|areMessagePropsEqual|useMessageListScrollManager|NewMessageNotification|ScrollToLatestMessageButton|InfiniteScrollPaginator|loadNextDebounceMs|loadMoreDebounceMs|internalInfiniteScrollProps|noGroupByUser|shouldGroupByUser|groupStyles|defaultItemHeight|overscan|scrollSeekPlaceHolder)\b|\bhead=\{'
 # §12 messages
@@ -234,6 +234,7 @@ Old → new for the most common changes. Ctrl-F the v14 name; the section has th
 | `ComponentContext.Message`, the `Message={...}` prop                                                                 | `MessageUI` override (`VirtualMessage` in `VirtualizedMessageList`)                                                                                        | [10](#message-ui-overrides-consolidate-on-the-messageui-slot)                                  |
 | `ComponentContext.ThreadHeader` override                                                                             | Render `<ThreadHeader />` as a child of `<Thread>` (not the `ThreadHead` slot)                                                                             | [10](#removed-componentcontext-slots)                                                          |
 | `messageActions` prop, `MESSAGE_ACTIONS`, `getMessageActions()`                                                      | `messageActionSet` on `MessageActions`; permissions from `useMessagePermissions(message)`                                                                  | [10](#messageactions-and-message_actions-are-removed)                                          |
+| `headerActionSet` items with `component` / `filter` / `placement: 'menu'`, `HeaderActionsMenuTrigger`                | `Component` / `isVisible` / `placement: 'dropdown'`, a `quick-dropdown-toggle` item; `closeMenu` from `useContextMenuContext()`                            | [10](#the-channel-members-header-action-set-uses-the-shared-action-names)                      |
 | `<MessageList messages={...}>`                                                                                       | Removed; `reviewProcessedMessage`, or act on the paginator                                                                                                 | [11](#the-messages-prop-is-removed)                                                            |
 | `disableDateSeparator`                                                                                               | `withDateSeparator` (inverted)                                                                                                                             | [11](#disabledateseparator--withdateseparator)                                                 |
 | `threadList` / `head` list props                                                                                     | `!!useThreadContext()` / the `ThreadHead` slot                                                                                                             | [11](#threadlist-and-head-are-removed-lists-detect-the-thread)                                 |
@@ -2102,6 +2103,37 @@ export const ChannelDetailsPanel = ({
 };
 ```
 
+### The channel members header action set uses the shared action names
+
+`ChannelMembersView`'s `headerActionSet` (from `stream-chat-react/channel-detail`) now has the same item shape as `messageActionSet` and the channel-list row actions; only its menu toggle works differently (below). Rewrite each custom item and the menu trigger:
+
+- `component` → `Component`.
+- `placement: 'menu'` → `placement: 'dropdown'`. `quick` is unchanged.
+- `filter` → `isVisible`, called with `{ channel }` as before. Type a shared rule's argument as `ChannelMembersHeaderActionVisibilityFilterParams`. In untyped code a leftover `filter` is ignored, so the action shows to every user.
+- The `HeaderActionsMenuTrigger` prop (on `ChannelMembersView` and on a custom `HeaderActions`) is removed, along with `DefaultHeaderActionsMenuTrigger` and `ChannelMembersHeaderActionsMenuTriggerProps`. The trigger is now an item in the set: `{ Component, placement: 'quick-dropdown-toggle' }`. Its `Component` is a `forwardRef` button that receives the same things the v14 trigger did, as button props: `aria-expanded` and the `onClick` that toggles the menu, spread onto the button, and a forwarded `ref` the menu anchors to in place of `referenceRef`. Unlike the message-action toggle, it does not look up its dialog: a toggle that ignores these props renders but never opens the menu. It renders only while at least one `dropdown` item passes the filter.
+- A set spread from `defaultChannelMembersHeaderActionSet` already starts with `DefaultChannelMembersHeaderActions.QuickDropdownToggle`. A set written from scratch must add that item, or its `dropdown` items do not render.
+- Dropdown items no longer get a `closeMenu` prop. Read it with `const { closeMenu } = useContextMenuContext();` (from `stream-chat-react`). An item still calling `closeMenu?.()` leaves the menu open, and in untyped code `closeMenu()` throws. `useContextMenuContext()` throws outside a `ContextMenu`, so dropdown items must render inside one.
+- A custom `HeaderActions` component (the `ChannelMembersView` prop) gets no trigger prop any more: it renders the set's `quick-dropdown-toggle` item itself, passing it the ref the `ContextMenu` anchors to, `aria-expanded` and an `onClick` that toggles the menu, and renders the `dropdown` items inside that `ContextMenu`. Open the menu with `useDialogOnNearestManager({ id })`, using an `id` unique to the component instance (e.g. React's `useId()`), so two members views never share a menu.
+- `ChannelMembersHeaderActionItem` is a union, and its toggle member has no `type` or `isVisible`. Guard with `'type' in item` when filtering by type.
+
+```tsx
+// v14
+const headerActionSet: ChannelMembersHeaderActionItem[] = [
+  ...defaultChannelMembersHeaderActionSet,
+  { component: ExportMembers, placement: 'menu', type: 'exportMembers' },
+];
+```
+
+```tsx
+// v15: ExportMembers calls useContextMenuContext().closeMenu instead of a prop
+const headerActionSet: ChannelMembersHeaderActionItem[] = [
+  ...defaultChannelMembersHeaderActionSet,
+  { Component: ExportMembers, placement: 'dropdown', type: 'exportMembers' },
+];
+```
+
+A full example with a custom trigger is in [BC-098](https://github.com/GetStream/stream-chat-react/blob/master/ai-docs/v15-breaking-changes.md#bc-098).
+
 ---
 
 ## 11. Message lists
@@ -3562,3 +3594,4 @@ Run after every section is applied.
 | BC-094 | `mentionsMarkdownPlugin` takes mention entities only                                     | [12](#mentionsmarkdownplugin-takes-mention-entities-only)                                                                      |
 | BC-095 | `disableQuotedMessages` removed                                                          | [12](#the-disablequotedmessages-prop-is-removed)                                                                               |
 | BC-097 | Channel detail close buttons need `onClose` outside a modal; `onLayoutChange` is called  | [10](#channeldetail-takes-onclose-outside-a-modal-it-shows-no-close-button-without-it)                                         |
+| BC-098 | Members header actions: `Component`, `dropdown`, `isVisible`, `quick-dropdown-toggle`    | [10](#the-channel-members-header-action-set-uses-the-shared-action-names)                                                      |
