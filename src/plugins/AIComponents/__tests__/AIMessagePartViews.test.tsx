@@ -13,6 +13,7 @@ import {
   AIToolApproval,
   AIToolApprovalCard,
   type AIToolApprover,
+  AIToolArguments,
   AIToolAuthorization,
   AIToolAuthorizationCard,
   type AIToolAuthorizer,
@@ -161,6 +162,25 @@ describe('AIToolApproval arguments', () => {
     renderWithEnglish(<AIToolApproval approver={approver} part={awaiting(undefined)} />);
     expect(screen.getByText('Send a Slack message?')).toBeInTheDocument();
     expect(screen.queryByText('What it sends')).not.toBeInTheDocument();
+  });
+
+  it('shows arguments that can’t be JSON as words', () => {
+    const circular: Record<string, unknown> = { name: 'loop' };
+    circular.self = circular;
+    expect(formatToolArguments(circular)).toBe('[object Object]');
+    expect(formatToolArguments({ count: BigInt(1) })).toBe('[object Object]');
+  });
+
+  it('shows a call’s arguments on their own with AIToolArguments', () => {
+    const { container, rerender } = renderWithEnglish(
+      <AIToolArguments args={{ channel: '#travel' }} className='my-arguments' />,
+    );
+    expect(screen.getByRole('group', { name: 'What it sends' })).toHaveClass(
+      'str-chat__ai-tool-arguments',
+      'my-arguments',
+    );
+    rerender(<AIToolArguments args={{}} />);
+    expect(container).toBeEmptyDOMElement();
   });
 
   it('shows the approver’s own preview, or none when it returns null', () => {
