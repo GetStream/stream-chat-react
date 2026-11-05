@@ -380,9 +380,11 @@ describe('MessageInput', () => {
     });
     // Mock getAppSettings so the SDK's upload config check doesn't make a real network request
     vi.spyOn(client, 'getAppSettings').mockResolvedValue(fromPartial({}));
+    // Differs from the local preview URL, so the assertion below proves the upload's URL is sent.
+    const uploadedFileURL = 'https://cdn.example.com/recording.wav';
     const uploadFileSpy = vi
       .spyOn(channel, 'uploadFile')
-      .mockResolvedValue(fromPartial({ file: fileObjectURL }));
+      .mockResolvedValue(fromPartial({ file: uploadedFileURL }));
     const sendMessageSpy = vi
       .spyOn(channel, 'sendMessage')
       .mockResolvedValue(fromPartial({}));
@@ -409,7 +411,7 @@ describe('MessageInput', () => {
     const sentAttachments = sendMessageSpy.mock.calls[0][0].message.attachments ?? [];
     expect(sentAttachments).toHaveLength(1);
     expect(sentAttachments[0]).toMatchObject({
-      asset_url: fileObjectURL,
+      asset_url: uploadedFileURL,
       type: 'voiceRecording',
     });
     expect(sentAttachments[0]).not.toHaveProperty('localMetadata');
