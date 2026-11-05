@@ -1,0 +1,232 @@
+@use './tokens' as *;
+@use './ai-ui-icons' as *;
+
+// A reply's OpenUI, in Stream's look. OpenUI's components read `--openui-*` variables, which its
+// stylesheet defines for the whole page, so setting them here themes every reply, and follows
+// Stream's light and dark themes. The rest, such as its chart palette, stays OpenUI's own.
+
+.str-chat__openui {
+  --openui-background: #{ai-token(bg-secondary)};
+  --openui-foreground: #{ai-token(card-bg)};
+  --openui-popover-background: #{ai-token(elevated-bg)};
+  --openui-text-neutral-primary: #{ai-token(text-primary)};
+  --openui-text-neutral-secondary: #{ai-token(text-secondary)};
+  --openui-text-neutral-tertiary: #{ai-token(text-tertiary)};
+  --openui-text-neutral-link: #{ai-token(accent)};
+  --openui-text-brand: #{ai-token(accent)};
+  --openui-text-accent-primary: #{ai-token(button-primary-text)};
+  --openui-text-accent-secondary: color-mix(
+    in srgb,
+    var(--openui-text-accent-primary) 50%,
+    transparent
+  );
+  --openui-border-default: #{ai-token(border-subtle)};
+  --openui-border-interactive: #{ai-token(border)};
+  --openui-border-interactive-emphasis: #{ai-token(text-tertiary)};
+  --openui-border-interactive-selected: #{ai-token(text-primary)};
+  --openui-border-accent: color-mix(in srgb, #{ai-token(accent)} 10%, transparent);
+  --openui-interactive-accent-default: #{ai-token(button-primary-bg)};
+  --openui-interactive-accent-pressed: #{ai-token(button-primary-bg)};
+  --openui-interactive-accent-hover: color-mix(
+    in srgb,
+    var(--openui-interactive-accent-default) 85%,
+    transparent
+  );
+  --openui-interactive-accent-disabled: color-mix(
+    in srgb,
+    var(--openui-interactive-accent-default) 40%,
+    transparent
+  );
+  --openui-highlight: #{ai-token(surface-hover)};
+  --openui-font-body: inherit;
+  --openui-font-heading: inherit;
+  --openui-font-label: inherit;
+
+  width: 100%;
+  min-width: 0;
+  color: ai-token(text-primary);
+  color-scheme: light;
+
+  &__placeholder {
+    height: 4rem;
+    border-radius: 0.75rem;
+    background-color: ai-token(bg-secondary);
+    animation: str-chat__ai-shimmer 1.6s ease-in-out infinite;
+  }
+}
+
+.str-chat__theme-dark .str-chat__openui {
+  color-scheme: dark;
+}
+
+// The parts a person sees most, drawn as StreamChatOpenUI draws them on iOS, so a reply looks the
+// same on every platform: the reply's card, its callouts, chips, buttons and follow-ups.
+
+.str-chat__openui {
+  // The reply's card: a raised surface with a hairline edge, as a reply's card on iOS.
+  .openui-card.openui-card-card {
+    padding: 1rem;
+    border: 1px solid ai-token(card-border);
+    border-radius: var(--str-chat__radius-xl, 16px);
+    background-color: ai-token(card-bg);
+  }
+
+  // A form's labels, over what they label.
+  .openui-form-control {
+    gap: ai-scale(space-xs);
+  }
+
+  .openui-label {
+    font-size: ai-scale(font-sm);
+    font-weight: 500;
+  }
+
+  // A callout: tinted in its variant's colour, with its icon, its title and then its words.
+  .openui-callout {
+    --str-chat-openui-callout: #{ai-token(accent)};
+
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    column-gap: ai-scale(space-sm);
+    row-gap: ai-scale(space-xxs);
+    padding: ai-scale(space-sm);
+    border: 0;
+    border-radius: ai-scale(radius-lg);
+    background-color: color-mix(in srgb, var(--str-chat-openui-callout) 12%, transparent);
+
+    &::before {
+      @include ai-ui-badge($ai-ui-glyph-info, var(--str-chat-openui-callout));
+      grid-row: 1 / span 2;
+      margin-top: 0.0625rem;
+    }
+
+    .openui-callout-title {
+      font-size: ai-scale(font-sm);
+      font-weight: ai-scale(weight-semi-bold);
+      color: ai-token(text-primary);
+    }
+
+    .openui-callout-description {
+      grid-column: 2;
+      font-size: ai-scale(font-sm);
+      color: ai-token(text-secondary);
+
+      // Its Markdown, which otherwise sets a size and colour of its own.
+      .openui-markdown-renderer,
+      .openui-markdown-renderer :is(p, li) {
+        font: inherit;
+        color: inherit;
+      }
+    }
+  }
+
+  .openui-callout-success {
+    --str-chat-openui-callout: #{ai-token(success)};
+
+    &::before {
+      content: $ai-ui-glyph-success;
+    }
+  }
+
+  .openui-callout-warning {
+    --str-chat-openui-callout: var(--str-chat__accent-warning, #fa922b);
+
+    &::before {
+      content: $ai-ui-glyph-warning;
+    }
+  }
+
+  .openui-callout-danger {
+    --str-chat-openui-callout: #{ai-token(error)};
+
+    &::before {
+      content: $ai-ui-glyph-danger;
+    }
+  }
+
+  .openui-callout-neutral {
+    --str-chat-openui-callout: #{ai-token(text-secondary)};
+
+    &::before {
+      content: '';
+    }
+  }
+
+  // Chips: pills on a quiet fill, and the chosen ones in the accent colour, the same size either
+  // way, so choosing one moves nothing.
+  .openui-chip-item {
+    gap: 0.375rem;
+    padding: 0.4375rem ai-scale(space-sm);
+    border: 1px solid transparent;
+    border-radius: var(--str-chat__radius-max, 9999px);
+    background-color: color-mix(in srgb, #{ai-token(text-primary)} 8%, transparent);
+    color: ai-token(text-primary);
+    font-size: ai-scale(font-sm);
+    font-weight: 500;
+
+    &:not(:disabled):not(.openui-chip-item--selected):hover {
+      border-color: transparent;
+      background-color: ai-token(surface-hover);
+    }
+  }
+
+  .openui-chip-item--selected {
+    border-color: ai-token(accent);
+    background-color: color-mix(in srgb, #{ai-token(accent)} 14%, transparent);
+    color: ai-token(accent);
+  }
+
+  // Buttons: pills as wide as their row shares, but the tertiary one, which is as its words.
+  .openui-button-base {
+    justify-content: center;
+    text-align: center;
+    border-radius: var(--str-chat__radius-max, 9999px);
+    font-size: ai-scale(font-sm);
+    font-weight: ai-scale(weight-semi-bold);
+  }
+
+  .openui-buttons > .openui-button-base:not(.openui-button-base-tertiary) {
+    flex: 1 1 0;
+  }
+
+  // Follow-ups: their words in the accent colour, a hairline between them, under no heading of
+  // their own, as A2UI's borderless buttons are.
+  .openui-follow-up-block__header {
+    display: none;
+  }
+
+  .openui-follow-up-item {
+    display: flex;
+    align-items: center;
+    // Room around the words for the hover's shape, which the margin takes back, so the words
+    // line up with the rest of the reply.
+    width: calc(100% + 2 * #{ai-scale(space-sm)});
+    margin-inline: calc(-1 * #{ai-scale(space-sm)});
+    padding: 0.625rem ai-scale(space-sm);
+    border: 0;
+    border-radius: ai-scale(radius-lg);
+    font-size: ai-scale(font-sm);
+
+    &:hover {
+      background-color: ai-token(surface-hover);
+    }
+
+    .openui-follow-up-item-text {
+      color: ai-token(accent);
+      font-weight: 500;
+    }
+
+    & + .openui-follow-up-item {
+      background-image: linear-gradient(ai-token(border), ai-token(border));
+      background-position: ai-scale(space-sm) 0;
+      background-repeat: no-repeat;
+      background-size: calc(100% - 2 * #{ai-scale(space-sm)}) 1px;
+    }
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .str-chat__openui__placeholder {
+    animation: none;
+  }
+}
