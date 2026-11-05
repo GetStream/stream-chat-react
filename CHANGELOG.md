@@ -1,3 +1,11 @@
+## [14.16.1](https://github.com/GetStream/stream-chat-react/compare/v14.16.0...v14.16.1) (2026-11-05)
+
+### Bug Fixes
+
+* **ai-components:** generated UI parity with iOS and Android ([#3394](https://github.com/GetStream/stream-chat-react/issues/3394)) ([47c17da](https://github.com/GetStream/stream-chat-react/commit/47c17da11ab73c2f8edee56b853c7bc15a62d8db))
+* **ai-components:** keep generated UI's tool taps and secrets on the reply ([#3395](https://github.com/GetStream/stream-chat-react/issues/3395)) ([db372a5](https://github.com/GetStream/stream-chat-react/commit/db372a55edf6e1a40eb22f8b2b9ba941ae75d375)), closes [GetStream/stream-chat-react#3394](https://github.com/GetStream/stream-chat-react/issues/3394) [GetStream/stream-chat-react#3393](https://github.com/GetStream/stream-chat-react/issues/3393) [#3394](https://github.com/GetStream/stream-chat-react/issues/3394) [#3393](https://github.com/GetStream/stream-chat-react/issues/3393)
+* **ai-components:** theme generated UI from AI tokens alone, add showsUI and approval arguments ([#3399](https://github.com/GetStream/stream-chat-react/issues/3399)) ([fe78a5d](https://github.com/GetStream/stream-chat-react/commit/fe78a5d7de36d76457da9fd8ef49b34130128336))
+
 ## [14.16.0](https://github.com/GetStream/stream-chat-react/compare/v14.15.0...v14.16.0) (2026-11-04)
 
 ### Features
