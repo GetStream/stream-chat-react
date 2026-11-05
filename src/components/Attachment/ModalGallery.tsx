@@ -167,6 +167,7 @@ const ThumbnailButton = ({
   const { IconRetry } = useComponentContextIcons();
   const { t } = useTranslationContext();
   const imageUrl = item.imageUrl;
+  const isVideo = Boolean(item.videoUrl || item.videoThumbnailUrl);
   const [isLoadFailed, setIsLoadFailed] = useState(false);
   const [isImageLoading, setIsImageLoading] = useState(Boolean(imageUrl));
   // Cache-busting suffix appended to the image src on retry; keeps the component and its
@@ -206,7 +207,7 @@ const ThumbnailButton = ({
       onClick={handleButtonClick}
       type='button'
     >
-      {item.videoThumbnailUrl ? (
+      {isVideo ? (
         <VideoThumbnail
           alt={t('common.userUploadedContent.label', 'User uploaded content')}
           src={item.videoThumbnailUrl}
