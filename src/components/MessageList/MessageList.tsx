@@ -102,7 +102,6 @@ const MessageListWithContext = (props: MessageListWithContextProps) => {
   } = props;
   // The list-wide props every message gets, the thread's parent message included.
   const messageProps: SharedMessageProps = {
-    additionalMessageComposerProps: props.additionalMessageComposerProps,
     closeReactionSelectorOnClick: props.closeReactionSelectorOnClick,
     formatDate: props.formatDate,
     onMentionsClick: props.onMentionsClick,
@@ -415,7 +414,6 @@ const MessageListWithContext = (props: MessageListWithContextProps) => {
 };
 
 type PropsDrilledToMessage =
-  | 'additionalMessageComposerProps'
   | 'closeReactionSelectorOnClick'
   | 'formatDate'
   | 'onMentionsClick'

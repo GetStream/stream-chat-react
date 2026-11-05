@@ -164,7 +164,6 @@ export const Message = (props: MessageProps) => {
 
   return (
     <MemoizedMessage
-      additionalMessageComposerProps={props.additionalMessageComposerProps}
       autoscrollToBottom={props.autoscrollToBottom}
       closeReactionSelectorOnClick={closeReactionSelectorOnClick}
       deliveredTo={props.deliveredTo}

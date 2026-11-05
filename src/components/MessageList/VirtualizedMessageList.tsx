@@ -82,7 +82,6 @@ import { useLastDeliveredData } from './hooks/useLastDeliveredData';
 import { useLastOwnMessage } from './hooks/useLastOwnMessage';
 
 type PropsDrilledToMessage =
-  | 'additionalMessageComposerProps'
   | 'formatDate'
   | 'reactionDetailsSort'
   | 'renderText'
@@ -199,7 +198,6 @@ const VirtualizedMessageListWithContext = (
   props: VirtualizedMessageListWithContextProps,
 ) => {
   const {
-    additionalMessageComposerProps,
     additionalVirtuosoProps = {},
     channel,
     closeReactionSelectorOnClick,
@@ -230,7 +228,6 @@ const VirtualizedMessageListWithContext = (
     VirtualizedMessageListProps,
     PropsDrilledToMessage | 'closeReactionSelectorOnClick'
   > = {
-    additionalMessageComposerProps,
     closeReactionSelectorOnClick,
     formatDate,
     reactionDetailsSort,

@@ -4,7 +4,6 @@ import type { LocalMessage, SortParamRequest, UserResponse } from 'stream-chat';
 import type { UserEventHandler } from './hooks';
 import type { CustomMentionHandler } from './hooks/useMentionsHandler';
 import type { GroupStyle } from '../MessageList/utils';
-import type { MessageComposerProps } from '../MessageComposer';
 import type { ReactionsComparator } from '../Reactions/types';
 import type { MessageContextValue } from '../../context/MessageContext';
 import type { RenderTextFunction } from './renderText';
@@ -14,11 +13,6 @@ export type ReactEventHandler = (event: React.BaseSyntheticEvent) => Promise<voi
 export type MessageProps = {
   /** The message object. */
   message: LocalMessage;
-  /**
-   * Additional props for the underlying MessageComposer component.
-   * See the [available props](https://getstream.io/chat/docs/sdk/react/message-input-components/message_composer/#props).
-   */
-  additionalMessageComposerProps?: MessageComposerProps;
   /**
    * Keeps the message list scrolled to the bottom when the scroll height grows, e.g. when an
    * element appears below the last message. Only used in the `VirtualizedMessageList`.

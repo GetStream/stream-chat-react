@@ -46,6 +46,7 @@ const attachmentManagerConfigStateSelector = (state: MessageComposerConfig) => (
 
 /**
  * Wraps its children in a drop zone that uploads dropped files to the message composers inside it.
+ * The accepted file types come from the composer config (`attachments.acceptedFiles`).
  *
  * @example
  * ```tsx
@@ -63,7 +64,6 @@ export const WithDragAndDropUpload = ({
   component: Component = 'div',
   style,
 }: PropsWithChildren<{
-  acceptedFiles?: string[];
   /**
    * @description Element rendered as the wrapper that handles drag and drop.
    * @default 'div'

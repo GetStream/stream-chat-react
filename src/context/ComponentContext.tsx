@@ -13,7 +13,6 @@ import {
   type ContextMenuContentProps,
   type ContextMenuProps,
   type DateSeparatorProps,
-  type EmojiSearchIndex,
   type EmptyStateIndicatorProps,
   type EventComponentProps,
   type FileDragAndDropContentProps,
@@ -168,11 +167,6 @@ export type ComponentContextValue = {
   EditedMessagePreview?: React.ComponentType<EditedMessagePreviewProps>;
   /** Emoji picker button in the composer. No default; `stream-chat-react/emojis` exports one. */
   EmojiPicker?: React.ComponentType;
-  /**
-   * Search index for the autocomplete and text replace features of the `MessageComposer`; see
-   * emoji-mart's headless `SearchIndex`.
-   */
-  emojiSearchIndex?: EmojiSearchIndex;
   /** Shown when a message list is empty. */
   EmptyStateIndicator?: React.ComponentType<EmptyStateIndicatorProps>;
   /**
