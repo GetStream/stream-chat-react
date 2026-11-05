@@ -80,7 +80,13 @@ const MessageWithContext = (props: MessageWithContextProps) => {
   const { getTranslationView, setTranslationView: setTranslationViewInContext } =
     useMessageTranslationViewContext();
 
-  const translationView = getTranslationView(message.id, !!message.i18n);
+  // A poll message has no `i18n` of its own, and its poll's translations live in the poll's state, not
+  // in `message.poll`. Defaulting every poll message to 'translated' is safe: a poll text without a
+  // translation falls back to its original.
+  const translationView = getTranslationView(
+    message.id,
+    !!message.i18n || !!message.poll_id,
+  );
   const setTranslationView = useCallback(
     (view: 'original' | 'translated') => setTranslationViewInContext(message.id, view),
     [message.id, setTranslationViewInContext],
