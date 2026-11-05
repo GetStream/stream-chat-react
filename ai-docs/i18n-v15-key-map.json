@@ -1220,7 +1220,8 @@
     "Search": {
       "key": "common.search.ariaLabel",
       "prose": true,
-      "shared": true
+      "shared": true,
+      "also": ["aiComponents.a2ui.choicePickerFilter.placeholder"]
     },
     "Send": {
       "key": "common.send.label",

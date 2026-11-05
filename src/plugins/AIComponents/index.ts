@@ -2,6 +2,7 @@ export * from './AIMarkdown';
 export * from './AIMessageComposer';
 export * from './AIStateIndicator/AIStateIndicator';
 export * from './Conversation';
+export * from './GenerativeUI';
 export * from './hooks/useHeardText';
 export * from './Message';
 export * from './MessageParts';

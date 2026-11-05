@@ -1,5 +1,7 @@
 import { useEffect, useLayoutEffect, useState } from 'react';
 
+import { isRecord } from './GenerativeUI/AIUIHelpers';
+
 const unit = (locale: string, value: number, name: 'minute' | 'second') => {
   try {
     return new Intl.NumberFormat(locale, {
@@ -51,8 +53,8 @@ export const prefersReducedMotion = () =>
 export const useIsomorphicLayoutEffect =
   typeof window === 'undefined' ? useEffect : useLayoutEffect;
 
-export const isObject = (value: unknown): value is Record<string, unknown> =>
-  typeof value === 'object' && value !== null && !Array.isArray(value);
+/** Whether `value` is a JSON object, rather than an array, `null` or a scalar. */
+export const isObject = isRecord;
 
 /**
  * The object's fields, with those stream-chat keeps under `custom` moved up beside them. An object

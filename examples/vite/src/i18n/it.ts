@@ -46,6 +46,7 @@ export const itTranslations = {
   'a11y.interactionAnnouncements.voiceMessageSent.ariaLabel': 'Messaggio vocale inviato',
   'a11y.interactionAnnouncements.voiceRecordingAttached.ariaLabel':
     'Registrazione vocale allegata',
+  'aiComponents.a2ui.choicePickerFilter.placeholder': 'Cerca',
   'aiComponents.attachmentPreview.deleteAttachment.ariaLabel': 'Elimina allegato',
   'aiComponents.attachmentPreview.unknownFileName.text': 'Nome file sconosciuto',
   'aiComponents.chart.loading.text': 'Caricamento del grafico...',

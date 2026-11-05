@@ -41,6 +41,7 @@ export type TranslationCatalog = {
   'a11y.interactionAnnouncements.userSelected.ariaLabel': 'User selected: {{ user }}';
   'a11y.interactionAnnouncements.voiceMessageSent.ariaLabel': 'Voice message sent';
   'a11y.interactionAnnouncements.voiceRecordingAttached.ariaLabel': 'Voice recording attached';
+  'aiComponents.a2ui.choicePickerFilter.placeholder': 'Search';
   'aiComponents.attachmentPreview.deleteAttachment.ariaLabel': 'Delete attachment';
   'aiComponents.attachmentPreview.unknownFileName.text': 'Unknown file name';
   'aiComponents.chart.loading.text': 'Loading chart...';
