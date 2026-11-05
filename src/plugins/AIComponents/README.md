@@ -32,7 +32,7 @@ Load `ai-components.css` in addition to `stream-chat-react/css/index.css`.
 From `stream-chat-react/ai-components`:
 
 - Components: `AIMarkdown`, `AIMessageComposer` (with the static sub-components `FileInput`, `TextInput`, `SpeechToTextButton`, `SubmitButton`, `ModelSelect`, `ChatOptions`, `AttachmentPreview`, `AttachmentPreview.Item`), `StreamingMessage`, `AIStateIndicator`, `VoiceWave`, `VoiceGlow`
-- Agent conversations (see [Agent conversations](#agent-conversations)): `AIConversation`, `AIUserMessage`, `AIAssistantMessage`, `AIMessageAttachment`, `AIReplyActions`, `AITypingIndicator`, `AISuggestions`, `AIMessageParts`, `AIMessagePart`, `AIToolCall`, `AIToolApproval`, `AIToolApprovalCard`, `AIToolAuthorization`, `AIToolAuthorizationCard`, `AIReasoning`, `AIThinking`, `AIToolApproverProvider`, `ChatOptionsList`, `SelectedChatOptionChip`
+- Agent conversations (see [Agent conversations](#agent-conversations)): `AIConversation`, `AIUserMessage`, `AIAssistantMessage`, `AIMessageAttachment`, `AIReplyActions`, `AITypingIndicator`, `AISuggestions`, `AIMessageParts`, `AIMessagePart`, `AIToolCall`, `AIToolApproval`, `AIToolApprovalCard`, `AIToolArguments`, `AIToolAuthorization`, `AIToolAuthorizationCard`, `AIReasoning`, `AIThinking`, `AIToolApproverProvider`, `ChatOptionsList`, `SelectedChatOptionChip`
 - Functions: `parseMessageParts`, `parseMessagePart`, `isAwaitingApproval`, `isAwaitingAuthorization`, `isAwaitingClient`, `isDeclined`, `isToolCallFinished`, `isSupportedPart`, `isAuthorizationExpired`, `fromStreamMessage`, `createPopupAuthorizer`, `completeConnectorSignIn`, `readConnectorSignInResult`, `AIClientIdentity.installId()`
 - Hooks: `useAttachments`, `useText`, `useIsDisabled`, `useAIMessageComposerContext`, `useSpeechToText`, `useAudioLevel`, `useHeardText`, `useAIToolApprover`
 - Types: `AIMessageComposerStore`, `StreamingMessageRef`, `UseMessageTextStreamingProps`, `ToolComponentProps`, `UseSpeechToTextOptions`, `VoiceAgentState`, `VoiceGlowRendering`, `VoiceVisualizationProps`, `VoiceWaveProps`, `VoiceGlowProps`, `HeardTextProgress`, `HeardTextFunction`, `HeardTextSubscribe`, `UseHeardTextParams`, `UseHeardTextResult`, `AIMessage`, `AIMessageRole`, `AIPendingMessage`, `AIMessagePartData`, `AIReasoningPart`, `AIToolCallPart`, `AIToolApprovalData`, `AIToolAuthorizationData`, `AIToolApprover`, `AIToolAuthorizer`, `AIToolApprovalState`, `AIToolAuthorizationState`, `AIMessageAttachmentData`, `AIMessageRating`, `AIChatOption`, `PopupAuthorizerOptions`, `ConnectorSignInResult`
@@ -130,6 +130,22 @@ Behaviour:
 - It opens at its end. A conversation replaced as a whole (another chat opened) opens at its end again.
 - A round button scrolls to the latest message while the end is out of view.
 - Steps render with `AIMessageParts`; the answer types out with `StreamingMessage` as it streams in, catching up with what has arrived within about 400 ms, and a reply loaded from history shows at once. `letterIntervalMs` and `renderingLetterCount` set a fixed pace instead.
+- An `AssistantMessage` of your own gets `attachments`, `isGenerating`, `message`, `parts`, `text`, `approver`, `reasoningText`, and two props about the reply's generated UI: `showsUI`, whether its UI shows in place of its words (`text` is then `''`), and `uiFailed`, whether its UI failed to show (`AIUIHost.fail`), so its words, if any, show instead. A reply that is neither generating nor showing UI, with no `text`, finished without a text reply, which your message can say. Both change when the host fails a reply, so a memoised message shows again.
+
+```tsx
+const AssistantMessage = (props: AIConversationAssistantMessageProps) => (
+  <>
+    <AIAssistantMessage {...props} />
+    {!props.isGenerating && !props.showsUI && props.text === '' && (
+      <p role='status'>
+        {props.uiFailed
+          ? 'The reply couldn’t be shown.'
+          : 'Finished without a text reply.'}
+      </p>
+    )}
+  </>
+);
+```
 
 ### Generated UI
 
@@ -161,7 +177,7 @@ const ui = useMemo(
 - Links from a reply's UI open through `host.open`: web and email links by default, since the agent writes them. Pass `open` to decide yourself.
 - The app's tools a reply's UI can run are `AIUIClientTool`s: a `name`, a `description` and an `inputSchema` for the agent's model, `readOnly` for one that only reads, and `run`. `host.runTool(name, args, { userInitiated })` runs one that isn't read-only only when `userInitiated`, from something the person did, and rejects with an `AIUIToolError` naming the tool when it can't run, fails or gives what isn't JSON. `host.capabilities()` lists them for the agent's backend as MCP tools (`name`, `description`, `inputSchema`, `annotations.readOnlyHint`), and each renderer's instructions say how its format calls them.
 - The app's components are described once, in portable JSON shared with the iOS and Android apps (`parseAIUIComponentDefinition`: `name`, `description`, `parameters` as a JSON Schema object with `x-order`, `events`). `defineAIUIComponent(definition, Component)` gives the view `args` (camelCase keys, dates as `Date`s, once they fit the parameters) and `context.emit(event, label, payload)`. `await host.capabilities()` describes the formats and components to the agent's backend, with each renderer's instructions for its model, as on iOS.
-- `AIUIView` shows one reply's UI outside `AIConversation`; call `host.receive(messages)` as the messages change, and show the reply's text when `host.content(document, messageId)` is `null`, again whenever `host.subscribe` calls back.
+- `AIUIView` shows one reply's UI outside `AIConversation`; call `host.receive(messages)` as the messages change, and show the reply's text when `host.content(document, messageId)` is `null`, again whenever `host.subscribe` calls back. `host.hasFailed(messageId)` says whether a reply's UI failed to show.
 - A renderer of your own can load its format's packages the first time a reply shows it with `AIUIRuntimeLoader` and `AIUIRuntimeView`, as the A2UI and OpenUI renderers do. When they can't load, such as after a deploy replaced the file they are in, the replies already written show their text, and the next reply the agent writes in the format tries again.
 
 ### A2UI
@@ -184,7 +200,7 @@ const ui = new AIUIHost({
 
 - A reply's `content` is A2UI messages, one JSON object per line as the agents router passes them on (a JSON array, or JSON rather than text, reads the same). Each message shows as it completes, while the agent writes it. Messages the agent rewrites, rather than adds to, start the reply's surfaces again.
 - Each reply's surfaces are its own, kept for as long as the host is, so what the person entered survives scrolling. A finished reply whose A2UI made no surface shows its text.
-- The app's components join the catalog under their A2UI type (`place_card` is `PlaceCard`), in the catalog `getstream.io:app-catalog` (`catalogId` to name another) and in the basic catalog, as on iOS, so the same instructions serve both apps. A parameter takes the value its schema describes, or a binding (`@path`) or function (`@call`), which the component gets worked out.
+- The app's components join the catalog under their A2UI type (`place_card` is `PlaceCard`), in the catalog `stream-app-catalog` (`A2UI_DEFAULT_CATALOG_ID`; `catalogId` to name another) and in the basic catalog, as on iOS, so the same instructions serve both apps. The agent writes the catalog id in every surface it makes, so it names no domain: a domain in it, as in the former default `getstream.io:app-catalog`, became a link preview under every A2UI reply. A renderer with the default id still shows surfaces that name the former one (`A2UI_LEGACY_CATALOG_ID`), so A2UI already in a conversation's history keeps showing; pick an id of your own without a domain, too. A conversation is read on every platform its people use, so the renderers there must know the id the agent writes: until your iOS and Android apps' renderers know `stream-app-catalog`, pass `catalogId: A2UI_LEGACY_CATALOG_ID` to keep writing the former id, or give every platform the same id of your own. A parameter takes the value its schema describes, or a binding (`@path`) or function (`@call`), which the component gets worked out.
 - What the person does goes to `host.send` as an `AIUIAction`, as on iOS and Android: an A2UI event with what the tapped button says as the label (written or bound to the data model, else the event's name as words, such as "Submit form"), and `{ surfaceId, sourceComponentId, context, userMessage }` as its payload, so the agent's words never pass for the person's; with `dataModel` too when the surface was created with `sendDataModel`. What the person types in an obscured TextField, such as a password, is left out of all of it. An app component's event has its own label and payload, plus `component`. `openUrl` opens through `host.open`, from a tap only. Text renders with `AIMarkdown`, and its links open through `host.open` too, since the agent writes them.
 - The app's tools (`AIUIHostOptions.tools`, each with a `description`, an `inputSchema` and `readOnly`) are listed in the instructions, and the agent calls one as a function the catalog doesn't define, `{"@call": "<name>", "args": {…}}`. A read-only one runs wherever it is called; any other only from a tap, through a button's `functionCall`.
 - Images, videos and sounds load only what `mediaUrl` allows, before they draw: public web links and the page's own site by default (`aiUIPublicMediaURL`), not `data:` URLs or addresses on the person's network.
@@ -237,6 +253,7 @@ const instructions = await openUIInstructions([placeCard, tripMap]);
 - `AIMessageParts` / `AIMessagePart`: a reply's steps, each as `AIReasoning`, `AIToolCall` (with `AIToolApproval` and `AIToolAuthorization` under it), or a neutral line for a step this SDK can't show.
 - `AIToolCall`: the call's `displayTitle` (else its name), what it waits for or how it ended, and its duration once finished.
 - `AIToolApproval`: the question of a call that waits for this person here, sent with `approver.decide(call, allowed)`. The buttons wait until the call's step changes; a rejected `decide` shows "Your answer couldn't be sent. Try again." and lets them answer again (`AIToolApprovalState`: `isSending`, `failed`). `AIToolApprovalCard` is the same question on its own, such as on a voice call: `<AIToolApprovalCard approval={call.approval} onDecide={…} state={…} />`.
+- What the call will send shows under its question: its `arguments` as JSON (`AIToolArguments`), in full when short, else collapsed under "What it sends", which the person opens. `approver.argumentsPreview(call)` shows them your way, such as `Posts "Off to Ohrid" in #travel`; it returns `null` to show nothing, or `undefined` for the default. `AIToolApprovalCard` takes the preview as `argumentsPreview`, and `AIToolApproval`'s `children` get it as their fourth argument. A call carries `arguments` when the agents router sends them, which it always does for client tools.
 - `AIToolAuthorization`: the sign-in of a call that waits for this person, with Connect and Not now, run by `approver.authorizer`. Connect reads "Connecting…" until the call's step changes; Not now stays available meanwhile. `AIToolAuthorizationCard` also says how a sign-in ended (connected, declined, failed, expired) and stops offering Connect past `expiresAt`.
 - `AIReasoning`: a round of reasoning. While the model thinks the header counts ("Thinking… 7s") and the reasoning streams in; once done it says "Thought for 12s" with the step's summary and folds away. Clicking the header opens or folds it. Pass `part` and `reasoningText` (the live reasoning, by step id), or `text`, `isThinking`, `duration` and `summary` yourself. `AIThinking` is the thinking before a reply shows anything.
 
@@ -488,44 +505,60 @@ var(--str-chat__ai-bg-primary, var(--str-chat__background-core-elevation-0, #fff
 
 Precedence for every token except the code palette is: your `--str-chat__ai-*` override, then the `stream-chat-react` theme token (inside `.str-chat`, so the SDK light/dark themes apply automatically), then a built-in light literal (outside `.str-chat`). The `--str-chat__ai-syntax-*` palette has no SDK theme token: it falls back directly from your override to a built-in literal. Because nothing is declared by the library, overrides work at any scope, including `:root`.
 
-| Token (`--str-chat__ai-…`) | Used for                                                | SDK theme token (`--str-chat__…`) | Literal fallback |
-| -------------------------- | ------------------------------------------------------- | --------------------------------- | ---------------- |
-| `bg-primary`               | code block background                                   | `background-core-elevation-0`     | `#ffffff`        |
-| `bg-secondary`             | not read by the built-in rules (kept for compatibility) | `background-core-surface-default` | `#f7f7f8`        |
-| `bg-tertiary`              | not read by the built-in rules (kept for compatibility) | `background-core-surface-strong`  | `#ececf1`        |
-| `text-primary`             | not read by the built-in rules (kept for compatibility) | `text-primary`                    | `#353740`        |
-| `text-secondary`           | AI state indicator text and dots                        | `text-secondary`                  | `#565869`        |
-| `border`                   | composer, model select and attachment borders           | `border-core-default`             | `#ccc`           |
-| `border-subtle`            | table row separators                                    | `border-core-subtle`              | `#e9ecef`        |
-| `surface-hover`            | composer round-button hover                             | `background-utility-hover`        | `#e8e8e8`        |
-| `surface-pressed`          | pressed (listening) speech-to-text button               | `background-utility-selected`     | `#d1eaff`        |
-| `button-bg`                | attachment delete/retry buttons                         | `background-core-surface-strong`  | `#e8e8e8`        |
-| `inline-code-bg`           | inline code in `StreamingMessage`                       | `background-core-surface-default` | `#f5f5f5`        |
-| `table-border`             | table header borders                                    | `border-core-default`             | `#dee2e6`        |
-| `table-header-bg`          | table header and row hover background                   | `background-core-surface-subtle`  | `#f8f9fa`        |
-| `table-header-text`        | table header text                                       | `text-primary`                    | `#212529`        |
-| `table-text`               | table cell text                                         | `text-secondary`                  | `#495057`        |
-| `scrollbar-track`          | attachment list scrollbar track                         | `background-core-surface-subtle`  | `#f1f1f1`        |
-| `scrollbar-thumb`          | attachment list scrollbar thumb                         | `border-core-default`             | `#ddd`           |
-| `voice-color`              | `VoiceWave` / `VoiceGlow` color when `colors` is unset  | `accent-primary`                  | `#005fff`        |
-| `voice-backdrop`           | what `VoiceWave` / `VoiceGlow` sit on (light or dark)   | `background-core-elevation-0`     | `#ffffff`        |
-| `accent`                   | tool call icons, reasoning rule while thinking, chips   | `accent-primary`                  | `#005fff`        |
-| `success`                  | completed tool calls, connected sign-ins                | `accent-success`                  | `#00a46e`        |
-| `error`                    | failed tool calls, answers that couldn't be sent        | `accent-error`                    | `#d92f26`        |
-| `text-tertiary`            | reasoning footnote                                      | `text-tertiary`                   | `#7a7d87`        |
-| `card-bg`                  | approval and sign-in cards, files, suggestions          | `background-core-surface-card`    | `#f7f7f8`        |
-| `card-border`              | approval and sign-in cards, files                       | `border-core-subtle`              | `#e9ecef`        |
-| `elevated-bg`              | scroll-to-latest button, chat options menu              | `background-core-elevation-1`     | `#ffffff`        |
-| `user-message-bg`          | the person's message bubble                             | `chat-bg-outgoing`                | `#d2e3ff`        |
-| `user-message-text`        | the person's message text                               | `chat-text-outgoing`              | `#001a4d`        |
-| `button-primary-bg`        | Allow and Connect buttons                               | `button-primary-bg`               | `#005fff`        |
-| `button-primary-text`      | Allow and Connect button text                           | `button-primary-text-on-accent`   | `#ffffff`        |
-| `button-secondary-bg`      | Don't Allow and Not now buttons                         | `background-core-elevation-1`     | `#ffffff`        |
-| `button-secondary-text`    | Don't Allow and Not now button text                     | `text-primary`                    | `#353740`        |
-| `button-secondary-border`  | Don't Allow and Not now button border                   | `button-secondary-border`         | `#ccc`           |
-| `syntax-*`                 | code palette (see below)                                | none                              | built-in palette |
+| Token (`--str-chat__ai-…`) | Used for                                                   | SDK theme token (`--str-chat__…`) | Literal fallback |
+| -------------------------- | ---------------------------------------------------------- | --------------------------------- | ---------------- |
+| `bg-primary`               | code block background                                      | `background-core-elevation-0`     | `#ffffff`        |
+| `bg-secondary`             | not read by the built-in rules (kept for compatibility)    | `background-core-surface-default` | `#f7f7f8`        |
+| `bg-tertiary`              | not read by the built-in rules (kept for compatibility)    | `background-core-surface-strong`  | `#ececf1`        |
+| `text-primary`             | not read by the built-in rules (kept for compatibility)    | `text-primary`                    | `#353740`        |
+| `text-secondary`           | AI state indicator text and dots                           | `text-secondary`                  | `#565869`        |
+| `border`                   | composer, model select and attachment borders              | `border-core-default`             | `#ccc`           |
+| `border-subtle`            | table row separators                                       | `border-core-subtle`              | `#e9ecef`        |
+| `surface-hover`            | composer round-button hover                                | `background-utility-hover`        | `#e8e8e8`        |
+| `surface-pressed`          | pressed (listening) speech-to-text button                  | `background-utility-selected`     | `#d1eaff`        |
+| `button-bg`                | attachment delete/retry buttons                            | `background-core-surface-strong`  | `#e8e8e8`        |
+| `inline-code-bg`           | inline code in `StreamingMessage`                          | `background-core-surface-default` | `#f5f5f5`        |
+| `table-border`             | table header borders                                       | `border-core-default`             | `#dee2e6`        |
+| `table-header-bg`          | table header and row hover background                      | `background-core-surface-subtle`  | `#f8f9fa`        |
+| `table-header-text`        | table header text                                          | `text-primary`                    | `#212529`        |
+| `table-text`               | table cell text                                            | `text-secondary`                  | `#495057`        |
+| `scrollbar-track`          | attachment list scrollbar track                            | `background-core-surface-subtle`  | `#f1f1f1`        |
+| `scrollbar-thumb`          | attachment list scrollbar thumb                            | `border-core-default`             | `#ddd`           |
+| `voice-color`              | `VoiceWave` / `VoiceGlow` color when `colors` is unset     | `accent-primary`                  | `#005fff`        |
+| `voice-backdrop`           | what `VoiceWave` / `VoiceGlow` sit on (light or dark)      | `background-core-elevation-0`     | `#ffffff`        |
+| `accent`                   | tool call icons, reasoning rule while thinking, chips      | `accent-primary`                  | `#005fff`        |
+| `success`                  | completed tool calls, connected sign-ins                   | `accent-success`                  | `#00a46e`        |
+| `error`                    | failed tool calls, answers that couldn't be sent           | `accent-error`                    | `#d92f26`        |
+| `text-tertiary`            | reasoning footnote                                         | `text-tertiary`                   | `#7a7d87`        |
+| `card-bg`                  | approval and sign-in cards, files, suggestions             | `background-core-surface-card`    | `#f7f7f8`        |
+| `card-border`              | approval and sign-in cards, files                          | `border-core-subtle`              | `#e9ecef`        |
+| `elevated-bg`              | scroll-to-latest button, chat options menu                 | `background-core-elevation-1`     | `#ffffff`        |
+| `user-message-bg`          | the person's message bubble                                | `chat-bg-outgoing`                | `#d2e3ff`        |
+| `user-message-text`        | the person's message text                                  | `chat-text-outgoing`              | `#001a4d`        |
+| `button-primary-bg`        | Allow and Connect buttons                                  | `button-primary-bg`               | `#005fff`        |
+| `button-primary-text`      | Allow and Connect button text                              | `button-primary-text-on-accent`   | `#ffffff`        |
+| `button-secondary-bg`      | Don't Allow and Not now buttons                            | `background-core-elevation-1`     | `#ffffff`        |
+| `button-secondary-text`    | Don't Allow and Not now button text                        | `text-primary`                    | `#353740`        |
+| `button-secondary-border`  | Don't Allow and Not now button border                      | `button-secondary-border`         | `#ccc`           |
+| `link`                     | words in the accent colour in generated UI (else `accent`) | `text-link`                       | `#005fff`        |
+| `color-scheme`             | native controls in generated UI, such as the date input    | the SDK theme (`light` / `dark`)  | `light`          |
+| `syntax-*`                 | code palette (see below)                                   | none                              | built-in palette |
 
 The code palette tokens are `--str-chat__ai-syntax-text`, `-selection-bg`, `-comment`, `-punctuation`, `-number`, `-keyword`, `-tag`, `-string`, `-function`, `-cyan`, `-error` and `-whitespace`.
+
+In the SDK's dark theme, `button-primary-bg` falls back to the SDK's primary fill drawn a fifth of the way toward black, so the white words on it reach 4.5:1 (the SDK's dark `#4586ff` gives 3.4:1). The shade is worked out on the `.str-chat__theme-dark` element, from the SDK token there, in browsers with `color-mix()`; elsewhere the fill is the SDK's as it is. An app that sets `--str-chat__ai-button-primary-bg` gets that colour as it is.
+
+An app that themes generated UI dark with these tokens alone, outside the SDK's dark theme, also sets `--str-chat__ai-color-scheme: dark`, so native controls such as the date input draw dark too.
+
+### Generated UI
+
+A2UI and OpenUI replies take every colour from these tokens, so an app that sets only `--str-chat__ai-*` themes them in both themes, inside a `.str-chat` element or outside one, where the SDK's theme tokens don't exist and the literal fallbacks apply.
+
+- `.str-chat__a2ui` sets every `--a2ui-*` colour A2UI's own elements read (text, captions, tab titles, the open tab, inputs, focus, errors, the slider, the date input, the modal), and `.str-chat__openui` every `--openui-*` colour OpenUI's components read. Without them, A2UI falls back to a light theme's literals (dark tab titles at #666, 2.6:1), and OpenUI's follow the person's system rather than the SDK's theme.
+- A2UI's buttons, chips, text fields and check marks are the SDK's own components. In a reply they take the AI tokens: `button-primary-bg` and `button-primary-text` for the main button and checked boxes, `button-secondary-*` for the others, `bg-primary` for fields (`--a2ui-color-input`), `border` and `text-*` for the rest. They're drawn in full by `ai-components.css`, so they need no `.str-chat` around the reply.
+- Words in the accent colour (follow-ups, borderless buttons, the open tab, a chosen chip) take `link`, else `accent`, else the SDK's link colour, which reads on the SDK's surfaces in both themes where its accent doesn't. Words in the error colour take `error`, else the SDK's, drawn toward the text colour.
+- `yarn validate-ai-ui-tokens`, run in CI, fails when either renderer reads a colour these leave unset, such as after an upgrade of its packages.
+- The gallery in `examples/ai-ui-gallery` shows both formats in each theme, inside and outside `.str-chat`, with the SDK's tokens and with only an app's AI tokens, and its `screenshots` script checks every text against what is under it for 4.5:1.
 
 Focus rings use the SDK focus token `--str-chat__border-utility-focused` (falling back to `#005fff` outside `.str-chat`). Icons inside the composer and attachment previews are sized and coloured (`currentColor`) by `ai-components.css` itself.
 

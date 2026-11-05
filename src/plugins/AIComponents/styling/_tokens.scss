@@ -166,10 +166,11 @@ $ai-tokens: (
     '--str-chat__chat-text-outgoing',
     #001a4d,
   ),
+  // Shaded in the dark theme (see `$ai-dark-shades`).
   'button-primary-bg': (
-    '--str-chat__button-primary-bg',
-    #005fff,
-  ),
+      '--str-chat__button-primary-bg',
+      #005fff,
+    ),
   'button-primary-text': (
     '--str-chat__button-primary-text-on-accent',
     #ffffff,
@@ -265,6 +266,16 @@ $ai-scale: (
   @return string.unquote('var(#{list.nth($entry, 1)}, #{list.nth($entry, 2)})');
 }
 
+// The tokens whose SDK fallback is too light in the SDK's dark theme for what is written on
+// them, and how much of it to keep there, the rest black. A filled primary button carries white
+// words, which Stream's dark `#4586ff` gives 3.4:1; kept at 80%, they reach 4.5:1. `index.scss`
+// declares the shaded fallback as `--_str-chat-ai-dark-<name>` on `.str-chat__theme-dark`, where
+// `color-mix()` is supported, and `ai-token()` reads it before the SDK token. A colour the app
+// sets with `--str-chat__ai-<name>` is used as it is.
+$ai-dark-shades: (
+  'button-primary-bg': 80%,
+);
+
 @function ai-token($name) {
   $entry: map.get($ai-tokens, $name);
   @if $entry == null {
@@ -272,11 +283,45 @@ $ai-scale: (
   }
   $scr: list.nth($entry, 1);
   $fallback: list.nth($entry, 2);
+  @if map.has-key($ai-dark-shades, $name) {
+    @return string.unquote(
+      'var(--str-chat__ai-#{$name}, var(--_str-chat-ai-dark-#{$name}, var(#{$scr}, #{$fallback})))'
+    );
+  }
   @if $scr {
     @return string.unquote('var(--str-chat__ai-#{$name}, var(#{$scr}, #{$fallback}))');
   }
   @return string.unquote('var(--str-chat__ai-#{$name}, #{$fallback})');
 }
+
+// Words in the accent colour, such as follow-ups, a chosen chip or the open tab: the app's link
+// colour, else its accent, else Stream's link colour, which stays legible on Stream's surfaces
+// in both themes, where its accent (in dark, #4586ff) does not.
+@function ai-accent-text() {
+  @return string.unquote(
+    'var(--str-chat__ai-link, var(--str-chat__ai-accent, var(--str-chat__text-link, #005fff)))'
+  );
+}
+
+// The words of a chosen chip, on its accent tint: the accent's words drawn a little toward the
+// text colour, which the tint would otherwise take below 4.5:1 on a light card.
+@function ai-chosen-text() {
+  @return string.unquote(
+    'color-mix(in srgb, #{ai-accent-text()} 85%, #{ai-token(text-primary)})'
+  );
+}
+
+// Words in the error colour, such as a field's problems or a destructive button's label: the
+// app's error colour, else Stream's, drawn a fifth of the way toward the text colour, so it
+// reaches 4.5:1 on Stream's cards in both themes.
+@function ai-error-text() {
+  @return string.unquote(
+    'var(--str-chat__ai-error, color-mix(in srgb, var(--str-chat__accent-error, #d92f26) 80%, var(--str-chat__text-primary, #353740)))'
+  );
+}
+
+// Warnings, which the AI components have no token of their own for: Stream's, else its orange.
+$ai-warning: var(--str-chat__accent-warning, #fa922b);
 
 // Focus ring for controls whose native outline is removed by `all: unset`.
 // Follows the SCR focus token (brand colour, light/dark aware) with a literal

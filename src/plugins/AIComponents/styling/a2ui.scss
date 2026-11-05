@@ -1,12 +1,129 @@
 @use './tokens' as *;
 @use './ai-ui-icons' as *;
+@use '../../../styling/utils';
 
 // A reply's A2UI: its surfaces, in Stream's look. The A2UI basic catalog reads `--a2ui-*`
-// variables, which it defines for the whole page with no specificity, so setting them here
-// themes every surface of a reply, and follows Stream's light and dark themes. The variants it
-// works out from the colours are worked out here again, from these colours.
+// variables, each with a light theme's literal as its fallback, so every one it reads is set
+// here, from the AI components' tokens: an app that sets only `--str-chat__ai-*` themes every
+// surface of a reply, in Stream's light and dark themes alike, inside a `.str-chat` element or
+// not. The variants it works out from the colours are worked out here again, from these colours.
+// `yarn validate-ai-ui-tokens` fails when the catalog reads a colour this leaves unset.
+//
+// The parts Stream draws with its own components (buttons, chips, text fields, check marks) read
+// Stream's tokens, which only a `.str-chat` element defines. `.str-chat__a2ui` captures what they
+// should be from the AI components' tokens, with literal fallbacks, as `--_str-chat-a2ui-*`, and
+// those parts point Stream's tokens at the captures: a custom property can't be set from itself
+// on one element, but can from what its parent worked out. Nothing outside A2UI changes.
+
+// The Stream tokens A2UI's own parts read, and what they are in a reply.
+$a2ui-stream-tokens: (
+  // Surfaces and words.
+  'background-core-elevation-0': var(--a2ui-color-input),
+  'text-primary': var(--a2ui-color-on-input),
+  'text-secondary': ai-token(text-secondary),
+  'text-tertiary': ai-token(text-tertiary),
+  'text-disabled': color-mix(in srgb, #{ai-token(text-primary)} 45%, transparent),
+  'input-text-default': var(--a2ui-color-on-input),
+  'input-text-placeholder': ai-token(text-tertiary),
+  'input-text-icon': ai-token(text-secondary),
+  'accent-error': ai-error-text(),
+  'accent-success': ai-token(success),
+  // Edges.
+  'border-core-default': var(--a2ui-color-border),
+  'border-utility-error': ai-token(error),
+  'border-utility-focused': $ai-focus-ring-color,
+  'border-utility-disabled': color-mix(
+      in srgb,
+      #{ai-token(text-primary)} 20%,
+      transparent
+    ),
+  'chat-border-on-chat-incoming': var(--a2ui-color-border),
+  'control-radio-check-bg-selected': var(--a2ui-color-primary),
+  // Buttons and chips.
+  'button-primary-bg': var(--a2ui-color-primary),
+  'button-primary-text-on-accent': var(--a2ui-color-on-primary),
+  'button-primary-text': ai-accent-text(),
+  'button-primary-border': var(--a2ui-color-primary),
+  'button-secondary-bg': var(--a2ui-color-secondary),
+  'button-secondary-text-on-accent': var(--a2ui-color-on-secondary),
+  'button-secondary-text': var(--a2ui-color-on-secondary),
+  'button-secondary-border': ai-token(button-secondary-border),
+  'background-utility-hover': color-mix(
+      in srgb,
+      #{ai-token(text-primary)} 8%,
+      transparent
+    ),
+  'background-utility-pressed': color-mix(
+      in srgb,
+      #{ai-token(text-primary)} 14%,
+      transparent
+    ),
+  'background-utility-selected': color-mix(
+      in srgb,
+      #{ai-token(text-primary)} 10%,
+      transparent
+    ),
+  'background-utility-disabled': color-mix(
+      in srgb,
+      #{ai-token(text-primary)} 12%,
+      transparent
+    ),
+  // Sizes, which only a `.str-chat` element defines.
+  'button-padding-y-md': var(--str-chat__button-padding-y-md, 0.625rem),
+  'button-padding-x-with-label-md': var(--str-chat__button-padding-x-with-label-md, 1rem),
+  'button-padding-y-sm': var(--str-chat__button-padding-y-sm, 0.375rem),
+  'button-padding-x-with-label-sm': var(--str-chat__button-padding-x-with-label-sm, 1rem),
+  'button-radius-md': var(--str-chat__button-radius-md, 9999px),
+  'radius-md': var(--str-chat__radius-md, 0.5rem),
+  'radius-max': var(--str-chat__radius-max, 9999px),
+  'size-24': var(--str-chat__size-24, 1.5rem),
+  'space-4': var(--str-chat__space-4, 0.25rem),
+  'spacing-none': var(--str-chat__spacing-none, 0),
+  'spacing-xxs': ai-scale(space-xxs),
+  'spacing-xs': ai-scale(space-xs),
+  'spacing-sm': ai-scale(space-sm),
+  'typography-font-size-xs': ai-scale(font-xs),
+  'typography-font-size-sm': ai-scale(font-sm),
+  'typography-line-height-normal': ai-scale(line-normal),
+  'typography-line-height-tight': var(--str-chat__typography-line-height-tight, 1rem)
+);
+
+// Points Stream's tokens at the reply's captures, on one of A2UI's own parts.
+@mixin a2ui-stream-tokens {
+  @each $name, $value in $a2ui-stream-tokens {
+    --str-chat__#{$name}: var(--_str-chat-a2ui-#{$name});
+  }
+}
 
 .str-chat__a2ui {
+  @each $name, $value in $a2ui-stream-tokens {
+    --_str-chat-a2ui-#{$name}: #{$value};
+  }
+
+  // What the basic catalog's own elements read, besides the colours below: words, captions and
+  // tab titles, the open tab, focus, errors, the slider, the date input and the modal's backdrop.
+  --a2ui-text-color: #{ai-token(text-primary)};
+  --a2ui-text-color-text: #{ai-token(text-primary)};
+  --a2ui-text-caption-color: #{ai-token(text-secondary)};
+  --a2ui-tabs-header-color: #{ai-token(text-secondary)};
+  --a2ui-tabs-header-color-active: #{ai-accent-text()};
+  --a2ui-textfield-color-border-focus: #{$ai-focus-ring-color};
+  --a2ui-textfield-color-error: #{ai-error-text()};
+  --a2ui-checkbox-color-error: #{ai-error-text()};
+  --a2ui-choicepicker-color-error: #{ai-error-text()};
+  --a2ui-slider-color-error: #{ai-error-text()};
+  --a2ui-datetimeinput-color-error: #{ai-error-text()};
+  --a2ui-slider-track-color: #{ai-token(bg-tertiary)};
+  --a2ui-slider-thumb-color: var(--a2ui-color-primary);
+  --a2ui-datetimeinput-color: var(--a2ui-color-on-input);
+  --a2ui-modal-backdrop-bg: color-mix(
+    in srgb,
+    var(--a2ui-color-on-background) 40%,
+    transparent
+  );
+  --a2ui-modal-box-shadow: 0 1rem 3rem
+    color-mix(in srgb, var(--a2ui-color-on-background) 22%, transparent);
+  --a2ui-card-box-shadow: none;
   --a2ui-color-background: #{ai-token(bg-primary)};
   --a2ui-color-on-background: #{ai-token(text-primary)};
   --a2ui-color-surface: #{ai-token(card-bg)};
@@ -51,7 +168,7 @@
   width: 100%;
   min-width: 0;
   color: ai-token(text-primary);
-  color-scheme: light;
+  color-scheme: var(--str-chat__ai-color-scheme, light);
 
   // A surface is the reply's card, as OpenUI's is: a raised surface with a hairline edge. A Card
   // the agent places in it is a panel on it.
@@ -141,79 +258,186 @@
   max-width: 100%;
 }
 
-// A button's words as the agent wrote them, rather than in the case Stream's buttons use.
-.str-chat .str-chat__button.str-chat__a2ui-button,
-.str-chat .str-chat__button.str-chat__a2ui-chip {
+// A2UI's buttons and chips are Stream's `Button`, drawn here in full, so they look the same with
+// or without a `.str-chat` element around the reply, whose rules for `.str-chat__button` they
+// also match. Their colours, sizes and shapes go through Stream's button tokens, pointed at the
+// reply's captures, so both sets of rules agree, and the AI components' tokens alone theme them.
+// A button's words are the agent's, in the case it wrote them.
+.str-chat__a2ui .str-chat__button:is(.str-chat__a2ui-button, .str-chat__a2ui-chip) {
+  @include a2ui-stream-tokens;
+  @include utils.button-reset;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: ai-scale(font-sm);
+  font-weight: ai-scale(weight-semi-bold);
+  line-height: ai-scale(line-normal);
   text-transform: none;
+  white-space: nowrap;
+
+  &.str-chat__button--size-md {
+    padding-block: var(--str-chat__button-padding-y-md);
+    padding-inline: var(--str-chat__button-padding-x-with-label-md);
+    border-radius: var(--str-chat__button-radius-md);
+  }
+
+  &.str-chat__button--size-sm {
+    padding-block: var(--str-chat__button-padding-y-sm);
+    padding-inline: var(--str-chat__button-padding-x-with-label-sm);
+    border-radius: var(--str-chat__button-radius-md);
+  }
+
+  &.str-chat__button--solid.str-chat__button--primary {
+    background-color: var(--str-chat__button-primary-bg);
+    color: var(--str-chat__button-primary-text-on-accent);
+  }
+
+  &.str-chat__button--solid.str-chat__button--secondary {
+    background-color: var(--str-chat__button-secondary-bg);
+    color: var(--str-chat__button-secondary-text-on-accent);
+  }
+
+  &.str-chat__button--ghost.str-chat__button--primary,
+  &.str-chat__button--outline.str-chat__button--primary {
+    color: var(--str-chat__button-primary-text);
+  }
+
+  &.str-chat__button--ghost.str-chat__button--secondary,
+  &.str-chat__button--outline.str-chat__button--secondary {
+    color: var(--str-chat__button-secondary-text);
+  }
+
+  &.str-chat__button--outline {
+    border-width: 1px;
+    border-style: solid;
+  }
+
+  &.str-chat__button--outline.str-chat__button--primary {
+    border-color: var(--str-chat__button-primary-border);
+  }
+
+  &.str-chat__button--outline.str-chat__button--secondary {
+    border-color: var(--str-chat__button-secondary-border);
+  }
+
+  &::after {
+    border-radius: inherit;
+  }
+
+  &:not(:disabled):hover {
+    @include utils.overlay-after(var(--str-chat__background-utility-hover));
+  }
+
+  &:not(:disabled):active {
+    @include utils.overlay-after(var(--str-chat__background-utility-pressed));
+  }
+
+  &:not(:disabled)[aria-pressed='true'] {
+    @include utils.overlay-after(var(--str-chat__background-utility-selected));
+  }
+
+  &:not(:disabled):focus-visible {
+    @include ai-focus-ring;
+  }
+
+  &:disabled {
+    color: var(--str-chat__text-disabled);
+    cursor: default;
+  }
+
+  &.str-chat__button--solid:disabled {
+    background-color: var(--str-chat__background-utility-disabled);
+  }
+
+  &.str-chat__button--outline:disabled {
+    border-color: var(--str-chat__border-utility-disabled);
+  }
+
+  .str-chat__button__content {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: ai-scale(space-xs);
+  }
 }
 
 // Buttons, chips and follow-ups as OpenUI's are drawn, so a reply looks the same in either format:
 // buttons as pills, the main one as wide as the reply, and the borderless ones of a Column as
 // follow-ups, their words in the accent colour, as on iOS, with a hairline between them.
-.str-chat .str-chat__a2ui {
-  .str-chat__button.str-chat__a2ui-button {
-    border-radius: var(--str-chat__radius-max, 9999px);
-    font-size: ai-scale(font-sm);
-    font-weight: ai-scale(weight-semi-bold);
-  }
+.str-chat__a2ui .str-chat__button.str-chat__a2ui-button {
+  --str-chat__button-radius-md: var(--_str-chat-a2ui-radius-max);
 
-  .str-chat__button.str-chat__a2ui-button.str-chat__a2ui-button--primary {
+  &.str-chat__a2ui-button--primary {
     align-self: stretch;
   }
 
   // A borderless Button reads as a link; in a Column, as a follow-up: a row of its own in the
   // accent colour, with a hairline parting it from the one before.
-  .str-chat__button.str-chat__a2ui-button.str-chat__a2ui-button--borderless {
+  &.str-chat__a2ui-button--borderless {
     font-weight: 500;
   }
 
-  .str-chat__button.str-chat__a2ui-button.str-chat__a2ui-button--follow-up {
+  &.str-chat__a2ui-button--follow-up {
+    // Room around the words for the hover's shape, which the margin takes back, so the words
+    // line up with the rest of the reply.
+    --str-chat__button-padding-y-md: 0.625rem;
+    --str-chat__button-padding-x-with-label-md: #{ai-scale(space-sm)};
+    --str-chat__button-radius-md: #{ai-scale(radius-lg)};
+
     align-self: stretch;
     justify-content: flex-start;
     gap: ai-scale(space-xs);
-    // Room around the words for the hover's shape, which the margin takes back, so the words
-    // line up with the rest of the reply.
     max-width: calc(100% + 2 * #{ai-scale(space-sm)});
     margin-inline: calc(-1 * #{ai-scale(space-sm)});
-    padding: 0.625rem ai-scale(space-sm);
-    border-radius: ai-scale(radius-lg);
-    color: ai-token(accent);
     text-align: start;
     white-space: normal;
   }
 
   // The hairline, in the gap of the Column that holds them.
-  .str-chat__button.str-chat__a2ui-button.str-chat__a2ui-button--follow-up-after {
+  &.str-chat__a2ui-button--follow-up-after {
     margin-top: -0.5rem;
     background-image: linear-gradient(ai-token(border), ai-token(border));
     background-position: ai-scale(space-sm) 0;
     background-repeat: no-repeat;
     background-size: calc(100% - 2 * #{ai-scale(space-sm)}) 1px;
   }
+}
 
-  // Chips: pills on a quiet fill, and the chosen ones in the accent colour, the same size either
-  // way, so choosing one moves nothing.
-  .str-chat__button.str-chat__a2ui-chip.str-chat__button--ghost {
-    gap: 0.375rem;
-    padding: 0.4375rem ai-scale(space-sm);
-    border: 1px solid transparent;
-    border-radius: var(--str-chat__radius-max, 9999px);
-    background-color: color-mix(in srgb, #{ai-token(text-primary)} 8%, transparent);
-    color: ai-token(text-primary);
-    font-size: ai-scale(font-sm);
-    font-weight: 500;
-  }
+// Chips: pills on a quiet fill, and the chosen ones in the accent colour, the same size either
+// way, so choosing one moves nothing. Chosen is said by the accent colour, rather than by
+// Stream's pressed overlay.
+.str-chat__a2ui .str-chat__button.str-chat__a2ui-chip.str-chat__button--ghost {
+  --str-chat__button-padding-y-sm: 0.4375rem;
+  --str-chat__button-padding-x-with-label-sm: #{ai-scale(space-sm)};
+  --str-chat__button-radius-md: var(--_str-chat-a2ui-radius-max);
+  --str-chat__button-secondary-text: #{ai-token(text-primary)};
 
-  .str-chat__button.str-chat__a2ui-chip.str-chat__a2ui-chip--selected {
+  gap: 0.375rem;
+  border: 1px solid transparent;
+  background-color: color-mix(in srgb, #{ai-token(text-primary)} 8%, transparent);
+  font-weight: 500;
+
+  &.str-chat__a2ui-chip--selected {
+    --str-chat__button-secondary-text: #{ai-chosen-text()};
+
     border-color: ai-token(accent);
-    background-color: color-mix(in srgb, #{ai-token(accent)} 14%, transparent);
-    color: ai-token(accent);
+    background-color: color-mix(in srgb, #{ai-token(accent)} 8%, transparent);
 
-    // Chosen is said by the accent colour, rather than by Stream's pressed overlay.
-    &:not(:disabled)[aria-pressed='true']:not(:hover)::after {
+    // At rest, chosen shows in the accent colour alone; hovered or pressed, it shows the overlay.
+    &:not(:disabled)[aria-pressed='true']:not(:hover):not(:active)::after {
       background: none;
     }
   }
+}
+
+// Stream's text fields, check marks and field errors, with the reply's tokens: their fields on
+// the reply's input colour rather than the page's.
+.str-chat__a2ui :is(.str-chat__a2ui-text-field, .str-chat__a2ui-choice-picker) {
+  @include a2ui-stream-tokens;
 }
 
 .str-chat__a2ui-text-field {
@@ -432,8 +656,10 @@
   }
 }
 
+// Native controls (the date input, scrollbars) follow the reply's theme: the app's
+// `--str-chat__ai-color-scheme`, else the SDK's theme, else light, as the fallbacks are.
 .str-chat__theme-dark .str-chat__a2ui {
-  color-scheme: dark;
+  color-scheme: var(--str-chat__ai-color-scheme, dark);
 }
 
 @media (prefers-reduced-motion: reduce) {

@@ -81,6 +81,8 @@ export type TranslationCatalog = {
   'aiComponents.suggestions.suggestions.ariaLabel': 'Suggestions';
   'aiComponents.toolApproval.allow.label': 'Allow';
   'aiComponents.toolApproval.answerNotSent.text': "Your answer couldn't be sent. Try again.";
+  'aiComponents.toolApproval.arguments.ariaLabel': 'What it sends';
+  'aiComponents.toolApproval.arguments.label': 'What it sends';
   'aiComponents.toolApproval.dontAllow.label': "Don't Allow";
   'aiComponents.toolAuthorization.answerNotSent.text': "Your answer couldn't be sent. Try again.";
   'aiComponents.toolAuthorization.connect.label': 'Connect';

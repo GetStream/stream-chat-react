@@ -1,0 +1,35 @@
+{
+  "name": "@stream-io/stream-chat-react-ai-ui-gallery",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite --port 5176",
+    "build": "tsc && vite build",
+    "preview": "vite preview --port 5176",
+    "screenshots": "node scripts/screenshots.mjs"
+  },
+  "installConfig": {
+    "hoistingLimits": "workspaces"
+  },
+  "dependencies": {
+    "@a2ui/react": "0.15.0",
+    "@a2ui/web_core": "0.15.0",
+    "@openuidev/react-headless": "0.18.1",
+    "@openuidev/react-lang": "1.0.2",
+    "@openuidev/react-ui": "0.18.1",
+    "react": "^19.2.6",
+    "react-dom": "^19.2.6",
+    "stream-chat": "10.0.0-rc.32",
+    "stream-chat-react": "workspace:^",
+    "zustand": "4.5.7"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.60.0",
+    "@types/react": "^19.2.15",
+    "@types/react-dom": "^19.2.3",
+    "@vitejs/plugin-react": "^6.0.3",
+    "typescript": "^6.0.3",
+    "vite": "^8.1.3"
+  }
+}
