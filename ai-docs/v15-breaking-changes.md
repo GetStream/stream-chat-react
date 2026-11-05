@@ -132,7 +132,7 @@ yarn api-surface check --doc ai-docs/v15-breaking-changes.md --diff diff.json
 | [BC-062](#bc-062) | `handleSubmit` was removed from `MessageComposerContext` and `useMessageComposerBindings`; submit with `useMessageComposerSubmitFn()` or `messageComposer.send()` / `update()`                                                | Message composer                                     |
 | [BC-063](#bc-063) | a failed send or edit no longer restores the composer                                                                                                                                                                         | Message composer                                     |
 | [BC-064](#bc-064) | `useAttachmentManagerState().hasCustomDoUploadRequest` was replaced by `customCdn`                                                                                                                                            | Message composer                                     |
-| [BC-065](#bc-065) | `AttachmentSelector` actions follow the composer's resolved configuration, and `customCdn` decides whether upload permission applies                                                                                          | Message composer                                     |
+| [BC-065](#bc-065) | `AttachmentSelector` and `SimpleAttachmentSelector` follow the composer's resolved configuration, and `customCdn` decides whether upload permission applies                                                                   | Message composer                                     |
 | [BC-066](#bc-066) | `getAttachmentPreviewUrl`, `hasPendingUploadState` and `isUploadConfirmationPending` moved to `stream-chat`                                                                                                                   | Message composer                                     |
 | [BC-067](#bc-067) | English-only bundle and namespaced keys. Built-in dictionaries, `isLanguageSupported` and `SupportedTranslations` are removed                                                                                                 | i18n                                                 |
 | [BC-068](#bc-068) | `t` from `useTranslationContext()` is strictly typed. `t('English text')` and `t(someString)` no longer compile                                                                                                               | i18n                                                 |
@@ -3350,34 +3350,36 @@ export const CompactInput = () => {
 
 <a id="bc-065"></a>
 
-### BC-065: `AttachmentSelector` actions follow the composer's resolved configuration, and `customCdn` decides whether upload permission applies
+### BC-065: `AttachmentSelector` and `SimpleAttachmentSelector` follow the composer's resolved configuration, and `customCdn` decides whether upload permission applies
 
 - Status: confirmed
 - Area: attachment selector (behavior)
 - User impact: silent behavior change in which attachment-menu actions are offered, and in which uploads are allowed.
-  - **File:** v14 required `channelCapabilities['upload-file'] && channelConfig.uploads && isUploadEnabled`. v15 requires only `attachmentManager.isUploadEnabled`, which is `config.attachments.enabled && hasAvailableUploadSlots && (customCdn || hasUploadPermission)`.
+  - **File:** v14 required `channelCapabilities['upload-file'] && channelConfig.uploads && isUploadEnabled`. v15 offers File while `config.attachments.enabled && (customCdn || hasUploadPermission)`: `attachmentManager.isUploadEnabled` without its free-slot condition. Once the message holds `maxNumberOfFilesPerMessage` files, File stays in the menu, disabled; v14 hid it.
     - With `customCdn: true`, the File action now appears for users without `upload-file`; v14 always hid it from them.
     - With a custom `doUploadRequest` and `customCdn` unset, uploads that the v14 LLC let through without `upload-file` are now blocked, for example paste, which skipped the capability check when `doUploadRequest` was set. The File action was already hidden in v14.
+  - **`SimpleAttachmentSelector`** (the default while editing a message) applies the same File rule, and so does the identical button `AttachmentSelector` renders when File is its only action (`FileUploadButton`). v14 checked only `upload-file`. So it now appears without `upload-file` when `customCdn: true`, and it is hidden when `attachments.enabled` is `false` (the channel type's `uploads` flag is off and `customCdn` is unset, or the client disables attachments). Once the message holds `maxNumberOfFilesPerMessage` files it is disabled; v14 left it enabled.
   - **Poll:** reads the resolved `polls.enabled` instead of the raw `channelConfig.polls`.
   - **Location:** reads the resolved `location.enabled` instead of `channelConfig.shared_locations`.
   - **Commands:** read `channel.configState` `availableCommands` instead of `channel.getConfig().commands`.
   - Consequently `client.config.set({ messageComposer: { attachments | polls | location: { enabled: false } } })` now hides the matching action.
 - Old API:
   - default `AttachmentSelector` action filtering (`useAttachmentSelectorActionsFiltered`, internal)
+  - `SimpleAttachmentSelector` gated on `upload-file` alone
   - custom `doUploadRequest` used as an implicit "uploads do not go to Stream" signal
-- Replacement: if your `doUploadRequest` stores files outside Stream, declare it with `client.config.set({ messageComposer: { attachments: { customCdn: true } } })`. If your upload function still posts to Stream, leave `customCdn` unset. `SimpleAttachmentSelector` still requires `upload-file` regardless (`master:src/components/MessageComposer/AttachmentSelector/AttachmentSelector.tsx:136`).
+- Replacement: if your `doUploadRequest` stores files outside Stream, declare it with `client.config.set({ messageComposer: { attachments: { customCdn: true } } })`. If your upload function still posts to Stream, leave `customCdn` unset. The filter applies only to the four built-in action types; to offer an action it would hide, give the action a `type` of its own (always offered, as in v14). That does not grant the permission behind it: `uploadFiles()` still drops files while `isUploadEnabled` is `false` (attachments disabled, the file limit reached, or neither `customCdn` nor `upload-file`), and the server still refuses a poll without `send-poll`. A custom type also gives up what is tied to the built-in types: the default `ModalContent` of `createPoll` / `addLocation`, the poll form reset on open, and the modal classes. Its `ActionButton` must call `openModalForAction('<its type>')`, since the default Poll and Location buttons open the built-in types' modals; `DefaultAttachmentSelectorComponents.File` and `.Command` (with the action's `Submenu` / `Header`) can be reused as they are. When an action is the only one offered, the selector renders its `StandaloneButton` (new) in place of the menu, inside the selector's root element and disabled during the send cooldown. Only `uploadFile` gets one by default (`FileUploadButton`, new export), so a custom upload type sets `StandaloneButton: FileUploadButton` to keep the plain button; an action without one is the only item of the menu.
 - Evidence:
-  - `release-v14:src/components/MessageComposer/AttachmentSelector/AttachmentSelector.tsx:285-313`
+  - `release-v14:src/components/MessageComposer/AttachmentSelector/AttachmentSelector.tsx:130` (`SimpleAttachmentSelector`: `upload-file` only), `:285-313` (action filter)
   - `release-v14 node_modules/stream-chat@9.54.0 src/messageComposer/attachmentManager.ts:181-183` (`isUploadEnabled = hasUploadPermission && hasAvailableUploadSlots`), `:785-786` (`uploadFiles` skips the capability check when `hasCustomDoUploadRequest`)
-  - `master:src/components/MessageComposer/AttachmentSelector/AttachmentSelector.tsx:293-322`
-  - `master:node_modules/stream-chat/src/messageComposer/attachmentManager.ts:203-225` (`usesStreamStorage = !customCdn`; `isUploadEnabled`)
+  - `master:src/components/MessageComposer/AttachmentSelector/attachmentSelectorActionAvailability.ts:30-77` (one named rule per built-in action type; other types are always offered)
+  - `master:src/components/MessageComposer/AttachmentSelector/AttachmentSelector.tsx:65-99` (the values the rules read, subscribed), `:150-192` (`FileUploadButton`, disabled at the file limit), `:194-220` (the root element and cooldown around a lone button), `:222-236` (`SimpleAttachmentSelector` uses the File rule), `:248-253` (`StandaloneButton`), `:292-312` (the menu's File, disabled at the file limit), `:377-404` (action filter; `uploadFile` defaults to `FileUploadButton`), `:504-512` (a lone action renders its `StandaloneButton` without gating it again)
+  - `master:node_modules/stream-chat/src/messageComposer/attachmentManager.ts:194-209` (`usesStreamStorage = !customCdn`; `isUploadEnabled`)
   - commit: `f66597a13 feat: use configuration service API as a single source of truth` (PR #3273)
   - examples.diff: `examples/vite/src/App.tsx` sets `chatClient.config.setConfig('messageComposer', { attachments: { customCdn: uploadDestination !== 'stream', pendingUploadsEnabled } })`
 - Docs impact:
   - `02-ui-components/09-message-composer/11-message_composer_api.md` (line ~471, "Custom Upload Destination": add `customCdn: true`)
-  - `02-ui-components/09-message-composer/08-attachment-selector.md` (when actions are offered)
+  - `02-ui-components/09-message-composer/08-attachment-selector.md` (when actions are offered, custom action types, `StandaloneButton` and `FileUploadButton`, when `SimpleAttachmentSelector` renders)
 - Example needed: no
-- Note for the guide: `ai-migration-v14-v15.md` § "Attachment/poll availability" says that without `customCdn` "the File action disappears for users without the `upload-file` capability". It already did in v14, since the v14 selector checked `channelCapabilities['upload-file']` directly. The v14→v15 differences are the two bullets under the **File** action above.
 
 <a id="bc-066"></a>
 
@@ -4182,7 +4184,7 @@ Non-gated items checked and ruled out: `Chat.isMessageAIGenerated`, `SummarizedM
 
 #### diff.md: Changed (gated / bold items in this area)
 
-- `DefaultAttachmentSelectorComponents` (value-changed) → ruled-out: same keys (`Command`, `File`, `Location`, `Poll`, `release-v14 AttachmentSelector.tsx:165` vs `master:174`); only the translation keys inside changed (BC-067)
+- `DefaultAttachmentSelectorComponents` (value-changed) → ruled-out: same keys (`Command`, `File`, `Location`, `Poll`, `release-v14 AttachmentSelector.tsx:165` vs `master:263`); only the translation keys inside changed (BC-067)
 - `MessageComposer.overrideSubmitHandler`, `MessageComposerProps.overrideSubmitHandler` → BC-060
 - `MessageComposer.preventClearingOnUnmount`, `MessageComposerProps.preventClearingOnUnmount` → BC-061
 - `useAttachmentManagerState.hasCustomDoUploadRequest` (removed) → BC-064
