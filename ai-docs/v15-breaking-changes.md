@@ -64,7 +64,7 @@ yarn api-surface check --doc ai-docs/v15-breaking-changes.md --diff diff.json
 
 ## Index
 
-95 entries.
+96 entries.
 
 | ID                | Title                                                                                                                                                                                                                         | Group                                                |
 | ----------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------- |
@@ -163,6 +163,7 @@ yarn api-surface check --doc ai-docs/v15-breaking-changes.md --diff diff.json
 | [BC-093](#bc-093) | `MessageContextValue.onMentionsClickMessage` / `onMentionsHoverMessage` and `useMentionsHandler`'s handlers are `undefined` without a handler                                                                                 | Messages and message lists                           |
 | [BC-094](#bc-094) | `mentionsMarkdownPlugin` and `createMentionPluginAndDisplayTextSet` take mention entities only                                                                                                                                | Messages and message lists                           |
 | [BC-095](#bc-095) | `disableQuotedMessages` is removed from `MessageProps`, `MessageListProps` and `useMessagePermissions`                                                                                                                        | Messages and message lists                           |
+| [BC-100](#bc-100) | `typing.twoUsers` takes the two names as `firstUser` and `secondUser` instead of one joined `typing` value                                                                                                                    | i18n                                                 |
 
 ## Package and runtime
 
@@ -3568,6 +3569,24 @@ await i18n.setLanguage('fr');
 const { t: frT } = i18n.state.getLatestValue();
 const hasFr = i18n.registeredLanguages.has('fr');
 ```
+
+<a id="bc-100"></a>
+
+### BC-100: `typing.twoUsers` takes the two names as `firstUser` and `secondUser` instead of one joined `typing` value
+
+- Status: confirmed
+- Area: i18n (typing indicator)
+- User impact: **silent**. A translation of the two-person typing text that still uses `{{ typing }}` renders the literal `{{ typing }}`, because the SDK no longer passes that value. App code that calls `t('typing.twoUsers', …)` itself with `{ typing }` still compiles (`t` checks values only on plural keys) and renders English correctly, but once a translation written with the new values is registered it shows `{{ firstUser }}` and `{{ secondUser }}` literally. Apps that do not override the key see no change in English: the default is `'{{ firstUser }} and {{ secondUser }} are typing'`. The text shows in `<TypingIndicator/>` (its screen-reader announcement) and `<TypingIndicatorHeader/>` (the channel and thread header subtitle).
+- Old API:
+  - v14 key `'{{ typing }} are typing'` with one value, `typing`, set to both names joined by an English "and" (`'Anna and Ben'`), so a translation could not change that word. A dictionary written against a v15 release candidate that uses `{{ typing }}` in `typing.twoUsers` needs the same change.
+- Replacement: write the whole sentence around `{{ firstUser }}` and `{{ secondUser }}`, e.g. `'typing.twoUsers': '{{ firstUser }} und {{ secondUser }} schreiben'`. The key map entry for `'{{ typing }} are typing'` lists both sets of names under `values`. `typing.singleUser` (`{{ typing }}`, one name) and `typing.manyUsers` (`{{ count }}`) are unchanged.
+- Evidence:
+  - `release-v14:src/components/TypingIndicator/utils/getTypingStatusMessage.ts:25-27`
+  - `master:src/components/TypingIndicator/utils/getTypingStatusMessage.ts:20-23`
+  - ticket: REACT-1495
+- Docs impact:
+  - v15 docs: `04-features/01-messaging/12-typing-indicators.md` ("The texts" table gives the old default), `08-release-guides/01-upgrade-to-v15.md` ("Localization" section: the changed values)
+- Example needed: no (`i18n-v15-migration.md` "Keys whose values changed" carries it)
 
 ## Types that follow stream-chat v10 (umbrella entries)
 

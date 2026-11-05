@@ -653,6 +653,6 @@ export type TranslationCatalog = {
   'typing.manyUsers_one': '{{ count }} person is typing';
   'typing.manyUsers_other': '{{ count }} people are typing';
   'typing.singleUser': '{{ typing }} is typing';
-  'typing.twoUsers': '{{ typing }} are typing';
+  'typing.twoUsers': '{{ firstUser }} and {{ secondUser }} are typing';
   'videoPlayer.videoThumbnail.playVideo.ariaLabel': 'Play video';
 };
