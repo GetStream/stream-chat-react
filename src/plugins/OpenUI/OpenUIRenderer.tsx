@@ -74,8 +74,9 @@ export type OpenUIRendererOptions = {
   onError?: (error: OpenUIError, messageId?: string) => void;
   /**
    * Runs the tools a program's `Query()` and `Mutation()` call. By default they are the host's
-   * client tools, run in the page: one that isn't read-only only while the person acts, such as
-   * from a tap, and a Query asking the same again within 5 s gets the answer it got.
+   * client tools, run in the page: one that isn't read-only only just after the person pressed a
+   * control in the reply's UI, such as a button, and a Query asking the same again within 5 s
+   * gets the answer it got.
    */
   toolProvider?: Record<string, (args: Record<string, unknown>) => Promise<unknown>>;
 };

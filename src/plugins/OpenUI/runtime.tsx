@@ -49,10 +49,7 @@ import {
   aiUIMediaSource,
   type AIUIMediaURL,
 } from '../AIComponents/GenerativeUI/AIUIMedia';
-import {
-  type AIUIClientToolDefinition,
-  isPersonActing,
-} from '../AIComponents/GenerativeUI/AIUITools';
+import type { AIUIClientToolDefinition } from '../AIComponents/GenerativeUI/AIUITools';
 import type { OpenUIEngine, OpenUIError } from './OpenUIRenderer';
 
 /** A library of OpenUI components, as `createLibrary` of `@openuidev/react-lang` makes one. */
@@ -385,6 +382,10 @@ type Pressed = { at: number; words: string };
 
 const PRESSABLE = 'button:not([role="tab"]):not([role="option"]), [role="button"]';
 
+/** Whether a click on the reply's UI was on a control, such as a button, with words or without. */
+const isControl = (target: EventTarget | null) =>
+  !!(target as Element | null)?.closest?.(PRESSABLE);
+
 /** What the person pressed, from a click on the reply's UI, or nothing for what isn't a control. */
 export const pressedOf = (target: EventTarget | null): Pressed | undefined => {
   const control = (target as Element | null)?.closest?.(PRESSABLE);
@@ -408,7 +409,20 @@ export const actOn = (
   engine: OpenUIEngine,
   messageId: string,
   event: ActionEvent,
-  { pressed, secrets }: { pressed?: Pressed; secrets?: OpenUISecrets } = {},
+  {
+    pressed,
+    secrets,
+    state,
+  }: {
+    pressed?: Pressed;
+    secrets?: OpenUISecrets;
+    /**
+     * The program's whole state, as OpenUI last gave it. A form's own values leave out the
+     * `$variables` its fields are bound to, such as a password's, which can still be in the
+     * action's context or message.
+     */
+    state?: Record<string, unknown>;
+  } = {},
 ) => {
   if (event.type === BuiltinActionType.OpenUrl) {
     const { url } = event.params;
@@ -426,7 +440,7 @@ export const actOn = (
     return;
   }
   const hidden = secrets ?? { fields: new Set<string>(), variables: new Set<string>() };
-  const typed = event.formState ? secretValuesIn(event.formState, hidden) : [];
+  const typed = secretValuesIn({ ...state, ...event.formState }, hidden);
   const { context, ...params } = withoutSecretValues(event.params, typed);
   const values =
     event.formName && event.formState ? withoutSecrets(event.formState, hidden) : {};
@@ -458,17 +472,28 @@ const QUERY_REFRESH_MS = 5_000;
 type Asked = { at: number; output: Promise<unknown> };
 
 /**
- * The host's tools as a program's Query() and Mutation() run them: one that changes something
- * runs only while the person acts, such as from a tap, and the same question asked again
- * within a few seconds, as a Query refreshing on its own does, gets the answer it got.
+ * How long after the person presses a control in a reply's UI the tools it runs count as theirs:
+ * as long as a browser's activation lasts, so a Mutation the press runs after another still can.
  */
-export const hostToolProvider = (engine: OpenUIEngine) => {
+export const TOOL_PRESS_MS = 5_000;
+
+/**
+ * The host's tools as a program's Query() and Mutation() run them: one that changes something
+ * runs only while `isActing`, just after the person pressed a control in this reply's UI, and
+ * the same question asked again within a few seconds, as a Query refreshing on its own does,
+ * gets the answer it got. A press elsewhere on the page, such as sending a message, doesn't
+ * count, as the browser's own activation would.
+ */
+export const hostToolProvider = (
+  engine: OpenUIEngine,
+  isActing: () => boolean = () => false,
+) => {
   const asked = new Map<string, Asked>();
   return Object.fromEntries(
     engine.host.toolNames.map((name) => [
       name,
       (args: Record<string, unknown>) => {
-        const userInitiated = isPersonActing();
+        const userInitiated = isActing();
         if (userInitiated) return engine.host.runTool(name, args, { userInitiated });
         let key: string;
         try {
@@ -536,13 +561,20 @@ export const OpenUIReplyContent = ({
     const kept = engine.host.state(messageId);
     return isRecord(kept) ? kept : undefined;
   });
-  // The tools a program's Query() and Mutation() run: the renderer's, else the host's.
-  const toolProvider = useMemo(
-    () => engine.options.toolProvider ?? hostToolProvider(engine),
-    [engine],
-  );
   // What the person last pressed, whose words their message says.
   const pressed = useRef<Pressed | undefined>(undefined);
+  // The program's state as OpenUI last gave it, secrets and all, which never leaves this reply.
+  const state = useRef<Record<string, unknown> | undefined>(initialState);
+  // When the person last pressed a control in this reply's UI, which the tools it runs count as
+  // theirs for a moment.
+  const pressedAt = useRef(-Infinity);
+  // The tools a program's Query() and Mutation() run: the renderer's, else the host's.
+  const toolProvider = useMemo(
+    () =>
+      engine.options.toolProvider ??
+      hostToolProvider(engine, () => Date.now() - pressedAt.current < TOOL_PRESS_MS),
+    [engine],
+  );
   // Once the reply is written: what is wrong with its program, and whether it draws anything,
   // as OpenUI last read it.
   useEffect(() => {
@@ -558,6 +590,7 @@ export const OpenUIReplyContent = ({
         className='str-chat__openui'
         onAuxClickCapture={follow}
         onClickCapture={(event) => {
+          if (isControl(event.target)) pressedAt.current = Date.now();
           pressed.current = pressedOf(event.target) ?? pressed.current;
           follow(event);
         }}
@@ -570,6 +603,7 @@ export const OpenUIReplyContent = ({
             actOn(engine, messageId, event, {
               pressed: pressed.current,
               secrets: secrets(),
+              state: state.current,
             });
             pressed.current = undefined;
           }}
@@ -582,9 +616,10 @@ export const OpenUIReplyContent = ({
             if (!isStreaming && drawsNothing(result))
               engine.drewNothing(messageId, program);
           }}
-          onStateUpdate={(state) =>
-            engine.host.setState(messageId, withoutSecrets(state, secrets()))
-          }
+          onStateUpdate={(next) => {
+            state.current = next;
+            engine.host.setState(messageId, withoutSecrets(next, secrets()));
+          }}
           response={program}
           toolProvider={toolProvider}
         />
