@@ -94,7 +94,7 @@ import {
 } from './CustomMessageUi';
 import { ConfigurableMessageActions } from './CustomMessageActions';
 import { InlineEditableMessage } from './InlineEditMessage';
-import { SidebarToggle } from './Sidebar/SidebarToggle.tsx';
+import { ThreadListHeaderWithSidebarToggle } from './Sidebar/HeaderContent.tsx';
 import { CommandModeAttachmentSelector } from './CommandModeAttachmentSelector.tsx';
 import {
   ConfigurableComposerPreviews,
@@ -694,7 +694,7 @@ const App = () => {
         MessageReactions: CustomMessageReactions,
         reactionOptions: newReactionOptions,
         Search: CustomChannelSearch,
-        HeaderEndContent: SidebarToggle,
+        ThreadListHeader: ThreadListHeaderWithSidebarToggle,
         MessageActions: ConfigurableMessageActions,
         AttachmentSelector: CommandModeAttachmentSelector,
         MessageBubbleContent: ConfigurableMessageBubbleContent,

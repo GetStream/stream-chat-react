@@ -1,6 +1,6 @@
 # React v15 Breaking Changes
 
-Last updated: 2026-11-03
+Last updated: 2026-11-05
 
 ## Scope
 
@@ -64,7 +64,7 @@ yarn api-surface check --doc ai-docs/v15-breaking-changes.md --diff diff.json
 
 ## Index
 
-95 entries.
+96 entries.
 
 | ID                | Title                                                                                                                                                                                                                         | Group                                                |
 | ----------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------- |
@@ -163,6 +163,7 @@ yarn api-surface check --doc ai-docs/v15-breaking-changes.md --diff diff.json
 | [BC-093](#bc-093) | `MessageContextValue.onMentionsClickMessage` / `onMentionsHoverMessage` and `useMentionsHandler`'s handlers are `undefined` without a handler                                                                                 | Messages and message lists                           |
 | [BC-094](#bc-094) | `mentionsMarkdownPlugin` and `createMentionPluginAndDisplayTextSet` take mention entities only                                                                                                                                | Messages and message lists                           |
 | [BC-095](#bc-095) | `disableQuotedMessages` is removed from `MessageProps`, `MessageListProps` and `useMessagePermissions`                                                                                                                        | Messages and message lists                           |
+| [BC-099](#bc-099) | `ComponentContext.HeaderEndContent` was removed; `ChannelListHeader` and `ThreadListHeader` take `StartContent` / `EndContent` props, rendered whenever set                                                                   | Headers, threads and search                          |
 
 ## Package and runtime
 
@@ -433,11 +434,11 @@ export const TypingCount = () => {
 - Replacement:
   - `Message` -> the `MessageUI` slot. `VirtualMessage` still overrides inside `VirtualizedMessageList` only. The `Message` _props_ on the lists and `Thread` belong to the message area's entry.
   - `ThreadHeader` -> render `<ThreadHeader />` (or your own header) as a child of `<Thread thread={thread}>`. `Thread` renders children and no header of its own.
-  - `HeaderStartContent` -> the `StartContent` prop on `ChannelHeader` / `ThreadHeader`, which defaults to `WorkspaceNavigationBackButton`. `EndContent` defaults to `WorkspaceNavigationCloseButton`. `HeaderEndContent` stays on `ComponentContext` for the list headers.
+  - `HeaderStartContent` -> the `StartContent` prop on `ChannelHeader` / `ThreadHeader`, which defaults to `WorkspaceNavigationBackButton`. `EndContent` defaults to `WorkspaceNavigationCloseButton`. `HeaderEndContent` -> the `EndContent` prop on `ChannelListHeader` / `ThreadListHeader` (BC-099).
   - `ChannelListUI` -> no wrapper slot. `ChannelList` renders an `InfiniteScrollPaginator` and reads the new slots `EmptyListIndicator`, `EndReachedIndicator`, `FirstPageLoadingIndicator`, `ListItem` and `LoadingNextPageIndicator` from `ComponentContext`. `ThreadList` reads `FirstPageLoadingIndicator` too, and both read the new `ListLoadErrorIndicator`; only `ChannelList` reads the others today.
 - Evidence:
   - `release-v14:src/context/ComponentContext.tsx:129` `ChannelListUI?`, `:179` `Message?` (`@deprecated use MessageUI`), `:288` `ThreadHeader?`, `:305` `HeaderStartContent?`
-  - `master:src/context/ComponentContext.tsx` none of the four; `:187` `MessageUI?`, `:294` `ThreadHead?`, `:309` `HeaderEndContent?`, `:317` `VirtualMessage?`, `:88-102` the new list slots
+  - `master:src/context/ComponentContext.tsx` none of the four; `:187` `MessageUI?`, `:294` `ThreadHead?`, `:317` `VirtualMessage?`, `:88-102` the new list slots
   - `master:src/components/ChannelHeader/ChannelHeader.tsx:58,64,77,79` and `master:src/components/Thread/ThreadHeader.tsx:85,91,97,99` `StartContent` / `EndContent` props with the workspace-navigation defaults
   - `master:src/components/Thread/Thread.tsx:41-56` JSDoc: `<Thread thread={thread}><ThreadHeader />…</Thread>`
   - `master:src/components/ChannelList/ChannelList.tsx:48-54` reads `EmptyListIndicator`, `EndReachedIndicator`, `FirstPageLoadingIndicator`, `ListItem`, `LoadingNextPageIndicator` from `useComponentContext()`
@@ -875,7 +876,7 @@ A threads view is declared the same way (a `{ id: 'threads', slots: [...] }` lay
 - Area: navigation
 - User impact:
   - compile error reading `setActiveChannel` / `channel` from `useChatContext()` (and from the return of `useChat()`); `undefined` in JS.
-  - silent behavior change: without `ChatView` (or your own `WorkspaceNavigationProvider`), clicking a `ChannelList` row, a channel/message/user search result, a `ThreadList` row, a message's reply-count button, "also sent in channel", or the channel-detail "send direct message" / pinned-message entry does nothing, and no list row renders as active (`ChannelListItem` derives `active` from `isChannelActive(cid)`, `ChannelListHeader` only shows `HeaderEndContent` while `openChannels` is non-empty).
+  - silent behavior change: without `ChatView` (or your own `WorkspaceNavigationProvider`), clicking a `ChannelList` row, a channel/message/user search result, a `ThreadList` row, a message's reply-count button, "also sent in channel", or the channel-detail "send direct message" / pinned-message entry does nothing, and no list row renders as active (`ChannelListItem` derives `active` from `isChannelActive(cid)`).
   - with no navigation provided at all, each operation (`openChannel`, `openThread`, `closeChannel`, `closeThread`, `goBack`) logs a one-time console warning that nothing happened; `defaultWorkspaceNavigation` itself stays silent, so a provider built by spreading it does not warn.
   - `ChannelListItem` / `ChannelListItemUI` no longer accept `setActiveChannel` / `watchers` (BC-033).
 - Old API:
@@ -1813,10 +1814,10 @@ Guide check: `ai-migration-v14-v15.md` "`ChannelListItem` `getLatestMessagePrevi
 - User impact: compile error on a `HeaderStartContent` override (`TS2561`); in JS it is ignored and the custom content (often a sidebar toggle) disappears. Visible change: by default `ChannelHeader` / `ThreadHeader` render `WorkspaceNavigationBackButton` at the start and `WorkspaceNavigationCloseButton` at the end; both render nothing outside a workspace navigation that reports the panel as stacked / dismissable.
 - Old API:
   - `ComponentContextValue.HeaderStartContent`
-- Replacement: `<ChannelHeader StartContent={...} EndContent={...} />` and the same on `ThreadHeader`. Passing a component replaces the default button; render `WorkspaceNavigationBackButton` / `WorkspaceNavigationCloseButton` (new exports) inside yours to keep it. `ComponentContext.HeaderEndContent` is unchanged and still feeds `ChannelListHeader` / `ThreadListHeader` (but `ChannelListHeader` shows it only while a channel is open in the workspace).
+- Replacement: `<ChannelHeader StartContent={...} EndContent={...} />` and the same on `ThreadHeader`. Passing a component replaces the default button; render `WorkspaceNavigationBackButton` / `WorkspaceNavigationCloseButton` (new exports) inside yours to keep it. `ComponentContext.HeaderEndContent` was removed too; the list headers take `StartContent` / `EndContent` props (BC-099).
 - Evidence:
   - `release-v14:src/context/ComponentContext.tsx:305`; `release-v14:src/components/ChannelHeader/ChannelHeader.tsx:52,61-63`
-  - `master:src/components/ChannelHeader/ChannelHeader.tsx:50-69,74-110`; `master:src/components/Thread/ThreadHeader.tsx:79-100`; `master:src/components/ChannelList/ChannelListHeader.tsx` (`hasActiveChannel = useWorkspaceNavigation().openChannels.length > 0`)
+  - `master:src/components/ChannelHeader/ChannelHeader.tsx:50-69,74-110`; `master:src/components/Thread/ThreadHeader.tsx:79-100`
   - commit: `66557d63b feat!: port the tutorial alignment (#3251) to v15, with panel-aware workspace navigation` (PR #3301)
 - Docs impact:
   - `02-ui-components/04-channel/02-channel_header.md`, `02-ui-components/04-channel/05-component_context.md`, `02-ui-components/03-chat/01-chat.md`, `03-ui-cookbook/12-collapsible-sidebar.md`, `06-release-guides/01-upgrade-to-v14.md`
@@ -2061,6 +2062,31 @@ const CustomThreadHeader = () => {
 - Docs impact:
   - `03-ui-cookbook/07-notifications/01-system-notifications.md`, `04-guides/13-notifications.md`
 - Example needed: no
+
+<a id="bc-099"></a>
+
+### BC-099: `ComponentContext.HeaderEndContent` was removed; `ChannelListHeader` and `ThreadListHeader` take `StartContent` / `EndContent` props, rendered whenever set
+
+- Status: confirmed
+- Area: channel list header / thread list header / ComponentContext
+- User impact:
+  - compile error on a `HeaderEndContent` override (`TS2353` / `TS2561`); in JS the key is ignored and the content disappears from both list headers.
+  - behavior change: v14 rendered `HeaderEndContent` in `ChannelListHeader` only while a channel was active, and in `ThreadListHeader` only while a thread was active. The `EndContent` prop renders whenever it is set, so content that only makes sense next to an open channel or thread (a sidebar toggle) has to return `null` itself.
+  - one component no longer fills both headers: pass it to each header that should show it.
+- Old API:
+  - `ComponentContextValue.HeaderEndContent`, rendered by `ChannelListHeader` (gated on the active channel) and `ThreadListHeader` (gated on the active thread)
+- Replacement:
+  - `ChannelListHeader` and `ThreadListHeader` take `StartContent` (before the title) and `EndContent` (after the title), as `ChannelHeader` / `ThreadHeader` do. Neither has a default. Types: `ChannelListHeaderProps`, `ThreadListHeaderProps`.
+  - the SDK renders both headers, so the props go through the header's override key: register a component that renders the default header with them. `ChannelListHeader` is read by `ChannelNavigation`; `ThreadListHeader` is a new key, read by `ThreadList`. `ThreadListHeader` is now exported.
+  - to keep the v14 gate, read `useWorkspaceNavigation().openChannels` / `.openThreads` in the content component and return `null` while it is empty.
+- Evidence:
+  - `release-v14:src/components/ChannelList/ChannelListHeader.tsx:15` `{channel && HeaderEndContent && <HeaderEndContent />}`; `release-v14:src/components/Threads/ThreadList/ThreadListHeader.tsx:12` `{activeThread && HeaderEndContent && <HeaderEndContent />}`; `release-v14:src/context/ComponentContext.tsx:303`
+  - `master:src/components/ChannelList/ChannelListHeader.tsx` and `master:src/components/Threads/ThreadList/ThreadListHeader.tsx` (`StartContent` / `EndContent` props); `master:src/components/Threads/ThreadList/ThreadList.tsx` reads `ThreadListHeader` from `useComponentContext()`; `master:src/context/ComponentContext.tsx` `ThreadListHeader?`
+  - ticket: REACT-1449
+  - examples: `examples/vite/src/ChatLayout/SwitchableChannelNavigation.tsx` passes `EndContent={SidebarToggleWhileChannelOpen}` to `ChannelListHeader`; `examples/vite/src/App.tsx` registers `ThreadListHeaderWithSidebarToggle` (`examples/vite/src/Sidebar/HeaderContent.tsx`) as `ThreadListHeader`
+- Docs impact:
+  - `03-ui/03-components/01-channel-list-ui.md`, `03-ui/03-components/08-thread-list-ui.md`, `03-ui/03-components/12-overriding-components.md`, `06-component-reference/02-channel/04-componentcontext.md`, `06-component-reference/07-thread-list/01-threadlist.md`, `05-ui-cookbooks/10-layout/04-collapsible-sidebar.md`, `05-ui-cookbooks/03-search/03-mentions-inbox.md`, `08-release-guides/01-upgrade-to-v15.md`
+- Example needed: yes (the guide section has one)
 
 ---
 

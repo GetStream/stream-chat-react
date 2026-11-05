@@ -139,7 +139,10 @@ export type ComponentContextValue = {
   CalloutDialog?: React.ComponentType<CalloutDialogProps>;
   /** Shown instead of an image that fails to load. */
   ImagePlaceholder?: React.ComponentType<ImagePlaceholderProps>;
-  /** Header of the `ChannelList`. */
+  /**
+   * Header of the `ChannelList`, rendered without props. To add start or end content, register a
+   * component that renders `ChannelListHeader` with `StartContent` / `EndContent`.
+   */
   ChannelListHeader?: React.ComponentType;
   /** Action buttons within `ChannelListItemUI`. */
   ChannelListItemActionButtons?: React.ComponentType;
@@ -333,6 +336,11 @@ export type ComponentContextValue = {
   /** The thread's parent message, rendered above the replies in a thread's message list. */
   ThreadHead?: React.ComponentType<MessageProps>;
   ThreadListEmptyPlaceholder?: React.ComponentType;
+  /**
+   * Header of the `ThreadList`, rendered without props. To add start or end content, register a
+   * component that renders `ThreadListHeader` with `StartContent` / `EndContent`.
+   */
+  ThreadListHeader?: React.ComponentType;
   ThreadListItem?: React.ComponentType<ThreadListItemProps>;
   ThreadListItemUI?: React.ComponentType<ThreadListItemUIProps>;
   ThreadListLoadingIndicator?: React.ComponentType;
@@ -350,11 +358,6 @@ export type ComponentContextValue = {
    * `UnreadMessagesSeparator`.
    */
   UnreadMessagesNotification?: React.ComponentType<UnreadMessagesNotificationProps>;
-  /**
-   * Rendered at the end of `ChannelListHeader` while a channel is open, and of `ThreadListHeader`
-   * while a thread is open. No default.
-   */
-  HeaderEndContent?: React.ComponentType;
   /** Separates read messages from unread ones. */
   UnreadMessagesSeparator?: React.ComponentType<UnreadMessagesSeparatorProps>;
   /** Uploaded vs total byte size during an attachment upload, in the composer previews. */

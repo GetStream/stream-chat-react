@@ -145,7 +145,7 @@ code '\b(HeaderStartContent|HeaderEndContent)\b|<(Channel|Thread)Header\b'
 # §9 channel state and actions
 code '\b(ChannelStateContext|ChannelStateContextValue|ChannelStateProvider|useChannelStateContext|ChannelActionContext|ChannelActionContextValue|ChannelActionProvider|useChannelActionContext|ChannelNotifications|MarkReadWrapperOptions|RetrySendMessage|TypingContext|TypingContextValue|TypingProvider|useTypingContext|ChannelUnreadUiState|channelUnreadUiState|setChannelUnreadUiState|channelConfig|WatcherState)\b|getConfig\(|\.(read|typing|members|watcher|ownCapabilities|mutedUsers)Store\b|\.disconnected\b|\.(hasNext|hasPrev)\b'
 # §10 component overrides, context hook arguments, message actions
-code '\bMessage=\{|\b(Message|ThreadHeader|HeaderStartContent|ChannelListUI|LoadingErrorIndicator):|use[A-Za-z]+Context\([^)]|\b(messageActions|MESSAGE_ACTIONS|OPTIONAL_MESSAGE_ACTIONS|getMessageActions|MessageActionsArray|Capabilities|actionsEnabled|canEdit|messageActionSet|disableBaseMessageActionSetFilter)\b'
+code '\bMessage=\{|\b(Message|ThreadHeader|HeaderStartContent|HeaderEndContent|ChannelListUI|LoadingErrorIndicator):|use[A-Za-z]+Context\([^)]|\b(messageActions|MESSAGE_ACTIONS|OPTIONAL_MESSAGE_ACTIONS|getMessageActions|MessageActionsArray|Capabilities|actionsEnabled|canEdit|messageActionSet|disableBaseMessageActionSetFilter)\b'
 # §11 message lists
 code '\bmessages=\{|\b(loadMore|loadMoreNewer|hasMore|hasMoreNewer|loadingMoreNewer|jumpToLatestMessage|messageLimit|highlightedMessageId|threadList|disableDateSeparator|renderMessages|RenderMessagesOptions|getIsFirstUnreadMessage|additionalVirtuosoProps|headerPosition|insertIntro|DateSeparatorMessage|useEnrichedMessages|useNewMessageNotification|useScrollLocationLogic|areMessagePropsEqual|useMessageListScrollManager|NewMessageNotification|ScrollToLatestMessageButton|InfiniteScrollPaginator|loadNextDebounceMs|loadMoreDebounceMs|internalInfiniteScrollProps|noGroupByUser|shouldGroupByUser|groupStyles|defaultItemHeight|overscan|scrollSeekPlaceHolder)\b|\bhead=\{'
 # §12 messages
@@ -221,6 +221,7 @@ Old → new for the most common changes. Ctrl-F the v14 name; the section has th
 | `Thread` `additionalMessageListProps` and the other `additional*Props`                                               | Props on the children you render                                                                                                                           | [7](#thread-takes-a-thread-prop-and-renders-its-children)                                      |
 | `ThreadHeaderProps.closeThread` / `.thread`                                                                          | `useCloseThread()` / `useThreadContext()`                                                                                                                  | [7](#threadheader-lost-closethread-and-thread)                                                 |
 | `HeaderStartContent` override                                                                                        | `StartContent` prop on `ChannelHeader` / `ThreadHeader`                                                                                                    | [8](#8-channel-and-thread-headers)                                                             |
+| `HeaderEndContent` override                                                                                          | `EndContent` prop on `ChannelListHeader` / `ThreadListHeader`, through their override keys                                                                 | [8](#list-headers-headerendcontent-becomes-an-endcontent-prop)                                 |
 | `useChannelStateContext()`                                                                                           | `useChannel()`, then `useStateStore(channel.messagePaginator.state, selector)` or `useStateStore(channel.state, selector)`                                 | [9](#channelstatecontext-and-channelactioncontext-are-removed)                                 |
 | `loadMore()` / `loadMoreNewer()` / `hasMore` / `hasMoreNewer`                                                        | `messagePaginator.toTail()` / `.toHead()` / `.hasMoreTail` / `.hasMoreHead`                                                                                | [9](#channelstatecontext-and-channelactioncontext-are-removed)                                 |
 | `jumpToMessage(id)` / `jumpToLatestMessage()` / `jumpToFirstUnreadMessage()`                                         | `messagePaginator.jumpToMessage(id)` / `.jumpToTheLatestMessage()` / `.jumpToTheFirstUnreadMessage()`                                                      | [9](#channelstatecontext-and-channelactioncontext-are-removed)                                 |
@@ -297,7 +298,7 @@ These compile cleanly, or are ignored in plain JS, and change behavior at runtim
 | Translations or overrides stop applying; non-English UI renders English                                                                                                                                              | Keys renamed, non-English dictionaries removed                                                                                                                     | Rename keys, register dictionaries ([section 18](#18-i18n))                                                                                                                                                                                                                                                                                                               | `registerTranslation`, `Translations`, `language:`                                                                    |
 | CSS on `.str-chat__main-panel`, `.str-chat__container`, `.str-chat__channel-list-inner` or `.str-chat__thread--virtualized` stops applying                                                                           | Those wrappers and classes are gone                                                                                                                                | Grep for them, combinators included, and retarget ([section 19](#19-css-and-markup))                                                                                                                                                                                                                                                                                      | The section 19 `styles` pattern                                                                                       |
 | Plain JS: `useCreateChatClient({ options })` stops applying `baseURL` and other settings                                                                                                                             | `options` was renamed to `config`                                                                                                                                  | [Section 2](#usecreatechatclient-options--config)                                                                                                                                                                                                                                                                                                                         | `useCreateChatClient`                                                                                                 |
-| Plain JS: a removed prop or override key (`Message`, `HeaderStartContent`, `do*Request`, `overrideSubmitHandler`, ...) does nothing                                                                                  | Ignored without a warning                                                                                                                                          | Grep for each removed name listed in this guide                                                                                                                                                                                                                                                                                                                           | The [leftover-identifier grep](#verification)                                                                         |
+| Plain JS: a removed prop or override key (`Message`, `HeaderStartContent`, `HeaderEndContent`, `do*Request`, `overrideSubmitHandler`, ...) does nothing                                                              | Ignored without a warning                                                                                                                                          | Grep for each removed name listed in this guide                                                                                                                                                                                                                                                                                                                           | The [leftover-identifier grep](#verification)                                                                         |
 | Plain JS: a mention click handler, a custom `renderText` or a custom mention renderer gets `undefined` where it read the mentioned users, and users passed to `mentionsMarkdownPlugin` render without `data-user-id` | The `mentioned_users` / `mentionedUsers` arguments and `node.mentionedUser` are removed, arguments after them moved up, and the plugin takes mention entities only | Read the metadata from `message` or `options.messageMentionEntities` ([section 12](#rendertext-takes-text-options)); pass `getRenderTextMentionEntities(message)` to `mentionsMarkdownPlugin` ([section 12](#mentionsmarkdownplugin-takes-mention-entities-only))                                                                                                         | `mentioned_users`, `mentionedUsers`, `mentionedUser`, `mentionsMarkdownPlugin`                                        |
 | Without `onMentionsClick`, a message with mentions is no longer a separate focus stop. Plain JS: a custom message UI that calls `onMentionsClickMessage(event)` throws                                               | `useMessageContext()` sets `onMentionsClickMessage` / `onMentionsHoverMessage` only when `onMentionsClick` / `onMentionsHover` is passed                           | Pass `onMentionsClick` to `MessageList` or `Message` (`VirtualizedMessageList` has none: render `<Message onMentionsClick={…} />` from its `customMessageRenderer`, and from a `ThreadHead` override for the thread's parent message), and call the handlers with `?.` ([section 12](#onmentionsclickmessage-and-onmentionshovermessage-are-undefined-without-a-handler)) | `onMentionsClickMessage`, `onMentionsHoverMessage`                                                                    |
 | A supplied composer keeps its content after `MessageComposer` unmounts                                                                                                                                               | A supplied composer is never cleared on unmount                                                                                                                    | Call `composer.clear()` yourself ([section 13](#preventclearingonunmount-is-removed))                                                                                                                                                                                                                                                                                     | `MessageComposerControllerProvider`                                                                                   |
@@ -768,7 +769,6 @@ In v14, `ChatContext.setActiveChannel` selected a channel and `ChannelActionCont
 - a message's reply action and reply-count button, "also sent in channel": `openThread({ channel, message })`
 - `ThreadHeader`'s close button, `useCloseThread()`: `closeThread(threadId)`
 - `ChannelHeader` / `ThreadHeader` back and close buttons: `canGoBack`, `goBack`, `isChannelDismissable`, `isThreadDismissable`
-- `ChannelListHeader` shows `HeaderEndContent` only while `openChannels` is non-empty
 
 The channel-detail "send direct message" member action and the pinned-message entry (from `stream-chat-react/channel-detail`) call `openChannel(channel)` too.
 
@@ -1612,7 +1612,7 @@ v14's `<ThreadProvider thread={t}>` rendered `<Channel channel={t.channel}>` aro
 - The buttons act on the panel they render in. A layout that renders its own panels declares them with `WorkspacePanelProvider`. Without a workspace navigation (outside `ChatView`, with no provider), nothing can be dismissed, so they render nothing.
 - Passing a component replaces the default button. Render `WorkspaceNavigationBackButton` / `WorkspaceNavigationCloseButton` inside yours to keep it.
 - `ChannelHeader` also takes `Title`, which replaces only the title and receives `{ channel, displayTitle }` (`ChannelHeaderTitleProps`; the default is `ChannelHeaderTitle`). Render the title as a button there instead of rebuilding the header. `Subtitle` likewise replaces only the subtitle (default `ChannelHeaderSubtitle`). A header you build yourself keeps the default subtitle by rendering `ChannelHeaderSubtitle` (Online/Offline for a direct message, member and online counts otherwise, the typing indicator while someone types), or reads the status text with `useChannelHeaderOnlineStatus()`.
-- `ComponentContext.HeaderEndContent` is unchanged and still feeds `ChannelListHeader` / `ThreadListHeader`, but `ChannelListHeader` shows it only while a channel is open in the workspace.
+- The channel-list and thread-list headers take `StartContent` / `EndContent` props too: [below](#list-headers-headerendcontent-becomes-an-endcontent-prop).
 
 ```tsx
 // v14
@@ -1641,6 +1641,68 @@ export const ChannelPanel = ({ channel }: { channel: StreamChannel }) => (
   <Channel channel={channel}>
     <ChannelHeader StartContent={HeaderStart} />
   </Channel>
+);
+```
+
+### List headers: `HeaderEndContent` becomes an `EndContent` prop
+
+`ComponentContext.HeaderEndContent` is removed (`TS2353` / `TS2561`; in JS the key is ignored and the content disappears). In v14 one component filled the end of both list headers, and showed only while a channel was open (channel list) or a thread was open (thread list).
+
+`ChannelListHeader` and `ThreadListHeader` now take the content as props, like `ChannelHeader` and `ThreadHeader` do. Neither prop has a default, and both render whenever they are set:
+
+| Prop           | Shows                  |
+| -------------- | ---------------------- |
+| `StartContent` | Before the title (new) |
+| `EndContent`   | After the title        |
+
+The SDK renders both list headers itself, so pass the props through the header's override key: register a component that renders the default header with your content. The keys are `ChannelListHeader` (read by `ChannelNavigation`) and `ThreadListHeader` (new, read by `ThreadList`). Both headers are exported.
+
+To keep the v14 behavior of showing the content only next to an open channel or thread (a sidebar toggle, for example), make the content return `null` otherwise: read `openChannels` / `openThreads` from `useWorkspaceNavigation()`.
+
+```tsx
+// v14
+<WithComponents overrides={{ HeaderEndContent: SidebarToggle }}>{/* … */}</WithComponents>
+```
+
+```tsx
+import {
+  ChannelListHeader,
+  ThreadListHeader,
+  useWorkspaceNavigation,
+  WithComponents,
+} from 'stream-chat-react';
+
+// `SidebarToggle` stands for a control of your own.
+const SidebarToggle = () => <button>Menu</button>;
+
+// Shown only while a channel is open, as in v14.
+const SidebarToggleWhileChannelOpen = () => {
+  const { openChannels } = useWorkspaceNavigation();
+  return openChannels.length > 0 ? <SidebarToggle /> : null;
+};
+
+// Shown only while a thread is open, as in v14.
+const SidebarToggleWhileThreadOpen = () => {
+  const { openThreads } = useWorkspaceNavigation();
+  return openThreads.length > 0 ? <SidebarToggle /> : null;
+};
+
+const ChannelListHeaderWithToggle = () => (
+  <ChannelListHeader EndContent={SidebarToggleWhileChannelOpen} />
+);
+
+const ThreadListHeaderWithToggle = () => (
+  <ThreadListHeader EndContent={SidebarToggleWhileThreadOpen} />
+);
+
+// Declared once, so WithComponents gets the same object on every render.
+const overrides = {
+  ChannelListHeader: ChannelListHeaderWithToggle,
+  ThreadListHeader: ThreadListHeaderWithToggle,
+};
+
+export const App = ({ children }: { children: React.ReactNode }) => (
+  <WithComponents overrides={overrides}>{children}</WithComponents>
 );
 ```
 
@@ -1868,15 +1930,16 @@ These are `stream-chat` changes, documented in its own migration notes. They are
 
 ### Removed `ComponentContext` slots
 
-A stale key in `WithComponents overrides` is a compile error (`TS2353` / `TS2561`). In plain JS or behind `any` it is ignored with no warning, and the default UI renders (or nothing, for `HeaderStartContent`).
+A stale key in `WithComponents overrides` is a compile error (`TS2353` / `TS2561`). In plain JS or behind `any` it is ignored with no warning, and the default UI renders (or nothing, for `HeaderStartContent` and `HeaderEndContent`).
 
-| Removed slot            | v15                                                                                                                                                               |
-| ----------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `Message`               | `MessageUI` ([below](#message-ui-overrides-consolidate-on-the-messageui-slot))                                                                                    |
-| `ThreadHeader`          | Render `<ThreadHeader />` (or your own) as a child of `<Thread>` ([section 7](#threadheader-lost-closethread-and-thread))                                         |
-| `HeaderStartContent`    | `StartContent` on `ChannelHeader` / `ThreadHeader` ([section 8](#8-channel-and-thread-headers))                                                                   |
-| `ChannelListUI`         | The list slots ([section 6](#channellistui-is-removed-use-the-list-slots))                                                                                        |
-| `LoadingErrorIndicator` | Render the exported `LoadingErrorIndicator` yourself, around `Channel` ([section 5](#channel-requires-channel-and-renders-no-placeholder-loading-or-error-state)) |
+| Removed slot            | v15                                                                                                                                                                                          |
+| ----------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `Message`               | `MessageUI` ([below](#message-ui-overrides-consolidate-on-the-messageui-slot))                                                                                                               |
+| `ThreadHeader`          | Render `<ThreadHeader />` (or your own) as a child of `<Thread>` ([section 7](#threadheader-lost-closethread-and-thread))                                                                    |
+| `HeaderStartContent`    | `StartContent` on `ChannelHeader` / `ThreadHeader` ([section 8](#8-channel-and-thread-headers))                                                                                              |
+| `HeaderEndContent`      | `EndContent` on `ChannelListHeader` / `ThreadListHeader`, through the `ChannelListHeader` / `ThreadListHeader` keys ([section 8](#list-headers-headerendcontent-becomes-an-endcontent-prop)) |
+| `ChannelListUI`         | The list slots ([section 6](#channellistui-is-removed-use-the-list-slots))                                                                                                                   |
+| `LoadingErrorIndicator` | Render the exported `LoadingErrorIndicator` yourself, around `Channel` ([section 5](#channel-requires-channel-and-renders-no-placeholder-loading-or-error-state))                            |
 
 TypeScript suggests `ThreadHead` for a stale `ThreadHeader` key. Do not follow it: `ThreadHead` is the thread's parent-message slot ([section 7](#threadheader-lost-closethread-and-thread)).
 
@@ -3394,7 +3457,7 @@ Run after every section is applied.
 2. **Leftover identifiers.** Every v14 name below was removed or renamed. In a plain-JS app this grep is the only thing that finds them. It must print nothing outside comments, changelogs and app identifiers that only share the name (record those in the report). Uses the `code` / `styles` helpers from [Detection](#detection).
 
    ```bash
-   code '\b(WindowProps|ChannelStateContext|ChannelStateContextValue|ChannelStateProvider|useChannelStateContext|ChannelActionContext|ChannelActionContextValue|ChannelActionProvider|useChannelActionContext|ChannelNotifications|MarkReadWrapperOptions|RetrySendMessage|TypingContext|TypingContextValue|TypingProvider|useTypingContext|ChannelUnreadUiState|channelUnreadUiState|setChannelUnreadUiState|updateChannelUiUnreadState|useThreadsViewContext|ThreadsViewContextValue|ThreadAdapter|activeChatView|setActiveChatView|setActiveChannel|setActiveChannelOnMount|customActiveChannel|channelsQueryState|latestMessageDatesByChannels|useChannelEditMessageHandler|useChannelMentionsHandler|ChannelListUI|ChannelListUIProps|usePaginatedChannels|useConnectionRecoveredListener|CustomQueryChannelParams|CustomQueryChannelsFn|EffectiveQueryParams|moveChannelUpwards|findLastPinnedChannelIndex|extractSortValue|isChannelPinned|isChannelArchived|shouldConsiderPinnedChannels|shouldConsiderArchivedChannels|allowNewMessagesFromUnfilteredChannels|lockChannelOrder|showChannelSearch|sendChannelsToList|renderChannels|channelRenderFilterFn|customQueryChannels|recoveryThrottleIntervalMs|onMessageNewHandler|channelUpdateCount|useLegacyThreadContext|additionalMessageComposerProps|additionalMessageListProps|additionalVirtualizedMessageListProps|additionalParentMessageProps|enableDateSeparator|disableDateSeparator|HeaderStartContent|MESSAGE_ACTIONS|OPTIONAL_MESSAGE_ACTIONS|getMessageActions|MessageActionsArray|actionsEnabled|messageIsUnread|initializeOnMount|channelQueryOptions|markReadOnMount|activeUnreadHandler|skipMessageDataMemoization|allowConcurrentAudioPlayback|allowConcurrentPlayback|doSendMessageRequest|doUpdateMessageRequest|doDeleteMessageRequest|doMarkReadRequest|overrideSubmitHandler|preventClearingOnUnmount|loadMoreNewer|loadMoreThread|loadingMoreNewer|jumpToLatestMessage|jumpToFirstUnreadMessage|highlightedMessageId|threadSuppressAutoscroll|loadingMoreForJumpToChannelMessage|messageLimit|hasPendingUploadState|recoverStateOnReconnect|wsUrlParams|isLocalUnreadCountEnabled|StreamChatOptions|isLanguageSupported|SupportedTranslations|DateFormatterOptions|getTranslators|registerSetLanguageCallback|getAvailableLanguages|geti18Instance|deTranslations|enTranslations|esTranslations|frTranslations|hiTranslations|itTranslations|jaTranslations|koTranslations|nlTranslations|ptTranslations|ruTranslations|trTranslations|ChannelSort|UserSort|ReactionSort|WatcherState|unBlockUser|ReminderResponse|CommandResponse|DefaultCommandData|CustomCommandData|chatContainer|useUserRole|disableQuotedMessages|MentionedUserEventHandler|mentionedUser|noGroupByUser|shouldGroupByUser|defaultItemHeight|scrollSeekPlaceHolder|endOfGroup|firstOfGroup|groupedByUser)\b|<Window\b|ChatView\.(Channels|Threads)\b|\.(read|typing|members|watcher|ownCapabilities|mutedUsers)Store\b|getConfig\(|\bMessage=\{|\b(Message|ThreadHeader):\s|use[A-Za-z]+Context\([\x27"]|messageActions=|connection\.changed'
+   code '\b(WindowProps|ChannelStateContext|ChannelStateContextValue|ChannelStateProvider|useChannelStateContext|ChannelActionContext|ChannelActionContextValue|ChannelActionProvider|useChannelActionContext|ChannelNotifications|MarkReadWrapperOptions|RetrySendMessage|TypingContext|TypingContextValue|TypingProvider|useTypingContext|ChannelUnreadUiState|channelUnreadUiState|setChannelUnreadUiState|updateChannelUiUnreadState|useThreadsViewContext|ThreadsViewContextValue|ThreadAdapter|activeChatView|setActiveChatView|setActiveChannel|setActiveChannelOnMount|customActiveChannel|channelsQueryState|latestMessageDatesByChannels|useChannelEditMessageHandler|useChannelMentionsHandler|ChannelListUI|ChannelListUIProps|usePaginatedChannels|useConnectionRecoveredListener|CustomQueryChannelParams|CustomQueryChannelsFn|EffectiveQueryParams|moveChannelUpwards|findLastPinnedChannelIndex|extractSortValue|isChannelPinned|isChannelArchived|shouldConsiderPinnedChannels|shouldConsiderArchivedChannels|allowNewMessagesFromUnfilteredChannels|lockChannelOrder|showChannelSearch|sendChannelsToList|renderChannels|channelRenderFilterFn|customQueryChannels|recoveryThrottleIntervalMs|onMessageNewHandler|channelUpdateCount|useLegacyThreadContext|additionalMessageComposerProps|additionalMessageListProps|additionalVirtualizedMessageListProps|additionalParentMessageProps|enableDateSeparator|disableDateSeparator|HeaderStartContent|HeaderEndContent|MESSAGE_ACTIONS|OPTIONAL_MESSAGE_ACTIONS|getMessageActions|MessageActionsArray|actionsEnabled|messageIsUnread|initializeOnMount|channelQueryOptions|markReadOnMount|activeUnreadHandler|skipMessageDataMemoization|allowConcurrentAudioPlayback|allowConcurrentPlayback|doSendMessageRequest|doUpdateMessageRequest|doDeleteMessageRequest|doMarkReadRequest|overrideSubmitHandler|preventClearingOnUnmount|loadMoreNewer|loadMoreThread|loadingMoreNewer|jumpToLatestMessage|jumpToFirstUnreadMessage|highlightedMessageId|threadSuppressAutoscroll|loadingMoreForJumpToChannelMessage|messageLimit|hasPendingUploadState|recoverStateOnReconnect|wsUrlParams|isLocalUnreadCountEnabled|StreamChatOptions|isLanguageSupported|SupportedTranslations|DateFormatterOptions|getTranslators|registerSetLanguageCallback|getAvailableLanguages|geti18Instance|deTranslations|enTranslations|esTranslations|frTranslations|hiTranslations|itTranslations|jaTranslations|koTranslations|nlTranslations|ptTranslations|ruTranslations|trTranslations|ChannelSort|UserSort|ReactionSort|WatcherState|unBlockUser|ReminderResponse|CommandResponse|DefaultCommandData|CustomCommandData|chatContainer|useUserRole|disableQuotedMessages|MentionedUserEventHandler|mentionedUser|noGroupByUser|shouldGroupByUser|defaultItemHeight|scrollSeekPlaceHolder|endOfGroup|firstOfGroup|groupedByUser)\b|<Window\b|ChatView\.(Channels|Threads)\b|\.(read|typing|members|watcher|ownCapabilities|mutedUsers)Store\b|getConfig\(|\bMessage=\{|\b(Message|ThreadHeader):\s|use[A-Za-z]+Context\([\x27"]|messageActions=|connection\.changed'
    styles 'str-chat__(main-panel|container|channel-list-inner|thread--virtualized)([^a-z0-9_-]|$)|str-chat__virtual-message__wrapper--|aria-pressed'
    ```
 
@@ -3518,3 +3581,4 @@ Run after every section is applied.
 | BC-093 | Mention handlers in the message context and from `useMentionsHandler` can be `undefined` | [12](#onmentionsclickmessage-and-onmentionshovermessage-are-undefined-without-a-handler)                                       |
 | BC-094 | `mentionsMarkdownPlugin` takes mention entities only                                     | [12](#mentionsmarkdownplugin-takes-mention-entities-only)                                                                      |
 | BC-095 | `disableQuotedMessages` removed                                                          | [12](#the-disablequotedmessages-prop-is-removed)                                                                               |
+| BC-099 | `HeaderEndContent` → `EndContent` on `ChannelListHeader` / `ThreadListHeader`            | [8](#list-headers-headerendcontent-becomes-an-endcontent-prop)                                                                 |
