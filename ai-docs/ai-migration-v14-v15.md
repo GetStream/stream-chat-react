@@ -2066,6 +2066,29 @@ export const List = () => (
 
 - Adding an action means adding an item with a `Component` and a `placement` of `quick`, `dropdown` or `quick-dropdown-toggle`.
 
+### New: `ChannelDetail` takes `onClose`; outside a modal it shows no close button without it
+
+The channel detail views (from `stream-chat-react/channel-detail`) close through the nearest modal. In v14, a `ChannelDetail` rendered outside a modal, for example in a side panel, showed close buttons that did nothing. In v15:
+
+- `ChannelDetail` and `ChannelDetailProvider` take `onClose`. The views' close buttons call it, and so do the actions that close the channel detail when they finish: opening a pinned message, leaving or deleting the channel, and sending a direct message. Inside a modal it is called instead of the modal's `close`, so close the modal from it. A modal opened inside the channel detail, such as a confirmation alert, still closes itself.
+- Without `onClose`, outside a modal the views render no close button. Inside a modal they close the modal, as in v14.
+- `useChannelDetailContext()` returns `close` next to `channel`. A custom section passes it to `SectionNavigatorHeader`; it is `undefined` when there is nothing to close.
+- `ChannelDetail.onLayoutChange` is called on every layout change. v14 ignored it.
+
+An app that wrapped `ChannelDetail` in `ModalContextProvider` to make the close buttons work keeps working. Replace the wrapper with `onClose`:
+
+```tsx
+import type { Channel } from 'stream-chat';
+import { ChannelDetail } from 'stream-chat-react/channel-detail';
+
+type ChannelDetailsPanelProps = { channel: Channel; closePanel: () => void };
+
+export const ChannelDetailsPanel = ({
+  channel,
+  closePanel,
+}: ChannelDetailsPanelProps) => <ChannelDetail channel={channel} onClose={closePanel} />;
+```
+
 ---
 
 ## 11. Message lists

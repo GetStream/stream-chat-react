@@ -3,6 +3,8 @@ import { act, fireEvent, render, screen } from '@testing-library/react';
 import type { Channel, StreamChat } from 'stream-chat';
 
 import { AvatarWithChannelDetail } from '../AvatarWithChannelDetail';
+import type { ChannelDetailProps } from '../ChannelDetail';
+import { ChannelDetailProvider, useChannelDetailContext } from '../ChannelDetailContext';
 import {
   ChannelInstanceProvider,
   ChatProvider,
@@ -10,7 +12,24 @@ import {
 } from '../../../context';
 import { getTestClientWithUser, mockChatContext } from '../../../mock-builders';
 
-const ChannelDetailStub = () => <div data-testid='channel-detail' />;
+const ChannelDetailCloseButton = () => {
+  const { close } = useChannelDetailContext();
+
+  return close ? (
+    <button onClick={close} type='button'>
+      Close
+    </button>
+  ) : null;
+};
+
+// Closes the way the default views do.
+const ChannelDetailStub = ({ channel }: ChannelDetailProps) => (
+  <ChannelDetailProvider channel={channel}>
+    <div data-testid='channel-detail'>
+      <ChannelDetailCloseButton />
+    </div>
+  </ChannelDetailProvider>
+);
 
 describe('AvatarWithChannelDetail', () => {
   let client: StreamChat;
@@ -53,6 +72,16 @@ describe('AvatarWithChannelDetail', () => {
 
     expect(openButton()).toBeEnabled();
     expect(screen.getByTestId('channel-detail')).toBeInTheDocument();
+  });
+
+  it("closes the modal from the channel detail's close button", () => {
+    channel.initialized = true;
+    renderAvatar();
+
+    fireEvent.click(openButton());
+    fireEvent.click(screen.getByRole('button', { name: 'Close' }));
+
+    expect(screen.queryByTestId('channel-detail')).not.toBeInTheDocument();
   });
 
   it('is enabled for a channel restored from the offline database', () => {
