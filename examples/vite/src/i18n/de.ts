@@ -55,6 +55,7 @@ export const deTranslations = {
   'a11y.interactionAnnouncements.voiceMessageSent.ariaLabel': 'Sprachnachricht gesendet',
   'a11y.interactionAnnouncements.voiceRecordingAttached.ariaLabel':
     'Sprachaufnahme angehängt',
+  'aiComponents.a2ui.choicePickerFilter.placeholder': 'Suchen',
   'aiComponents.attachmentPreview.deleteAttachment.ariaLabel': 'Anhang löschen',
   'aiComponents.attachmentPreview.unknownFileName.text': 'Unbekannter Dateiname',
   'aiComponents.chart.loading.text': 'Diagramm wird geladen...',

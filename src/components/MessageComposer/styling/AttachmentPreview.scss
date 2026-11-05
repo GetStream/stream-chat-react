@@ -55,6 +55,9 @@ $attachment-preview-row-height: 72px;
   }
 
   .str-chat__attachment-preview-list {
+    // The remove buttons' z-index only orders them above their thumbnails; menus and dialogs
+    // drawn over the composer still cover them.
+    isolation: isolate;
     background: transparent;
     color: var(--str-chat__text-primary);
     padding: var(--str-chat__spacing-xxs);

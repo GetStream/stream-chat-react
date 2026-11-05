@@ -14,6 +14,53 @@ const external = [
 
 const formats: LibraryFormats[] = ['es', 'cjs'];
 
+// Entries no export reaches in a format: the A2UI renderer is an ES module only, and what
+// `require` of it reaches is its CJS stub alone.
+const unreachableEntries: Partial<Record<LibraryFormats, string[]>> = {
+  cjs: ['a2ui'],
+  es: ['a2ui-require'],
+};
+
+type OutputBundle = Record<
+  string,
+  | {
+      dynamicImports: string[];
+      fileName: string;
+      imports: string[];
+      isEntry: boolean;
+      name: string;
+      type: 'chunk';
+    }
+  | { fileName: string; type: 'asset' }
+>;
+
+// Leaves out of a format's output its unreachable entries, with the chunks and source maps
+// only they reach, so the package ships no code nothing can load.
+const withoutUnreachableEntries = (format: LibraryFormats) => ({
+  name: 'without-unreachable-entries',
+  generateBundle(_: unknown, bundle: OutputBundle) {
+    const dropped = unreachableEntries[format] ?? [];
+    if (!dropped.length) return;
+    const reached = new Set<string>();
+    const reach = (fileName: string) => {
+      const file = bundle[fileName];
+      if (!file || file.type !== 'chunk' || reached.has(fileName)) return;
+      reached.add(fileName);
+      [...file.imports, ...file.dynamicImports].forEach(reach);
+    };
+    Object.values(bundle).forEach((file) => {
+      if (file.type === 'chunk' && file.isEntry && !dropped.includes(file.name)) {
+        reach(file.fileName);
+      }
+    });
+    Object.values(bundle).forEach((file) => {
+      if (file.type !== 'chunk' || reached.has(file.fileName)) return;
+      delete bundle[file.fileName];
+      delete bundle[`${file.fileName}.map`];
+    });
+  },
+});
+
 export default defineConfig({
   build: {
     lib: {
@@ -25,6 +72,10 @@ export default defineConfig({
         'slot-geometry': resolve(__dirname, './src/plugins/SlotGeometry/index.ts'),
         'slot-layout': resolve(__dirname, './src/plugins/SlotLayout/index.tsx'),
         'ai-components': resolve(__dirname, './src/plugins/AIComponents/index.ts'),
+        a2ui: resolve(__dirname, './src/plugins/A2UI/index.ts'),
+        // What `require` reaches: the renderer is an ES module only, and says so.
+        'a2ui-require': resolve(__dirname, './src/plugins/A2UI/esmOnly.ts'),
+        openui: resolve(__dirname, './src/plugins/OpenUI/index.ts'),
       },
     },
     // `yarn build` already wipes dist up front via `yarn clean`
@@ -52,6 +103,7 @@ export default defineConfig({
           // they attempt statement-level elimination. The CJS build stays chunked,
           // as CJS is not tree-shaken by consumers either way.
           preserveModules: format === 'es',
+          plugins: [withoutUnreachableEntries(format)],
         };
       }),
     },

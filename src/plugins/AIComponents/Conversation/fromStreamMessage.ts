@@ -1,5 +1,6 @@
 import type { Attachment, LocalMessage, MessageResponse } from 'stream-chat';
 
+import { AI_UI_CUSTOM_DATA_KEY, parseAIUIDocument } from '../GenerativeUI/AIUIDocument';
 import type { AIMessageAttachmentData } from '../Message/AIMessageAttachment';
 import { parseMessageParts } from '../MessageParts/parseMessageParts';
 import { withCustomFields } from '../utils';
@@ -42,7 +43,9 @@ const attachmentOf = (attachment: Attachment): AIMessageAttachmentData | undefin
 /**
  * Adapts a Stream message for `AIConversation`: a reply is one with `custom.ai_generated: true`,
  * it is being written while `custom.generating: true`, its steps are its `ai_reasoning` and
- * `ai_tool_call` attachments, and its images and files are its other attachments.
+ * `ai_tool_call` attachments, its images and files are its other attachments, and the UI the
+ * agent wrote for it is its `custom.ai_ui` field. A person's message has no UI, whatever its
+ * fields say.
  */
 export const fromStreamMessage = <M extends StreamMessage>(
   message: M,
@@ -51,6 +54,9 @@ export const fromStreamMessage = <M extends StreamMessage>(
   const attachments = message.attachments ?? [];
   const fields = withCustomFields(message as unknown as Record<string, unknown>);
   const assistant = isAssistant ? isAssistant(message) : fields.ai_generated === true;
+  const uiDocument = assistant
+    ? parseAIUIDocument(fields[AI_UI_CUSTOM_DATA_KEY])
+    : undefined;
   return {
     attachments: attachments
       .map(attachmentOf)
@@ -63,5 +69,6 @@ export const fromStreamMessage = <M extends StreamMessage>(
       : undefined,
     role: assistant ? 'assistant' : 'user',
     text: message.text ?? '',
+    ...(uiDocument ? { uiDocument } : {}),
   };
 };

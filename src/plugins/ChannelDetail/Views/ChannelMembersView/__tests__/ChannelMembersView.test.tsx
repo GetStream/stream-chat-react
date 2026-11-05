@@ -4,7 +4,6 @@ import React from 'react';
 import {
   useComponentContext,
   useComponentContextIcons,
-  useModalContext,
   useTranslationContext,
 } from '../../../../../context';
 import * as DEFAULT_ICONS from '../../../../../components/Icons/icons';
@@ -154,7 +153,6 @@ const customModeViews: ChannelMembersViewModes = {
 };
 
 describe('ChannelMembersView', () => {
-  const close = vi.fn();
   const customHeaderActionSet: ChannelMembersHeaderActionItem[] = [
     {
       component: () => null,
@@ -217,10 +215,6 @@ describe('ChannelMembersView', () => {
     vi.mocked(useTranslationContext).mockReturnValue({
       t: mockT,
     } as ReturnType<typeof useTranslationContext>);
-
-    vi.mocked(useModalContext).mockReturnValue({
-      close,
-    } as ReturnType<typeof useModalContext>);
     vi.mocked(useComponentContext).mockReturnValue(
       {} as ReturnType<typeof useComponentContext>,
     );
