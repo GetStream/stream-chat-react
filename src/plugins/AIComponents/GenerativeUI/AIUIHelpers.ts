@@ -17,6 +17,42 @@ export const aiUITypeName = (name: string) =>
     .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
     .join('');
 
+/**
+ * A name as words, such as "Submit form" for `submit_form` or `submitForm`: what the person's
+ * message says when what they used has no words of its own.
+ */
+export const aiUIWords = (name: string) => {
+  const words = name
+    .replace(/([a-z0-9])([A-Z])/g, '$1 $2')
+    .split(/[_\-\s]+/)
+    .filter(Boolean)
+    .join(' ')
+    .toLowerCase();
+  return words.charAt(0).toUpperCase() + words.slice(1);
+};
+
+/**
+ * `value` without the person's secrets, such as a password they typed: each string that holds
+ * one has it taken out, wherever it is, so none reaches the agent or what is kept.
+ */
+export const withoutSecretValues = <T>(value: T, secrets: readonly string[]): T => {
+  const shown = secrets.filter((secret) => secret !== '');
+  if (!shown.length) return value;
+  const clean = (item: unknown): unknown => {
+    if (typeof item === 'string') {
+      return shown.reduce((text, secret) => text.split(secret).join(''), item);
+    }
+    if (Array.isArray(item)) return item.map(clean);
+    if (isRecord(item)) {
+      return Object.fromEntries(
+        Object.entries(item).map(([key, entry]) => [key, clean(entry)]),
+      );
+    }
+    return item;
+  };
+  return clean(value) as T;
+};
+
 /** `text` as a sentence, ending in a full stop unless it ends otherwise. */
 export const aiUISentence = (text: string) => {
   const trimmed = text.trim();

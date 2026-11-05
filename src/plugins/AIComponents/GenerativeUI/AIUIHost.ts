@@ -6,17 +6,15 @@ import type { AIUIComponent } from './AIUIComponent';
 import { aiUIComponentDefinitionJSON } from './AIUIComponentDefinition';
 import { type AIUIDocument, isSameAIUIDocument } from './AIUIDocument';
 import { type AIUIEngine, type AIUIRenderer, aiUIRendererReads } from './AIUIRenderer';
+import {
+  type AIUIClientTool,
+  type AIUIClientToolDefinition,
+  aiUIClientToolJSON,
+  AIUIToolError,
+  isJSONValue,
+} from './AIUITools';
 
-/**
- * One of the app's tools a reply's UI can run, such as to load data on this device. It runs
- * whenever the UI asks, without asking the person, so give the host only tools that are safe to
- * run that way. It is apart from the tools the agent calls.
- */
-export type AIUIClientTool = {
-  name: string;
-  /** Runs the tool. What it returns is the output the UI gets. */
-  run: (args: Record<string, unknown>) => unknown;
-};
+export type { AIUIClientTool, AIUIClientToolDefinition } from './AIUITools';
 
 export type AIUIHostOptions = {
   /** The renderer of each format the agent writes, the first one listed asked first. */
@@ -41,7 +39,10 @@ export type AIUIHostOptions = {
    * agent writes the links, so another could call someone or act in another app.
    */
   open?: (url: URL) => void;
-  /** The app's tools a reply's UI can run. */
+  /**
+   * The app's tools a reply's UI can run, described to the agent's model. One that isn't
+   * read-only runs only from something the person did, such as a tap.
+   */
   tools?: AIUIClientTool[];
 };
 
@@ -97,6 +98,18 @@ export class AIUIHost {
   /** The names of the app's tools a reply's UI can run with `runTool`. */
   get toolNames() {
     return [...this.tools.keys()];
+  }
+
+  /** The app's tools a reply's UI can run, as the agent's model reads them. */
+  get toolDefinitions(): AIUIClientToolDefinition[] {
+    return [...this.tools.values()].map(
+      ({ description, inputSchema, name, readOnly }) => ({
+        name,
+        ...(description ? { description } : {}),
+        ...(inputSchema ? { inputSchema } : {}),
+        ...(readOnly ? { readOnly } : {}),
+      }),
+    );
   }
 
   /** The app's component the agent places by `name`. */
@@ -252,11 +265,35 @@ export class AIUIHost {
   /** A number that changes each time the conversation should show its replies again. */
   getVersion = () => this.version;
 
-  /** Runs one of the app's tools for a reply's UI, such as to load data on this device. */
-  async runTool(name: string, args: Record<string, unknown> = {}): Promise<unknown> {
+  /**
+   * Runs one of the app's tools for a reply's UI, such as to load data on this device. One that
+   * isn't read-only runs only when `userInitiated`, from something the person did, rather than
+   * as the reply shows. Rejects with an `AIUIToolError` when the tool can't run, fails, or gives
+   * what isn't JSON.
+   */
+  async runTool(
+    name: string,
+    args: Record<string, unknown> = {},
+    { userInitiated = false }: { userInitiated?: boolean } = {},
+  ): Promise<unknown> {
     const tool = this.tools.get(name);
-    if (!tool) throw new Error(`No tool named ${name}`);
-    return await tool.run(args);
+    if (!tool) throw new AIUIToolError(name, `No tool named ${name}`);
+    if (!tool.readOnly && !userInitiated) {
+      throw new AIUIToolError(
+        name,
+        `${name} changes something, so it runs only from something the person did`,
+      );
+    }
+    let output: unknown;
+    try {
+      output = await tool.run(args);
+    } catch (error) {
+      throw new AIUIToolError(name, `${name} failed: ${String(error)}`, { cause: error });
+    }
+    if (!isJSONValue(output)) {
+      throw new AIUIToolError(name, `${name} gave what isn't JSON`);
+    }
+    return output;
   }
 
   /** Opens a link from a reply's UI, as the host's `open` allows. */
@@ -284,20 +321,23 @@ export class AIUIHost {
 
   /**
    * What the agent's backend needs to write UI this app shows: each format it reads, with what
-   * its renderer adds, such as the model's instructions, and the app's components. A renderer
-   * may load its format's packages to write them, so this resolves once they are written.
+   * its renderer adds, such as the model's instructions, the app's components, and its tools.
+   * A renderer may load its format's packages to write them, so this resolves once they are
+   * written.
    */
   async capabilities() {
+    const tools = this.toolDefinitions;
     return {
       components: this.components.map(({ definition }) =>
         aiUIComponentDefinitionJSON(definition),
       ),
       renderers: await Promise.all(
         this.renderers.map(async (renderer) => ({
-          ...(await renderer.capabilities?.(this.components)),
+          ...(await renderer.capabilities?.(this.components, tools)),
           format: renderer.format,
         })),
       ),
+      ...(tools.length ? { tools: tools.map(aiUIClientToolJSON) } : {}),
       v: 1,
     };
   }

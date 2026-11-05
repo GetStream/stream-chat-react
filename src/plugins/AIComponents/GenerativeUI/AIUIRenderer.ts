@@ -3,6 +3,7 @@ import type { ReactNode } from 'react';
 import type { AIUIComponent } from './AIUIComponent';
 import type { AIUIDocument, AIUIFormat } from './AIUIDocument';
 import type { AIUIHost } from './AIUIHost';
+import type { AIUIClientToolDefinition } from './AIUITools';
 
 /**
  * Shows the documents of one conversation in a renderer's format. A host makes one per
@@ -42,11 +43,12 @@ export type AIUIRenderer = {
   format: AIUIFormat;
   /**
    * What the agent's backend needs to have its model write UI this renderer shows with
-   * `components`, such as the model's instructions, which may take loading the format's
-   * packages to write. None by default.
+   * `components` and calls the app's `tools` from, such as the model's instructions, which may
+   * take loading the format's packages to write. None by default.
    */
   capabilities?: (
     components: AIUIComponent[],
+    tools: AIUIClientToolDefinition[],
   ) => Record<string, unknown> | Promise<Record<string, unknown>>;
   /** Whether it reads documents of `version`, or of no version. Every version by default. */
   supports?: (version: string | undefined) => boolean;
