@@ -3,6 +3,7 @@ import { act, fireEvent, screen } from '@testing-library/react';
 
 import {
   AIConversation,
+  type AIConversationAssistantMessageProps,
   type AIMessage,
   AIUIComponentView,
   AIUIHost,
@@ -268,6 +269,64 @@ describe('AIConversation with generated UI', () => {
     expect(onRenderError).toHaveBeenCalledTimes(1);
     expect(onRenderError).toHaveBeenCalledWith(expect.any(Error), 'a1');
     logged.mockRestore();
+  });
+
+  it('tells a custom message whether the reply’s UI shows, and whether it failed', async () => {
+    const seen = new Map<
+      string,
+      Pick<AIConversationAssistantMessageProps, 'showsUI' | 'text' | 'uiFailed'>
+    >();
+    // Memoised, as an app's message often is: what it is told must change for it to show again.
+    const AssistantMessage = React.memo(function AssistantMessage({
+      isGenerating,
+      message,
+      showsUI,
+      text,
+      uiFailed,
+    }: AIConversationAssistantMessageProps) {
+      seen.set(message.id, { showsUI, text, uiFailed });
+      return !isGenerating && !showsUI && text === '' ? (
+        <p data-testid={`status-${message.id}`}>
+          {uiFailed ? 'UI failed' : 'Finished without a text reply'}
+        </p>
+      ) : null;
+    });
+    const ui = new AIUIHost({
+      onRenderError: vi.fn(),
+      renderers: [cardRenderer],
+      send: vi.fn(),
+    });
+    renderWithEnglish(
+      <AIConversation
+        AssistantMessage={AssistantMessage}
+        messages={[
+          user('u1', 'Plan'),
+          reply('a1', '', { content: 'Ohrid plan', format: 'a2ui' }),
+          user('u2', 'Again'),
+          reply('a2', '', { content: 'nothing', format: 'a2ui' }),
+          user('u3', 'In OpenUI'),
+          reply('a3', 'In words', { content: 'root = Card()', format: 'openui' }),
+          user('u4', 'Hi'),
+          reply('a4', 'Hello'),
+        ]}
+        ui={ui}
+      />,
+    );
+    expect(seen.get('a1')).toEqual({ showsUI: true, text: '', uiFailed: false });
+    expect(seen.get('a2')).toEqual({ showsUI: false, text: '', uiFailed: false });
+    expect(seen.get('a3')).toEqual({ showsUI: false, text: 'In words', uiFailed: false });
+    expect(seen.get('a4')).toEqual({ showsUI: false, text: 'Hello', uiFailed: false });
+    expect(screen.queryByTestId('status-a1')).not.toBeInTheDocument();
+    expect(screen.getByTestId('status-a2')).toHaveTextContent(
+      'Finished without a text reply',
+    );
+
+    act(() => ui.fail('a1', new Error('The map had no places')));
+    await flushFrames();
+    expect(ui.hasFailed('a1')).toBe(true);
+    expect(seen.get('a1')).toEqual({ showsUI: false, text: '', uiFailed: true });
+    expect(screen.getByTestId('status-a1')).toHaveTextContent('UI failed');
+    expect(screen.queryByTestId('card')).not.toBeInTheDocument();
   });
 
   it('shows the replies’ text when a renderer’s runtime can’t load, and tries again for one being written', async () => {

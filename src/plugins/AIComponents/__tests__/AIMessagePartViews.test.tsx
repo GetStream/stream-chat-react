@@ -10,8 +10,10 @@ import {
   AIReplyActions,
   AISuggestions,
   AIThinking,
+  AIToolApproval,
   AIToolApprovalCard,
   type AIToolApprover,
+  AIToolArguments,
   AIToolAuthorization,
   AIToolAuthorizationCard,
   type AIToolAuthorizer,
@@ -20,6 +22,8 @@ import {
   AITypingIndicator,
   parseMessagePart,
 } from '..';
+import { formatToolArguments } from '../MessageParts/toolArguments';
+import { axe } from '../../../../axe-helper';
 import { renderWithEnglish } from './renderWithEnglish';
 
 const toolCall = (overrides: Partial<AIToolCallPart> = {}): AIToolCallPart => ({
@@ -98,6 +102,126 @@ describe('AIToolApprovalCard', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Share' }));
     fireEvent.click(screen.getByRole('button', { name: "Don't Allow" }));
     expect(onDecide.mock.calls).toEqual([[true], [false]]);
+  });
+});
+
+describe('AIToolApproval arguments', () => {
+  const awaiting = (args: unknown) =>
+    toolCall({
+      approval: { title: 'Send a Slack message?' },
+      arguments: args,
+      status: 'awaiting_approval',
+      targetUserId: 'alex',
+    });
+  const approver: AIToolApprover = {
+    clientId: 'web-1',
+    decide: () => new Promise<void>(() => undefined),
+    userId: 'alex',
+  };
+
+  it('shows short arguments as JSON under the question', async () => {
+    const { container } = renderWithEnglish(
+      <AIToolApproval
+        approver={approver}
+        part={awaiting({ channel: '#travel', text: 'Off to Ohrid' })}
+      />,
+    );
+    const shown = screen.getByRole('group', { name: 'What it sends' });
+    expect(shown).toHaveTextContent('"channel": "#travel"');
+    expect(shown.querySelector('details')).toBeNull();
+    expect(await axe(container)).toHaveNoViolations();
+  });
+
+  it('collapses long arguments under a summary the person opens', async () => {
+    const { container } = renderWithEnglish(
+      <AIToolApproval
+        approver={approver}
+        part={awaiting({
+          checkIn: '2026-11-14',
+          checkOut: '2026-11-16',
+          guests: ['Alex', 'Sam'],
+          hotel: 'Hotel Riviera',
+          room: 'double',
+        })}
+      />,
+    );
+    const details = container.querySelector('details.str-chat__ai-tool-arguments');
+    expect(details).not.toBeNull();
+    expect(details).not.toHaveAttribute('open');
+    expect(screen.getByText('What it sends').tagName).toBe('SUMMARY');
+    expect(details).toHaveTextContent('"hotel": "Hotel Riviera"');
+    expect(await axe(container)).toHaveNoViolations();
+  });
+
+  it('reads JSON sent as text, and shows nothing for a call without arguments', () => {
+    expect(formatToolArguments('{"a":1}')).toBe('{\n  "a": 1\n}');
+    expect(formatToolArguments('plain words')).toBe('plain words');
+    for (const none of [undefined, null, '', {}, []]) {
+      expect(formatToolArguments(none)).toBeUndefined();
+    }
+    renderWithEnglish(<AIToolApproval approver={approver} part={awaiting(undefined)} />);
+    expect(screen.getByText('Send a Slack message?')).toBeInTheDocument();
+    expect(screen.queryByText('What it sends')).not.toBeInTheDocument();
+  });
+
+  it('shows arguments that can’t be JSON as words', () => {
+    const circular: Record<string, unknown> = { name: 'loop' };
+    circular.self = circular;
+    expect(formatToolArguments(circular)).toBe('[object Object]');
+    expect(formatToolArguments({ count: BigInt(1) })).toBe('[object Object]');
+  });
+
+  it('shows a call’s arguments on their own with AIToolArguments', () => {
+    const { container, rerender } = renderWithEnglish(
+      <AIToolArguments args={{ channel: '#travel' }} className='my-arguments' />,
+    );
+    expect(screen.getByRole('group', { name: 'What it sends' })).toHaveClass(
+      'str-chat__ai-tool-arguments',
+      'my-arguments',
+    );
+    rerender(<AIToolArguments args={{}} />);
+    expect(container).toBeEmptyDOMElement();
+  });
+
+  it('shows the approver’s own preview, or none when it returns null', () => {
+    const part = awaiting({ channel: '#travel', text: 'Off to Ohrid' });
+    const argumentsPreview = vi.fn((call: AIToolCallPart) => {
+      const { channel, text } = call.arguments as { channel: string; text: string };
+      return <p>{`Posts “${text}” in ${channel}`}</p>;
+    });
+    const { rerender } = renderWithEnglish(
+      <AIToolApproval approver={{ ...approver, argumentsPreview }} part={part} />,
+    );
+    expect(argumentsPreview).toHaveBeenCalledWith(part);
+    expect(screen.getByText('Posts “Off to Ohrid” in #travel')).toBeInTheDocument();
+    expect(screen.queryByText(/"channel"/)).not.toBeInTheDocument();
+    rerender(
+      <AIToolApproval
+        approver={{ ...approver, argumentsPreview: () => null }}
+        part={part}
+      />,
+    );
+    expect(screen.queryByText(/#travel/)).not.toBeInTheDocument();
+    rerender(
+      <AIToolApproval
+        approver={{ ...approver, argumentsPreview: () => undefined }}
+        part={part}
+      />,
+    );
+    expect(screen.getByRole('group', { name: 'What it sends' })).toBeInTheDocument();
+  });
+
+  it('hands the preview to a custom question', () => {
+    renderWithEnglish(
+      <AIToolApproval approver={approver} part={awaiting({ channel: '#travel' })}>
+        {(approval, _state, _decide, argumentsPreview) => (
+          <section aria-label={approval.title}>{argumentsPreview}</section>
+        )}
+      </AIToolApproval>,
+    );
+    expect(
+      screen.getByRole('region', { name: 'Send a Slack message?' }),
+    ).toHaveTextContent('"channel": "#travel"');
   });
 });
 

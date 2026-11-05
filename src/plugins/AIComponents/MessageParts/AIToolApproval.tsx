@@ -5,6 +5,7 @@ import { useTranslationContext } from '../../../context/TranslationContext';
 import { useComponentContextIcons } from '../../../context/useComponentContextIcons';
 import { type AIToolApprover, useAIToolApprover } from '../ToolCalls/AIToolApprover';
 import { isAwaitingApproval } from './parseMessageParts';
+import { formatToolArguments } from './toolArguments';
 import type { AIToolApprovalData, AIToolCallPart } from './types';
 
 /** Where the person's answer to a tool call's question is. */
@@ -29,22 +30,87 @@ export const approvalLines = (approval: AIToolApprovalData) => {
   return lines;
 };
 
+// Arguments longer than this, in characters or lines, start collapsed.
+const LONG_ARGUMENTS_CHARACTERS = 280;
+const LONG_ARGUMENTS_LINES = 6;
+
+// Formatted arguments, in full when short, else collapsed under "What it sends".
+const ToolArgumentsText = ({ className, text }: { text: string; className?: string }) => {
+  const { t } = useTranslationContext();
+  const isLong =
+    text.length > LONG_ARGUMENTS_CHARACTERS ||
+    text.split('\n').length > LONG_ARGUMENTS_LINES;
+  const code = <pre className='str-chat__ai-tool-arguments__code'>{text}</pre>;
+  return isLong ? (
+    <details className={clsx('str-chat__ai-tool-arguments', className)}>
+      <summary className='str-chat__ai-tool-arguments__label'>
+        {t('What it sends')}
+      </summary>
+      {code}
+    </details>
+  ) : (
+    <div
+      aria-label={t('What it sends')}
+      className={clsx('str-chat__ai-tool-arguments', className)}
+      role='group'
+    >
+      {code}
+    </div>
+  );
+};
+
+export type AIToolArgumentsProps = {
+  /** The call's arguments, as the agent sent them. */
+  args: unknown;
+  className?: string;
+};
+
+/**
+ * What a tool call will send, as JSON: in full when short, else collapsed under "What it sends",
+ * which the person opens to read it. Renders nothing for a call with no arguments. The default
+ * of `AIToolApprover.argumentsPreview`.
+ */
+export const AIToolArguments = ({ args, className }: AIToolArgumentsProps) => {
+  const text = formatToolArguments(args);
+  return text === undefined ? null : (
+    <ToolArgumentsText className={className} text={text} />
+  );
+};
+
+// What an approval card shows of a call's arguments: the approver's `argumentsPreview`, else
+// the arguments as `AIToolArguments` shows them, formatted once. `null` when it shows nothing.
+const toolArgumentsPreview = (
+  call: AIToolCallPart,
+  approver?: AIToolApprover,
+): ReactNode => {
+  const own = approver?.argumentsPreview?.(call);
+  if (own !== undefined) return own;
+  const text = formatToolArguments(call.arguments);
+  return text === undefined ? null : <ToolArgumentsText text={text} />;
+};
+
 export type AIToolApprovalCardProps = {
   approval: AIToolApprovalData;
   /** Called with the person's answer. */
   onDecide: (allowed: boolean) => void;
+  /**
+   * What the call will send, under the question, such as `<AIToolArguments args={…} />`.
+   * `AIToolApproval` passes the approver's `argumentsPreview`, else the call's arguments.
+   */
+  argumentsPreview?: ReactNode;
   className?: string;
   state?: AIToolApprovalState;
 };
 
 /**
  * Asks the person a tool call's question, such as "Share your location?", with the agent's
- * reason and what allowing it shares, and an Allow and a Don't Allow button. Used inline under
- * a step by `AIToolApproval`, and on its own, such as on a voice call. The counterpart of
- * `AIToolApprovalCard`.
+ * reason, what allowing it shares and what the call will send (`argumentsPreview`), and an
+ * Allow and a Don't Allow button. Used inline under a step by `AIToolApproval`, and on its own,
+ * such as on a voice call. The counterpart of `AIToolApprovalCard`.
  */
 export const AIToolApprovalCard = ({
   approval,
+  argumentsPreview,
   className,
   onDecide,
   state = idle,
@@ -65,6 +131,11 @@ export const AIToolApprovalCard = ({
           </div>
         ))}
       </div>
+      {argumentsPreview !== undefined && argumentsPreview !== null && (
+        <div className='str-chat__ai-tool-approval-card__arguments'>
+          {argumentsPreview}
+        </div>
+      )}
       <div className='str-chat__ai-tool-approval-card__actions'>
         <button
           className='str-chat__ai-button str-chat__ai-button--primary'
@@ -101,11 +172,15 @@ export type AIToolApprovalProps = {
   part: AIToolCallPart;
   /** Who answers on this device. Defaults to the one of the nearest `AIToolApproverProvider`. */
   approver?: AIToolApprover;
-  /** Renders the question, instead of `AIToolApprovalCard`. */
+  /**
+   * Renders the question, instead of `AIToolApprovalCard`. `argumentsPreview` is what the card
+   * would show of the call's arguments (see `AIToolApprover.argumentsPreview`), or `null`.
+   */
   children?: (
     approval: AIToolApprovalData,
     state: AIToolApprovalState,
     decide: (allowed: boolean) => void,
+    argumentsPreview: ReactNode,
   ) => ReactNode;
 };
 
@@ -146,12 +221,19 @@ export const AIToolApproval = ({
     });
   };
 
+  const argumentsPreview = toolArgumentsPreview(part, approver);
+
   return (
     <>
       {children ? (
-        children(part.approval, state, decide)
+        children(part.approval, state, decide, argumentsPreview)
       ) : (
-        <AIToolApprovalCard approval={part.approval} onDecide={decide} state={state} />
+        <AIToolApprovalCard
+          approval={part.approval}
+          argumentsPreview={argumentsPreview}
+          onDecide={decide}
+          state={state}
+        />
       )}
     </>
   );

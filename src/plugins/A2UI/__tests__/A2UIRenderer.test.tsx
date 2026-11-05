@@ -13,6 +13,7 @@ import {
 import { renderWithEnglish } from '../../AIComponents/__tests__/renderWithEnglish';
 import {
   A2UI_DEFAULT_CATALOG_ID,
+  A2UI_LEGACY_CATALOG_ID,
   type A2UIError,
   type A2UIRendererOptions,
   createA2UIRenderer,
@@ -562,6 +563,53 @@ const surfaceWith = (components: Record<string, unknown>[], dataModel = {}) => [
   line({ createSurface: { dataModel, surfaceId: 's' } }),
   line({ updateComponents: { components, surfaceId: 's' } }),
 ];
+
+describe('the catalog id', () => {
+  const surfaceNaming = (catalogId: string) => [
+    line({ createSurface: { catalogId, surfaceId: 's' } }),
+    line({
+      updateComponents: {
+        components: [{ component: 'PlaceCard', id: 'root', title: 'Plaošnik' }],
+        surfaceId: 's',
+      },
+    }),
+  ];
+
+  it('names no domain by default, which link enrichment would preview under every reply', () => {
+    expect(A2UI_DEFAULT_CATALOG_ID).toBe('stream-app-catalog');
+    expect(A2UI_DEFAULT_CATALOG_ID).not.toMatch(/\./);
+    expect(A2UI_LEGACY_CATALOG_ID).toBe('getstream.io:app-catalog');
+  });
+
+  it('shows surfaces naming the default, or the default’s former id from history', async () => {
+    for (const catalogId of [A2UI_DEFAULT_CATALOG_ID, A2UI_LEGACY_CATALOG_ID]) {
+      const { errors, ui } = setup();
+      const { unmount } = renderWithEnglish(
+        <AIConversation
+          messages={[question, replyWith(surfaceNaming(catalogId))]}
+          ui={ui}
+        />,
+      );
+      await waitFor(() =>
+        expect(screen.getByTestId('place-card')).toHaveTextContent('Plaošnik'),
+      );
+      expect(errors).toEqual([]);
+      unmount();
+    }
+  });
+
+  it('shows the former id only for a renderer with the default id', async () => {
+    const { errors, ui } = setup({ catalogId: 'my-app-catalog' });
+    renderWithEnglish(
+      <AIConversation
+        messages={[question, replyWith(surfaceNaming(A2UI_LEGACY_CATALOG_ID))]}
+        ui={ui}
+      />,
+    );
+    await waitFor(() => expect(errors).not.toEqual([]));
+    expect(screen.queryByTestId('place-card')).not.toBeInTheDocument();
+  });
+});
 
 describe('what goes wrong in a reply’s A2UI', () => {
   it('is told after the conversation renders, so the app may set state then', async () => {

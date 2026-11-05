@@ -8,8 +8,18 @@ import type {
 import { aiUISentence, aiUITypeName } from '../AIComponents/GenerativeUI/AIUIHelpers';
 import { A2UI_VERSION } from './A2UIStream';
 
-/** The id of the catalog with the app's components, unless the renderer is given another. */
-export const A2UI_DEFAULT_CATALOG_ID = 'getstream.io:app-catalog';
+/**
+ * The id of the catalog with the app's components, unless the renderer is given another. The
+ * agent writes it in every surface it makes, so it names no domain: a message's link enrichment
+ * would show a domain's preview under every reply with A2UI.
+ */
+export const A2UI_DEFAULT_CATALOG_ID = 'stream-app-catalog';
+
+/**
+ * The default catalog id before 14.17, which A2UI already in a conversation's history names. A
+ * renderer with the default id shows its surfaces too.
+ */
+export const A2UI_LEGACY_CATALOG_ID = 'getstream.io:app-catalog';
 
 const definitionOf = (component: AIUIComponent | AIUIComponentDefinition) =>
   'definition' in component ? component.definition : component;
