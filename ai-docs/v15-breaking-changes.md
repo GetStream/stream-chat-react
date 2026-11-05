@@ -1,6 +1,6 @@
 # React v15 Breaking Changes
 
-Last updated: 2026-11-03
+Last updated: 2026-11-05
 
 ## Scope
 
@@ -64,7 +64,7 @@ yarn api-surface check --doc ai-docs/v15-breaking-changes.md --diff diff.json
 
 ## Index
 
-95 entries.
+96 entries.
 
 | ID                | Title                                                                                                                                                                                                                         | Group                                                |
 | ----------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------- |
@@ -163,6 +163,7 @@ yarn api-surface check --doc ai-docs/v15-breaking-changes.md --diff diff.json
 | [BC-093](#bc-093) | `MessageContextValue.onMentionsClickMessage` / `onMentionsHoverMessage` and `useMentionsHandler`'s handlers are `undefined` without a handler                                                                                 | Messages and message lists                           |
 | [BC-094](#bc-094) | `mentionsMarkdownPlugin` and `createMentionPluginAndDisplayTextSet` take mention entities only                                                                                                                                | Messages and message lists                           |
 | [BC-095](#bc-095) | `disableQuotedMessages` is removed from `MessageProps`, `MessageListProps` and `useMessagePermissions`                                                                                                                        | Messages and message lists                           |
+| [BC-101](#bc-101) | `Root`, `Header`, `UploadIcon`, `BinIcon`, `PauseIcon`, `PlayIcon` unexported; `@stream-io/transliterate` dropped; `CustomChannelData` typed for apps; `DefaultChannelData` holds only `name` and `image`                     | Package and runtime                                  |
 
 ## Package and runtime
 
@@ -243,6 +244,77 @@ export const DayDivider = ({ message }: { message: LocalMessage }) => {
   const createdAt = convertTimestampToDate(message.created_at);
   return createdAt ? <DateSeparator date={createdAt} /> : null;
 };
+```
+
+<a id="bc-101"></a>
+
+### BC-101: `Root`, `Header`, `UploadIcon`, `BinIcon`, `PauseIcon` and `PlayIcon` are no longer exported; `@stream-io/transliterate` is no longer a dependency; `CustomChannelData` is typed for apps and `DefaultChannelData` holds only `name` and `image`
+
+- Status: confirmed
+- Area: package / exports / types
+- User impact:
+  - compile error (`TS2305`) on importing `Root` or `Header` from `stream-chat-react`, and `undefined` in plain JS. They are the parts of `Alert`, exported under generic names; `Alert.Root`, `Alert.Header` and `Alert.Actions` are unchanged.
+  - compile error (`TS2305`) on importing `UploadIcon`, `BinIcon`, `PauseIcon` or `PlayIcon`. No SDK component rendered them in v14 or v15.
+  - install: `@stream-io/transliterate` is no longer installed with this package. No SDK code imported it in v14 or v15; an app that imports it without declaring it gets a module-not-found error.
+  - types: `channel.data.custom.name` and `.image` are typed `string | undefined` in every app that imports `stream-chat-react`. v14 and earlier v15 release candidates declared the merge of `DefaultChannelData` into `CustomChannelData` in a file `tsc` did not emit, so apps saw `CustomChannelData` without those fields. An app that augments `CustomChannelData` with `name` or `image` under another type gets no error with `skipLibCheck: true` (its own type wins), and `TS2430` inside `stream-chat`'s `custom_types.d.ts` without it.
+  - types: `DefaultChannelData` loses `subtitle` and `team`. No SDK code read them; `team` is a top-level channel field in `stream-chat` v10 (`channel.data.team`), not custom data. Code that reads `DefaultChannelData['team']`, or relies on `extends DefaultChannelData` to type `custom.subtitle` / `custom.team`, gets `TS2339`.
+- Old API:
+  - `Root`, `Header` (`src/components/Dialog/components/Alert.tsx`), re-exported from the package root through `Dialog/components/index.ts`
+  - `UploadIcon`, `BinIcon`, `PauseIcon`, `PlayIcon` (`src/components/MessageComposer/icons.tsx`), re-exported through `MessageComposer/index.ts`
+  - `optionalDependencies['@stream-io/transliterate']: ^1.5.5`
+  - `DefaultChannelData`: `image`, `name`, `subtitle`, `team` (all `string | undefined`)
+  - `src/@types/stream-chat-custom-data.d.ts`, a declaration-only file that `tsc` never copies to `dist/types`
+- Replacement:
+  - `Root` / `Header`: `Alert.Root` / `Alert.Header`, the same components.
+  - The icons: copy the SVG into the app, or use the v15 icon set: `IconPlus` or `IconAttachment` for `UploadIcon`, `IconDelete` for `BinIcon`, `IconPauseFill` for `PauseIcon`, `IconPlayFill` for `PlayIcon`. They follow the v15 design, not the v14 shapes, and take `BaseIconProps`.
+  - `@stream-io/transliterate`: add it to the app's own dependencies if the app imports it. Mention search in `stream-chat` takes a `transliterate` function on its mentions middleware.
+  - `CustomChannelData`: delete an app's own `name?: string` / `image?: string` declarations, which are now redundant, and keep the augmentation for the app's other fields. Rename a field the app declares as `name` or `image` with another type. Declare `subtitle?: string` / `team?: string` on `CustomChannelData` if the app stores them under `custom`; read the channel's team from `channel.data.team`.
+- Evidence:
+  - `release-v14:src/components/Dialog/components/Alert.tsx:6`, `:25` `export const Root` / `export const Header`; `master:src/components/Dialog/components/Alert.tsx` declares both without `export` and exports them as `Alert.Root` / `Alert.Header`, like `Prompt` and `Viewer`
+  - `release-v14:src/components/MessageComposer/icons.tsx:3`, `:30`, `:36`, `:47`; `release-v14:src/components/MessageComposer/index.ts:19` `export * from './icons'`; no other reference in `src` or `examples` on either branch
+  - `release-v14:package.json:122` `"@stream-io/transliterate": "^1.5.5"`; no import in `src` on either branch
+  - `release-v14:src/@types/stream-chat-custom-data.d.ts:19` `interface CustomChannelData extends DefaultChannelData {}`; `release-v14:tsconfig.lib.json` emits declarations from `.ts` sources only, so `dist/types/@types` does not exist. `master:src/types/defaultDataInterfaces.ts` declares `DefaultChannelData` with `image` and `name` only, declares the merge and ships as `dist/types/types/defaultDataInterfaces.d.ts`, re-exported from `dist/types/index.d.ts`
+  - commit: REACT-1306
+- Docs impact:
+  - `02-state/01-state-and-entities/06-data-conventions.md` (the `CustomChannelData` augmentation sample), `08-release-guides/01-upgrade-to-v15.md`
+- Example needed: yes
+
+Before (v14):
+
+```tsx
+import { Header, Root } from 'stream-chat-react';
+
+declare module 'stream-chat' {
+  interface CustomChannelData {
+    image?: string;
+    name?: string;
+    priority?: number;
+  }
+}
+
+export const DeleteWarning = () => (
+  <Root>
+    <Header title='Delete channel?' />
+  </Root>
+);
+```
+
+After (v15):
+
+```tsx
+import { Alert } from 'stream-chat-react';
+
+declare module 'stream-chat' {
+  interface CustomChannelData {
+    priority?: number;
+  }
+}
+
+export const DeleteWarning = () => (
+  <Alert.Root>
+    <Alert.Header title='Delete channel?' />
+  </Alert.Root>
+);
 ```
 
 ## Contexts and customization

@@ -134,9 +134,6 @@
     "use-sync-external-store": "^1.7.0",
     "zod": "^4.1.12"
   },
-  "optionalDependencies": {
-    "@stream-io/transliterate": "^1.5.5"
-  },
   "peerDependencies": {
     "@breezystack/lamejs": "^1.2.7",
     "@emoji-mart/data": "^1.1.0",
