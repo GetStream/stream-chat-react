@@ -47,7 +47,9 @@ export const aiUIClientToolJSON = ({
 
 /**
  * Whether the person is acting on the page right now, such as having just tapped, as the
- * browser tells it. A tool that changes something runs only then, rather than as a reply shows.
+ * browser tells it. The browser's activation is page-wide and lasts a few seconds, so it can't
+ * tell a tap on a reply's UI from sending a message: the renderers ask whether the person
+ * pressed a control in the reply itself instead.
  */
 export const isPersonActing = () => {
   if (typeof navigator === 'undefined') return false;

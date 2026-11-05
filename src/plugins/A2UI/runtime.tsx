@@ -269,17 +269,66 @@ type RendererError = {
   surfaceId?: unknown;
 };
 
-// The data model paths an obscured TextField writes, such as a password's.
-const secretPathsOf = (surface: SurfaceModel<Entry> | undefined) => {
-  const paths: string[] = [];
-  for (const component of surface?.componentsModel.values ?? []) {
-    const { value, variant } = component.properties;
-    if (component.type !== 'TextField' || variant !== 'obscured' || !isRecord(value))
-      continue;
-    const path = value['@path'];
-    if (typeof path === 'string') paths.push(path.startsWith('/') ? path : `/${path}`);
+// A data model path as A2UI resolves it from where a component is drawn: an absolute one as it
+// is, a relative one, such as in a list's row, under the row's path.
+const resolvedPath = (base: string, path: string) => {
+  if (path.startsWith('/')) return path;
+  const parent = base === '/' ? '' : base.replace(/\/$/, '');
+  return path === '' || path === '.' ? parent || '/' : `${parent}/${path}`;
+};
+
+// Each component of a surface with the data path it is drawn at, from its root: a list's
+// template once for each of the list's items, as A2UI draws them. A component nothing reaches
+// is drawn at the root, if at all.
+const placesOf = (surface: SurfaceModel<Entry>) => {
+  const places: Array<{ dataPath: string; id: string }> = [];
+  const seen = new Set<string>();
+  const visit = (id: string, dataPath: string) => {
+    const key = `${id}\u0000${dataPath}`;
+    const component = surface.componentsModel.get(id);
+    if (!component || seen.has(key)) return;
+    seen.add(key);
+    places.push({ dataPath, id });
+    // A component's children are ids in any of its properties, such as `child`, `children`
+    // or a tab's `child`, or a template of a list in the data model.
+    const children = (value: unknown): void => {
+      if (typeof value === 'string') return visit(value, dataPath);
+      if (Array.isArray(value)) return value.forEach(children);
+      if (!isRecord(value)) return;
+      const { componentId, path } = value;
+      if (typeof componentId === 'string' && typeof path === 'string') {
+        const listPath = resolvedPath(dataPath, path);
+        const items: unknown = surface.dataModel.get(listPath);
+        if (Array.isArray(items)) {
+          items.forEach((_, index) =>
+            visit(componentId, resolvedPath(listPath, `${index}`)),
+          );
+        }
+        return;
+      }
+      Object.values(value).forEach(children);
+    };
+    Object.values(component.properties).forEach(children);
+  };
+  visit(surface.rootId, '/');
+  for (const component of surface.componentsModel.values) {
+    if (!places.some(({ id }) => id === component.id)) visit(component.id, '/');
   }
-  return paths;
+  return places;
+};
+
+// The data model paths an obscured TextField writes, such as a password's, in each place it is
+// drawn: a list's row has its own.
+const secretPathsOf = (surface: SurfaceModel<Entry> | undefined) => {
+  if (!surface) return [];
+  return placesOf(surface).flatMap(({ dataPath, id }) => {
+    const component = surface.componentsModel.get(id);
+    const { value, variant } = component?.properties ?? {};
+    if (component?.type !== 'TextField' || variant !== 'obscured' || !isRecord(value))
+      return [];
+    const path = value['@path'];
+    return typeof path === 'string' ? [resolvedPath(dataPath, path)] : [];
+  });
 };
 
 // What the person typed in a surface's obscured fields, so none of it leaves the device.
@@ -469,14 +518,20 @@ export class A2UIReplyState {
       ?.properties.action;
     const written =
       isRecord(event) && isRecord(event.event) ? event.event.context : undefined;
-    if (!isRecord(written)) return [];
+    if (!isRecord(written) || !surface) return [];
+    // Where the button is drawn, such as in each of a list's rows: the action doesn't say which.
+    const dataPaths = placesOf(surface)
+      .filter(({ id }) => id === action.sourceComponentId)
+      .map(({ dataPath }) => dataPath);
     return Object.entries(written).flatMap(([key, value]) => {
       const path = isRecord(value) ? value['@path'] : undefined;
       if (typeof path !== 'string') return [];
-      const absolute = path.startsWith('/') ? path : `/${path}`;
-      return secretPaths.some(
-        (secret) => absolute === secret || absolute.startsWith(`${secret}/`),
-      )
+      return dataPaths.some((dataPath) => {
+        const absolute = resolvedPath(dataPath, path);
+        return secretPaths.some(
+          (secret) => absolute === secret || absolute.startsWith(`${secret}/`),
+        );
+      })
         ? [key]
         : [];
     });

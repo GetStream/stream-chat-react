@@ -369,6 +369,39 @@ describe('OpenUI actions', () => {
     expect(JSON.stringify(ui.state('a1') ?? {})).not.toContain('hunter2');
   });
 
+  it('keeps a password bound to a $variable out of an action that sends it as context', async () => {
+    const { sent, ui } = setup();
+    show(
+      ui,
+      [
+        '$pw = ""',
+        'root = Card([f])',
+        'f = Form("sign_in", b, [c0, c1])',
+        'c1 = FormControl("Password", Input("password", "Password", "password", null, $pw))',
+        'c0 = FormControl("Email", Input("email", "Email"))',
+        'b = Buttons([Button("Sign in", Action([@ToAssistant("Sign me in", {pw: $pw, plan: "weekend"})]), "primary")])',
+      ].join('\n'),
+    );
+    await waitFor(() =>
+      expect(document.querySelector('input[type="password"]')).not.toBeNull(),
+    );
+    act(() => {
+      fireEvent.change(document.querySelector('input[type="password"]') as Element, {
+        target: { value: 'hunter2' },
+      });
+      fireEvent.change(screen.getByRole('textbox'), {
+        target: { value: 'ana@example.com' },
+      });
+    });
+    act(() => {
+      fireEvent.click(screen.getByRole('button', { name: 'Sign in' }));
+    });
+    await waitFor(() => expect(sent).toHaveLength(1));
+    expect(JSON.stringify(sent[0].payload)).toContain('weekend');
+    expect(JSON.stringify(sent[0])).not.toContain('hunter2');
+    expect(JSON.stringify(ui.state('a1') ?? {})).not.toContain('hunter2');
+  });
+
   it('sends no action the library defines but the agent can’t take, and says so', () => {
     const sent: AIUIAction[] = [];
     const report = vi.fn();
@@ -397,18 +430,67 @@ describe('the app’s tools in a program', () => {
 
   it('runs one that changes something only while the person acts', async () => {
     const book = vi.fn(() => ({ booked: true }));
-    const provider = hostToolProvider(engineWith([{ name: 'book_table', run: book }]));
+    let acting = false;
+    const provider = hostToolProvider(
+      engineWith([{ name: 'book_table', run: book }]),
+      () => acting,
+    );
     await expect(provider.book_table({ table: 4 })).rejects.toThrow(
       'changes something, so it runs only from something the person did',
     );
     expect(book).not.toHaveBeenCalled();
-    // A tap gives the page the browser's activation for a moment.
+    acting = true;
+    await expect(provider.book_table({ table: 4 })).resolves.toEqual({ booked: true });
+  });
+
+  it('runs one that changes something from a tap on the reply’s button', async () => {
+    const book = vi.fn(() => ({ booked: true }));
+    const ui = new AIUIHost({
+      renderers: [createOpenUIRenderer()],
+      send: vi.fn(),
+      tools: [{ name: 'book_table', run: book }],
+    });
+    show(
+      ui,
+      [
+        'booking = Mutation("book_table", {table: 4})',
+        'root = Card([b])',
+        'b = Buttons([Button("Book", Action([@Run(booking)]), "primary")])',
+      ].join('\n'),
+    );
+    const button = await screen.findByRole('button', { name: 'Book' });
+    act(() => {
+      fireEvent.click(button);
+    });
+    await waitFor(() => expect(book).toHaveBeenCalledWith({ table: 4 }));
+  });
+
+  it('runs none that changes something as a reply shows, even just after the person acted elsewhere', async () => {
+    const book = vi.fn(() => ({ booked: true }));
+    const errors: OpenUIError[] = [];
+    const ui = new AIUIHost({
+      renderers: [createOpenUIRenderer({ onError: (error) => errors.push(error) })],
+      send: vi.fn(),
+      tools: [{ name: 'book_table', run: book }],
+    });
+    // Such as having pressed Enter to send the question: the browser's activation is page-wide.
     Object.defineProperty(navigator, 'userActivation', {
       configurable: true,
       value: { isActive: true },
     });
     try {
-      await expect(provider.book_table({ table: 4 })).resolves.toEqual({ booked: true });
+      show(
+        ui,
+        [
+          'booking = Query("book_table", {table: 4}, {booked: false})',
+          'root = Card([TextContent("Booking")])',
+        ].join('\n'),
+      );
+      await screen.findByText('Booking');
+      await act(async () => {
+        await new Promise((resolve) => setTimeout(resolve, 50));
+      });
+      expect(book).not.toHaveBeenCalled();
     } finally {
       delete (navigator as { userActivation?: unknown }).userActivation;
     }

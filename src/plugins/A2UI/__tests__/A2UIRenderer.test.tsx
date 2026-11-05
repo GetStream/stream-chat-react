@@ -1103,6 +1103,48 @@ describe('as StreamChatA2UI and the Compose renderer do', () => {
     expect(JSON.stringify(sent[0])).not.toContain('hunter2');
   });
 
+  it('keeps what the person types in an obscured field of a list’s row out of the action', async () => {
+    const { sent, ui } = setup();
+    const lines = [
+      line({
+        createSurface: {
+          dataModel: { accounts: [{ name: 'Main', pin: '' }] },
+          sendDataModel: true,
+          surfaceId: 's',
+        },
+      }),
+      line({
+        updateComponents: {
+          components: [
+            { children: ['accounts', 'go'], component: 'Column', id: 'root' },
+            {
+              children: { componentId: 'pin', path: '/accounts' },
+              component: 'List',
+              id: 'accounts',
+            },
+            {
+              component: 'TextField',
+              id: 'pin',
+              label: 'PIN',
+              value: { '@path': 'pin' },
+              variant: 'obscured',
+            },
+            ...button('go', 'Save', { name: 'save' }),
+          ],
+          surfaceId: 's',
+        },
+      }),
+    ];
+    render(<AIConversation messages={[question, replyWith(lines)]} ui={ui} />);
+    fireEvent.change(await screen.findByLabelText('PIN'), { target: { value: '4821' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Save' }));
+    await waitFor(() => expect(sent).toHaveLength(1));
+    expect(sent[0].payload).toMatchObject({
+      dataModel: { accounts: [{ name: 'Main' }] },
+    });
+    expect(JSON.stringify(sent[0])).not.toContain('4821');
+  });
+
   it('sends the surface’s data model with an action when the agent asked for it', async () => {
     const { sent, ui } = setup();
     const lines = [
