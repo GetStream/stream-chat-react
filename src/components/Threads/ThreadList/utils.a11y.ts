@@ -29,8 +29,10 @@ export type ThreadListItemLabelData = {
   /** The thread's parent message; available for custom parts. */
   parentMessage?: LocalMessage;
   /**
-   * Display preview text of the parent message, the same string the visible subtitle shows (from
-   * `useLatestMessagePreview`). The default `parentMessage` part reads it.
+   * Preview text of the parent message as read aloud: the visible subtitle's text (from
+   * `useLatestMessagePreview`) with its markdown syntax stripped to words. Ordered-list numbers
+   * stay; bullets, task checkboxes and table separators are dropped. AI-generated text is verbatim.
+   * The default `parentMessage` part reads it.
    */
   parentMessagePreview?: string;
   /** Sender prefix of the parent message preview, when the visible preview shows one. */
