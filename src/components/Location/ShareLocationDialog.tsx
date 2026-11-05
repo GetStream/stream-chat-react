@@ -129,8 +129,12 @@ export const ShareLocationDialog = ({
   // The dialog runs at most one position watch: its id is kept here so that a restart
   // and unmount can clear it.
   const watchIdRef = useRef<number | undefined>(undefined);
+  // Bumped whenever a watch stops. A callback the browser queued before clearWatch still
+  // runs, and its watch's generation no longer matches, so it leaves the state alone.
+  const watchGenerationRef = useRef(0);
 
   const stopPositionWatching = useCallback(() => {
+    watchGenerationRef.current += 1;
     if (watchIdRef.current === undefined) return;
     navigator.geolocation.clearWatch(watchIdRef.current);
     watchIdRef.current = undefined;
@@ -139,15 +143,19 @@ export const ShareLocationDialog = ({
   const startPositionWatching = useCallback(() => {
     stopPositionWatching();
     setLoadingLocation(true);
+    const watchGeneration = watchGenerationRef.current;
+    const isStoppedWatch = () => watchGeneration !== watchGenerationRef.current;
     let watchHasPosition = false;
     watchIdRef.current = navigator.geolocation.watchPosition(
       (position) => {
+        if (isStoppedWatch()) return;
         watchHasPosition = true;
         setGeolocationPosition(position);
         setLoadingLocation(false);
         setGeolocationPositionError(undefined);
       },
       (error) => {
+        if (isStoppedWatch()) return;
         // Some browsers (e.g. Firefox) report TIMEOUT whenever a stationary device
         // produces no new position in time. The last position stays valid then.
         const isTimeoutAfterPosition = watchHasPosition && error.code === error.TIMEOUT;

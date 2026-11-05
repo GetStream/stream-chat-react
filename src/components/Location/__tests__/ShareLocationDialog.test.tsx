@@ -276,6 +276,35 @@ describe('ShareLocationDialog', () => {
       expect(navigator.geolocation.clearWatch).toHaveBeenCalledWith(1);
     });
 
+    it('ignores callbacks of a watch stopped by a restart', async () => {
+      const watchCallbacks: Array<Record<string, (...args: unknown[]) => void>> = [];
+      watchPosition.mockImplementation((onSuccess, onError) => {
+        watchCallbacks.push({ onError, onSuccess });
+        return nextWatchId++;
+      });
+      const RestartableGeolocationMap = (props: ShareGeolocationMapProps) => (
+        <>
+          <RestartingGeolocationMap {...props} />
+          <GeolocationMapComponent {...props} />
+        </>
+      );
+      await renderComponent({ props: { GeolocationMap: RestartableGeolocationMap } });
+      const geolocationMap = screen.getByTestId(GEOLOCATION_MAP_TEST_ID);
+      await act(() => restartLocationWatching());
+      const [stoppedWatch, currentWatch] = watchCallbacks;
+
+      await act(() => stoppedWatch.onSuccess({ coords: { latitude: 1, longitude: 10 } }));
+      expect(geolocationMap.dataset.latitude).toBeUndefined();
+      expect(geolocationMap.dataset.loading).toBe('true');
+
+      await act(() => currentWatch.onSuccess({ coords: { latitude: 2, longitude: 20 } }));
+      await act(() =>
+        stoppedWatch.onError({ code: 2, POSITION_UNAVAILABLE: 2, TIMEOUT: 3 }),
+      );
+      expect(geolocationMap.dataset.latitude).toBe('2');
+      expect(geolocationMap.dataset.error).toBeUndefined();
+    });
+
     it('keeps one watch under StrictMode', async () => {
       const {
         channels: [channel],
