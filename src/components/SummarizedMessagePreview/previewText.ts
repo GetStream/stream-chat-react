@@ -79,13 +79,11 @@ const getListItemMarker = (
 };
 
 /**
- * A table row in the `display` format, its cells between `|` separators: `| API | done |`. A `|`
- * inside a cell stays escaped, so it does not read as a separator.
+ * A table row in the `display` format, its cells between `|` separators: `| API | done |`. The
+ * result is plain text, not markdown, so cell text is shown as is, a `|` inside a cell included.
  */
 const tableRowToDisplayText = (row: TableRow) =>
-  `| ${row.children
-    .map((cell) => toPlainText(cell, 'display').replace(/\|/g, '\\|'))
-    .join(' | ')} |`;
+  `| ${row.children.map((cell) => toPlainText(cell, 'display')).join(' | ')} |`;
 
 /**
  * Reads a markdown node as text in the given format. Block containers join their children as

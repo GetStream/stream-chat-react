@@ -119,8 +119,10 @@ describe('markdownToPlainText in the display format', () => {
     );
   });
 
-  it('keeps an escaped pipe inside a cell escaped', () => {
-    expect(toDisplayText('| a \\| b | c |\n| - | - |')).toBe('| a \\| b | c |');
+  it('shows cell text as is, a backslash or an escaped pipe included', () => {
+    expect(toDisplayText('| a \\| b | C:\\path |\n| - | - |')).toBe(
+      '| a | b | C:\\path |',
+    );
   });
 
   it('returns the raw text on one line when stripping leaves nothing', () => {
