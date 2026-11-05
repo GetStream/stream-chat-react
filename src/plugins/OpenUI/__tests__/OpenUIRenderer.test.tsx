@@ -522,8 +522,8 @@ describe('media a program links to', () => {
     );
     await waitFor(() =>
       expect(
-        [...document.querySelectorAll('img')].some((img) =>
-          img.getAttribute('src')?.startsWith('https://upload.wikimedia.org'),
+        [...document.querySelectorAll('img')].some(
+          (img) => img.getAttribute('src') === 'https://upload.wikimedia.org/ohrid.jpg',
         ),
       ).toBe(true),
     );
