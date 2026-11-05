@@ -3,11 +3,7 @@ import { fromPartial } from '@total-typescript/shoehorn';
 import React from 'react';
 import type { Channel } from 'stream-chat';
 
-import {
-  useComponentContext,
-  useModalContext,
-  useTranslationContext,
-} from '../../../../../context';
+import { useComponentContext, useTranslationContext } from '../../../../../context';
 import { ChannelDetailProvider } from '../../../ChannelDetailContext';
 import {
   type ChannelMembersHeaderActionItem,
@@ -78,7 +74,6 @@ describe('ChannelMembersHeaderActions.defaults', () => {
     vi.mocked(useTranslationContext).mockReturnValue({
       t: mockT,
     } as ReturnType<typeof useTranslationContext>);
-    vi.mocked(useModalContext).mockReturnValue({} as ReturnType<typeof useModalContext>);
     vi.mocked(useComponentContext).mockReturnValue(
       {} as ReturnType<typeof useComponentContext>,
     );

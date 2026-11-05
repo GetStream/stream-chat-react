@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { ChannelInstanceProvider, ModalContextProvider } from 'stream-chat-react';
+import { ChannelInstanceProvider } from 'stream-chat-react';
 import { ChannelDetail } from 'stream-chat-react/channel-detail';
 import type { SectionNavigatorSection } from 'stream-chat-react/channel-detail';
 import { useSlotChannel } from 'stream-chat-react/slot-layout';
@@ -20,9 +20,6 @@ type ChannelDetailsProps = {
 const ChannelDetails = ({ sections }: ChannelDetailsProps) => {
   const channel = useSlotChannel({ slot: 'channel' });
   const { closeSidePanel } = useSidePanel();
-  // The sections close themselves through the modal context: their close button, and actions
-  // such as opening a pinned message. Here, closing means closing the side panel.
-  const modalContext = useMemo(() => ({ close: closeSidePanel }), [closeSidePanel]);
   const channelContext = useMemo(() => (channel ? { channel } : undefined), [channel]);
 
   if (!channelContext) return null;
@@ -31,16 +28,16 @@ const ChannelDetails = ({ sections }: ChannelDetailsProps) => {
     // Channel info reads the channel from the channel context for its online status, and the
     // side panel sits outside the channel's `Channel`.
     <ChannelInstanceProvider value={channelContext}>
-      <ModalContextProvider value={modalContext}>
-        <div className='cookbook-channel-details'>
-          {/* A new channel starts the panel again on its first section. */}
-          <ChannelDetail
-            channel={channelContext.channel}
-            key={channelContext.channel.cid}
-            sections={sections}
-          />
-        </div>
-      </ModalContextProvider>
+      <div className='cookbook-channel-details'>
+        {/* A new channel starts the panel again on its first section. The sections' close
+            button, and actions such as opening a pinned message, close the side panel. */}
+        <ChannelDetail
+          channel={channelContext.channel}
+          key={channelContext.channel.cid}
+          onClose={closeSidePanel}
+          sections={sections}
+        />
+      </div>
     </ChannelInstanceProvider>
   );
 };

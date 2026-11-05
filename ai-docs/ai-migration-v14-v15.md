@@ -2,7 +2,7 @@
 
 Execution-only guide for a coding agent migrating a third-party app from `stream-chat-react` v14 to v15. It covers the root package and its subpath entry points (`stream-chat-react/slot-layout`, `/slot-geometry`, `/channel-detail`, `/emojis`, `/ai-components`, `/mp3-encoder` and the `css/*` stylesheets). v15 requires `stream-chat` v10, itself a breaking client release, so upgrade both together; this guide covers the `stream-chat` changes a React app usually hits, and the [stream-chat guide](#companion-documents) covers the rest. The i18n runtime now comes from `@stream-io/i18n` and the state store from `@stream-io/state-store`, both installed as dependencies of this package.
 
-Every breaking change in [`v15-breaking-changes.md`](https://github.com/GetStream/stream-chat-react/blob/master/ai-docs/v15-breaking-changes.md) (`BC-001` to `BC-095`) is covered here. The [index at the end](#index-of-breaking-changes) maps each `BC` entry to its section.
+Every breaking change in [`v15-breaking-changes.md`](https://github.com/GetStream/stream-chat-react/blob/master/ai-docs/v15-breaking-changes.md) (`BC-001` to `BC-097`) is covered here. The [index at the end](#index-of-breaking-changes) maps each `BC` entry to its section.
 
 Verified against `master` @ `1c02ba07f` (`stream-chat-react@0.0.0-development`, after the `v15.0.0-rc.3` tag; `stream-chat` peer `^10.0.0-rc.29`, checked against stream-chat-js `release-v10` @ `fdfcb296`), 2026-11-03.
 
@@ -310,6 +310,7 @@ These compile cleanly, or are ignored in plain JS, and change behavior at runtim
 | The "New Messages!" notification no longer shows after jumping to older messages                                                                                                                                     | It shows only when a message arrives while the list is scrolled up                                                                                                 | Read `messagePaginator.hasMoreHead` for an "older messages shown" indicator ([section 11](#the-new-messages-notification-shows-only-for-messages-that-arrived))                                                                                                                                                                                                           | `NewMessageNotification`                                                                                              |
 | The scroll-to-latest button shows a larger number than before                                                                                                                                                        | It shows the channel's unread count for the current user, not the messages that arrived while scrolled up                                                          | Nothing to do; see [section 11](#scrolltolatestmessagebutton-shows-the-channels-unread-count)                                                                                                                                                                                                                                                                             | `ScrollToLatestMessageButton`                                                                                         |
 | A custom loader given to `InfiniteScrollPaginator` (or `ChannelList` / `SearchSourceResultList`) is called earlier and more often                                                                                    | `loadNextDebounceMs` now limits how often the scroll position is checked, rather than waiting for scrolling to stop                                                | Ignore calls while a page is loading ([section 11](#loading-older-messages-keeps-your-place-loadnextdebouncems-rate-limits-the-check))                                                                                                                                                                                                                                    | `InfiniteScrollPaginator`, `loadNextOnScrollTo`, `loadMoreDebounceMs`                                                 |
+| A `ChannelDetail` in a side panel or another non-modal container shows no close button                                                                                                                               | Outside a modal, the views render a close button only when `ChannelDetail` or `ChannelDetailProvider` gets `onClose`                                               | Pass `onClose` ([section 10](#channeldetail-takes-onclose-outside-a-modal-it-shows-no-close-button-without-it))                                                                                                                                                                                                                                                           | `\bChannelDetail\b`, `\bChannelDetailProvider\b` (also aliased imports); check each rendered one is in a modal        |
 | A channel shown without `<Channel>` misses messages sent while the client was offline, or a channel reloads twice after a reconnect                                                                                  | The client reloads only activated channels after a reconnect, and v14's `Channel` no longer reloads on `connection.recovered`                                      | Call `channel.activate()` in a custom surface; remove app-side reloads on `connection.recovered` ([section 5](#channel-lifecycle-activation-no-remount-no-reload-no-search-jump))                                                                                                                                                                                         | `connection.recovered`, `.reload(`, custom channel surfaces without `<Channel`                                        |
 | A custom edit button shows on poll messages and giphies                                                                                                                                                              | `useMessagePermissions(message).canEdit` (`useUserRole` in v14) is the update permission alone                                                                     | Add `!message.poll_id && message.command !== 'giphy'` ([section 10](#messageactions-and-message_actions-are-removed))                                                                                                                                                                                                                                                     | `canEdit`                                                                                                             |
 | A custom `messageActionSet` offers Edit on poll messages, or Copy on messages without text                                                                                                                           | Those rules moved from the base filter onto the default items' `isVisible`                                                                                         | Copy the default item's `isVisible` ([section 10](#messageactions-and-message_actions-are-removed))                                                                                                                                                                                                                                                                       | `messageActionSet`, `disableBaseMessageActionSetFilter`                                                               |
@@ -2129,6 +2130,41 @@ export const List = () => (
 
 - Adding an action means adding an item with a `Component` and a `placement` of `quick`, `dropdown` or `quick-dropdown-toggle`.
 
+### `ChannelDetail` takes `onClose`; outside a modal it shows no close button without it
+
+The channel detail views (from `stream-chat-react/channel-detail`) close through the nearest modal. In v14, a `ChannelDetail` rendered outside a modal, for example in a side panel, showed close buttons that did nothing. In v15:
+
+- `ChannelDetail` and `ChannelDetailProvider` take `onClose`. The views' close buttons call it, and so do the actions that close the channel detail when they finish: opening a pinned message, leaving or deleting the channel, and sending a direct message. Inside a modal it is called instead of the modal's `close`, so close the modal from it. A modal opened inside the channel detail, such as a confirmation alert, still closes itself.
+- Without `onClose`, outside a modal the views render no close button. Inside a modal they close the modal, as in v14.
+- `useChannelDetailContext()` returns `close` next to `channel`. A custom section passes it to `SectionNavigatorHeader`; it is `undefined` when there is nothing to close.
+- `ChannelDetail.onLayoutChange` is called on every layout change. v14 ignored it.
+
+An app that wrapped `ChannelDetail` in `ModalContextProvider` to make the close buttons work keeps working. Replace the wrapper with `onClose`:
+
+```tsx
+import { useMemo } from 'react';
+import type { Channel } from 'stream-chat';
+import { ChannelInstanceProvider } from 'stream-chat-react';
+import { ChannelDetail } from 'stream-chat-react/channel-detail';
+
+type ChannelDetailsPanelProps = { channel: Channel; closePanel: () => void };
+
+// A panel outside the channel's `<Channel>` provides the channel itself: the channel info
+// section reads it for the online status.
+export const ChannelDetailsPanel = ({
+  channel,
+  closePanel,
+}: ChannelDetailsPanelProps) => {
+  const channelContext = useMemo(() => ({ channel }), [channel]);
+
+  return (
+    <ChannelInstanceProvider value={channelContext}>
+      <ChannelDetail channel={channel} onClose={closePanel} />
+    </ChannelInstanceProvider>
+  );
+};
+```
+
 ---
 
 ## 11. Message lists
@@ -2822,11 +2858,12 @@ client.config.setSetupFunction('messageComposer', ({ composer }) => {
 
 ### Attachment and poll availability
 
-`AttachmentSelector` used to decide which actions to offer from the channel type's raw server flags. It now reads the composer's resolved configuration (server flags ANDed with `client.config`). No React API changed, but the actions offered differ:
+`AttachmentSelector` used to decide which actions to offer from the channel type's raw server flags. It now reads the composer's resolved configuration (server flags ANDed with `client.config`). Existing React APIs keep their shape, but the actions offered differ:
 
-- **File:** v14 required `upload-file` capability, `channelConfig.uploads` and `isUploadEnabled`. v15 requires only `attachmentManager.isUploadEnabled`, which is `attachments.enabled && hasAvailableUploadSlots && (customCdn || hasUploadPermission)`.
+- **File:** v14 required `upload-file` capability, `channelConfig.uploads` and `isUploadEnabled`. v15 offers File while `attachments.enabled && (customCdn || hasUploadPermission)`: `attachmentManager.isUploadEnabled` without its free-slot condition. Once the message holds `maxNumberOfFilesPerMessage` files, File stays in the menu, disabled; v14 hid it.
   - With `customCdn: true`, the File action now appears for users without `upload-file`; v14 always hid it from them.
   - With a custom `doUploadRequest` and `customCdn` unset, uploads the v14 client let through without `upload-file` are now blocked, for example paste, which skipped the capability check when `doUploadRequest` was set. The File action itself was already hidden in v14.
+- **`SimpleAttachmentSelector`** (the default while editing a message) applies the same File rule, and so does the identical button `AttachmentSelector` renders when File is its only action (`FileUploadButton`). v14 checked only `upload-file`. It now appears without `upload-file` when `customCdn: true`, and it is hidden when attachments are disabled. Once the message holds `maxNumberOfFilesPerMessage` files it is disabled; v14 left it enabled.
 - **Poll:** reads the resolved `polls.enabled` instead of `channelConfig.polls`.
 - **Location:** reads the resolved `location.enabled` instead of `channelConfig.shared_locations`.
 - **Commands:** read `availableCommands` from `channel.configState` instead of `channel.getConfig().commands`.
@@ -2840,7 +2877,13 @@ client.config.set({
 });
 ```
 
-`SimpleAttachmentSelector` still requires `upload-file` regardless. `isUploadEnabled` still does not re-render on an `own_capabilities` change; subscribe with `useChannelCapabilities` where that matters.
+Only the four built-in action types (`uploadFile`, `createPoll`, `addLocation`, `selectCommand`) are filtered, whatever `ActionButton` they carry. An action with a `type` of its own is always offered, so that is how to show an action the rules above would hide, for example `{ ActionButton: DefaultAttachmentSelectorComponents.File, type: 'myUpload' }`. Showing an action does not grant what it needs: `AttachmentManager.uploadFiles()` still drops files while `isUploadEnabled` is `false` (attachments disabled, the file limit reached, or neither `customCdn` nor `upload-file`), and Stream's server still refuses a poll without `send-poll`. Some behaviour is tied to the built-in types, so a custom type gives it up:
+
+- When an action is the only one offered, the selector renders the action's `StandaloneButton` in place of the menu. It sits in the selector's root element, which is hidden while a command is active, and its `buttonProps.disabled` is set during the send cooldown. `uploadFile` gets `FileUploadButton` by default; a custom type sets it itself, for example `{ ActionButton: DefaultAttachmentSelectorComponents.File, StandaloneButton: FileUploadButton, type: 'myUpload' }`. Without one, a lone action is the only item of the menu.
+- `createPoll` and `addLocation` get `PollCreationDialog` and `ShareLocationDialog` as `ModalContent` by default. A custom type passes its own `ModalContent` and needs its own `ActionButton` that calls `openModalForAction('<its type>')`: the default Poll and Location buttons open the built-in types' modals. `DefaultAttachmentSelectorComponents.File` can be reused as it is, because it clicks the selector's shared file input, and so can `.Command`, given the action's `Submenu` and `Header`.
+- `createPoll` resets `messageComposer.pollComposer` each time its dialog opens, and its modal gets the `str-chat__create-poll-modal` class (`str-chat__share-location-modal` for `addLocation`). A custom type does neither.
+
+`useAttachmentManagerState().isUploadEnabled` still does not re-render on an `own_capabilities` change; subscribe with `useChannelCapabilities` where that matters. The attachment selectors already do.
 
 ### `useAttachmentManagerState`: `hasCustomDoUploadRequest` → `customCdn`
 
@@ -3550,7 +3593,7 @@ Run after every section is applied.
 | BC-062 | `handleSubmit` removed                                                                   | [13](#handlesubmit-is-removed)                                                                                                 |
 | BC-063 | Failed sends do not restore the composer                                                 | [13](#a-failed-send-or-edit-no-longer-restores-the-composer)                                                                   |
 | BC-064 | `hasCustomDoUploadRequest` → `customCdn`                                                 | [13](#useattachmentmanagerstate-hascustomdouploadrequest--customcdn)                                                           |
-| BC-065 | `AttachmentSelector` follows resolved config                                             | [13](#attachment-and-poll-availability)                                                                                        |
+| BC-065 | Attachment selectors follow resolved config                                              | [13](#attachment-and-poll-availability)                                                                                        |
 | BC-066 | Upload helpers moved to `stream-chat`                                                    | [1](#imports-that-moved), [13](#upload-helpers-moved-to-stream-chat)                                                           |
 | BC-067 | English-only bundle, namespaced keys                                                     | [18](#18-i18n)                                                                                                                 |
 | BC-068 | Strict `t`                                                                               | [18](#18-i18n)                                                                                                                 |
@@ -3581,4 +3624,5 @@ Run after every section is applied.
 | BC-093 | Mention handlers in the message context and from `useMentionsHandler` can be `undefined` | [12](#onmentionsclickmessage-and-onmentionshovermessage-are-undefined-without-a-handler)                                       |
 | BC-094 | `mentionsMarkdownPlugin` takes mention entities only                                     | [12](#mentionsmarkdownplugin-takes-mention-entities-only)                                                                      |
 | BC-095 | `disableQuotedMessages` removed                                                          | [12](#the-disablequotedmessages-prop-is-removed)                                                                               |
+| BC-097 | Channel detail close buttons need `onClose` outside a modal; `onLayoutChange` is called  | [10](#channeldetail-takes-onclose-outside-a-modal-it-shows-no-close-button-without-it)                                         |
 | BC-099 | `HeaderEndContent` → `EndContent` on `ChannelListHeader` / `ThreadListHeader`            | [8](#list-headers-headerendcontent-becomes-an-endcontent-prop)                                                                 |
