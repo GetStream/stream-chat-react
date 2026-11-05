@@ -598,8 +598,8 @@ describe('the catalog id', () => {
     }
   });
 
-  it('leaves the former id to a renderer with the default id', async () => {
-    const { errors, ui } = setup({ catalogId: 'athena-app-catalog' });
+  it('shows the former id only for a renderer with the default id', async () => {
+    const { errors, ui } = setup({ catalogId: 'my-app-catalog' });
     renderWithEnglish(
       <AIConversation
         messages={[question, replyWith(surfaceNaming(A2UI_LEGACY_CATALOG_ID))]}
