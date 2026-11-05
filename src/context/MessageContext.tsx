@@ -69,8 +69,6 @@ export type MessageContextValue = {
   groupStyles?: GroupStyle[];
   /** Whether to highlight the message. The message lists set it on the focused message. */
   highlighted?: boolean;
-  /** Whether the message is the thread's parent shown at the top of the thread. */
-  initialMessage?: boolean;
   /** Whether a message is AI generated. */
   isMessageAIGenerated?: (message: LocalMessage) => boolean;
   /** Latest own message in the currently displayed message set. */

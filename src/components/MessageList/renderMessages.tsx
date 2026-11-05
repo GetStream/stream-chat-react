@@ -46,7 +46,6 @@ type MessagePropsToOmit =
   | 'channel'
   | 'deliveredTo'
   | 'groupStyles'
-  | 'initialMessage'
   | 'lastReceivedId'
   | 'message'
   | 'readBy';
