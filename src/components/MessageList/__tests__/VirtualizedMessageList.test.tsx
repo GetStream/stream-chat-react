@@ -26,6 +26,7 @@ import { StateStore } from '@stream-io/state-store';
 import { fromPartial } from '@total-typescript/shoehorn';
 import type { LocalMessage, Thread, ThreadState } from 'stream-chat';
 import type { MessageProps } from '../../Message';
+import type { GiphyPreviewMessageProps } from '../GiphyPreviewMessage';
 
 const threadWithParentMessage = () =>
   fromPartial<Thread>({
@@ -254,6 +255,56 @@ describe('VirtualizedMessageList', () => {
 
     const props = CustomThreadHead.mock.lastCall?.[0];
     expect(props).toEqual(expect.objectContaining(messageProps));
+    // Props the list was not given stay unset, so an override's own defaults apply.
+    expect(props).not.toHaveProperty('formatDate');
+  });
+
+  it('gives the separate giphy preview the list-wide message props', async () => {
+    const CustomGiphyPreviewMessage = vi.fn<
+      (props: GiphyPreviewMessageProps) => React.ReactElement
+    >(() => <div />);
+    const messageProps = {
+      onMentionsClick: vi.fn(),
+      onUserClick: vi.fn(),
+      unsafeHTML: true,
+    };
+    const user = generateUser({ id: 'id' });
+    const giphyPreview = generateMessage({
+      command: 'giphy',
+      id: 'giphy-preview',
+      type: 'ephemeral',
+      user,
+    });
+    const mockedChannel = generateChannel({
+      members: [generateMember({ user })],
+      messages: [giphyPreview],
+    });
+    const client = await getTestClientWithUser({ id: user.id });
+    useMockedApis(client, [getOrCreateChannelApi(mockedChannel)]);
+    const channel = client.channel('messaging', mockedChannel.channel.id);
+    await channel.watch();
+
+    await act(() => {
+      render(
+        <Chat client={client}>
+          <Channel channel={channel}>
+            <WithComponents
+              overrides={{ GiphyPreviewMessage: CustomGiphyPreviewMessage }}
+            >
+              <VirtualizedMessageList {...messageProps} separateGiphyPreview />
+            </WithComponents>
+          </Channel>
+        </Chat>,
+      );
+    });
+
+    const props = CustomGiphyPreviewMessage.mock.lastCall?.[0];
+    expect(props).toEqual(
+      expect.objectContaining({
+        ...messageProps,
+        message: expect.objectContaining({ id: giphyPreview.id }),
+      }),
+    );
     // Props the list was not given stay unset, so an override's own defaults apply.
     expect(props).not.toHaveProperty('formatDate');
   });

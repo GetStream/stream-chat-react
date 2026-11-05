@@ -33,6 +33,7 @@ import type {
   RenderedMessage,
 } from './utils';
 import { getLastReceived, getMessageGroupStyles, processMessages } from './utils';
+import { omitUndefinedProps } from './omitUndefinedProps';
 import type { MessageProps } from '../Message';
 import { UnreadMessagesNotification as DefaultUnreadMessagesNotification } from './UnreadMessagesNotification';
 import {
@@ -235,7 +236,8 @@ const VirtualizedMessageListWithContext = (
   } = props;
   const thread = useThreadContext();
   const isThreadList = !!thread;
-  // The list-wide props every message gets, the thread's parent message included.
+  // The list-wide props every message gets, the thread's parent message and the separate giphy
+  // preview included.
   const messageProps: Pick<
     VirtualizedMessageListProps,
     PropsDrilledToMessage | 'closeReactionSelectorOnClick'
@@ -671,7 +673,12 @@ const VirtualizedMessageListWithContext = (
             scrollToBottom={scrollToBottom}
           />
         )}
-        {giphyPreviewMessage && <GiphyPreviewMessage message={giphyPreviewMessage} />}
+        {giphyPreviewMessage && (
+          <GiphyPreviewMessage
+            {...omitUndefinedProps(messageProps)}
+            message={giphyPreviewMessage}
+          />
+        )}
       </MessageTranslationViewProvider>
     </VirtualizedMessageListContextProvider>
   );
