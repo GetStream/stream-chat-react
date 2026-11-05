@@ -463,6 +463,27 @@ describe('MessageList', () => {
     });
   });
 
+  it('should render the ScrollToLatestMessageButton override with the list state', async () => {
+    const ScrollToLatestMessageButton = vi.fn(() => (
+      <div data-testid='custom-scroll-to-latest' />
+    ));
+    renderComponent({
+      channelProps: { channel },
+      chatClient,
+      components: { ScrollToLatestMessageButton },
+      msgListProps: { messages: [message1] },
+    });
+
+    expect(await screen.findByTestId('custom-scroll-to-latest')).toBeInTheDocument();
+    expect(ScrollToLatestMessageButton).toHaveBeenCalledWith(
+      expect.objectContaining({
+        isNotAtLatestMessageSet: false,
+        onClick: expect.any(Function),
+      }),
+      undefined,
+    );
+  });
+
   it('should render EmptyStateIndicator with corresponding list type in main message list', async () => {
     renderComponent({
       channelProps: { channel },

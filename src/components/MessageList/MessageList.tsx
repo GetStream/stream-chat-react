@@ -50,7 +50,7 @@ import { useStateStore } from '../../store';
 import type { InfiniteScrollPaginatorProps } from '../InfiniteScrollPaginator/InfiniteScrollPaginator';
 import { InfiniteScrollPaginator } from '../InfiniteScrollPaginator/InfiniteScrollPaginator';
 import { useMessagePaginator } from '../../hooks';
-import { ScrollToLatestMessageButton } from './ScrollToLatestMessageButton';
+import { ScrollToLatestMessageButton as DefaultScrollToLatestMessageButton } from './ScrollToLatestMessageButton';
 import { useCanPaginateReplies } from './hooks/useCanPaginateReplies';
 
 type MessageListWithContextProps = MessageListProps;
@@ -130,6 +130,7 @@ const MessageListWithContext = (props: MessageListWithContextProps) => {
     LoadingIndicator = DefaultLoadingIndicator,
     MessageListWrapper = 'ul',
     NewMessageNotification = DefaultNewMessageNotification,
+    ScrollToLatestMessageButton = DefaultScrollToLatestMessageButton,
     TypingIndicator = DefaultTypingIndicator,
     UnreadMessagesNotification = DefaultUnreadMessagesNotification,
   } = useComponentContext();

@@ -6,7 +6,7 @@ import type { BaseImageProps } from '../BaseImage';
 import type { GalleryItem } from '../Gallery/GalleryContext';
 import { BaseImage as DefaultBaseImage } from '../BaseImage';
 import { Gallery as DefaultGallery, GalleryUI } from '../Gallery';
-import { LoadingIndicator } from '../Loading';
+import { LoadingIndicator as DefaultLoadingIndicator } from '../Loading';
 import { GlobalModal, type ModalCloseSource } from '../Modal';
 import {
   MessageContext,
@@ -165,6 +165,7 @@ const ThumbnailButton = ({
   showOverlay,
 }: ThumbnailButtonProps) => {
   const { IconRetry } = useComponentContextIcons();
+  const { LoadingIndicator = DefaultLoadingIndicator } = useComponentContext();
   const { t } = useTranslationContext();
   const imageUrl = item.imageUrl;
   const [isLoadFailed, setIsLoadFailed] = useState(false);

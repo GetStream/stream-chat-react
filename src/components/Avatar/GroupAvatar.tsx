@@ -19,7 +19,8 @@ export type GroupAvatarProps = {
 
 /**
  * Avatar for several users: a single `Avatar` for fewer than 2 members, otherwise up to 4 avatars,
- * or 2 plus a `+N` badge when there are more than 4 members.
+ * or 2 plus a `+N` badge when there are more than 4 members. The tiles are always the default
+ * `Avatar`, not the `Avatar` slot: the slot can hold `ChannelAvatar`, which renders `GroupAvatar`.
  */
 export const GroupAvatar = ({
   badgeSize,

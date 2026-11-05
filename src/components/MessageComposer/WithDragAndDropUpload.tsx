@@ -5,6 +5,7 @@ import clsx from 'clsx';
 import type { MessageComposerConfig } from 'stream-chat';
 
 import {
+  useComponentContext,
   useComponentContextIcons,
   useIsWithinMessageComposerContext,
   useTranslationContext,
@@ -46,7 +47,8 @@ const attachmentManagerConfigStateSelector = (state: MessageComposerConfig) => (
 
 /**
  * Wraps its children in a drop zone that uploads dropped files to the message composers inside it.
- * The accepted file types come from the composer config (`attachments.acceptedFiles`).
+ * The accepted file types come from the composer config (`attachments.acceptedFiles`), and the
+ * overlay shown while dragging is the `FileDragAndDropContent` slot.
  *
  * @example
  * ```tsx
@@ -73,6 +75,9 @@ export const WithDragAndDropUpload = ({
   style?: CSSProperties;
 }>) => {
   const dropHandlersRef = useRef<Set<(f: File[]) => void>>(new Set());
+  const {
+    FileDragAndDropContent: FileDragAndDropContentComponent = FileDragAndDropContent,
+  } = useComponentContext();
   const dragAndDropUploadContext = useDragAndDropUploadContext();
   const messageComposer = useMessageComposerController();
   const { isUploadEnabled } = useAttachmentManagerState();
@@ -147,7 +152,7 @@ export const WithDragAndDropUpload = ({
             })}
             role='presentation'
           >
-            <FileDragAndDropContent isDragRejected={isDragRejected} />
+            <FileDragAndDropContentComponent isDragRejected={isDragRejected} />
           </div>
         )}
         {children}

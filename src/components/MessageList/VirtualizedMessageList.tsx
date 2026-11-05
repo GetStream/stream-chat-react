@@ -46,8 +46,8 @@ import {
 } from './VirtualizedMessageListComponents';
 
 import {
+  ScrollToLatestMessageButton as DefaultScrollToLatestMessageButton,
   UnreadMessagesSeparator as DefaultUnreadMessagesSeparator,
-  ScrollToLatestMessageButton,
 } from '../MessageList';
 import { DateSeparator as DefaultDateSeparator } from '../DateSeparator';
 import { EventComponent as DefaultMessageSystem } from '../EventComponent';
@@ -253,6 +253,7 @@ const VirtualizedMessageListWithContext = (
     GiphyPreviewMessage = DefaultGiphyPreviewMessage,
     MessageSystem = DefaultMessageSystem,
     NewMessageNotification = DefaultNewMessageNotification,
+    ScrollToLatestMessageButton = DefaultScrollToLatestMessageButton,
     TypingIndicator,
     UnreadMessagesNotification = DefaultUnreadMessagesNotification,
     UnreadMessagesSeparator = DefaultUnreadMessagesSeparator,

@@ -5,10 +5,10 @@ import clsx from 'clsx';
 
 import type { MessagePaginatorAggregateState, ThreadState } from 'stream-chat';
 
-import { Timestamp } from '../../Message/Timestamp';
+import { Timestamp as DefaultTimestamp } from '../../Message/Timestamp';
 import {
-  Avatar,
   type AvatarProps,
+  Avatar as DefaultAvatar,
   AvatarStack as DefaultAvatarStack,
 } from '../../Avatar';
 import { extractDisplayInfo as defaultExtractDisplayInfo } from '../../Avatar/utils';
@@ -24,7 +24,7 @@ import { useThreadListItemContext } from './ThreadListItem';
 import { useStateStore } from '../../../store';
 import { Badge } from '../../Badge';
 import {
-  SummarizedMessagePreview,
+  SummarizedMessagePreview as DefaultSummarizedMessagePreview,
   useLatestMessagePreview,
 } from '../../SummarizedMessagePreview';
 import {
@@ -90,8 +90,11 @@ export const ThreadListItemUI = ({
   const { announceInteraction } = useInteractionAnnouncements();
   const { isThreadActive, openThread } = useWorkspaceNavigation();
   const {
+    Avatar = DefaultAvatar,
     AvatarStack = DefaultAvatarStack,
     extractDisplayInfo = defaultExtractDisplayInfo,
+    SummarizedMessagePreview = DefaultSummarizedMessagePreview,
+    Timestamp = DefaultTimestamp,
   } = useComponentContext();
   const isSelected = isThreadActive(thread.id);
 

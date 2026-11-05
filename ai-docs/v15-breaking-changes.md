@@ -64,7 +64,7 @@ yarn api-surface check --doc ai-docs/v15-breaking-changes.md --diff diff.json
 
 ## Index
 
-100 entries.
+101 entries.
 
 | ID                | Title                                                                                                                                                                                                                         | Group                                                |
 | ----------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------- |
@@ -168,6 +168,7 @@ yarn api-surface check --doc ai-docs/v15-breaking-changes.md --diff diff.json
 | [BC-106](#bc-106) | `MessageReactions.reverse`, `MessageReactionsDetail.sort` and `MessageReactionsDetail.dialogId` are removed                                                                                                                   | Messages and message lists                           |
 | [BC-107](#bc-107) | `emojiSearchIndex` and `parent` are removed from `MessageComposer` and its context; `ComponentContext.emojiSearchIndex` is removed                                                                                            | Message composer                                     |
 | [BC-108](#bc-108) | `WithDragAndDropUpload.acceptedFiles` is removed                                                                                                                                                                              | Message composer                                     |
+| [BC-109](#bc-109) | `ComponentContext` slots are typed by the props they receive, and overrides apply where defaults were rendered                                                                                                                | Contexts and customization                           |
 
 ## Package and runtime
 
@@ -632,6 +633,51 @@ export const CustomEmojiPicker = () => {
 - Docs impact:
   - `02-ui-components/04-channel/01-channel.md`, `02-ui-components/04-channel/04-channel_state_context.md`, `04-guides/05-channel_read_state.md`
 - Example needed: no
+
+<a id="bc-109"></a>
+
+### BC-109: `ComponentContext` slots are typed by the props they receive, and overrides apply where defaults were rendered
+
+- Status: confirmed
+- Area: component context
+- User impact: compile error where your own component renders one of these slots from `useComponentContext()` with props (`<MessageStatus messageType='simple' />`), and on an override whose props are required. Overrides that take optional props or none still type-check, and the typing changes nothing at runtime: the SDK rendered these slots without props in v14 too, so an override never received the props its type promised. Silent behavior change: overrides of several slots also render in places where v14 rendered the default (listed below).
+- Old API (slot: props type in v14):
+  - `AttachmentPreviewList`: `AttachmentPreviewListProps`
+  - `MessageComposerUI`: `MessageComposerProps`
+  - `MessageEditedIndicator`: `MessageEditedIndicatorProps`
+  - `MessageStatus`: `MessageStatusProps`
+  - `NotificationAnnouncer`: `NotificationAnnouncerProps`
+  - `QuotedMessagePreview`: `QuotedMessagePreviewProps`
+  - `SearchSourceResultList`: `SearchSourceResultListProps`
+  - `TextareaComposer`: `TextareaComposerProps`
+  - `VoiceRecordingPreviewSlot`: `VoiceRecordingPreviewSlotProps`
+- Replacement: each slot is `React.ComponentType` with no props. To customize the default, render the exported component with its props inside your override, for example `MessageStatus: () => <MessageStatus MessageReadStatus={ReadIcon} />`. `MessageComposerUI` and `TextareaComposer` read the `MessageComposer` props from `useMessageComposerContext()`. The props types are still exported.
+- Evidence:
+  - `release-v14:src/context/ComponentContext.tsx:98`, `:102`, `:165`, `:196`, `:206`, `:232`, `:250`, `:262`, `:284`
+  - render sites without props: `master:src/components/MessageComposer/MessageComposerPreviews.defaults.tsx` (`AttachmentPreviewList`, `QuotedMessagePreview`, `VoiceRecordingPreviewSlot`), `master:src/components/MessageComposer/MessageComposer.tsx` (`MessageComposerUI`), `master:src/components/MessageComposer/MessageComposerUI.tsx` (`TextareaComposer`), `master:src/components/Message/MessageUI.tsx` (`MessageEditedIndicator`, `MessageStatus`), `master:src/components/Chat/Chat.tsx` (`NotificationAnnouncer`), `master:src/components/Search/SearchResults/SearchSourceResults.tsx` (`SearchSourceResultList`)
+  - REACT-1275
+- Docs impact:
+  - `02-ui-components/04-channel/05-component_context.md`
+- Example needed: no (the guide section has one)
+
+Related, and not breaking: `ReactionSelector` is typed `React.ComponentType<ReactionSelectorProps>` instead of `React.ForwardRefExoticComponent<ReactionSelectorProps>`, so a plain function override type-checks (the SDK never passed a ref). `SearchSourceResults` is typed with the `{ searchSource }` it receives. A new `MessageText` slot renders the message text, also of an AI-generated message while `StreamedMessageText` streams it. `ScrollToLatestMessageButton` overrides apply, as in v14.
+
+Silent behavior change: overrides apply in places where v14 rendered the default directly, so an override registered for v14 starts rendering there too:
+
+- `FileDragAndDropContent`: the drop-zone overlay of `WithDragAndDropUpload` (`release-v14:src/components/MessageComposer/WithDragAndDropUpload.tsx:150`)
+- `BaseImage`: link preview cards in messages (`release-v14:src/components/Attachment/LinkPreview/Card.tsx`) and in the composer (`MessageComposer/LinkPreviewList.tsx`), video thumbnails (`VideoPlayer/VideoThumbnail.tsx`), the images of `Gallery` (`Gallery/GalleryUI.tsx:250`), and the thumbnails of quoted messages in the message list and the composer and of the edited-message preview (`MessageComposer/QuotedMessagePreview.tsx`)
+- `LoadingIndicator`: `LoadMoreButton` (`LoadMore/LoadMoreButton.tsx:34`), the thumbnail loading overlay of `ModalGallery` (`Attachment/ModalGallery.tsx:218`), the new-threads banner of the thread list (`Threads/ThreadList/ThreadListUnseenThreadsBanner.tsx:48`), the poll answer and vote lists (`Poll/PollActions/PollAnswerList.tsx:76`, `PollResults/PollOptionWithVotesList.tsx:38`), and the channel detail lists (`plugins/ChannelDetail/ChannelDetailListLoadingIndicator.tsx:26`)
+- `Timestamp`: thread list items and user search results (`Search/SearchResults/SearchResultItem.tsx:136`)
+- `Avatar`: the latest-reply avatar of thread list items (`Threads/ThreadList/ThreadListItemUI.tsx:186`)
+- `DateSeparator`: the date above the thread's parent message (`Thread/ThreadHead.tsx:14`), which now also gets the list's `formatDate`
+- `Gallery`: the gallery that composer attachment previews open (`MessageComposer/AttachmentPreviewList/AttachmentPreviewList.tsx:156`), which now also gets `onRequestClose`
+- `FileSizeIndicator`: the channel detail files view (`plugins/ChannelDetail/Views/ChannelFilesView/ChannelFilesView.tsx:92`)
+
+Paths are under `release-v14:src/components/`, except those that start with `plugins/`, which are under `release-v14:src/`. Thread list items also render the `SummarizedMessagePreview` slot (new in v15), so an override written for the channel list shows there too. `GroupAvatar` keeps rendering the default `Avatar` for its tiles: the `Avatar` slot can hold `ChannelAvatar`, which renders `GroupAvatar`.
+
+To keep the default in one of those places, wrap that part of the tree in `WithComponents` with the exported default, for example `<WithComponents overrides={{ LoadingIndicator }}>` around a poll.
+
+Not breaking: `MessageListItem` is typed with `MessageListItemProps` (`className`, `data-index`, `data-message-id`, `data-testid`) and `MessageListWrapper` with `MessageListWrapperProps` (`className`), the props `MessageList` passes them. An override must spread them onto the element it renders: jump-to-message and scroll restoration find items by `data-message-id`.
 
 ## Chat, ChatView and layout
 
@@ -1595,7 +1641,7 @@ A single list can still be rendered on its own with `<ChannelList paginator={pag
 
 - Status: confirmed
 - Area: channel list
-- User impact: compile errors on the import and on a `ChannelListUI` key in `WithComponents` overrides; in JS the override is ignored. `ComponentContext.LoadingIndicator` no longer affects the channel list (v14 `ChannelListUI` read it and `LoadingErrorIndicator`, whose slot is now removed; see BC-019).
+- User impact: compile errors on the import and on a `ChannelListUI` key in `WithComponents` overrides; in JS the override is ignored. `ComponentContext.LoadingIndicator` no longer affects the channel list (v14 `ChannelListUI` read it and `LoadingErrorIndicator`, whose slot is now removed; see BC-019). `ComponentContext.EmptyStateIndicator` does not affect it either: v14 took the empty channel list from the `ChannelList` `EmptyStateIndicator` prop (removed, BC-028). Both slots still apply to the message lists; the channel list reads `FirstPageLoadingIndicator` and `EmptyListIndicator` instead.
 - Old API:
   - `ChannelListUI` (`{ error, loadedChannels?, loading?, setChannels? }`), `ChannelListUIProps`
   - `ComponentContextValue.ChannelListUI`
@@ -4577,6 +4623,7 @@ Non-gated items checked and ruled out: `Chat.isMessageAIGenerated`, `SummarizedM
 - `…HeaderStartContent` (×3) -> BC-005
 - `…Message` (×3) -> BC-005
 - `…ThreadHeader` (×3) -> BC-005
+- `ComponentContextValue.AttachmentPreviewList` / `MessageComposerUI` / `MessageEditedIndicator` / `MessageStatus` / `NotificationAnnouncer` / `QuotedMessagePreview` / `SearchSourceResultList` / `TextareaComposer` / `VoiceRecordingPreviewSlot` props type removed -> BC-109; `ReactionSelector` (`ForwardRefExoticComponent` -> `ComponentType`) and `SearchSourceResults` (now typed with `{ searchSource }`) -> ruled-out: widened, existing overrides type-check
 - `useComponentContext` signature-changed -> BC-006
 - `useChatContext` signature-changed -> BC-006
 - `useMessageBounceContext` signature-changed -> BC-006
