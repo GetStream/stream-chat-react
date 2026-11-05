@@ -2759,11 +2759,12 @@ client.config.setSetupFunction('messageComposer', ({ composer }) => {
 
 ### Attachment and poll availability
 
-`AttachmentSelector` used to decide which actions to offer from the channel type's raw server flags. It now reads the composer's resolved configuration (server flags ANDed with `client.config`). No React API changed, but the actions offered differ:
+`AttachmentSelector` used to decide which actions to offer from the channel type's raw server flags. It now reads the composer's resolved configuration (server flags ANDed with `client.config`). Existing React APIs keep their shape, but the actions offered differ:
 
-- **File:** v14 required `upload-file` capability, `channelConfig.uploads` and `isUploadEnabled`. v15 requires only `attachmentManager.isUploadEnabled`, which is `attachments.enabled && hasAvailableUploadSlots && (customCdn || hasUploadPermission)`.
+- **File:** v14 required `upload-file` capability, `channelConfig.uploads` and `isUploadEnabled`. v15 offers File while `attachments.enabled && (customCdn || hasUploadPermission)`: `attachmentManager.isUploadEnabled` without its free-slot condition. Once the message holds `maxNumberOfFilesPerMessage` files, File stays in the menu, disabled; v14 hid it.
   - With `customCdn: true`, the File action now appears for users without `upload-file`; v14 always hid it from them.
   - With a custom `doUploadRequest` and `customCdn` unset, uploads the v14 client let through without `upload-file` are now blocked, for example paste, which skipped the capability check when `doUploadRequest` was set. The File action itself was already hidden in v14.
+- **`SimpleAttachmentSelector`** (the default while editing a message) applies the same File rule, and so does the identical button `AttachmentSelector` renders when File is its only action (`FileUploadButton`). v14 checked only `upload-file`. It now appears without `upload-file` when `customCdn: true`, and it is hidden when attachments are disabled. Once the message holds `maxNumberOfFilesPerMessage` files it is disabled; v14 left it enabled.
 - **Poll:** reads the resolved `polls.enabled` instead of `channelConfig.polls`.
 - **Location:** reads the resolved `location.enabled` instead of `channelConfig.shared_locations`.
 - **Commands:** read `availableCommands` from `channel.configState` instead of `channel.getConfig().commands`.
@@ -2777,7 +2778,13 @@ client.config.set({
 });
 ```
 
-`SimpleAttachmentSelector` still requires `upload-file` regardless. `isUploadEnabled` still does not re-render on an `own_capabilities` change; subscribe with `useChannelCapabilities` where that matters.
+Only the four built-in action types (`uploadFile`, `createPoll`, `addLocation`, `selectCommand`) are filtered, whatever `ActionButton` they carry. An action with a `type` of its own is always offered, so that is how to show an action the rules above would hide, for example `{ ActionButton: DefaultAttachmentSelectorComponents.File, type: 'myUpload' }`. Showing an action does not grant what it needs: `AttachmentManager.uploadFiles()` still drops files while `isUploadEnabled` is `false` (attachments disabled, the file limit reached, or neither `customCdn` nor `upload-file`), and Stream's server still refuses a poll without `send-poll`. Some behaviour is tied to the built-in types, so a custom type gives it up:
+
+- When an action is the only one offered, the selector renders the action's `StandaloneButton` in place of the menu. It sits in the selector's root element, which is hidden while a command is active, and its `buttonProps.disabled` is set during the send cooldown. `uploadFile` gets `FileUploadButton` by default; a custom type sets it itself, for example `{ ActionButton: DefaultAttachmentSelectorComponents.File, StandaloneButton: FileUploadButton, type: 'myUpload' }`. Without one, a lone action is the only item of the menu.
+- `createPoll` and `addLocation` get `PollCreationDialog` and `ShareLocationDialog` as `ModalContent` by default. A custom type passes its own `ModalContent` and needs its own `ActionButton` that calls `openModalForAction('<its type>')`: the default Poll and Location buttons open the built-in types' modals. `DefaultAttachmentSelectorComponents.File` can be reused as it is, because it clicks the selector's shared file input, and so can `.Command`, given the action's `Submenu` and `Header`.
+- `createPoll` resets `messageComposer.pollComposer` each time its dialog opens, and its modal gets the `str-chat__create-poll-modal` class (`str-chat__share-location-modal` for `addLocation`). A custom type does neither.
+
+`useAttachmentManagerState().isUploadEnabled` still does not re-render on an `own_capabilities` change; subscribe with `useChannelCapabilities` where that matters. The attachment selectors already do.
 
 ### `useAttachmentManagerState`: `hasCustomDoUploadRequest` → `customCdn`
 
@@ -3487,7 +3494,7 @@ Run after every section is applied.
 | BC-062 | `handleSubmit` removed                                                                   | [13](#handlesubmit-is-removed)                                                                                                 |
 | BC-063 | Failed sends do not restore the composer                                                 | [13](#a-failed-send-or-edit-no-longer-restores-the-composer)                                                                   |
 | BC-064 | `hasCustomDoUploadRequest` → `customCdn`                                                 | [13](#useattachmentmanagerstate-hascustomdouploadrequest--customcdn)                                                           |
-| BC-065 | `AttachmentSelector` follows resolved config                                             | [13](#attachment-and-poll-availability)                                                                                        |
+| BC-065 | Attachment selectors follow resolved config                                              | [13](#attachment-and-poll-availability)                                                                                        |
 | BC-066 | Upload helpers moved to `stream-chat`                                                    | [1](#imports-that-moved), [13](#upload-helpers-moved-to-stream-chat)                                                           |
 | BC-067 | English-only bundle, namespaced keys                                                     | [18](#18-i18n)                                                                                                                 |
 | BC-068 | Strict `t`                                                                               | [18](#18-i18n)                                                                                                                 |
