@@ -5,6 +5,7 @@ import {
   AIConversation,
   type AIMessage,
   type AIUIAction,
+  type AIUIClientTool,
   AIUIHost,
   defineAIUIComponent,
   fromStreamMessage,
@@ -20,7 +21,7 @@ import {
   openUIInstructions,
   type OpenUIRendererOptions,
 } from '..';
-import { actOn, openUIDescriptionOf, openUITypeName } from '../runtime';
+import { actOn, hostToolProvider, openUIDescriptionOf, openUITypeName } from '../runtime';
 import type { OpenUIEngine } from '../OpenUIRenderer';
 import { ohridProgram } from './ohrid';
 
@@ -137,12 +138,14 @@ describe('a reply written in OpenUI', () => {
       fireEvent.click(screen.getByRole('button', { name: 'Update the plan' }));
     });
     await waitFor(() => expect(sent).toHaveLength(1));
+    // The person's message is what the button they pressed says; what the program wrote for
+    // the agent goes with it.
     expect(sent[0]).toMatchObject({
       format: 'openui',
-      label: 'Update the plan with my choices',
+      label: 'Update the plan',
       messageId: 'a1',
       name: 'continue_conversation',
-      payload: { form: 'refine' },
+      payload: { form: 'refine', message: 'Update the plan with my choices' },
     });
     expect(JSON.stringify(sent[0].payload.values)).toContain('packed');
 
@@ -301,30 +304,153 @@ describe('the app’s page', () => {
 });
 
 describe('OpenUI actions', () => {
-  it('leaves a secret field out of what goes to the agent', () => {
+  it('leaves what the person typed in a password field out of what goes to the agent', () => {
     const sent: AIUIAction[] = [];
     const engine = {
       host: { open: vi.fn(), send: (action: AIUIAction) => sent.push(action) },
     } as unknown as OpenUIEngine;
-    actOn(engine, 'a1', {
-      formName: 'sign_in',
-      formState: {
-        sign_in: {
-          email: { componentType: 'Input', value: 'ana@example.com' },
-          password: { componentType: 'Input', secret: true, value: 'hunter2' },
+    actOn(
+      engine,
+      'a1',
+      {
+        formName: 'sign_in',
+        formState: {
+          sign_in: {
+            email: { componentType: 'Input', value: 'ana@example.com' },
+            password: { componentType: 'Input', value: 'hunter2' },
+          },
         },
+        humanFriendlyMessage: 'Sign in as ana with hunter2',
+        params: { context: { echo: 'hunter2', plan: 'weekend' } },
+        type: 'continue_conversation',
       },
-      humanFriendlyMessage: 'Sign in',
-      params: { context: { plan: 'weekend' } },
-      type: 'continue_conversation',
-    });
+      {
+        pressed: { at: Date.now(), words: 'Sign in' },
+        secrets: { fields: new Set(['password']), variables: new Set() },
+      },
+    );
+    expect(sent[0]).toMatchObject({ label: 'Sign in' });
     expect(sent[0].payload).toEqual({
-      context: { plan: 'weekend' },
+      context: { echo: '', plan: 'weekend' },
       form: 'sign_in',
+      message: 'Sign in as ana with',
       values: {
         sign_in: { email: { componentType: 'Input', value: 'ana@example.com' } },
       },
     });
+    expect(JSON.stringify(sent[0])).not.toContain('hunter2');
+  });
+
+  it('keeps a password the person types out of the action and of what the host keeps', async () => {
+    const { sent, ui } = setup();
+    show(
+      ui,
+      [
+        'root = Card([f])',
+        'f = Form("sign_in", b, [c1, c2])',
+        'c1 = FormControl("Email", Input("email", "Email"))',
+        'c2 = FormControl("Password", Input("password", "Password", "password"))',
+        'b = Buttons([Button("Sign in", Action([@ToAssistant("Sign me in")]), "primary")])',
+      ].join('\n'),
+    );
+    const [email, password] = (await screen.findAllByRole('textbox')).concat([
+      ...document.querySelectorAll('input[type="password"]'),
+    ] as HTMLElement[]);
+    act(() => {
+      fireEvent.change(email, { target: { value: 'ana@example.com' } });
+      fireEvent.change(password, { target: { value: 'hunter2' } });
+    });
+    act(() => {
+      fireEvent.click(screen.getByRole('button', { name: 'Sign in' }));
+    });
+    await waitFor(() => expect(sent).toHaveLength(1));
+    expect(sent[0].label).toBe('Sign in');
+    expect(JSON.stringify(sent[0])).toContain('ana@example.com');
+    expect(JSON.stringify(sent[0])).not.toContain('hunter2');
+    expect(JSON.stringify(ui.state('a1') ?? {})).not.toContain('hunter2');
+  });
+
+  it('sends no action the library defines but the agent can’t take, and says so', () => {
+    const sent: AIUIAction[] = [];
+    const report = vi.fn();
+    const engine = {
+      host: { open: vi.fn(), send: (action: AIUIAction) => sent.push(action) },
+      report,
+    } as unknown as OpenUIEngine;
+    actOn(engine, 'a1', {
+      formName: undefined,
+      formState: undefined,
+      humanFriendlyMessage: 'Delete everything',
+      params: {},
+      type: 'delete_all',
+    });
+    expect(sent).toEqual([]);
+    expect(report).toHaveBeenCalledWith(
+      expect.objectContaining({ code: 'unknown-action' }),
+      'a1',
+    );
+  });
+});
+
+describe('the app’s tools in a program', () => {
+  const engineWith = (tools: AIUIClientTool[]) =>
+    ({ host: new AIUIHost({ renderers: [], send: vi.fn(), tools }) }) as OpenUIEngine;
+
+  it('runs one that changes something only while the person acts', async () => {
+    const book = vi.fn(() => ({ booked: true }));
+    const provider = hostToolProvider(engineWith([{ name: 'book_table', run: book }]));
+    await expect(provider.book_table({ table: 4 })).rejects.toThrow(
+      'changes something, so it runs only from something the person did',
+    );
+    expect(book).not.toHaveBeenCalled();
+    // A tap gives the page the browser's activation for a moment.
+    Object.defineProperty(navigator, 'userActivation', {
+      configurable: true,
+      value: { isActive: true },
+    });
+    try {
+      await expect(provider.book_table({ table: 4 })).resolves.toEqual({ booked: true });
+    } finally {
+      delete (navigator as { userActivation?: unknown }).userActivation;
+    }
+  });
+
+  it('answers a Query that asks again within 5 s with what it got, rather than running the tool', async () => {
+    const weather = vi.fn(() => ({ celsius: 12 }));
+    const provider = hostToolProvider(
+      engineWith([{ name: 'weather', readOnly: true, run: weather }]),
+    );
+    for (let i = 0; i < 5; i++) await provider.weather({ city: 'Ohrid' });
+    expect(weather).toHaveBeenCalledTimes(1);
+    await provider.weather({ city: 'Struga' });
+    expect(weather).toHaveBeenCalledTimes(2);
+  });
+});
+
+describe('media a program links to', () => {
+  it('loads public web images and leaves out others, such as one on the person’s network', async () => {
+    const { ui } = setup();
+    show(
+      ui,
+      [
+        'root = Card([a, b, c])',
+        'a = ImageBlock("https://upload.wikimedia.org/ohrid.jpg", "Ohrid")',
+        'b = ImageBlock("http://192.168.1.1/admin.png", "Router")',
+        'c = ImageBlock("data:image/png;base64,AAAA", "Pixel")',
+      ].join('\n'),
+    );
+    await waitFor(() =>
+      expect(
+        [...document.querySelectorAll('img')].some((img) =>
+          img.getAttribute('src')?.startsWith('https://upload.wikimedia.org'),
+        ),
+      ).toBe(true),
+    );
+    const sources = [...document.querySelectorAll('img')].map((img) =>
+      img.getAttribute('src'),
+    );
+    expect(sources.join(' ')).not.toContain('192.168.1.1');
+    expect(sources.join(' ')).not.toContain('data:');
   });
 });
 
@@ -346,5 +472,38 @@ describe('what the agent is told', () => {
     expect(instructions).toMatch(
       /TabItem\(value: string, trigger: string, content: \([^)]*PlaceCard/,
     );
+  });
+
+  it('lists the app’s tools, saying which a Query can run, after the app’s own instructions', async () => {
+    const ui = new AIUIHost({
+      renderers: [
+        createOpenUIRenderer({ instructions: 'Answer trip questions with UI.' }),
+      ],
+      send: vi.fn(),
+      tools: [
+        {
+          description: 'Today’s weather in a city.',
+          inputSchema: { properties: { city: { type: 'string' } }, type: 'object' },
+          name: 'weather',
+          readOnly: true,
+          run: vi.fn(),
+        },
+        { description: 'Books a table.', name: 'book_table', run: vi.fn() },
+      ],
+    });
+    const { renderers, tools } = await ui.capabilities();
+    const instructions = String(renderers[0].instructions);
+    expect(instructions.startsWith('Answer trip questions with UI.')).toBe(true);
+    expect(instructions).toContain('weather');
+    expect(instructions).toContain('Read-only: use it in Query() or Mutation().');
+    expect(instructions).toContain('book_table');
+    expect(instructions).toContain('use it only in Mutation()');
+    expect(tools).toEqual([
+      expect.objectContaining({ annotations: { readOnlyHint: true }, name: 'weather' }),
+      expect.objectContaining({
+        annotations: { readOnlyHint: false },
+        name: 'book_table',
+      }),
+    ]);
   });
 });

@@ -2,6 +2,10 @@ import React, { type ComponentPropsWithoutRef, type ComponentType } from 'react'
 
 import type { AIUIDocument } from '../AIComponents/GenerativeUI/AIUIDocument';
 import type { AIUIHost } from '../AIComponents/GenerativeUI/AIUIHost';
+import {
+  type AIUIMediaURL,
+  aiUIPublicMediaURL,
+} from '../AIComponents/GenerativeUI/AIUIMedia';
 import type { AIUIEngine, AIUIRenderer } from '../AIComponents/GenerativeUI/AIUIRenderer';
 import {
   AIUIRuntimeLoader,
@@ -13,6 +17,7 @@ import { A2UI_VERSION, a2uiSourceOf, supportsA2UIVersion } from './A2UIStream';
 import { a2uiInstructions } from './A2UIInstructions';
 // Types only: the runtime, with the A2UI packages, loads in the browser when a reply first
 // shows A2UI.
+import type { ReactA2uiComponentProps } from '@a2ui/react';
 import type { A2UIReplyState, A2UIRuntime } from './runtime';
 
 export { A2UI_DEFAULT_CATALOG_ID };
@@ -27,7 +32,42 @@ export type A2UIError = {
   surfaceId?: string;
 };
 
+/** The components of A2UI's basic catalog, each of which an app can draw its own way or leave out. */
+export type A2UIBasicComponentName =
+  | 'AudioPlayer'
+  | 'Button'
+  | 'Card'
+  | 'CheckBox'
+  | 'ChoicePicker'
+  | 'Column'
+  | 'DateTimeInput'
+  | 'Divider'
+  | 'Icon'
+  | 'Image'
+  | 'List'
+  | 'Modal'
+  | 'Row'
+  | 'Slider'
+  | 'Tabs'
+  | 'Text'
+  | 'TextField'
+  | 'Video';
+
+/**
+ * An app's view of one of the basic catalog's components, as `@a2ui/react` places it: with
+ * `props` worked out from what the agent wrote, `buildChild` to place its children by id, and
+ * the component's `context`.
+ */
+export type A2UIBasicComponent = ComponentType<
+  ReactA2uiComponentProps<Record<string, unknown>>
+>;
+
 export type A2UIRendererOptions = {
+  /**
+   * The basic catalog's components to draw the app's way, by name, or `null` to leave one out
+   * of the catalog and the agent's instructions, such as `{ Video: null }`.
+   */
+  basicComponents?: Partial<Record<A2UIBasicComponentName, A2UIBasicComponent | null>>;
   /**
    * The id the agent names the catalog with the app's components by. A surface naming the
    * basic catalog shows them too, and a surface naming none is made with this one.
@@ -43,6 +83,16 @@ export type A2UIRendererOptions = {
    * Stream draws about 30 of the 60 names.
    */
   icons?: Partial<Record<string, ComponentType<ComponentPropsWithoutRef<'svg'>>>>;
+  /**
+   * What the app tells the agent's model about writing its UI, such as when to answer with UI,
+   * ahead of A2UI's own instructions in `capabilities`.
+   */
+  instructions?: string;
+  /**
+   * What an image, video or sound the agent links to loads: the URL, another, or `null` not to
+   * load it. Public web links and the page's own site load by default (`aiUIPublicMediaURL`).
+   */
+  mediaUrl?: AIUIMediaURL;
   /**
    * Tells the app what went wrong in a reply's A2UI, such as a message that isn't JSON or a
    * component the catalog doesn't have, with the reply's id. The rest of the reply's UI still
@@ -68,9 +118,12 @@ const reportA2UIError = (
  */
 export class A2UIEngine implements AIUIEngine {
   readonly catalogId: string;
+  readonly basicComponents: NonNullable<A2UIRendererOptions['basicComponents']>;
   readonly host: AIUIHost;
   readonly iconFont?: string;
   readonly icons?: A2UIRendererOptions['icons'];
+  /** What an image, video or sound the agent links to loads. */
+  readonly mediaURL: AIUIMediaURL;
   /** Loads the runtime, the A2UI packages, when a reply first shows A2UI. */
   readonly loader: AIUIRuntimeLoader<A2UIRuntime>;
   /** Each reply's surfaces, by the reply's id. */
@@ -82,8 +135,10 @@ export class A2UIEngine implements AIUIEngine {
     this.host = host;
     this.options = options;
     this.catalogId = options.catalogId ?? A2UI_DEFAULT_CATALOG_ID;
+    this.basicComponents = options.basicComponents ?? {};
     this.iconFont = options.iconFont;
     this.icons = options.icons;
+    this.mediaURL = options.mediaUrl ?? aiUIPublicMediaURL;
     this.loader = new AIUIRuntimeLoader(
       host,
       () => import('./runtime'),
@@ -134,14 +189,26 @@ export class A2UIEngine implements AIUIEngine {
 export const createA2UIRenderer = (options: A2UIRendererOptions = {}): AIUIRenderer => {
   const catalogId = options.catalogId ?? A2UI_DEFAULT_CATALOG_ID;
   return {
-    // As StreamChatA2UI's: the fence, the catalog and the instructions for both, written with
-    // the A2UI core, which loads to write them. Without them, when it can't load, the rest still
-    // goes to the agent's backend.
-    capabilities: async (components) => {
+    // As StreamChatA2UI's: the fence, the catalog and the instructions for both, with the
+    // app's own instructions first and its tools, written with the A2UI core, which loads to
+    // write them. Without them, when it can't load, the rest still goes to the agent's backend.
+    capabilities: async (components, tools = []) => {
       const fence = `ui:a2ui@${A2UI_VERSION}`;
+      const remove = Object.entries(options.basicComponents ?? {})
+        .filter(([, view]) => view === null)
+        .map(([name]) => name);
       let instructions: string | undefined;
       try {
-        instructions = await a2uiInstructions({ catalogId, components, fence });
+        instructions = await a2uiInstructions({
+          catalogId,
+          components,
+          fence,
+          ...(options.instructions?.trim()
+            ? { preamble: options.instructions.trim() }
+            : {}),
+          ...(remove.length ? { remove } : {}),
+          ...(tools.length ? { tools } : {}),
+        });
       } catch (error) {
         reportA2UIError(options, {
           code: 'EXECUTION_ERROR',

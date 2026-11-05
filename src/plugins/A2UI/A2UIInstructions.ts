@@ -3,6 +3,7 @@
 import type { AIUIComponent } from '../AIComponents/GenerativeUI/AIUIComponent';
 import type { AIUIComponentDefinition } from '../AIComponents/GenerativeUI/AIUIComponentDefinition';
 import { isRecord } from '../AIComponents/GenerativeUI/AIUIHelpers';
+import type { AIUIClientToolDefinition } from '../AIComponents/GenerativeUI/AIUITools';
 import { A2UI_VERSION } from './A2UIStream';
 
 /**
@@ -28,8 +29,12 @@ export type A2UIInstructionsConfig = {
   notes?: string[];
   /** What the model is told first, such as which answers to write as UI. */
   preamble?: string;
+  /** The basic catalog's components and functions to leave out, as the renderer does. */
+  remove?: string[];
   /** Rules added after the protocol's. */
   rules?: string[];
+  /** The app's tools the UI can call, each run on the person's device. */
+  tools?: AIUIClientToolDefinition[];
 };
 
 /** The A2UI an example holds that would not render, and why. */
@@ -71,7 +76,27 @@ Write a reply's UI in one fenced block whose info string is \`${fence}\`, after 
 1. First a \`createSurface\` with a \`surfaceId\` new to this reply, the \`catalogId\` \`${catalogId}\`, and the \`dataModel\` the UI's inputs start from.
 2. Then \`updateComponents\` messages for that surface with a few components each, \`root\` first, so the UI shows as you write it.
 
-A reply's UI is shown as you wrote it: never write \`callRendererFunction\` or \`agentFunctionResponse\`, and never change an earlier reply's UI, but write a new one. What the person does in it comes back as their next message. Give every event action a \`userMessage\`, the words of that message, such as "Update the plan", and a \`context\` with what you need to know, bound to the data model.`;
+A reply's UI is shown as you wrote it: never write \`callRendererFunction\` or \`agentFunctionResponse\`, and never change an earlier reply's UI, but write a new one. What the person does in it comes back as their next message, which says what the button they tapped says. Give every event action a \`userMessage\` saying what it asks of you, such as "Update the plan", which comes back with it, and a \`context\` with what you need to know, bound to the data model.`;
+
+/** How the app's tools are introduced to the model, as StreamChatA2UI introduces them. */
+export const TOOLS_INTRODUCTION = `## The app's tools
+
+These run on the person's device. Call one as you call a function the catalog doesn't define, with \`{"@call": "<name>", "args": {…}}\`, and its output is the call's value. A read-only tool runs wherever you call it, such as in a binding that shows its output. Any other runs only from a button's \`functionCall\` action, when the person taps it.`;
+
+/**
+ * One of the app's tools as the agent's instructions list it: its name, whether it only reads,
+ * what it does, and the schema of its arguments.
+ */
+export const toolLine = ({
+  description,
+  inputSchema,
+  name,
+  readOnly,
+}: AIUIClientToolDefinition) =>
+  [
+    `- \`${name}\`${readOnly ? ' (read-only)' : ''}${description ? `: ${description}` : ''}`,
+    ...(inputSchema ? [`Arguments: \`${JSON.stringify(sorted(inputSchema))}\``] : []),
+  ].join(' ');
 
 // A JSON value with its object keys sorted, so the same catalog always reads the same.
 export const sorted = (value: unknown): unknown =>
@@ -112,5 +137,8 @@ export const a2uiInstructions = async (config: A2UIInstructionsConfig = {}) =>
  */
 export const a2uiProblems = async (
   text: string,
-  config: Pick<A2UIInstructionsConfig, 'catalogId' | 'components' | 'keep'> = {},
+  config: Pick<
+    A2UIInstructionsConfig,
+    'catalogId' | 'components' | 'keep' | 'remove'
+  > = {},
 ) => (await import('./instructions')).a2uiProblemsIn(text, config);
