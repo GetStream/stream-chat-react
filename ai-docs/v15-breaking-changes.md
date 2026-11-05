@@ -1,6 +1,6 @@
 # React v15 Breaking Changes
 
-Last updated: 2026-11-03
+Last updated: 2026-11-05
 
 ## Scope
 
@@ -3973,6 +3973,30 @@ Found by the staleness pass of 2026-11-03: commits that landed on `master` after
   - `release-v14:src/components/MessageList/VirtualizedMessageList.tsx:236` `shouldGroupByUser = false`, `:102` picked into the context, `:693` positional `groupStyles`
 - Docs impact:
   - `02-ui-components/07-message-list/01-message_list.md`, `02-ui-components/07-message-list/02-virtualized_list.md`
+- Example needed: no (the guide section has one)
+
+<a id="bc-097"></a>
+
+### BC-097: channel detail views render no close button outside a modal without `onClose`; `ChannelDetail` calls `onLayoutChange`
+
+- Status: confirmed
+- Area: ChannelDetail / ChannelDetailProvider / useChannelDetailContext (`stream-chat-react/channel-detail`)
+- User impact:
+  - silent behavior change: a `ChannelDetail` rendered outside a modal, for example in a side panel, shows no close button in its sections. In v14 the views read `useModalContext().close`, which outside a modal was a no-op that logged a warning, so the button rendered and did nothing. The actions that close the channel detail when they finish (opening a pinned message, leaving or deleting the channel, sending a direct message) close nothing there, as before.
+  - silent behavior change: `ChannelDetail.onLayoutChange` is called on every layout change. In v14 `ChannelDetail` passed its own setter after spreading the props, so the caller's handler was never called.
+  - An app that wrapped `ChannelDetail` in `ModalContextProvider` to make the close buttons work keeps working.
+- Old API:
+  - the views' close buttons and closing actions read `useModalContext().close`
+  - `ChannelDetail.onLayoutChange` (accepted, ignored)
+- Replacement:
+  - `ChannelDetail.onClose` and `ChannelDetailProvider.onClose`. The provider passes it down as the modal context's `close`, so it is called instead of a surrounding modal's `close`; a modal opened inside the channel detail still closes itself.
+  - `useChannelDetailContext()` returns `close` next to `channel`, read from the nearest modal context. It is `undefined` outside a modal without `onClose`. Custom sections pass it to `SectionNavigatorHeader`.
+- Evidence:
+  - `release-v14:src/plugins/ChannelDetail/ChannelDetail.tsx:143-145` (`{...props}` then `onLayoutChange={setLayout}`)
+  - `release-v14:src/context/ModalContext.tsx:22-26` (warning and `{ close: () => null }` outside a modal), `release-v14:src/components/Dialog/components/Prompt.tsx:87` (`Prompt.Header` renders the button whenever it gets `close`)
+  - `master:src/plugins/ChannelDetail/ChannelDetailContext.tsx` (`ChannelDetailProvider.onClose`, `useChannelDetailContext().close`), `master:src/plugins/ChannelDetail/ChannelDetail.tsx` (`handleLayoutChange`)
+- Docs impact:
+  - `06-component-reference/08-channel-detail/01-channel-detail.md`, `06-component-reference/08-channel-detail/03-section-navigator.md`, `05-ui-cookbooks/08-panels/02-channel-details.md`
 - Example needed: no (the guide section has one)
 
 ## Pending (open PRs)

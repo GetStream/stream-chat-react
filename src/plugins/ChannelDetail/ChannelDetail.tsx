@@ -11,7 +11,10 @@ import {
   type SectionNavigatorSection,
 } from './SectionNavigator';
 import { ChannelDetailNavButton } from './ChannelDetailNavButton';
-import { ChannelDetailProvider } from './ChannelDetailContext';
+import {
+  ChannelDetailProvider,
+  type ChannelDetailProviderProps,
+} from './ChannelDetailContext';
 import { ChannelFilesView } from './Views/ChannelFilesView';
 import { ChannelManagementView } from './Views/ChannelManagementView';
 import { ChannelMediaView } from './Views/ChannelMediaView';
@@ -19,6 +22,7 @@ import { ChannelMembersView } from './Views/ChannelMembersView';
 import { PinnedMessagesView } from './Views/PinnedMessagesView';
 import { Prompt } from '../../components/Dialog';
 import { useComponentContextIcons } from '../../context';
+import { useStableCallback } from '../../utils';
 
 const ChannelManagementNavButtonIcon = () => {
   const { IconInfo } = useComponentContextIcons();
@@ -120,6 +124,8 @@ export const defaultChannelDetailSections: SectionNavigatorSection[] = [
 
 export type ChannelDetailProps = Omit<SectionNavigatorProps, 'sections'> & {
   channel: Channel;
+  /** Closes the channel detail. See `ChannelDetailProviderProps.onClose`. */
+  onClose?: ChannelDetailProviderProps['onClose'];
   sections?: SectionNavigatorSection[];
 };
 
@@ -127,13 +133,23 @@ export const ChannelDetail = ({
   channel,
   className,
   defaultLayout = SECTION_NAVIGATOR_LAYOUT.tabs,
+  onClose,
+  onLayoutChange,
   sections = defaultChannelDetailSections,
   ...props
 }: ChannelDetailProps) => {
   const [layout, setLayout] = useState<SectionNavigatorLayout>(defaultLayout);
 
+  // The layout drives the inline-layout class here, and the caller gets every change too. Stable, so
+  // SectionNavigator reports a layout once, even when the caller passes a new `onLayoutChange` on
+  // every render.
+  const handleLayoutChange = useStableCallback((nextLayout: SectionNavigatorLayout) => {
+    setLayout(nextLayout);
+    onLayoutChange?.(nextLayout);
+  });
+
   return (
-    <ChannelDetailProvider channel={channel}>
+    <ChannelDetailProvider channel={channel} onClose={onClose}>
       <Prompt.Root
         className={clsx(
           'str-chat__channel-detail',
@@ -147,7 +163,7 @@ export const ChannelDetail = ({
         <SectionNavigator
           {...props}
           defaultLayout={defaultLayout}
-          onLayoutChange={setLayout}
+          onLayoutChange={handleLayoutChange}
           sections={sections}
         />
       </Prompt.Root>

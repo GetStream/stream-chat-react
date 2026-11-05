@@ -2,7 +2,7 @@
 
 Execution-only guide for a coding agent migrating a third-party app from `stream-chat-react` v14 to v15. It covers the root package and its subpath entry points (`stream-chat-react/slot-layout`, `/slot-geometry`, `/channel-detail`, `/emojis`, `/ai-components`, `/mp3-encoder` and the `css/*` stylesheets). v15 requires `stream-chat` v10, itself a breaking client release, so upgrade both together; this guide covers the `stream-chat` changes a React app usually hits, and the [stream-chat guide](#companion-documents) covers the rest. The i18n runtime now comes from `@stream-io/i18n` and the state store from `@stream-io/state-store`, both installed as dependencies of this package.
 
-Every breaking change in [`v15-breaking-changes.md`](https://github.com/GetStream/stream-chat-react/blob/master/ai-docs/v15-breaking-changes.md) (`BC-001` to `BC-095`) is covered here. The [index at the end](#index-of-breaking-changes) maps each `BC` entry to its section.
+Every breaking change in [`v15-breaking-changes.md`](https://github.com/GetStream/stream-chat-react/blob/master/ai-docs/v15-breaking-changes.md) (`BC-001` to `BC-097`) is covered here. The [index at the end](#index-of-breaking-changes) maps each `BC` entry to its section.
 
 Verified against `master` @ `1c02ba07f` (`stream-chat-react@0.0.0-development`, after the `v15.0.0-rc.3` tag; `stream-chat` peer `^10.0.0-rc.29`, checked against stream-chat-js `release-v10` @ `fdfcb296`), 2026-11-03.
 
@@ -309,6 +309,7 @@ These compile cleanly, or are ignored in plain JS, and change behavior at runtim
 | The "New Messages!" notification no longer shows after jumping to older messages                                                                                                                                     | It shows only when a message arrives while the list is scrolled up                                                                                                 | Read `messagePaginator.hasMoreHead` for an "older messages shown" indicator ([section 11](#the-new-messages-notification-shows-only-for-messages-that-arrived))                                                                                                                                                                                                           | `NewMessageNotification`                                                                                              |
 | The scroll-to-latest button shows a larger number than before                                                                                                                                                        | It shows the channel's unread count for the current user, not the messages that arrived while scrolled up                                                          | Nothing to do; see [section 11](#scrolltolatestmessagebutton-shows-the-channels-unread-count)                                                                                                                                                                                                                                                                             | `ScrollToLatestMessageButton`                                                                                         |
 | A custom loader given to `InfiniteScrollPaginator` (or `ChannelList` / `SearchSourceResultList`) is called earlier and more often                                                                                    | `loadNextDebounceMs` now limits how often the scroll position is checked, rather than waiting for scrolling to stop                                                | Ignore calls while a page is loading ([section 11](#loading-older-messages-keeps-your-place-loadnextdebouncems-rate-limits-the-check))                                                                                                                                                                                                                                    | `InfiniteScrollPaginator`, `loadNextOnScrollTo`, `loadMoreDebounceMs`                                                 |
+| A `ChannelDetail` in a side panel or another non-modal container shows no close button                                                                                                                               | Outside a modal, the views render a close button only when `ChannelDetail` or `ChannelDetailProvider` gets `onClose`                                               | Pass `onClose` ([section 10](#channeldetail-takes-onclose-outside-a-modal-it-shows-no-close-button-without-it))                                                                                                                                                                                                                                                           | `\bChannelDetail\b`, `\bChannelDetailProvider\b` (also aliased imports); check each rendered one is in a modal        |
 | A channel shown without `<Channel>` misses messages sent while the client was offline, or a channel reloads twice after a reconnect                                                                                  | The client reloads only activated channels after a reconnect, and v14's `Channel` no longer reloads on `connection.recovered`                                      | Call `channel.activate()` in a custom surface; remove app-side reloads on `connection.recovered` ([section 5](#channel-lifecycle-activation-no-remount-no-reload-no-search-jump))                                                                                                                                                                                         | `connection.recovered`, `.reload(`, custom channel surfaces without `<Channel`                                        |
 | A custom edit button shows on poll messages and giphies                                                                                                                                                              | `useMessagePermissions(message).canEdit` (`useUserRole` in v14) is the update permission alone                                                                     | Add `!message.poll_id && message.command !== 'giphy'` ([section 10](#messageactions-and-message_actions-are-removed))                                                                                                                                                                                                                                                     | `canEdit`                                                                                                             |
 | A custom `messageActionSet` offers Edit on poll messages, or Copy on messages without text                                                                                                                           | Those rules moved from the base filter onto the default items' `isVisible`                                                                                         | Copy the default item's `isVisible` ([section 10](#messageactions-and-message_actions-are-removed))                                                                                                                                                                                                                                                                       | `messageActionSet`, `disableBaseMessageActionSetFilter`                                                               |
@@ -2066,6 +2067,41 @@ export const List = () => (
 
 - Adding an action means adding an item with a `Component` and a `placement` of `quick`, `dropdown` or `quick-dropdown-toggle`.
 
+### `ChannelDetail` takes `onClose`; outside a modal it shows no close button without it
+
+The channel detail views (from `stream-chat-react/channel-detail`) close through the nearest modal. In v14, a `ChannelDetail` rendered outside a modal, for example in a side panel, showed close buttons that did nothing. In v15:
+
+- `ChannelDetail` and `ChannelDetailProvider` take `onClose`. The views' close buttons call it, and so do the actions that close the channel detail when they finish: opening a pinned message, leaving or deleting the channel, and sending a direct message. Inside a modal it is called instead of the modal's `close`, so close the modal from it. A modal opened inside the channel detail, such as a confirmation alert, still closes itself.
+- Without `onClose`, outside a modal the views render no close button. Inside a modal they close the modal, as in v14.
+- `useChannelDetailContext()` returns `close` next to `channel`. A custom section passes it to `SectionNavigatorHeader`; it is `undefined` when there is nothing to close.
+- `ChannelDetail.onLayoutChange` is called on every layout change. v14 ignored it.
+
+An app that wrapped `ChannelDetail` in `ModalContextProvider` to make the close buttons work keeps working. Replace the wrapper with `onClose`:
+
+```tsx
+import { useMemo } from 'react';
+import type { Channel } from 'stream-chat';
+import { ChannelInstanceProvider } from 'stream-chat-react';
+import { ChannelDetail } from 'stream-chat-react/channel-detail';
+
+type ChannelDetailsPanelProps = { channel: Channel; closePanel: () => void };
+
+// A panel outside the channel's `<Channel>` provides the channel itself: the channel info
+// section reads it for the online status.
+export const ChannelDetailsPanel = ({
+  channel,
+  closePanel,
+}: ChannelDetailsPanelProps) => {
+  const channelContext = useMemo(() => ({ channel }), [channel]);
+
+  return (
+    <ChannelInstanceProvider value={channelContext}>
+      <ChannelDetail channel={channel} onClose={closePanel} />
+    </ChannelInstanceProvider>
+  );
+};
+```
+
 ---
 
 ## 11. Message lists
@@ -3525,3 +3561,4 @@ Run after every section is applied.
 | BC-093 | Mention handlers in the message context and from `useMentionsHandler` can be `undefined` | [12](#onmentionsclickmessage-and-onmentionshovermessage-are-undefined-without-a-handler)                                       |
 | BC-094 | `mentionsMarkdownPlugin` takes mention entities only                                     | [12](#mentionsmarkdownplugin-takes-mention-entities-only)                                                                      |
 | BC-095 | `disableQuotedMessages` removed                                                          | [12](#the-disablequotedmessages-prop-is-removed)                                                                               |
+| BC-097 | Channel detail close buttons need `onClose` outside a modal; `onLayoutChange` is called  | [10](#channeldetail-takes-onclose-outside-a-modal-it-shows-no-close-button-without-it)                                         |

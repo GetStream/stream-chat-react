@@ -14,7 +14,6 @@ import {
   useChatContext,
   useComponentContext,
   useComponentContextIcons,
-  useModalContext,
   useTranslationContext,
   useWorkspaceNavigation,
 } from '../../../../../context';
@@ -22,6 +21,8 @@ import * as DEFAULT_ICONS from '../../../../../components/Icons/icons';
 import { mockT } from '../../../../../mock-builders/translator';
 import { useStateStore } from '../../../../../store';
 import { ChannelDetailProvider } from '../../../ChannelDetailContext';
+// The real provider: the context barrel is auto-mocked in this file.
+import { ModalContextProvider } from '../../../../../context/ModalContext';
 import { PinnedMessagesView } from '../PinnedMessagesView';
 
 const mocks = vi.hoisted(() => ({
@@ -246,10 +247,6 @@ describe('PinnedMessagesView', () => {
       {} as ReturnType<typeof useComponentContext>,
     );
 
-    vi.mocked(useModalContext).mockReturnValue({
-      close: vi.fn(),
-    } as ReturnType<typeof useModalContext>);
-
     vi.mocked(useWorkspaceNavigation).mockReturnValue(
       fromPartial({ openChannel: vi.fn() }),
     );
@@ -263,13 +260,16 @@ describe('PinnedMessagesView', () => {
     const openChannel = vi.fn();
     const close = vi.fn();
     vi.mocked(useWorkspaceNavigation).mockReturnValue(fromPartial({ openChannel }));
-    vi.mocked(useModalContext).mockReturnValue({
-      close,
-    } as unknown as ReturnType<typeof useModalContext>);
     mockSearchSourceState({ messages: pinnedMessages });
     const channel = createChannel();
 
-    renderWithChannel(<PinnedMessagesView layout='tabs' />, channel);
+    render(
+      <ModalContextProvider value={{ close }}>
+        <ChannelDetailProvider channel={channel}>
+          <PinnedMessagesView layout='tabs' />
+        </ChannelDetailProvider>
+      </ModalContextProvider>,
+    );
     fireEvent.click(screen.getByText('Release timeline: Code freeze March 18'));
 
     expect(openChannel).toHaveBeenCalledWith(channel);

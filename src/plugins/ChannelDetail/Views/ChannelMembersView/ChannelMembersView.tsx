@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import type { ChannelMemberResponse } from 'stream-chat';
 
-import { useModalContext, useTranslationContext } from '../../../../context';
+import { useTranslationContext } from '../../../../context';
 import { useChannelDetailContext } from '../../ChannelDetailContext';
 import { ChannelMemberDetail } from '../ChannelMemberDetailView';
 import {
@@ -85,8 +85,7 @@ export const ChannelMembersView = ({
   modeViews: customModeViews,
 }: ChannelMembersViewProps) => {
   const { t } = useTranslationContext();
-  const { channel } = useChannelDetailContext();
-  const { close } = useModalContext();
+  const { channel, close } = useChannelDetailContext();
   const [mode, setMode] = useState<ChannelMembersViewMode>('browse');
   const [selectedMember, setSelectedMember] = useState<ChannelMemberResponse>();
   const memberCount = useChannelMemberCount(channel);

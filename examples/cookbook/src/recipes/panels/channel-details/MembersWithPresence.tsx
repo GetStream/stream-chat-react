@@ -1,13 +1,7 @@
 import { useId, useState } from 'react';
 import { convertTimestampToDate } from 'stream-chat';
 import type { ChannelMemberResponse, ChannelStateData } from 'stream-chat';
-import {
-  Avatar,
-  Prompt,
-  useChatContext,
-  useModalContext,
-  useStateStore,
-} from 'stream-chat-react';
+import { Avatar, Prompt, useChatContext, useStateStore } from 'stream-chat-react';
 import {
   ChannelMemberDetail,
   defaultChannelDetailSections,
@@ -95,8 +89,7 @@ const MemberRow = ({ isOwnUser, member, onSelect }: MemberRowProps) => {
  */
 export const MembersWithPresence = ({ layout }: SectionNavigatorSectionContentProps) => {
   const { client } = useChatContext();
-  const { channel } = useChannelDetailContext();
-  const { close } = useModalContext();
+  const { channel, close } = useChannelDetailContext();
   const { members } = useStateStore(channel.state, membersSelector);
   const [selectedMember, setSelectedMember] = useState<ChannelMemberResponse>();
 
