@@ -25,7 +25,6 @@ import {
   MessageComposer,
   MessageList,
   type MessageListProps,
-  ModalContextProvider,
   Thread,
   ThreadHeader,
   ThreadList,
@@ -325,9 +324,9 @@ const ChannelThreadOverlay = ({ thread }: { thread: ThreadType }) => {
 //
 // We reuse the `userProfile` slot kind (source `{ userId }`) rather than adding a new SDK kind; the
 // member is resolved here from the channel it belongs to. `ChannelMemberDetail` is built for the
-// ChannelDetail navigator/modal, so we feed it the two contexts it expects standalone:
-// `ChannelDetailProvider` (its member actions read the channel from `useChannelDetailContext`) and a
-// `ModalContextProvider` whose `close` pops the layer (the detail header's close button calls it).
+// ChannelDetail navigator, so we render it inside the `ChannelDetailProvider` it expects: its member
+// actions read the channel from it, and its `onClose` pops the layer (the detail header's close
+// button calls it).
 const ChannelMemberDetailOverlay = ({
   channel,
   hasBaseBeneath,
@@ -369,16 +368,12 @@ const ChannelMemberDetailOverlay = ({
   return (
     <SecondarySlotOverlay>
       {member ? (
-        <ChannelDetailProvider channel={channel}>
-          <ModalContextProvider
-            value={{ close: closeOverlay, dialogId: 'app-member-detail' }}
-          >
-            <ChannelMemberDetail
-              layout='inline'
-              member={member}
-              onBack={hasBaseBeneath ? closeOverlay : undefined}
-            />
-          </ModalContextProvider>
+        <ChannelDetailProvider channel={channel} onClose={closeOverlay}>
+          <ChannelMemberDetail
+            layout='inline'
+            member={member}
+            onBack={hasBaseBeneath ? closeOverlay : undefined}
+          />
         </ChannelDetailProvider>
       ) : null}
     </SecondarySlotOverlay>
