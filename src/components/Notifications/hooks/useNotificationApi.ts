@@ -81,7 +81,10 @@ export type AddNotificationParams = {
  */
 export type AddSystemNotificationParams = Omit<AddNotificationParams, 'targetPanels'>;
 
-/** Returns the notification ID, for removal and timeouts. */
+/**
+ * Returns the notification ID, which `removeNotification`, `startNotificationTimeout` and
+ * `ensureNotificationTimeout` take.
+ */
 export type AddNotification = (params: AddNotificationParams) => string;
 /** Returns the notification ID, for removal and timeouts. */
 export type AddSystemNotification = (params: AddSystemNotificationParams) => string;
