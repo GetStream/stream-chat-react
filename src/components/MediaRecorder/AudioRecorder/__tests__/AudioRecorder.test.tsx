@@ -369,7 +369,7 @@ describe('MessageInput', () => {
     });
   });
 
-  it('uploads the recording on completion and schedules submit when multiple async messages disabled', async () => {
+  it('uploads and sends the recording on completion when multiple async messages disabled', async () => {
     // Auto-emit makes MediaRecorderMock.stop() trigger `dataavailable` like a real browser.
     MediaRecorderMock.autoEmitDataOnStop = true;
     const {
@@ -383,6 +383,9 @@ describe('MessageInput', () => {
     const uploadFileSpy = vi
       .spyOn(channel, 'uploadFile')
       .mockResolvedValue(fromPartial({ file: fileObjectURL }));
+    const sendMessageSpy = vi
+      .spyOn(channel, 'sendMessage')
+      .mockResolvedValue(fromPartial({}));
     await renderComponent({
       channelStateCtx: { channel },
       chatCtx: { client },
@@ -399,6 +402,17 @@ describe('MessageInput', () => {
     await waitFor(() => {
       expect(uploadFileSpy).toHaveBeenCalledTimes(1);
     });
+    await waitFor(() => {
+      expect(sendMessageSpy).toHaveBeenCalledTimes(1);
+    });
+    // The recording is sent as its uploaded attachment, without its local metadata.
+    const sentAttachments = sendMessageSpy.mock.calls[0][0].message.attachments ?? [];
+    expect(sentAttachments).toHaveLength(1);
+    expect(sentAttachments[0]).toMatchObject({
+      asset_url: fileObjectURL,
+      type: 'voiceRecording',
+    });
+    expect(sentAttachments[0]).not.toHaveProperty('localMetadata');
   });
 
   it('uploads but does not submit message on recording completion and multiple async messages enabled', async () => {

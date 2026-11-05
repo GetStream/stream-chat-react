@@ -43,15 +43,17 @@ status['state'] = defaultMockPermissionState;
   query: vi.fn().mockResolvedValue(status),
 };
 
-// A recording as `MediaRecorderController.stop()` builds it: a voice recording with its file and local id.
+// A recording as `MediaRecorderController.stop()` builds it: a voice recording with its file, local id
+// and a pending upload.
 const generateLocalVoiceRecording = () =>
   ({
     ...generateVoiceRecordingAttachment(),
     localMetadata: {
       file: new File(['audio'], 'recording.aac', { type: 'audio/aac' }),
       id: 'recording-local-id',
+      uploadState: 'pending',
     },
-  }) as unknown as LocalVoiceRecordingAttachment;
+  }) as LocalVoiceRecordingAttachment;
 
 // Stands in for a successful `uploadFile()`, which adds the attachment to the composer.
 const mockUploadFileAddingTheAttachment = (attachmentManager: AttachmentManager) =>
