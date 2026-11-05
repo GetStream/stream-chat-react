@@ -42,13 +42,21 @@ export {
   AIUIEntranceStage,
   useAIUIEntrance,
 } from './AIUIEntrance';
+export { AIUIHost, type AIUIHostOptions, isWebOrEmailLink } from './AIUIHost';
+export {
+  aiUIMediaSource,
+  aiUIPublicMediaURL,
+  type AIUIMediaURL,
+  isPublicWebURL,
+} from './AIUIMedia';
+export type { AIUIEngine, AIUIRenderer } from './AIUIRenderer';
 export {
   type AIUIClientTool,
-  AIUIHost,
-  type AIUIHostOptions,
-  isWebOrEmailLink,
-} from './AIUIHost';
-export type { AIUIEngine, AIUIRenderer } from './AIUIRenderer';
+  type AIUIClientToolDefinition,
+  aiUIClientToolJSON,
+  AIUIToolError,
+  isPersonActing,
+} from './AIUITools';
 export {
   AIUIRuntimeLoader,
   AIUIRuntimeView,

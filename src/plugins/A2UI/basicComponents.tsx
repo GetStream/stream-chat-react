@@ -27,6 +27,7 @@ import { useTranslationContext } from '../../context/TranslationContext';
 import { AIMarkdown } from '../AIComponents/AIMarkdown';
 import { aiUILinkOpener, isRecord } from '../AIComponents/GenerativeUI/AIUIHelpers';
 import { useAIUIEntrance } from '../AIComponents/GenerativeUI/AIUIEntrance';
+import { aiUIMediaSource } from '../AIComponents/GenerativeUI/AIUIMedia';
 import type { A2UIEngine } from './A2UIRenderer';
 
 /** The engine of the surfaces below, for what in them reaches the host, such as links. */
@@ -664,15 +665,94 @@ export const A2UIModal = ({
 };
 
 /** The basic catalog's components drawn here, by their A2UI type. */
+type ImageProps = Weighted & {
+  description?: unknown;
+  fit?: unknown;
+  url?: unknown;
+  variant?: unknown;
+};
+
+const FITS: Record<string, string> = { scaleDown: 'scale-down' };
+
+/**
+ * A2UI's Image, loading only what the renderer's `mediaUrl` allows, before it draws, so an
+ * image the agent links to never reaches what the app doesn't want it to.
+ */
+export const A2UIImage = ({ props }: ReactA2uiComponentProps<ImageProps>) => {
+  const { part } = usePart(props);
+  const engine = useContext(A2UIEngineContext);
+  const src = aiUIMediaSource(props.url, engine?.mediaURL);
+  const variant = typeof props.variant === 'string' ? props.variant : 'default';
+  const fit = typeof props.fit === 'string' ? (FITS[props.fit] ?? props.fit) : 'cover';
+  if (!src) return null;
+  return (
+    <img
+      {...part}
+      alt={textOf(props.description)}
+      className={clsx('str-chat__a2ui-image', `str-chat__a2ui-image--${variant}`)}
+      src={src}
+      style={{ ...part.style, objectFit: fit as CSSProperties['objectFit'] }}
+    />
+  );
+};
+
+type VideoProps = Weighted & { posterUrl?: unknown; url?: unknown };
+
+/** A2UI's Video, loading only what the renderer's `mediaUrl` allows. */
+export const A2UIVideo = ({ props }: ReactA2uiComponentProps<VideoProps>) => {
+  const { part } = usePart(props);
+  const engine = useContext(A2UIEngineContext);
+  const src = aiUIMediaSource(props.url, engine?.mediaURL);
+  const poster = aiUIMediaSource(props.posterUrl, engine?.mediaURL);
+  if (!src) return null;
+  return (
+    <video
+      {...part}
+      className='str-chat__a2ui-video'
+      controls
+      poster={poster}
+      preload='metadata'
+      src={src}
+    />
+  );
+};
+
+type AudioPlayerProps = Weighted & { description?: unknown; url?: unknown };
+
+/** A2UI's AudioPlayer, loading only what the renderer's `mediaUrl` allows. */
+export const A2UIAudioPlayer = ({ props }: ReactA2uiComponentProps<AudioPlayerProps>) => {
+  const { part } = usePart(props);
+  const engine = useContext(A2UIEngineContext);
+  const src = aiUIMediaSource(props.url, engine?.mediaURL);
+  if (!src) return null;
+  const description = textOf(props.description);
+  return (
+    <div {...part} className='str-chat__a2ui-audio-player'>
+      {description && (
+        <div className='str-chat__a2ui-audio-player__description'>{description}</div>
+      )}
+      <audio
+        aria-label={description || undefined}
+        controls
+        preload='metadata'
+        src={src}
+      />
+    </div>
+  );
+};
+
 export const STREAM_BASIC_COMPONENTS: Record<
   string,
   (props: ReactA2uiComponentProps<never>) => ReactNode
 > = {
+  AudioPlayer: A2UIAudioPlayer,
   Button: A2UIButton,
   Card: A2UICard,
   ChoicePicker: A2UIChoicePicker,
   Icon: A2UIIcon,
+  Image: A2UIImage,
   Modal: A2UIModal,
   Text: A2UIText,
   TextField: A2UITextField,
+  Video: A2UIVideo,
 };

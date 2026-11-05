@@ -12,6 +12,7 @@ import {
 } from '../../AIComponents';
 import {
   A2UI_DEFAULT_CATALOG_ID,
+  type A2UIError,
   type A2UIRendererOptions,
   createA2UIRenderer,
 } from '..';
@@ -203,6 +204,7 @@ describe('a reply written in A2UI', () => {
         context: { interests: [], pace: ['relaxed'] },
         sourceComponentId: 'update',
         surfaceId: 'ohrid-weekend',
+        userMessage: 'Update the plan',
       },
     });
 
@@ -1010,5 +1012,261 @@ describe('a reply’s parts coming in', () => {
     const second = (await screen.findByText('Second')).closest('[data-entrance]');
     expect(second).toHaveAttribute('data-entrance', 'hidden');
     await waitFor(() => expect(second).toHaveAttribute('data-entrance', 'shown'));
+  });
+});
+
+describe('as StreamChatA2UI and the Compose renderer do', () => {
+  const button = (id: string, label: string, event: Record<string, unknown>) => [
+    { action: { event }, child: `${id}_label`, component: 'Button', id },
+    { component: 'Text', id: `${id}_label`, text: label },
+  ];
+
+  it('says what the tapped button says as the person’s message, with the agent’s words beside it', async () => {
+    const { sent, ui } = setup();
+    const lines = surfaceWith([
+      { children: ['cancel', 'icon_only'], component: 'Column', id: 'root' },
+      ...button('cancel', 'Cancel', {
+        name: 'cancel_booking',
+        userMessage: 'Yes, I authorize the transfer',
+      }),
+      {
+        action: { event: { name: 'submit_form' } },
+        child: 'star',
+        component: 'Button',
+        id: 'icon_only',
+      },
+      { component: 'Icon', id: 'star', name: 'star' },
+    ]);
+    render(<AIConversation messages={[question, replyWith(lines)]} ui={ui} />);
+    fireEvent.click(await screen.findByRole('button', { name: 'Cancel' }));
+    await waitFor(() => expect(sent).toHaveLength(1));
+    expect(sent[0].label).toBe('Cancel');
+    expect(sent[0].payload).toMatchObject({
+      userMessage: 'Yes, I authorize the transfer',
+    });
+
+    // A button with no words of its own says what its event is called.
+    const buttons = document.querySelectorAll('.str-chat__a2ui .str-chat__a2ui-button');
+    fireEvent.click(buttons[buttons.length - 1] as HTMLElement);
+    await waitFor(() => expect(sent).toHaveLength(2));
+    expect(sent[1].label).toBe('Submit form');
+  });
+
+  it('keeps what the person types in an obscured field out of the action and the data model', async () => {
+    const { sent, ui } = setup();
+    const lines = [
+      line({
+        createSurface: {
+          dataModel: { email: 'ana@example.com', password: '' },
+          sendDataModel: true,
+          surfaceId: 's',
+        },
+      }),
+      line({
+        updateComponents: {
+          components: [
+            { children: ['email', 'password', 'go'], component: 'Column', id: 'root' },
+            {
+              component: 'TextField',
+              id: 'email',
+              label: 'Email',
+              value: { '@path': '/email' },
+            },
+            {
+              component: 'TextField',
+              id: 'password',
+              label: 'Password',
+              value: { '@path': '/password' },
+              variant: 'obscured',
+            },
+            ...button('go', 'Sign in', {
+              context: {
+                email: { '@path': '/email' },
+                password: { '@path': '/password' },
+              },
+              name: 'sign_in',
+            }),
+          ],
+          surfaceId: 's',
+        },
+      }),
+    ];
+    render(<AIConversation messages={[question, replyWith(lines)]} ui={ui} />);
+    const password = await screen.findByLabelText('Password');
+    fireEvent.change(password, { target: { value: 'hunter2' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Sign in' }));
+    await waitFor(() => expect(sent).toHaveLength(1));
+    expect(sent[0].payload).toMatchObject({
+      context: { email: 'ana@example.com' },
+      dataModel: { email: 'ana@example.com' },
+    });
+    expect(JSON.stringify(sent[0])).not.toContain('hunter2');
+  });
+
+  it('sends the surface’s data model with an action when the agent asked for it', async () => {
+    const { sent, ui } = setup();
+    const lines = [
+      line({
+        createSurface: {
+          dataModel: { pace: 'packed' },
+          sendDataModel: true,
+          surfaceId: 's',
+        },
+      }),
+      line({
+        updateComponents: {
+          components: [
+            { children: ['go'], component: 'Column', id: 'root' },
+            ...button('go', 'Update', { name: 'update_plan' }),
+          ],
+          surfaceId: 's',
+        },
+      }),
+    ];
+    render(<AIConversation messages={[question, replyWith(lines)]} ui={ui} />);
+    fireEvent.click(await screen.findByRole('button', { name: 'Update' }));
+    await waitFor(() => expect(sent).toHaveLength(1));
+    expect(sent[0].payload).toMatchObject({ dataModel: { pace: 'packed' } });
+  });
+
+  it('runs the app’s read-only tools where the agent calls them, but not one that changes something', async () => {
+    const book = vi.fn(() => 'Booked');
+    const ui = new AIUIHost({
+      renderers: [createA2UIRenderer({ onError: vi.fn() })],
+      send: vi.fn(),
+      tools: [
+        {
+          name: 'weather',
+          readOnly: true,
+          run: ({ city }) => `Sunny in ${String(city)}`,
+        },
+        { name: 'book_table', run: book },
+      ],
+    });
+    const lines = surfaceWith([
+      { children: ['forecast', 'booking'], component: 'Column', id: 'root' },
+      {
+        component: 'Text',
+        id: 'forecast',
+        text: { '@call': 'weather', args: { city: 'Ohrid' } },
+      },
+      { component: 'Text', id: 'booking', text: { '@call': 'book_table', args: {} } },
+    ]);
+    render(<AIConversation messages={[question, replyWith(lines)]} ui={ui} />);
+    expect(await screen.findByText('Sunny in Ohrid')).toBeInTheDocument();
+    expect(book).not.toHaveBeenCalled();
+  });
+
+  it('loads only the media the renderer allows', async () => {
+    const { ui } = setup();
+    const lines = surfaceWith([
+      { children: ['photo', 'router', 'pixel'], component: 'Column', id: 'root' },
+      {
+        component: 'Image',
+        description: 'Ohrid',
+        id: 'photo',
+        url: 'https://upload.wikimedia.org/ohrid.jpg',
+      },
+      {
+        component: 'Image',
+        description: 'Router',
+        id: 'router',
+        url: 'http://192.168.1.1/a.png',
+      },
+      {
+        component: 'Image',
+        description: 'Pixel',
+        id: 'pixel',
+        url: 'data:image/png;base64,AAAA',
+      },
+    ]);
+    render(<AIConversation messages={[question, replyWith(lines)]} ui={ui} />);
+    expect(await screen.findByAltText('Ohrid')).toHaveAttribute(
+      'src',
+      'https://upload.wikimedia.org/ohrid.jpg',
+    );
+    expect(screen.queryByAltText('Router')).not.toBeInTheDocument();
+    expect(screen.queryByAltText('Pixel')).not.toBeInTheDocument();
+  });
+
+  it('draws a basic component the app’s way, or leaves one out of the catalog and the instructions', async () => {
+    const { errors, ui } = setup({
+      basicComponents: {
+        Divider: () => <hr data-testid='app-divider' />,
+        Video: null,
+      },
+    });
+    const lines = surfaceWith([
+      { children: ['line', 'clip'], component: 'Column', id: 'root' },
+      { component: 'Divider', id: 'line' },
+      { component: 'Video', id: 'clip', url: 'https://example.com/a.mp4' },
+    ]);
+    render(<AIConversation messages={[question, replyWith(lines)]} ui={ui} />);
+    expect(await screen.findByTestId('app-divider')).toBeInTheDocument();
+    expect(document.querySelector('video')).toBeNull();
+    await waitFor(() => expect(errors.length).toBeGreaterThan(0));
+    const { renderers } = await ui.capabilities();
+    expect(
+      String((renderers[0] as unknown as { instructions: string }).instructions),
+    ).not.toContain('"Video"');
+  });
+
+  it('leaves out an app’s component that would replace a basic one, and says so', async () => {
+    const errors: A2UIError[] = [];
+    const card = defineAIUIComponent(
+      parseAIUIComponentDefinition({
+        description: 'Mine',
+        name: 'card',
+        parameters: {},
+      })!,
+      () => <div data-testid='app-card' />,
+    );
+    const ui = new AIUIHost({
+      components: [card],
+      renderers: [createA2UIRenderer({ onError: (error) => errors.push(error) })],
+      send: vi.fn(),
+    });
+    const lines = surfaceWith([
+      { child: 'words', component: 'Card', id: 'root' },
+      { component: 'Text', id: 'words', text: 'Inside the basic Card' },
+    ]);
+    render(<AIConversation messages={[question, replyWith(lines)]} ui={ui} />);
+    expect(await screen.findByText('Inside the basic Card')).toBeInTheDocument();
+    expect(screen.queryByTestId('app-card')).not.toBeInTheDocument();
+    await waitFor(() =>
+      expect(errors).toContainEqual(
+        expect.objectContaining({
+          code: 'CATALOG_ERROR',
+          message: expect.stringContaining('card'),
+        }),
+      ),
+    );
+  });
+
+  it('tells the agent the app’s instructions first and lists its tools', async () => {
+    const ui = new AIUIHost({
+      renderers: [createA2UIRenderer({ instructions: 'Plan trips as UI.' })],
+      send: vi.fn(),
+      tools: [
+        {
+          description: 'Today’s weather.',
+          inputSchema: { properties: { city: { type: 'string' } }, type: 'object' },
+          name: 'weather',
+          readOnly: true,
+          run: vi.fn(),
+        },
+        { name: 'book_table', run: vi.fn() },
+      ],
+    });
+    const { renderers } = await ui.capabilities();
+    const instructions = String(
+      (renderers[0] as unknown as { instructions: string }).instructions,
+    );
+    expect(instructions.startsWith('Plan trips as UI.')).toBe(true);
+    expect(instructions).toContain("## The app's tools");
+    expect(instructions).toContain(
+      '- `weather` (read-only): Today’s weather. Arguments: `{"properties":{"city":{"type":"string"}},"type":"object"}`',
+    );
+    expect(instructions).toContain('- `book_table`');
   });
 });

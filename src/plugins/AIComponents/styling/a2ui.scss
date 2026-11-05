@@ -293,6 +293,62 @@
   }
 }
 
+// Media the agent links to, sized as A2UI's own elements size them.
+.str-chat__a2ui-image {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  border-radius: ai-scale(radius-lg);
+
+  &--icon {
+    width: 1.5rem;
+    height: 1.5rem;
+    border-radius: 0;
+  }
+
+  &--avatar {
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 50%;
+  }
+
+  &--smallFeature {
+    max-width: 6.25rem;
+  }
+
+  &--largeFeature {
+    max-height: 25rem;
+  }
+
+  &--header {
+    width: 100%;
+    height: 12.5rem;
+  }
+}
+
+.str-chat__a2ui-video {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: ai-scale(radius-lg);
+}
+
+.str-chat__a2ui-audio-player {
+  display: flex;
+  flex-direction: column;
+  gap: ai-scale(space-xxs);
+  width: 100%;
+
+  audio {
+    width: 100%;
+  }
+
+  &__description {
+    color: ai-token(text-secondary);
+    font-size: ai-scale(font-sm);
+  }
+}
+
 .str-chat__a2ui-icon {
   display: inline-flex;
   flex: none;

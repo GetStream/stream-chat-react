@@ -20,6 +20,8 @@ import {
   blocksIn,
   fenceOf,
   sorted,
+  toolLine,
+  TOOLS_INTRODUCTION,
   writing,
 } from './A2UIInstructions';
 import { A2UI_VERSION, a2uiMessagesIn, normalizeA2UIMessage } from './A2UIStream';
@@ -30,15 +32,21 @@ type Entry = ComponentApi;
 const definitionOf = (component: AIUIComponent | AIUIComponentDefinition) =>
   'definition' in component ? component.definition : component;
 
-/** The catalog an agent writes with: the basic catalog, or what `keep` names of it, and the app's components. */
+/**
+ * The catalog an agent writes with: the basic catalog, or what `keep` names of it without what
+ * `remove` names, and the app's components, but one named like a basic component it keeps.
+ */
 export const a2uiCatalogFor = ({
   catalogId = A2UI_DEFAULT_CATALOG_ID,
   components = [],
   keep,
-}: Pick<A2UIInstructionsConfig, 'catalogId' | 'components' | 'keep'> = {}) => {
+  remove = [],
+}: Pick<A2UIInstructionsConfig, 'catalogId' | 'components' | 'keep' | 'remove'> = {}) => {
   const kept = keep && new Set(keep);
+  const removed = new Set(remove);
   const ofBasic = (names: Iterable<string>) =>
-    [...names].filter((name) => !kept || kept.has(name));
+    [...names].filter((name) => (!kept || kept.has(name)) && !removed.has(name));
+  const basicComponents = ofBasic(basicCatalog.components.keys());
   const definitions = components.map(definitionOf);
   const app = definitions.length
     ? [
@@ -46,14 +54,14 @@ export const a2uiCatalogFor = ({
           a2uiAppCatalogDocument(catalogId, definitions, { bindings: false }),
           A2UI_VERSION,
         ).components.values(),
-      ]
+      ].filter(({ name }) => !basicComponents.includes(name))
     : [];
   // The catalog's guidelines, without its examples: they name the basic catalog rather than
   // this one, and components `keep` may leave out.
   const guidelines = basicCatalog.instructions?.split('\n## Examples')[0].trim();
   return (basicCatalog as unknown as Catalog<Entry>).derive({
     catalogId,
-    components: [...ofBasic(basicCatalog.components.keys()), ...app],
+    components: [...basicComponents, ...app],
     functions: ofBasic(basicCatalog.functions.keys()),
     ...(guidelines ? { instructions: guidelines } : {}),
   });
@@ -75,13 +83,16 @@ export const a2uiInstructionsText = (config: A2UIInstructionsConfig = {}) => {
   );
   if (broken.length) throw new A2UIInstructionsError(broken);
   const { instructions, ...document } = catalog.toJson() as Record<string, unknown>;
-  const { examples = [], notes = [], preamble, rules = [] } = config;
+  const { examples = [], notes = [], preamble, rules = [], tools = [] } = config;
   return [
     ...(preamble ? [preamble] : []),
     writing(fence, catalog.id),
     A2UI_PROTOCOL_OVERVIEW,
     ...(typeof instructions === 'string' && instructions ? [instructions] : []),
     ...(notes.length ? [`## The app's components\n\n${notes.join('\n')}`] : []),
+    ...(tools.length
+      ? [`${TOOLS_INTRODUCTION}\n\n${tools.map(toolLine).join('\n')}`]
+      : []),
     `## The catalog \`${catalog.id}\`\n\n\`\`\`json\n${JSON.stringify(sorted(document))}\n\`\`\``,
     ...(rules.length
       ? [`## Rules\n\n${rules.map((rule, index) => `${index + 1}. ${rule}`).join('\n')}`]
@@ -295,5 +306,8 @@ const nestingProblems = (references: Map<string, string[]>, surfaceId: string) =
 /** What is wrong with the A2UI messages of `text` for the catalog `config` makes, or nothing. */
 export const a2uiProblemsIn = (
   text: string,
-  config: Pick<A2UIInstructionsConfig, 'catalogId' | 'components' | 'keep'> = {},
+  config: Pick<
+    A2UIInstructionsConfig,
+    'catalogId' | 'components' | 'keep' | 'remove'
+  > = {},
 ) => a2uiProblemsWith(text, a2uiCatalogFor(config));

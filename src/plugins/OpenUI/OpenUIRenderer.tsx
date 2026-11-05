@@ -6,7 +6,12 @@ import {
   aiUIDocumentText,
 } from '../AIComponents/GenerativeUI/AIUIDocument';
 import type { AIUIHost } from '../AIComponents/GenerativeUI/AIUIHost';
+import {
+  type AIUIMediaURL,
+  aiUIPublicMediaURL,
+} from '../AIComponents/GenerativeUI/AIUIMedia';
 import type { AIUIEngine, AIUIRenderer } from '../AIComponents/GenerativeUI/AIUIRenderer';
+import type { AIUIClientToolDefinition } from '../AIComponents/GenerativeUI/AIUITools';
 import {
   AIUIRuntimeLoader,
   AIUIRuntimeView,
@@ -45,11 +50,21 @@ export type OpenUIRendererOptions = {
    */
   devtools?: boolean;
   /**
+   * What the app tells the agent's model about writing its UI, such as when to answer with UI,
+   * ahead of OpenUI's own instructions in `capabilities`.
+   */
+  instructions?: string;
+  /**
    * The library the agent writes with, before the app's components join it: OpenUI's chat
    * library (`openuiChatLibrary` of `@openuidev/react-ui/genui-lib`) by default. Give one made
    * with `createLibrary` of `@openuidev/react-lang` to use components of your own.
    */
   library?: OpenUILibrary;
+  /**
+   * What an image the agent links to loads: the URL, another, or `null` not to load it.
+   * Public web links and the page's own site load by default (`aiUIPublicMediaURL`).
+   */
+  mediaUrl?: AIUIMediaURL;
   /**
    * Tells the app what went wrong in a reply's program, such as a component the library
    * doesn't have, with the reply's id. The rest of the reply's UI still shows. What is wrong
@@ -59,7 +74,8 @@ export type OpenUIRendererOptions = {
   onError?: (error: OpenUIError, messageId?: string) => void;
   /**
    * Runs the tools a program's `Query()` and `Mutation()` call. By default they are the host's
-   * client tools, run in the page.
+   * client tools, run in the page: one that isn't read-only only while the person acts, such as
+   * from a tap, and a Query asking the same again within 5 s gets the answer it got.
    */
   toolProvider?: Record<string, (args: Record<string, unknown>) => Promise<unknown>>;
 };
@@ -82,6 +98,8 @@ export class OpenUIEngine implements AIUIEngine {
   readonly host: AIUIHost;
   /** Loads the runtime, the OpenUI packages, when a reply first shows OpenUI. */
   readonly loader: AIUIRuntimeLoader<OpenUIRuntime>;
+  /** What an image the agent links to loads. */
+  readonly mediaURL: AIUIMediaURL;
   readonly options: OpenUIRendererOptions;
   /** What has been said about each reply's program, so each error is said once. */
   readonly reported = new Map<string, Set<string>>();
@@ -92,6 +110,7 @@ export class OpenUIEngine implements AIUIEngine {
   constructor(host: AIUIHost, options: OpenUIRendererOptions) {
     this.host = host;
     this.options = options;
+    this.mediaURL = options.mediaUrl ?? aiUIPublicMediaURL;
     this.loader = new AIUIRuntimeLoader(
       host,
       () => loadRuntime(options.devtools),
@@ -148,13 +167,21 @@ export class OpenUIEngine implements AIUIEngine {
 
 /**
  * The instructions that teach an agent's model to write OpenUI with the library and the app's
- * `components`, from OpenUI's own prompt generator. Give them to the agent's backend, as the
- * part of its instructions about UI. It loads the OpenUI packages.
+ * `components`, call the app's `tools`, and heed the app's own `instructions`, which come
+ * first, from OpenUI's own prompt generator. Give them to the agent's backend, as the part of
+ * its instructions about UI. It loads the OpenUI packages.
  */
 export const openUIInstructions = async (
   components: AIUIComponent[],
-  options: Pick<OpenUIRendererOptions, 'devtools' | 'library'> = {},
-) => (await loadRuntime(options.devtools)).instructionsFor(components, options.library);
+  options: Pick<OpenUIRendererOptions, 'devtools' | 'instructions' | 'library'> & {
+    tools?: AIUIClientToolDefinition[];
+  } = {},
+) =>
+  (await loadRuntime(options.devtools)).instructionsFor(components, {
+    ...(options.instructions ? { instructions: options.instructions } : {}),
+    ...(options.library ? { library: options.library } : {}),
+    ...(options.tools ? { tools: options.tools } : {}),
+  });
 
 /**
  * The renderer of [OpenUI](https://openui.com) for `AIUIHost`, on the official OpenUI packages
@@ -165,13 +192,13 @@ export const openUIInstructions = async (
 export const createOpenUIRenderer = (
   options: OpenUIRendererOptions = {},
 ): AIUIRenderer => ({
-  // As StreamChatOpenUI's: the fence and the instructions, written with OpenUI's own prompt
-  // generator, which loads the OpenUI packages to write them. Without them, when they can't
-  // load, the fence still goes to the agent's backend.
-  capabilities: async (components) => {
+  // As StreamChatOpenUI's: the fence and the instructions, with the app's tools, written with
+  // OpenUI's own prompt generator, which loads the OpenUI packages to write them. Without them,
+  // when they can't load, the fence still goes to the agent's backend.
+  capabilities: async (components, tools = []) => {
     let instructions: string | undefined;
     try {
-      instructions = await openUIInstructions(components, options);
+      instructions = await openUIInstructions(components, { ...options, tools });
     } catch (error) {
       reportOpenUIError(options, {
         code: 'runtime-error',

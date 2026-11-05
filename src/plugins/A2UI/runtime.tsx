@@ -24,6 +24,8 @@ import {
   getValue,
   MessageProcessor,
   peekValue,
+  setValue,
+  signal,
   type SurfaceModel,
 } from '@a2ui/web_core';
 import {
@@ -37,7 +39,11 @@ import {
   AIUIComponentView,
 } from '../AIComponents/GenerativeUI/AIUIComponent';
 import type { AIUIDocument } from '../AIComponents/GenerativeUI/AIUIDocument';
-import { isRecord } from '../AIComponents/GenerativeUI/AIUIHelpers';
+import {
+  aiUIWords,
+  isRecord,
+  withoutSecretValues,
+} from '../AIComponents/GenerativeUI/AIUIHelpers';
 import { A2UIPlaceholder } from './A2UIPlaceholder';
 import type { A2UIEngine, A2UIError } from './A2UIRenderer';
 import { A2UIEngineContext, STREAM_BASIC_COMPONENTS } from './basicComponents';
@@ -156,15 +162,58 @@ const catalogsByEngine = new WeakMap<A2UIEngine, Catalog<Entry>[]>();
 export const catalogsOf = (engine: A2UIEngine) => {
   const made = catalogsByEngine.get(engine);
   if (made) return made;
-  const functions = [
+  const basicFunctions = [
     ...createBasicCatalogFunctions().filter(({ name }) => name !== OpenUrlApi.name),
     createFunctionImplementation(OpenUrlApi, ({ url }) => {
       engine.host.open(String(url));
     }),
   ];
+  // The app's tools, called as functions the catalog doesn't define, as StreamChatA2UI calls
+  // them: one that changes something runs only from what the person did, such as a tap.
+  const anyArguments = OpenUrlApi.schema.pick({}).passthrough();
+  const toolFunctions = engine.host.toolNames.flatMap((name) => {
+    if (basicFunctions.some((basic) => basic.name === name)) {
+      engine.report({
+        code: 'CATALOG_ERROR',
+        message: `The tool ${name} is left out of A2UI: the catalog has a function of that name`,
+      });
+      return [];
+    }
+    return [
+      createFunctionImplementation(
+        { name, returnType: 'any', schema: anyArguments },
+        (args, context) => {
+          const output = signal<unknown>(undefined);
+          engine.host
+            .runTool(name, withoutSecretValues(args, secretValuesOf(context.surface)), {
+              userInitiated: context.isUserActivated,
+            })
+            .then(
+              (value) => setValue(output, value),
+              (error: unknown) =>
+                engine.report({
+                  code: 'EXECUTION_ERROR',
+                  message: error instanceof Error ? error.message : String(error),
+                }),
+            );
+          return output;
+        },
+      ),
+    ];
+  });
+  const functions = [...basicFunctions, ...toolFunctions];
+  const basicNames = new Set(basicCatalog.components.keys());
   const appComponents: Entry[] = [];
   for (const component of engine.host.components) {
     const type = a2uiTypeName(component.definition.name);
+    // One named like a basic component would replace it, so it is left out, as on iOS.
+    if (basicNames.has(type) && engine.basicComponents[type as never] !== null) {
+      engine.report({
+        code: 'CATALOG_ERROR',
+        message: `The component ${component.definition.name} is left out of A2UI: it would replace the catalog's ${type}`,
+      });
+      continue;
+    }
     try {
       const api = Catalog.fromJson(
         a2uiAppCatalogDocument(engine.catalogId, [component]),
@@ -185,16 +234,21 @@ export const catalogsOf = (engine: A2UIEngine) => {
       });
     }
   }
-  // The basic catalog's components, Stream's where Stream draws them.
+  // The basic catalog's components: the app's where it draws one its own way, none where it
+  // leaves one out, else Stream's where Stream draws them, else A2UI's own.
   const components: Entry[] = [
-    ...[...basicCatalog.components.values()].map((entry) => {
-      const streamComponent = STREAM_BASIC_COMPONENTS[entry.name];
-      return streamComponent
-        ? (createComponentImplementation(
-            entry as never,
-            streamComponent as never,
-          ) as unknown as Entry)
-        : entry;
+    ...[...basicCatalog.components.values()].flatMap((entry) => {
+      const own = engine.basicComponents[entry.name as never] as unknown;
+      if (own === null) return [];
+      const view = own ?? STREAM_BASIC_COMPONENTS[entry.name];
+      return view
+        ? [
+            createComponentImplementation(
+              entry as never,
+              view as never,
+            ) as unknown as Entry,
+          ]
+        : [entry];
     }),
     ...appComponents,
   ];
@@ -213,6 +267,39 @@ type RendererError = {
   message?: unknown;
   path?: unknown;
   surfaceId?: unknown;
+};
+
+// The data model paths an obscured TextField writes, such as a password's.
+const secretPathsOf = (surface: SurfaceModel<Entry> | undefined) => {
+  const paths: string[] = [];
+  for (const component of surface?.componentsModel.values ?? []) {
+    const { value, variant } = component.properties;
+    if (component.type !== 'TextField' || variant !== 'obscured' || !isRecord(value))
+      continue;
+    const path = value['@path'];
+    if (typeof path === 'string') paths.push(path.startsWith('/') ? path : `/${path}`);
+  }
+  return paths;
+};
+
+// What the person typed in a surface's obscured fields, so none of it leaves the device.
+const secretValuesOf = (surface: SurfaceModel<Entry> | undefined): string[] =>
+  secretPathsOf(surface).flatMap((path) => {
+    const value: unknown = surface?.dataModel.get(path);
+    return typeof value === 'string' && value !== '' ? [value] : [];
+  });
+
+// A copy of a surface's data model without what its obscured fields hold.
+const dataModelWithoutSecrets = (surface: SurfaceModel<Entry>) => {
+  const copy = JSON.parse(JSON.stringify(surface.dataModel.get('/') ?? {})) as unknown;
+  for (const path of secretPathsOf(surface)) {
+    const keys = path.split('/').filter(Boolean);
+    const last = keys.pop();
+    let parent: unknown = copy;
+    for (const key of keys) parent = isRecord(parent) ? parent[key] : undefined;
+    if (isRecord(parent) && last !== undefined) delete parent[last];
+  }
+  return withoutSecretValues(copy, secretValuesOf(surface));
 };
 
 const errorOf = (error: RendererError): A2UIError => ({
@@ -345,28 +432,67 @@ export class A2UIReplyState {
     );
   }
 
-  // Tells the agent what the person did, in their words: the action's own, else what its
-  // button says, else its name.
+  // Tells the agent what the person did, as StreamChatA2UI does: their message says what the
+  // button they tapped says, else the event's name as words, and what the agent wrote for it,
+  // its `userMessage`, goes with it. So does the surface's data model when the agent asked for
+  // it, and never what the person typed in an obscured field.
   private act(action: ActionPayload) {
+    const surface = this.processor.model.getSurface(action.surfaceId);
+    const secrets = secretValuesOf(surface);
+    const context = withoutSecretValues(action.context ?? {}, secrets);
+    for (const key of this.secretContextKeys(surface, action)) delete context[key];
+    const userMessage = withoutSecretValues(action.userMessage ?? '', secrets).trim();
     void this.engine.host.send({
       format: 'a2ui',
-      label: action.userMessage ?? this.buttonText(action) ?? action.name,
+      label: this.buttonText(surface, action) ?? aiUIWords(action.name),
       messageId: this.messageId,
       name: action.name,
       payload: {
-        context: action.context,
+        context,
+        ...(surface?.sendDataModel
+          ? { dataModel: dataModelWithoutSecrets(surface) }
+          : {}),
         sourceComponentId: action.sourceComponentId,
         surfaceId: action.surfaceId,
+        ...(userMessage ? { userMessage } : {}),
       },
     });
   }
 
-  private buttonText(action: ActionPayload) {
-    const components = this.processor.model.getSurface(action.surfaceId)?.componentsModel;
+  // The keys of an event's context the agent bound to an obscured field.
+  private secretContextKeys(
+    surface: SurfaceModel<Entry> | undefined,
+    action: ActionPayload,
+  ) {
+    const secretPaths = secretPathsOf(surface);
+    const event: unknown = surface?.componentsModel.get(action.sourceComponentId)
+      ?.properties.action;
+    const written =
+      isRecord(event) && isRecord(event.event) ? event.event.context : undefined;
+    if (!isRecord(written)) return [];
+    return Object.entries(written).flatMap(([key, value]) => {
+      const path = isRecord(value) ? value['@path'] : undefined;
+      if (typeof path !== 'string') return [];
+      const absolute = path.startsWith('/') ? path : `/${path}`;
+      return secretPaths.some(
+        (secret) => absolute === secret || absolute.startsWith(`${secret}/`),
+      )
+        ? [key]
+        : [];
+    });
+  }
+
+  // What the button the person tapped says: its Text child, written or bound to the data model.
+  private buttonText(surface: SurfaceModel<Entry> | undefined, action: ActionPayload) {
+    const components = surface?.componentsModel;
     const child: unknown = components?.get(action.sourceComponentId)?.properties.child;
     if (typeof child !== 'string') return undefined;
     const text: unknown = components?.get(child)?.properties.text;
-    return typeof text === 'string' && text !== '' ? text : undefined;
+    const shown =
+      isRecord(text) && typeof text['@path'] === 'string' && text['@path'].startsWith('/')
+        ? (surface?.dataModel.get(text['@path']) as unknown)
+        : text;
+    return typeof shown === 'string' && shown.trim() !== '' ? shown.trim() : undefined;
   }
 
   private watch() {

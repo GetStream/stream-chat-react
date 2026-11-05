@@ -8,6 +8,7 @@ import {
   AIUIHost,
   AIUIParameterType,
   type AIUIRenderer,
+  AIUIToolError,
   decodeAIUIArguments,
   defineAIUIComponent,
   fromStreamMessage,
@@ -595,13 +596,52 @@ describe('AIUIHost', () => {
     const ui = new AIUIHost({
       renderers: [],
       send: vi.fn(),
-      tools: [{ name: 'weather', run: ({ city }) => ({ city, sky: 'clear' }) }],
+      tools: [
+        { name: 'weather', readOnly: true, run: ({ city }) => ({ city, sky: 'clear' }) },
+      ],
     });
     await expect(ui.runTool('weather', { city: 'Ohrid' })).resolves.toEqual({
       city: 'Ohrid',
       sky: 'clear',
     });
     await expect(ui.runTool('calendar')).rejects.toThrow('No tool named calendar');
+  });
+
+  it('runs a tool that changes something only from what the person did', async () => {
+    const book = vi.fn(() => ({ booked: true }));
+    const ui = new AIUIHost({
+      renderers: [],
+      send: vi.fn(),
+      tools: [{ name: 'book_table', run: book }],
+    });
+    const refused = ui.runTool('book_table', { table: 4 });
+    await expect(refused).rejects.toBeInstanceOf(AIUIToolError);
+    await expect(refused).rejects.toMatchObject({ toolName: 'book_table' });
+    expect(book).not.toHaveBeenCalled();
+    await expect(
+      ui.runTool('book_table', { table: 4 }, { userInitiated: true }),
+    ).resolves.toEqual({ booked: true });
+  });
+
+  it('says which tool failed, and refuses output that isn’t JSON', async () => {
+    const ui = new AIUIHost({
+      renderers: [],
+      send: vi.fn(),
+      tools: [
+        {
+          name: 'offline',
+          readOnly: true,
+          run: () => {
+            throw new Error('No network');
+          },
+        },
+        { name: 'cyclic', readOnly: true, run: () => ({ self: 1n }) },
+      ],
+    });
+    await expect(ui.runTool('offline')).rejects.toThrow(
+      'offline failed: Error: No network',
+    );
+    await expect(ui.runTool('cyclic')).rejects.toThrow("cyclic gave what isn't JSON");
   });
 
   it('describes the formats it reads and the app’s components to the agent’s backend', async () => {
