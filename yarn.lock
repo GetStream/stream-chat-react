@@ -3507,6 +3507,29 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@stream-io/stream-chat-react-ai-ui-gallery@workspace:examples/ai-ui-gallery":
+  version: 0.0.0-use.local
+  resolution: "@stream-io/stream-chat-react-ai-ui-gallery@workspace:examples/ai-ui-gallery"
+  dependencies:
+    "@a2ui/react": "npm:0.15.0"
+    "@a2ui/web_core": "npm:0.15.0"
+    "@openuidev/react-headless": "npm:0.18.1"
+    "@openuidev/react-lang": "npm:1.0.2"
+    "@openuidev/react-ui": "npm:0.18.1"
+    "@playwright/test": "npm:^1.60.0"
+    "@types/react": "npm:^19.2.15"
+    "@types/react-dom": "npm:^19.2.3"
+    "@vitejs/plugin-react": "npm:^6.0.3"
+    react: "npm:^19.2.6"
+    react-dom: "npm:^19.2.6"
+    stream-chat: "npm:^9.54.0"
+    stream-chat-react: "workspace:^"
+    typescript: "npm:^6.0.3"
+    vite: "npm:^8.1.3"
+    zustand: "npm:4.5.7"
+  languageName: unknown
+  linkType: soft
+
 "@stream-io/stream-chat-react-tutorial@workspace:examples/tutorial":
   version: 0.0.0-use.local
   resolution: "@stream-io/stream-chat-react-tutorial@workspace:examples/tutorial"

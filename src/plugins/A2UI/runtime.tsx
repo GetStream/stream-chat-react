@@ -47,7 +47,12 @@ import {
 import { A2UIPlaceholder } from './A2UIPlaceholder';
 import type { A2UIEngine, A2UIError } from './A2UIRenderer';
 import { A2UIEngineContext, STREAM_BASIC_COMPONENTS } from './basicComponents';
-import { a2uiAppCatalogDocument, a2uiTypeName } from './catalogDocument';
+import {
+  A2UI_DEFAULT_CATALOG_ID,
+  A2UI_LEGACY_CATALOG_ID,
+  a2uiAppCatalogDocument,
+  a2uiTypeName,
+} from './catalogDocument';
 import {
   A2UI_VERSION,
   a2uiMessagesIn,
@@ -156,8 +161,8 @@ const catalogsByEngine = new WeakMap<A2UIEngine, Catalog<Entry>[]>();
 
 /**
  * The catalogs a reply's surfaces are made with: the basic catalog with the app's components,
- * under the renderer's catalog id and under the basic catalog's own, so a surface naming either
- * shows them. Links open the way the host allows.
+ * under the renderer's catalog id (and the default's former id, for the default) and under the
+ * basic catalog's own, so a surface naming any of them shows them. Links open the way the host allows.
  */
 export const catalogsOf = (engine: A2UIEngine) => {
   const made = catalogsByEngine.get(engine);
@@ -252,12 +257,16 @@ export const catalogsOf = (engine: A2UIEngine) => {
     }),
     ...appComponents,
   ];
-  const catalogs = [
-    new Catalog<Entry>(engine.catalogId, A2UI_VERSION, components, functions),
-    ...(engine.catalogId === basicCatalog.id
-      ? []
-      : [new Catalog<Entry>(basicCatalog.id, A2UI_VERSION, components, functions)]),
+  // A renderer with the default id also shows surfaces naming the default's former id, which
+  // A2UI written before it changed names.
+  const ids = [
+    engine.catalogId,
+    ...(engine.catalogId === A2UI_DEFAULT_CATALOG_ID ? [A2UI_LEGACY_CATALOG_ID] : []),
+    basicCatalog.id,
   ];
+  const catalogs = [...new Set(ids)].map(
+    (id) => new Catalog<Entry>(id, A2UI_VERSION, components, functions),
+  );
   catalogsByEngine.set(engine, catalogs);
   return catalogs;
 };

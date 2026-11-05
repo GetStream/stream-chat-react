@@ -65,13 +65,21 @@ describe('AI components stylesheet token contract', () => {
   });
 
   it('falls back only to SCR tokens that the light and dark themes both provide', () => {
+    // The SCR tokens A2UI's own parts (Stream's buttons and fields) read, which the stylesheet
+    // points at the reply's captures of the AI tokens there (`--_str-chat-a2ui-*`): those parts
+    // read them, not as fallbacks. Only those are left out.
+    const setHere = new Set(
+      [
+        ...css.matchAll(/(--str-chat__(?!ai-)[a-z0-9-]+)\s*:\s*var\(--_str-chat-a2ui-/g),
+      ].map(([, token]) => token),
+    );
     const scrTokens = [
       ...new Set(
         [...css.matchAll(/var\((--str-chat__(?!ai-)[a-z0-9-]+)/g)].map(
           ([, token]) => token,
         ),
       ),
-    ].filter((token) => !isScaleToken(token));
+    ].filter((token) => !isScaleToken(token) && !setHere.has(token));
     expect(scrTokens.length).toBeGreaterThan(5);
     const missing = scrTokens.filter((token) => {
       if (!declaredIn(lightTheme, token)) return true;

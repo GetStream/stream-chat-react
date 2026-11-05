@@ -2,8 +2,11 @@
 @use './ai-ui-icons' as *;
 
 // A reply's OpenUI, in Stream's look. OpenUI's components read `--openui-*` variables, which its
-// stylesheet defines for the whole page, so setting them here themes every reply, and follows
-// Stream's light and dark themes. The rest, such as its chart palette, stays OpenUI's own.
+// stylesheet defines for the whole page, light, or dark when the person's system is. Every colour
+// they read is set here from the AI components' tokens, so a reply follows Stream's light and
+// dark themes rather than the system's, and an app that sets only `--str-chat__ai-*` themes it.
+// `yarn validate-ai-ui-tokens` fails when OpenUI reads a colour this leaves unset. The rest, such
+// as its chart palette and sizes, stays OpenUI's own.
 
 .str-chat__openui {
   --openui-background: #{ai-token(bg-secondary)};
@@ -12,8 +15,8 @@
   --openui-text-neutral-primary: #{ai-token(text-primary)};
   --openui-text-neutral-secondary: #{ai-token(text-secondary)};
   --openui-text-neutral-tertiary: #{ai-token(text-tertiary)};
-  --openui-text-neutral-link: #{ai-token(accent)};
-  --openui-text-brand: #{ai-token(accent)};
+  --openui-text-neutral-link: #{ai-accent-text()};
+  --openui-text-brand: #{ai-accent-text()};
   --openui-text-accent-primary: #{ai-token(button-primary-text)};
   --openui-text-accent-secondary: color-mix(
     in srgb,
@@ -37,7 +40,106 @@
     var(--openui-interactive-accent-default) 40%,
     transparent
   );
+  --openui-text-accent-tertiary: color-mix(
+    in srgb,
+    var(--openui-text-accent-primary) 20%,
+    transparent
+  );
+  --openui-text-white: #{ai-token(button-primary-text)};
+  --openui-border-accent-emphasis: color-mix(
+    in srgb,
+    #{ai-token(accent)} 30%,
+    transparent
+  );
   --openui-highlight: #{ai-token(surface-hover)};
+  --openui-highlight-subtle: color-mix(
+    in srgb,
+    #{ai-token(text-primary)} 2%,
+    transparent
+  );
+  --openui-highlight-strong: color-mix(
+    in srgb,
+    #{ai-token(text-primary)} 8%,
+    transparent
+  );
+  --openui-highlight-intense: color-mix(
+    in srgb,
+    #{ai-token(text-primary)} 32%,
+    transparent
+  );
+  --openui-sunk-light: color-mix(in srgb, #{ai-token(text-primary)} 2%, transparent);
+  --openui-sunk: color-mix(in srgb, #{ai-token(text-primary)} 4%, transparent);
+  --openui-sunk-deep: color-mix(in srgb, #{ai-token(text-primary)} 8%, transparent);
+  --openui-elevated: color-mix(in srgb, #{ai-token(text-primary)} 8%, transparent);
+  --openui-elevated-strong: color-mix(
+    in srgb,
+    #{ai-token(text-primary)} 16%,
+    transparent
+  );
+  --openui-overlay: color-mix(in srgb, #{ai-token(text-primary)} 40%, transparent);
+  --openui-inverted-background: #{ai-token(text-primary)};
+  --openui-chat-user-response-bg: #{ai-token(user-message-bg)};
+  --openui-chat-user-response-text: #{ai-token(user-message-text)};
+
+  // What a status says, in its colour: a tint behind it, its edge, and its words.
+  --openui-info-background: color-mix(in srgb, #{ai-token(accent)} 12%, transparent);
+  --openui-border-info-emphasis: #{ai-token(accent)};
+  --openui-text-info-primary: #{ai-accent-text()};
+  --openui-success-background: color-mix(in srgb, #{ai-token(success)} 12%, transparent);
+  --openui-border-success-emphasis: #{ai-token(success)};
+  --openui-text-success-primary: color-mix(
+    in srgb,
+    #{ai-token(success)} 70%,
+    #{ai-token(text-primary)}
+  );
+  --openui-alert-background: color-mix(in srgb, #{$ai-warning} 16%, transparent);
+  --openui-border-alert-emphasis: #{$ai-warning};
+  --openui-text-alert-primary: color-mix(
+    in srgb,
+    #{$ai-warning} 55%,
+    #{ai-token(text-primary)}
+  );
+  --openui-danger-background: color-mix(in srgb, #{ai-token(error)} 12%, transparent);
+  --openui-border-danger: color-mix(in srgb, #{ai-token(error)} 8%, transparent);
+  --openui-border-danger-emphasis: #{ai-token(error)};
+  --openui-text-danger-primary: #{ai-error-text()};
+  --openui-text-danger-tertiary: color-mix(in srgb, #{ai-error-text()} 60%, transparent);
+  // The words on a filled destructive button, whose fill is the error colour's words: the
+  // page's colour, which reads on it in both themes, where white doesn't in dark.
+  --openui-text-danger-inverted-primary: #{ai-token(bg-primary)};
+
+  // A destructive button: its words in the error colour, on a quiet fill; filled, white on it.
+  --openui-interactive-destructive-default: color-mix(
+    in srgb,
+    #{ai-token(error)} 2%,
+    transparent
+  );
+  --openui-interactive-destructive-hover: color-mix(
+    in srgb,
+    #{ai-token(error)} 8%,
+    transparent
+  );
+  --openui-interactive-destructive-disabled: color-mix(
+    in srgb,
+    #{ai-token(error)} 2%,
+    transparent
+  );
+  --openui-interactive-destructive-accent-default: #{ai-error-text()};
+  --openui-interactive-destructive-accent-hover: color-mix(
+    in srgb,
+    #{ai-error-text()} 88%,
+    #{ai-token(text-primary)}
+  );
+  --openui-interactive-destructive-accent-pressed: color-mix(
+    in srgb,
+    #{ai-error-text()} 80%,
+    #{ai-token(text-primary)}
+  );
+  --openui-interactive-destructive-accent-disabled: color-mix(
+    in srgb,
+    #{ai-error-text()} 40%,
+    transparent
+  );
   --openui-font-body: inherit;
   --openui-font-heading: inherit;
   --openui-font-label: inherit;
@@ -45,7 +147,7 @@
   width: 100%;
   min-width: 0;
   color: ai-token(text-primary);
-  color-scheme: light;
+  color-scheme: var(--str-chat__ai-color-scheme, light);
 
   &__placeholder {
     height: 4rem;
@@ -55,8 +157,10 @@
   }
 }
 
+// Native controls (the date input, scrollbars) follow the reply's theme: the app's
+// `--str-chat__ai-color-scheme`, else the SDK's theme, else light, as the fallbacks are.
 .str-chat__theme-dark .str-chat__openui {
-  color-scheme: dark;
+  color-scheme: var(--str-chat__ai-color-scheme, dark);
 }
 
 // The parts a person sees most, drawn as StreamChatOpenUI draws them on iOS, so a reply looks the
@@ -129,7 +233,7 @@
   }
 
   .openui-callout-warning {
-    --str-chat-openui-callout: var(--str-chat__accent-warning, #fa922b);
+    --str-chat-openui-callout: #{$ai-warning};
 
     &::before {
       content: $ai-ui-glyph-warning;
@@ -172,8 +276,8 @@
 
   .openui-chip-item--selected {
     border-color: ai-token(accent);
-    background-color: color-mix(in srgb, #{ai-token(accent)} 14%, transparent);
-    color: ai-token(accent);
+    background-color: color-mix(in srgb, #{ai-token(accent)} 8%, transparent);
+    color: ai-chosen-text();
   }
 
   // Buttons: pills as wide as their row shares, but the tertiary one, which is as its words.
@@ -212,7 +316,7 @@
     }
 
     .openui-follow-up-item-text {
-      color: ai-token(accent);
+      color: ai-accent-text();
       font-weight: 500;
     }
 
