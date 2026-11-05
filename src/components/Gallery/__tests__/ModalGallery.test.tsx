@@ -85,6 +85,32 @@ describe('ModalGallery', () => {
       ).not.toBeInTheDocument();
     });
 
+    it('uses imageUrl as the thumbnail of a video without videoThumbnailUrl', () => {
+      renderComponent({
+        items: [
+          makeVideoItem({
+            imageUrl: 'http://video-frame.jpg',
+            videoThumbnailUrl: undefined,
+          }),
+          makeImageItem(),
+        ],
+      });
+
+      const videoTile = screen.getByLabelText('Open gallery at image 1');
+      expect(videoTile.querySelector('img')).toHaveAttribute(
+        'src',
+        'http://video-frame.jpg/',
+      );
+      expect(
+        videoTile.querySelector(
+          '.str-chat__message-attachment__video-thumbnail__play-indicator',
+        ),
+      ).toBeInTheDocument();
+      expect(
+        videoTile.querySelector('.str-chat__modal-gallery__image-loading-overlay'),
+      ).not.toBeInTheDocument();
+    });
+
     it('has no accessibility violations with a video placeholder', async () => {
       const { container } = renderComponent({
         items: [makeVideoItem({ videoThumbnailUrl: undefined }), makeImageItem()],
