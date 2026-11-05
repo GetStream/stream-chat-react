@@ -121,6 +121,10 @@ export const messageRenderer = (
     messageGroupStyles,
     MessageSystem,
     numItemsPrepended,
+    onMentionsClick,
+    onMentionsHover,
+    onUserClick,
+    onUserHover,
     ownMessagesDeliveredToOthers,
     ownMessagesReadByOthers,
     processedMessages: messageList,
@@ -131,6 +135,7 @@ export const messageRenderer = (
     sortReactions,
     unreadMessageCount = 0,
     UnreadMessagesSeparator,
+    unsafeHTML,
     virtuosoRef,
   } = virtuosoContext;
 
@@ -152,7 +157,9 @@ export const messageRenderer = (
   }
 
   if (message.type === 'system') {
-    return MessageSystem ? <MessageSystem message={message} /> : null;
+    return MessageSystem ? (
+      <MessageSystem message={message} unsafeHTML={unsafeHTML} />
+    ) : null;
   }
 
   const isFirstUnreadMessage = getIsFirstUnreadMessage({
@@ -184,12 +191,17 @@ export const messageRenderer = (
         lastOwnMessage={lastOwnMessage}
         lastReceivedId={lastReceivedMessageId}
         message={message}
+        onMentionsClick={onMentionsClick}
+        onMentionsHover={onMentionsHover}
+        onUserClick={onUserClick}
+        onUserHover={onUserHover}
         reactionDetailsSort={reactionDetailsSort}
         readBy={ownMessagesReadByOthers[message.id] || []}
         renderText={renderText}
         returnAllReadData={returnAllReadData}
         showAvatar={showAvatar}
         sortReactions={sortReactions}
+        unsafeHTML={unsafeHTML}
       />
     </>
   );

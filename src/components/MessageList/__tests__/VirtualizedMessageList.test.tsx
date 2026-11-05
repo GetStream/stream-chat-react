@@ -227,7 +227,15 @@ describe('VirtualizedMessageList', () => {
     const CustomThreadHead = vi.fn<(props: MessageProps) => React.ReactElement>(() => (
       <div />
     ));
-    const renderText = vi.fn();
+    const messageProps = {
+      onMentionsClick: vi.fn(),
+      onMentionsHover: vi.fn(),
+      onUserClick: vi.fn(),
+      onUserHover: vi.fn(),
+      renderText: vi.fn(),
+      showAvatar: false,
+      unsafeHTML: true,
+    };
     const { channel, client } = await createChannel();
 
     await act(() => {
@@ -236,7 +244,7 @@ describe('VirtualizedMessageList', () => {
           <Channel channel={channel}>
             <WithComponents overrides={{ ThreadHead: CustomThreadHead }}>
               <ThreadProvider thread={threadWithParentMessage()}>
-                <VirtualizedMessageList renderText={renderText} showAvatar={false} />
+                <VirtualizedMessageList {...messageProps} />
               </ThreadProvider>
             </WithComponents>
           </Channel>
@@ -245,9 +253,35 @@ describe('VirtualizedMessageList', () => {
     });
 
     const props = CustomThreadHead.mock.lastCall?.[0];
-    expect(props).toEqual(expect.objectContaining({ renderText, showAvatar: false }));
+    expect(props).toEqual(expect.objectContaining(messageProps));
     // Props the list was not given stay unset, so an override's own defaults apply.
     expect(props).not.toHaveProperty('formatDate');
+  });
+
+  it('hands the list-wide message props to the item renderer', async () => {
+    const messageProps = {
+      onMentionsClick: vi.fn(),
+      onMentionsHover: vi.fn(),
+      onUserClick: vi.fn(),
+      onUserHover: vi.fn(),
+      unsafeHTML: true,
+    };
+    const { channel, client } = await createChannel();
+    virtuosoProps.length = 0;
+
+    await act(() => {
+      render(
+        <Chat client={client}>
+          <Channel channel={channel}>
+            <VirtualizedMessageList {...messageProps} />
+          </Channel>
+        </Chat>,
+      );
+    });
+
+    expect(virtuosoProps[virtuosoProps.length - 1].context).toEqual(
+      expect.objectContaining(messageProps),
+    );
   });
 
   // A bare index means align: 'start', which parks the last row's top at the viewport top and

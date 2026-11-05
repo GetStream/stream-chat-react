@@ -84,10 +84,15 @@ import { useLastOwnMessage } from './hooks/useLastOwnMessage';
 type PropsDrilledToMessage =
   | 'additionalMessageComposerProps'
   | 'formatDate'
+  | 'onMentionsClick'
+  | 'onMentionsHover'
+  | 'onUserClick'
+  | 'onUserHover'
   | 'reactionDetailsSort'
   | 'renderText'
   | 'showAvatar'
-  | 'sortReactions';
+  | 'sortReactions'
+  | 'unsafeHTML';
 
 type VirtualizedMessageListPropsForContext =
   | PropsDrilledToMessage
@@ -210,6 +215,10 @@ const VirtualizedMessageListWithContext = (
     hideDeletedMessages = false,
     hideNewMessageSeparator = false,
     maxTimeBetweenGroupedMessages,
+    onMentionsClick,
+    onMentionsHover,
+    onUserClick,
+    onUserHover,
     reactionDetailsSort,
     renderText,
     returnAllReadData = false,
@@ -221,6 +230,7 @@ const VirtualizedMessageListWithContext = (
     sortReactions,
     stickToBottomScrollBehavior = 'smooth',
     suppressAutoscroll: suppressAutoscrollFromProps = false,
+    unsafeHTML,
     withDateSeparator = false,
   } = props;
   const thread = useThreadContext();
@@ -233,10 +243,15 @@ const VirtualizedMessageListWithContext = (
     additionalMessageComposerProps,
     closeReactionSelectorOnClick,
     formatDate,
+    onMentionsClick,
+    onMentionsHover,
+    onUserClick,
+    onUserHover,
     reactionDetailsSort,
     renderText,
     showAvatar,
     sortReactions,
+    unsafeHTML,
   };
   const threadHead = useThreadHead(messageProps);
   const [suppressAutoscrollWhileLoadingOlder, setSuppressAutoscrollWhileLoadingOlder] =

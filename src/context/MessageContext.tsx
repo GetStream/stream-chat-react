@@ -104,7 +104,9 @@ export type MessageContextValue = {
   /** Comparator to sort reactions. Defaults to first reaction time if both have one, else type. */
   sortReactions?: ReactionsComparator;
   /**
-   * Renders `message.html` instead of the Markdown text. Posting HTML is allowed server-side only.
+   * Renders `message.html` instead of the Markdown text. Only server-side code can set
+   * `message.html`. It is inserted unescaped, so enable this only for HTML your server trusts or
+   * sanitizes: script in it runs in the app with the current user's session.
    */
   unsafeHTML?: boolean;
   /**

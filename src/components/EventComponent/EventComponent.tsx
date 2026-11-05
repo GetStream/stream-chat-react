@@ -7,6 +7,10 @@ export type EventComponentProps = TimestampFormatterOptions & {
   message: LocalMessage & {
     event?: Event;
   };
+  /**
+   * Renders `message.html` instead of the text. It is inserted unescaped, so enable this only for
+   * HTML your server trusts or sanitizes.
+   */
   unsafeHTML?: boolean;
 };
 
