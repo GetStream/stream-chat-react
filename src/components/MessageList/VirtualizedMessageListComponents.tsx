@@ -10,6 +10,7 @@ import { Message } from '../Message';
 import { useComponentContext } from '../../context';
 import type { GroupStyle, RenderedMessage } from './utils';
 import { getIsFirstUnreadMessage, isDateSeparatorMessage, isIntroMessage } from './utils';
+import { omitUndefinedProps } from './omitUndefinedProps';
 import type { VirtuosoContext } from './VirtualizedMessageList';
 import type { UnknownType } from '../../types/types';
 import { useThreadContext } from '../Threads';
@@ -158,7 +159,7 @@ export const messageRenderer = (
 
   if (message.type === 'system') {
     return MessageSystem ? (
-      <MessageSystem message={message} unsafeHTML={unsafeHTML} />
+      <MessageSystem {...omitUndefinedProps({ unsafeHTML })} message={message} />
     ) : null;
   }
 

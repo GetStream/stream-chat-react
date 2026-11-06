@@ -1147,7 +1147,7 @@ export const ChannelWithAttachments = ({ channel }: { channel: StreamChannel }) 
 
 Inside an attachment component, read them with `useAttachmentContext()`.
 
-**Mention handlers.** The handler type is `(event, message)`; the v14 `mentioned_users` argument is removed, read the metadata from `message` ([section 12](#mention-handlers-receive-event-message)). `VirtualizedMessageList` takes the same props, which v14 virtualized lists got only from `Channel`.
+**Mention handlers.** The handler type is `(event, message)`; the v14 `mentioned_users` argument is removed, read the metadata from `message` ([section 12](#mention-handlers-receive-event-message)). `VirtualizedMessageList` takes the same props, which v14 virtualized lists got only from `Channel`. With `VirtualizedMessageList`'s `customMessageRenderer`, your renderer renders every item (messages, system messages, date separators), so the list's message props (these handlers, `unsafeHTML`, `renderText`, …) reach them only if you pass them to the `Message` or `MessageSystem` it creates. The list still renders the thread's parent message and the giphy preview itself, and those get the props.
 
 ```tsx
 // v14

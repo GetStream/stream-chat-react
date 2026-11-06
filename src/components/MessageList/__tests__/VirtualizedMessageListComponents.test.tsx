@@ -24,6 +24,7 @@ import {
 import type { ComponentContextValue } from '../../../context';
 import { Chat } from '../../Chat';
 import { EventComponent } from '../../EventComponent';
+import type { EventComponentProps } from '../../EventComponent';
 import { Channel as ChannelComponent } from '../../Channel';
 import { ThreadProvider } from '../../Threads';
 import { UnreadMessagesSeparator } from '../UnreadMessagesSeparator';
@@ -524,6 +525,46 @@ describe('VirtualizedMessageComponents', () => {
 
           expect(screen.getByTestId('custom-html')).toBeInTheDocument();
           expect(screen.queryByText('system text')).not.toBeInTheDocument();
+        });
+
+        describe('with a MessageSystem override that sets its own unsafeHTML', () => {
+          const MessageSystem = (props: EventComponentProps) => (
+            <EventComponent unsafeHTML {...props} />
+          );
+          const renderWithOverride = (unsafeHTML?: boolean) => {
+            const virtuosoContext = {
+              MessageSystem,
+              numItemsPrepended,
+              processedMessages: [
+                generateMessage({
+                  html: '<span data-testid="custom-html" />',
+                  text: 'system text',
+                  type: 'system',
+                }),
+              ],
+              unsafeHTML,
+            };
+            render(
+              messageRenderer(
+                virtuosoIndex,
+                undefined,
+                virtuosoContext as unknown as VirtuosoContext,
+              ),
+            );
+          };
+
+          it("should keep the override's value when the list doesn't set unsafeHTML", () => {
+            renderWithOverride();
+
+            expect(screen.getByTestId('custom-html')).toBeInTheDocument();
+          });
+
+          it('should pass unsafeHTML false from the list over the override', () => {
+            renderWithOverride(false);
+
+            expect(screen.getByText('system text')).toBeInTheDocument();
+            expect(screen.queryByTestId('custom-html')).not.toBeInTheDocument();
+          });
         });
 
         it.each([false, undefined])(
