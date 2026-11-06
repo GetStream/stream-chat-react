@@ -57,7 +57,7 @@ export type MessageActionsSettingsState = {
   customMessageActions: Record<MessageActionSurface, CustomMessageActionToggles>;
 };
 
-export type ChannelMembersHeaderActionForm = 'menu' | 'quick';
+export type ChannelMembersHeaderActionForm = 'dropdown' | 'quick';
 export type ChannelMembersHeaderActionId = 'addMembers' | 'removeMembers';
 
 export type ChannelDetailSettingsState = {
@@ -198,7 +198,7 @@ const defaultAppSettingsState: AppSettingsState = {
           },
           removeMembers: {
             enabled: false,
-            form: 'menu',
+            form: 'dropdown',
           },
         },
       },

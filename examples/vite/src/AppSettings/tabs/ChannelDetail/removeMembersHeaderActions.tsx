@@ -3,6 +3,7 @@ import {
   Button,
   ContextMenuButton,
   IconUserRemove,
+  useContextMenuContext,
   useTranslationContext,
 } from 'stream-chat-react';
 import type { ChannelMembersHeaderActionComponentProps } from 'stream-chat-react/channel-detail';
@@ -36,10 +37,10 @@ export const RemoveMembersHeaderAction = ({
 };
 
 export const RemoveMembersMenuAction = ({
-  closeMenu,
   modeController,
 }: ChannelMembersHeaderActionComponentProps) => {
   const { t } = useTranslationContext();
+  const { closeMenu } = useContextMenuContext();
 
   if (modeController.mode !== 'browse') return null;
 
@@ -52,7 +53,7 @@ export const RemoveMembersMenuAction = ({
       Icon={IconUserRemove}
       onClick={() => {
         modeController.setMode('remove');
-        closeMenu?.();
+        closeMenu();
       }}
     >
       {t(asDynamicKey('viteExample.removeMembers.trigger.label'), 'Remove')}
