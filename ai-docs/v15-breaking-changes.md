@@ -2255,7 +2255,7 @@ const CustomThreadHeader = () => {
 - Status: confirmed
 - Area: channel list header / thread list header / ComponentContext
 - User impact:
-  - compile error on a `HeaderEndContent` override (`TS2353` / `TS2561`); in JS the key is ignored and the content disappears from both list headers.
+  - compile error on a `HeaderEndContent` key written inline in `overrides` (`TS2353` / `TS2561`). In JS, or in an `overrides` object declared as a variable that also holds a valid key, the key is ignored without an error and the content disappears from both list headers.
   - behavior change: v14 rendered `HeaderEndContent` in `ChannelListHeader` only while a channel was active, and in `ThreadListHeader` only while a thread was active. The `EndContent` prop renders whenever it is set, so content that only makes sense next to an open channel or thread (a sidebar toggle) has to return `null` itself.
   - one component no longer fills both headers: pass it to each header that should show it.
 - Old API:
@@ -2264,7 +2264,7 @@ const CustomThreadHeader = () => {
   - `ChannelListHeader` and `ThreadListHeader` take `StartContent` (before the title) and `EndContent` (after the title), as `ChannelHeader` / `ThreadHeader` do. Neither has a default. Types: `ChannelListHeaderProps`, `ThreadListHeaderProps`.
   - where the SDK renders the header, the props go through the header's override key: register a component that renders the default header with them. `ChannelListHeader` is read by `ChannelNavigation`; `ThreadListHeader` is a new key, read by `ThreadList`. `ThreadListHeader` is now exported.
   - where the app renders the header itself (for example `ChannelListHeader` above a standalone `ChannelList`), it passes the props directly; the override key does not reach that header.
-  - to keep the v14 gate, read `useWorkspaceNavigation().openChannels` / `.openThreads` in the content component and return `null` while it is empty.
+  - to keep the v14 gate, read `useWorkspaceNavigation().openChannels` / `.openThreads` in the content component and return `null` while it is empty. `ChatView` or an app's own `WorkspaceNavigationProvider` fills these lists; without one they stay empty, so an app without either gates on its own selection state.
 - Evidence:
   - `release-v14:src/components/ChannelList/ChannelListHeader.tsx:15` `{channel && HeaderEndContent && <HeaderEndContent />}`; `release-v14:src/components/Threads/ThreadList/ThreadListHeader.tsx:12` `{activeThread && HeaderEndContent && <HeaderEndContent />}`; `release-v14:src/context/ComponentContext.tsx:303`
   - `master:src/components/ChannelList/ChannelListHeader.tsx` and `master:src/components/Threads/ThreadList/ThreadListHeader.tsx` (`StartContent` / `EndContent` props); `master:src/components/Threads/ThreadList/ThreadList.tsx` reads `ThreadListHeader` from `useComponentContext()`; `master:src/context/ComponentContext.tsx` `ThreadListHeader?`
