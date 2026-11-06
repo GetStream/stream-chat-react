@@ -18,6 +18,7 @@ const hasSameValues = (
 ): boolean => {
   if (Object.is(a, b)) return true;
   const bothArrays = Array.isArray(a) && Array.isArray(b);
+  if (bothArrays && a.length !== b.length) return false;
   if (!bothArrays && (!isPlainObject(a) || !isPlainObject(b))) return false;
 
   const left = a as Record<string, unknown>;

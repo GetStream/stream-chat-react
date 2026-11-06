@@ -47,6 +47,15 @@ describe('useSameValuesReference', () => {
     expect(result.current).toBe(longer);
   });
 
+  it('tells arrays of different lengths apart, sparse ones included', () => {
+    const { rerender, result } = renderValue<unknown[]>([]);
+
+    const sparse = new Array(2);
+    rerender({ value: sparse });
+
+    expect(result.current).toBe(sparse);
+  });
+
   it('compares functions by identity', () => {
     const fn = () => null;
     const { rerender, result } = renderValue({ fn });
