@@ -839,7 +839,7 @@ export const itTranslations = {
   'typing.manyUsers_one': '{{ count }} persona sta scrivendo',
   'typing.manyUsers_other': '{{ count }} persone stanno scrivendo',
   'typing.singleUser': '{{ typing }} sta scrivendo',
-  'typing.twoUsers': '{{ typing }} stanno scrivendo',
+  'typing.twoUsers': '{{ firstUser }} e {{ secondUser }} stanno scrivendo',
   'videoPlayer.videoThumbnail.playVideo.ariaLabel': 'Riproduci video',
   'timestamp.ChannelDetailPinnedMessageTimestamp':
     '{{ timestamp | timestampFormatter(calendar: true; calendarFormats: { "sameDay": "LT", "lastDay": "[Ieri]", "lastWeek": "dddd", "sameElse": "L" }) }}',

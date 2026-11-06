@@ -36,7 +36,7 @@ imported and copied into `Streami18n` at construction, so they shipped even if y
 
 ## Renaming your keys
 
-Every old key that v15 still has maps to a new key ([some were removed](#keys-removed-without-a-replacement)). A few now feed two: their entry lists the second under `also`, and the translation goes on both. The full table (660 rows, covering the `aiComponents.*` keys of `stream-chat-react/ai-components` except the attachment's `Image`, which the plugin README maps) is
+Every old key that v15 still has maps to a new key ([some were removed](#keys-removed-without-a-replacement)). A few now feed two: their entry lists the second under `also`, and the translation goes on both. One also changed its interpolation values; see [Keys whose values changed](#keys-whose-values-changed). The full table (660 rows, covering the `aiComponents.*` keys of `stream-chat-react/ai-components` except the attachment's `Image`, which the plugin README maps) is
 [`i18n-v15-key-map.json`](https://github.com/GetStream/stream-chat-react/blob/master/ai-docs/i18n-v15-key-map.json):
 
 ```json
@@ -101,6 +101,32 @@ nothing catches a stale one there. The extra plural categories some languages us
 > Do **not** key a dictionary on `Partial<Record<TranslationKey, string>>`. `TranslationKey` is the
 > set `t()` accepts, where a plural is the bare `<key>`; a dictionary needs the `_one` / `_other`
 > entries, which that type rejects. `TranslationDictionary` already handles this.
+
+### Keys whose values changed
+
+Renaming the key is not enough for `typing.twoUsers`. v14 passed both names as one `typing` value,
+already joined with an English "and", so a translation could not change that word. v15 passes them
+as `firstUser` and `secondUser`, and your translation writes the whole sentence. Its key-map entry
+lists both sets of names under `values`.
+
+Before:
+
+```ts
+i18n.registerTranslation('de', {
+  '{{ typing }} are typing': '{{ typing }} schreiben', // rendered "Anna and Ben schreiben"
+});
+```
+
+After:
+
+```ts
+const de: TranslationDictionary = {
+  'typing.twoUsers': '{{ firstUser }} und {{ secondUser }} schreiben', // "Anna und Ben schreiben"
+};
+```
+
+A translation that keeps `{{ typing }}` compiles, but renders the literal text `{{ typing }}`, because
+nothing passes that value anymore.
 
 ### Keys removed without a replacement
 
