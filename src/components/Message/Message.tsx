@@ -6,6 +6,7 @@ import {
   useFlagHandler,
   useMarkUnreadHandler,
   useMentionsHandler,
+  useMessagePermissions,
   useMuteHandler,
   useOpenThreadHandler,
   usePinHandler,
@@ -13,9 +14,10 @@ import {
   useReactionsFetcher,
   useRetryHandler,
   useUserHandler,
-  useUserRole,
 } from './hooks';
+import type { UserEventHandler } from './hooks';
 import { areMessagePropsEqual } from './utils';
+import { useStableCallback } from '../../utils';
 
 import type { LocalMessage } from 'stream-chat';
 import type { MessageContextValue } from '../../context';
@@ -50,7 +52,7 @@ type MessageContextPropsToPick =
 
 type MessageWithContextProps = Omit<MessageProps, MessagePropsToOmit> &
   Pick<MessageContextValue, MessageContextPropsToPick> & {
-    userRoles: ReturnType<typeof useUserRole>;
+    permissions: ReturnType<typeof useMessagePermissions>;
   };
 
 const MessageWithContext = (props: MessageWithContextProps) => {
@@ -58,7 +60,7 @@ const MessageWithContext = (props: MessageWithContextProps) => {
     message,
     onUserClick: propOnUserClick,
     onUserHover: propOnUserHover,
-    userRoles,
+    permissions,
   } = props;
 
   const { isMessageAIGenerated } = useChatContext();
@@ -77,12 +79,12 @@ const MessageWithContext = (props: MessageWithContextProps) => {
     onUserHoverHandler: propOnUserHover,
   });
 
-  const { isMyMessage } = userRoles;
+  const { isMyMessage } = permissions;
 
   const {
     onUserClick: onUserClickPropToNotPass, // eslint-disable-line @typescript-eslint/no-unused-vars
     onUserHover: onUserHoverPropToNotPass, // eslint-disable-line @typescript-eslint/no-unused-vars
-    userRoles: userRolesPropToNotPass, // eslint-disable-line @typescript-eslint/no-unused-vars
+    permissions: permissionsPropToNotPass, // eslint-disable-line @typescript-eslint/no-unused-vars
     ...rest
   } = props;
 
@@ -115,10 +117,11 @@ const MemoizedMessage = React.memo(
 export const Message = (props: MessageProps) => {
   const {
     closeReactionSelectorOnClick,
-    disableQuotedMessages,
     message,
     onMentionsClick: propOnMentionsClick,
     onMentionsHover: propOnMentionsHover,
+    onUserClick: propOnUserClick,
+    onUserHover: propOnUserHover,
     openThread: propOpenThread,
     reactionDetailsSort,
     sortReactions,
@@ -126,7 +129,7 @@ export const Message = (props: MessageProps) => {
 
   const handleAction = useActionHandler(message);
   const handleReaction = useReactionHandler(message);
-  const userRoles = useUserRole(message, disableQuotedMessages);
+  const permissions = useMessagePermissions(message);
 
   const handleFetchReactions = useReactionsFetcher(message);
 
@@ -142,6 +145,14 @@ export const Message = (props: MessageProps) => {
     onMentionsClick: propOnMentionsClick,
     onMentionsHover: propOnMentionsHover,
   });
+  // The memoized message ignores handler identity, so a swapped `onUserClick` / `onUserHover`
+  // reaches it through these stable wrappers, which always call the latest prop.
+  const onUserClick: UserEventHandler = useStableCallback((event, user) =>
+    propOnUserClick?.(event, user),
+  );
+  const onUserHover: UserEventHandler = useStableCallback((event, user) =>
+    propOnUserHover?.(event, user),
+  );
 
   const { handlePin } = usePinHandler(message);
   const handleOpenThread = useOpenThreadHandler(message, propOpenThread);
@@ -160,7 +171,6 @@ export const Message = (props: MessageProps) => {
       autoscrollToBottom={props.autoscrollToBottom}
       closeReactionSelectorOnClick={closeReactionSelectorOnClick}
       deliveredTo={props.deliveredTo}
-      disableQuotedMessages={props.disableQuotedMessages}
       formatDate={props.formatDate}
       groupStyles={props.groupStyles}
       handleAction={handleAction}
@@ -174,23 +184,22 @@ export const Message = (props: MessageProps) => {
       handleReaction={handleReaction}
       handleRetry={handleRetry}
       highlighted={props.highlighted}
-      initialMessage={props.initialMessage}
       lastOwnMessage={props.lastOwnMessage}
       lastReceivedId={props.lastReceivedId}
       message={message}
       messageListRect={props.messageListRect}
       onMentionsClickMessage={onMentionsClick}
       onMentionsHoverMessage={onMentionsHover}
-      onUserClick={props.onUserClick}
-      onUserHover={props.onUserHover}
+      onUserClick={onUserClick}
+      onUserHover={onUserHover}
+      permissions={permissions}
       reactionDetailsSort={reactionDetailsSort}
       readBy={props.readBy}
       renderText={props.renderText}
       returnAllReadData={props.returnAllReadData}
+      showAvatar={props.showAvatar}
       sortReactions={sortReactions}
-      threadList={props.threadList}
       unsafeHTML={props.unsafeHTML}
-      userRoles={userRoles}
     />
   );
 };

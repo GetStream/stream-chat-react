@@ -1,7 +1,7 @@
 import React from 'react';
 import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import type { StreamChat } from 'stream-chat';
+import type { Channel, StreamChat } from 'stream-chat';
 import { ChannelPaginator } from 'stream-chat';
 
 import { Chat } from '../../Chat';
@@ -136,6 +136,116 @@ describe('ChannelList', () => {
 
     await waitFor(() => expect(queryChannels).toHaveBeenCalledTimes(2));
     await waitFor(() => expect(paginator.items).toEqual([]));
+  });
+
+  describe('accessible name', () => {
+    // Keeps the assertions on the listbox rather than on the default channel preview.
+    const ListItem = ({ item }: { item: Channel }) => (
+      <div aria-selected={false} role='option'>
+        {item.cid}
+      </div>
+    );
+
+    const seededPaginator = (client: StreamChat, id: string) => {
+      const paginator = new ChannelPaginator({ client, id });
+      paginator.setItems({
+        isLastPage: true,
+        valueOrFactory: [client.channel('messaging', id.replace(':', '-'))],
+      });
+      client.channelManager.insertPaginator({ paginator });
+      return paginator;
+    };
+
+    it('names the listbox "Channel list" by default', async () => {
+      const { client } = await setupClient();
+      const paginator = seededPaginator(client, 'channels:a');
+
+      render(
+        <Chat client={client}>
+          <WithComponents overrides={{ ListItem }}>
+            <ChannelList paginator={paginator} />
+          </WithComponents>
+        </Chat>,
+      );
+
+      expect(screen.getByRole('listbox', { name: 'Channel list' })).toBeInTheDocument();
+    });
+
+    it('names the listbox with listboxProps aria-label', async () => {
+      const { client } = await setupClient();
+      const paginator = seededPaginator(client, 'channels:a');
+
+      render(
+        <Chat client={client}>
+          <WithComponents overrides={{ ListItem }}>
+            <ChannelList
+              listboxProps={{ 'aria-label': 'Pinned channels' }}
+              paginator={paginator}
+            />
+          </WithComponents>
+        </Chat>,
+      );
+
+      expect(
+        screen.getByRole('listbox', { name: 'Pinned channels' }),
+      ).toBeInTheDocument();
+    });
+
+    it('sets both attributes when given both, so the heading names the listbox', async () => {
+      const { client } = await setupClient();
+      const paginator = seededPaginator(client, 'channels:a');
+
+      render(
+        <Chat client={client}>
+          <WithComponents overrides={{ ListItem }}>
+            <h2 id='inbox-heading'>Inbox</h2>
+            <ChannelList
+              listboxProps={{
+                'aria-label': 'Inbox channels',
+                'aria-labelledby': 'inbox-heading',
+              }}
+              paginator={paginator}
+            />
+          </WithComponents>
+        </Chat>,
+      );
+
+      const listbox = screen.getByRole('listbox', { name: 'Inbox' });
+      expect(listbox).toHaveAttribute('aria-label', 'Inbox channels');
+      expect(listbox).toHaveAttribute('aria-labelledby', 'inbox-heading');
+    });
+
+    it('names each listbox after its heading with listboxProps aria-labelledby and passes axe checks', async () => {
+      const { client } = await setupClient();
+      const pinned = seededPaginator(client, 'channels:pinned');
+      const archived = seededPaginator(client, 'channels:archived');
+
+      const { container } = render(
+        <Chat client={client}>
+          <WithComponents overrides={{ ListItem }}>
+            <h2 id='pinned-heading'>Pinned</h2>
+            <ChannelList
+              listboxProps={{ 'aria-labelledby': 'pinned-heading' }}
+              paginator={pinned}
+            />
+            <h2 id='archived-heading'>Archived</h2>
+            <ChannelList
+              listboxProps={{ 'aria-labelledby': 'archived-heading' }}
+              paginator={archived}
+            />
+          </WithComponents>
+        </Chat>,
+      );
+
+      const pinnedList = screen.getByRole('listbox', { name: 'Pinned' });
+      expect(pinnedList).toHaveAttribute('aria-labelledby', 'pinned-heading');
+      expect(pinnedList).not.toHaveAttribute('aria-label');
+      expect(screen.getByRole('listbox', { name: 'Archived' })).toBeInTheDocument();
+      expect(
+        screen.queryByRole('listbox', { name: 'Channel list' }),
+      ).not.toBeInTheDocument();
+      expect(await axe(container)).toHaveNoViolations();
+    });
   });
 
   describe('when the first page fails to load', () => {

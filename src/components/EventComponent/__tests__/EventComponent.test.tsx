@@ -93,6 +93,15 @@ describe('EventComponent', () => {
     expect(unsafeDiv.innerHTML).toBe('<strong>html event</strong>');
   });
 
+  it('should render the text when unsafeHTML is true but the message has no HTML', async () => {
+    await renderComponent({
+      props: { message: { ...message, text: 'system event' }, unsafeHTML: true },
+    });
+    const systemMsg = screen.getByTestId(SYSTEM_MSG_TEST_ID);
+    expect(systemMsg.querySelector('[data-unsafe-inner-html]')).not.toBeInTheDocument();
+    expect(systemMsg).toHaveTextContent('system event');
+  });
+
   it('should render system event text content (no timestamp displayed)', async () => {
     await renderComponent({
       props: { message: { ...message, text: 'a system message' } },

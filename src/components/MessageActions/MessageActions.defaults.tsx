@@ -109,13 +109,10 @@ const DefaultMessageActionComponents = {
       const { IconEmoji } = useComponentContextIcons();
       const { ReactionSelector = DefaultReactionSelector } = useComponentContext();
       const { anchorReferenceElement } = useContextMenuContext();
-      const { isMyMessage, message, threadList } = useMessageContext();
+      const { isMyMessage, message } = useMessageContext();
       const { t } = useTranslationContext();
       const [referenceElement, setReferenceElement] = useState<HTMLElement | null>(null);
-      const dialogId = `${DefaultReactionSelector.getDialogId({
-        messageId: message.id,
-        threadList,
-      })}-dropdown`;
+      const dialogId = `${DefaultReactionSelector.getDialogId({ messageId: message.id })}-dropdown`;
       const { dialog, dialogManager } = useDialogOnNearestManager({
         id: dialogId,
       });
@@ -779,7 +776,7 @@ const DefaultMessageActionComponents = {
     DropdownToggle: forwardRef<HTMLButtonElement>((_, ref) => {
       const { IconMore } = useComponentContextIcons();
       const { t } = useTranslationContext();
-      const { message, threadList } = useMessageContext();
+      const { message } = useMessageContext();
       const dropdownDialogIsOpen = useDialogIsOpen(
         MessageActions.getDialogId({ messageId: message.id }),
       );
@@ -788,7 +785,6 @@ const DefaultMessageActionComponents = {
       });
       const reactionSelectorDialogId = DefaultReactionSelector.getDialogId({
         messageId: message.id,
-        threadList,
       });
       const { dialog: dropdownReactionSelectorDialog } = useDialogOnNearestManager({
         id: `${reactionSelectorDialogId}-dropdown`,

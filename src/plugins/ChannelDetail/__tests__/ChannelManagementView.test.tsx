@@ -24,7 +24,6 @@ const mocks = vi.hoisted(() => ({
     updatePartial: vi.fn(),
     uploadImage: vi.fn(),
   },
-  close: vi.fn(),
   displayImage: undefined as string | undefined,
   mutes: [] as UserMuteResponse[],
 }));
@@ -43,7 +42,6 @@ vi.mock('../../../context', async (importOriginal) => {
     }),
     // The real hook: with no provider it returns the SDK icons.
     useComponentContextIcons: actual.useComponentContextIcons,
-    useModalContext: () => ({ close: mocks.close }),
     useTranslationContext: () => ({
       t: (key: string, second?: unknown, third?: unknown) => {
         const defaultValue = typeof second === 'string' ? second : undefined;

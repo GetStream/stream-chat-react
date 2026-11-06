@@ -71,11 +71,6 @@ type TextNode = {
 // punctuation, which stays outside the mention node.
 const MENTION_TRAILING_BOUNDARY = String.raw`(?=$|\s|[!,.?;:'")\]}])`;
 
-const isUserMentionEntity = (
-  entity: RenderTextMentionEntity,
-): entity is Extract<RenderTextMentionEntity, { mentionType: 'user' }> =>
-  entity.mentionType === 'user';
-
 /**
  * Returns the display texts, without the leading `@`, that match the entity in message text.
  * Roles and user groups match by name or ID, other entities by name falling back to ID.
@@ -146,22 +141,25 @@ export const getRenderTextMentionEntities = (
   return mentions;
 };
 
-const toRenderTextMentionEntities = (
-  mentionEntities: RenderTextMentionEntity[] | UserResponse[],
-): RenderTextMentionEntity[] =>
-  mentionEntities.map((entity) =>
-    'mentionType' in entity
-      ? entity
-      : {
-          ...entity,
-          mentionType: 'user',
-        },
+/**
+ * Whether the message mentions anyone: a user, `@channel`, `@here`, a role or a user group. It is
+ * true exactly when `getRenderTextMentionEntities` returns at least one entity, without building
+ * them.
+ *
+ * @param metadata - The message's mention fields.
+ */
+export const messageHasMentions = (metadata?: RenderTextMentionMetadata) =>
+  Boolean(
+    metadata?.mentioned_users?.length ||
+    metadata?.mentioned_channel ||
+    metadata?.mentioned_here ||
+    metadata?.mentioned_roles?.length ||
+    metadata?.mentioned_groups?.length,
   );
 
 const createMentionLookup = (
-  mentionEntitiesOrUsers: RenderTextMentionEntity[] | UserResponse[],
+  mentionEntities: RenderTextMentionEntity[],
 ): MentionLookup => {
-  const mentionEntities = toRenderTextMentionEntities(mentionEntitiesOrUsers);
   const mentionReplacementMap = mentionEntities.reduce((replacementMap, entity) => {
     getMentionDisplayTexts(entity).forEach((mentionDisplayText) => {
       const prefixedMentionDisplayText = `@${mentionDisplayText}`;
@@ -210,18 +208,11 @@ export const mentionsMarkdownPluginFromLookup =
 
       return u(
         'element',
-        isUserMentionEntity(replacement.entity)
-          ? {
-              mentionedEntity: replacement.entity,
-              mentionedUser: replacement.entity,
-              properties: {},
-              tagName: 'mention',
-            }
-          : {
-              mentionedEntity: replacement.entity,
-              properties: {},
-              tagName: 'mention',
-            },
+        {
+          mentionedEntity: replacement.entity,
+          properties: {},
+          tagName: 'mention',
+        },
         [u('text', mentionDisplayText)],
       );
     };
@@ -267,9 +258,9 @@ export const mentionsMarkdownPluginFromLookup =
   };
 
 export const createMentionPluginAndDisplayTextSet = (
-  mentionEntitiesOrUsers: RenderTextMentionEntity[] | UserResponse[],
+  mentionEntities: RenderTextMentionEntity[],
 ): MentionPluginAndDisplayTextSet => {
-  const mentionLookup = createMentionLookup(mentionEntitiesOrUsers);
+  const mentionLookup = createMentionLookup(mentionEntities);
 
   return {
     mentionDisplayTextSet: mentionLookup.mentionDisplayTextSet,
@@ -278,13 +269,7 @@ export const createMentionPluginAndDisplayTextSet = (
 };
 
 export function mentionsMarkdownPlugin(
-  mentionedUsers: UserResponse[],
-): () => (tree: HastTree) => void;
-export function mentionsMarkdownPlugin(
   mentionEntities: RenderTextMentionEntity[],
-): () => (tree: HastTree) => void;
-export function mentionsMarkdownPlugin(
-  mentionEntitiesOrUsers: RenderTextMentionEntity[] | UserResponse[],
-) {
-  return createMentionPluginAndDisplayTextSet(mentionEntitiesOrUsers).plugin;
+): () => (tree: HastTree) => void {
+  return createMentionPluginAndDisplayTextSet(mentionEntities).plugin;
 }

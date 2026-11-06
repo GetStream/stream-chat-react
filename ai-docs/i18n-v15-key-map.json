@@ -1,6 +1,6 @@
 {
   "$comment": "Migration table: natural-language translation key (v14) -> namespaced key (v15). Hand-reviewed; nothing regenerates it. Integrators who passed translationsForLanguage/registerTranslation dictionaries keyed on the old strings should use this to rename their keys. Where one v14 key became several v15 keys, `key` is the first and `also` lists the rest: copy the translation to each. See ai-docs/i18n-v15-migration.md.",
-  "count": 661,
+  "count": 660,
   "keys": {
     "aria/Active": {
       "key": "a11y.accessibleLabel.active.ariaLabel",
@@ -1220,7 +1220,8 @@
     "Search": {
       "key": "common.search.ariaLabel",
       "prose": true,
-      "shared": true
+      "shared": true,
+      "also": ["aiComponents.a2ui.choicePickerFilter.placeholder"]
     },
     "Send": {
       "key": "common.send.label",
@@ -2017,10 +2018,6 @@
     },
     "Shared location": {
       "key": "messageComposer.geolocationPreview.sharedLocation.title",
-      "prose": true
-    },
-    "Attach files": {
-      "key": "messageComposer.icons.attachFiles.text",
       "prose": true
     },
     "aria/Cancel Reply": {

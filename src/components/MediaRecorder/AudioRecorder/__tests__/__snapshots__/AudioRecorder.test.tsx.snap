@@ -686,6 +686,7 @@ exports[`AudioRecorder > renders audio recording stopped UI when stopped without
       <button
         aria-label="Resume recording"
         class="str-chat__button str-chat__button--secondary str-chat__button--outline str-chat__button--circular str-chat__button--size-sm str-chat__audio_recorder__toggle-recording-button"
+        disabled=""
         type="button"
       >
         <div
@@ -1072,6 +1073,7 @@ exports[`AudioRecorder > renders audio recording stopped UI with recording previ
       <button
         aria-label="Resume recording"
         class="str-chat__button str-chat__button--secondary str-chat__button--outline str-chat__button--circular str-chat__button--size-sm str-chat__audio_recorder__toggle-recording-button"
+        disabled=""
         type="button"
       >
         <div

@@ -2,13 +2,7 @@ import type { RefObject } from 'react';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import { FloatingDateSeparator } from './FloatingDateSeparator';
-import type {
-  ComputeItemKey,
-  ScrollSeekConfiguration,
-  ScrollSeekPlaceholderProps,
-  VirtuosoHandle,
-  VirtuosoProps,
-} from 'react-virtuoso';
+import type { ComputeItemKey, VirtuosoHandle, VirtuosoProps } from 'react-virtuoso';
 import { Virtuoso } from 'react-virtuoso';
 
 import { GiphyPreviewMessage as DefaultGiphyPreviewMessage } from './GiphyPreviewMessage';
@@ -32,8 +26,14 @@ import {
 import { useIncomingMessageAnnouncements } from '../Accessibility';
 import { NewMessageNotification as DefaultNewMessageNotification } from './NewMessageNotification';
 import { MessageListMainPanel as DefaultMessageListMainPanel } from './MessageListMainPanel';
-import type { GroupStyle, ProcessMessagesParams, RenderedMessage } from './utils';
-import { getGroupStyles, getLastReceived, processMessages } from './utils';
+import type {
+  GetGroupStyles,
+  GroupStyle,
+  ProcessMessagesParams,
+  RenderedMessage,
+} from './utils';
+import { getLastReceived, getMessageGroupStyles, processMessages } from './utils';
+import { omitUndefinedProps } from './omitUndefinedProps';
 import type { MessageProps } from '../Message';
 import { UnreadMessagesNotification as DefaultUnreadMessagesNotification } from './UnreadMessagesNotification';
 import {
@@ -85,18 +85,22 @@ import { useLastOwnMessage } from './hooks/useLastOwnMessage';
 type PropsDrilledToMessage =
   | 'additionalMessageComposerProps'
   | 'formatDate'
+  | 'onMentionsClick'
+  | 'onMentionsHover'
+  | 'onUserClick'
+  | 'onUserHover'
   | 'reactionDetailsSort'
   | 'renderText'
   | 'showAvatar'
-  | 'sortReactions';
+  | 'sortReactions'
+  | 'unsafeHTML';
 
 type VirtualizedMessageListPropsForContext =
   | PropsDrilledToMessage
   | 'closeReactionSelectorOnClick'
   | 'customMessageRenderer'
-  // | 'loadingMore'
-  | 'returnAllReadData'
-  | 'shouldGroupByUser';
+  | 'groupByUser'
+  | 'returnAllReadData';
 
 /** Virtuoso `context`, handed to the components and callbacks that Virtuoso invokes. */
 export type VirtuosoContext = Required<
@@ -206,32 +210,52 @@ const VirtualizedMessageListWithContext = (
     channel,
     closeReactionSelectorOnClick,
     customMessageRenderer,
-    defaultItemHeight,
     formatDate,
-    groupStyles,
+    getGroupStyles,
+    groupByUser = false,
     hideDeletedMessages = false,
     hideNewMessageSeparator = false,
     maxTimeBetweenGroupedMessages,
-    overscan = 0,
-    // TODO: refactor to scrollSeekPlaceHolderConfiguration and components.ScrollSeekPlaceholder, like the Virtuoso Component
+    onMentionsClick,
+    onMentionsHover,
+    onUserClick,
+    onUserHover,
     reactionDetailsSort,
     renderText,
     returnAllReadData = false,
     reviewProcessedMessage,
-    scrollSeekPlaceHolder,
     scrollToLatestMessageOnFocus = false,
     separateGiphyPreview = false,
-    shouldGroupByUser = false,
     showAvatar,
     showUnreadNotificationAlways,
     sortReactions,
     stickToBottomScrollBehavior = 'smooth',
     suppressAutoscroll: suppressAutoscrollFromProps = false,
+    unsafeHTML,
     withDateSeparator = false,
   } = props;
   const thread = useThreadContext();
   const isThreadList = !!thread;
-  const threadHead = useThreadHead();
+  // The list-wide props every message gets, the thread's parent message and the separate giphy
+  // preview included.
+  const messageProps: Pick<
+    VirtualizedMessageListProps,
+    PropsDrilledToMessage | 'closeReactionSelectorOnClick'
+  > = {
+    additionalMessageComposerProps,
+    closeReactionSelectorOnClick,
+    formatDate,
+    onMentionsClick,
+    onMentionsHover,
+    onUserClick,
+    onUserHover,
+    reactionDetailsSort,
+    renderText,
+    showAvatar,
+    sortReactions,
+    unsafeHTML,
+  };
+  const threadHead = useThreadHead(messageProps);
   const [suppressAutoscrollWhileLoadingOlder, setSuppressAutoscrollWhileLoadingOlder] =
     React.useState(false);
   const suppressAutoscroll =
@@ -356,28 +380,15 @@ const VirtualizedMessageListWithContext = (
     [processedMessages],
   );
 
-  const groupStylesFn = groupStyles || getGroupStyles;
   const messageGroupStyles = useMemo(
     () =>
-      processedMessages.reduce<Record<string, GroupStyle>>((acc, message, i) => {
-        const style = groupStylesFn(
-          message,
-          processedMessages[i - 1],
-          processedMessages[i + 1],
-          !shouldGroupByUser,
-          maxTimeBetweenGroupedMessages,
-        );
-        if (style && message.id) acc[message.id] = style;
-        return acc;
-      }, {}),
-    // `processedMessages` can be rebuilt with a new identity, hence the `.length` dependency.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [
-      maxTimeBetweenGroupedMessages,
-      processedMessages.length,
-      shouldGroupByUser,
-      groupStylesFn,
-    ],
+      getMessageGroupStyles({
+        getGroupStyles,
+        groupByUser,
+        maxTimeBetweenGroupedMessages,
+        messages: processedMessages,
+      }),
+    [getGroupStyles, groupByUser, maxTimeBetweenGroupedMessages, processedMessages],
   );
 
   const {
@@ -603,15 +614,14 @@ const VirtualizedMessageListWithContext = (
               }}
               computeItemKey={computeItemKey}
               context={{
-                additionalMessageComposerProps,
+                ...messageProps,
                 channel,
-                closeReactionSelectorOnClick,
                 customClasses,
                 customMessageRenderer,
                 DateSeparator,
                 firstUnreadMessageId: channelUnreadUiState?.firstUnreadMessageId,
                 focusedMessageId,
-                formatDate,
+                groupByUser,
                 head: threadHead,
                 lastOwnMessage,
                 lastReadDate: channelUnreadUiState?.lastReadAt,
@@ -624,12 +634,7 @@ const VirtualizedMessageListWithContext = (
                 ownMessagesDeliveredToOthers,
                 ownMessagesReadByOthers,
                 processedMessages,
-                reactionDetailsSort,
-                renderText,
                 returnAllReadData,
-                shouldGroupByUser,
-                showAvatar,
-                sortReactions,
                 unreadMessageCount: channelUnreadUiState?.unreadCount,
                 UnreadMessagesSeparator,
                 virtuosoRef: virtuoso,
@@ -645,15 +650,12 @@ const VirtualizedMessageListWithContext = (
               itemSize={fractionalItemSize}
               itemsRendered={handleItemsRendered}
               key={messageSetKey}
-              overscan={overscan}
               ref={virtuoso}
               style={{ overflowX: 'hidden' }}
               totalCount={processedMessages.length}
               {...overridingVirtuosoProps}
               scrollerRef={scrollerRef}
               totalListHeightChanged={totalListHeightChanged}
-              {...(scrollSeekPlaceHolder ? { scrollSeek: scrollSeekPlaceHolder } : {})}
-              {...(defaultItemHeight ? { defaultItemHeight } : {})}
             />
             {/* Only for messages that arrived while the reader was scrolled up. Reading an older
                   window (e.g. after a jump) is signalled by ScrollToLatestMessageButton instead. */}
@@ -677,7 +679,12 @@ const VirtualizedMessageListWithContext = (
             scrollToBottom={scrollToBottom}
           />
         )}
-        {giphyPreviewMessage && <GiphyPreviewMessage message={giphyPreviewMessage} />}
+        {giphyPreviewMessage && (
+          <GiphyPreviewMessage
+            {...omitUndefinedProps(messageProps)}
+            message={giphyPreviewMessage}
+          />
+        )}
       </MessageTranslationViewProvider>
     </VirtualizedMessageListContextProvider>
   );
@@ -702,32 +709,16 @@ export type VirtualizedMessageListProps = Partial<
     messageList: RenderedMessage[],
     index: number,
   ) => React.ReactElement;
-  /**
-   * Item height used to compute the total list height; useful when message heights vary a lot.
-   *
-   * @deprecated Use additionalVirtuosoProps.defaultItemHeight instead. Will be removed with next major release - `v11.0.0`.
-   */
-  defaultItemHeight?: number;
-  /** Computes the group style of a message from its neighbors. */
-  groupStyles?: (
-    message: RenderedMessage,
-    previousMessage: RenderedMessage,
-    nextMessage: RenderedMessage,
-    noGroupByUser: boolean,
-    maxTimeBetweenGroupedMessages?: number,
-  ) => GroupStyle;
+  /** Computes the group style of a message from its neighbors. Defaults to `getGroupStyles`. */
+  getGroupStyles?: GetGroupStyles;
+  /** Groups consecutive messages from the same user. Defaults to `false`. */
+  groupByUser?: boolean;
   /** Hides deleted messages from the list. Defaults to `false`. */
   hideDeletedMessages?: boolean;
   /** Hides the date separator before the first unread incoming message. Defaults to `false`. */
   hideNewMessageSeparator?: boolean;
   /** Maximum time (ms) between two messages for them to stay in the same group. */
   maxTimeBetweenGroupedMessages?: number;
-  /**
-   * Extra content rendered in addition to what fills the viewport.
-   *
-   * @deprecated Use additionalVirtuosoProps.overscan instead. Will be removed with next major release - `v11.0.0`.
-   */
-  overscan?: number;
   /** Computes read and delivery data for every own message, not only the last one. */
   returnAllReadData?: boolean;
   /**
@@ -735,22 +726,6 @@ export type VirtualizedMessageListProps = Partial<
    * returned array is appended to the rendered messages in place of `changes`.
    */
   reviewProcessedMessage?: ProcessMessagesParams['reviewProcessedMessage'];
-  /**
-   * Shows placeholders while the user scrolls fast through the list, e.g.:
-   * ```
-   *  {
-   *    enter: (velocity) => Math.abs(velocity) > 120,
-   *    exit: (velocity) => Math.abs(velocity) < 40,
-   *    change: () => null,
-   *    placeholder: ({index, height})=> <div style={{height: height + "px"}}>{index}</div>,
-   *  }
-   *  ```
-   *
-   * @deprecated Pass additionalVirtuosoProps.scrollSeekConfiguration and specify the placeholder in additionalVirtuosoProps.components.ScrollSeekPlaceholder instead.  Will be removed with next major release - `v11.0.0`.
-   */
-  scrollSeekPlaceHolder?: ScrollSeekConfiguration & {
-    placeholder: React.ComponentType<ScrollSeekPlaceholderProps>;
-  };
   /**
    * Scrolls to the latest message when the window regains focus, if the messages changed while it
    * was blurred. Defaults to `false`.
@@ -761,8 +736,6 @@ export type VirtualizedMessageListProps = Partial<
    * to `false`.
    */
   separateGiphyPreview?: boolean;
-  /** Groups consecutive messages from the same user. Defaults to `false`. */
-  shouldGroupByUser?: boolean;
   /**
    * Shows the unread notification whenever the `UnreadMessagesSeparator` is out of view. Defaults
    * to `false`: it shows only when the separator is scrolled above the viewport.

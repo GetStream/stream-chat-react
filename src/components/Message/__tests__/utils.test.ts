@@ -98,6 +98,26 @@ describe('Message utils', () => {
       expect(shouldUpdate).toBe(false);
     });
 
+    describe.each(['onMentionsClickMessage', 'onMentionsHoverMessage'] as const)(
+      '%s',
+      (handlerName) => {
+        type ComparedProps = Parameters<typeof areMessagePropsEqual>[0];
+        const message = generateMessage();
+        const withHandler = (handler = vi.fn()) =>
+          fromPartial<ComparedProps>({ [handlerName]: handler, message });
+        const withoutHandler = fromPartial<ComparedProps>({ message });
+
+        it('should update when the handler is set or removed', () => {
+          expect(areMessagePropsEqual(withHandler(), withoutHandler)).toBe(false);
+          expect(areMessagePropsEqual(withoutHandler, withHandler())).toBe(false);
+        });
+
+        it('should not update when only the handler identity changes', () => {
+          expect(areMessagePropsEqual(withHandler(), withHandler())).toBe(true);
+        });
+      },
+    );
+
     // `updated_at` is a number, not a fresh `Date` per ingest, so a re-ingest does not force a
     // repaint on its own and the compared-field list is load-bearing. These pin the fields it has
     // to cover.

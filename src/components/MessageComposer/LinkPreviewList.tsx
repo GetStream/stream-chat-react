@@ -51,7 +51,7 @@ export const LinkPreviewCard = ({ linkPreview }: LinkPreviewProps) => {
   const { handleEnter, handleLeave, tooltipVisible } =
     useEnterLeaveHandlers<HTMLDivElement>();
   const [referenceElement, setReferenceElement] = useState<HTMLDivElement | null>(null);
-  const { image_url, thumb_url, title, title_link } = linkPreview;
+  const { image_url, thumb_url, title } = linkPreview;
 
   if (
     !LinkPreviewsManager.previewIsLoaded(linkPreview) &&
@@ -59,7 +59,7 @@ export const LinkPreviewCard = ({ linkPreview }: LinkPreviewProps) => {
   )
     return null;
 
-  const previewImageSrc = title_link || image_url || thumb_url;
+  const previewImageSrc = image_url || thumb_url;
   return (
     <div
       className={clsx('str-chat__link-preview-card', {

@@ -101,9 +101,9 @@ describe('VoiceRecording', () => {
       return el;
     });
     const message = generateMessage();
-    // A thread player is told apart from a channel player by a Thread instance (useThreadContext),
-    // not the message-context `threadList` flag. The ThreadProvider around the second widget gives
-    // it a distinct requester, so two AudioPlayer instances (two `new Audio()`) are created.
+    // A thread player is told apart from a channel player by a Thread instance (useThreadContext).
+    // The ThreadProvider around the second widget gives it a distinct requester, so two AudioPlayer
+    // instances (two `new Audio()`) are created.
     render(
       <ChatProvider value={mockChatContext()}>
         <WithAudioPlayback>
@@ -111,7 +111,7 @@ describe('VoiceRecording', () => {
             <VoiceRecording attachment={attachment} />
           </MessageProvider>
           <ThreadProvider thread={fromPartial<Thread>({})}>
-            <MessageProvider value={mockMessageContext({ message, threadList: true })}>
+            <MessageProvider value={mockMessageContext({ message })}>
               <VoiceRecording attachment={attachment} />
             </MessageProvider>
           </ThreadProvider>

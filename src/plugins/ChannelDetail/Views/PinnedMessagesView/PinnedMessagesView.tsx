@@ -3,7 +3,6 @@ import React, { useCallback, useMemo } from 'react';
 
 import {
   useComponentContext,
-  useModalContext,
   useTranslationContext,
   useWorkspaceNavigation,
 } from '../../../../context';
@@ -142,8 +141,7 @@ export const PinnedMessagesView: React.ComponentType<PinnedMessagesViewProps> = 
 }) => {
   const { openChannel } = useWorkspaceNavigation();
   const { t } = useTranslationContext();
-  const { close } = useModalContext();
-  const { channel } = useChannelDetailContext();
+  const { channel, close } = useChannelDetailContext();
   const {
     displayedMessages,
     handleSearchChange,
@@ -156,7 +154,7 @@ export const PinnedMessagesView: React.ComponentType<PinnedMessagesViewProps> = 
     (message: PinnedMessage) => {
       openChannel(channel);
       void channel.messagePaginator.jumpToMessage(message.id);
-      close();
+      close?.();
     },
     [channel, close, openChannel],
   );

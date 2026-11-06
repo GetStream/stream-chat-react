@@ -244,6 +244,60 @@ describe('LinPreviewCard', () => {
     });
     expect(screen.queryByTestId(LINK_PREVIEW_TEST_ID)).not.toBeInTheDocument();
   });
+  it('uses image_url as the thumbnail source, never title_link', async () => {
+    const { channel, client } = await setup();
+    await renderLinkPreviewCard({
+      channel,
+      client,
+      linkPreview: generateScrapedImageAttachment(
+        fromPartial<Partial<Attachment>>({
+          image_url: 'https://example.com/image.png',
+          status: LinkPreviewStatus.LOADED,
+          thumb_url: 'https://example.com/thumb.png',
+          title_link: 'https://example.com/page',
+        }),
+      ),
+    });
+    expect(screen.getByTestId('str-chat__base-image')).toHaveAttribute(
+      'src',
+      'https://example.com/image.png',
+    );
+  });
+  it('falls back to thumb_url when the preview has no image_url', async () => {
+    const { channel, client } = await setup();
+    await renderLinkPreviewCard({
+      channel,
+      client,
+      linkPreview: generateScrapedImageAttachment(
+        fromPartial<Partial<Attachment>>({
+          image_url: undefined,
+          status: LinkPreviewStatus.LOADED,
+          thumb_url: 'https://example.com/thumb.png',
+          title_link: 'https://example.com/page',
+        }),
+      ),
+    });
+    expect(screen.getByTestId('str-chat__base-image')).toHaveAttribute(
+      'src',
+      'https://example.com/thumb.png',
+    );
+  });
+  it('renders no thumbnail when the preview has only a title_link', async () => {
+    const { channel, client } = await setup();
+    await renderLinkPreviewCard({
+      channel,
+      client,
+      linkPreview: generateScrapedImageAttachment(
+        fromPartial<Partial<Attachment>>({
+          image_url: undefined,
+          status: LinkPreviewStatus.LOADED,
+          thumb_url: undefined,
+          title_link: 'https://example.com/page',
+        }),
+      ),
+    });
+    expect(screen.queryByTestId('str-chat__base-image')).not.toBeInTheDocument();
+  });
   it('allows to dismiss a preview', async () => {
     const { channel, client } = await setup();
     const dismissPreviewMock = vi.spyOn(

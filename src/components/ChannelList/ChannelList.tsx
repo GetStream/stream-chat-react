@@ -1,4 +1,4 @@
-import type { ComponentType } from 'react';
+import type { ComponentProps, ComponentType } from 'react';
 import React, { useEffect, useMemo, useRef } from 'react';
 import type { Channel, ChannelPaginator, ChannelPaginatorState } from 'stream-chat';
 
@@ -21,9 +21,25 @@ import { ThemeScope } from '../../context/ThemeScopeContext';
 import { useChannelListKeyboardNavigation } from './hooks/useChannelListKeyboardNavigation';
 import { useStateStore } from '../../store';
 
+/**
+ * Attributes set on the list's `role="listbox"` element, the scroll container that holds the
+ * channel rows. Only its accessible name can be set; role, ref and key handling stay the list's.
+ */
+export type ChannelListListboxProps = Pick<
+  ComponentProps<'div'>,
+  'aria-label' | 'aria-labelledby'
+>;
+
 export type ChannelListProps = {
   /** Paginator that supplies the channels of this list. */
   paginator: ChannelPaginator;
+  /**
+   * Names the listbox in place of the default "Channel list". Name each list when a page shows
+   * several of them, e.g. pinned, inbox and archived channels: `{ 'aria-label': 'Archived' }`, or
+   * `{ 'aria-labelledby': headingId }` to use a visible heading. `aria-labelledby` wins over
+   * `aria-label` when both are set.
+   */
+  listboxProps?: ChannelListListboxProps;
   /**
    * The minimum interval, in milliseconds, between two checks of the scroll position for loading
    * the next page (`InfiniteScrollPaginator`'s `loadNextDebounceMs`).
@@ -53,6 +69,7 @@ const createChannelPaginatorStateSelector =
  * through workspace navigation.
  */
 export const ChannelList = ({
+  listboxProps,
   loadMoreDebounceMs,
   loadMoreThresholdPx,
   paginator,
@@ -125,7 +142,13 @@ export const ChannelList = ({
   return (
     <ThemeScope>
       <InfiniteScrollWithComponents<Channel>
-        aria-label={t('channelList.channelList.ariaLabel', 'Channel list')}
+        aria-label={
+          listboxProps?.['aria-label'] ??
+          (listboxProps?.['aria-labelledby']
+            ? undefined
+            : t('channelList.channelList.ariaLabel', 'Channel list'))
+        }
+        aria-labelledby={listboxProps?.['aria-labelledby']}
         contentProps={{ role: 'presentation' }}
         EmptyListIndicator={EmptyListIndicator}
         EndReachedIndicator={EndReachedIndicator}

@@ -72,6 +72,12 @@ describe('useLatestMessagePreview', () => {
     });
   });
 
+  it('returns the message text with its markdown syntax', () => {
+    const message = generateMessage({ text: 'item **done**', user: otherUser });
+    const { result } = renderPreviewHook({ latestMessage: message });
+    expect(result.current.text).toBe('item **done**');
+  });
+
   describe('error / failed message', () => {
     it('returns error type for failed message', () => {
       const message = generateMessage({ status: 'failed', user: ownUser });

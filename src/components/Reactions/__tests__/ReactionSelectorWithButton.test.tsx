@@ -20,7 +20,6 @@ vi.mock('../../../context', async (importOriginal) => {
     useMessageContext: () => ({
       isMyMessage: () => false,
       message: { id: 'message-1' },
-      threadList: false,
     }),
     useTranslationContext: () => ({
       t: (key: string, second?: unknown, third?: unknown) => {
@@ -66,11 +65,9 @@ describe('ReactionSelectorWithButton', () => {
     capturedDialogIds.length = 0;
     render(<ReactionSelectorWithButton ReactionIcon={() => null} />);
 
-    const expectedId = ReactionSelector.getDialogId({
-      messageId: 'message-1',
-      threadList: false,
-    });
+    const expectedId = ReactionSelector.getDialogId({ messageId: 'message-1' });
 
+    expect(expectedId).toBe('reaction-selector-message-1');
     expect(capturedDialogIds).toContain(expectedId);
   });
 });

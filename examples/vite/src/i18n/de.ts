@@ -55,6 +55,7 @@ export const deTranslations = {
   'a11y.interactionAnnouncements.voiceMessageSent.ariaLabel': 'Sprachnachricht gesendet',
   'a11y.interactionAnnouncements.voiceRecordingAttached.ariaLabel':
     'Sprachaufnahme angehängt',
+  'aiComponents.a2ui.choicePickerFilter.placeholder': 'Suchen',
   'aiComponents.attachmentPreview.deleteAttachment.ariaLabel': 'Anhang löschen',
   'aiComponents.attachmentPreview.unknownFileName.text': 'Unbekannter Dateiname',
   'aiComponents.chart.loading.text': 'Diagramm wird geladen...',
@@ -612,7 +613,6 @@ export const deTranslations = {
   'messageComposer.geolocationPreview.removeLocationAttachment.ariaLabel':
     'Standortanhang entfernen',
   'messageComposer.geolocationPreview.sharedLocation.title': 'Geteilter Standort',
-  'messageComposer.icons.attachFiles.text': 'Dateien anhängen',
   'messageComposer.quotedMessagePreview.cancelReply.ariaLabel': 'Antwort abbrechen',
   'messageComposer.quotedMessagePreview.files.label_one': '{{ count }} Datei',
   'messageComposer.quotedMessagePreview.files.label_other': '{{ count }} Dateien',

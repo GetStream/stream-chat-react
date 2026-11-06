@@ -1,18 +1,16 @@
 import React from 'react';
 
 import { Message } from '../Message/Message';
-import type { LocalMessage } from 'stream-chat';
+import type { MessageProps } from '../Message/types';
 
-export type GiphyPreviewMessageProps = {
-  message: LocalMessage;
-};
+/**
+ * Props of the giphy preview: the message plus the list-wide props every message in the list
+ * gets.
+ */
+export type GiphyPreviewMessageProps = MessageProps;
 
-export const GiphyPreviewMessage = (props: GiphyPreviewMessageProps) => {
-  const { message } = props;
-
-  return (
-    <div className='giphy-preview-message'>
-      <Message message={message} />
-    </div>
-  );
-};
+export const GiphyPreviewMessage = (props: GiphyPreviewMessageProps) => (
+  <div className='giphy-preview-message'>
+    <Message {...props} />
+  </div>
+);

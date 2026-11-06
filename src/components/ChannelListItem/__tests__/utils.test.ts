@@ -160,6 +160,16 @@ describe('ChannelPreview utils', () => {
       expect(getLatestMessagePreviewText(channel, t)).toBe('bold and em and link');
     });
 
+    it('announces separate paragraphs and list items as separate words', async () => {
+      const t = mockT as TranslationContextValue['t'];
+      const channel = await getQueriedChannelInstance(
+        generateChannel({
+          messages: [generateMessage({ text: 'first\n\n- one\n- two' })],
+        }),
+      );
+      expect(getLatestMessagePreviewText(channel, t)).toBe('first one two');
+    });
+
     it('returns AI-generated text verbatim (not stripped), matching the display path', async () => {
       const t = mockT as TranslationContextValue['t'];
       const channel = await getQueriedChannelInstance(

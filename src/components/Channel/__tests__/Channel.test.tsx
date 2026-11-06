@@ -44,7 +44,6 @@ import type { ChannelProps } from '../Channel';
 import { convertDateToTimestamp } from '../../../mock-builders';
 
 vi.mock('../../Loading', () => ({
-  LoadingChannel: vi.fn(() => <div>Loading channel</div>),
   LoadingErrorIndicator: vi.fn(() => <div />),
   LoadingIndicator: vi.fn(() => <div>loading</div>),
 }));

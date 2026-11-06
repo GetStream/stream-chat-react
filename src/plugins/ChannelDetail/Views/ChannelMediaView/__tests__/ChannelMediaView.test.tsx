@@ -8,7 +8,6 @@ import {
   useChatContext,
   useComponentContext,
   useComponentContextIcons,
-  useModalContext,
   useTranslationContext,
 } from '../../../../../context';
 import * as DEFAULT_ICONS from '../../../../../components/Icons/icons';
@@ -139,10 +138,6 @@ describe('ChannelMediaView', () => {
     vi.mocked(useChatContext).mockReturnValue({
       client: { userID: 'user-1' },
     } as ReturnType<typeof useChatContext>);
-
-    vi.mocked(useModalContext).mockReturnValue({
-      close: vi.fn(),
-    } as ReturnType<typeof useModalContext>);
 
     vi.mocked(useComponentContext).mockReturnValue({
       BaseImage: (props: React.ComponentProps<'img'>) => <img {...props} />,

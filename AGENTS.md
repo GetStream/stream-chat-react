@@ -221,7 +221,7 @@ Date separators come from `withDateSeparator`: on by default in `MessageList`, o
 ### 3. Memoization
 
 - `useStateStore` selectors scope re-renders: an over-broad or unstable slice re-renders everything that reads it.
-- `areMessageUIPropsEqual` (`src/components/Message/utils.tsx`) is the per-message `React.memo` comparator. It checks cheap props first (`highlighted`, `endOfGroup`, `readBy.length`, `deliveredTo.length`, `groupStyles`, `showDetailedReactions`, `lastReceivedId`) before comparing messages. A prop it does not check will not re-render a message.
+- `areMessageUIPropsEqual` (`src/components/Message/utils.tsx`) is the per-message `React.memo` comparator. It checks cheap props first (`highlighted`, `readBy.length`, `deliveredTo.length`, `groupStyles`, `showDetailedReactions`, `lastReceivedId`) before comparing messages. A prop it does not check will not re-render a message.
 
 ## Critical gotchas & invariants
 
@@ -322,10 +322,12 @@ Mock modules with `vi.mock('../../EmptyStateIndicator', () => ({ … }))`; use `
 | Import path                        | Source                             |
 | ---------------------------------- | ---------------------------------- |
 | `stream-chat-react`                | `src/index.ts`                     |
+| `stream-chat-react/a2ui`           | `src/plugins/A2UI/`                |
 | `stream-chat-react/ai-components`  | `src/plugins/AIComponents/`        |
 | `stream-chat-react/channel-detail` | `src/plugins/ChannelDetail/`       |
 | `stream-chat-react/emojis`         | `src/plugins/Emojis/`              |
 | `stream-chat-react/mp3-encoder`    | `src/plugins/encoders/mp3.ts`      |
+| `stream-chat-react/openui`         | `src/plugins/OpenUI/`              |
 | `stream-chat-react/slot-geometry`  | `src/plugins/SlotGeometry/`        |
 | `stream-chat-react/slot-layout`    | `src/plugins/SlotLayout/index.tsx` |
 | `stream-chat-react/css/*`          | `dist/css/*`                       |

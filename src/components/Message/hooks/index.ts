@@ -1,6 +1,7 @@
 export * from './useActionHandler';
 export * from './useDeleteHandler';
 export * from './useFlagHandler';
+export * from './useIsRenderedAsThreadParent';
 export * from './useMentionsHandler';
 export * from './useMarkUnreadHandler';
 export * from './useMessageAlsoSentInChannelNavigation';
@@ -10,7 +11,7 @@ export * from './usePinHandler';
 export * from './useReactionHandler';
 export * from './useRetryHandler';
 export * from './useUserHandler';
-export * from './useUserRole';
+export * from './useMessagePermissions';
 export * from './useReactionsFetcher';
 export * from './useMessageTextStreaming';
 export * from './useMessageReminder';

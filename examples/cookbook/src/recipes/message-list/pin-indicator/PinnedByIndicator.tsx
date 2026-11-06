@@ -3,7 +3,7 @@ import { convertTimestampToDate } from 'stream-chat';
 import {
   useChatContext,
   useMessageContext,
-  useUserRole,
+  useMessagePermissions,
   WithComponents,
 } from 'stream-chat-react';
 import './PinnedByIndicator.css';
@@ -11,7 +11,7 @@ import './PinnedByIndicator.css';
 const PinnedByIndicator = () => {
   const { client } = useChatContext();
   const { handlePin, message } = useMessageContext();
-  const { canPin } = useUserRole(message);
+  const { canPin } = useMessagePermissions(message);
 
   if (!message.pinned) return null;
 

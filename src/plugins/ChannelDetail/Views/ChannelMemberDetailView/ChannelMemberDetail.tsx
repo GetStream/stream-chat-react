@@ -2,15 +2,12 @@ import { convertTimestampToDate } from 'stream-chat';
 import React, { useMemo } from 'react';
 import type { ChannelMemberResponse } from 'stream-chat';
 
-import {
-  useComponentContext,
-  useModalContext,
-  useTranslationContext,
-} from '../../../../context';
+import { useComponentContext, useTranslationContext } from '../../../../context';
 import {
   SectionNavigatorHeader,
   type SectionNavigatorSectionContentProps,
 } from '../../SectionNavigator';
+import { useChannelDetailContext } from '../../ChannelDetailContext';
 import { ChannelAvatar as DefaultChannelAvatar } from '../../../../components/Avatar';
 import { Prompt } from '../../../../components/Dialog';
 import {
@@ -94,7 +91,7 @@ const ChannelMemberDetailContent = ({
   memberStatusText,
   onBack,
 }: ChannelMemberDetailContentProps) => {
-  const { close } = useModalContext();
+  const { close } = useChannelDetailContext();
   const { t } = useTranslationContext();
   const { Avatar = DefaultChannelAvatar } = useComponentContext();
   const { member } = useChannelMemberActionContext();

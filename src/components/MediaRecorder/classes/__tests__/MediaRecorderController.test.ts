@@ -491,6 +491,63 @@ describe('MediaRecorderController', () => {
     );
   });
 
+  describe('releaseMicrophone and cleanUp', () => {
+    // A started controller with a live microphone stream and a finished recording.
+    const setUpStoppedController = async () => {
+      const controller = new MediaRecorderController();
+      await controller.start();
+      const track = { stop: vi.fn() };
+      const stream = { active: true, getTracks: () => [track], removeTrack: vi.fn() };
+      const mediaRecorder =
+        controller.mediaRecorder as unknown as MediaRecorderMockType & {
+          stream: typeof stream;
+        };
+      mediaRecorder.stream = stream;
+      mediaRecorder.stop();
+      const recording =
+        generateVoiceRecordingAttachment() as LocalVoiceRecordingAttachment;
+      controller.recording.next(recording);
+      controller.recordingState.next(MediaRecordingState.STOPPED);
+      controller.recordingUri = 'recording-uri';
+      return { controller, mediaRecorder, recording, track };
+    };
+
+    it('releaseMicrophone stops the microphone and keeps the recording', async () => {
+      const { controller, mediaRecorder, recording, track } =
+        await setUpStoppedController();
+      controller.releaseMicrophone();
+      expect(track.stop).toHaveBeenCalledWith();
+      expect(controller.amplitudeRecorder?.state.value).toBe(
+        AmplitudeRecorderState.CLOSED,
+      );
+      expect(mediaRecorder.removeEventListener).toHaveBeenCalledWith(
+        'dataavailable',
+        controller.handleDataavailableEvent,
+      );
+      expect(controller.recording.value).toBe(recording);
+      expect(controller.recordingState.value).toBe(MediaRecordingState.STOPPED);
+      expect(window.URL.revokeObjectURL).not.toHaveBeenCalled();
+    });
+
+    it('keeps the recording for stop() after releaseMicrophone', async () => {
+      const { controller, recording } = await setUpStoppedController();
+      controller.releaseMicrophone();
+      expect(await controller.stop()).toBe(recording);
+    });
+
+    it('cleanUp stops the microphone and drops the recording', async () => {
+      const { controller, track } = await setUpStoppedController();
+      controller.cleanUp();
+      expect(track.stop).toHaveBeenCalledWith();
+      expect(controller.amplitudeRecorder?.state.value).toBe(
+        AmplitudeRecorderState.CLOSED,
+      );
+      expect(controller.recording.value).toBeUndefined();
+      expect(controller.recordingState.value).toBeUndefined();
+      expect(window.URL.revokeObjectURL).toHaveBeenCalledWith('recording-uri');
+    });
+  });
+
   describe('handleDataavailable event handler', () => {
     it('does nothing if event does not contain data', () => {
       const controller = new MediaRecorderController();
@@ -640,6 +697,7 @@ describe('MediaRecorderController', () => {
             localMetadata: {
               file: recordedFile,
               id: nanoidMockValue,
+              uploadState: 'pending',
             },
             title: recordedFile.name,
             type: RecordingAttachmentType.VOICE_RECORDING,
@@ -688,6 +746,7 @@ describe('MediaRecorderController', () => {
             localMetadata: {
               file: recordedFile,
               id: nanoidMockValue,
+              uploadState: 'pending',
             },
             title: recordedFile.name,
             type: RecordingAttachmentType.VOICE_RECORDING,
@@ -730,6 +789,7 @@ describe('MediaRecorderController', () => {
           localMetadata: {
             file: recordedFile,
             id: nanoidMockValue,
+            uploadState: 'pending',
           },
           title: recordedFile.name,
           type: RecordingAttachmentType.VOICE_RECORDING,

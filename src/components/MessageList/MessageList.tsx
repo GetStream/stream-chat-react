@@ -29,7 +29,7 @@ import { TypingIndicator as DefaultTypingIndicator } from '../TypingIndicator';
 import { MessageListMainPanel as DefaultMessageListMainPanel } from './MessageListMainPanel';
 
 import { FloatingDateSeparator } from './FloatingDateSeparator';
-import type { MessageRenderer } from './renderMessages';
+import type { MessageRenderer, SharedMessageProps } from './renderMessages';
 import { defaultRenderMessages } from './renderMessages';
 import { useStableId } from '../UtilityComponents/useStableId';
 import { useThreadContext } from '../Threads';
@@ -41,7 +41,7 @@ import type {
   TimestampNS,
   UnreadSnapshotState,
 } from 'stream-chat';
-import type { GroupStyle, ProcessMessagesParams, RenderedMessage } from './utils';
+import type { GetGroupStyles, ProcessMessagesParams } from './utils';
 import type { MessageProps } from '../Message/types';
 
 import { DEFAULT_LOAD_PAGE_SCROLL_THRESHOLD } from '../../constants/limits';
@@ -79,9 +79,9 @@ const getScrollBehavior = (): ScrollBehavior =>
 
 const MessageListWithContext = (props: MessageListWithContextProps) => {
   const channel = useChannel();
-  const threadHead = useThreadHead();
   const {
-    groupStyles,
+    getGroupStyles,
+    groupByUser = true,
     headerPosition,
     hideDeletedMessages = false,
     hideNewMessageSeparator = false,
@@ -91,7 +91,6 @@ const MessageListWithContext = (props: MessageListWithContextProps) => {
       ...restInternalInfiniteScrollProps
     } = {},
     maxTimeBetweenGroupedMessages,
-    noGroupByUser = false,
     reactionDetailsSort,
     renderMessages = defaultRenderMessages,
     returnAllReadData = false,
@@ -99,9 +98,24 @@ const MessageListWithContext = (props: MessageListWithContextProps) => {
     showUnreadNotificationAlways,
     sortReactions,
     suppressAutoscroll: suppressAutoscrollFromProps = false,
-    unsafeHTML = false,
     withDateSeparator = true,
   } = props;
+  // The list-wide props every message gets, the thread's parent message included.
+  const messageProps: SharedMessageProps = {
+    additionalMessageComposerProps: props.additionalMessageComposerProps,
+    closeReactionSelectorOnClick: props.closeReactionSelectorOnClick,
+    formatDate: props.formatDate,
+    onMentionsClick: props.onMentionsClick,
+    onMentionsHover: props.onMentionsHover,
+    onUserClick: props.onUserClick,
+    onUserHover: props.onUserHover,
+    reactionDetailsSort,
+    renderText: props.renderText,
+    showAvatar: props.showAvatar,
+    sortReactions,
+    unsafeHTML: props.unsafeHTML,
+  };
+  const threadHead = useThreadHead(messageProps);
   const thread = useThreadContext();
   const isThreadList = !!thread;
   const [isLoadingOlder, setIsLoadingOlder] = React.useState(false);
@@ -176,13 +190,13 @@ const MessageListWithContext = (props: MessageListWithContextProps) => {
 
   const { messageGroupStyles, messages: enrichedMessages } = useEnrichedMessages({
     channel,
-    groupStyles,
+    getGroupStyles,
+    groupByUser,
     headerPosition,
     hideDeletedMessages,
     hideNewMessageSeparator,
     maxTimeBetweenGroupedMessages,
     messages,
-    noGroupByUser,
     reviewProcessedMessage,
     withDateSeparator,
   });
@@ -195,23 +209,7 @@ const MessageListWithContext = (props: MessageListWithContextProps) => {
   const elements = useMessageListElements({
     enrichedMessages,
     focusedMessageId,
-    internalMessageProps: {
-      additionalMessageComposerProps: props.additionalMessageComposerProps,
-      closeReactionSelectorOnClick: props.closeReactionSelectorOnClick,
-      disableQuotedMessages: props.disableQuotedMessages,
-      formatDate: props.formatDate,
-      messageListRect: wrapperRect,
-      onMentionsClick: props.onMentionsClick,
-      onMentionsHover: props.onMentionsHover,
-      onUserClick: props.onUserClick,
-      onUserHover: props.onUserHover,
-      reactionDetailsSort,
-      renderText: props.renderText,
-      // retrySendMessage: props.retrySendMessage,
-      showAvatar: props.showAvatar,
-      sortReactions,
-      unsafeHTML,
-    },
+    internalMessageProps: { ...messageProps, messageListRect: wrapperRect },
     lastOwnMessage,
     messageGroupStyles,
     messages,
@@ -423,7 +421,6 @@ const MessageListWithContext = (props: MessageListWithContextProps) => {
 type PropsDrilledToMessage =
   | 'additionalMessageComposerProps'
   | 'closeReactionSelectorOnClick'
-  | 'disableQuotedMessages'
   | 'formatDate'
   | 'onMentionsClick'
   | 'onMentionsHover'
@@ -445,14 +442,10 @@ type InternalPaginatorProps = Partial<
 
 export type MessageListProps = Partial<Pick<MessageProps, PropsDrilledToMessage>> & {
   // todo: data manipulation - should live in the paginator
-  /** Computes the group style of a message from its neighbors. */
-  groupStyles?: (
-    message: RenderedMessage,
-    previousMessage: RenderedMessage,
-    nextMessage: RenderedMessage,
-    noGroupByUser: boolean,
-    maxTimeBetweenGroupedMessages?: number,
-  ) => GroupStyle;
+  /** Computes the group style of a message from its neighbors. Defaults to `getGroupStyles`. */
+  getGroupStyles?: GetGroupStyles;
+  /** Groups consecutive messages from the same user. Defaults to `true`. */
+  groupByUser?: boolean;
   /**
    * Unix-nanosecond timestamp (the unit of `message.created_at`): `HeaderComponent` renders after
    * the last message created before it. Defaults to the top of the list.
@@ -473,8 +466,6 @@ export type MessageListProps = Partial<Pick<MessageProps, PropsDrilledToMessage>
   loadingMore?: boolean;
   /** Maximum time (ms) between two messages for them to stay in the same group. */
   maxTimeBetweenGroupedMessages?: number;
-  /** Turns off grouping of messages by user. */
-  noGroupByUser?: boolean;
   /** Overrides how messages are rendered into list elements. */
   renderMessages?: MessageRenderer;
   /** Computes read and delivery data for every own message, not only the last one. */

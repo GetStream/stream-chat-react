@@ -46,6 +46,7 @@ export const itTranslations = {
   'a11y.interactionAnnouncements.voiceMessageSent.ariaLabel': 'Messaggio vocale inviato',
   'a11y.interactionAnnouncements.voiceRecordingAttached.ariaLabel':
     'Registrazione vocale allegata',
+  'aiComponents.a2ui.choicePickerFilter.placeholder': 'Cerca',
   'aiComponents.attachmentPreview.deleteAttachment.ariaLabel': 'Elimina allegato',
   'aiComponents.attachmentPreview.unknownFileName.text': 'Nome file sconosciuto',
   'aiComponents.chart.loading.text': 'Caricamento del grafico...',
@@ -606,7 +607,6 @@ export const itTranslations = {
   'messageComposer.geolocationPreview.removeLocationAttachment.ariaLabel':
     'Rimuovi l’allegato di posizione',
   'messageComposer.geolocationPreview.sharedLocation.title': 'Posizione condivisa',
-  'messageComposer.icons.attachFiles.text': 'Allega file',
   'messageComposer.quotedMessagePreview.cancelReply.ariaLabel': 'Annulla risposta',
   'messageComposer.quotedMessagePreview.files.label_one': '{{ count }} file',
   'messageComposer.quotedMessagePreview.files.label_other': '{{ count }} file',

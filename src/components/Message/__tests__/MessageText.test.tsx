@@ -62,9 +62,7 @@ const bob = generateUser({ name: 'bob' });
 const onMentionsHoverMock = vi.fn();
 const onMentionsClickMock = vi.fn();
 const defaultProps = {
-  initialMessage: false,
   message: generateMessage(),
-  threadList: false,
 };
 
 function generateAliceMessage(messageOptions) {
@@ -74,7 +72,15 @@ function generateAliceMessage(messageOptions) {
   });
 }
 
-async function renderMessageText({ customProps = {} } = {}) {
+type MentionHandlers = Pick<MessageProps, 'onMentionsClick' | 'onMentionsHover'>;
+
+async function renderMessageText({
+  customProps = {},
+  mentionHandlers = {
+    onMentionsClick: onMentionsClickMock,
+    onMentionsHover: onMentionsHoverMock,
+  } as MentionHandlers,
+} = {}) {
   // Renders under real <Chat>/<Channel> providers. Mention handlers are <Message> props.
   const {
     channels: [channel],
@@ -84,7 +90,7 @@ async function renderMessageText({ customProps = {} } = {}) {
   const renderMessageTextDirectly =
     'customInnerClass' in customProps || 'customWrapperClass' in customProps;
 
-  return render(
+  const renderTree = (handlers: MentionHandlers) => (
     <Chat client={client}>
       <Channel channel={channel}>
         <TranslationProvider
@@ -119,8 +125,8 @@ async function renderMessageText({ customProps = {} } = {}) {
                 <Message
                   {...(defaultProps as MessageProps)}
                   {...customProps}
-                  onMentionsClick={onMentionsClickMock}
-                  onMentionsHover={onMentionsHoverMock}
+                  onMentionsClick={handlers.onMentionsClick}
+                  onMentionsHover={handlers.onMentionsHover}
                 >
                   <MessageText {...(defaultProps as MessageTextProps)} {...customProps} />
                 </Message>
@@ -129,8 +135,15 @@ async function renderMessageText({ customProps = {} } = {}) {
           </ComponentProvider>
         </TranslationProvider>
       </Channel>
-    </Chat>,
+    </Chat>
   );
+
+  const result = render(renderTree(mentionHandlers));
+  return {
+    ...result,
+    rerenderWithMentionHandlers: (handlers: MentionHandlers) =>
+      result.rerender(renderTree(handlers)),
+  };
 }
 
 const messageTextTestId = 'message-text-inner-wrapper';
@@ -188,10 +201,7 @@ describe('<MessageText />', () => {
   it('should handle message mention mouse hover event', async () => {
     const message = generateAliceMessage({ mentioned_users: [bob] });
     const { container, getByTestId } = await renderMessageText({
-      customProps: {
-        message,
-        onMentionsHoverMessage: onMentionsHoverMock,
-      },
+      customProps: { message },
     });
     expect(onMentionsHoverMock).not.toHaveBeenCalled();
     fireEvent.mouseOver(getByTestId(messageTextTestId));
@@ -215,13 +225,75 @@ describe('<MessageText />', () => {
     expect(results).toHaveNoViolations();
   });
 
+  it('should mark mentions as clickable when an onMentionsClick handler is set', async () => {
+    const message = generateAliceMessage({ mentioned_users: [bob] });
+    const { getByTestId } = await renderMessageText({ customProps: { message } });
+
+    expect(getByTestId(messageTextTestId)).toHaveClass(
+      'str-chat__message-text-inner--mentions-clickable',
+    );
+  });
+
+  it('should keep mentions non-interactive without an onMentionsClick handler', async () => {
+    const message = generateAliceMessage({ mentioned_users: [bob] });
+    const { container, getByTestId } = await renderMessageText({
+      customProps: { message },
+      mentionHandlers: {},
+    });
+
+    const innerWrapper = getByTestId(messageTextTestId);
+    const outerWrapper = innerWrapper.parentElement;
+
+    expect(innerWrapper).not.toHaveClass(
+      'str-chat__message-text-inner--mentions-clickable',
+    );
+    expect(outerWrapper).toHaveAttribute('tabindex', '0');
+    expect(innerWrapper).not.toHaveAttribute('tabindex');
+    const results = await axe(container);
+    expect(results).toHaveNoViolations();
+  });
+
+  it('should make mentions clickable when onMentionsClick is set after the first render', async () => {
+    const message = generateAliceMessage({ mentioned_users: [bob] });
+    const { getByTestId, rerenderWithMentionHandlers } = await renderMessageText({
+      customProps: { message },
+      mentionHandlers: {},
+    });
+    expect(getByTestId(messageTextTestId)).not.toHaveClass(
+      'str-chat__message-text-inner--mentions-clickable',
+    );
+
+    rerenderWithMentionHandlers({ onMentionsClick: onMentionsClickMock });
+
+    expect(getByTestId(messageTextTestId)).toHaveClass(
+      'str-chat__message-text-inner--mentions-clickable',
+    );
+    fireEvent.click(getByTestId(messageTextTestId));
+    expect(onMentionsClickMock).toHaveBeenCalledTimes(1);
+  });
+
+  it('should fire a hover-only mention handler without making mentions focusable', async () => {
+    const message = generateAliceMessage({ mentioned_users: [bob] });
+    const { getByTestId } = await renderMessageText({
+      customProps: { message },
+      mentionHandlers: { onMentionsHover: onMentionsHoverMock },
+    });
+
+    const innerWrapper = getByTestId(messageTextTestId);
+    fireEvent.mouseOver(innerWrapper);
+
+    expect(onMentionsHoverMock).toHaveBeenCalledTimes(1);
+    expect(innerWrapper).not.toHaveAttribute('tabindex');
+    expect(innerWrapper.parentElement).toHaveAttribute('tabindex', '0');
+    expect(innerWrapper).not.toHaveClass(
+      'str-chat__message-text-inner--mentions-clickable',
+    );
+  });
+
   it('should handle message mention mouse click event', async () => {
     const message = generateAliceMessage({ mentioned_users: [bob] });
     const { container, getByTestId } = await renderMessageText({
-      customProps: {
-        message,
-        onMentionsClickMessage: onMentionsClickMock,
-      },
+      customProps: { message },
     });
     expect(onMentionsClickMock).not.toHaveBeenCalled();
     fireEvent.click(getByTestId(messageTextTestId));
@@ -415,7 +487,7 @@ describe('<MessageText />', () => {
 
     expect(onMentionsClickMock).not.toHaveBeenCalled();
     fireEvent.keyDown(getByTestId(messageTextTestId), { key: 'Enter' });
-    expect(onMentionsClickMock).toHaveBeenCalledWith(expect.anything(), [], message);
+    expect(onMentionsClickMock).toHaveBeenCalledWith(expect.anything(), message);
 
     const results = await axe(container);
     expect(results).toHaveNoViolations();

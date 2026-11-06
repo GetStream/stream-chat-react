@@ -7,6 +7,7 @@ import {
 import { useAttachmentsForPreview, useMessageComposerController } from '../hooks';
 import { AudioAttachmentPreview } from './AudioAttachmentPreview';
 import type { UploadAttachmentPreviewProps } from './types';
+import { useRetryAttachmentUpload } from './useRetryAttachmentUpload';
 
 export type VoiceRecordingPreviewProps<CustomLocalMetadata = Record<string, unknown>> =
   UploadAttachmentPreviewProps<LocalVoiceRecordingAttachment<CustomLocalMetadata>>;
@@ -23,6 +24,7 @@ export const VoiceRecordingPreviewSlot = ({
   VoiceRecordingPreview = AudioAttachmentPreview,
 }: VoiceRecordingPreviewSlotProps) => {
   const messageComposer = useMessageComposerController();
+  const retryUpload = useRetryAttachmentUpload();
   const { attachments } = useAttachmentsForPreview();
 
   const voiceAttachments = attachments.filter(isLocalVoiceRecordingAttachment);
@@ -36,7 +38,7 @@ export const VoiceRecordingPreviewSlot = ({
     >
       <VoiceRecordingPreview
         attachment={firstVoice}
-        handleRetry={messageComposer.attachmentManager.uploadAttachment}
+        handleRetry={retryUpload}
         removeAttachments={messageComposer.attachmentManager.removeAttachments}
       />
     </div>
