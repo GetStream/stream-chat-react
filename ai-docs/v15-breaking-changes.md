@@ -1792,7 +1792,7 @@ const { paginator } = useChannelListContext();
   - `setActiveChannel` / `watchers` -> `useWorkspaceNavigation().openChannel(channel, { event })` or the `onSelect` prop (BC-013).
   - `channelUpdateCount` / `key`: none needed; the item subscribes to the channel's stores.
   - `active` now defaults to `useWorkspaceNavigation().isChannelActive(cid)`.
-  - `activeChannel`: v14 ignored the prop too. The item compared `useChatContext().channel` (BC-013), and `ChannelList` passed `activeChannel` only for `ChannelListItemUI` to read. A custom `ChannelListItemUI` reads `active` instead.
+  - `activeChannel`: v14 ignored the prop too. The item compared `useChatContext().channel` (BC-013), and `ChannelList` passed `activeChannel` only for `ChannelListItemUI` to read. A custom `ChannelListItemUI` that compared it with its `channel` reads `active` instead; one that needs the open channel itself reads `useWorkspaceNavigation().openChannels`.
 - Evidence:
   - `release-v14:src/components/ChannelListItem/ChannelListItem.tsx:37,39,56,58,62,68,72,74`, `:92` (`channel: activeChannel` from `useChatContext`); `release-v14:src/components/ChannelListItem/ChannelListItemTimestamp.tsx:9,12`
   - `master:src/components/ChannelListItem/ChannelListItem.tsx:22-65,88-109`; `master:src/components/ChannelListItem/ChannelListItemTimestamp.tsx:10,14`; `master:src/components/ChannelListItem/ChannelListItemUI.tsx:95-102,152,160-161`; `master:src/components/ChannelListItem/utils.tsx:260,324`; `master:src/context/ComponentContext.tsx:143`
@@ -3159,7 +3159,7 @@ export const List = () => (
 - User impact: compile error on passing `additionalMessageComposerProps` to `Message`, `MessageList` or `VirtualizedMessageList`, and on reading it in a custom `ThreadHead`. In untyped code it is ignored. Nothing changes on screen: no message component read it in v14 either. The lists passed it to every `Message`, which passed it on to the memoized message, and nothing rendered a composer with it.
 - Old API:
   - `MessageProps.additionalMessageComposerProps?: MessageComposerProps`, picked into `MessageListProps` and `VirtualizedMessageListProps`
-- Replacement: delete it. If the props were meant for the composer, pass them to the `MessageComposer` you render (a thread's composer is a `MessageComposer` child of `Thread`); that turns them on, because v14 never applied them. Edits happen in that composer, so there is no separate edit composer to configure.
+- Replacement: delete it. A custom component in `additionalVirtuosoProps.components` that read it from `VirtuosoContext` gets `undefined`; give it the value through your own context. If the props were meant for the composer, pass them to the `MessageComposer` you render (a thread's composer is a `MessageComposer` child of `Thread`); that turns them on, because v14 never applied them. Edits happen in that composer, so there is no separate edit composer to configure.
 - Also removed from `VirtuosoContext` (the context of `additionalVirtuosoProps.components`).
 - Evidence:
   - `release-v14:src/components/Message/types.ts:19`; `release-v14:src/components/MessageList/MessageList.tsx:229`, `:495`; `release-v14:src/components/MessageList/VirtualizedMessageList.tsx:85`, `:202`, `:599`
@@ -3532,7 +3532,8 @@ import {
   - `ComponentContextValue.emojiSearchIndex`
   - `MessageComposerContextValue.emojiSearchIndex`, `.parent`, `.audioRecordingConfig` (the last was typed but never set)
 - Replacement:
-  - emoji autocomplete: register `createTextComposerEmojiMiddleware(SearchIndex)` from `stream-chat-react/emojis` on every composer with `client.config.setSetupFunction('messageComposer', ...)`. The `EmojiSearchIndex` type is still exported.
+  - drop the props: they turned on nothing in v14.
+  - emoji autocomplete, only if the app wants `:shortcode` suggestions (v14 showed none from these props): initialize emoji-mart (`init({ data })`), then register `createTextComposerEmojiMiddleware(SearchIndex)` from `stream-chat-react/emojis` on every composer with `client.config.setSetupFunction('messageComposer', ...)`. That call replaces a previously registered setup function for the key, so an app that already has one adds the `insert` call to it. The `EmojiSearchIndex` type is still exported.
   - `parent`: the composer belongs to the thread already. Where you need the parent message, subscribe with `useStateStore(useThreadContext()?.state, selector)` and read `parentMessage`.
   - `audioRecordingConfig` stays a `MessageComposer` prop; the recorder reads it, the context does not carry it.
 - Evidence:
@@ -3554,7 +3555,11 @@ After (v15):
 ```tsx
 import type { TextComposerMiddleware } from 'stream-chat';
 import { createTextComposerEmojiMiddleware } from 'stream-chat-react/emojis';
-import { SearchIndex } from 'emoji-mart';
+import data from '@emoji-mart/data';
+import { init, SearchIndex } from 'emoji-mart';
+
+// `SearchIndex.search()` returns nothing until emoji-mart has its data.
+init({ data });
 
 client.config.setSetupFunction('messageComposer', ({ composer }) => {
   composer.textComposer.middlewareExecutor.insert({

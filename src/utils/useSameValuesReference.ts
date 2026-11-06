@@ -8,22 +8,32 @@ const isPlainObject = (value: unknown): value is Record<string, unknown> => {
 
 /**
  * Whether two values hold the same data: plain objects and arrays are compared key by key, at
- * every depth, and anything else (functions, class instances, dates) by identity.
+ * every depth, and anything else (functions, class instances, dates) by identity. A pair already
+ * being compared further up counts as equal, so cyclic values end the comparison.
  */
-const hasSameValues = (a: unknown, b: unknown): boolean => {
+const hasSameValues = (
+  a: unknown,
+  b: unknown,
+  pairsInProgress: WeakMap<object, WeakSet<object>> = new WeakMap(),
+): boolean => {
   if (Object.is(a, b)) return true;
-  if (Array.isArray(a) && Array.isArray(b)) {
-    return (
-      a.length === b.length && a.every((item, index) => hasSameValues(item, b[index]))
-    );
-  }
-  if (!isPlainObject(a) || !isPlainObject(b)) return false;
-  const keys = Object.keys(a);
+  const bothArrays = Array.isArray(a) && Array.isArray(b);
+  if (!bothArrays && (!isPlainObject(a) || !isPlainObject(b))) return false;
+
+  const left = a as Record<string, unknown>;
+  const right = b as Record<string, unknown>;
+  if (pairsInProgress.get(left)?.has(right)) return true;
+  const comparedWithLeft = pairsInProgress.get(left) ?? new WeakSet<object>();
+  comparedWithLeft.add(right);
+  pairsInProgress.set(left, comparedWithLeft);
+
+  const keys = Object.keys(left);
   return (
-    keys.length === Object.keys(b).length &&
+    keys.length === Object.keys(right).length &&
     keys.every(
       (key) =>
-        Object.prototype.hasOwnProperty.call(b, key) && hasSameValues(a[key], b[key]),
+        Object.prototype.hasOwnProperty.call(right, key) &&
+        hasSameValues(left[key], right[key], pairsInProgress),
     )
   );
 };

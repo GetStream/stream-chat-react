@@ -1421,7 +1421,7 @@ export const ChannelCount = () => {
 | `setActiveChannel`, `watchers`                                                                                           | `useWorkspaceNavigation().openChannel(channel, { event })`, or the `onSelect` prop ([section 4](#4-selecting-channels-and-opening-threads-workspace-navigation))                                                                                                                                                                                                                          |
 | `channelUpdateCount`, `key`                                                                                              | None; the item subscribes to the channel's stores                                                                                                                                                                                                                                                                                                                                         |
 | `active`                                                                                                                 | Unchanged prop; it now defaults to `useWorkspaceNavigation().isChannelActive(cid)`. `ChannelListItem` passes the resolved value to `ChannelListItemUI` as `active`. The SDK's CSS highlights `.str-chat__channel-list-item[aria-selected=true]` only (v14 also matched `[aria-pressed=true]`), so a custom row that keeps the SDK class sets `role="option"` and `aria-selected={active}` |
-| `activeChannel`                                                                                                          | `active`. v14 ignored the prop too: the item compared `useChatContext().channel`. A custom `ChannelListItemUI` that read `props.activeChannel` reads `active`                                                                                                                                                                                                                             |
+| `activeChannel`                                                                                                          | `active`. v14 forwarded `activeChannel` to `ChannelListItemUI` but computed the default `active` from `useChatContext().channel`. A custom row that compared `props.activeChannel` with its `channel` reads `active`; one that needs the open channel itself reads `useWorkspaceNavigation().openChannels`                                                                                |
 
 The `getLatestMessagePreview` and `getLatestMessagePreviewText` utilities are still exported; only their `t` / `userLanguage` parameter types changed. Prefer `WithComponents` for the slot override: it merges over the parent context, while `ComponentProvider` replaces it. Neither `Chat` nor `Channel` takes component props.
 
@@ -2472,7 +2472,7 @@ export const List = () => (
 
 ### `additionalMessageComposerProps` is removed from messages and message lists
 
-`Message`, `MessageList` and `VirtualizedMessageList` no longer take `additionalMessageComposerProps`. Passing it is a compile error; in untyped code it is ignored. Nothing changes on screen: no message component read it in v14 either, so delete it. If the props were meant for the composer, pass them to the `MessageComposer` you render; that turns them on, because v14 never applied them. A message is edited in that composer.
+`Message`, `MessageList` and `VirtualizedMessageList` no longer take `additionalMessageComposerProps`, and `VirtuosoContext` (the context of `additionalVirtuosoProps.components`) no longer carries it. Passing it is a compile error; in untyped code it is ignored. A custom Virtuoso component that read it from that context gets `undefined`: give it the value through your own context instead. Nothing changes on screen: no message component read it in v14 either, so delete it. If the props were meant for the composer, pass them to the `MessageComposer` you render; that turns them on, because v14 never applied them. A message is edited in that composer.
 
 ```tsx
 // v14
@@ -2879,7 +2879,7 @@ Only the four built-in action types (`uploadFile`, `createPoll`, `addLocation`, 
 
 ### `emojiSearchIndex` and `parent` are removed from `MessageComposer`
 
-`MessageComposer` no longer takes `emojiSearchIndex` or `parent`, the `emojiSearchIndex` override key is removed, and `useMessageComposerContext()` no longer returns `emojiSearchIndex`, `parent` or `audioRecordingConfig`. In v14 they only reached the composer context, and nothing read them there, so emoji autocomplete already needed the middleware. Register it on every composer, and drop the props:
+`MessageComposer` no longer takes `emojiSearchIndex` or `parent`, the `emojiSearchIndex` override key is removed, and `useMessageComposerContext()` no longer returns `emojiSearchIndex`, `parent` or `audioRecordingConfig`. In v14 they only reached the composer context, and nothing read them there, so they turned on nothing: drop them. Emoji autocomplete comes from a text composer middleware. Register it only if the app wants `:shortcode` suggestions, which v14 did not show from these props. `client.config.setSetupFunction()` replaces the previous setup function for the key, so if the app already registers one for `messageComposer`, add the `insert` call to it and keep its teardown:
 
 ```tsx
 // v14
@@ -2891,7 +2891,11 @@ Only the four built-in action types (`uploadFile`, `createPoll`, `addLocation`, 
 ```tsx
 import type { TextComposerMiddleware } from 'stream-chat';
 import { createTextComposerEmojiMiddleware } from 'stream-chat-react/emojis';
-import { SearchIndex } from 'emoji-mart';
+import data from '@emoji-mart/data';
+import { init, SearchIndex } from 'emoji-mart';
+
+// `SearchIndex.search()` returns nothing until emoji-mart has its data.
+init({ data });
 
 // Before the composers are created, e.g. right after creating the client.
 client.config.setSetupFunction('messageComposer', ({ composer }) => {
@@ -3332,7 +3336,7 @@ React props typed with `stream-chat` types change with them. The React APIs are 
 
 **Messages:**
 
-- **Reaction sort:** `reactionDetailsSort` (on `Message`, `MessageList`, `VirtualizedMessageList`, `MessageContext`, `MessageReactions`, `MessageReactionsDetail`, `VirtuosoContext`), `MessageReactionsDetail.sort`, and the `sort` argument of `handleFetchReactions` / `useReactionsFetcher`: `ReactionSort` → `SortParamRequest[]` (`[{ field: 'created_at', direction: -1 }]`).
+- **Reaction sort:** `reactionDetailsSort` (on `Message`, `MessageList`, `VirtualizedMessageList`, `MessageContext`, `MessageReactions`, `MessageReactionsDetail`, `VirtuosoContext`) and the `sort` argument of `handleFetchReactions` / `useReactionsFetcher`: `ReactionSort` → `SortParamRequest[]`. `MessageReactionsDetail.sort` is removed; use `reactionDetailsSort` ([section 12](#messagereactionsreverse-and-messagereactionsdetailsort--dialogid-are-removed)) (`[{ field: 'created_at', direction: -1 }]`).
 - **Delete options:** `handleDelete` / `useDeleteHandler` take `{ delete_for_me?, hard? }` (was `{ deleteForMe?, hardDelete? }`).
 - **Mutes:** `isUserMuted(message, mutes)` takes `UserMuteResponse[]` (`target` is optional).
 - **Moderation:** `isMessageBounced` / `isMessageBlocked` read only `message.moderation`; `moderation_details` is gone from `LocalMessage`.

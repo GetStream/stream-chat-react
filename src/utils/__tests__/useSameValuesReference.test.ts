@@ -85,4 +85,22 @@ describe('useSameValuesReference', () => {
 
     expect(result.current).toBe('one');
   });
+
+  it('ends the comparison for cyclic values', () => {
+    type Node = { name: string; self?: Node };
+    const cyclic = (name: string) => {
+      const node: Node = { name };
+      node.self = node;
+      return node;
+    };
+    const { rerender, result } = renderValue(cyclic('a'));
+    const first = result.current;
+
+    rerender({ value: cyclic('a') });
+    expect(result.current).toBe(first);
+
+    const other = cyclic('b');
+    rerender({ value: other });
+    expect(result.current).toBe(other);
+  });
 });
