@@ -33,6 +33,7 @@ import type {
   RenderedMessage,
 } from './utils';
 import { getLastReceived, getMessageGroupStyles, processMessages } from './utils';
+import { omitUndefinedProps } from './omitUndefinedProps';
 import type { MessageProps } from '../Message';
 import { UnreadMessagesNotification as DefaultUnreadMessagesNotification } from './UnreadMessagesNotification';
 import {
@@ -84,10 +85,15 @@ import { useLastOwnMessage } from './hooks/useLastOwnMessage';
 type PropsDrilledToMessage =
   | 'additionalMessageComposerProps'
   | 'formatDate'
+  | 'onMentionsClick'
+  | 'onMentionsHover'
+  | 'onUserClick'
+  | 'onUserHover'
   | 'reactionDetailsSort'
   | 'renderText'
   | 'showAvatar'
-  | 'sortReactions';
+  | 'sortReactions'
+  | 'unsafeHTML';
 
 type VirtualizedMessageListPropsForContext =
   | PropsDrilledToMessage
@@ -210,6 +216,10 @@ const VirtualizedMessageListWithContext = (
     hideDeletedMessages = false,
     hideNewMessageSeparator = false,
     maxTimeBetweenGroupedMessages,
+    onMentionsClick,
+    onMentionsHover,
+    onUserClick,
+    onUserHover,
     reactionDetailsSort,
     renderText,
     returnAllReadData = false,
@@ -221,11 +231,13 @@ const VirtualizedMessageListWithContext = (
     sortReactions,
     stickToBottomScrollBehavior = 'smooth',
     suppressAutoscroll: suppressAutoscrollFromProps = false,
+    unsafeHTML,
     withDateSeparator = false,
   } = props;
   const thread = useThreadContext();
   const isThreadList = !!thread;
-  // The list-wide props every message gets, the thread's parent message included.
+  // The list-wide props every message gets, the thread's parent message and the separate giphy
+  // preview included.
   const messageProps: Pick<
     VirtualizedMessageListProps,
     PropsDrilledToMessage | 'closeReactionSelectorOnClick'
@@ -233,10 +245,15 @@ const VirtualizedMessageListWithContext = (
     additionalMessageComposerProps,
     closeReactionSelectorOnClick,
     formatDate,
+    onMentionsClick,
+    onMentionsHover,
+    onUserClick,
+    onUserHover,
     reactionDetailsSort,
     renderText,
     showAvatar,
     sortReactions,
+    unsafeHTML,
   };
   const threadHead = useThreadHead(messageProps);
   const [suppressAutoscrollWhileLoadingOlder, setSuppressAutoscrollWhileLoadingOlder] =
@@ -656,7 +673,12 @@ const VirtualizedMessageListWithContext = (
             scrollToBottom={scrollToBottom}
           />
         )}
-        {giphyPreviewMessage && <GiphyPreviewMessage message={giphyPreviewMessage} />}
+        {giphyPreviewMessage && (
+          <GiphyPreviewMessage
+            {...omitUndefinedProps(messageProps)}
+            message={giphyPreviewMessage}
+          />
+        )}
       </MessageTranslationViewProvider>
     </VirtualizedMessageListContextProvider>
   );

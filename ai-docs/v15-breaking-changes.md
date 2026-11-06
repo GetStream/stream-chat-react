@@ -64,7 +64,7 @@ yarn api-surface check --doc ai-docs/v15-breaking-changes.md --diff diff.json
 
 ## Index
 
-98 entries.
+100 entries.
 
 | ID                | Title                                                                                                                                                                                                                         | Group                                                |
 | ----------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------- |
@@ -163,8 +163,10 @@ yarn api-surface check --doc ai-docs/v15-breaking-changes.md --diff diff.json
 | [BC-093](#bc-093) | `MessageContextValue.onMentionsClickMessage` / `onMentionsHoverMessage` and `useMentionsHandler`'s handlers are `undefined` without a handler                                                                                 | Messages and message lists                           |
 | [BC-094](#bc-094) | `mentionsMarkdownPlugin` and `createMentionPluginAndDisplayTextSet` take mention entities only                                                                                                                                | Messages and message lists                           |
 | [BC-095](#bc-095) | `disableQuotedMessages` is removed from `MessageProps`, `MessageListProps` and `useMessagePermissions`                                                                                                                        | Messages and message lists                           |
-| [BC-097](#bc-097) | channel detail views render no close button outside a modal without `onClose`; `ChannelDetail` calls `onLayoutChange`                                                                                                         | Contexts and customization                           |
+| [BC-097](#bc-097) | channel detail views render no close button outside a modal without `onClose`; `ChannelDetail` calls `onLayoutChange`                                                                                                         | Chat, ChatView and layout                            |
 | [BC-098](#bc-098) | the channel members header action set uses `Component`, `placement: 'dropdown'`, `isVisible` and a `quick-dropdown-toggle` item                                                                                               | Contexts and customization                           |
+| [BC-100](#bc-100) | `typing.twoUsers` takes the two names as `firstUser` and `secondUser` instead of one joined `typing` value                                                                                                                    | i18n                                                 |
+| [BC-101](#bc-101) | `Root`, `Header`, `UploadIcon`, `BinIcon`, `PauseIcon`, `PlayIcon` unexported; `@stream-io/transliterate` dropped; `CustomChannelData` typed for apps; `DefaultChannelData` holds only `name` and `image`                     | Package and runtime                                  |
 | [BC-102](#bc-102) | `initialMessage` is removed from `MessageProps` and `MessageContextValue`; `useIsRenderedAsThreadParent()` tells the thread's parent message apart                                                                            | Messages and message lists                           |
 
 ## Package and runtime
@@ -248,6 +250,77 @@ export const DayDivider = ({ message }: { message: LocalMessage }) => {
 };
 ```
 
+<a id="bc-101"></a>
+
+### BC-101: `Root`, `Header`, `UploadIcon`, `BinIcon`, `PauseIcon` and `PlayIcon` are no longer exported; `@stream-io/transliterate` is no longer a dependency; `CustomChannelData` is typed for apps and `DefaultChannelData` holds only `name` and `image`
+
+- Status: confirmed
+- Area: package / exports / types
+- User impact:
+  - compile error (`TS2305`) on importing `Root` or `Header` from `stream-chat-react`, and `undefined` in plain JS. They are the parts of `Alert`, exported under generic names; `Alert.Root`, `Alert.Header` and `Alert.Actions` are unchanged.
+  - compile error (`TS2305`) on importing `UploadIcon`, `BinIcon`, `PauseIcon` or `PlayIcon`. No SDK component rendered them in v14 or v15.
+  - install: `@stream-io/transliterate` is no longer installed with this package. No SDK code imported it in v14 or v15; an app that imports it without declaring it gets a module-not-found error.
+  - types: `channel.data.custom.name` and `.image` are typed `string | undefined` in every app that imports `stream-chat-react`. v14 and earlier v15 release candidates declared the merge of `DefaultChannelData` into `CustomChannelData` in a file `tsc` did not emit, so apps saw `CustomChannelData` without those fields. An app that augments `CustomChannelData` with `name` or `image` under another type gets no error with `skipLibCheck: true` (its own type wins), and `TS2430` inside `stream-chat`'s `custom_types.d.ts` without it.
+  - types: `DefaultChannelData` loses `subtitle` and `team`. No SDK code read them; `team` is a top-level channel field in `stream-chat` v10 (`channel.data.team`), not custom data. Code that reads `DefaultChannelData['team']`, or relies on `extends DefaultChannelData` to type `custom.subtitle` / `custom.team`, gets `TS2339`.
+- Old API:
+  - `Root`, `Header` (`src/components/Dialog/components/Alert.tsx`), re-exported from the package root through `Dialog/components/index.ts`
+  - `UploadIcon`, `BinIcon`, `PauseIcon`, `PlayIcon` (`src/components/MessageComposer/icons.tsx`), re-exported through `MessageComposer/index.ts`
+  - `optionalDependencies['@stream-io/transliterate']: ^1.5.5`
+  - `DefaultChannelData`: `image`, `name`, `subtitle`, `team` (all `string | undefined`)
+  - `src/@types/stream-chat-custom-data.d.ts`, a declaration-only file that `tsc` never copies to `dist/types`
+- Replacement:
+  - `Root` / `Header`: `Alert.Root` / `Alert.Header`, the same components.
+  - The icons: copy the SVG into the app, or use the v15 icon set: `IconPlus` or `IconAttachment` for `UploadIcon`, `IconDelete` for `BinIcon`, `IconPauseFill` for `PauseIcon`, `IconPlayFill` for `PlayIcon`. They follow the v15 design, not the v14 shapes, and take `BaseIconProps`.
+  - `@stream-io/transliterate`: add it to the app's own dependencies if the app imports it. Mention search in `stream-chat` takes a `transliterate` function on its mentions middleware.
+  - `CustomChannelData`: delete an app's own `name?: string` / `image?: string` declarations, which are now redundant, and keep the augmentation for the app's other fields. Rename a field the app declares as `name` or `image` with another type. Declare `subtitle?: string` / `team?: string` on `CustomChannelData` if the app stores them under `custom`; read the channel's team from `channel.data.team`.
+- Evidence:
+  - `release-v14:src/components/Dialog/components/Alert.tsx:6`, `:25` `export const Root` / `export const Header`; `master:src/components/Dialog/components/Alert.tsx` declares both without `export` and exports them as `Alert.Root` / `Alert.Header`, like `Prompt` and `Viewer`
+  - `release-v14:src/components/MessageComposer/icons.tsx:3`, `:30`, `:36`, `:47`; `release-v14:src/components/MessageComposer/index.ts:19` `export * from './icons'`; no other reference in `src` or `examples` on either branch
+  - `release-v14:package.json:122` `"@stream-io/transliterate": "^1.5.5"`; no import in `src` on either branch
+  - `release-v14:src/@types/stream-chat-custom-data.d.ts:19` `interface CustomChannelData extends DefaultChannelData {}`; `release-v14:tsconfig.lib.json` emits declarations from `.ts` sources only, so `dist/types/@types` does not exist. `master:src/types/defaultDataInterfaces.ts` declares `DefaultChannelData` with `image` and `name` only, declares the merge and ships as `dist/types/types/defaultDataInterfaces.d.ts`, re-exported from `dist/types/index.d.ts`
+  - commit: REACT-1306
+- Docs impact:
+  - `02-state/01-state-and-entities/06-data-conventions.md` (the `CustomChannelData` augmentation sample), `08-release-guides/01-upgrade-to-v15.md`
+- Example needed: yes
+
+Before (v14):
+
+```tsx
+import { Header, Root } from 'stream-chat-react';
+
+declare module 'stream-chat' {
+  interface CustomChannelData {
+    image?: string;
+    name?: string;
+    priority?: number;
+  }
+}
+
+export const DeleteWarning = () => (
+  <Root>
+    <Header title='Delete channel?' />
+  </Root>
+);
+```
+
+After (v15):
+
+```tsx
+import { Alert } from 'stream-chat-react';
+
+declare module 'stream-chat' {
+  interface CustomChannelData {
+    priority?: number;
+  }
+}
+
+export const DeleteWarning = () => (
+  <Alert.Root>
+    <Alert.Header title='Delete channel?' />
+  </Alert.Root>
+);
+```
+
 ## Contexts and customization
 
 <a id="bc-003"></a>
@@ -295,7 +368,7 @@ export const DayDivider = ({ message }: { message: LocalMessage }) => {
   | `markRead` / `MarkReadWrapperOptions`                                        | `channel.markReadViaReporter()` (`channel.markRead()` is now the direct request: it skips the reporter and the `markReadRequest` handler). The unread UI snapshot is separate state on the paginator; there is no `updateChannelUiUnreadState` option. |
   | `setChannelUnreadUiState`                                                    | `channel.messagePaginator.setUnreadSnapshot(partial)`                                                                                                                                                                                                  |
   | `openThread` / `closeThread`                                                 | `useWorkspaceNavigation().openThread({ channel, message })` / `.closeThread(threadId)`. Inside a thread, `useCloseThread()`.                                                                                                                           |
-  | `onMentionsClick` / `onMentionsHover`                                        | the `onMentionsClick` / `onMentionsHover` props on `MessageList` / `Message`                                                                                                                                                                           |
+  | `onMentionsClick` / `onMentionsHover`                                        | the `onMentionsClick` / `onMentionsHover` props on `MessageList` / `VirtualizedMessageList` / `Message`                                                                                                                                                |
   | `dispatch`                                                                   | none, removed (there is no React reducer)                                                                                                                                                                                                              |
 
   Custom send/update/delete/markRead request overrides are registered on `client.config` (see "Per-component request-handler props removed" in `ai-migration-v14-v15.md`).
@@ -1538,10 +1611,10 @@ Note: a bare `AttachmentContextProvider` above the list does not reach message a
 - Old API:
   - `ChannelProps.onMentionsClick?: OnMentionAction`, `ChannelProps.onMentionsHover?: OnMentionAction`
   - `useChannelMentionsHandler(onMentionsHover?, onMentionsClick?)`
-- Replacement: `onMentionsClick` / `onMentionsHover` on `MessageList` (drilled to each message) or on `Message`; handler type `CustomMentionHandler` `(event, message: LocalMessage)`; read mention metadata from `message` (BC-089). `VirtualizedMessageList` has no such prop in v15 (v14 virtualized lists got the handlers only from `Channel`), so a virtualized list needs a custom message UI to handle mention clicks.
+- Replacement: `onMentionsClick` / `onMentionsHover` on `MessageList` or `VirtualizedMessageList` (drilled to each message, the thread's parent message and the separate giphy preview) or on `Message`; handler type `CustomMentionHandler` `(event, message: LocalMessage)`; read mention metadata from `message` (BC-089).
 - Evidence:
   - `release-v14:src/components/Channel/Channel.tsx:145-147`; `release-v14:src/components/Channel/index.ts:3`; `release-v14:src/components/Message/hooks/useMentionsHandler.ts:51-59` (fell back to the `Channel` handlers)
-  - `master:src/components/MessageList/MessageList.tsx:108-109,421-422` (`onMentionsClick`/`onMentionsHover` in `PropsDrilledToMessage`); `master:src/components/MessageList/VirtualizedMessageList.tsx:84-90` (not drilled); `master:src/components/Message/types.ts:54-56`
+  - `master:src/components/MessageList/MessageList.tsx:108-109,421-422` (`onMentionsClick`/`onMentionsHover` in `PropsDrilledToMessage`); `master:src/components/MessageList/VirtualizedMessageList.tsx:87-88,246-247` (same); `master:src/components/Message/types.ts:54-56`
   - commit: `99cbe6704` (PR #3237)
 - Docs impact:
   - `02-ui-components/04-channel/01-channel.md`, `02-ui-components/04-channel/03-channel_action_context.md`, `03-ui-cookbook/04-message/03-mentions_actions.md`
@@ -3095,7 +3168,7 @@ const { canReply } = useMessagePermissions(message);
 - Old API:
   - `onMentionsClickMessage: ReactEventHandler` and `onMentionsHoverMessage: ReactEventHandler`, always set; a no-op when no handler was passed
   - `useMentionsHandler(message, handlers)` returned `{ onMentionsClick, onMentionsHover }`, both always functions
-- Replacement: the context fields are optional and set only when `onMentionsClick` / `onMentionsHover` was passed to `MessageList` or `Message`. `useMentionsHandler` returns each handler only when the matching one is passed to it, and `undefined` otherwise. Pass them as event props (`onClick={onMentionsClickMessage}`), or call them with `?.`. With `onMentionsClick` set, `MessageText` adds `str-chat__message-text-inner--mentions-clickable`, which gives mentions a pointer cursor.
+- Replacement: the context fields are optional and set only when `onMentionsClick` / `onMentionsHover` was passed to `MessageList`, `VirtualizedMessageList` or `Message`. `useMentionsHandler` returns each handler only when the matching one is passed to it, and `undefined` otherwise. Pass them as event props (`onClick={onMentionsClickMessage}`), or call them with `?.`. With `onMentionsClick` set, `MessageText` adds `str-chat__message-text-inner--mentions-clickable`, which gives mentions a pointer cursor.
 - Evidence:
   - `release-v14:src/context/MessageContext.tsx:63-66`; `release-v14:src/components/Message/Message.tsx:263` `onMentionsClickMessage={onMentionsClick}`; `release-v14:src/components/Message/hooks/useMentionsHandler.ts:55-59` (`|| (() => null)`)
   - `master:src/context/MessageContext.tsx:44-47`; `master:src/components/Message/hooks/useMentionsHandler.ts:13-21`, `:28-49`; `master:src/components/Message/Message.tsx:191-192`; `master:src/components/Message/MessageText.tsx:82-83`, `:121-122`, `:125` (`onClick` only when mentions are interactive)
@@ -3720,6 +3793,24 @@ await i18n.setLanguage('fr');
 const { t: frT } = i18n.state.getLatestValue();
 const hasFr = i18n.registeredLanguages.has('fr');
 ```
+
+<a id="bc-100"></a>
+
+### BC-100: `typing.twoUsers` takes the two names as `firstUser` and `secondUser` instead of one joined `typing` value
+
+- Status: confirmed
+- Area: i18n (typing indicator)
+- User impact: **silent**. A translation of the two-person typing text that still uses `{{ typing }}` renders the literal `{{ typing }}`, because the SDK no longer passes that value. App code that calls `t('typing.twoUsers', …)` itself with `{ typing }` still compiles (`t` checks values only on plural keys) and renders English correctly, but once a translation written with the new values is registered it shows `{{ firstUser }}` and `{{ secondUser }}` literally. Apps that do not override the key see no change in English: the default is `'{{ firstUser }} and {{ secondUser }} are typing'`. The text shows in `<TypingIndicator/>` (its screen-reader announcement) and `<TypingIndicatorHeader/>` (the channel and thread header subtitle).
+- Old API:
+  - v14 key `'{{ typing }} are typing'` with one value, `typing`, set to both names joined by an English "and" (`'Anna and Ben'`), so a translation could not change that word. A dictionary written against a v15 release candidate that uses `{{ typing }}` in `typing.twoUsers` needs the same change.
+- Replacement: write the whole sentence around `{{ firstUser }}` and `{{ secondUser }}`, e.g. `'typing.twoUsers': '{{ firstUser }} und {{ secondUser }} schreiben'`. The key map entry for `'{{ typing }} are typing'` lists both sets of names under `values`. `typing.singleUser` (`{{ typing }}`, one name) and `typing.manyUsers` (`{{ count }}`) are unchanged.
+- Evidence:
+  - `release-v14:src/components/TypingIndicator/utils/getTypingStatusMessage.ts:25-27`
+  - `master:src/components/TypingIndicator/utils/getTypingStatusMessage.ts:20-23`
+  - ticket: REACT-1495
+- Docs impact:
+  - v15 docs: `04-features/01-messaging/12-typing-indicators.md` ("The texts" table gives the old default), `08-release-guides/01-upgrade-to-v15.md` ("Localization" section: the changed values)
+- Example needed: no (`i18n-v15-migration.md` "Keys whose values changed" carries it)
 
 ## Types that follow stream-chat v10 (umbrella entries)
 

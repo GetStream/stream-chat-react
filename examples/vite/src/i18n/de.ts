@@ -613,7 +613,6 @@ export const deTranslations = {
   'messageComposer.geolocationPreview.removeLocationAttachment.ariaLabel':
     'Standortanhang entfernen',
   'messageComposer.geolocationPreview.sharedLocation.title': 'Geteilter Standort',
-  'messageComposer.icons.attachFiles.text': 'Dateien anhängen',
   'messageComposer.quotedMessagePreview.cancelReply.ariaLabel': 'Antwort abbrechen',
   'messageComposer.quotedMessagePreview.files.label_one': '{{ count }} Datei',
   'messageComposer.quotedMessagePreview.files.label_other': '{{ count }} Dateien',
@@ -841,7 +840,7 @@ export const deTranslations = {
   'typing.manyUsers_one': '{{ count }} Person schreibt',
   'typing.manyUsers_other': '{{ count }} Personen schreiben',
   'typing.singleUser': '{{ typing }} schreibt',
-  'typing.twoUsers': '{{ typing }} schreiben',
+  'typing.twoUsers': '{{ firstUser }} und {{ secondUser }} schreiben',
   'videoPlayer.videoThumbnail.playVideo.ariaLabel': 'Video abspielen',
 
   // The four keys below need translating even though they look like format expressions rather than
