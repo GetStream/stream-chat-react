@@ -607,7 +607,6 @@ export const itTranslations = {
   'messageComposer.geolocationPreview.removeLocationAttachment.ariaLabel':
     'Rimuovi l’allegato di posizione',
   'messageComposer.geolocationPreview.sharedLocation.title': 'Posizione condivisa',
-  'messageComposer.icons.attachFiles.text': 'Allega file',
   'messageComposer.quotedMessagePreview.cancelReply.ariaLabel': 'Annulla risposta',
   'messageComposer.quotedMessagePreview.files.label_one': '{{ count }} file',
   'messageComposer.quotedMessagePreview.files.label_other': '{{ count }} file',

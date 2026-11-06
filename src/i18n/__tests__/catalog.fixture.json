@@ -449,7 +449,6 @@
   "messageComposer.geolocationPreview.location.text": "Location: {{ coordinates }}",
   "messageComposer.geolocationPreview.removeLocationAttachment.ariaLabel": "Remove location attachment",
   "messageComposer.geolocationPreview.sharedLocation.title": "Shared location",
-  "messageComposer.icons.attachFiles.text": "Attach files",
   "messageComposer.quotedMessagePreview.cancelReply.ariaLabel": "Cancel Reply",
   "messageComposer.quotedMessagePreview.files.label_one": "{{ count }} file",
   "messageComposer.quotedMessagePreview.files.label_other": "{{ count }} files",

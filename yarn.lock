@@ -3234,13 +3234,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@stream-io/escape-string-regexp@npm:^5.0.1":
-  version: 5.0.1
-  resolution: "@stream-io/escape-string-regexp@npm:5.0.1"
-  checksum: 10c0/86901c6f6e13ee72598ff5d19625cc5247bceba26e808da868f6ede85cdd91a08fb3caae4745ee77a5aa49f318cebd4d6412b7208f820ec2bf1a9a27f431b115
-  languageName: node
-  linkType: hard
-
 "@stream-io/i18n@npm:^1.1.0":
   version: 1.1.0
   resolution: "@stream-io/i18n@npm:1.1.0"
@@ -3370,16 +3363,6 @@ __metadata:
     vite-plugin-babel: "npm:^1.7.3"
   languageName: unknown
   linkType: soft
-
-"@stream-io/transliterate@npm:^1.5.5":
-  version: 1.5.5
-  resolution: "@stream-io/transliterate@npm:1.5.5"
-  dependencies:
-    "@stream-io/escape-string-regexp": "npm:^5.0.1"
-    lodash.deburr: "npm:^4.1.0"
-  checksum: 10c0/1afe6b85da18346be35dd92ad602cbd7a566d549e51547e4a25a3d3ebf614839c6651ab8f61f349c498db621a93d5f64918e4aeec4a2981cac0d18392fc89c12
-  languageName: node
-  linkType: hard
 
 "@swc/core-darwin-arm64@npm:1.15.33":
   version: 1.15.33
@@ -8453,13 +8436,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"lodash.deburr@npm:^4.1.0":
-  version: 4.1.0
-  resolution: "lodash.deburr@npm:4.1.0"
-  checksum: 10c0/30c068e9c3b21d65d260887a8849fa7b94692f868adcc4527136c296b4e71ced7149f58e0f37154d3c56d7950cc605ad3e10b2ee0baedf5638af0befc5013ebc
-  languageName: node
-  linkType: hard
-
 "lodash.escaperegexp@npm:^4.1.2":
   version: 4.1.2
   resolution: "lodash.escaperegexp@npm:4.1.2"
@@ -12002,7 +11978,6 @@ __metadata:
     "@semantic-release/github": "npm:^12.0.8"
     "@stream-io/i18n": "npm:^1.1.0"
     "@stream-io/state-store": "npm:^1.2.0"
-    "@stream-io/transliterate": "npm:^1.5.5"
     "@testing-library/dom": "npm:^10.4.1"
     "@testing-library/jest-dom": "npm:^6.9.1"
     "@testing-library/react": "npm:^16.3.2"
@@ -12088,8 +12063,6 @@ __metadata:
   dependenciesMeta:
     "@parcel/watcher":
       built: true
-    "@stream-io/transliterate":
-      optional: true
     "@swc/core":
       built: true
     esbuild:

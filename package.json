@@ -152,9 +152,6 @@
     "use-sync-external-store": "^1.7.0",
     "zod": "^4.2.0"
   },
-  "optionalDependencies": {
-    "@stream-io/transliterate": "^1.5.5"
-  },
   "peerDependencies": {
     "@a2ui/react": "~0.15.0",
     "@a2ui/web_core": "~0.15.0",

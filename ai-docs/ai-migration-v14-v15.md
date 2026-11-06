@@ -2,7 +2,7 @@
 
 Execution-only guide for a coding agent migrating a third-party app from `stream-chat-react` v14 to v15. It covers the root package and its subpath entry points (`stream-chat-react/slot-layout`, `/slot-geometry`, `/channel-detail`, `/emojis`, `/ai-components`, `/mp3-encoder` and the `css/*` stylesheets). v15 requires `stream-chat` v10, itself a breaking client release, so upgrade both together; this guide covers the `stream-chat` changes a React app usually hits, and the [stream-chat guide](#companion-documents) covers the rest. The i18n runtime now comes from `@stream-io/i18n` and the state store from `@stream-io/state-store`, both installed as dependencies of this package.
 
-Every breaking change in [`v15-breaking-changes.md`](https://github.com/GetStream/stream-chat-react/blob/master/ai-docs/v15-breaking-changes.md) (`BC-001` to `BC-097`) is covered here. The [index at the end](#index-of-breaking-changes) maps each `BC` entry to its section.
+Every breaking change in [`v15-breaking-changes.md`](https://github.com/GetStream/stream-chat-react/blob/master/ai-docs/v15-breaking-changes.md) (`BC-001` to `BC-097`, `BC-101` and `BC-102`) is covered here. The [index at the end](#index-of-breaking-changes) maps each `BC` entry to its section.
 
 Verified against `master` @ `1c02ba07f` (`stream-chat-react@0.0.0-development`, after the `v15.0.0-rc.3` tag; `stream-chat` peer `^10.0.0-rc.29`, checked against stream-chat-js `release-v10` @ `fdfcb296`), 2026-11-03.
 
@@ -128,6 +128,11 @@ styles() { rg -n --hidden -g '*.{css,scss,sass,less}' -g '!**/node_modules/**' -
 rg -n --hidden -g 'package.json' -g '!**/node_modules/**' -e '"(stream-chat|stream-chat-react|dayjs|i18next|@stream-io/[a-z-]+)"\s*:' .
 rg -n --hidden -g '.nvmrc' -g '.node-version' -g '*.{yml,yaml}' -g 'Dockerfile*' -g '!**/node_modules/**' -g '!.git' -e 'node-version|FROM node|^v?[0-9]+(\.[0-9]+)*$' .
 code '\b(ChatView|ChatViewContext|useChatViewContext|useActiveThread|ChatViewSelector\w*|ChatView\w*SelectorButton|defaultChatViewSelectorItemSet|AIStates|getAttachmentPreviewUrl|isUploadConfirmationPending|hasPendingUploadState|StateStore)\b'
+# §1 removed exports: unused icons, @stream-io/transliterate imports, Alert parts imported or required as Root / Header
+code '\b(UploadIcon|BinIcon|PauseIcon|PlayIcon)\b|@stream-io/transliterate'
+rg -n -U --hidden -t ts -t js -g '!**/node_modules/**' -g '!**/dist/**' -g '!**/build/**' -e "(import\s+(type\s+)?\{[^}]*\b(Root|Header)\b[^}]*\}\s*from\s*|\{[^}]*\b(Root|Header)\b[^}]*\}\s*=\s*require\(\s*)['\"]stream-chat-react['\"]" .
+# §1 the package used as a namespace (import * as X / X = require): in each hit file, check X.Root, X.Header and the icon names above
+rg -n --hidden -t ts -t js -g '!**/node_modules/**' -g '!**/dist/**' -g '!**/build/**' -e "import\s+\*\s+as\s+\w+\s+from\s*['\"]stream-chat-react['\"]|\b\w+\s*=\s*require\(\s*['\"]stream-chat-react['\"]\s*\)" .
 # §2 client and <Chat>
 code '\b(useCreateChatClient|useChat|defaultLanguage|channelsQueryState|latestMessageDatesByChannels|recoverStateOnReconnect|enableWSFallback|wsUrlParams|isLocalUnreadCountEnabled|StreamChatOptions)\b|connection\.changed'
 # §3 layout: Window, ChatView
@@ -330,6 +335,7 @@ These compile cleanly, or are ignored in plain JS, and change behavior at runtim
 - **Node `>=22.18.0`.** `stream-chat@10` declares `engines.node >=22.18.0`, and Yarn 1 refuses to install on older Node. Move `.nvmrc` and every CI `node-version` (GitHub Actions `setup-node`, Docker base images, deploy workflows) to Node 22 before anything else: CI is usually the first thing to break.
 - **`dayjs` and `i18next` are no longer dependencies of this package.** It depends on `@stream-io/i18n`, which brings both (`dayjs ^1.11.23`, `i18next ^26`). `stream-chat` v10 depends on neither. If the app declared them only because of this SDK, remove them. If it keeps `dayjs`, its version must dedupe with `@stream-io/i18n`'s, or `import 'dayjs/locale/xx'` registers the locale on a different instance and dates stay English.
 - **`@stream-io/state-store` must resolve to exactly one copy.** `stream-chat`, `@stream-io/i18n` and this package hand each other store instances. `StateStore` has `protected` members, so stores from two copies are not assignable to `useStateStore`'s parameter. Check with `yarn why @stream-io/state-store` / `npm ls @stream-io/state-store`. A linked `stream-chat` checkout needs bundler dedupe.
+- **`@stream-io/transliterate` is no longer installed with this package.** It was an optional dependency that no SDK code imported. If the app imports it, add it to the app's own dependencies.
 - **New subpath exports:** `stream-chat-react/slot-layout` (`ChatView` and its slot system) and `stream-chat-react/slot-geometry`. `stream-chat-react/ai-components`, `/channel-detail`, `/emojis` and `/mp3-encoder` already existed.
 
 ```bash
@@ -378,9 +384,30 @@ Each import below is now a compile error (`TS2305` / `TS2724`) and `undefined` i
 | `MESSAGE_ACTIONS`, `OPTIONAL_MESSAGE_ACTIONS`, `getMessageActions`, `MessageActionsArray`, `Capabilities`                                                                        | [Section 10](#messageactions-and-message_actions-are-removed)                             |
 | `useUserRole`                                                                                                                                                                    | [Section 12](#useuserrole-is-renamed-to-usemessagepermissions)                            |
 | `deTranslations` ... `trTranslations`, `enTranslations`, `isLanguageSupported`, `SupportedTranslations`, `DateFormatterOptions`                                                  | [Section 18](#18-i18n)                                                                    |
+| `Root`, `Header`                                                                                                                                                                 | [Section 1](#alert-parts-and-unused-icons)                                                |
+| `UploadIcon`, `BinIcon`, `PauseIcon`, `PlayIcon`                                                                                                                                 | [Section 1](#alert-parts-and-unused-icons)                                                |
 | `DefaultCommandData`                                                                                                                                                             | [Section 17](#17-other-stream-chat-v10-data-shapes)                                       |
 
 New root exports: `useMessagePaginator()` returns the active list's paginator (the thread's inside a thread, the channel's otherwise), `useIsCooldownActive()` tells whether slow mode is counting down, and `messageHasMentions(message)` tells whether a message mentions anyone (a user, `@channel`, `@here`, a role or a user group).
+
+### `Alert` parts and unused icons
+
+`Root` and `Header` were the parts of `Alert`, exported from the package root under generic names. Use `Alert.Root` and `Alert.Header`, the same components (`Alert.Actions` is unchanged):
+
+```tsx
+// v14
+import { Header, Root } from 'stream-chat-react';
+// v15
+import { Alert } from 'stream-chat-react';
+
+export const DeleteWarning = () => (
+  <Alert.Root>
+    <Alert.Header title='Delete channel?' />
+  </Alert.Root>
+);
+```
+
+`UploadIcon`, `BinIcon`, `PauseIcon` and `PlayIcon` are removed; no SDK component rendered them. Copy the SVG into the app, or use the v15 icon set: `IconPlus` or `IconAttachment` for `UploadIcon`, `IconDelete` for `BinIcon`, `IconPauseFill` for `PauseIcon`, `IconPlayFill` for `PlayIcon`. They follow the v15 design and take `BaseIconProps`.
 
 ---
 
@@ -1057,13 +1084,7 @@ These keep the same signature and change behavior:
   import type { ChannelStateData } from 'stream-chat';
   import { useChannel, useStateStore } from 'stream-chat-react';
 
-  // `name` is custom data in stream-chat v10; declare it once, app-wide (section 17).
-  declare module 'stream-chat' {
-    interface CustomChannelData {
-      name?: string;
-    }
-  }
-
+  // `name` is custom data in stream-chat v10, typed by stream-chat-react (section 17).
   const dataSelector = ({ data }: ChannelStateData) => ({ data });
 
   export const ChannelNameInput = () => {
@@ -3231,15 +3252,16 @@ React props typed with `stream-chat` types change with them. The React APIs are 
 
 **Channel, chat context and search:**
 
-- **Channel `name` and `image` are custom data.** A `stream-chat` v10 channel response carries them under `custom`, with no top-level `name`, so `channel.data?.name` (the most common read, in every channel header and preview) is `undefined`. Read `channel.data?.custom?.name` / `.image`. To type them, augment `CustomChannelData`. `name` is still a top-level **filter** key (`{ name: { $autocomplete: q } }`); other custom fields filter as `'custom.<key>'`. Writes go under `data.custom`, and `channel.update({ data: { custom } })` replaces the whole custom object, so spread the existing `custom` (or use `channel.updatePartial`) to keep the other fields. The full mapping is in [`v10-breaking-changes.md`](https://github.com/GetStream/stream-chat-js/blob/release-v10/ai-docs/v10-breaking-changes.md) in stream-chat-js.
+- **Channel `name` and `image` are custom data.** A `stream-chat` v10 channel response carries them under `custom`, with no top-level `name`, so `channel.data?.name` (the most common read, in every channel header and preview) is `undefined`. Read `channel.data?.custom?.name` / `.image`. Importing `stream-chat-react` types them: it merges `DefaultChannelData` (`image` and `name`, each `string | undefined`) into `CustomChannelData`. Augment `CustomChannelData` only for the app's other fields, and delete an app's own `name` / `image` declarations. Declaring `name` or `image` with another type does not fail with `skipLibCheck` (the app's type wins) and fails inside `stream-chat`'s `custom_types.d.ts` (`TS2430`) without it, so rename such a field. `DefaultChannelData` no longer has `subtitle` or `team`: declare them yourself if the app stores them under `custom`, and read the channel's team from the top-level `channel.data.team`. `name` is still a top-level **filter** key (`{ name: { $autocomplete: q } }`); other custom fields filter as `'custom.<key>'`. Writes go under `data.custom`, and `channel.update({ data: { custom } })` replaces the whole custom object, so spread the existing `custom` (or use `channel.updatePartial`) to keep the other fields. The full mapping is in [`v10-breaking-changes.md`](https://github.com/GetStream/stream-chat-js/blob/release-v10/ai-docs/v10-breaking-changes.md) in stream-chat-js.
 
   ```tsx
   import type { Channel, ChannelFilters } from 'stream-chat';
+  // Loads the SDK's typing of `custom.name` / `custom.image`; any import from the package does.
+  import type {} from 'stream-chat-react';
 
   declare module 'stream-chat' {
     interface CustomChannelData {
-      image?: string;
-      name?: string;
+      demo?: string;
     }
   }
 
@@ -3461,9 +3483,11 @@ Run after every section is applied.
 2. **Leftover identifiers.** Every v14 name below was removed or renamed. In a plain-JS app this grep is the only thing that finds them. It must print nothing outside comments, changelogs and app identifiers that only share the name (record those in the report). Uses the `code` / `styles` helpers from [Detection](#detection).
 
    ```bash
-   code '\b(WindowProps|ChannelStateContext|ChannelStateContextValue|ChannelStateProvider|useChannelStateContext|ChannelActionContext|ChannelActionContextValue|ChannelActionProvider|useChannelActionContext|ChannelNotifications|MarkReadWrapperOptions|RetrySendMessage|TypingContext|TypingContextValue|TypingProvider|useTypingContext|ChannelUnreadUiState|channelUnreadUiState|setChannelUnreadUiState|updateChannelUiUnreadState|useThreadsViewContext|ThreadsViewContextValue|ThreadAdapter|activeChatView|setActiveChatView|setActiveChannel|setActiveChannelOnMount|customActiveChannel|channelsQueryState|latestMessageDatesByChannels|useChannelEditMessageHandler|useChannelMentionsHandler|ChannelListUI|ChannelListUIProps|usePaginatedChannels|useConnectionRecoveredListener|CustomQueryChannelParams|CustomQueryChannelsFn|EffectiveQueryParams|moveChannelUpwards|findLastPinnedChannelIndex|extractSortValue|isChannelPinned|isChannelArchived|shouldConsiderPinnedChannels|shouldConsiderArchivedChannels|allowNewMessagesFromUnfilteredChannels|lockChannelOrder|showChannelSearch|sendChannelsToList|renderChannels|channelRenderFilterFn|customQueryChannels|recoveryThrottleIntervalMs|onMessageNewHandler|channelUpdateCount|useLegacyThreadContext|additionalMessageComposerProps|additionalMessageListProps|additionalVirtualizedMessageListProps|additionalParentMessageProps|enableDateSeparator|disableDateSeparator|HeaderStartContent|MESSAGE_ACTIONS|OPTIONAL_MESSAGE_ACTIONS|getMessageActions|MessageActionsArray|actionsEnabled|messageIsUnread|initializeOnMount|channelQueryOptions|markReadOnMount|activeUnreadHandler|skipMessageDataMemoization|allowConcurrentAudioPlayback|allowConcurrentPlayback|doSendMessageRequest|doUpdateMessageRequest|doDeleteMessageRequest|doMarkReadRequest|overrideSubmitHandler|preventClearingOnUnmount|loadMoreNewer|loadMoreThread|loadingMoreNewer|jumpToLatestMessage|jumpToFirstUnreadMessage|highlightedMessageId|threadSuppressAutoscroll|loadingMoreForJumpToChannelMessage|messageLimit|hasPendingUploadState|recoverStateOnReconnect|wsUrlParams|isLocalUnreadCountEnabled|StreamChatOptions|isLanguageSupported|SupportedTranslations|DateFormatterOptions|getTranslators|registerSetLanguageCallback|getAvailableLanguages|geti18Instance|deTranslations|enTranslations|esTranslations|frTranslations|hiTranslations|itTranslations|jaTranslations|koTranslations|nlTranslations|ptTranslations|ruTranslations|trTranslations|ChannelSort|UserSort|ReactionSort|WatcherState|unBlockUser|ReminderResponse|CommandResponse|DefaultCommandData|CustomCommandData|chatContainer|useUserRole|disableQuotedMessages|initialMessage|MentionedUserEventHandler|mentionedUser|noGroupByUser|shouldGroupByUser|defaultItemHeight|scrollSeekPlaceHolder|endOfGroup|firstOfGroup|groupedByUser)\b|<Window\b|ChatView\.(Channels|Threads)\b|\.(read|typing|members|watcher|ownCapabilities|mutedUsers)Store\b|getConfig\(|\bMessage=\{|\b(Message|ThreadHeader):\s|use[A-Za-z]+Context\([\x27"]|messageActions=|connection\.changed'
+   code '\b(WindowProps|UploadIcon|BinIcon|PauseIcon|PlayIcon|ChannelStateContext|ChannelStateContextValue|ChannelStateProvider|useChannelStateContext|ChannelActionContext|ChannelActionContextValue|ChannelActionProvider|useChannelActionContext|ChannelNotifications|MarkReadWrapperOptions|RetrySendMessage|TypingContext|TypingContextValue|TypingProvider|useTypingContext|ChannelUnreadUiState|channelUnreadUiState|setChannelUnreadUiState|updateChannelUiUnreadState|useThreadsViewContext|ThreadsViewContextValue|ThreadAdapter|activeChatView|setActiveChatView|setActiveChannel|setActiveChannelOnMount|customActiveChannel|channelsQueryState|latestMessageDatesByChannels|useChannelEditMessageHandler|useChannelMentionsHandler|ChannelListUI|ChannelListUIProps|usePaginatedChannels|useConnectionRecoveredListener|CustomQueryChannelParams|CustomQueryChannelsFn|EffectiveQueryParams|moveChannelUpwards|findLastPinnedChannelIndex|extractSortValue|isChannelPinned|isChannelArchived|shouldConsiderPinnedChannels|shouldConsiderArchivedChannels|allowNewMessagesFromUnfilteredChannels|lockChannelOrder|showChannelSearch|sendChannelsToList|renderChannels|channelRenderFilterFn|customQueryChannels|recoveryThrottleIntervalMs|onMessageNewHandler|channelUpdateCount|useLegacyThreadContext|additionalMessageComposerProps|additionalMessageListProps|additionalVirtualizedMessageListProps|additionalParentMessageProps|enableDateSeparator|disableDateSeparator|HeaderStartContent|MESSAGE_ACTIONS|OPTIONAL_MESSAGE_ACTIONS|getMessageActions|MessageActionsArray|actionsEnabled|messageIsUnread|initializeOnMount|channelQueryOptions|markReadOnMount|activeUnreadHandler|skipMessageDataMemoization|allowConcurrentAudioPlayback|allowConcurrentPlayback|doSendMessageRequest|doUpdateMessageRequest|doDeleteMessageRequest|doMarkReadRequest|overrideSubmitHandler|preventClearingOnUnmount|loadMoreNewer|loadMoreThread|loadingMoreNewer|jumpToLatestMessage|jumpToFirstUnreadMessage|highlightedMessageId|threadSuppressAutoscroll|loadingMoreForJumpToChannelMessage|messageLimit|hasPendingUploadState|recoverStateOnReconnect|wsUrlParams|isLocalUnreadCountEnabled|StreamChatOptions|isLanguageSupported|SupportedTranslations|DateFormatterOptions|getTranslators|registerSetLanguageCallback|getAvailableLanguages|geti18Instance|deTranslations|enTranslations|esTranslations|frTranslations|hiTranslations|itTranslations|jaTranslations|koTranslations|nlTranslations|ptTranslations|ruTranslations|trTranslations|ChannelSort|UserSort|ReactionSort|WatcherState|unBlockUser|ReminderResponse|CommandResponse|DefaultCommandData|CustomCommandData|chatContainer|useUserRole|disableQuotedMessages|initialMessage|MentionedUserEventHandler|mentionedUser|noGroupByUser|shouldGroupByUser|defaultItemHeight|scrollSeekPlaceHolder|endOfGroup|firstOfGroup|groupedByUser)\b|<Window\b|ChatView\.(Channels|Threads)\b|\.(read|typing|members|watcher|ownCapabilities|mutedUsers)Store\b|getConfig\(|\bMessage=\{|\b(Message|ThreadHeader):\s|use[A-Za-z]+Context\([\x27"]|messageActions=|connection\.changed'
    styles 'str-chat__(main-panel|container|channel-list-inner|thread--virtualized)([^a-z0-9_-]|$)|str-chat__virtual-message__wrapper--|aria-pressed'
    ```
+
+   `Root` and `Header` are too common to grep bare: re-run the two §1 commands for them instead.
 
    Read each hit before changing it. App code often keeps names that only match: a `useState` setter called `setActiveChannel`, an app dictionary called `deTranslations`, an object key `Message:` outside `WithComponents`. Those stay; list them in the report. The v14 `handleDelete` options `deleteForMe` / `hardDelete` are not in this grep because app variables use the same names; the [section 17](#17-other-stream-chat-v10-data-shapes) detection finds them.
 
@@ -3586,4 +3610,5 @@ Run after every section is applied.
 | BC-094 | `mentionsMarkdownPlugin` takes mention entities only                                     | [12](#mentionsmarkdownplugin-takes-mention-entities-only)                                                                      |
 | BC-095 | `disableQuotedMessages` removed                                                          | [12](#the-disablequotedmessages-prop-is-removed)                                                                               |
 | BC-097 | Channel detail close buttons need `onClose` outside a modal; `onLayoutChange` is called  | [10](#channeldetail-takes-onclose-outside-a-modal-it-shows-no-close-button-without-it)                                         |
+| BC-101 | `Root`, `Header`, composer icons, `@stream-io/transliterate`; `CustomChannelData` typed  | [1](#packages), [1](#alert-parts-and-unused-icons), [17](#17-other-stream-chat-v10-data-shapes)                                |
 | BC-102 | `initialMessage` removed; `useIsRenderedAsThreadParent()`                                | [12](#initialmessage-is-removed-use-useisrenderedasthreadparent)                                                               |
