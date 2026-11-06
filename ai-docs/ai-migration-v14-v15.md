@@ -1690,7 +1690,11 @@ Where you pass the props depends on who renders the header:
 
 Both headers are exported.
 
-To keep the v14 behavior of showing the content only next to an open channel or thread (a sidebar toggle, for example), make the content return `null` otherwise: read `openChannels` / `openThreads` from `useWorkspaceNavigation()`. `ChatView` (or your own `WorkspaceNavigationProvider`, [section 4](#4-selecting-channels-and-opening-threads-workspace-navigation)) fills these lists; without one they stay empty, so gate on your own selection state instead.
+To keep showing the content only while something is open beside the list (a sidebar toggle, for example), make it return `null` otherwise. Read the workspace from `useWorkspaceNavigation()`:
+
+- `openChannels` / `openThreads` list the channels and threads bound to the workspace's panels. A channel or thread opened over another one in the same panel (stacked) is not in them, but it always sits over one that is. So "something is open" is either list being non-empty; `openThreads` alone misses a thread stacked over a channel.
+- To ask whether a given channel or thread is on screen, use `isChannelActive(cid)` / `isThreadActive(threadId)`, which follow what each panel shows.
+- `ChatView` (or your own `WorkspaceNavigationProvider`, [section 4](#4-selecting-channels-and-opening-threads-workspace-navigation)) fills all of these. Without one the lists stay empty, so gate on your own selection state instead.
 
 ```tsx
 // v14
@@ -1708,24 +1712,18 @@ import {
 // `SidebarToggle` stands for a control of your own.
 const SidebarToggle = () => <button>Menu</button>;
 
-// Shown only while a channel is open, as in v14.
-const SidebarToggleWhileChannelOpen = () => {
-  const { openChannels } = useWorkspaceNavigation();
-  return openChannels.length > 0 ? <SidebarToggle /> : null;
-};
-
-// Shown only while a thread is open, as in v14.
-const SidebarToggleWhileThreadOpen = () => {
-  const { openThreads } = useWorkspaceNavigation();
-  return openThreads.length > 0 ? <SidebarToggle /> : null;
+// Shown only while a channel or thread is open beside the list.
+const SidebarToggleWhileContentOpen = () => {
+  const { openChannels, openThreads } = useWorkspaceNavigation();
+  return openChannels.length > 0 || openThreads.length > 0 ? <SidebarToggle /> : null;
 };
 
 const ChannelListHeaderWithToggle = () => (
-  <ChannelListHeader EndContent={SidebarToggleWhileChannelOpen} />
+  <ChannelListHeader EndContent={SidebarToggleWhileContentOpen} />
 );
 
 const ThreadListHeaderWithToggle = () => (
-  <ThreadListHeader EndContent={SidebarToggleWhileThreadOpen} />
+  <ThreadListHeader EndContent={SidebarToggleWhileContentOpen} />
 );
 
 // Declared once, so WithComponents gets the same object on every render.
