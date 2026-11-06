@@ -4,9 +4,9 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "vite --port 5176",
+    "dev": "vite --port 5177 --strictPort",
     "build": "tsc && vite build",
-    "preview": "vite preview --port 5176",
+    "preview": "vite preview --port 5177 --strictPort",
     "screenshots": "node scripts/screenshots.mjs"
   },
   "installConfig": {
@@ -20,7 +20,6 @@
     "@openuidev/react-ui": "0.18.1",
     "react": "^19.2.6",
     "react-dom": "^19.2.6",
-    "stream-chat": "10.0.0-rc.32",
     "stream-chat-react": "workspace:^",
     "zustand": "4.5.7"
   },

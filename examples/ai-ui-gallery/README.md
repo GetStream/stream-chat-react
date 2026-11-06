@@ -9,7 +9,7 @@ Each page is one cell: `?theme=light|dark&wrapper=inside|outside&tokens=default|
 
 ```bash
 yarn build                 # at the repo root: the gallery renders dist/
-yarn start:ai-ui-gallery   # http://localhost:5176
+yarn start:ai-ui-gallery   # http://localhost:5177
 ```
 
 `yarn workspace @stream-io/stream-chat-react-ai-ui-gallery screenshots [outDir]`, with the gallery running, screenshots every cell with the installed Google Chrome and checks every text, including inputs and what A2UI's elements draw in their shadow roots, for 4.5:1 against what is painted under it. It exits non-zero and lists each text that falls short.

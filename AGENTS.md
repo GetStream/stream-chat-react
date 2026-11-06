@@ -38,7 +38,7 @@ Respect repo-specific rules. Do not suppress lint rules broadly; justify and sco
 - `src/` — library source: `components/`, `context/`, `hooks/`, `store/`, `i18n/`, `styling/`, `a11y/`, `plugins/`, `utils/`, `types/`, `constants/`, `mock-builders/`
 - `src/plugins/` — separately exported entry points: `AIComponents`, `ChannelDetail`, `Emojis`, `SlotGeometry`, `SlotLayout`, `encoders`
 - `scripts/` — build/validation scripts
-- `examples/` — private example workspaces: `examples/tutorial` (one folder per tutorial step), `examples/vite` (complete app), `examples/ai-chatbot` (Next.js AI chatbot), `examples/cookbook` (the base app and code of the docs' UI Cookbook recipes; see `.agents/skills/react-ui-cookbook/SKILL.md`)
+- `examples/` — private example workspaces: `examples/tutorial` (one folder per tutorial step), `examples/vite` (complete app), `examples/ai-chatbot` (Next.js AI chatbot), `examples/ai-ui-gallery` (A2UI and OpenUI replies in every theme cell, with a contrast check; no credentials), `examples/cookbook` (the base app and code of the docs' UI Cookbook recipes; see `.agents/skills/react-ui-cookbook/SKILL.md`)
 - `ai-docs/` — integrator-facing migration guides (`ai-migration-v14-v15.md`, `i18n-v15-migration.md`, `instance-configuration.md`, …) and the hand-reviewed `i18n-v15-key-map.json`
 - `developers/` — dev notes (`BRANCHES.md`, `COMMIT.md`, `DEPRECATIONS.md`, `DEVELOPMENT.md`, `DOCUMENTATION.md`, `PR.md`, `RELEASE.md`)
 
@@ -80,12 +80,14 @@ yarn i18n:export          # write an en.json on demand (for a translator or TMS)
 yarn validate-cjs         # loads dist/cjs in Node + a browser-like context
 yarn validate-esm         # imports dist/es in Node
 yarn validate-entry-isolation # fails if the main entry's ESM graph reaches ai-components or its deps
+yarn validate-ai-ui-tokens # fails if A2UI or OpenUI styles read a colour the --str-chat__ai-* tokens leave unset
 
 # Examples
 yarn start:tutorial       # @stream-io/stream-chat-react-tutorial dev server
 yarn start:vite           # @stream-io/stream-chat-react-vite dev server
 yarn start:cookbook       # @stream-io/stream-chat-react-cookbook dev server (UI Cookbook recipes)
 yarn start:ai-chatbot     # @stream-io/stream-chat-react-ai-chatbot dev server (run yarn build first)
+yarn start:ai-ui-gallery  # @stream-io/stream-chat-react-ai-ui-gallery dev server (run yarn build first)
 yarn examples:build       # build all example workspaces
 ```
 
@@ -462,7 +464,7 @@ Follow `.github/pull_request_template.md` (Goal / Implementation details / UI Ch
 - [ ] Screenshots (before/after) for UI changes
 - [ ] Public API changes documented
 
-**CI** (`.github/workflows/ci.yml`, on every PR): lint (`yarn lint`, `yarn types`, `yarn types:scripts`) · build + `validate-cjs` + `validate-esm` + `validate-entry-isolation` + `keys.ts` drift check + `yarn examples:build` · `yarn coverage` → Codecov · deploy `examples/vite` to Vercel. `pr-check.yml` lints the PR title; `size.yml` reports bundle size.
+**CI** (`.github/workflows/ci.yml`, on every PR): lint (`yarn lint`, `yarn types`, `yarn types:scripts`) · build + `validate-cjs` + `validate-esm` + `validate-entry-isolation` + `validate-ai-ui-tokens` + `keys.ts` drift check + `yarn examples:build` · `yarn coverage` → Codecov · deploy `examples/vite` to Vercel. `pr-check.yml` lints the PR title; `size.yml` reports bundle size.
 
 **Release:** automated via semantic-release (`.releaserc.json`) from commit messages.
 

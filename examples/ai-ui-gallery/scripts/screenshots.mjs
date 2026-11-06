@@ -20,7 +20,7 @@ import { mkdirSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { chromium } from '@playwright/test';
 
-const BASE_URL = process.env.GALLERY_URL ?? 'http://localhost:5176/';
+const BASE_URL = process.env.GALLERY_URL ?? 'http://localhost:5177/';
 const OUT_DIR = resolve(process.argv[2] ?? 'screenshots');
 const MIN_CONTRAST = 4.5;
 

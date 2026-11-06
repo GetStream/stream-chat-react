@@ -457,6 +457,8 @@ Every key the components use:
 | `aiComponents.suggestions.suggestions.ariaLabel`              | Suggestions                                                           | `aria/Suggestions`                                                      |
 | `aiComponents.toolApproval.allow.label`                       | Allow                                                                 | `Allow`                                                                 |
 | `aiComponents.toolApproval.answerNotSent.text`                | Your answer couldn't be sent. Try again.                              | `Your answer couldn't be sent. Try again.`                              |
+| `aiComponents.toolApproval.arguments.ariaLabel`               | What it sends                                                         | `What it sends`                                                         |
+| `aiComponents.toolApproval.arguments.label`                   | What it sends                                                         | `What it sends`                                                         |
 | `aiComponents.toolApproval.dontAllow.label`                   | Don't Allow                                                           | `Don't Allow`                                                           |
 | `aiComponents.toolAuthorization.answerNotSent.text`           | Your answer couldn't be sent. Try again.                              | `Your answer couldn't be sent. Try again.`                              |
 | `aiComponents.toolAuthorization.connect.label`                | Connect                                                               | `Connect`                                                               |
