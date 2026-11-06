@@ -1,3 +1,182 @@
+## [15.0.0-rc.4](https://github.com/GetStream/stream-chat-react/compare/v15.0.0-rc.3...v15.0.0-rc.4) (2026-11-06)
+
+### ⚠ BREAKING CHANGES
+
+* props and ComponentContext keys that had no effect are removed, nine slots are typed without props, and overrides of several slots render in more places.
+
+- `additionalMessageComposerProps` is removed from `Message`, `MessageList`, `VirtualizedMessageList` and `VirtuosoContext`. It did nothing in v14; delete it. If the props were meant for the composer, pass them to the `MessageComposer` you render.
+- `MessageReactions.reverse`, `MessageReactionsDetail.sort` and `MessageReactionsDetail.dialogId` are removed, and `MessageUI` no longer passes `reverse` to a `MessageReactions` override. Order reaction types with `sortReactions` and reacting users with `reactionDetailsSort`; the detail's dialog id is `MessageReactionsDetail.getDialogId({ messageId })`.
+- `MessageComposer` no longer takes `emojiSearchIndex` or `parent`, the `emojiSearchIndex` override key is removed, and `useMessageComposerContext()` no longer returns `emojiSearchIndex`, `parent` or `audioRecordingConfig`. For emoji autocomplete, register `createTextComposerEmojiMiddleware(SearchIndex)` from `stream-chat-react/emojis` in a `client.config.setSetupFunction('messageComposer', ...)`.
+- `WithDragAndDropUpload.acceptedFiles` is removed. Set the accepted types on the composer config, `attachments.acceptedFiles`.
+- `ChannelListItem.activeChannel` is removed. A custom `ChannelListItemUI` reads `active`, or compares the app's own selected channel with its `channel`.
+- `ChatView.entityInferrers`, the `ChatViewEntityInferer` type and `useChatViewContext().entityInferers` are removed.
+- The `AttachmentPreviewList`, `MessageComposerUI`, `MessageEditedIndicator`, `MessageStatus`, `NotificationAnnouncer`, `QuotedMessagePreview`, `SearchSourceResultList`, `TextareaComposer` and `VoiceRecordingPreviewSlot` slots are typed `React.ComponentType` without props, because the SDK renders them without props. Rendering one from `useComponentContext()` with props, or an override with required props, no longer compiles; render the exported component with its props inside the override.
+- Overrides of `FileDragAndDropContent`, `BaseImage`, `LoadingIndicator`, `Timestamp`, `Avatar`, `DateSeparator`, `Gallery` and `FileSizeIndicator` now also render where the SDK rendered the default directly: link previews, video thumbnails, galleries, quoted messages, load-more buttons, poll vote lists, thread list items, user search results, the thread's parent message, composer previews and channel detail lists. To keep the default in one place, wrap it in `WithComponents` with the exported default.
+
+See ai-docs/v15-breaking-changes.md (BC-105 to BC-109, BC-033) and ai-docs/ai-migration-v14-v15.md.
+* **ChannelListHeader:** ComponentContext.HeaderEndContent is removed. Pass the content
+as EndContent to ChannelListHeader / ThreadListHeader instead, by registering a
+component that renders the header with it under the ChannelListHeader or
+ThreadListHeader key. One component no longer fills both headers.
+* **ChannelListHeader:** list-header content renders whenever it is set. HeaderEndContent
+showed only while a channel (channel list) or a thread (thread list) was open;
+content that should keep that behavior returns null while
+useWorkspaceNavigation().openChannels / openThreads is empty. See BC-099 in
+ai-docs/v15-breaking-changes.md and "List headers: HeaderEndContent becomes an
+EndContent prop" in ai-docs/ai-migration-v14-v15.md.
+* **ChannelDetail:** ChannelMembersHeaderActionItem.component is renamed to
+Component, matching the message and channel-list action sets.
+* **ChannelDetail:** the 'menu' placement of a channel members header action is
+renamed to 'dropdown'. A 'menu' item is no longer rendered.
+* **ChannelDetail:** the HeaderActionsMenuTrigger prop (on ChannelMembersView and
+ChannelMembersHeaderActionsProps), DefaultHeaderActionsMenuTrigger and
+ChannelMembersHeaderActionsMenuTriggerProps are removed. The menu trigger is a
+{ Component, placement: 'quick-dropdown-toggle' } item in headerActionSet: a
+forwardRef button that receives the ref the menu anchors to, aria-expanded and
+onClick, and spreads them. defaultChannelMembersHeaderActionSet starts with
+DefaultChannelMembersHeaderActions.QuickDropdownToggle; a set without a toggle
+item renders no dropdown menu.
+* **ChannelDetail:** dropdown header actions no longer receive a closeMenu prop.
+They read closeMenu from useContextMenuContext().
+* **ChannelDetail:** a header action's filter is renamed to isVisible, typed with
+ChannelMembersHeaderActionVisibilityFilterParams and called with { channel }, as
+on message actions. A leftover filter is ignored, so the action it hid shows to
+every user.
+* **ChannelDetail:** ChannelMembersHeaderActionItem is a union whose
+quick-dropdown-toggle member has no type or isVisible, and
+ChannelMembersHeaderActionPlacement includes 'quick-dropdown-toggle'. Narrow an
+item (e.g. 'type' in item) before reading type.
+* **ChannelDetail:** a custom HeaderActions renders the set's quick-dropdown-toggle
+item itself and filters the set with useBaseChannelMembersHeaderActionSetFilter.
+It renders the dropdown items in a ContextMenu opened with
+useDialogOnNearestManager, using an id unique to the component instance. See
+BC-098 in ai-docs/v15-breaking-changes.md and "The channel members header action
+set uses the shared action names" in ai-docs/ai-migration-v14-v15.md.
+* **TypingIndicator:** translations of `typing.twoUsers` must use
+`{{ firstUser }}` and `{{ secondUser }}` instead of `{{ typing }}`, for example
+'{{ firstUser }} und {{ secondUser }} schreiben'. A translation that keeps
+`{{ typing }}` still compiles but shows the literal text `{{ typing }}`.
+See BC-100 in ai-docs/v15-breaking-changes.md and "Keys whose values changed"
+in ai-docs/i18n-v15-migration.md.
+* unused exports and the transliterate dependency are removed, and stream-chat-react now types channel custom data for apps.
+
+- `Root` and `Header` are no longer exported from the package root. They are the parts of `Alert`; use `Alert.Root` and `Alert.Header`.
+- `UploadIcon`, `BinIcon`, `PauseIcon` and `PlayIcon` are removed. Copy the SVG into the app, or use `IconPlus` / `IconAttachment`, `IconDelete`, `IconPauseFill` and `IconPlayFill` from the v15 icon set.
+- `@stream-io/transliterate` is no longer an optional dependency. Apps that import it must add it to their own dependencies. For mention search, pass a `transliterate` function to stream-chat's mentions middleware.
+- Importing `stream-chat-react` now types `channel.data.custom.name` and `.image` (`string | undefined`). Delete the app's own `name` / `image` declarations on `CustomChannelData`; a declaration with another type overrides the SDK's under `skipLibCheck` and fails with TS2430 without it.
+- `DefaultChannelData` no longer has `subtitle` or `team`. Declare them on `CustomChannelData` if the app stores them under `custom`; read the channel's team from `channel.data.team`.
+- The translation key `messageComposer.icons.attachFiles.text` is removed.
+
+See ai-docs/v15-breaking-changes.md (BC-101) and ai-docs/ai-migration-v14-v15.md.
+* **Message:** Removed the initialMessage property from message props and context. Use the new hook to identify thread-parent messages.
+* **ChannelDetail:** outside a modal, the ChannelDetail views render no close
+button unless ChannelDetail or ChannelDetailProvider gets onClose. They used to
+render a close button that did nothing.
+* **ChannelDetail:** ChannelDetail calls onLayoutChange on every layout change. It
+used to ignore the prop.
+* **AttachmentSelector:** SimpleAttachmentSelector, and the plain upload button AttachmentSelector renders when File is its only action, follow the composer's File rule instead of the upload-file capability alone. They appear without upload-file when attachments.customCdn is set, are hidden when attachments are disabled (the channel type's uploads flag is off without customCdn, or the client sets attachments.enabled: false), and are disabled once the message holds maxNumberOfFilesPerMessage files. At that limit the menu's File item also stays, disabled, where v14 hid it. See BC-065 in ai-docs/v15-breaking-changes.md and "Attachment and poll availability" in ai-docs/ai-migration-v14-v15.md.
+* deprecated message, mention and list APIs are removed.
+
+- `renderText(text, mentionedUsers, options)` is now `renderText(text, options)`, and `RenderTextFunction` is `(text, options)`. Pass mentions as `options.messageMentionEntities`, built with `getRenderTextMentionEntities(message)`.
+- Custom mention renderers get `node.mentionedEntity` instead of `node.mentionedUser`.
+- `onMentionsClick` / `onMentionsHover` are called with `(event, message)`; the `mentioned_users` argument and the `MentionedUserEventHandler` type are removed (use `CustomMentionHandler`). Read the clicked mention from the target's `data-user-id` / `data-mention-id`.
+- `MessageContextValue.onMentionsClickMessage` / `onMentionsHoverMessage` and the handlers from `useMentionsHandler` are `undefined` unless `onMentionsClick` / `onMentionsHover` is passed. Mentions are interactive only when a click handler is set.
+- `mentionsMarkdownPlugin` and `createMentionPluginAndDisplayTextSet` take mention entities only, not `UserResponse[]`.
+- `useUserRole` is renamed `useMessagePermissions(message)`, and it no longer returns `isAdmin`, `isModerator` or `isOwner`; gate on the `can*` flags or `useChannelCapabilities()`.
+- `disableQuotedMessages` is removed from `MessageList`, `Message` and `useMessagePermissions`. To hide quoting, pass a `messageActionSet` without the `quote` item through the `MessageActions` slot.
+- `VirtualizedMessageList` drops `defaultItemHeight`, `overscan` and `scrollSeekPlaceHolder`; pass them through `additionalVirtuosoProps`.
+- `PinEnabledUserRoles` and `PinPermissions` are removed; use `useMessagePermissions(message).canPin`.
+
+See ai-docs/v15-breaking-changes.md (BC-087 to BC-095) and ai-docs/ai-migration-v14-v15.md.
+* message context and grouping API changes.
+- MessageProps.threadList and MessageContextValue.threadList are removed. Detect a thread
+  with `!!useThreadContext()`.
+- ReactionSelector.getDialogId takes only `{ messageId }`; the reaction selector dialog id
+  no longer has a `-thread` part. Each message list has its own dialog manager.
+- MessageContextValue.endOfGroup, firstOfGroup and groupedByUser are removed. Read
+  `useMessageContext().groupStyles[0]` (`top`, `middle`, `bottom` or `single`).
+- The str-chat__virtual-message__wrapper--end, --first and --group classes are no longer
+  applied. Target the list item's .str-chat__li--top / --middle / --bottom / --single.
+- MessageList.noGroupByUser and VirtualizedMessageList.shouldGroupByUser are replaced by
+  groupByUser (defaults: true and false). VirtuosoContext.shouldGroupByUser is groupByUser.
+- The groupStyles function prop of both lists is renamed getGroupStyles and is called with
+  one GetGroupStylesParams object: { groupByUser, maxTimeBetweenGroupedMessages, message,
+  nextMessage, previousMessage }. The exported getGroupStyles takes the same object, and
+  useEnrichedMessages takes getGroupStyles and groupByUser instead of groupStyles and
+  noGroupByUser.
+See BC-048, BC-085 and BC-086 in ai-docs/v15-breaking-changes.md.
+* **MessageComposer:** useUserRole(message).canEdit is now the update permission alone
+(update-any-message, or update-own-message on the user's own message). It no
+longer excludes poll messages and giphies. A custom UI that gated an edit button
+on it and wants that rule adds `!message.poll_id && message.command !== 'giphy'`.
+* **MessageComposer:** the edit, copyMessageText and download rules about the message
+moved from useBaseMessageActionSetFilter onto the items of
+defaultMessageActionSet as isVisible. A hand-written edit, copyMessageText or
+download item without isVisible now shows wherever the base filter allows it,
+e.g. edit on a poll message the user may update. Copy the default item's
+isVisible to keep the rule. Item isVisible rules also apply when
+disableBaseMessageActionSetFilter is set, which previously returned the set
+unfiltered, and to failed messages: a poll message or giphy that failed to send
+for a network reason no longer offers Edit.
+* **MessageComposer:** a message with a poll renders its text and attachments too, and
+the quoted message now renders above the poll instead of below it. Such a
+message gets str-chat__message--has-poll and no longer gets
+str-chat__message--has-single-attachment.
+* **MessageComposer:** custom AttachmentPreviewList, VoiceRecordingPreviewSlot and
+LinkPreviewList components mount only while their item in
+defaultMessageComposerPreviewSet is visible: attachments while the composer holds
+an attachment other than a voice recording, voiceRecording while it holds a voice
+recording, linkPreviews while a link preview is loading or loaded. Previously they
+mounted whenever the preview area showed. A custom component that also renders
+something else (a location, a poll, an empty or upload state) replaces its item
+with one whose isVisible covers it.
+
+### Bug Fixes
+
+* **ai-components:** fromStreamMessage takes a LocalMessage, loadOlderMessages a toTail ([#3390](https://github.com/GetStream/stream-chat-react/issues/3390)) ([20a488f](https://github.com/GetStream/stream-chat-react/commit/20a488f94128cc9c2fff6999f3afb3aa68af53aa)), closes [#3389](https://github.com/GetStream/stream-chat-react/issues/3389)
+* **ai-components:** theme generated UI from AI tokens alone, add showsUI and approval arguments ([#3412](https://github.com/GetStream/stream-chat-react/issues/3412)) ([49f859c](https://github.com/GetStream/stream-chat-react/commit/49f859c800eee8f39018825804c82cc8e2281383)), closes [#3399](https://github.com/GetStream/stream-chat-react/issues/3399) [#3399](https://github.com/GetStream/stream-chat-react/issues/3399) [#3399](https://github.com/GetStream/stream-chat-react/issues/3399) [#3394](https://github.com/GetStream/stream-chat-react/issues/3394) [#3395](https://github.com/GetStream/stream-chat-react/issues/3395) [#3393](https://github.com/GetStream/stream-chat-react/issues/3393) [#3399](https://github.com/GetStream/stream-chat-react/issues/3399) [#3399](https://github.com/GetStream/stream-chat-react/issues/3399)
+* **AttachmentSelector:** offer file uploads with customCdn and add StandaloneButton ([#3397](https://github.com/GetStream/stream-chat-react/issues/3397)) ([3e5af96](https://github.com/GetStream/stream-chat-react/commit/3e5af961049050f23258e2071f0e67fc50fca895))
+* bubble-aware colors for quotes, location, polls and the AI stop button ([#3411](https://github.com/GetStream/stream-chat-react/issues/3411)) ([b2a8ded](https://github.com/GetStream/stream-chat-react/commit/b2a8ded2c901c8e254704a77f4e3a798edafa32d))
+* **ChannelDetail:** call onLayoutChange and close through onClose outside a modal ([#3396](https://github.com/GetStream/stream-chat-react/issues/3396)) ([03796b0](https://github.com/GetStream/stream-chat-react/commit/03796b03dad983d096268784301d26d208a9a037))
+* **ChannelDetail:** give the channel members header action set the shared action-set shape ([#3405](https://github.com/GetStream/stream-chat-react/issues/3405)) ([e7af1aa](https://github.com/GetStream/stream-chat-react/commit/e7af1aa3302f24159bc8a54fd29950f33bf26e54))
+* **ChannelListHeader:** list headers take StartContent / EndContent props ([#3406](https://github.com/GetStream/stream-chat-react/issues/3406)) ([d60e737](https://github.com/GetStream/stream-chat-react/commit/d60e7372ace041eaccc8471767e26a2eddd741f8))
+* **ChannelList:** strip markdown from the last-message preview and add listboxProps ([#3410](https://github.com/GetStream/stream-chat-react/issues/3410)) ([e614648](https://github.com/GetStream/stream-chat-react/commit/e614648afaf160bf80bd23a9bdd869f91b657e39))
+* **deps:** bump [@stream-io](https://github.com/stream-io) toolkit packages to the .mjs/.cjs builds ([#3368](https://github.com/GetStream/stream-chat-react/issues/3368)) ([c22f3f8](https://github.com/GetStream/stream-chat-react/commit/c22f3f8bb4b2314c28ecb19e7fd57473afb926a8)), closes [GetStream/js-toolkit#58](https://github.com/GetStream/js-toolkit/issues/58)
+* **deps:** bump stream-chat to 10.0.0-rc.28 ([#3369](https://github.com/GetStream/stream-chat-react/issues/3369)) ([bca4ce2](https://github.com/GetStream/stream-chat-react/commit/bca4ce24484cf2245f487126de449c6c4bf712dc))
+* drop unset MessageContext fields and unify message grouping props ([#3386](https://github.com/GetStream/stream-chat-react/issues/3386)) ([097b474](https://github.com/GetStream/stream-chat-react/commit/097b4742a2533896b4051984af935d5c23436cd4))
+* **Gallery:** play videos without a thumbnail and load the selected Giphy version ([#3407](https://github.com/GetStream/stream-chat-react/issues/3407)) ([506cb9d](https://github.com/GetStream/stream-chat-react/commit/506cb9dfacc41d719445f11aaca569a6ea97d3a2))
+* **InfiniteScrollPaginator:** check the edges on resize in the next frame ([#3357](https://github.com/GetStream/stream-chat-react/issues/3357)) ([dd40f58](https://github.com/GetStream/stream-chat-react/commit/dd40f582daaa9810dcb4faa00e4a2a41b61e520c)), closes [GetStream/website-react-examples#138](https://github.com/GetStream/website-react-examples/issues/138) [#3342](https://github.com/GetStream/stream-chat-react/issues/3342)
+* **LinkPreviewList:** take the preview thumbnail from image_url or thumb_url ([#3392](https://github.com/GetStream/stream-chat-react/issues/3392)) ([8b6bbd9](https://github.com/GetStream/stream-chat-react/commit/8b6bbd96bfee84748028290d72b561488a3ad191))
+* **MediaRecorder:** build the voice recording with a pending upload state ([#3400](https://github.com/GetStream/stream-chat-react/issues/3400)) ([6285e3d](https://github.com/GetStream/stream-chat-react/commit/6285e3dd03d153e957de355001c96dfa49d2e0fe))
+* **MessageActions:** show Pin only with the pin-message capability ([#3382](https://github.com/GetStream/stream-chat-react/issues/3382)) ([f31ab7a](https://github.com/GetStream/stream-chat-react/commit/f31ab7a4211af432c9cd137c86cdead5cc0fdaee))
+* **MessageList:** stop the floating date separator from stacking on the inline one ([#3370](https://github.com/GetStream/stream-chat-react/issues/3370)) ([ec1413d](https://github.com/GetStream/stream-chat-react/commit/ec1413d20c7db9e70abde78a3f730a7e0ea9e448))
+* **Message:** send default reactions through messageOperations ([#3379](https://github.com/GetStream/stream-chat-react/issues/3379)) ([53f497d](https://github.com/GetStream/stream-chat-react/commit/53f497dc115dce6c4d6d4eaea00797bc647385bd))
+* **Message:** show error notification when pin, mute or delete fails ([#3360](https://github.com/GetStream/stream-chat-react/issues/3360)) ([d88dbf0](https://github.com/GetStream/stream-chat-react/commit/d88dbf02a7d021a75c5a5d179875b66571c5804d)), closes [#3359](https://github.com/GetStream/stream-chat-react/issues/3359)
+* **Message:** throw when a message handler is missing a parameter ([#3362](https://github.com/GetStream/stream-chat-react/issues/3362)) ([290d2db](https://github.com/GetStream/stream-chat-react/commit/290d2dbaf931a5f19e12b022d542dc8b93c389c6)), closes [#3360](https://github.com/GetStream/stream-chat-react/issues/3360) [#3360](https://github.com/GetStream/stream-chat-react/issues/3360)
+* remove props and override keys that have no effect, wire up the rest ([#3408](https://github.com/GetStream/stream-chat-react/issues/3408)) ([91b2c68](https://github.com/GetStream/stream-chat-react/commit/91b2c688536a8309db0ba6136e8922589c825c35))
+* **renderText:** stop markdown tables from rendering an empty row under the header ([#3385](https://github.com/GetStream/stream-chat-react/issues/3385)) ([6a4f93d](https://github.com/GetStream/stream-chat-react/commit/6a4f93d99b88e54190a6baf53fcfc60e9b981c2c))
+* retry attachment uploads through AttachmentManager.uploadFile ([#3384](https://github.com/GetStream/stream-chat-react/issues/3384)) ([2359ae8](https://github.com/GetStream/stream-chat-react/commit/2359ae839ed5ef354e017870be38b46808519530))
+* **ShareLocationDialog:** keep one position watch and give the first fix 10 s ([#3409](https://github.com/GetStream/stream-chat-react/issues/3409)) ([37a4be3](https://github.com/GetStream/stream-chat-react/commit/37a4be336efe5816ca3933fe344e5d4b82579fe9))
+* ship the CustomChannelData typing and remove dead exports and the transliterate dependency ([#3403](https://github.com/GetStream/stream-chat-react/issues/3403)) ([85d5b4e](https://github.com/GetStream/stream-chat-react/commit/85d5b4e5dadc07385c177cea89a6309a08bd0b4b))
+* show list query errors with a retry in ChannelList and ThreadList ([#3381](https://github.com/GetStream/stream-chat-react/issues/3381)) ([bb1b874](https://github.com/GetStream/stream-chat-react/commit/bb1b874c263b14962f8199f46a1ea2b56b920864))
+* system message row class, thread list slide, composer error icons, addNotification id ([#3398](https://github.com/GetStream/stream-chat-react/issues/3398)) ([a5daf2a](https://github.com/GetStream/stream-chat-react/commit/a5daf2a6a887edf2481c6c7d3ff4fa4af570d530))
+* **types:** remove DefaultCommandData and the CustomCommandData augmentation ([#3380](https://github.com/GetStream/stream-chat-react/issues/3380)) ([10e2b66](https://github.com/GetStream/stream-chat-react/commit/10e2b6651cf53b36b809bfc877158df158d798e4))
+* **TypingIndicator:** pass the two typing names to typing.twoUsers as separate values ([#3404](https://github.com/GetStream/stream-chat-react/issues/3404)) ([7021ab9](https://github.com/GetStream/stream-chat-react/commit/7021ab95f337d45a6b2a91aec9535c9135268adb))
+* v15 regressions found in side-by-side QA ([#3364](https://github.com/GetStream/stream-chat-react/issues/3364)) ([534c503](https://github.com/GetStream/stream-chat-react/commit/534c5039c44eedd51622fa5404eec649dad0e4ea))
+* **VirtualizedMessageList:** pass mention and user handlers and unsafeHTML to messages ([#3402](https://github.com/GetStream/stream-chat-react/issues/3402)) ([059f939](https://github.com/GetStream/stream-chat-react/commit/059f9392d283151143ade44e2ec9009a27a4d100))
+
+### Features
+
+* **ai-components:** agent conversations, reply steps, approvals and sign-in ([#3389](https://github.com/GetStream/stream-chat-react/issues/3389)) ([6ac68dd](https://github.com/GetStream/stream-chat-react/commit/6ac68dd2826176a5e4c581a3b56eef44764fe767)), closes [#3376](https://github.com/GetStream/stream-chat-react/issues/3376) [#3376](https://github.com/GetStream/stream-chat-react/issues/3376)
+* **ai-components:** generated UI, with A2UI and OpenUI renderers ([#3393](https://github.com/GetStream/stream-chat-react/issues/3393)) ([3e808cc](https://github.com/GetStream/stream-chat-react/commit/3e808cc8a9b16216ff728850d18f54cc6eda3f38)), closes [GetStream/stream-chat-react#3388](https://github.com/GetStream/stream-chat-react/issues/3388) [#3388](https://github.com/GetStream/stream-chat-react/issues/3388) [GetStream/stream-chat-react#3394](https://github.com/GetStream/stream-chat-react/issues/3394) [#3394](https://github.com/GetStream/stream-chat-react/issues/3394) [#3394](https://github.com/GetStream/stream-chat-react/issues/3394)
+* **ChannelHeader:** add a Title slot and export the default subtitle ([#3367](https://github.com/GetStream/stream-chat-react/issues/3367)) ([766a71f](https://github.com/GetStream/stream-chat-react/commit/766a71f89d1ba76b53abf2a194e8674aa5e33913))
+* **MessageComposer:** make composer previews a configurable set ([#3365](https://github.com/GetStream/stream-chat-react/issues/3365)) ([1c02ba0](https://github.com/GetStream/stream-chat-react/commit/1c02ba07fd4bc7a94f23fc5848c70c8405086731))
+
+### Refactors
+
+* **Message:** replace initialMessage with useIsRenderedAsThreadParent ([#3401](https://github.com/GetStream/stream-chat-react/issues/3401)) ([3b616f9](https://github.com/GetStream/stream-chat-react/commit/3b616f9761a3523c4a78fcbe35a7bc139c8c01f3))
+* remove deprecated message APIs before v15 GA ([#3387](https://github.com/GetStream/stream-chat-react/issues/3387)) ([80ca72d](https://github.com/GetStream/stream-chat-react/commit/80ca72d85f4845af04d8627bdae0f8cbe85061cd))
+
 ## [15.0.0-rc.3](https://github.com/GetStream/stream-chat-react/compare/v15.0.0-rc.2...v15.0.0-rc.3) (2026-10-28)
 
 ### ⚠ BREAKING CHANGES

@@ -24,10 +24,9 @@ export type MessageReactionsDetailProps = Partial<
   reactions: ReactionSummary[];
   selectedReactionType: ReactionType | null;
   onSelectedReactionTypeChange?: (reactionType: ReactionType | null) => void;
-  sort?: SortParamRequest[];
   totalReactionCount?: number;
   reactionGroups?: ReturnType<typeof useProcessReactions>['reactionGroups'];
-} & ReactionSelectorProps;
+} & Omit<ReactionSelectorProps, 'dialogId'>;
 
 const defaultReactionDetailsSort: SortParamRequest[] = [
   { direction: -1, field: 'created_at' },

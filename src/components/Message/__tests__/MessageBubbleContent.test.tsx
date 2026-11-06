@@ -21,6 +21,7 @@ import {
 } from '../MessageBubbleContent';
 import { defaultMessageBubbleContentSet } from '../MessageBubbleContent.defaults';
 import type { MessageProps } from '../types';
+import type { MessageTextProps } from '../MessageText';
 
 const user = generateUser({ id: 'me' });
 
@@ -68,17 +69,19 @@ const renderMessage = async ({
   channel,
   client,
   components = {},
+  isMessageAIGenerated,
   message,
 }: {
   channel: ChannelType;
   client: StreamChat;
   components?: Parameters<typeof WithComponents>[0]['overrides'];
+  isMessageAIGenerated?: (message: LocalMessage) => boolean;
   message: LocalMessage;
 }) => {
   let result!: ReturnType<typeof render>;
   await act(() => {
     result = render(
-      <Chat client={client}>
+      <Chat client={client} isMessageAIGenerated={isMessageAIGenerated}>
         <Channel channel={channel}>
           <WithComponents overrides={components}>
             <Message {...fromPartial<MessageProps>({ message })} />
@@ -146,6 +149,55 @@ describe('MessageBubbleContent', () => {
     });
 
     expect(bubbleContentOrder(container)).toEqual(['text', 'custom', 'poll']);
+  });
+
+  it('renders the text through the MessageText override', async () => {
+    const { channel, client } = await setup();
+    const message = generateMessage({
+      text: 'just text',
+      user,
+    }) as unknown as LocalMessage;
+    const MessageText = vi.fn(({ message }: MessageTextProps) => (
+      <div data-testid='custom-message-text'>{message?.text}</div>
+    ));
+
+    const { getByTestId } = await renderMessage({
+      channel,
+      client,
+      components: { MessageText },
+      message,
+    });
+
+    expect(getByTestId('custom-message-text')).toHaveTextContent('just text');
+    expect(MessageText).toHaveBeenCalledWith(
+      expect.objectContaining({ message: expect.objectContaining({ id: message.id }) }),
+      undefined,
+    );
+  });
+
+  it('renders the text of an AI-generated message through the MessageText override', async () => {
+    const { channel, client } = await setup();
+    const message = generateMessage({
+      text: 'generated',
+      user,
+    }) as unknown as LocalMessage;
+    const MessageText = ({ message }: MessageTextProps) => (
+      <div data-testid='custom-message-text'>{message?.text}</div>
+    );
+    const isMessageAIGenerated = vi.fn(() => true);
+
+    const { getByTestId } = await renderMessage({
+      channel,
+      client,
+      components: { MessageText },
+      isMessageAIGenerated,
+      message,
+    });
+
+    expect(isMessageAIGenerated).toHaveBeenCalledWith(
+      expect.objectContaining({ id: message.id }),
+    );
+    expect(getByTestId('custom-message-text')).toBeInTheDocument();
   });
 
   it('has no accessibility violations', async () => {

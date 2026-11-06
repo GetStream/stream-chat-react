@@ -6,7 +6,7 @@ import { act, fireEvent, render, screen } from '@testing-library/react';
 import { fromPartial } from '@total-typescript/shoehorn';
 
 import { Channel } from '../../Channel/Channel';
-import { MessageComposerContextProvider } from '../../../context';
+import { MessageComposerContextProvider, WithComponents } from '../../../context';
 import { Chat } from '../../Chat';
 import type { MessageComposerContextValue } from '../../../context';
 import {
@@ -124,5 +124,39 @@ describe('WithDragAndDropUpload', () => {
     const nested = screen.getByTestId('nested-child').parentElement;
     expect(nested).toHaveClass('nested');
     expect(nested).toHaveStyle({ color: 'rgb(255, 0, 0)' });
+  });
+
+  it('renders the FileDragAndDropContent override while files are dragged over it', async () => {
+    const { channel, client } = await setup();
+    const CustomDropContent = ({ isDragRejected }: { isDragRejected: boolean }) => (
+      <div data-testid='custom-drop-content'>{String(isDragRejected)}</div>
+    );
+
+    await act(async () => {
+      await render(
+        <Chat client={client}>
+          <Channel channel={channel}>
+            <WithComponents overrides={{ FileDragAndDropContent: CustomDropContent }}>
+              <WithDragAndDropUpload>
+                <DropSubscriber onDrop={vi.fn()} />
+              </WithDragAndDropUpload>
+            </WithComponents>
+          </Channel>
+        </Chat>,
+      );
+    });
+
+    // react-dropzone reads the dragged files asynchronously.
+    await act(async () => {
+      await fireEvent.dragEnter(screen.getByTestId('subscriber').parentElement!, {
+        dataTransfer: {
+          files: [file()],
+          items: [{ kind: 'file', type: 'text/plain' }],
+          types: ['Files'],
+        },
+      });
+    });
+
+    expect(await screen.findByTestId('custom-drop-content')).toHaveTextContent('false');
   });
 });

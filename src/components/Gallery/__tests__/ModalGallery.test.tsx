@@ -422,6 +422,21 @@ describe('ModalGallery', () => {
       ).not.toBeInTheDocument();
     });
 
+    it('should render the LoadingIndicator from ComponentContext in the loading overlay', () => {
+      const CustomLoadingIndicator = () => <div data-testid='custom-loading-indicator' />;
+      const items = [makeImageItem()];
+
+      renderComponent({ items }, { LoadingIndicator: CustomLoadingIndicator });
+
+      const overlay = screen.getByTestId(
+        'str-chat__modal-gallery__image-loading-overlay',
+      );
+      expect(overlay).toContainElement(screen.getByTestId('custom-loading-indicator'));
+      expect(
+        overlay.querySelector('.str-chat__loading-indicator'),
+      ).not.toBeInTheDocument();
+    });
+
     it('should display image fallback on error', () => {
       const items = [makeImageItem(), makeImageItem()];
 

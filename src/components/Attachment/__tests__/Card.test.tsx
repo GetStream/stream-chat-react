@@ -1,10 +1,10 @@
 import React from 'react';
 import { cleanup, render, waitFor } from '@testing-library/react';
 
-import { Card } from '../LinkPreview/Card';
+import { Card, type CardProps } from '../LinkPreview/Card';
 
 import { fromPartial } from '@total-typescript/shoehorn';
-import { TranslationContext } from '../../../context';
+import { TranslationContext, WithComponents } from '../../../context';
 import { ChatProvider } from '../../../context/ChatContext';
 import { ComponentProvider } from '../../../context/ComponentContext';
 
@@ -283,6 +283,30 @@ describe('Card', () => {
     await waitFor(() => {
       expect(queryByTestId('card-header')).not.toBeInTheDocument();
     });
+  });
+
+  it('should render the BaseImage from ComponentContext in the card header', () => {
+    const CustomBaseImage = (props: { src?: string; title?: string }) => (
+      <div data-src={props.src} data-testid='custom-base-image' title={props.title} />
+    );
+    const { getByTestId, queryByTestId } = render(
+      <TranslationContext.Provider value={mockTranslationContextValue()}>
+        <WithComponents overrides={{ BaseImage: CustomBaseImage }}>
+          <Card
+            {...fromPartial<CardProps>({
+              image_url: 'https://example.com/image.png',
+              og_scrape_url: 'https://example.com',
+              title: 'Card title',
+            })}
+          />
+        </WithComponents>
+      </TranslationContext.Provider>,
+    );
+
+    const image = getByTestId('custom-base-image');
+    expect(image).toHaveAttribute('data-src', 'https://example.com/image.png');
+    expect(image).toHaveAttribute('title', 'Card title');
+    expect(queryByTestId('image-test')).not.toBeInTheDocument();
   });
 
   it('should display URL in source link if author_name is not available', async () => {

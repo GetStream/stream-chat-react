@@ -103,6 +103,8 @@ export const deTranslations = {
   'aiComponents.toolApproval.allow.label': 'Erlauben',
   'aiComponents.toolApproval.answerNotSent.text':
     'Deine Antwort konnte nicht gesendet werden. Versuche es erneut.',
+  'aiComponents.toolApproval.arguments.ariaLabel': 'Was gesendet wird',
+  'aiComponents.toolApproval.arguments.label': 'Was gesendet wird',
   'aiComponents.toolApproval.dontAllow.label': 'Nicht erlauben',
   'aiComponents.toolAuthorization.answerNotSent.text':
     'Deine Antwort konnte nicht gesendet werden. Versuche es erneut.',

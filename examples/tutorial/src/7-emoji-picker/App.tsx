@@ -56,14 +56,14 @@ const slotRenderers: ChatViewSlotRenderers = {
     <Channel channel={source}>
       <ChannelHeader />
       <MessageList />
-      <MessageComposer emojiSearchIndex={SearchIndex} />
+      <MessageComposer />
     </Channel>
   ),
   thread: ({ source }) => (
     <Thread thread={source}>
       <ThreadHeader />
       <MessageList />
-      <MessageComposer emojiSearchIndex={SearchIndex} />
+      <MessageComposer />
     </Thread>
   ),
 };

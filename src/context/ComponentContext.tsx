@@ -3,7 +3,6 @@ import React, { useContext } from 'react';
 import type { UserResponse } from 'stream-chat';
 
 import {
-  type AttachmentPreviewListProps,
   type AttachmentProps,
   type AvatarStackProps,
   type BaseImageProps,
@@ -13,7 +12,6 @@ import {
   type ContextMenuContentProps,
   type ContextMenuProps,
   type DateSeparatorProps,
-  type EmojiSearchIndex,
   type EmptyStateIndicatorProps,
   type EventComponentProps,
   type FileDragAndDropContentProps,
@@ -23,14 +21,14 @@ import {
   type ListLoadErrorIndicatorProps,
   type LoadingIndicatorProps,
   type MessageBouncePromptProps,
-  type MessageComposerProps,
   type MessageDeletedProps,
-  type MessageEditedIndicatorProps,
+  type MessageListItemProps,
+  type MessageListWrapperProps,
   type MessageProps,
   type MessageReactionsDetailProps,
   type MessageReactionsProps,
   type MessageRepliesCountButtonProps,
-  type MessageStatusProps,
+  type MessageTextProps,
   type MessageTimestampProps,
   type MessageUIComponentProps,
   type ModalGalleryProps,
@@ -42,7 +40,6 @@ import {
   type PollCreationDialogControlsProps,
   type PollCreationDialogProps,
   type PollOptionSelectorProps,
-  type QuotedMessagePreviewProps,
   type ReactionOptions,
   type ReactionSelector,
   type ReactionSelectorProps,
@@ -50,19 +47,17 @@ import {
   type ReminderNotificationProps,
   type ScrollToLatestMessageButtonProps,
   type SearchResultsPresearchProps,
-  type SearchSourceResultListProps,
+  type SearchSourceResultsProps,
   type SendButtonProps,
   type ShareLocationDialogProps,
   type StartRecordingAudioButtonProps,
   type StreamedMessageTextProps,
-  type TextareaComposerProps,
   type ThreadListItemProps,
   type ThreadListItemUIProps,
   type TimestampProps,
   type TranslationIndicatorProps,
   type UnreadMessagesNotificationProps,
   type UnreadMessagesSeparatorProps,
-  type VoiceRecordingPreviewSlotProps,
 } from '../components';
 
 import type {
@@ -79,7 +74,6 @@ import type { FileSizeIndicatorProps } from '../components/Attachment/components
 import type { CommandChipProps } from '../components/MessageComposer/CommandChip';
 import type { ProgressIndicatorProps } from '../components/Loading/progress-indicators';
 import type { UploadedSizeIndicatorProps } from '../components/Loading/UploadedSizeIndicator';
-import type { NotificationAnnouncerProps } from '../components/Accessibility';
 import type { SummarizedMessagePreviewProps } from '../components/SummarizedMessagePreview';
 import type { TypingIndicatorProps } from '../components/TypingIndicator';
 import type { AttachmentUploadProgressIndicatorProps } from '../components/Attachment/components/AttachmentUploadProgressIndicator';
@@ -112,12 +106,18 @@ export type ComponentContextValue = {
    * the icon.
    */
   AttachmentFileIcon?: React.ComponentType<FileIconProps>;
-  /** Attachment previews in the `MessageComposer`. */
-  AttachmentPreviewList?: React.ComponentType<AttachmentPreviewListProps>;
+  /**
+   * Attachment previews in the `MessageComposer`, rendered without props. To change its parts,
+   * render `AttachmentPreviewList` with your own `AttachmentPreviewListProps`.
+   */
+  AttachmentPreviewList?: React.ComponentType;
   /** Control for adding attachments to the `MessageComposer`. */
   AttachmentSelector?: React.ComponentType;
-  /** Slot for the voice recording preview above the composer attachments. */
-  VoiceRecordingPreviewSlot?: React.ComponentType<VoiceRecordingPreviewSlotProps>;
+  /**
+   * Voice recording preview above the composer attachments, rendered without props. To change the
+   * preview, render `VoiceRecordingPreviewSlot` with your own `VoiceRecordingPreview`.
+   */
+  VoiceRecordingPreviewSlot?: React.ComponentType;
   /** Contents of the attachment selector's initiation button. */
   AttachmentSelectorInitiationButtonContents?: React.ComponentType;
   /** Audio recorder in the `MessageComposer`. */
@@ -171,11 +171,6 @@ export type ComponentContextValue = {
   EditedMessagePreview?: React.ComponentType<EditedMessagePreviewProps>;
   /** Emoji picker button in the composer. No default; `stream-chat-react/emojis` exports one. */
   EmojiPicker?: React.ComponentType;
-  /**
-   * Search index for the autocomplete and text replace features of the `MessageComposer`; see
-   * emoji-mart's headless `SearchIndex`.
-   */
-  emojiSearchIndex?: EmojiSearchIndex;
   /** Shown when a message list is empty. */
   EmptyStateIndicator?: React.ComponentType<EmptyStateIndicatorProps>;
   /**
@@ -202,8 +197,11 @@ export type ComponentContextValue = {
    * render `MessageComposerPreviews` with your own `messageComposerPreviewSet` to change it.
    */
   MessageComposerPreviews?: React.ComponentType;
-  /** How the message composer renders. */
-  MessageComposerUI?: React.ComponentType<MessageComposerProps>;
+  /**
+   * How the message composer renders, without props. `MessageComposer` passes its own props
+   * through `MessageComposerContext`.
+   */
+  MessageComposerUI?: React.ComponentType;
   /** Link previews in the message composer. */
   LinkPreviewList?: React.ComponentType;
   /** Loading indicator, e.g. while a message list loads older messages. */
@@ -235,8 +233,11 @@ export type ComponentContextValue = {
   Notification?: React.ForwardRefExoticComponent<
     NotificationProps & React.RefAttributes<HTMLDivElement>
   >;
-  /** Screen-reader announcements of notifications. */
-  NotificationAnnouncer?: React.ComponentType<NotificationAnnouncerProps>;
+  /**
+   * Screen-reader announcements of notifications, rendered without props. To filter or reword the
+   * announcements, render `NotificationAnnouncer` with your own `NotificationAnnouncerProps`.
+   */
+  NotificationAnnouncer?: React.ComponentType;
   /** Displays notifications. */
   NotificationList?: React.ComponentType<NotificationListProps>;
   /** Shown when new messages arrive while the list is scrolled up. */
@@ -245,10 +246,15 @@ export type ComponentContextValue = {
   ScrollToLatestMessageButton?: React.ComponentType<ScrollToLatestMessageButtonProps>;
   /** Button that opens a message's thread, showing its reply count and participants. */
   MessageRepliesCountButton?: React.ComponentType<MessageRepliesCountButtonProps>;
-  /** Message delivery status. */
-  MessageStatus?: React.ComponentType<MessageStatusProps>;
+  /**
+   * Message delivery status, rendered without props. To change its parts, render `MessageStatus`
+   * with your own `MessageStatusProps`.
+   */
+  MessageStatus?: React.ComponentType;
   /** System messages. */
   MessageSystem?: React.ComponentType<EventComponentProps>;
+  /** Text of a message, also of an AI-generated one while `StreamedMessageText` streams it. */
+  MessageText?: React.ComponentType<MessageTextProps>;
   /** Timestamp on a message. */
   MessageTimestamp?: React.ComponentType<MessageTimestampProps>;
   /** Modal for viewing content. */
@@ -279,14 +285,18 @@ export type ComponentContextValue = {
   PollOptionSelector?: React.ComponentType<PollOptionSelectorProps>;
   /** Quoted message UI on a sent message. */
   QuotedMessage?: React.ComponentType;
-  /** Quoted message preview in the message composer. */
-  QuotedMessagePreview?: React.ComponentType<QuotedMessagePreviewProps>;
+  /**
+   * Quoted message preview in the message composer, rendered without props. To change it, render
+   * `QuotedMessagePreview` with your own `QuotedMessagePreviewProps`.
+   */
+  QuotedMessagePreview?: React.ComponentType;
   /**
    * Reaction options read by `ReactionSelector`, `MessageReactions`, `MessageReactionsDetail` and
    * the reaction handler. Defaults to `defaultReactionOptions`.
    */
   reactionOptions?: ReactionOptions;
-  ReactionSelector?: React.ForwardRefExoticComponent<ReactionSelectorProps>;
+  /** Quick reaction picker of a message. */
+  ReactionSelector?: React.ComponentType<ReactionSelectorProps>;
   ReactionSelectorExtendedList?: React.ComponentType<
     ComponentProps<(typeof ReactionSelector)['ExtendedList']>
   >;
@@ -299,8 +309,11 @@ export type ComponentContextValue = {
   ReminderNotification?: React.ComponentType<ReminderNotificationProps>;
   /** Translation indicator, shown when the message has `i18n`. */
   MessageTranslationIndicator?: React.ComponentType<TranslationIndicatorProps>;
-  /** Edited indicator and tooltip for an edited message. */
-  MessageEditedIndicator?: React.ComponentType<MessageEditedIndicatorProps>;
+  /**
+   * Edited indicator and tooltip for an edited message, rendered without props. To change it,
+   * render `MessageEditedIndicator` with your own `MessageEditedIndicatorProps`.
+   */
+  MessageEditedIndicator?: React.ComponentType;
   Search?: React.ComponentType;
   /** The UI where the search string is entered. */
   SearchBar?: React.ComponentType;
@@ -310,12 +323,15 @@ export type ComponentContextValue = {
   SearchResultsHeader?: React.ComponentType;
   /** Search results pane shown before the first search query for a source. */
   SearchResultsPresearch?: React.ComponentType<SearchResultsPresearchProps>;
-  /** The items found for a search source. */
-  SearchSourceResultList?: React.ComponentType<SearchSourceResultListProps>;
+  /**
+   * The items found for a search source, rendered without props. To change its paging or items,
+   * render `SearchSourceResultList` with your own `SearchSourceResultListProps`.
+   */
+  SearchSourceResultList?: React.ComponentType;
   /** Marks the end of the last page of results for a searched source. */
   SearchSourceResultListFooter?: React.ComponentType;
   /** Result items of a search source pane. */
-  SearchSourceResults?: React.ComponentType;
+  SearchSourceResults?: React.ComponentType<SearchSourceResultsProps>;
   /** Results UI of a search source with 0 items found. */
   SearchSourceResultsEmpty?: React.ComponentType;
   /** Header content of a search source's results. The default renders nothing. */
@@ -331,8 +347,11 @@ export type ComponentContextValue = {
   StartRecordingAudioButton?: React.ComponentType<StartRecordingAudioButtonProps>;
   StopAIGenerationButton?: React.ComponentType<StopAIGenerationButtonProps> | null;
   StreamedMessageText?: React.ComponentType<StreamedMessageTextProps>;
-  /** Message text input. */
-  TextareaComposer?: React.ComponentType<TextareaComposerProps>;
+  /**
+   * Message text input, rendered without props. `MessageComposer` passes its textarea props
+   * through `MessageComposerContext`.
+   */
+  TextareaComposer?: React.ComponentType;
   /** The thread's parent message, rendered above the replies in a thread's message list. */
   ThreadHead?: React.ComponentType<MessageProps>;
   ThreadListEmptyPlaceholder?: React.ComponentType;
@@ -367,9 +386,9 @@ export type ComponentContextValue = {
   /** Replaces `MessageUI` inside the `VirtualizedMessageList`. No default. */
   VirtualMessage?: React.ComponentType<MessageUIComponentProps>;
   /** Wraps the `MessageList` children. Defaults to `ul`. */
-  MessageListWrapper?: React.ComponentType<PropsWithChildren>;
+  MessageListWrapper?: React.ComponentType<MessageListWrapperProps>;
   /** Wraps each element of the `MessageList`. Defaults to `li`. */
-  MessageListItem?: React.ComponentType<PropsWithChildren>;
+  MessageListItem?: React.ComponentType<MessageListItemProps>;
 };
 
 export const ComponentContext = React.createContext<ComponentContextValue>({});

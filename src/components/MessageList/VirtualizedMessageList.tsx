@@ -47,8 +47,8 @@ import {
 } from './VirtualizedMessageListComponents';
 
 import {
+  ScrollToLatestMessageButton as DefaultScrollToLatestMessageButton,
   UnreadMessagesSeparator as DefaultUnreadMessagesSeparator,
-  ScrollToLatestMessageButton,
 } from '../MessageList';
 import { DateSeparator as DefaultDateSeparator } from '../DateSeparator';
 import { EventComponent as DefaultMessageSystem } from '../EventComponent';
@@ -83,7 +83,6 @@ import { useLastDeliveredData } from './hooks/useLastDeliveredData';
 import { useLastOwnMessage } from './hooks/useLastOwnMessage';
 
 type PropsDrilledToMessage =
-  | 'additionalMessageComposerProps'
   | 'formatDate'
   | 'onMentionsClick'
   | 'onMentionsHover'
@@ -205,7 +204,6 @@ const VirtualizedMessageListWithContext = (
   props: VirtualizedMessageListWithContextProps,
 ) => {
   const {
-    additionalMessageComposerProps,
     additionalVirtuosoProps = {},
     channel,
     closeReactionSelectorOnClick,
@@ -242,7 +240,6 @@ const VirtualizedMessageListWithContext = (
     VirtualizedMessageListProps,
     PropsDrilledToMessage | 'closeReactionSelectorOnClick'
   > = {
-    additionalMessageComposerProps,
     closeReactionSelectorOnClick,
     formatDate,
     onMentionsClick,
@@ -273,6 +270,7 @@ const VirtualizedMessageListWithContext = (
     GiphyPreviewMessage = DefaultGiphyPreviewMessage,
     MessageSystem = DefaultMessageSystem,
     NewMessageNotification = DefaultNewMessageNotification,
+    ScrollToLatestMessageButton = DefaultScrollToLatestMessageButton,
     TypingIndicator,
     UnreadMessagesNotification = DefaultUnreadMessagesNotification,
     UnreadMessagesSeparator = DefaultUnreadMessagesSeparator,
@@ -307,10 +305,13 @@ const VirtualizedMessageListWithContext = (
 
   const lastRead = useMemo(() => channel.lastRead?.(), [channel]);
 
-  const { show: showUnreadMessagesNotification, toggleShowUnreadMessagesNotification } =
-    useUnreadMessagesNotificationVirtualized({
-      showAlways: !!showUnreadNotificationAlways,
-    });
+  const {
+    show: showUnreadMessagesNotification,
+    toggleShowUnreadMessagesNotification,
+    unreadIsBelow,
+  } = useUnreadMessagesNotificationVirtualized({
+    showAlways: !!showUnreadNotificationAlways,
+  });
 
   const { giphyPreviewMessage, setGiphyPreviewMessage } =
     useGiphyPreview(separateGiphyPreview);
@@ -583,7 +584,10 @@ const VirtualizedMessageListWithContext = (
       <MessageTranslationViewProvider>
         <DialogManagerProvider id={dialogManagerId}>
           {!isThreadList && showUnreadMessagesNotification && (
-            <UnreadMessagesNotification unreadCount={channelUnreadUiState?.unreadCount} />
+            <UnreadMessagesNotification
+              unreadCount={channelUnreadUiState?.unreadCount}
+              unreadIsBelow={unreadIsBelow}
+            />
           )}
           <div
             className={customClasses?.virtualizedMessageList || 'str-chat__virtual-list'}

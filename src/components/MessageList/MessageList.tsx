@@ -50,7 +50,7 @@ import { useStateStore } from '../../store';
 import type { InfiniteScrollPaginatorProps } from '../InfiniteScrollPaginator/InfiniteScrollPaginator';
 import { InfiniteScrollPaginator } from '../InfiniteScrollPaginator/InfiniteScrollPaginator';
 import { useMessagePaginator } from '../../hooks';
-import { ScrollToLatestMessageButton } from './ScrollToLatestMessageButton';
+import { ScrollToLatestMessageButton as DefaultScrollToLatestMessageButton } from './ScrollToLatestMessageButton';
 import { useCanPaginateReplies } from './hooks/useCanPaginateReplies';
 
 type MessageListWithContextProps = MessageListProps;
@@ -102,7 +102,6 @@ const MessageListWithContext = (props: MessageListWithContextProps) => {
   } = props;
   // The list-wide props every message gets, the thread's parent message included.
   const messageProps: SharedMessageProps = {
-    additionalMessageComposerProps: props.additionalMessageComposerProps,
     closeReactionSelectorOnClick: props.closeReactionSelectorOnClick,
     formatDate: props.formatDate,
     onMentionsClick: props.onMentionsClick,
@@ -131,6 +130,7 @@ const MessageListWithContext = (props: MessageListWithContextProps) => {
     LoadingIndicator = DefaultLoadingIndicator,
     MessageListWrapper = 'ul',
     NewMessageNotification = DefaultNewMessageNotification,
+    ScrollToLatestMessageButton = DefaultScrollToLatestMessageButton,
     TypingIndicator = DefaultTypingIndicator,
     UnreadMessagesNotification = DefaultUnreadMessagesNotification,
   } = useComponentContext();
@@ -168,11 +168,12 @@ const MessageListWithContext = (props: MessageListWithContextProps) => {
     suppressAutoscroll,
   });
 
-  const { show: showUnreadMessagesNotification } = useUnreadMessagesNotification({
-    isMessageListScrolledToBottom,
-    listElement,
-    showAlways: !!showUnreadNotificationAlways,
-  });
+  const { show: showUnreadMessagesNotification, unreadIsBelow } =
+    useUnreadMessagesNotification({
+      isMessageListScrolledToBottom,
+      listElement,
+      showAlways: !!showUnreadNotificationAlways,
+    });
 
   useMarkRead({
     hasMoreNewer,
@@ -338,7 +339,10 @@ const MessageListWithContext = (props: MessageListWithContextProps) => {
       <MessageTranslationViewProvider>
         <DialogManagerProvider id={dialogManagerId}>
           {!isThreadList && showUnreadMessagesNotification && (
-            <UnreadMessagesNotification unreadCount={channelUnreadUiState?.unreadCount} />
+            <UnreadMessagesNotification
+              unreadCount={channelUnreadUiState?.unreadCount}
+              unreadIsBelow={unreadIsBelow}
+            />
           )}
           {/*todo: apply styles
             .str-chat__list {
@@ -415,7 +419,6 @@ const MessageListWithContext = (props: MessageListWithContextProps) => {
 };
 
 type PropsDrilledToMessage =
-  | 'additionalMessageComposerProps'
   | 'closeReactionSelectorOnClick'
   | 'formatDate'
   | 'onMentionsClick'

@@ -75,22 +75,25 @@ export const MessageComposerActions = () => {
   // Accounts for an iOS requirement, see https://bugs.webkit.org/show_bug.cgi?id=252303
   const recordingEnabled = !!(recordingController.recorder && navigator.mediaDevices);
 
-  let content = SendButton ? (
-    <SendButton sendMessage={submitMessageFn} />
-  ) : (
-    <DefaultSendButton sendMessage={submitMessageFn}>
-      {editedMessage || command ? <IconCheckmark /> : <IconSend />}
-    </DefaultSendButton>
-  );
-
+  // One control fills the slot, first match wins. While the AI is answering, stopping it is the
+  // only useful action, so the stop button outranks everything else, `hideSendButton` included.
+  let content: React.ReactNode;
   if (shouldDisplayStopAIGeneration) {
     content = <StopAIGenerationButton onClick={stopGenerating} />;
-  } else if (hideSendButton) return null;
-
-  if (isCooldownActive) {
+  } else if (hideSendButton) {
+    return null;
+  } else if (isCooldownActive) {
     content = <CooldownTimer />;
   } else if (contentIsEmpty && !editedMessage && !command && recordingEnabled) {
     content = <AudioRecordingButtonWithNotification />;
+  } else if (SendButton) {
+    content = <SendButton sendMessage={submitMessageFn} />;
+  } else {
+    content = (
+      <DefaultSendButton sendMessage={submitMessageFn}>
+        {editedMessage || command ? <IconCheckmark /> : <IconSend />}
+      </DefaultSendButton>
+    );
   }
 
   return <div className='str-chat__message-composer__actions'>{content}</div>;

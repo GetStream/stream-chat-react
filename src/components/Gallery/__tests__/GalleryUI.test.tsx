@@ -113,6 +113,21 @@ describe('GalleryUI', () => {
       const img = screen.getByTestId('str-chat__base-image');
       expect(img).toHaveAttribute('alt', 'my-fallback.png');
     });
+    it('should render the BaseImage from ComponentContext for the current image', () => {
+      const CustomBaseImage = ({ alt, src }: { alt?: string; src?: string }) => (
+        <div data-alt={alt} data-src={src} data-testid='custom-base-image' />
+      );
+      const items = [
+        makeImageItem({ alt: 'my-image.png', imageUrl: 'http://my-image.jpg' }),
+      ];
+
+      renderGalleryUI(items, { components: { BaseImage: CustomBaseImage } });
+
+      const image = screen.getByTestId('custom-base-image');
+      expect(image).toHaveAttribute('data-src', 'http://my-image.jpg');
+      expect(image).toHaveAttribute('data-alt', 'my-image.png');
+      expect(screen.queryByTestId('str-chat__base-image')).not.toBeInTheDocument();
+    });
   });
 
   describe('Video rendering', () => {

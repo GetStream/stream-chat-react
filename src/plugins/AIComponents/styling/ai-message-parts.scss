@@ -171,6 +171,43 @@
   }
 }
 
+// What a tool call will send: its arguments as JSON, on a quiet panel, collapsed when long.
+.str-chat__ai-tool-arguments {
+  min-width: 0;
+
+  &__label {
+    color: ai-token(text-secondary);
+    cursor: pointer;
+    font-size: ai-scale(font-xs);
+    font-weight: 600;
+
+    &:focus-visible {
+      @include ai-focus-ring;
+    }
+  }
+
+  &[open] &__label {
+    margin-bottom: ai-scale(space-xxs);
+  }
+
+  &__code {
+    max-height: 12rem;
+    margin: 0;
+    padding: ai-scale(space-xs);
+    overflow: auto;
+    border-radius: ai-scale(radius-sm);
+    // A tint of the words, so the panel stands out on any card, light or dark.
+    background-color: color-mix(in srgb, #{ai-token(text-primary)} 7%, transparent);
+    color: ai-token(text-primary);
+    // The SDK's mono font names no generic family, for when it isn't loaded.
+    font-family: ai-scale(font-mono), monospace;
+    font-size: ai-scale(font-xs);
+    line-height: 1.5;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+  }
+}
+
 .str-chat__ai-tool-authorization-card {
   &__outcome {
     color: ai-token(text-secondary);

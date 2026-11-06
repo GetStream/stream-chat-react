@@ -1,7 +1,8 @@
 import React, { useMemo } from 'react';
 import { PollVoteListing } from '../../PollVote';
 import { usePollOptionVotesPagination } from '../../hooks';
-import { LoadingIndicator } from '../../../Loading';
+import { LoadingIndicator as DefaultLoadingIndicator } from '../../../Loading';
+import { useComponentContext } from '../../../../context';
 import { InfiniteScrollPaginator } from '../../../InfiniteScrollPaginator/InfiniteScrollPaginator';
 import type { PollOptionResponseData, PollOptionVotesQueryParams } from 'stream-chat';
 import { PollOptionWithVotesHeader } from './PollOptionWithVotesHeader';
@@ -15,6 +16,7 @@ export const PollOptionWithVotesList = ({
   option,
   optionOrderNumber,
 }: PollOptionWithVotesListProps) => {
+  const { LoadingIndicator = DefaultLoadingIndicator } = useComponentContext();
   const paginationParams = useMemo<PollOptionVotesQueryParams>(
     () => ({ filter: { option_id: option.id } }),
     [option.id],

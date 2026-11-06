@@ -12,7 +12,7 @@ import {
   AIUIRuntimeView,
 } from '../AIComponents/GenerativeUI/AIUIRuntimeLoader';
 import { A2UIPlaceholder } from './A2UIPlaceholder';
-import { A2UI_DEFAULT_CATALOG_ID } from './catalogDocument';
+import { A2UI_DEFAULT_CATALOG_ID, A2UI_LEGACY_CATALOG_ID } from './catalogDocument';
 import { A2UI_VERSION, a2uiSourceOf, supportsA2UIVersion } from './A2UIStream';
 import { a2uiInstructions } from './A2UIInstructions';
 // Types only: the runtime, with the A2UI packages, loads in the browser when a reply first
@@ -20,7 +20,7 @@ import { a2uiInstructions } from './A2UIInstructions';
 import type { ReactA2uiComponentProps } from '@a2ui/react';
 import type { A2UIReplyState, A2UIRuntime } from './runtime';
 
-export { A2UI_DEFAULT_CATALOG_ID };
+export { A2UI_DEFAULT_CATALOG_ID, A2UI_LEGACY_CATALOG_ID };
 
 /** What went wrong in a reply's A2UI, as the A2UI specification reports it to an agent. */
 export type A2UIError = {
