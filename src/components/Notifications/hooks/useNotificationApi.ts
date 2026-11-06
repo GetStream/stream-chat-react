@@ -81,7 +81,11 @@ export type AddNotificationParams = {
  */
 export type AddSystemNotificationParams = Omit<AddNotificationParams, 'targetPanels'>;
 
-export type AddNotification = (params: AddNotificationParams) => void;
+/**
+ * Returns the notification ID, which `removeNotification`, `startNotificationTimeout` and
+ * `ensureNotificationTimeout` take.
+ */
+export type AddNotification = (params: AddNotificationParams) => string;
 /** Returns the notification ID, for removal and timeouts. */
 export type AddSystemNotification = (params: AddSystemNotificationParams) => string;
 export type RemoveNotification = (id: string) => void;
@@ -186,7 +190,7 @@ export const useNotificationApi = (): NotificationApi => {
         ...(resolvedType ? { type: resolvedType } : {}),
       };
 
-      client.notifications.add({
+      return client.notifications.add({
         message,
         options,
         origin,
