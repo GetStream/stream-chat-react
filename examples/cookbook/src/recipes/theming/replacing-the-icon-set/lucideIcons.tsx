@@ -63,6 +63,7 @@ import {
   Search,
   Send,
   Shield,
+  Square,
   SquareSlash,
   Trash,
   TriangleAlert,
@@ -84,7 +85,7 @@ import { createIcon, type IconComponent, type IconName } from 'stream-chat-react
 type LucideOptions = {
   /**
    * Draws the shape solid. Lucide draws outlines by default. Only plain shapes are filled (play,
-   * pause, video, message bubble): a Lucide icon with marks inside, such as the eye's pupil, the
+   * pause, stop, video, message bubble): a Lucide icon with marks inside, such as the eye's pupil, the
    * alerts' exclamation mark or the thread's arrow, would lose them, so those `…Fill` icons stay
    * outlines.
    */
@@ -184,6 +185,7 @@ const lucideIconMap: Record<IconName, [LucideIcon, LucideOptions?]> = {
   IconSearch: [Search, { mirrorInRtl: true }],
   IconSend: [Send, { mirrorInRtl: true }],
   IconShield: [Shield],
+  IconStopFill: [Square, { filled: true }],
   IconThread: [MessageSquareReply],
   IconThreadFill: [MessageSquareReply],
   IconTranslate: [Languages],
