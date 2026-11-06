@@ -2,50 +2,25 @@ import type { ReactNode } from 'react';
 import React from 'react';
 import ReactMarkdown from 'react-markdown';
 import type { Channel, LocalMessage, PollVoteResponseData } from 'stream-chat';
-import { toString as mdastToString } from 'mdast-util-to-string';
-import remarkParse from 'remark-parse';
-import { unified } from 'unified';
 
 import type { ChatContextValue } from '../../context';
 import { getTranslatedMessageText } from '../../context/MessageTranslationViewContext';
 import type { TranslationContextValue } from '../../context/TranslationContext';
-import type { PluggableList } from 'unified';
-import { htmlToTextPlugin, imageToLink, plusPlusToEmphasis } from '../Message';
 import { isMessageDeleted } from '../Message/utils';
-import remarkGfm from 'remark-gfm';
+import {
+  previewRemarkPlugins,
+  stripMarkdownToText,
+} from '../SummarizedMessagePreview/previewText';
 import {
   deriveChannelDisplayImage,
   deriveGroupChannelDisplayInfo,
 } from './channelDisplayState';
 
-const remarkPlugins: PluggableList = [
-  htmlToTextPlugin,
-  [remarkGfm, { singleTilde: false }],
-  plusPlusToEmphasis,
-  imageToLink,
-];
-
 export const renderPreviewText = (text: string) => (
-  <ReactMarkdown remarkPlugins={remarkPlugins} skipHtml>
+  <ReactMarkdown remarkPlugins={previewRemarkPlugins} skipHtml>
     {text}
   </ReactMarkdown>
 );
-
-// Strips markdown for screen-reader announcements with the same remark plugins as the visible
-// preview. The processor is built lazily so importing this file does not evaluate `remarkPlugins`
-// (test files that mock the plugin modules would fail at import). Returns the raw text when
-// processing throws or yields nothing.
-const createPlainTextProcessor = () => unified().use(remarkParse).use(remarkPlugins);
-let plainTextProcessor: ReturnType<typeof createPlainTextProcessor> | undefined;
-
-const stripMarkdownToText = (text: string): string => {
-  try {
-    const processor = (plainTextProcessor ??= createPlainTextProcessor());
-    return mdastToString(processor.runSync(processor.parse(text))) || text;
-  } catch {
-    return text;
-  }
-};
 
 const getLatestPollVote = (
   latestVotesByOption: Record<string, PollVoteResponseData[]>,

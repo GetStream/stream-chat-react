@@ -5,6 +5,8 @@ import { useComponentContext } from '../../../context';
 import { useThreadContext } from '../../Threads';
 import { useStateStore } from '../../../store';
 
+import { omitUndefinedProps } from '../omitUndefinedProps';
+
 import type { ThreadState } from 'stream-chat';
 import type { MessageProps } from '../../Message/types';
 
@@ -12,15 +14,6 @@ const parentMessageSelector = ({ parentMessage }: ThreadState) => ({ parentMessa
 
 /** The props a message list gives each of its messages, which the parent message gets too. */
 export type ThreadHeadMessageProps = Omit<Partial<MessageProps>, 'message'>;
-
-/**
- * Keeps only the props the list actually set. A `ThreadHead` override that sets a prop and then
- * spreads its props (`<Message showAvatar {...props} />`) keeps its own value.
- */
-const omitUndefinedProps = (messageProps: ThreadHeadMessageProps = {}) =>
-  Object.fromEntries(
-    Object.entries(messageProps).filter(([, value]) => value !== undefined),
-  ) as ThreadHeadMessageProps;
 
 /**
  * The parent message a thread list renders above its replies, or `null` outside a thread.

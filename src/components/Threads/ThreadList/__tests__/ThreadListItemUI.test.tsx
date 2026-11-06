@@ -138,6 +138,64 @@ describe('ThreadListItemUI', () => {
     expect(label).toContain('Active');
   });
 
+  it('announces the parent message without markdown syntax', () => {
+    mockUseStateStore.mockReturnValue({
+      channel: {},
+      deletedAt: undefined,
+      latestReply: undefined,
+      ownUnreadMessageCount: 0,
+      parentMessage: { text: '**hello** [world](https://example.test)' },
+      participants: [],
+      replyCount: 1,
+    });
+
+    render(<ThreadListItemUI />);
+
+    expect(screen.getByRole('option').getAttribute('aria-label')).toContain(
+      'Thread: hello world',
+    );
+  });
+
+  it('announces a parent message list as words, without its markers', () => {
+    mockUseStateStore.mockReturnValue({
+      channel: {},
+      deletedAt: undefined,
+      latestReply: undefined,
+      ownUnreadMessageCount: 0,
+      parentMessage: { text: '- [x] ship\n- [ ] docs' },
+      participants: [],
+      replyCount: 1,
+    });
+
+    render(<ThreadListItemUI />);
+
+    expect(screen.getByRole('option').getAttribute('aria-label')).toContain(
+      'Thread: ship docs',
+    );
+  });
+
+  it('announces AI-generated parent message text verbatim', () => {
+    mockUseChatContext.mockReturnValue({
+      client: { userID: 'martin' },
+      isMessageAIGenerated: () => true,
+    });
+    mockUseStateStore.mockReturnValue({
+      channel: {},
+      deletedAt: undefined,
+      latestReply: undefined,
+      ownUnreadMessageCount: 0,
+      parentMessage: { text: '**AI** reply' },
+      participants: [],
+      replyCount: 1,
+    });
+
+    render(<ThreadListItemUI />);
+
+    expect(screen.getByRole('option').getAttribute('aria-label')).toContain(
+      'Thread: **AI** reply',
+    );
+  });
+
   it('lets accessibleLabelConfig override the composed aria-label', () => {
     mockIsThreadActive.mockReturnValue(false);
 
