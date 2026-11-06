@@ -17,7 +17,7 @@ export const ThreadHead = (props: MessageProps) => {
       {parentCreatedAt ? (
         <DateSeparator date={parentCreatedAt} formatDate={props.formatDate} />
       ) : null}
-      <Message initialMessage {...props} />
+      <Message {...props} />
       <ThreadStart />
     </div>
   );

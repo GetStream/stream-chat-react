@@ -5,6 +5,7 @@ import {
   MessageUI,
   useChannel,
   useChatContext,
+  useIsRenderedAsThreadParent,
   useMessageContext,
   useStateStore,
   useThreadContext,
@@ -21,8 +22,9 @@ const readersSelector = ({ readersByMessageId }: MessageReceiptsSnapshot) => ({
 const ReadReceiptAvatars = () => {
   const channel = useChannel();
   const { client } = useChatContext();
-  const { initialMessage, message } = useMessageContext();
-  const isThreadReply = !!useThreadContext() && !initialMessage;
+  const { message } = useMessageContext();
+  const isThreadParent = useIsRenderedAsThreadParent();
+  const isThreadReply = !!useThreadContext() && !isThreadParent;
   const { readersByMessageId } = useStateStore(
     channel.messageReceiptsTracker.snapshotStore,
     readersSelector,

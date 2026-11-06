@@ -60,7 +60,6 @@ type MessagePropsToOmit =
   | 'channel'
   | 'deliveredTo'
   | 'groupStyles'
-  | 'initialMessage'
   | 'lastReceivedId'
   | 'message'
   | 'readBy';
@@ -113,6 +112,7 @@ export function defaultRenderMessages({
     } else if (message.type === 'system') {
       renderedMessages.push(
         <MessageListItem
+          className='str-chat__li'
           data-index={index}
           data-message-id={message.id}
           key={message.id || String(message.created_at)}

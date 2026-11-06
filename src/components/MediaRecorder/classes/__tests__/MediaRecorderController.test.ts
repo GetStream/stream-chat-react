@@ -697,6 +697,7 @@ describe('MediaRecorderController', () => {
             localMetadata: {
               file: recordedFile,
               id: nanoidMockValue,
+              uploadState: 'pending',
             },
             title: recordedFile.name,
             type: RecordingAttachmentType.VOICE_RECORDING,
@@ -745,6 +746,7 @@ describe('MediaRecorderController', () => {
             localMetadata: {
               file: recordedFile,
               id: nanoidMockValue,
+              uploadState: 'pending',
             },
             title: recordedFile.name,
             type: RecordingAttachmentType.VOICE_RECORDING,
@@ -787,6 +789,7 @@ describe('MediaRecorderController', () => {
           localMetadata: {
             file: recordedFile,
             id: nanoidMockValue,
+            uploadState: 'pending',
           },
           title: recordedFile.name,
           type: RecordingAttachmentType.VOICE_RECORDING,

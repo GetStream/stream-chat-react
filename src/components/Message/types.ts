@@ -34,8 +34,6 @@ export type MessageProps = {
   groupStyles?: GroupStyle[];
   /** Whether to highlight the message. The message lists set it on the focused message. */
   highlighted?: boolean;
-  /** Whether the message is the thread's parent shown at the top of the thread. */
-  initialMessage?: boolean;
   // todo: move to LLC Channel state
   /** Latest own message in the currently displayed message set. */
   lastOwnMessage?: LocalMessage;

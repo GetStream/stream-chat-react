@@ -180,7 +180,6 @@ export const Message = (props: MessageProps) => {
       handleReaction={handleReaction}
       handleRetry={handleRetry}
       highlighted={props.highlighted}
-      initialMessage={props.initialMessage}
       lastOwnMessage={props.lastOwnMessage}
       lastReceivedId={props.lastReceivedId}
       message={message}

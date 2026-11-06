@@ -64,7 +64,7 @@ yarn api-surface check --doc ai-docs/v15-breaking-changes.md --diff diff.json
 
 ## Index
 
-101 entries.
+102 entries.
 
 | ID                | Title                                                                                                                                                                                                                         | Group                                                |
 | ----------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------- |
@@ -164,6 +164,7 @@ yarn api-surface check --doc ai-docs/v15-breaking-changes.md --diff diff.json
 | [BC-094](#bc-094) | `mentionsMarkdownPlugin` and `createMentionPluginAndDisplayTextSet` take mention entities only                                                                                                                                | Messages and message lists                           |
 | [BC-095](#bc-095) | `disableQuotedMessages` is removed from `MessageProps`, `MessageListProps` and `useMessagePermissions`                                                                                                                        | Messages and message lists                           |
 | [BC-097](#bc-097) | channel detail views render no close button outside a modal without `onClose`; `ChannelDetail` calls `onLayoutChange`                                                                                                         | Chat, ChatView and layout                            |
+| [BC-102](#bc-102) | `initialMessage` is removed from `MessageProps` and `MessageContextValue`; `useIsRenderedAsThreadParent()` tells the thread's parent message apart                                                                            | Messages and message lists                           |
 | [BC-105](#bc-105) | `additionalMessageComposerProps` is removed from `MessageProps`, `MessageListProps` and `VirtualizedMessageListProps`                                                                                                         | Messages and message lists                           |
 | [BC-106](#bc-106) | `MessageReactions.reverse`, `MessageReactionsDetail.sort` and `MessageReactionsDetail.dialogId` are removed                                                                                                                   | Messages and message lists                           |
 | [BC-107](#bc-107) | `emojiSearchIndex` and `parent` are removed from `MessageComposer` and its context; `ComponentContext.emojiSearchIndex` is removed                                                                                            | Message composer                                     |
@@ -3150,6 +3151,44 @@ export const List = () => (
 );
 ```
 
+<a id="bc-102"></a>
+
+### BC-102: `initialMessage` is removed from `MessageProps` and `MessageContextValue`; `useIsRenderedAsThreadParent()` tells the thread's parent message apart
+
+- Status: confirmed
+- Area: message / thread
+- User impact:
+  - compile error on passing `initialMessage` to `Message` or reading `useMessageContext().initialMessage`.
+  - silent behavior change in untyped code: the prop is ignored and the context field is `undefined`, so code that read it to tell the thread's parent message from its replies takes the parent for a reply. For example, `!!useThreadContext() && !initialMessage` is `true` for the parent.
+  - The default message actions still give the thread's parent message no actions, and now detect it themselves. A `ThreadHead` override that renders `<Message {...props} />` without `initialMessage` no longer gives the parent the full action menu, as it did in v14.
+- Old API:
+  - `MessageProps.initialMessage?: boolean`, passed on as `MessageContextValue.initialMessage`. The default `ThreadHead` rendered `<Message initialMessage threadList {...props} />`.
+  - `useBaseMessageActionSetFilter` returned no actions while `initialMessage` was set.
+- Replacement: `useIsRenderedAsThreadParent()`, exported from `stream-chat-react`. It returns whether the message in `MessageContext` is the parent message of the thread in `ThreadContext`: a `stream-chat` `Thread`'s `id` is its parent message's id. It returns `false` for the thread's replies and outside a thread. Call it in a component that `<Message>` renders: it reads `useMessageContext()`, which throws outside a `MessageProvider`. A `ThreadHead` override renders `<Message {...props} />`.
+- Evidence:
+  - `release-v14:src/components/Message/types.ts:36`, `release-v14:src/context/MessageContext.tsx:90`, `release-v14:src/components/Message/Message.tsx:255`, `release-v14:src/components/Thread/ThreadHead.tsx:15`, `release-v14:src/components/MessageActions/hooks/useBaseMessageActionSetFilter.ts:32`
+  - `master:src/components/Message/hooks/useIsRenderedAsThreadParent.ts`, `master:src/components/MessageActions/hooks/useBaseMessageActionSetFilter.ts` (`isThreadParent`), `master:src/components/Thread/ThreadHead.tsx`
+  - commit: REACT-1521
+- Docs impact:
+  - `06-component-reference/04-message/01-message.md` (`initialMessage` prop), `06-component-reference/04-message/02-messagecontext.md` (`initialMessage` field), `07-reference/02-hooks/10-message-hooks.md` (the new hook; `useBaseMessageActionSetFilter`), `05-ui-cookbooks/04-message-list/06-read-receipt-avatars.md`, `08-release-guides/01-upgrade-to-v15.md`
+- Example needed: yes
+
+Before (v14):
+
+```tsx
+const { initialMessage } = useMessageContext();
+const isThreadReply = !!useThreadContext() && !initialMessage;
+```
+
+After (v15):
+
+```tsx
+import { useIsRenderedAsThreadParent, useThreadContext } from 'stream-chat-react';
+
+const isThreadParent = useIsRenderedAsThreadParent();
+const isThreadReply = !!useThreadContext() && !isThreadParent;
+```
+
 <a id="bc-105"></a>
 
 ### BC-105: `additionalMessageComposerProps` is removed from `MessageProps`, `MessageListProps` and `VirtualizedMessageListProps`
@@ -4494,6 +4533,7 @@ Non-gated items checked and ruled out: `Chat.isMessageAIGenerated`, `SummarizedM
   - `useUserRole.canPin` member-added-required -> ruled-out: additive return field
   - `useUserRole` removed, `useMessagePermissions` added -> BC-092
   - `Message.disableQuotedMessages`, `MessageProps.disableQuotedMessages`, the `useMessagePermissions` second argument -> BC-095
+  - `Message.initialMessage`, `MessageProps.initialMessage`, `MessageContextValue.initialMessage` removed, `useIsRenderedAsThreadParent` added -> BC-102
   - `Message.additionalMessageComposerProps`, `MessageProps.additionalMessageComposerProps` -> BC-105
 - components/MessageList
   - `MessageList.disableQuotedMessages`, `MessageListProps.disableQuotedMessages`, `SharedMessageProps.disableQuotedMessages` -> BC-095
@@ -4645,6 +4685,7 @@ Non-gated items checked and ruled out: `Chat.isMessageAIGenerated`, `SummarizedM
 - `TDateTimeParserOutput` members-mass-removed -> BC-069
 - `InfiniteScrollPaginator` / `InfiniteScrollPaginatorProps` props-mass-removed, members-mass-removed, type-params-changed -> ruled-out: tool artifact. `InfiniteScrollPaginatorProps<C extends ElementType = 'div'>` defaults to `'div'` and still includes `ComponentPropsWithRef<'div'>` (`master:src/components/InfiniteScrollPaginator/InfiniteScrollPaginator.tsx:44-53`), so a bare `InfiniteScrollPaginatorProps` keeps every div prop; the component is now polymorphic (`element`) and forwards `ref`
 - `NotificationApi.ensureNotificationTimeout`, `useNotificationApi.ensureNotificationTimeout` (member-added-required) -> ruled-out: a member added to the hook's returned API; `startNotificationTimeout` still exists
+- `AddNotification`, `NotificationApi.addNotification`, `useNotificationApi.addNotification` (signature-changed: returns the notification ID instead of `void`) -> ruled-out: callers are unaffected and can pass the ID to `removeNotification`, `startNotificationTimeout` or `ensureNotificationTimeout`; only breaks hand-written implementations that return nothing: an `AddNotification` function, or a `NotificationApi` object such as a test mock
 - Non-gated but checked: `ComponentContext.LoadingIndicator` / `InfiniteScroll.LoadingIndicator` / `LoadMorePaginator.LoadingIndicator` (`SVGProps & { decorative? }` -> `BaseIconProps`) -> ruled-out: `BaseIconProps = ComponentProps<'svg'> & { decorative?: boolean }`, an equivalent type; `ComponentContext.icons` / `IconComponent` (`ComponentPropsWithoutRef<'svg'>` -> `BaseIconProps`) -> ruled-out: the new props are assignable to the old, so v14 icon overrides still type-check; all `Icon*.textAnchor` -> ruled-out: union member reorder; `IconComponent.defaultProps` etc. -> ruled-out: follows `BaseIconProps`; `DialogManager.state` -> ruled-out: `StateStore` now from `@stream-io/state-store` (single-copy requirement covered in BC-001); `TranslationContext.t` / `userLanguage` -> BC-068; `FormatterFactory`, `Translator` -> BC-069 / ruled-out (`Translator.t` widened to `LooseTranslateFunction`)
 - Gated items in `ChatContext`, `ChannelListContext`, `MessageComposerContext`, `MessageContext`, `ThreadContext`, `VirtuosoContext` members -> not XC (owned by the Chat / ChannelList / composer / message / thread areas per the area split)
 
