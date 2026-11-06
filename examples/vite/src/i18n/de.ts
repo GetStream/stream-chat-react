@@ -842,7 +842,7 @@ export const deTranslations = {
   'typing.manyUsers_one': '{{ count }} Person schreibt',
   'typing.manyUsers_other': '{{ count }} Personen schreiben',
   'typing.singleUser': '{{ typing }} schreibt',
-  'typing.twoUsers': '{{ typing }} schreiben',
+  'typing.twoUsers': '{{ firstUser }} und {{ secondUser }} schreiben',
   'videoPlayer.videoThumbnail.playVideo.ariaLabel': 'Video abspielen',
 
   // The four keys below need translating even though they look like format expressions rather than
