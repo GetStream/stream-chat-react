@@ -3,6 +3,7 @@ import React, {
   useCallback,
   useEffect,
   useMemo,
+  useRef,
   useState,
 } from 'react';
 import { useComponentContextIcons, useTranslationContext } from '../../context';
@@ -20,6 +21,10 @@ import { Button } from '../Button';
 import clsx from 'clsx';
 
 const MIN_LIVE_LOCATION_SHARE_DURATION = 60 * 1000; // 1 minute
+
+// Time the browser gets to produce a position. A first fix (e.g. a cold GPS start)
+// can take several seconds.
+const GEOLOCATION_TIMEOUT_MS = 10 * 1000;
 
 const DEFAULT_SHARE_LOCATION_DURATIONS = [
   15 * 60 * 1000, // 15 minutes
@@ -115,34 +120,58 @@ export const ShareLocationDialog = ({
             console.warn(positionError);
             reject(positionError);
           },
-          { timeout: 1000 },
+          { timeout: GEOLOCATION_TIMEOUT_MS },
         );
       }),
     [],
   );
 
-  const setupPositionWatching = useCallback(() => {
+  // The dialog runs at most one position watch: its id is kept here so that a restart
+  // and unmount can clear it.
+  const watchIdRef = useRef<number | undefined>(undefined);
+  // Bumped whenever a watch stops. A callback the browser queued before clearWatch still
+  // runs, and its watch's generation no longer matches, so it leaves the state alone.
+  const watchGenerationRef = useRef(0);
+
+  const stopPositionWatching = useCallback(() => {
+    watchGenerationRef.current += 1;
+    if (watchIdRef.current === undefined) return;
+    navigator.geolocation.clearWatch(watchIdRef.current);
+    watchIdRef.current = undefined;
+  }, []);
+
+  const startPositionWatching = useCallback(() => {
+    stopPositionWatching();
     setLoadingLocation(true);
-    const watch = navigator.geolocation.watchPosition(
+    const watchGeneration = watchGenerationRef.current;
+    const isStoppedWatch = () => watchGeneration !== watchGenerationRef.current;
+    let watchHasPosition = false;
+    watchIdRef.current = navigator.geolocation.watchPosition(
       (position) => {
+        if (isStoppedWatch()) return;
+        watchHasPosition = true;
         setGeolocationPosition(position);
         setLoadingLocation(false);
         setGeolocationPositionError(undefined);
       },
       (error) => {
+        if (isStoppedWatch()) return;
+        // Some browsers (e.g. Firefox) report TIMEOUT whenever a stationary device
+        // produces no new position in time. The last position stays valid then.
+        const isTimeoutAfterPosition = watchHasPosition && error.code === error.TIMEOUT;
+        if (isTimeoutAfterPosition) return;
         setGeolocationPosition(null);
         setLoadingLocation(false);
         setGeolocationPositionError(error);
       },
-      { timeout: 1000 },
+      { timeout: GEOLOCATION_TIMEOUT_MS },
     );
+  }, [stopPositionWatching]);
 
-    return () => {
-      navigator.geolocation.clearWatch(watch);
-    };
-  }, []);
-
-  useEffect(() => setupPositionWatching(), [setupPositionWatching]);
+  useEffect(() => {
+    startPositionWatching();
+    return stopPositionWatching;
+  }, [startPositionWatching, stopPositionWatching]);
 
   const liveLocationSwitchEnabled = durations.length > 0;
   return (
@@ -164,7 +193,7 @@ export const ShareLocationDialog = ({
           latitude={geolocationPosition?.coords.latitude}
           loadingLocation={loadingLocation}
           longitude={geolocationPosition?.coords.longitude}
-          restartLocationWatching={setupPositionWatching}
+          restartLocationWatching={startPositionWatching}
         />
         {validShareDurations.length > 0 && (
           <div
