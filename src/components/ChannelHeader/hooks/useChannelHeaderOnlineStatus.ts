@@ -1,13 +1,9 @@
-import type { ChannelWatchState, MembersState } from 'stream-chat';
+import type { ChannelWatchState } from 'stream-chat';
 
 import { useChannel, useTranslationContext } from '../../../context';
 import { useStateStore } from '../../../store';
-import { useIsDmChannel } from '../../../hooks';
+import { useDisplayedMemberCount, useIsDmChannel } from '../../../hooks';
 import { useChannelHasMembersOnline } from './useChannelHasMembersOnline';
-
-const memberCountSelector = (nextValue: MembersState) => ({
-  memberCount: nextValue.memberCount,
-});
 
 const watcherCountSelector = (nextValue: ChannelWatchState) => ({
   watcherCount: nextValue.watcherCount,
@@ -21,7 +17,7 @@ const watcherCountSelector = (nextValue: ChannelWatchState) => ({
 export function useChannelHeaderOnlineStatus(): string | null {
   const { t } = useTranslationContext();
   const channel = useChannel();
-  const { memberCount } = useStateStore(channel.state, memberCountSelector);
+  const memberCount = useDisplayedMemberCount(channel);
   const { watcherCount } = useStateStore(channel.state, watcherCountSelector);
   const isDirectMessagingChannel = useIsDmChannel();
   const hasMembersOnline = useChannelHasMembersOnline({

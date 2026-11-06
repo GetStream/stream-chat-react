@@ -168,6 +168,19 @@ describe('ChannelHeader', () => {
     });
   });
 
+  it('shows the active member count in the subtitle when the channel has one', async () => {
+    await renderComponent({
+      channelData: {
+        ...channelCustom({ image: 'image.jpg', name: 'test-channel-1' }),
+        active_member_count: 8,
+        member_count: 10,
+      },
+    });
+
+    expect(await screen.findByText(/^8 members/)).toBeInTheDocument();
+    expect(screen.queryByText(/^10 members/)).not.toBeInTheDocument();
+  });
+
   it('should display correct member_count in subtitle', async () => {
     const { container } = await renderComponent({
       channelData: {

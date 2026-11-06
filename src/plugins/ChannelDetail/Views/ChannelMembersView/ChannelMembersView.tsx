@@ -9,6 +9,7 @@ import React, {
 import type { ChannelMemberResponse } from 'stream-chat';
 
 import { useTranslationContext } from '../../../../context';
+import { useDisplayedMemberCount } from '../../../../hooks';
 import { useChannelDetailContext } from '../../ChannelDetailContext';
 import { ChannelMemberDetail } from '../ChannelMemberDetailView';
 import {
@@ -18,7 +19,6 @@ import {
 } from './ChannelMembersHeaderActions.defaults';
 import { ChannelMembersAddView } from './ChannelMembersAddView';
 import { ChannelMembersBrowseView } from './ChannelMembersBrowseView';
-import { useChannelMemberCount } from './useChannelMemberCount';
 import {
   SectionNavigatorHeader,
   type SectionNavigatorSectionContentProps,
@@ -113,7 +113,7 @@ export const ChannelMembersView = ({
   const { channel, close } = useChannelDetailContext();
   const [mode, setMode] = useState<ChannelMembersViewMode>('browse');
   const [selectedMember, setSelectedMember] = useState<ChannelMemberResponse>();
-  const memberCount = useChannelMemberCount(channel);
+  const memberCount = useDisplayedMemberCount(channel);
 
   const modeViews = useMemo(
     () => ({ ...defaultChannelMembersModeViews, ...customModeViews }),

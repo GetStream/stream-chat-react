@@ -16,11 +16,11 @@ import {
   type ChannelMembersHeaderActionItem,
   DefaultChannelMembersHeaderActions,
 } from '../ChannelMembersHeaderActions.defaults';
-import { useChannelMemberCount } from '../useChannelMemberCount';
+import { useDisplayedMemberCount } from '../../../../../hooks/useDisplayedMemberCount';
 import { createChannel, renderWithChannel } from './testUtils';
 import { mockT } from '../../../../../mock-builders/translator';
 
-vi.mock('../useChannelMemberCount');
+vi.mock('../../../../../hooks/useDisplayedMemberCount');
 
 vi.mock('../../../../../context');
 
@@ -222,7 +222,7 @@ describe('ChannelMembersView', () => {
     vi.mocked(useComponentContext).mockReturnValue(
       {} as ReturnType<typeof useComponentContext>,
     );
-    vi.mocked(useChannelMemberCount).mockReturnValue(2);
+    vi.mocked(useDisplayedMemberCount).mockReturnValue(2);
   });
 
   it('shows only Add button by default when update-channel-members capability is granted', () => {
