@@ -55,7 +55,7 @@
     position: absolute;
     top: 0;
     bottom: 0;
-    transform: translateX(calc(var(--str-chat__thread-list-transition-offset) * -1px));
+    transform: translateX(calc(var(--str-chat__thread-list-transition-offset) * -1));
     transition:
       transform var(--str-chat__thread-list-transition-duration)
         var(--str-chat__thread-list-transition-easing),

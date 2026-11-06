@@ -14,7 +14,7 @@ export const ThreadHead = (props: MessageProps) => {
   return (
     <div className='str-chat__parent-message-li'>
       {parentCreatedAt ? <DateSeparator date={parentCreatedAt} /> : null}
-      <Message initialMessage {...props} />
+      <Message {...props} />
       <ThreadStart />
     </div>
   );
