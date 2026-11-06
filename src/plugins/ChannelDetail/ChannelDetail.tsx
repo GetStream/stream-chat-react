@@ -20,6 +20,7 @@ import { ChannelManagementView } from './Views/ChannelManagementView';
 import { ChannelMediaView } from './Views/ChannelMediaView';
 import { ChannelMembersView } from './Views/ChannelMembersView';
 import { PinnedMessagesView } from './Views/PinnedMessagesView';
+import { ScheduledMessagesView } from './Views/ScheduledMessagesView';
 import { Prompt } from '../../components/Dialog';
 import { useComponentContextIcons } from '../../context';
 import { useStableCallback } from '../../utils';
@@ -46,6 +47,11 @@ const ChannelMediaNavButtonIcon = () => {
   const { IconImage } = useComponentContextIcons();
 
   return <IconImage className='str-chat__channel-detail__action-icon' />;
+};
+
+const ScheduledMessagesNavButtonIcon = () => {
+  const { IconClock } = useComponentContextIcons();
+  return <IconClock className='str-chat__channel-detail__action-icon' />;
 };
 
 const ChannelFilesNavButtonIcon = () => {
@@ -75,6 +81,14 @@ export const PinnedMessagesNavButton = (props: SectionNavigatorNavButtonProps) =
     {...props}
     LeadingIcon={PinnedMessagesNavButtonIcon}
     title='Pinned messages'
+  />
+);
+
+export const ScheduledMessagesNavButton = (props: SectionNavigatorNavButtonProps) => (
+  <ChannelDetailNavButton
+    {...props}
+    LeadingIcon={ScheduledMessagesNavButtonIcon}
+    title='Scheduled'
   />
 );
 
@@ -109,6 +123,11 @@ export const defaultChannelDetailSections: SectionNavigatorSection[] = [
     id: 'pinned-messages',
     NavButton: PinnedMessagesNavButton,
     SectionContent: PinnedMessagesView,
+  },
+  {
+    id: 'scheduled-messages',
+    NavButton: ScheduledMessagesNavButton,
+    SectionContent: ScheduledMessagesView,
   },
   {
     id: 'channel-media',

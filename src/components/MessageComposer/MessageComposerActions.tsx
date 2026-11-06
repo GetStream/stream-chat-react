@@ -20,13 +20,18 @@ import { AIStates } from 'stream-chat';
 import type { AIState, MessageComposerState, TextComposerState } from 'stream-chat';
 import { useStateStore } from '../../store';
 import { useInertWhenHidden } from '../Accessibility';
+import { useCanScheduleMessage } from '../ScheduledMessages/hooks/useCanScheduleMessage';
+import { ScheduleMessageButton as DefaultScheduleMessageButton } from '../ScheduledMessages/ScheduleMessageButton';
 
 // Typed as `AIState[]` because an inferred array of the literal-typed `AIStates` members would
 // reject the wide `AIState` that `useAIState` returns.
 const STOPPABLE_AI_STATES: readonly AIState[] = [AIStates.Thinking, AIStates.Generating];
 
-const messageComposerStateSelector = ({ editedMessage }: MessageComposerState) => ({
+const messageComposerStateSelector = ({
   editedMessage,
+  editedScheduledMessage,
+}: MessageComposerState) => ({
+  isEditing: !!editedMessage || !!editedScheduledMessage,
 });
 
 const textComposerStateSelector = ({ command, text }: TextComposerState) => ({
@@ -41,11 +46,13 @@ export const MessageComposerActions = () => {
   const messageComposer = useMessageComposerController();
   const {
     CooldownTimer = DefaultCooldownTimer,
+    ScheduleMessageButton: ScheduleMessageButtonOverride,
     SendButton,
     StopAIGenerationButton: StopAIGenerationButtonOverride,
   } = useComponentContext();
 
-  const { editedMessage } = useStateStore(
+  const canScheduleMessage = useCanScheduleMessage();
+  const { isEditing } = useStateStore(
     messageComposer.state,
     messageComposerStateSelector,
   );
@@ -75,13 +82,28 @@ export const MessageComposerActions = () => {
   // Accounts for an iOS requirement, see https://bugs.webkit.org/show_bug.cgi?id=252303
   const recordingEnabled = !!(recordingController.recorder && navigator.mediaDevices);
 
-  let content = SendButton ? (
+  const ScheduleMessageButton =
+    ScheduleMessageButtonOverride === undefined
+      ? DefaultScheduleMessageButton
+      : ScheduleMessageButtonOverride;
+
+  const sendButton = SendButton ? (
     <SendButton sendMessage={submitMessageFn} />
   ) : (
     <DefaultSendButton sendMessage={submitMessageFn}>
-      {editedMessage || command ? <IconCheckmark /> : <IconSend />}
+      {isEditing || command ? <IconCheckmark /> : <IconSend />}
     </DefaultSendButton>
   );
+
+  let content =
+    canScheduleMessage && ScheduleMessageButton ? (
+      <div className='str-chat__split-send-button'>
+        {sendButton}
+        <ScheduleMessageButton />
+      </div>
+    ) : (
+      sendButton
+    );
 
   if (shouldDisplayStopAIGeneration) {
     content = <StopAIGenerationButton onClick={stopGenerating} />;
@@ -89,7 +111,7 @@ export const MessageComposerActions = () => {
 
   if (isCooldownActive) {
     content = <CooldownTimer />;
-  } else if (contentIsEmpty && !editedMessage && !command && recordingEnabled) {
+  } else if (contentIsEmpty && !isEditing && !command && recordingEnabled) {
     content = <AudioRecordingButtonWithNotification />;
   }
 
