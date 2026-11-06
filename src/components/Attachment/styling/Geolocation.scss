@@ -50,7 +50,6 @@
     display: flex;
     justify-content: center;
     padding: 0.5rem;
-    background-color: var(--str-chat__background-core-surface-subtle);
     font: var(--str-chat__font-caption-default);
 
     .str-chat__message-attachment-geolocation__status--active {
@@ -59,13 +58,28 @@
       align-items: center;
       gap: 0.375rem;
 
-      .str-chat__message-attachment-geolocation__status--active-status {
-        color: var(--str-chat__accent-success);
+      // The button sits on the bubble, so it takes the bubble's colors instead of the app-wide
+      // secondary button colors.
+      .str-chat__message-attachment-geolocation__stop-sharing-button {
+        --str-chat__button-secondary-text: var(
+          --chat-text,
+          var(--str-chat__chat-text-incoming)
+        );
+        --str-chat__button-secondary-border: var(
+          --chat-border-on-chat,
+          var(--str-chat__chat-border-on-chat-incoming)
+        );
       }
 
+      // The label sits on the bubble, so it takes the bubble's text color, which is legible on
+      // either side and theme.
+      .str-chat__message-attachment-geolocation__status--active-status {
+        color: var(--chat-text, var(--str-chat__chat-text-incoming));
+      }
+
+      // Keeps the status area's font, like the static location's "Current location" line.
       .str-chat__message-attachment-geolocation__status--active-until {
         text-transform: lowercase;
-        font: var(--str-chat__font-metadata-emphasis);
       }
     }
   }
