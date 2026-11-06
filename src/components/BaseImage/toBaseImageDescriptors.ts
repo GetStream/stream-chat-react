@@ -11,6 +11,7 @@ import {
   type LocalVideoAttachment,
 } from 'stream-chat';
 import type { Dimensions } from '../../types/types';
+import { getGiphyDescriptiveTitle } from '../Attachment/giphyAccessibility';
 
 type AttachmentPreviewableInGallery =
   | LocalImageAttachment
@@ -33,8 +34,8 @@ export type BaseImageDescriptor = {
  * gallery render.
  *
  * @param attachment - Attachment or link preview to describe.
- * @param options.giphyVersionName - Key of `attachment.giphy` that supplies the `alt` and
- * dimensions of a Giphy attachment.
+ * @param options.giphyVersionName - Key of `attachment.giphy` that supplies the image URL and
+ * dimensions of a Giphy attachment. Without that version the image loads from `thumb_url`.
  * @returns The descriptor, or undefined when the attachment is not an image, video, Giphy or link
  * preview.
  */
@@ -51,14 +52,15 @@ export const toBaseImageDescriptors = (
         : undefined;
 
     return {
-      alt: giphyVersion?.url || attachment.thumb_url,
+      // Giphy titles are often media URLs, which are not a usable text alternative.
+      alt: getGiphyDescriptiveTitle(attachment.title),
       dimensions: giphyVersion
         ? {
             height: giphyVersion.height,
             width: giphyVersion.width,
           }
         : undefined,
-      imageUrl: attachment.thumb_url,
+      imageUrl: giphyVersion?.url || attachment.thumb_url,
       title: attachment.title || attachment.thumb_url,
     };
   }
@@ -75,7 +77,8 @@ export const toBaseImageDescriptors = (
   if (isLocalVideoAttachment(attachment)) {
     return {
       title: attachment.title,
-      videoThumbnailUrl: attachment.thumb_url ?? attachment.localMetadata.previewUri,
+      // `previewUri` is the video file's own blob URL, which cannot render as an image.
+      videoThumbnailUrl: attachment.thumb_url,
       videoUrl: attachment.asset_url ?? attachment.localMetadata.previewUri,
     };
   }

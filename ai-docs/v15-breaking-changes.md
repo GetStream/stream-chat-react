@@ -64,7 +64,7 @@ yarn api-surface check --doc ai-docs/v15-breaking-changes.md --diff diff.json
 
 ## Index
 
-102 entries.
+106 entries.
 
 | ID                | Title                                                                                                                                                                                                                         | Group                                                |
 | ----------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------- |
@@ -164,6 +164,10 @@ yarn api-surface check --doc ai-docs/v15-breaking-changes.md --diff diff.json
 | [BC-094](#bc-094) | `mentionsMarkdownPlugin` and `createMentionPluginAndDisplayTextSet` take mention entities only                                                                                                                                | Messages and message lists                           |
 | [BC-095](#bc-095) | `disableQuotedMessages` is removed from `MessageProps`, `MessageListProps` and `useMessagePermissions`                                                                                                                        | Messages and message lists                           |
 | [BC-097](#bc-097) | channel detail views render no close button outside a modal without `onClose`; `ChannelDetail` calls `onLayoutChange`                                                                                                         | Chat, ChatView and layout                            |
+| [BC-098](#bc-098) | the channel members header action set uses `Component`, `placement: 'dropdown'`, `isVisible` and a `quick-dropdown-toggle` item                                                                                               | Contexts and customization                           |
+| [BC-099](#bc-099) | `ComponentContext.HeaderEndContent` was removed; `ChannelListHeader` and `ThreadListHeader` take `StartContent` / `EndContent` props, rendered whenever set                                                                   | Headers, threads and search                          |
+| [BC-100](#bc-100) | `typing.twoUsers` takes the two names as `firstUser` and `secondUser` instead of one joined `typing` value                                                                                                                    | i18n                                                 |
+| [BC-101](#bc-101) | `Root`, `Header`, `UploadIcon`, `BinIcon`, `PauseIcon`, `PlayIcon` unexported; `@stream-io/transliterate` dropped; `CustomChannelData` typed for apps; `DefaultChannelData` holds only `name` and `image`                     | Package and runtime                                  |
 | [BC-102](#bc-102) | `initialMessage` is removed from `MessageProps` and `MessageContextValue`; `useIsRenderedAsThreadParent()` tells the thread's parent message apart                                                                            | Messages and message lists                           |
 | [BC-105](#bc-105) | `additionalMessageComposerProps` is removed from `MessageProps`, `MessageListProps` and `VirtualizedMessageListProps`                                                                                                         | Messages and message lists                           |
 | [BC-106](#bc-106) | `MessageReactions.reverse`, `MessageReactionsDetail.sort` and `MessageReactionsDetail.dialogId` are removed                                                                                                                   | Messages and message lists                           |
@@ -252,6 +256,77 @@ export const DayDivider = ({ message }: { message: LocalMessage }) => {
 };
 ```
 
+<a id="bc-101"></a>
+
+### BC-101: `Root`, `Header`, `UploadIcon`, `BinIcon`, `PauseIcon` and `PlayIcon` are no longer exported; `@stream-io/transliterate` is no longer a dependency; `CustomChannelData` is typed for apps and `DefaultChannelData` holds only `name` and `image`
+
+- Status: confirmed
+- Area: package / exports / types
+- User impact:
+  - compile error (`TS2305`) on importing `Root` or `Header` from `stream-chat-react`, and `undefined` in plain JS. They are the parts of `Alert`, exported under generic names; `Alert.Root`, `Alert.Header` and `Alert.Actions` are unchanged.
+  - compile error (`TS2305`) on importing `UploadIcon`, `BinIcon`, `PauseIcon` or `PlayIcon`. No SDK component rendered them in v14 or v15.
+  - install: `@stream-io/transliterate` is no longer installed with this package. No SDK code imported it in v14 or v15; an app that imports it without declaring it gets a module-not-found error.
+  - types: `channel.data.custom.name` and `.image` are typed `string | undefined` in every app that imports `stream-chat-react`. v14 and earlier v15 release candidates declared the merge of `DefaultChannelData` into `CustomChannelData` in a file `tsc` did not emit, so apps saw `CustomChannelData` without those fields. An app that augments `CustomChannelData` with `name` or `image` under another type gets no error with `skipLibCheck: true` (its own type wins), and `TS2430` inside `stream-chat`'s `custom_types.d.ts` without it.
+  - types: `DefaultChannelData` loses `subtitle` and `team`. No SDK code read them; `team` is a top-level channel field in `stream-chat` v10 (`channel.data.team`), not custom data. Code that reads `DefaultChannelData['team']`, or relies on `extends DefaultChannelData` to type `custom.subtitle` / `custom.team`, gets `TS2339`.
+- Old API:
+  - `Root`, `Header` (`src/components/Dialog/components/Alert.tsx`), re-exported from the package root through `Dialog/components/index.ts`
+  - `UploadIcon`, `BinIcon`, `PauseIcon`, `PlayIcon` (`src/components/MessageComposer/icons.tsx`), re-exported through `MessageComposer/index.ts`
+  - `optionalDependencies['@stream-io/transliterate']: ^1.5.5`
+  - `DefaultChannelData`: `image`, `name`, `subtitle`, `team` (all `string | undefined`)
+  - `src/@types/stream-chat-custom-data.d.ts`, a declaration-only file that `tsc` never copies to `dist/types`
+- Replacement:
+  - `Root` / `Header`: `Alert.Root` / `Alert.Header`, the same components.
+  - The icons: copy the SVG into the app, or use the v15 icon set: `IconPlus` or `IconAttachment` for `UploadIcon`, `IconDelete` for `BinIcon`, `IconPauseFill` for `PauseIcon`, `IconPlayFill` for `PlayIcon`. They follow the v15 design, not the v14 shapes, and take `BaseIconProps`.
+  - `@stream-io/transliterate`: add it to the app's own dependencies if the app imports it. Mention search in `stream-chat` takes a `transliterate` function on its mentions middleware.
+  - `CustomChannelData`: delete an app's own `name?: string` / `image?: string` declarations, which are now redundant, and keep the augmentation for the app's other fields. Rename a field the app declares as `name` or `image` with another type. Declare `subtitle?: string` / `team?: string` on `CustomChannelData` if the app stores them under `custom`; read the channel's team from `channel.data.team`.
+- Evidence:
+  - `release-v14:src/components/Dialog/components/Alert.tsx:6`, `:25` `export const Root` / `export const Header`; `master:src/components/Dialog/components/Alert.tsx` declares both without `export` and exports them as `Alert.Root` / `Alert.Header`, like `Prompt` and `Viewer`
+  - `release-v14:src/components/MessageComposer/icons.tsx:3`, `:30`, `:36`, `:47`; `release-v14:src/components/MessageComposer/index.ts:19` `export * from './icons'`; no other reference in `src` or `examples` on either branch
+  - `release-v14:package.json:122` `"@stream-io/transliterate": "^1.5.5"`; no import in `src` on either branch
+  - `release-v14:src/@types/stream-chat-custom-data.d.ts:19` `interface CustomChannelData extends DefaultChannelData {}`; `release-v14:tsconfig.lib.json` emits declarations from `.ts` sources only, so `dist/types/@types` does not exist. `master:src/types/defaultDataInterfaces.ts` declares `DefaultChannelData` with `image` and `name` only, declares the merge and ships as `dist/types/types/defaultDataInterfaces.d.ts`, re-exported from `dist/types/index.d.ts`
+  - commit: REACT-1306
+- Docs impact:
+  - `02-state/01-state-and-entities/06-data-conventions.md` (the `CustomChannelData` augmentation sample), `08-release-guides/01-upgrade-to-v15.md`
+- Example needed: yes
+
+Before (v14):
+
+```tsx
+import { Header, Root } from 'stream-chat-react';
+
+declare module 'stream-chat' {
+  interface CustomChannelData {
+    image?: string;
+    name?: string;
+    priority?: number;
+  }
+}
+
+export const DeleteWarning = () => (
+  <Root>
+    <Header title='Delete channel?' />
+  </Root>
+);
+```
+
+After (v15):
+
+```tsx
+import { Alert } from 'stream-chat-react';
+
+declare module 'stream-chat' {
+  interface CustomChannelData {
+    priority?: number;
+  }
+}
+
+export const DeleteWarning = () => (
+  <Alert.Root>
+    <Alert.Header title='Delete channel?' />
+  </Alert.Root>
+);
+```
+
 ## Contexts and customization
 
 <a id="bc-003"></a>
@@ -299,7 +374,7 @@ export const DayDivider = ({ message }: { message: LocalMessage }) => {
   | `markRead` / `MarkReadWrapperOptions`                                        | `channel.markReadViaReporter()` (`channel.markRead()` is now the direct request: it skips the reporter and the `markReadRequest` handler). The unread UI snapshot is separate state on the paginator; there is no `updateChannelUiUnreadState` option. |
   | `setChannelUnreadUiState`                                                    | `channel.messagePaginator.setUnreadSnapshot(partial)`                                                                                                                                                                                                  |
   | `openThread` / `closeThread`                                                 | `useWorkspaceNavigation().openThread({ channel, message })` / `.closeThread(threadId)`. Inside a thread, `useCloseThread()`.                                                                                                                           |
-  | `onMentionsClick` / `onMentionsHover`                                        | the `onMentionsClick` / `onMentionsHover` props on `MessageList` / `Message`                                                                                                                                                                           |
+  | `onMentionsClick` / `onMentionsHover`                                        | the `onMentionsClick` / `onMentionsHover` props on `MessageList` / `VirtualizedMessageList` / `Message`                                                                                                                                                |
   | `dispatch`                                                                   | none, removed (there is no React reducer)                                                                                                                                                                                                              |
 
   Custom send/update/delete/markRead request overrides are registered on `client.config` (see "Per-component request-handler props removed" in `ai-migration-v14-v15.md`).
@@ -440,11 +515,11 @@ export const TypingCount = () => {
 - Replacement:
   - `Message` -> the `MessageUI` slot. `VirtualMessage` still overrides inside `VirtualizedMessageList` only. The `Message` _props_ on the lists and `Thread` belong to the message area's entry.
   - `ThreadHeader` -> render `<ThreadHeader />` (or your own header) as a child of `<Thread thread={thread}>`. `Thread` renders children and no header of its own.
-  - `HeaderStartContent` -> the `StartContent` prop on `ChannelHeader` / `ThreadHeader`, which defaults to `WorkspaceNavigationBackButton`. `EndContent` defaults to `WorkspaceNavigationCloseButton`. `HeaderEndContent` stays on `ComponentContext` for the list headers.
+  - `HeaderStartContent` -> the `StartContent` prop on `ChannelHeader` / `ThreadHeader`, which defaults to `WorkspaceNavigationBackButton`. `EndContent` defaults to `WorkspaceNavigationCloseButton`. `HeaderEndContent` -> the `EndContent` prop on `ChannelListHeader` / `ThreadListHeader` (BC-099).
   - `ChannelListUI` -> no wrapper slot. `ChannelList` renders an `InfiniteScrollPaginator` and reads the new slots `EmptyListIndicator`, `EndReachedIndicator`, `FirstPageLoadingIndicator`, `ListItem` and `LoadingNextPageIndicator` from `ComponentContext`. `ThreadList` reads `FirstPageLoadingIndicator` too, and both read the new `ListLoadErrorIndicator`; only `ChannelList` reads the others today.
 - Evidence:
   - `release-v14:src/context/ComponentContext.tsx:129` `ChannelListUI?`, `:179` `Message?` (`@deprecated use MessageUI`), `:288` `ThreadHeader?`, `:305` `HeaderStartContent?`
-  - `master:src/context/ComponentContext.tsx` none of the four; `:187` `MessageUI?`, `:294` `ThreadHead?`, `:309` `HeaderEndContent?`, `:317` `VirtualMessage?`, `:88-102` the new list slots
+  - `master:src/context/ComponentContext.tsx` none of the four; `:187` `MessageUI?`, `:294` `ThreadHead?`, `:317` `VirtualMessage?`, `:88-102` the new list slots
   - `master:src/components/ChannelHeader/ChannelHeader.tsx:58,64,77,79` and `master:src/components/Thread/ThreadHeader.tsx:85,91,97,99` `StartContent` / `EndContent` props with the workspace-navigation defaults
   - `master:src/components/Thread/Thread.tsx:41-56` JSDoc: `<Thread thread={thread}><ThreadHeader />…</Thread>`
   - `master:src/components/ChannelList/ChannelList.tsx:48-54` reads `EmptyListIndicator`, `EndReachedIndicator`, `FirstPageLoadingIndicator`, `ListItem`, `LoadingNextPageIndicator` from `useComponentContext()`
@@ -634,6 +709,115 @@ export const CustomEmojiPicker = () => {
 - Docs impact:
   - `02-ui-components/04-channel/01-channel.md`, `02-ui-components/04-channel/04-channel_state_context.md`, `04-guides/05-channel_read_state.md`
 - Example needed: no
+
+<a id="bc-098"></a>
+
+### BC-098: the channel members header action set uses `Component`, `placement: 'dropdown'`, `isVisible` and a `quick-dropdown-toggle` item
+
+- Status: confirmed
+- Area: channel detail (`stream-chat-react/channel-detail`)
+- User impact: compile error on a custom `headerActionSet` item with `component`, `filter` or `placement: 'menu'`, on `HeaderActionsMenuTrigger`, and on imports of `DefaultHeaderActionsMenuTrigger` or `ChannelMembersHeaderActionsMenuTriggerProps`. `ChannelMembersHeaderActionItem` is a union whose `quick-dropdown-toggle` member has no `type` or `isVisible`, so reading `item.type` or `item.isVisible` on an unnarrowed item fails to compile, and a `switch` over `ChannelMembersHeaderActionPlacement` gets a new `'quick-dropdown-toggle'` case. In untyped code a `menu` item is skipped (`DefaultHeaderActions` renders only the `quick` and `dropdown` placements), an item's `filter` is ignored, so an app-defined action it hid shows to every user, a `quick` item that still sets `component` instead of `Component` crashes the members view (`Element type is invalid … got: undefined`), and a `HeaderActionsMenuTrigger` prop is ignored. A dropdown item that calls the `closeMenu` prop throws `TypeError: closeMenu is not a function` (or leaves the menu open with `closeMenu?.()`). A set without a `quick-dropdown-toggle` item renders no menu at all, whatever its `dropdown` items. Dropdown items must render inside a `ContextMenu` (`useContextMenuContext()` throws outside one), so a custom `HeaderActions` renders the set's `quick-dropdown-toggle` item (passing it the ref the menu anchors to, `aria-expanded` and an `onClick` that toggles the menu) and its `dropdown` items in a `ContextMenu` opened with `useDialogOnNearestManager({ id })`, with an `id` unique to the component instance and stable while it is mounted (`useId()` on React 18 and 19; on React 17, a value created once, e.g. `const [id] = useState(() => Math.random().toString(36).slice(2))`), as `DefaultHeaderActions` does. Like `DefaultHeaderActions`, it filters the set with `useBaseChannelMembersHeaderActionSetFilter` first (otherwise `isVisible` and the `addMembers` capability check don't apply) and gives the `ContextMenu` `id={dialog.id}`, `dialogManagerId={dialogManager?.id}`, the toggle's button as `referenceElement` and `onClose={() => dialog.close()}` (without the `id` the menu renders inline instead of anchored to the toggle, and an item's `closeMenu()` calls that `onClose`). A toggle that ignores the props it receives renders but never opens the menu.
+- Old API:
+  - `ChannelMembersHeaderActionItem.component`; `ChannelMembersHeaderActionPlacement = 'quick' | 'menu'`; `ChannelMembersHeaderActionItem.filter?: (ctx: { channel: Channel }) => boolean`
+  - `ChannelMembersHeaderActionComponentProps.closeMenu?: () => void`, passed to menu items by `DefaultHeaderActions`
+  - `ChannelMembersViewProps.HeaderActionsMenuTrigger` and `ChannelMembersHeaderActionsProps.HeaderActionsMenuTrigger`, typed by `ChannelMembersHeaderActionsMenuTriggerProps` (`aria-expanded`, `onClick`, `referenceRef`); default `DefaultHeaderActionsMenuTrigger`
+- Replacement: the names the message actions and the channel-list row actions use.
+  - Items have a `Component` field. `ChannelMembersHeaderActionItem` is a union of `QuickChannelMembersHeaderActionItem` (`placement: 'quick'`), `DropdownChannelMembersHeaderActionItem` (`placement: 'dropdown'`) and `QuickDropdownToggleChannelMembersHeaderActionItem` (`placement: 'quick-dropdown-toggle'`, no `type` or `isVisible`).
+  - The menu trigger is the set's `quick-dropdown-toggle` item: a `forwardRef` button. `DefaultHeaderActions` passes it the ref the menu anchors to, `aria-expanded` and an `onClick` that toggles the menu; the button spreads the props, so it never looks up the menu's dialog. A v14 trigger forwards the ref instead of reading `referenceRef`. Unlike the message and channel-list toggles, which look up their dialog through `getDialogId`, this toggle must spread the props it receives: one that ignores them never opens the menu.
+  - `DefaultHeaderActions` creates its menu's dialog id once per instance, so two members views under one dialog manager (e.g. side-by-side panels of the same channel) never open each other's menu. While the members list is shown and the `HeaderActions` component keeps its identity, `ChannelMembersView` keeps it mounted across re-renders (e.g. with an inline `headerActionSet`), so an open menu stays open; a `HeaderActions` defined inline mounts anew on every render. `defaultChannelMembersHeaderActionSet` starts with `DefaultChannelMembersHeaderActions.QuickDropdownToggle`, so a set built from it keeps the trigger; a set written from scratch adds that item. The toggle renders only while the set has a `dropdown` item that passes the filter.
+  - Dropdown items read `closeMenu` from `useContextMenuContext()`.
+  - `filter` → `isVisible`, as on message actions and composer previews: `isVisible?: (state: ChannelMembersHeaderActionVisibilityFilterParams) => boolean`, called with `{ channel }`. It hides an action; it cannot show `addMembers` without the `update-channel-members` capability. A shared rule is typed with `ChannelMembersHeaderActionVisibilityFilterParams`.
+- Evidence:
+  - `release-v14:src/plugins/ChannelDetail/Views/ChannelMembersView/ChannelMembersHeaderActions.defaults.tsx:26`, `:31`, `:34`, `:93-107`, `:128-160`, `:176-207`; `release-v14:src/plugins/ChannelDetail/Views/ChannelMembersView/ChannelMembersView.tsx` (`HeaderActionsMenuTrigger`)
+  - `master:src/plugins/ChannelDetail/Views/ChannelMembersView/ChannelMembersHeaderActions.defaults.tsx` (`DefaultHeaderActions`, `DefaultChannelMembersHeaderActions`, `defaultChannelMembersHeaderActionSet`)
+  - shared shape: `master:src/components/MessageActions/MessageActions.tsx` (`MessageActionSetItem`), `master:src/components/ChannelListItem/ChannelListItemActionButtons.defaults.tsx` (`defaultChannelActionSet`), `master:src/components/Chat/hooks/useSplitActionSet.ts`
+  - commit: REACT-1477
+- Docs impact:
+  - UI › Customizing › Actions; the channel details reference for `ChannelMembersView` (`headerActionSet`, `HeaderActionsMenuTrigger`)
+- Example needed: yes
+
+Before (v14):
+
+```tsx
+import {
+  ChannelMembersView,
+  type ChannelMembersHeaderActionComponentProps,
+  type ChannelMembersHeaderActionItem,
+  type ChannelMembersHeaderActionsMenuTriggerProps,
+  defaultChannelMembersHeaderActionSet,
+  type SectionNavigatorSectionContentProps,
+} from 'stream-chat-react/channel-detail';
+import { ContextMenuButton } from 'stream-chat-react';
+
+const MyTrigger = ({
+  referenceRef,
+  ...props
+}: ChannelMembersHeaderActionsMenuTriggerProps) => (
+  <button ref={referenceRef} {...props}>
+    Actions
+  </button>
+);
+
+const ExportMembers = ({ closeMenu }: ChannelMembersHeaderActionComponentProps) => (
+  <ContextMenuButton onClick={() => closeMenu?.()}>Export</ContextMenuButton>
+);
+
+const headerActionSet: ChannelMembersHeaderActionItem[] = [
+  ...defaultChannelMembersHeaderActionSet,
+  { component: ExportMembers, placement: 'menu', type: 'exportMembers' },
+];
+
+// `SectionContent` of the `channel-members` section in `defaultChannelDetailSections`
+const MembersSection = (props: SectionNavigatorSectionContentProps) => (
+  <ChannelMembersView
+    {...props}
+    headerActionSet={headerActionSet}
+    HeaderActionsMenuTrigger={MyTrigger}
+  />
+);
+```
+
+After (v15):
+
+```tsx
+import { type ComponentPropsWithoutRef, forwardRef } from 'react';
+import {
+  ChannelMembersView,
+  type ChannelMembersHeaderActionItem,
+  defaultChannelMembersHeaderActionSet,
+  type SectionNavigatorSectionContentProps,
+} from 'stream-chat-react/channel-detail';
+import { ContextMenuButton, useContextMenuContext } from 'stream-chat-react';
+
+// receives `aria-expanded` and `onClick` from `DefaultHeaderActions`
+const MyTrigger = forwardRef<HTMLButtonElement, ComponentPropsWithoutRef<'button'>>(
+  function MyTrigger(props, ref) {
+    return (
+      <button ref={ref} {...props}>
+        Actions
+      </button>
+    );
+  },
+);
+
+const ExportMembers = () => {
+  const { closeMenu } = useContextMenuContext();
+  return <ContextMenuButton onClick={() => closeMenu()}>Export</ContextMenuButton>;
+};
+
+const headerActionSet: ChannelMembersHeaderActionItem[] = [
+  // the default set already holds the `quick-dropdown-toggle` item
+  ...defaultChannelMembersHeaderActionSet.map((item) =>
+    item.placement === 'quick-dropdown-toggle' ? { ...item, Component: MyTrigger } : item,
+  ),
+  { Component: ExportMembers, placement: 'dropdown', type: 'exportMembers' },
+];
+
+// `SectionContent` of the `channel-members` section in `defaultChannelDetailSections`
+const MembersSection = (props: SectionNavigatorSectionContentProps) => (
+  <ChannelMembersView {...props} headerActionSet={headerActionSet} />
+);
+```
 
 <a id="bc-109"></a>
 
@@ -927,7 +1111,7 @@ A threads view is declared the same way (a `{ id: 'threads', slots: [...] }` lay
 - Area: navigation
 - User impact:
   - compile error reading `setActiveChannel` / `channel` from `useChatContext()` (and from the return of `useChat()`); `undefined` in JS.
-  - silent behavior change: without `ChatView` (or your own `WorkspaceNavigationProvider`), clicking a `ChannelList` row, a channel/message/user search result, a `ThreadList` row, a message's reply-count button, "also sent in channel", or the channel-detail "send direct message" / pinned-message entry does nothing, and no list row renders as active (`ChannelListItem` derives `active` from `isChannelActive(cid)`, `ChannelListHeader` only shows `HeaderEndContent` while `openChannels` is non-empty).
+  - silent behavior change: without `ChatView` (or your own `WorkspaceNavigationProvider`), clicking a `ChannelList` row, a channel/message/user search result, a `ThreadList` row, a message's reply-count button, "also sent in channel", or the channel-detail "send direct message" / pinned-message entry does nothing, and no list row renders as active (`ChannelListItem` derives `active` from `isChannelActive(cid)`).
   - with no navigation provided at all, each operation (`openChannel`, `openThread`, `closeChannel`, `closeThread`, `goBack`) logs a one-time console warning that nothing happened; `defaultWorkspaceNavigation` itself stays silent, so a provider built by spreading it does not warn.
   - `ChannelListItem` / `ChannelListItemUI` no longer accept `setActiveChannel` / `watchers` (BC-033).
 - Old API:
@@ -1478,10 +1662,10 @@ Note: a bare `AttachmentContextProvider` above the list does not reach message a
 - Old API:
   - `ChannelProps.onMentionsClick?: OnMentionAction`, `ChannelProps.onMentionsHover?: OnMentionAction`
   - `useChannelMentionsHandler(onMentionsHover?, onMentionsClick?)`
-- Replacement: `onMentionsClick` / `onMentionsHover` on `MessageList` (drilled to each message) or on `Message`; handler type `CustomMentionHandler` `(event, message: LocalMessage)`; read mention metadata from `message` (BC-089). `VirtualizedMessageList` has no such prop in v15 (v14 virtualized lists got the handlers only from `Channel`), so a virtualized list needs a custom message UI to handle mention clicks.
+- Replacement: `onMentionsClick` / `onMentionsHover` on `MessageList` or `VirtualizedMessageList` (drilled to each message, the thread's parent message and the separate giphy preview) or on `Message`; handler type `CustomMentionHandler` `(event, message: LocalMessage)`; read mention metadata from `message` (BC-089).
 - Evidence:
   - `release-v14:src/components/Channel/Channel.tsx:145-147`; `release-v14:src/components/Channel/index.ts:3`; `release-v14:src/components/Message/hooks/useMentionsHandler.ts:51-59` (fell back to the `Channel` handlers)
-  - `master:src/components/MessageList/MessageList.tsx:108-109,421-422` (`onMentionsClick`/`onMentionsHover` in `PropsDrilledToMessage`); `master:src/components/MessageList/VirtualizedMessageList.tsx:84-90` (not drilled); `master:src/components/Message/types.ts:54-56`
+  - `master:src/components/MessageList/MessageList.tsx:108-109,421-422` (`onMentionsClick`/`onMentionsHover` in `PropsDrilledToMessage`); `master:src/components/MessageList/VirtualizedMessageList.tsx:87-88,246-247` (same); `master:src/components/Message/types.ts:54-56`
   - commit: `99cbe6704` (PR #3237)
 - Docs impact:
   - `02-ui-components/04-channel/01-channel.md`, `02-ui-components/04-channel/03-channel_action_context.md`, `03-ui-cookbook/04-message/03-mentions_actions.md`
@@ -1866,10 +2050,10 @@ Guide check: `ai-migration-v14-v15.md` "`ChannelListItem` `getLatestMessagePrevi
 - User impact: compile error on a `HeaderStartContent` override (`TS2561`); in JS it is ignored and the custom content (often a sidebar toggle) disappears. Visible change: by default `ChannelHeader` / `ThreadHeader` render `WorkspaceNavigationBackButton` at the start and `WorkspaceNavigationCloseButton` at the end; both render nothing outside a workspace navigation that reports the panel as stacked / dismissable.
 - Old API:
   - `ComponentContextValue.HeaderStartContent`
-- Replacement: `<ChannelHeader StartContent={...} EndContent={...} />` and the same on `ThreadHeader`. Passing a component replaces the default button; render `WorkspaceNavigationBackButton` / `WorkspaceNavigationCloseButton` (new exports) inside yours to keep it. `ComponentContext.HeaderEndContent` is unchanged and still feeds `ChannelListHeader` / `ThreadListHeader` (but `ChannelListHeader` shows it only while a channel is open in the workspace).
+- Replacement: `<ChannelHeader StartContent={...} EndContent={...} />` and the same on `ThreadHeader`. Passing a component replaces the default button; render `WorkspaceNavigationBackButton` / `WorkspaceNavigationCloseButton` (new exports) inside yours to keep it. `ComponentContext.HeaderEndContent` was removed too; the list headers take `StartContent` / `EndContent` props (BC-099).
 - Evidence:
   - `release-v14:src/context/ComponentContext.tsx:305`; `release-v14:src/components/ChannelHeader/ChannelHeader.tsx:52,61-63`
-  - `master:src/components/ChannelHeader/ChannelHeader.tsx:50-69,74-110`; `master:src/components/Thread/ThreadHeader.tsx:79-100`; `master:src/components/ChannelList/ChannelListHeader.tsx` (`hasActiveChannel = useWorkspaceNavigation().openChannels.length > 0`)
+  - `master:src/components/ChannelHeader/ChannelHeader.tsx:50-69,74-110`; `master:src/components/Thread/ThreadHeader.tsx:79-100`
   - commit: `66557d63b feat!: port the tutorial alignment (#3251) to v15, with panel-aware workspace navigation` (PR #3301)
 - Docs impact:
   - `02-ui-components/04-channel/02-channel_header.md`, `02-ui-components/04-channel/05-component_context.md`, `02-ui-components/03-chat/01-chat.md`, `03-ui-cookbook/12-collapsible-sidebar.md`, `06-release-guides/01-upgrade-to-v14.md`
@@ -2114,6 +2298,32 @@ const CustomThreadHeader = () => {
 - Docs impact:
   - `03-ui-cookbook/07-notifications/01-system-notifications.md`, `04-guides/13-notifications.md`
 - Example needed: no
+
+<a id="bc-099"></a>
+
+### BC-099: `ComponentContext.HeaderEndContent` was removed; `ChannelListHeader` and `ThreadListHeader` take `StartContent` / `EndContent` props, rendered whenever set
+
+- Status: confirmed
+- Area: channel list header / thread list header / ComponentContext
+- User impact:
+  - compile error on a `HeaderEndContent` key written inline in `overrides` (`TS2353` / `TS2561`). In JS, or in an `overrides` object declared as a variable that also holds a valid key, the key is ignored without an error and the content disappears from both list headers.
+  - behavior change: v14 rendered `HeaderEndContent` in `ChannelListHeader` only while a channel was active, and in `ThreadListHeader` only while a thread was active. The `EndContent` prop renders whenever it is set, so content that only makes sense next to an open channel or thread (a sidebar toggle) has to return `null` itself.
+  - one component no longer fills both headers: pass it to each header that should show it.
+- Old API:
+  - `ComponentContextValue.HeaderEndContent`, rendered by `ChannelListHeader` (gated on the active channel) and `ThreadListHeader` (gated on the active thread)
+- Replacement:
+  - `ChannelListHeader` and `ThreadListHeader` take `StartContent` (before the title) and `EndContent` (after the title), as `ChannelHeader` / `ThreadHeader` do. Neither has a default. Types: `ChannelListHeaderProps`, `ThreadListHeaderProps`.
+  - where the SDK renders the header, the props go through the header's override key: register a component that renders the default header with them. `ChannelListHeader` is read by `ChannelNavigation`; `ThreadListHeader` is a new key, read by `ThreadList`. `ThreadListHeader` is now exported.
+  - where the app renders the header itself (for example `ChannelListHeader` above a standalone `ChannelList`), it passes the props directly; the override key does not reach that header.
+  - to keep the v14 gate, read `useWorkspaceNavigation().openChannels` / `.openThreads` in the content component and return `null` while it is empty. `ChatView` or an app's own `WorkspaceNavigationProvider` fills these lists; without one they stay empty, so an app without either gates on its own selection state.
+- Evidence:
+  - `release-v14:src/components/ChannelList/ChannelListHeader.tsx:15` `{channel && HeaderEndContent && <HeaderEndContent />}`; `release-v14:src/components/Threads/ThreadList/ThreadListHeader.tsx:12` `{activeThread && HeaderEndContent && <HeaderEndContent />}`; `release-v14:src/context/ComponentContext.tsx:303`
+  - `master:src/components/ChannelList/ChannelListHeader.tsx` and `master:src/components/Threads/ThreadList/ThreadListHeader.tsx` (`StartContent` / `EndContent` props); `master:src/components/Threads/ThreadList/ThreadList.tsx` reads `ThreadListHeader` from `useComponentContext()`; `master:src/context/ComponentContext.tsx` `ThreadListHeader?`
+  - ticket: REACT-1449
+  - examples: `examples/vite/src/ChatLayout/SwitchableChannelNavigation.tsx` passes `EndContent={SidebarToggleWhileChannelOpen}` to `ChannelListHeader`; `examples/vite/src/App.tsx` registers `ThreadListHeaderWithSidebarToggle` (`examples/vite/src/Sidebar/HeaderContent.tsx`) as `ThreadListHeader`
+- Docs impact:
+  - `03-ui/03-components/01-channel-list-ui.md`, `03-ui/03-components/08-thread-list-ui.md`, `03-ui/03-components/12-overriding-components.md`, `06-component-reference/02-channel/04-componentcontext.md`, `06-component-reference/07-thread-list/01-threadlist.md`, `05-ui-cookbooks/10-layout/04-collapsible-sidebar.md`, `05-ui-cookbooks/03-search/03-mentions-inbox.md`, `08-release-guides/01-upgrade-to-v15.md`
+- Example needed: yes (the guide section has one)
 
 ---
 
@@ -3036,7 +3246,7 @@ const { canReply } = useMessagePermissions(message);
 - Old API:
   - `onMentionsClickMessage: ReactEventHandler` and `onMentionsHoverMessage: ReactEventHandler`, always set; a no-op when no handler was passed
   - `useMentionsHandler(message, handlers)` returned `{ onMentionsClick, onMentionsHover }`, both always functions
-- Replacement: the context fields are optional and set only when `onMentionsClick` / `onMentionsHover` was passed to `MessageList` or `Message`. `useMentionsHandler` returns each handler only when the matching one is passed to it, and `undefined` otherwise. Pass them as event props (`onClick={onMentionsClickMessage}`), or call them with `?.`. With `onMentionsClick` set, `MessageText` adds `str-chat__message-text-inner--mentions-clickable`, which gives mentions a pointer cursor.
+- Replacement: the context fields are optional and set only when `onMentionsClick` / `onMentionsHover` was passed to `MessageList`, `VirtualizedMessageList` or `Message`. `useMentionsHandler` returns each handler only when the matching one is passed to it, and `undefined` otherwise. Pass them as event props (`onClick={onMentionsClickMessage}`), or call them with `?.`. With `onMentionsClick` set, `MessageText` adds `str-chat__message-text-inner--mentions-clickable`, which gives mentions a pointer cursor.
 - Evidence:
   - `release-v14:src/context/MessageContext.tsx:63-66`; `release-v14:src/components/Message/Message.tsx:263` `onMentionsClickMessage={onMentionsClick}`; `release-v14:src/components/Message/hooks/useMentionsHandler.ts:55-59` (`|| (() => null)`)
   - `master:src/context/MessageContext.tsx:44-47`; `master:src/components/Message/hooks/useMentionsHandler.ts:13-21`, `:28-49`; `master:src/components/Message/Message.tsx:191-192`; `master:src/components/Message/MessageText.tsx:82-83`, `:121-122`, `:125` (`onClick` only when mentions are interactive)
@@ -3775,6 +3985,24 @@ await i18n.setLanguage('fr');
 const { t: frT } = i18n.state.getLatestValue();
 const hasFr = i18n.registeredLanguages.has('fr');
 ```
+
+<a id="bc-100"></a>
+
+### BC-100: `typing.twoUsers` takes the two names as `firstUser` and `secondUser` instead of one joined `typing` value
+
+- Status: confirmed
+- Area: i18n (typing indicator)
+- User impact: **silent**. A translation of the two-person typing text that still uses `{{ typing }}` renders the literal `{{ typing }}`, because the SDK no longer passes that value. App code that calls `t('typing.twoUsers', …)` itself with `{ typing }` still compiles (`t` checks values only on plural keys) and renders English correctly, but once a translation written with the new values is registered it shows `{{ firstUser }}` and `{{ secondUser }}` literally. Apps that do not override the key see no change in English: the default is `'{{ firstUser }} and {{ secondUser }} are typing'`. The text shows in `<TypingIndicator/>` (its screen-reader announcement) and `<TypingIndicatorHeader/>` (the channel and thread header subtitle).
+- Old API:
+  - v14 key `'{{ typing }} are typing'` with one value, `typing`, set to both names joined by an English "and" (`'Anna and Ben'`), so a translation could not change that word. A dictionary written against a v15 release candidate that uses `{{ typing }}` in `typing.twoUsers` needs the same change.
+- Replacement: write the whole sentence around `{{ firstUser }}` and `{{ secondUser }}`, e.g. `'typing.twoUsers': '{{ firstUser }} und {{ secondUser }} schreiben'`. The key map entry for `'{{ typing }} are typing'` lists both sets of names under `values`. `typing.singleUser` (`{{ typing }}`, one name) and `typing.manyUsers` (`{{ count }}`) are unchanged.
+- Evidence:
+  - `release-v14:src/components/TypingIndicator/utils/getTypingStatusMessage.ts:25-27`
+  - `master:src/components/TypingIndicator/utils/getTypingStatusMessage.ts:20-23`
+  - ticket: REACT-1495
+- Docs impact:
+  - v15 docs: `04-features/01-messaging/12-typing-indicators.md` ("The texts" table gives the old default), `08-release-guides/01-upgrade-to-v15.md` ("Localization" section: the changed values)
+- Example needed: no (`i18n-v15-migration.md` "Keys whose values changed" carries it)
 
 ## Types that follow stream-chat v10 (umbrella entries)
 
@@ -4760,6 +4988,17 @@ Non-gated items checked and ruled out: `Chat.isMessageAIGenerated`, `SummarizedM
 - `PinEnabledUserRoles` and `PinPermissions` (exported from `usePinHandler.ts` in v15 release candidates, `@deprecated`) were removed by REACT-1467 (PR #3387). Ruled out as a v14 -> v15 change: v14 removed them before v14 stable (`8317b73a2`, PR #3086) and `99cbe6704` (PR #3237) brought them back on `master` by accident, so `release-v14` never exports them. Gate on `useMessagePermissions(message).canPin` instead.
 - `ThreadContext` / `ThreadContextValue` members reported as `member-added-required`: `configState`, `handleMessageDeleted`, `handleMessageUpdated`, `handleNewReply`, `handleReactionChanged`, `handleRepliesRead`, `handleRepliesUnread`, `handleThreadUpdated`, `handleUserMessagesDeleted`, `initializeConfig`, `markRead`, `messageOperations`, `updateConfig`. Ruled out as LLC (stream-chat v10): `ThreadContextValue` is `Thread \| undefined` on both branches, and these are methods and stores added to the `stream-chat` `Thread` class. Only a hand-built `Thread` mock is affected; build it from a real `client.threads` instance instead.
 - Corpus errors caused only by `stream-chat` v10 types, ruled out as LLC: the attachment `Action` type now requires `text` and `type` (`03-ui-cookbook/06-attachment/01-attachment_actions.md`); `StreamChat.unBlockUser` -> `unblockUser` and `queryUsers`-style id arguments (`04-guides/11-blocking-users.md`, `04-guides/04-typescript_and_custom_data_types.md`); custom fields on `MessageWithChannelResponse` (same page); `ReminderResponse` -> `ReminderResponseData` (`04-guides/12-message-reminders.md`); `MessageResponseBase`, and the narrowed `Event` / `EventPayload` unions (`examples/vite` WebSocket event tooling). Also: the `User` type no longer accepts `name` / `image` (type `userData` as `ClientUser`, as `useCreateChatClient` does; v14 tutorial steps 3-7); `ChannelResponse.name` on `Partial<ChannelResponse>`; channel `members` as `ChannelMemberRequest` objects instead of id strings (tutorial steps 3 and 6); `StreamChat.partialUpdateMessage` and other message methods taking `{ message_id }` objects; `delete_for_me` instead of `deleteForMe` in delete options; `ChannelState.messages` (use `channel.messagePaginator`); `ReactionResponse.custom` now required in hand-built fixtures; `LinkPreview.custom`.
+
+### Channel members header actions (REACT-1477, after the audit)
+
+| Item                                                                                                                                                                 | Mapping |
+| -------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------- |
+| `DefaultHeaderActionsMenuTrigger`, `ChannelMembersHeaderActionsMenuTriggerProps` (removed exports)                                                                   | BC-098  |
+| `ChannelMembersViewProps.HeaderActionsMenuTrigger`, `ChannelMembersHeaderActionsProps.HeaderActionsMenuTrigger` (removed props)                                      | BC-098  |
+| `ChannelMembersHeaderActionItem.component` → `Component`, `ChannelMembersHeaderActionPlacement` `'menu'` → `'dropdown'`                                              | BC-098  |
+| `ChannelMembersHeaderActionComponentProps.closeMenu` (removed member)                                                                                                | BC-098  |
+| `ChannelMembersHeaderActionItem.filter` → `isVisible`, typed with `ChannelMembersHeaderActionVisibilityFilterParams` (added)                                         | BC-098  |
+| `ChannelMembersHeaderActionItem` (union with a toggle member without `type` or `isVisible`), `ChannelMembersHeaderActionPlacement` `'quick-dropdown-toggle'` (added) | BC-098  |
 
 ## Notes For Migration Guide Drafting
 

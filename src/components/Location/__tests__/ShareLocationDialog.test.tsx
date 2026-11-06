@@ -1,6 +1,7 @@
 import React from 'react';
 import {
   act,
+  cleanup,
   fireEvent,
   render,
   type RenderResult,
@@ -97,7 +98,12 @@ const watchPosition = vi.fn().mockImplementation(() => ({}));
 };
 
 describe('ShareLocationDialog', () => {
-  afterEach(vi.clearAllMocks);
+  afterEach(() => {
+    // Unmount before clearing mocks so the dialog's clearWatch call is not counted in the next test.
+    cleanup();
+    vi.clearAllMocks();
+  });
+
   it('renders dropdown with default durations', async () => {
     // The switch is disabled until a geolocation position is available
     const callbacks: Record<string, (...args: unknown[]) => void> = {};
@@ -206,6 +212,204 @@ describe('ShareLocationDialog', () => {
       expect(geolocationMap.dataset.longitude).toBe(coords.longitude);
       expect(geolocationMap.dataset.loading).toBe('false');
       expect(geolocationMap.dataset.error).toBeUndefined();
+    });
+  });
+
+  describe('position watching', () => {
+    let nextWatchId: number;
+    let restartLocationWatching: () => void;
+    const RestartingGeolocationMap = (props: ShareGeolocationMapProps) => {
+      restartLocationWatching = props.restartLocationWatching;
+      return null;
+    };
+
+    beforeEach(() => {
+      nextWatchId = 1;
+      watchPosition.mockImplementation(() => nextWatchId++);
+    });
+
+    afterEach(() => {
+      watchPosition.mockImplementation(() => ({}));
+    });
+
+    it('waits more than a second for a position', async () => {
+      await renderComponent();
+      expect(watchPosition).toHaveBeenCalledWith(
+        expect.any(Function),
+        expect.any(Function),
+        { timeout: 10000 },
+      );
+    });
+
+    it('clears the current watch before a restart starts a new one', async () => {
+      await renderComponent({ props: { GeolocationMap: RestartingGeolocationMap } });
+      expect(watchPosition).toHaveBeenCalledTimes(1);
+      expect(navigator.geolocation.clearWatch).not.toHaveBeenCalled();
+
+      await act(() => restartLocationWatching());
+      expect(navigator.geolocation.clearWatch).toHaveBeenCalledTimes(1);
+      expect(navigator.geolocation.clearWatch).toHaveBeenLastCalledWith(1);
+      expect(watchPosition).toHaveBeenCalledTimes(2);
+
+      await act(() => restartLocationWatching());
+      expect(navigator.geolocation.clearWatch).toHaveBeenCalledTimes(2);
+      expect(navigator.geolocation.clearWatch).toHaveBeenLastCalledWith(2);
+      expect(watchPosition).toHaveBeenCalledTimes(3);
+    });
+
+    it('clears the watch started by a restart on unmount', async () => {
+      const { unmount } = await renderComponent({
+        props: { GeolocationMap: RestartingGeolocationMap },
+      });
+      await act(() => restartLocationWatching());
+      vi.mocked(navigator.geolocation.clearWatch).mockClear();
+
+      unmount();
+      expect(navigator.geolocation.clearWatch).toHaveBeenCalledTimes(1);
+      expect(navigator.geolocation.clearWatch).toHaveBeenCalledWith(2);
+    });
+
+    it('clears the initial watch on unmount', async () => {
+      const { unmount } = await renderComponent();
+      unmount();
+      expect(navigator.geolocation.clearWatch).toHaveBeenCalledTimes(1);
+      expect(navigator.geolocation.clearWatch).toHaveBeenCalledWith(1);
+    });
+
+    it('ignores callbacks of a watch stopped by a restart', async () => {
+      const watchCallbacks: Array<Record<string, (...args: unknown[]) => void>> = [];
+      watchPosition.mockImplementation((onSuccess, onError) => {
+        watchCallbacks.push({ onError, onSuccess });
+        return nextWatchId++;
+      });
+      const RestartableGeolocationMap = (props: ShareGeolocationMapProps) => (
+        <>
+          <RestartingGeolocationMap {...props} />
+          <GeolocationMapComponent {...props} />
+        </>
+      );
+      await renderComponent({ props: { GeolocationMap: RestartableGeolocationMap } });
+      const geolocationMap = screen.getByTestId(GEOLOCATION_MAP_TEST_ID);
+      await act(() => restartLocationWatching());
+      const [stoppedWatch, currentWatch] = watchCallbacks;
+
+      await act(() => stoppedWatch.onSuccess({ coords: { latitude: 1, longitude: 10 } }));
+      expect(geolocationMap.dataset.latitude).toBeUndefined();
+      expect(geolocationMap.dataset.loading).toBe('true');
+
+      await act(() => currentWatch.onSuccess({ coords: { latitude: 2, longitude: 20 } }));
+      await act(() =>
+        stoppedWatch.onError({ code: 2, POSITION_UNAVAILABLE: 2, TIMEOUT: 3 }),
+      );
+      expect(geolocationMap.dataset.latitude).toBe('2');
+      expect(geolocationMap.dataset.error).toBeUndefined();
+    });
+
+    it('keeps one watch under StrictMode', async () => {
+      const {
+        channels: [channel],
+        client,
+      } = await initClientWithChannels({ customUser: user });
+      let result: RenderResult;
+      await act(() => {
+        result = render(
+          <React.StrictMode>
+            <Chat client={client}>
+              <Channel channel={channel}>
+                <ShareLocationDialog close={close} />
+              </Channel>
+            </Chat>
+          </React.StrictMode>,
+        );
+      });
+      const startedWatchIds = watchPosition.mock.results.map((r) => r.value);
+      const clearedWatchIds = () =>
+        vi.mocked(navigator.geolocation.clearWatch).mock.calls.map(([id]) => id);
+      const activeWatchIds = () =>
+        startedWatchIds.filter((id) => !clearedWatchIds().includes(id));
+      expect(activeWatchIds()).toHaveLength(1);
+
+      result.unmount();
+      expect(activeWatchIds()).toHaveLength(0);
+    });
+
+    it('keeps the last position when a later update times out', async () => {
+      const callbacks: Record<string, (...args: unknown[]) => void> = {};
+      watchPosition.mockImplementation((onSuccess, onError) => {
+        callbacks.onSuccess = onSuccess;
+        callbacks.onError = onError;
+        return nextWatchId++;
+      });
+      await renderComponent({ props: { GeolocationMap: GeolocationMapComponent } });
+      const geolocationMap = screen.getByTestId(GEOLOCATION_MAP_TEST_ID);
+      const coords = { latitude: 1, longitude: 10 };
+
+      await act(() => callbacks.onSuccess({ coords }));
+      await act(() => callbacks.onError({ code: 3, TIMEOUT: 3 }));
+
+      expect(geolocationMap.dataset.latitude).toBe(String(coords.latitude));
+      expect(geolocationMap.dataset.longitude).toBe(String(coords.longitude));
+      expect(geolocationMap.dataset.error).toBeUndefined();
+      expect(screen.getByRole('button', { name: 'Share' })).toBeEnabled();
+    });
+
+    it('clears the position on a non-timeout error after a position', async () => {
+      const callbacks: Record<string, (...args: unknown[]) => void> = {};
+      watchPosition.mockImplementation((onSuccess, onError) => {
+        callbacks.onSuccess = onSuccess;
+        callbacks.onError = onError;
+        return nextWatchId++;
+      });
+      await renderComponent({ props: { GeolocationMap: GeolocationMapComponent } });
+      const geolocationMap = screen.getByTestId(GEOLOCATION_MAP_TEST_ID);
+
+      await act(() => callbacks.onSuccess({ coords: { latitude: 1, longitude: 10 } }));
+      await act(() =>
+        callbacks.onError({ code: 2, POSITION_UNAVAILABLE: 2, TIMEOUT: 3 }),
+      );
+
+      expect(geolocationMap.dataset.latitude).toBeUndefined();
+      expect(geolocationMap.dataset.error).toBeDefined();
+      expect(screen.getByRole('button', { name: 'Share' })).toBeDisabled();
+    });
+
+    it('shows a timeout that happens before the first position', async () => {
+      const callbacks: Record<string, (...args: unknown[]) => void> = {};
+      watchPosition.mockImplementation((onSuccess, onError) => {
+        callbacks.onSuccess = onSuccess;
+        callbacks.onError = onError;
+        return nextWatchId++;
+      });
+      await renderComponent({ props: { GeolocationMap: GeolocationMapComponent } });
+      const geolocationMap = screen.getByTestId(GEOLOCATION_MAP_TEST_ID);
+
+      await act(() => callbacks.onError({ code: 3, TIMEOUT: 3 }));
+
+      expect(geolocationMap.dataset.loading).toBe('false');
+      expect(geolocationMap.dataset.error).toBeDefined();
+      expect(screen.getByRole('button', { name: 'Share' })).toBeDisabled();
+    });
+
+    it('shows loading again after a restart', async () => {
+      let onError: (error: unknown) => void = () => undefined;
+      watchPosition.mockImplementation((_onSuccess, onErrorCallback) => {
+        onError = onErrorCallback;
+        return nextWatchId++;
+      });
+      const RestartableGeolocationMap = (props: ShareGeolocationMapProps) => (
+        <>
+          <RestartingGeolocationMap {...props} />
+          <GeolocationMapComponent {...props} />
+        </>
+      );
+      await renderComponent({ props: { GeolocationMap: RestartableGeolocationMap } });
+      const geolocationMap = screen.getByTestId(GEOLOCATION_MAP_TEST_ID);
+
+      await act(() => onError(new Error('timeout')));
+      expect(geolocationMap.dataset.loading).toBe('false');
+
+      await act(() => restartLocationWatching());
+      expect(geolocationMap.dataset.loading).toBe('true');
     });
   });
 

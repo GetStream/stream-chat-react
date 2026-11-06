@@ -16,8 +16,10 @@ export const getTypingStatusMessage = (
   }
 
   if (count === 2 && namedUsers.length === 2) {
-    return t('typing.twoUsers', '{{ typing }} are typing', {
-      typing: `${namedUsers[0]} and ${namedUsers[1]}`,
+    // Each name is its own value, so a translation words the whole sentence, conjunction included.
+    return t('typing.twoUsers', '{{ firstUser }} and {{ secondUser }} are typing', {
+      firstUser: namedUsers[0],
+      secondUser: namedUsers[1],
     });
   }
 

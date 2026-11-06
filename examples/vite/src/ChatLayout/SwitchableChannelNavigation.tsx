@@ -25,6 +25,7 @@ import {
   useStateStore,
 } from 'stream-chat-react';
 
+import { SidebarToggleWhileChannelOpen } from '../Sidebar/HeaderContent.tsx';
 import { ScrollToActiveChannelButton } from './ScrollToActiveChannelButton';
 
 // Human-readable labels for each channel list, keyed by the paginator id set up in App.tsx.
@@ -221,7 +222,7 @@ export const SwitchableChannelNavigation = () => {
 
   return (
     <div className='str-chat__channel-list'>
-      <ChannelListHeader />
+      <ChannelListHeader EndContent={SidebarToggleWhileChannelOpen} />
       <Search />
       {!isActive && activePaginator && (
         // Expose the active paginator through ChannelListContext (as the SDK's ChannelLists
@@ -237,7 +238,12 @@ export const SwitchableChannelNavigation = () => {
               list — for the active list only, so the section tracks the visible paginator. */}
           <SideloadedChannels paginator={activePaginator} />
           <div className='app-channel-list-scroll-region' ref={scrollRegionRef}>
-            <ChannelList key={activePaginator.id} paginator={activePaginator} />
+            {/* Screen readers announce the list by the name the switcher shows. */}
+            <ChannelList
+              key={activePaginator.id}
+              listboxProps={{ 'aria-label': labelFor(activePaginator.id) }}
+              paginator={activePaginator}
+            />
             <ScrollToActiveChannelButton regionRef={scrollRegionRef} />
           </div>
         </ChannelListContextProvider>

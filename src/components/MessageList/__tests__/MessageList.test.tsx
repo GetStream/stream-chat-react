@@ -33,6 +33,8 @@ import { MESSAGE_LIST_MAIN_PANEL_CLASS } from '../MessageListMainPanel';
 import { ThreadProvider } from '../../Threads';
 import { useChannel, useMessageContext, WithComponents } from '../../../context';
 import { EmptyStateIndicator as EmptyStateIndicatorMock } from '../../EmptyStateIndicator';
+import { EventComponent } from '../../EventComponent';
+import type { EventComponentProps } from '../../EventComponent';
 import { mockedApiResponse } from '../../../mock-builders/api/utils';
 import { nanoid } from 'nanoid';
 import { StateStore } from '@stream-io/state-store';
@@ -663,6 +665,26 @@ describe('MessageList', () => {
     await waitFor(() => {
       expect(screen.queryByText(system.text)).toBeInTheDocument();
     });
+  });
+
+  it("should keep a MessageSystem override's own unsafeHTML when the list doesn't set it", async () => {
+    const MessageSystem = (props: EventComponentProps) => (
+      <EventComponent unsafeHTML {...props} />
+    );
+    const system = generateMessage({
+      html: '<span data-testid="custom-html" />',
+      text: 'system text',
+      type: 'system',
+    });
+
+    renderComponent({
+      channelProps: { channel },
+      chatClient,
+      components: { MessageSystem },
+      msgListProps: { messages: [system] },
+    });
+
+    expect(await screen.findByTestId('custom-html')).toBeInTheDocument();
   });
 
   it('should give the system message list item the str-chat__li class', async () => {

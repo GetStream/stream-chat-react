@@ -168,8 +168,12 @@ const ThumbnailButton = ({
   const { LoadingIndicator = DefaultLoadingIndicator } = useComponentContext();
   const { t } = useTranslationContext();
   const imageUrl = item.imageUrl;
+  const isVideo = Boolean(item.videoUrl || item.videoThumbnailUrl);
+  // A video item may carry its preview frame in `imageUrl` instead of `videoThumbnailUrl`.
+  const videoThumbnailUrl = item.videoThumbnailUrl || imageUrl;
   const [isLoadFailed, setIsLoadFailed] = useState(false);
-  const [isImageLoading, setIsImageLoading] = useState(Boolean(imageUrl));
+  // Load and retry state is tracked for image items only.
+  const [isImageLoading, setIsImageLoading] = useState(!isVideo && Boolean(imageUrl));
   // Cache-busting suffix appended to the image src on retry; keeps the component and its
   // placeholder mounted, avoiding layout shifts and height collapse during the reload.
   const [retrySuffix, setRetrySuffix] = useState('');
@@ -207,10 +211,10 @@ const ThumbnailButton = ({
       onClick={handleButtonClick}
       type='button'
     >
-      {item.videoThumbnailUrl ? (
+      {isVideo ? (
         <VideoThumbnail
           alt={t('common.userUploadedContent.label', 'User uploaded content')}
-          src={item.videoThumbnailUrl}
+          src={videoThumbnailUrl}
         />
       ) : (
         <BaseImage

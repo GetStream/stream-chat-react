@@ -27,6 +27,7 @@ import {
   SummarizedMessagePreview as DefaultSummarizedMessagePreview,
   useLatestMessagePreview,
 } from '../../SummarizedMessagePreview';
+import { getPlainPreviewText } from '../../SummarizedMessagePreview/previewText';
 import {
   composeThreadListItemAccessibleLabel,
   type ThreadListItemLabelConfig,
@@ -98,12 +99,34 @@ export const ThreadListItemUI = ({
   } = useComponentContext();
   const isSelected = isThreadActive(thread.id);
 
-  // The same preview as the visible subtitle, so the announced parent message matches it.
-  const { senderName: parentMessageSender, text: parentMessagePreview } =
-    useLatestMessagePreview({
-      latestMessage: parentMessage,
-      participantCount: participants?.length,
-    });
+  // The visible subtitle's preview, read as words: bullets, task checkboxes and table separators
+  // are left out.
+  const {
+    senderName: parentMessageSender,
+    text: parentMessagePreviewText,
+    type: parentMessagePreviewType,
+  } = useLatestMessagePreview({
+    latestMessage: parentMessage,
+    participantCount: participants?.length,
+  });
+  const parentMessagePreview = useMemo(
+    () =>
+      getPlainPreviewText({
+        format: 'announcement',
+        isMessageAIGenerated,
+        latestMessage: parentMessage,
+        text: parentMessagePreviewText,
+        type: parentMessagePreviewType,
+        userLanguage,
+      }),
+    [
+      isMessageAIGenerated,
+      parentMessage,
+      parentMessagePreviewText,
+      parentMessagePreviewType,
+      userLanguage,
+    ],
+  );
 
   const accessibleLabel = useMemo(
     () =>

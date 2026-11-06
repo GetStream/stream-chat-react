@@ -1,4 +1,4 @@
-import { fireEvent, screen } from '@testing-library/react';
+import { act, fireEvent, screen } from '@testing-library/react';
 import React from 'react';
 
 import {
@@ -12,7 +12,10 @@ import {
   ChannelMembersView,
   type ChannelMembersViewModes,
 } from '../ChannelMembersView';
-import type { ChannelMembersHeaderActionItem } from '../ChannelMembersHeaderActions.defaults';
+import {
+  type ChannelMembersHeaderActionItem,
+  DefaultChannelMembersHeaderActions,
+} from '../ChannelMembersHeaderActions.defaults';
 import { useChannelMemberCount } from '../useChannelMemberCount';
 import { createChannel, renderWithChannel } from './testUtils';
 import { mockT } from '../../../../../mock-builders/translator';
@@ -117,11 +120,7 @@ vi.mock('../../../../../components/Dialog', () => ({
       </header>
     ),
   },
-  useDialog: ({ id }: { id: string }) => ({
-    close: vi.fn(),
-    id,
-    toggle: vi.fn(),
-  }),
+  useContextMenuContext: () => ({ closeMenu: vi.fn() }),
   useDialogIsOpen: () => false,
   useDialogOnNearestManager: ({ id }: { id: string }) => ({
     dialog: {
@@ -152,15 +151,20 @@ const customModeViews: ChannelMembersViewModes = {
   },
 };
 
+const dropdownToggleItem: ChannelMembersHeaderActionItem = {
+  Component: DefaultChannelMembersHeaderActions.QuickDropdownToggle,
+  placement: 'quick-dropdown-toggle',
+};
+
 describe('ChannelMembersView', () => {
   const customHeaderActionSet: ChannelMembersHeaderActionItem[] = [
     {
-      component: () => null,
-      placement: 'menu',
+      Component: () => null,
+      placement: 'dropdown',
       type: 'removeMembers',
     },
     {
-      component: () => null,
+      Component: () => null,
       placement: 'quick',
       type: 'addMembers',
     },
@@ -177,10 +181,10 @@ describe('ChannelMembersView', () => {
   }) => {
     if (modeController.mode !== 'browse') return null;
 
-    const hasManageAction = headerActionSet.some(
-      (action) => action.type === 'removeMembers',
-    );
-    const hasAddAction = headerActionSet.some((action) => action.type === 'addMembers');
+    const hasAction = (type: string) =>
+      headerActionSet.some((action) => 'type' in action && action.type === type);
+    const hasManageAction = hasAction('removeMembers');
+    const hasAddAction = hasAction('addMembers');
 
     return (
       <div>
@@ -384,11 +388,12 @@ describe('ChannelMembersView', () => {
     expect(screen.queryByTestId('channel-members-remove-view')).not.toBeInTheDocument();
   });
 
-  it('renders a single menu-placed header action behind the trigger', () => {
+  it('renders a single dropdown header action behind the dropdown toggle', () => {
     const menuOnlyActionSet: ChannelMembersHeaderActionItem[] = [
+      dropdownToggleItem,
       {
-        component: () => <span>Menu only action</span>,
-        placement: 'menu',
+        Component: () => <span>Menu only action</span>,
+        placement: 'dropdown',
         type: 'addMembers',
       },
     ];
@@ -401,16 +406,17 @@ describe('ChannelMembersView', () => {
     expect(screen.getByText('Menu only action')).toBeInTheDocument();
   });
 
-  it('renders quick-placed actions inline and menu-placed actions in the menu', () => {
+  it('renders quick actions inline and dropdown actions in the menu', () => {
     const mixedActionSet: ChannelMembersHeaderActionItem[] = [
+      dropdownToggleItem,
       {
-        component: () => <span>Quick add action</span>,
+        Component: () => <span>Quick add action</span>,
         placement: 'quick',
         type: 'addMembers',
       },
       {
-        component: () => <span>Menu manage action</span>,
-        placement: 'menu',
+        Component: () => <span>Menu manage action</span>,
+        placement: 'dropdown',
         type: 'removeMembers',
       },
     ];
@@ -420,45 +426,74 @@ describe('ChannelMembersView', () => {
     expect(
       screen.getByRole('button', { name: 'Open members actions' }),
     ).toBeInTheDocument();
+    const menu = screen.getByTestId('channel-members-header-actions-menu');
     expect(screen.getByText('Quick add action')).toBeInTheDocument();
-    expect(screen.getByText('Menu manage action')).toBeInTheDocument();
+    expect(menu).not.toHaveTextContent('Quick add action');
+    expect(menu).toHaveTextContent('Menu manage action');
   });
 
-  it('uses custom menu trigger component for default header actions', () => {
-    const menuOnlyActionSet: ChannelMembersHeaderActionItem[] = [
+  it('renders a custom dropdown toggle item with the default header actions', () => {
+    const CustomDropdownToggle = React.forwardRef<HTMLButtonElement>(
+      function CustomDropdownToggle(_, ref) {
+        return (
+          <button aria-label='Custom menu trigger' ref={ref} type='button'>
+            Custom actions
+          </button>
+        );
+      },
+    );
+    const actionSet: ChannelMembersHeaderActionItem[] = [
+      { Component: CustomDropdownToggle, placement: 'quick-dropdown-toggle' },
       {
-        component: () => <span>Menu only action</span>,
-        placement: 'menu',
+        Component: () => <span>Menu only action</span>,
+        placement: 'dropdown',
         type: 'addMembers',
       },
     ];
 
-    const CustomMenuTrigger = ({
-      onClick,
-      referenceRef,
-    }: {
-      onClick: () => void;
-      referenceRef?: React.Ref<HTMLButtonElement>;
-    }) => (
-      <button
-        aria-label='Custom menu trigger'
-        onClick={onClick}
-        ref={referenceRef}
-        type='button'
-      >
-        Custom actions
-      </button>
-    );
-
-    renderWithChannel(
-      <ChannelMembersView
-        headerActionSet={menuOnlyActionSet}
-        HeaderActionsMenuTrigger={CustomMenuTrigger}
-      />,
-    );
+    renderWithChannel(<ChannelMembersView headerActionSet={actionSet} />);
 
     expect(
       screen.getByRole('button', { name: 'Custom menu trigger' }),
     ).toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: 'Open members actions' }),
+    ).not.toBeInTheDocument();
+  });
+
+  it('keeps the header actions mounted when a re-render hands the view a new headerActionSet', () => {
+    let mountCount = 0;
+    const receivedSets: ChannelMembersHeaderActionItem[][] = [];
+    const RecordingHeaderActions = ({
+      headerActionSet,
+    }: {
+      headerActionSet: ChannelMembersHeaderActionItem[];
+    }) => {
+      receivedSets.push(headerActionSet);
+      React.useEffect(() => {
+        mountCount += 1;
+      }, []);
+      return null;
+    };
+    let renderAgain = () => undefined as void;
+    // Builds the set inline, so every render hands the view a new array.
+    const View = () => {
+      const [, setRenderCount] = React.useState(0);
+      renderAgain = () => setRenderCount((count) => count + 1);
+      return (
+        <ChannelMembersView
+          HeaderActions={RecordingHeaderActions}
+          headerActionSet={[...customHeaderActionSet]}
+        />
+      );
+    };
+
+    renderWithChannel(<View />);
+    const [firstSet] = receivedSets;
+    act(() => renderAgain());
+
+    expect(receivedSets.at(-1)).not.toBe(firstSet);
+    expect(receivedSets.at(-1)).toEqual(customHeaderActionSet);
+    expect(mountCount).toBe(1);
   });
 });

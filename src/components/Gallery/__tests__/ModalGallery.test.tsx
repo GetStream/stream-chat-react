@@ -9,6 +9,7 @@ import {
   mockTranslationContextValue,
 } from '../../../mock-builders';
 import { mockChatContext } from '../../../mock-builders/context';
+import { axe } from '../../../../axe-helper';
 
 const makeImageItem = (overrides = {}) => ({
   fallback: 'test.png',
@@ -36,7 +37,106 @@ const renderComponent = (props = {}, componentOverrides = {}) =>
     </ChatProvider>,
   );
 
+const makeVideoItem = (overrides = {}) => ({
+  localMetadata: { id: `vid-${Math.random()}` },
+  title: 'clip.mp4',
+  type: 'video',
+  videoThumbnailUrl: 'http://test-thumb.jpg',
+  videoUrl: 'http://test-video.mp4',
+  ...overrides,
+});
+
 describe('ModalGallery', () => {
+  describe('Video thumbnails', () => {
+    it('renders the thumbnail image with a play indicator', () => {
+      const { container } = renderComponent({
+        items: [makeVideoItem(), makeImageItem()],
+      });
+
+      expect(screen.getAllByTestId('str-chat__base-image')[0]).toHaveAttribute(
+        'src',
+        'http://test-thumb.jpg/',
+      );
+      expect(
+        container.querySelectorAll(
+          '.str-chat__message-attachment__video-thumbnail__play-indicator',
+        ),
+      ).toHaveLength(1);
+    });
+
+    it('renders a placeholder with a play indicator for a video without a thumbnail', () => {
+      const { container } = renderComponent({
+        items: [makeVideoItem({ videoThumbnailUrl: undefined }), makeImageItem()],
+      });
+
+      expect(
+        screen.getByTestId('str-chat__video-thumbnail-placeholder'),
+      ).toBeInTheDocument();
+      // Only the image item renders an <img>; the video never gets an image without a source.
+      expect(screen.getAllByTestId('str-chat__base-image')).toHaveLength(1);
+      expect(
+        container.querySelectorAll(
+          '.str-chat__message-attachment__video-thumbnail__play-indicator',
+        ),
+      ).toHaveLength(1);
+      const videoTile = screen.getByLabelText('Open gallery at image 1');
+      expect(
+        videoTile.querySelector('.str-chat__modal-gallery__image-loading-overlay'),
+      ).not.toBeInTheDocument();
+    });
+
+    it('uses imageUrl as the thumbnail of a video without videoThumbnailUrl', () => {
+      renderComponent({
+        items: [
+          makeVideoItem({
+            imageUrl: 'http://video-frame.jpg',
+            videoThumbnailUrl: undefined,
+          }),
+          makeImageItem(),
+        ],
+      });
+
+      const videoTile = screen.getByLabelText('Open gallery at image 1');
+      expect(videoTile.querySelector('img')).toHaveAttribute(
+        'src',
+        'http://video-frame.jpg/',
+      );
+      expect(
+        videoTile.querySelector(
+          '.str-chat__message-attachment__video-thumbnail__play-indicator',
+        ),
+      ).toBeInTheDocument();
+      expect(
+        videoTile.querySelector('.str-chat__modal-gallery__image-loading-overlay'),
+      ).not.toBeInTheDocument();
+    });
+
+    it('has no accessibility violations with a video placeholder', async () => {
+      const { container } = renderComponent({
+        items: [makeVideoItem({ videoThumbnailUrl: undefined }), makeImageItem()],
+      });
+
+      expect(await axe(container)).toHaveNoViolations();
+    });
+
+    it('opens the gallery with the player for a video without a thumbnail', async () => {
+      const { container } = renderComponent({
+        items: [makeVideoItem({ videoThumbnailUrl: undefined }), makeImageItem()],
+      });
+
+      act(() => {
+        fireEvent.click(screen.getByLabelText('Open gallery at image 1'));
+      });
+
+      await waitFor(() => {
+        expect(container.querySelector('.str-chat__gallery video')).toHaveAttribute(
+          'src',
+          'http://test-video.mp4',
+        );
+      });
+    });
+  });
+
   describe('Thumbnail grid rendering', () => {
     it('should render thumbnail grid with images', () => {
       const items = [makeImageItem(), makeImageItem(), makeImageItem()];

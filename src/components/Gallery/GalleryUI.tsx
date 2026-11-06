@@ -35,7 +35,11 @@ export const GalleryUI = () => {
   } = useGalleryContext();
   const modalContext = useContext(ModalContext);
 
-  const [showVideo, setShowVideo] = useState(false);
+  // Index of the item whose thumbnail play button was clicked. Comparing it with `currentIndex`
+  // keeps the next item from rendering with the previous item's playback state.
+  const [playRequestedIndex, setPlayRequestedIndex] = useState<number | null>(null);
+  const playVideo = playRequestedIndex === currentIndex;
+  const hasVideoThumbnail = Boolean(currentItem.videoThumbnailUrl);
 
   const isTransitioningRef = useRef(false);
   const [slideOffset, setSlideOffset] = useState(0);
@@ -51,7 +55,7 @@ export const GalleryUI = () => {
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    setShowVideo(false);
+    setPlayRequestedIndex(null);
   }, [currentIndex]);
 
   const prevIndexRef = useRef(currentIndex);
@@ -227,14 +231,15 @@ export const GalleryUI = () => {
             })}
             style={mediaStyle}
           >
-            {currentItem.videoUrl && currentItem.videoThumbnailUrl ? (
+            {currentItem.videoUrl ? (
               <div className='str-chat__gallery__media str-chat__gallery__media--video'>
-                {showVideo ? (
-                  <VideoPlayer isPlaying videoUrl={currentItem.videoUrl} />
+                {/* Without a thumbnail to click, the player shows right away and waits for play. */}
+                {playVideo || !hasVideoThumbnail ? (
+                  <VideoPlayer isPlaying={playVideo} videoUrl={currentItem.videoUrl} />
                 ) : (
                   <VideoThumbnail
                     alt={currentItem.title ?? ''}
-                    onPlay={() => setShowVideo(true)}
+                    onPlay={() => setPlayRequestedIndex(currentIndex)}
                     src={currentItem.videoThumbnailUrl}
                   />
                 )}

@@ -2,6 +2,7 @@ import type { PropsWithChildren, ReactNode } from 'react';
 import React, { Fragment } from 'react';
 import type { GroupStyle, RenderedMessage } from './utils';
 import { getIsFirstUnreadMessage, isDateSeparatorMessage, isIntroMessage } from './utils';
+import { omitUndefinedProps } from './omitUndefinedProps';
 import type { MessageProps } from '../Message';
 import { Message } from '../Message';
 import { DateSeparator as DefaultDateSeparator } from '../DateSeparator';
@@ -117,7 +118,10 @@ export function defaultRenderMessages({
           data-message-id={message.id}
           key={message.id || String(message.created_at)}
         >
-          <MessageSystem message={message} unsafeHTML={messageProps.unsafeHTML} />
+          <MessageSystem
+            {...omitUndefinedProps({ unsafeHTML: messageProps.unsafeHTML })}
+            message={message}
+          />
         </MessageListItem>,
       );
     } else {
