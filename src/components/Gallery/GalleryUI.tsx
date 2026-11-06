@@ -1,11 +1,12 @@
 import React, { useCallback, useContext, useEffect, useRef, useState } from 'react';
 
-import { BaseImage } from '../BaseImage';
+import { BaseImage as DefaultBaseImage } from '../BaseImage';
 import { GalleryHeader } from './GalleryHeader';
 import { useGalleryContext } from './GalleryContext';
 import { Button, type ButtonProps } from '../Button';
 import {
   ModalContext,
+  useComponentContext,
   useComponentContextIcons,
   useTranslationContext,
 } from '../../context';
@@ -19,6 +20,7 @@ const TRANSITION_DURATION = 300;
 
 export const GalleryUI = () => {
   const { IconChevronLeft, IconChevronRight } = useComponentContextIcons();
+  const { BaseImage = DefaultBaseImage } = useComponentContext();
   const { t } = useTranslationContext();
   const {
     closeOnBackgroundClick,

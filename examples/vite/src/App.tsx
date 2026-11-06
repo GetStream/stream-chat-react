@@ -688,7 +688,6 @@ const App = () => {
         // channels-view effect resolves after navigation (works across the threads → channels
         // switch; closes the covering thread only when it actually covers).
         MessageAlsoSentInChannelIndicator: AlsoSentInChannelIndicator,
-        emojiSearchIndex: SearchIndex,
         EmojiPicker: EmojiPickerWithCustomOptions,
         NotificationList: ConfigurableNotificationList,
         MessageReactions: CustomMessageReactions,

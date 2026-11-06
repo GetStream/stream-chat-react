@@ -1,6 +1,7 @@
 import type { SearchSource, SearchSourceState } from 'stream-chat';
 import { useStateStore } from '../../store';
-import { LoadingIndicator } from '../../components/Loading';
+import { LoadingIndicator as DefaultLoadingIndicator } from '../../components/Loading';
+import { useComponentContext } from '../../context';
 
 const searchSourceFooterStateSelector = (state: SearchSourceState) => ({
   hasNextPage: state.hasNext,
@@ -14,6 +15,7 @@ export type ChannelMembersViewListFooterProps<T> = {
 export const ChannelDetailListLoadingIndicator = <T,>({
   searchSource,
 }: ChannelMembersViewListFooterProps<T>) => {
+  const { LoadingIndicator = DefaultLoadingIndicator } = useComponentContext();
   const { hasNextPage, isLoading } = useStateStore(
     searchSource.state,
     searchSourceFooterStateSelector,

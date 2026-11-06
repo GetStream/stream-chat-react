@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react';
+import type { PropsWithChildren, ReactNode } from 'react';
 import React, { Fragment } from 'react';
 import type { GroupStyle, RenderedMessage } from './utils';
 import { getIsFirstUnreadMessage, isDateSeparatorMessage, isIntroMessage } from './utils';
@@ -42,6 +42,20 @@ export interface RenderMessagesOptions {
 export type SharedMessageProps = Omit<MessageProps, MessagePropsToOmit>;
 
 export type MessageRenderer = (options: RenderMessagesOptions) => Array<ReactNode>;
+
+/**
+ * What `MessageList` passes to each `MessageListItem`. Spread them onto the rendered element:
+ * jump-to-message and scroll restoration find items by `data-message-id`.
+ */
+export type MessageListItemProps = PropsWithChildren<{
+  className?: string;
+  'data-index'?: number;
+  'data-message-id'?: string;
+  'data-testid'?: string;
+}>;
+
+/** What `MessageList` passes to its `MessageListWrapper`. */
+export type MessageListWrapperProps = PropsWithChildren<{ className?: string }>;
 
 type MessagePropsToOmit =
   | 'channel'

@@ -2,7 +2,7 @@ import React from 'react';
 import { cleanup, fireEvent, render, waitFor } from '@testing-library/react';
 
 import { LoadMoreButton } from '../LoadMoreButton';
-import { TranslationProvider } from '../../../context';
+import { TranslationProvider, WithComponents } from '../../../context';
 import { mockTranslationContextValue } from '../../../mock-builders';
 
 describe('LoadMoreButton', () => {
@@ -46,6 +46,19 @@ describe('LoadMoreButton', () => {
       '.str-chat__loading-indicator',
     );
     expect(loadingIndicator).toBeInTheDocument();
+  });
+
+  it('should render the LoadingIndicator from ComponentContext while loading', () => {
+    const CustomLoadingIndicator = () => <div data-testid='custom-loading-indicator' />;
+    const { container, getByTestId } = render(
+      <WithComponents overrides={{ LoadingIndicator: CustomLoadingIndicator }}>
+        <LoadMoreButton isLoading={true} onClick={() => null} />
+      </WithComponents>,
+    );
+    expect(getByTestId('custom-loading-indicator')).toBeInTheDocument();
+    expect(
+      container.querySelector('.str-chat__loading-indicator'),
+    ).not.toBeInTheDocument();
   });
 
   it('should display children', () => {

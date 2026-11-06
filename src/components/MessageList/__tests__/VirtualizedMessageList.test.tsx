@@ -26,6 +26,8 @@ import { StateStore } from '@stream-io/state-store';
 import { fromPartial } from '@total-typescript/shoehorn';
 import type { LocalMessage, Thread, ThreadState } from 'stream-chat';
 import type { MessageProps } from '../../Message';
+import type { ComponentContextValue } from '../../../context';
+import type { VirtualizedMessageListProps } from '../VirtualizedMessageList';
 import type { GiphyPreviewMessageProps } from '../GiphyPreviewMessage';
 
 const threadWithParentMessage = () =>
@@ -349,7 +351,15 @@ describe('VirtualizedMessageList', () => {
       return null;
     };
 
-    const renderList = async ({ hasMoreHead = false, listProps = {} } = {}) => {
+    const renderList = async ({
+      hasMoreHead = false,
+      listProps = {},
+      overrides = {},
+    }: {
+      hasMoreHead?: boolean;
+      listProps?: Partial<VirtualizedMessageListProps>;
+      overrides?: Partial<ComponentContextValue>;
+    } = {}) => {
       const user1 = generateUser();
       const user2 = generateUser();
       // The file-wide nanoid mock collapses generated IDs, which would dedupe the messages down
@@ -374,7 +384,9 @@ describe('VirtualizedMessageList', () => {
         render(
           <Chat client={client}>
             <Channel channel={channel}>
-              <WithComponents overrides={{ TypingIndicator: TypingIndicatorProbe }}>
+              <WithComponents
+                overrides={{ TypingIndicator: TypingIndicatorProbe, ...overrides }}
+              >
                 <VirtualizedMessageList {...listProps} />
               </WithComponents>
             </Channel>
@@ -387,6 +399,22 @@ describe('VirtualizedMessageList', () => {
     beforeEach(() => {
       virtuosoProps.length = 0;
       scrollToBottom = undefined;
+    });
+
+    it('renders the ScrollToLatestMessageButton override with the list state', async () => {
+      const ScrollToLatestMessageButton = vi.fn(() => (
+        <div data-testid='custom-scroll-to-latest' />
+      ));
+      await renderList({ overrides: { ScrollToLatestMessageButton } });
+
+      expect(screen.getByTestId('custom-scroll-to-latest')).toBeInTheDocument();
+      expect(ScrollToLatestMessageButton).toHaveBeenCalledWith(
+        expect.objectContaining({
+          isNotAtLatestMessageSet: false,
+          onClick: expect.any(Function),
+        }),
+        undefined,
+      );
     });
 
     it('anchors the initial scroll to the end of the last item', async () => {
