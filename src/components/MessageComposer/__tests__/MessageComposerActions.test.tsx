@@ -131,6 +131,31 @@ describe('MessageComposerActions', () => {
     expect(screen.queryByTestId(STOP_BUTTON_TEST_ID)).not.toBeInTheDocument();
   });
 
+  it('shows the send button once the input has text', async () => {
+    const channel = await renderComposer();
+
+    await act(() => {
+      channel.messageComposer.textComposer.setText('Hello');
+    });
+
+    expect(screen.getByTestId('send-button')).toBeInTheDocument();
+    expect(screen.queryByTestId(RECORDING_BUTTON_TEST_ID)).not.toBeInTheDocument();
+  });
+
+  it('shows a custom send button once the input has text', async () => {
+    const CustomSendButton = () => (
+      <button data-testid='custom-send-button' type='button' />
+    );
+    const channel = await renderComposer({ overrides: { SendButton: CustomSendButton } });
+
+    await act(() => {
+      channel.messageComposer.textComposer.setText('Hello');
+    });
+
+    expect(screen.getByTestId('custom-send-button')).toBeInTheDocument();
+    expect(screen.queryByTestId(RECORDING_BUTTON_TEST_ID)).not.toBeInTheDocument();
+  });
+
   it('goes back to the recording button once the AI stops generating', async () => {
     const channel = await renderComposer();
 
