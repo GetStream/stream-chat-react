@@ -62,7 +62,6 @@ const bob = generateUser({ name: 'bob' });
 const onMentionsHoverMock = vi.fn();
 const onMentionsClickMock = vi.fn();
 const defaultProps = {
-  initialMessage: false,
   message: generateMessage(),
 };
 

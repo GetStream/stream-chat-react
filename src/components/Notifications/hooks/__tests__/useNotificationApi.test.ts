@@ -92,6 +92,18 @@ describe('useNotificationApi', () => {
     });
   });
 
+  it('returns the id of the added notification', () => {
+    add.mockReturnValueOnce('notification-id');
+    const { result } = renderHook(() => useNotificationApi());
+
+    const id = result.current.addNotification({
+      emitter: 'MessageComposer',
+      message: 'Send message request failed',
+    });
+
+    expect(id).toBe('notification-id');
+  });
+
   it('threads an explicit ariaLive priority into notification metadata', () => {
     const { result } = renderHook(() => useNotificationApi());
 

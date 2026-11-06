@@ -27,6 +27,7 @@ import {
 import { Chat } from '../../Chat';
 import { MessageList } from '../MessageList';
 import { Channel } from '../../Channel';
+import { Message } from '../../Message';
 import { CHANNEL_CONTAINER_ID } from '../../Channel/constants';
 import { MESSAGE_LIST_MAIN_PANEL_CLASS } from '../MessageListMainPanel';
 import { ThreadProvider } from '../../Threads';
@@ -394,6 +395,31 @@ describe('MessageList', () => {
     });
   });
 
+  it('should give no actions to the parent message that a ThreadHead override renders', async () => {
+    const thread = chatClient.threads.ensure({ channel, parentMessage: message1 });
+    const CustomThreadHead = (props: MessageProps) => (
+      <div data-testid='custom-thread-head'>
+        <Message {...props} />
+      </div>
+    );
+
+    await act(() => {
+      renderComponent({
+        channelProps: { channel },
+        chatClient,
+        components: { ThreadHead: CustomThreadHead },
+        msgListProps: { messages: [] },
+        thread,
+      });
+    });
+
+    const threadHead = await screen.findByTestId('custom-thread-head');
+    expect(within(threadHead).getByText(message1.text)).toBeInTheDocument();
+    expect(
+      threadHead.querySelector('.str-chat__message-options'),
+    ).not.toBeInTheDocument();
+  });
+
   it('should give the thread parent message the message props of its replies', async () => {
     const CustomThreadHead = vi.fn<(props: MessageProps) => React.ReactElement>(() => (
       <div />
@@ -615,6 +641,25 @@ describe('MessageList', () => {
 
     await waitFor(() => {
       expect(screen.queryByText(system.text)).toBeInTheDocument();
+    });
+  });
+
+  it('should give the system message list item the str-chat__li class', async () => {
+    const system = generateMessage({
+      text: 'system message in a list item',
+      type: 'system',
+    });
+
+    renderComponent({
+      channelProps: { channel },
+      chatClient,
+      msgListProps: {
+        messages: [system],
+      },
+    });
+
+    await waitFor(() => {
+      expect(screen.getByText(system.text).closest('li')).toHaveClass('str-chat__li');
     });
   });
 

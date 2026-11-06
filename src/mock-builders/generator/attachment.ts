@@ -41,6 +41,7 @@ export const generateLocalFileUploadAttachmentData = (
 ) => ({
   localMetadata: {
     ...generateLocalAttachmentData().localMetadata,
+    uploadState: 'pending',
     ...overrides,
     file: generateFile(overrides?.file ?? {}),
   },
