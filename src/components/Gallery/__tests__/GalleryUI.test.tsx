@@ -20,6 +20,7 @@ import {
 import type { GalleryProps } from '../Gallery';
 import type { ModalContextValue } from '../../../context';
 import type { GalleryItem } from '../GalleryContext';
+import type { VideoPlayerProps } from '../../VideoPlayer';
 
 const makeImageItem = (overrides: Partial<GalleryItem> = {}): GalleryItem =>
   ({
@@ -142,6 +143,91 @@ describe('GalleryUI', () => {
         expect(video).toBeInTheDocument();
         expect(video).toHaveAttribute('src', 'http://video.mp4');
       });
+    });
+  });
+
+  describe('Video without a thumbnail', () => {
+    it('renders the player directly without starting playback', () => {
+      const VideoPlayer = vi.fn<(props: VideoPlayerProps) => React.ReactElement>(() => (
+        <div data-testid='custom-video-player' />
+      ));
+      const items = [
+        makeVideoItem({ videoThumbnailUrl: undefined, videoUrl: 'http://video.mp4' }),
+      ];
+
+      const { container } = renderGalleryUI(items, { components: { VideoPlayer } });
+
+      expect(screen.queryByLabelText('Play video')).not.toBeInTheDocument();
+      expect(screen.queryByTestId('str-chat__base-image')).not.toBeInTheDocument();
+      expect(
+        container.querySelector('.str-chat__gallery__media--video'),
+      ).toContainElement(screen.getByTestId('custom-video-player'));
+      expect(VideoPlayer.mock.lastCall?.[0]).toEqual(
+        expect.objectContaining({ isPlaying: false, videoUrl: 'http://video.mp4' }),
+      );
+    });
+
+    it('does not start the next video after playing the previous one', () => {
+      const VideoPlayer = vi.fn<(props: VideoPlayerProps) => React.ReactElement>(() => (
+        <div data-testid='custom-video-player' />
+      ));
+      const items = [
+        makeVideoItem(),
+        makeVideoItem({ videoThumbnailUrl: undefined, videoUrl: 'http://next.mp4' }),
+      ];
+
+      renderGalleryUI(items, { components: { VideoPlayer } });
+      act(() => {
+        fireEvent.click(screen.getByLabelText('Play video'));
+      });
+      expect(VideoPlayer.mock.lastCall?.[0]).toEqual(
+        expect.objectContaining({ isPlaying: true, videoUrl: 'http://test-video.mp4' }),
+      );
+
+      act(() => {
+        fireEvent.click(screen.getByLabelText('Next image'));
+      });
+
+      const nextVideoRenders = VideoPlayer.mock.calls.filter(
+        ([props]) => props.videoUrl === 'http://next.mp4',
+      );
+      expect(nextVideoRenders.length).toBeGreaterThan(0);
+      expect(nextVideoRenders.every(([props]) => props.isPlaying === false)).toBe(true);
+    });
+
+    it('plays the default player for a video without a thumbnail', async () => {
+      const items = [
+        makeVideoItem({ videoThumbnailUrl: undefined, videoUrl: 'http://video.mp4' }),
+      ];
+
+      const { container } = renderGalleryUI(items);
+
+      await waitFor(() => {
+        expect(container.querySelector('video')).toHaveAttribute(
+          'src',
+          'http://video.mp4',
+        );
+      });
+    });
+
+    it('renders an image item after a video item without a thumbnail', async () => {
+      const items = [
+        makeVideoItem({ videoThumbnailUrl: undefined }),
+        makeImageItem({ imageUrl: 'http://next-image.jpg' }),
+      ];
+
+      const { container } = renderGalleryUI(items);
+      await waitFor(() => expect(container.querySelector('video')).toBeInTheDocument());
+
+      act(() => {
+        fireEvent.click(screen.getByLabelText('Next image'));
+      });
+
+      expect(container.querySelector('video')).not.toBeInTheDocument();
+      expect(screen.getByTestId('str-chat__base-image')).toHaveAttribute(
+        'src',
+        'http://next-image.jpg/',
+      );
     });
   });
 

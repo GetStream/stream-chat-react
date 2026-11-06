@@ -238,7 +238,12 @@ export const SwitchableChannelNavigation = () => {
               list — for the active list only, so the section tracks the visible paginator. */}
           <SideloadedChannels paginator={activePaginator} />
           <div className='app-channel-list-scroll-region' ref={scrollRegionRef}>
-            <ChannelList key={activePaginator.id} paginator={activePaginator} />
+            {/* Screen readers announce the list by the name the switcher shows. */}
+            <ChannelList
+              key={activePaginator.id}
+              listboxProps={{ 'aria-label': labelFor(activePaginator.id) }}
+              paginator={activePaginator}
+            />
             <ScrollToActiveChannelButton regionRef={scrollRegionRef} />
           </div>
         </ChannelListContextProvider>

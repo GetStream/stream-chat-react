@@ -58,9 +58,13 @@ export const Giphy = ({ attachment }: GiphyAttachmentProps) => {
   useLayoutEffect(() => {
     if (!imageElement.current || !imageAttachmentSizeHandler) return;
 
-    const config = imageAttachmentSizeHandler(attachment, imageElement.current);
+    // The size handler resolves `image_url`, so it is given the URL the descriptor selected.
+    const config = imageAttachmentSizeHandler(
+      { ...attachment, image_url: imageUrl },
+      imageElement.current,
+    );
     setAttachmentConfiguration(config);
-  }, [attachment, imageAttachmentSizeHandler]);
+  }, [attachment, imageAttachmentSizeHandler, imageUrl]);
 
   if (!imageUrl) return null;
 

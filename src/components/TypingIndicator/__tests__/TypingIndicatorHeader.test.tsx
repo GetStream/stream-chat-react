@@ -7,6 +7,9 @@ import { TypingIndicatorHeader } from '../TypingIndicatorHeader';
 import { ChannelInstanceProvider } from '../../../context/ChannelInstanceContext';
 import { ChatProvider } from '../../../context/ChatContext';
 import type { ChatContextValue } from '../../../context/ChatContext';
+import { TranslationProvider } from '../../../context/TranslationContext';
+import type { TranslationContextValue } from '../../../context/TranslationContext';
+import { Streami18n } from '../../../i18n';
 import { ThreadProvider } from '../../Threads/ThreadContext';
 import { generateUser, initClientWithChannels } from '../../../mock-builders';
 
@@ -17,9 +20,11 @@ const threadId = 'parent-message';
 // for the channel itself or, with `threadList`, for the thread in context.
 const renderHeader = async ({
   threadList = false,
+  translation,
   typing,
 }: {
   threadList?: boolean;
+  translation?: TranslationContextValue;
   typing: Channel['state']['typing'];
 }) => {
   const {
@@ -29,14 +34,22 @@ const renderHeader = async ({
   channel.state.typing = typing;
   const thread = threadList ? fromPartial<Thread>({ channel, id: threadId }) : undefined;
 
-  return render(
+  const header = (
     <ChatProvider value={fromPartial<ChatContextValue>({ client })}>
       <ChannelInstanceProvider value={{ channel }}>
         <ThreadProvider thread={thread}>
           <TypingIndicatorHeader threadList={threadList} />
         </ThreadProvider>
       </ChannelInstanceProvider>
-    </ChatProvider>,
+    </ChatProvider>
+  );
+
+  return render(
+    translation ? (
+      <TranslationProvider value={translation}>{header}</TranslationProvider>
+    ) : (
+      header
+    ),
   );
 };
 
@@ -55,6 +68,32 @@ describe('TypingIndicatorHeader', () => {
 
     expect(screen.getByTestId('typing-indicator-header')).toHaveTextContent(
       'bob is typing',
+    );
+  });
+
+  it('shows two users typing in the channel', async () => {
+    await renderHeader({ typing: { bob: typingIn('bob'), carol: typingIn('carol') } });
+
+    expect(screen.getByTestId('typing-indicator-header')).toHaveTextContent(
+      'bob and carol are typing',
+    );
+  });
+
+  it('shows two users typing in the wording of the registered translation', async () => {
+    const i18n = new Streami18n({ language: 'de' });
+    i18n.registerTranslation('de', {
+      'typing.twoUsers': '{{ firstUser }} und {{ secondUser }} schreiben',
+    });
+    const { t, tDateTimeParser } = await i18n.init();
+    const translation = { t, tDateTimeParser, userLanguage: 'de' };
+
+    await renderHeader({
+      translation,
+      typing: { bob: typingIn('bob'), carol: typingIn('carol') },
+    });
+
+    expect(screen.getByTestId('typing-indicator-header')).toHaveTextContent(
+      'bob und carol schreiben',
     );
   });
 

@@ -607,7 +607,6 @@ export const itTranslations = {
   'messageComposer.geolocationPreview.removeLocationAttachment.ariaLabel':
     'Rimuovi l’allegato di posizione',
   'messageComposer.geolocationPreview.sharedLocation.title': 'Posizione condivisa',
-  'messageComposer.icons.attachFiles.text': 'Allega file',
   'messageComposer.quotedMessagePreview.cancelReply.ariaLabel': 'Annulla risposta',
   'messageComposer.quotedMessagePreview.files.label_one': '{{ count }} file',
   'messageComposer.quotedMessagePreview.files.label_other': '{{ count }} file',
@@ -840,7 +839,7 @@ export const itTranslations = {
   'typing.manyUsers_one': '{{ count }} persona sta scrivendo',
   'typing.manyUsers_other': '{{ count }} persone stanno scrivendo',
   'typing.singleUser': '{{ typing }} sta scrivendo',
-  'typing.twoUsers': '{{ typing }} stanno scrivendo',
+  'typing.twoUsers': '{{ firstUser }} e {{ secondUser }} stanno scrivendo',
   'videoPlayer.videoThumbnail.playVideo.ariaLabel': 'Riproduci video',
   'timestamp.ChannelDetailPinnedMessageTimestamp':
     '{{ timestamp | timestampFormatter(calendar: true; calendarFormats: { "sameDay": "LT", "lastDay": "[Ieri]", "lastWeek": "dddd", "sameElse": "L" }) }}',

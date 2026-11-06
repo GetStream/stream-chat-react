@@ -18,10 +18,26 @@ export const VideoThumbnail = ({
 
   return (
     <div className='str-chat__message-attachment__video-thumbnail'>
-      <BaseImage
-        className={clsx('str-chat__message-attachment__video-thumbnail-image', className)}
-        {...imageProps}
-      />
+      {imageProps.src ? (
+        <BaseImage
+          className={clsx(
+            'str-chat__message-attachment__video-thumbnail-image',
+            className,
+          )}
+          {...imageProps}
+        />
+      ) : (
+        // A video without a thumbnail shows a blank frame under the play indicator.
+        <div
+          aria-hidden='true'
+          className={clsx(
+            'str-chat__message-attachment__video-thumbnail-image',
+            'str-chat__message-attachment__video-thumbnail-placeholder',
+            className,
+          )}
+          data-testid='str-chat__video-thumbnail-placeholder'
+        />
+      )}
       {onPlay ? (
         <Button
           appearance='solid'

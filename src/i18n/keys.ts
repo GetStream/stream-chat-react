@@ -460,7 +460,6 @@ export type TranslationCatalog = {
   'messageComposer.geolocationPreview.location.text': 'Location: {{ coordinates }}';
   'messageComposer.geolocationPreview.removeLocationAttachment.ariaLabel': 'Remove location attachment';
   'messageComposer.geolocationPreview.sharedLocation.title': 'Shared location';
-  'messageComposer.icons.attachFiles.text': 'Attach files';
   'messageComposer.quotedMessagePreview.cancelReply.ariaLabel': 'Cancel Reply';
   'messageComposer.quotedMessagePreview.files.label_one': '{{ count }} file';
   'messageComposer.quotedMessagePreview.files.label_other': '{{ count }} files';
@@ -654,6 +653,6 @@ export type TranslationCatalog = {
   'typing.manyUsers_one': '{{ count }} person is typing';
   'typing.manyUsers_other': '{{ count }} people are typing';
   'typing.singleUser': '{{ typing }} is typing';
-  'typing.twoUsers': '{{ typing }} are typing';
+  'typing.twoUsers': '{{ firstUser }} and {{ secondUser }} are typing';
   'videoPlayer.videoThumbnail.playVideo.ariaLabel': 'Play video';
 };

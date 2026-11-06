@@ -9,6 +9,9 @@ import { TypingIndicator } from '../TypingIndicator';
 import { ChannelInstanceProvider } from '../../../context/ChannelInstanceContext';
 import { ChatProvider } from '../../../context/ChatContext';
 import { ComponentProvider } from '../../../context/ComponentContext';
+import { TranslationProvider } from '../../../context/TranslationContext';
+import type { TranslationContextValue } from '../../../context/TranslationContext';
+import { Streami18n } from '../../../i18n';
 import { ThreadProvider } from '../../Threads/ThreadContext';
 
 import {
@@ -46,7 +49,12 @@ const makeThread = (parentMessageId?: string, channel?: any) =>
 
 async function renderComponent(
   typing: Record<string, unknown> = {},
-  value: { channel?: any; channelConfig?: any; client?: any } = {},
+  value: {
+    channel?: any;
+    channelConfig?: any;
+    client?: any;
+    translation?: TranslationContextValue;
+  } = {},
   threadParentId?: string,
 ) {
   const {
@@ -63,7 +71,7 @@ async function renderComponent(
     configs: { [channel.cid]: channelConfig },
   });
 
-  return render(
+  const indicator = (
     <ChatProvider value={{ client } as any}>
       <ChannelInstanceProvider value={{ channel } as any}>
         <ComponentProvider value={{} as any}>
@@ -72,7 +80,15 @@ async function renderComponent(
           </ThreadProvider>
         </ComponentProvider>
       </ChannelInstanceProvider>
-    </ChatProvider>,
+    </ChatProvider>
+  );
+
+  return render(
+    value.translation ? (
+      <TranslationProvider value={value.translation}>{indicator}</TranslationProvider>
+    ) : (
+      indicator
+    ),
   );
 }
 
@@ -159,6 +175,28 @@ describe('TypingIndicator', () => {
     expect(screen.getAllByTestId('avatar')).toHaveLength(2);
     const results = await axe(container);
     expect(results).toHaveNoViolations();
+  });
+
+  it('should announce two users typing in the wording of the registered translation', async () => {
+    const i18n = new Streami18n({ language: 'de' });
+    i18n.registerTranslation('de', {
+      'typing.twoUsers': '{{ firstUser }} und {{ secondUser }} schreiben',
+    });
+    const { t, tDateTimeParser } = await i18n.init();
+    const translation = { t, tDateTimeParser, userLanguage: 'de' };
+
+    await renderComponent(
+      {
+        alice: { user: me },
+        jessica: { user: { id: 'jessica', image: 'jessica.jpg' } },
+        joris: { user: { id: 'joris', image: 'joris.jpg' } },
+      },
+      { translation },
+    );
+
+    expect(screen.getByTestId('typing-indicator-status')).toHaveTextContent(
+      'jessica und joris schreiben',
+    );
   });
 
   it('should render TypingIndicator when multiple users are typing', async () => {
