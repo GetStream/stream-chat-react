@@ -144,7 +144,7 @@ export class MediaRecorderController {
     )}`; // The extension is needed for desktop Safari to play the asset.
   };
 
-  makeVoiceRecording = async () => {
+  makeVoiceRecording = async (): Promise<LocalVoiceRecordingAttachment | undefined> => {
     if (this.recordingUri) URL.revokeObjectURL(this.recordingUri);
 
     if (!this.recordedData.length) return;
@@ -186,10 +186,11 @@ export class MediaRecorderController {
       localMetadata: {
         file,
         id: nanoid(),
+        uploadState: 'pending',
       },
       title: file.name,
       type: RecordingAttachmentType.VOICE_RECORDING,
-    } as LocalVoiceRecordingAttachment;
+    };
   };
 
   handleErrorEvent = (e: Event) => {

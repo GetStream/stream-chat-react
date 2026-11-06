@@ -183,7 +183,7 @@ $attachment-preview-row-height: 72px;
       color: var(--str-chat__accent-primary);
     }
 
-    .str-chat__icon--exclamation {
+    .str-chat__icon--exclamation-mark {
       padding: var(--str-chat__spacing-xxxs);
       width: var(--str-chat__icon-size-sm);
       height: var(--str-chat__icon-size-sm);
@@ -264,7 +264,7 @@ $attachment-preview-row-height: 72px;
         gap: var(--str-chat__spacing-xxs);
         white-space: nowrap;
 
-        .str-chat__icon--exclamation-triangle path {
+        .str-chat__icon--exclamation-triangle-fill path {
           fill: var(--str-chat__accent-error);
         }
 
