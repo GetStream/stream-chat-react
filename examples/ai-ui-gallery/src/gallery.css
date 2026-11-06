@@ -1,0 +1,92 @@
+body {
+  margin: 0;
+  font-family: system-ui, sans-serif;
+}
+
+.gallery {
+  box-sizing: border-box;
+  min-height: 100vh;
+  padding: 1rem;
+  background-color: var(
+    --str-chat__ai-bg-primary,
+    var(--str-chat__background-core-elevation-0, #ffffff)
+  );
+  color: var(--str-chat__ai-text-primary, var(--str-chat__text-primary, #353740));
+}
+
+.gallery .str-chat__ai-conversation {
+  max-width: 44rem;
+  margin: 0 auto;
+}
+
+.gallery__header {
+  max-width: 44rem;
+  margin: 0 auto 1rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.gallery__fallback {
+  margin: 0;
+  color: var(--str-chat__ai-text-secondary, var(--str-chat__text-secondary, #565869));
+  font-size: 0.875rem;
+}
+
+/* An app that themes only the AI components' tokens: a purple brand, light and dark. */
+.gallery--app-light {
+  --str-chat__ai-bg-primary: #fdfcff;
+  --str-chat__ai-bg-secondary: #f4f1fb;
+  --str-chat__ai-bg-tertiary: #e6e0f5;
+  --str-chat__ai-text-primary: #1f1830;
+  --str-chat__ai-text-secondary: #554b6b;
+  --str-chat__ai-text-tertiary: #6e6585;
+  --str-chat__ai-border: #b7aed0;
+  --str-chat__ai-border-subtle: #e2dcf0;
+  --str-chat__ai-surface-hover: #ece6f9;
+  --str-chat__ai-surface-pressed: #ddd3f5;
+  --str-chat__ai-card-bg: #f7f4fd;
+  --str-chat__ai-card-border: #e2dcf0;
+  --str-chat__ai-elevated-bg: #ffffff;
+  --str-chat__ai-accent: #5b34d6;
+  --str-chat__ai-error: #b4232c;
+  --str-chat__ai-success: #17703f;
+  --str-chat__ai-link: #5b34d6;
+  --str-chat__ai-button-primary-bg: #5b34d6;
+  --str-chat__ai-button-primary-text: #ffffff;
+  --str-chat__ai-button-secondary-bg: #ffffff;
+  --str-chat__ai-button-secondary-text: #1f1830;
+  --str-chat__ai-button-secondary-border: #b7aed0;
+  --str-chat__ai-user-message-bg: #e6dcff;
+  --str-chat__ai-user-message-text: #1f1830;
+  --str-chat__ai-color-scheme: light;
+  color-scheme: light;
+}
+
+.gallery--app-dark {
+  --str-chat__ai-bg-primary: #15121c;
+  --str-chat__ai-bg-secondary: #1e1a28;
+  --str-chat__ai-bg-tertiary: #2c2638;
+  --str-chat__ai-text-primary: #f2eefa;
+  --str-chat__ai-text-secondary: #bdb4d1;
+  --str-chat__ai-text-tertiary: #a198b5;
+  --str-chat__ai-border: #4c4460;
+  --str-chat__ai-border-subtle: #332c42;
+  --str-chat__ai-surface-hover: #2a2436;
+  --str-chat__ai-surface-pressed: #352d46;
+  --str-chat__ai-card-bg: #1e1a28;
+  --str-chat__ai-card-border: #332c42;
+  --str-chat__ai-elevated-bg: #262033;
+  --str-chat__ai-accent: #b9a2ff;
+  --str-chat__ai-error: #ff8a8f;
+  --str-chat__ai-success: #6fd99a;
+  --str-chat__ai-link: #b9a2ff;
+  --str-chat__ai-button-primary-bg: #5b34d6;
+  --str-chat__ai-button-primary-text: #ffffff;
+  --str-chat__ai-button-secondary-bg: #262033;
+  --str-chat__ai-button-secondary-text: #f2eefa;
+  --str-chat__ai-button-secondary-border: #4c4460;
+  --str-chat__ai-user-message-bg: #3a2d63;
+  --str-chat__ai-user-message-text: #f2eefa;
+  --str-chat__ai-color-scheme: dark;
+  color-scheme: dark;
+}

@@ -94,6 +94,8 @@ export const itTranslations = {
   'aiComponents.toolApproval.allow.label': 'Consenti',
   'aiComponents.toolApproval.answerNotSent.text':
     'Impossibile inviare la tua risposta. Riprova.',
+  'aiComponents.toolApproval.arguments.ariaLabel': 'Cosa invia',
+  'aiComponents.toolApproval.arguments.label': 'Cosa invia',
   'aiComponents.toolApproval.dontAllow.label': 'Non consentire',
   'aiComponents.toolAuthorization.answerNotSent.text':
     'Impossibile inviare la tua risposta. Riprova.',

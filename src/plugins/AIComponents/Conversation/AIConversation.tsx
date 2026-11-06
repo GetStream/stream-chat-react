@@ -52,7 +52,21 @@ export type AIConversationAssistantMessageProps = {
   isGenerating: boolean;
   message: AIMessage;
   parts: AIMessagePartData[];
+  /**
+   * Whether the UI the agent wrote for the reply shows, in place of its words, which `text` then
+   * leaves out. `false` for a reply with no UI, one the conversation's `ui` host has no renderer
+   * for, one whose renderer shows nothing of it, and one whose UI failed (`uiFailed`). A reply
+   * that is neither generating nor showing UI, with no `text`, finished without a text reply,
+   * for which a message can show a status of its own.
+   */
+  showsUI: boolean;
+  /** What the reply says, or `''` while its UI shows in place of its words (`showsUI`). */
   text: string;
+  /**
+   * Whether the reply has UI that failed to show (`AIUIHost.fail`), so its words, if any, show
+   * instead. The message renders again when it fails, whether or not it is memoised.
+   */
+  uiFailed: boolean;
   approver?: AIToolApprover;
   reasoningText?: (stepId: string) => string | undefined;
 };
@@ -184,6 +198,7 @@ const EntryView = ({
   const { uiDocument } = message;
   const generated = ui && uiDocument ? ui.content(uiDocument, message.id) : null;
   const showsUI = !!uiDocument && generated !== null && generated !== undefined;
+  const uiFailed = !!uiDocument && !!ui?.hasFailed(message.id);
   // A finished reply has its actions under it whether it answers in text or in UI, once the
   // UI is written.
   const hasAnswer = message.text !== '' || showsUI;
@@ -197,7 +212,9 @@ const EntryView = ({
         message={message}
         parts={message.parts ?? []}
         reasoningText={message.reasoningText}
+        showsUI={showsUI}
         text={showsUI ? '' : message.text}
+        uiFailed={uiFailed}
       />
       {showsUI && (
         <AIUIGenerated
