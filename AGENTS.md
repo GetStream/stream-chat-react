@@ -10,7 +10,7 @@ Agents should prioritize API stability and high test coverage when changing code
 
 Stream's React Chat SDK — React components, hooks and contexts for building chat UIs on the Stream Chat API. The published package (`stream-chat-react`) lives at the repo root; `examples/*` are private Yarn workspaces consuming it via `workspace:^`.
 
-This is the **v15** line, developed on `master` and published as release candidates (npm `rc`). The stable v14 line lives on `release-v14` (npm `latest`). It is built on `stream-chat` v10 (the "LLC"), which owns message, thread and composer state; this package renders it.
+This is the **v15** line, developed on `master` and published under npm `latest`. The v14 maintenance line lives on `release-v14` (npm `release-v14`). It is built on `stream-chat` v10 (the "LLC"), which owns message, thread and composer state; this package renders it.
 
 ## Tech & toolchain
 
@@ -443,7 +443,7 @@ Implement MediaRecorder API integration with MP3 encoding.
 Closes #123
 ```
 
-- v15 is a major release line: a change that breaks the v14 API is marked with `!` and a `BREAKING CHANGE:` footer, and gets an entry in `ai-docs/ai-migration-v14-v15.md`.
+- `master` publishes v15 under `latest`, so a commit marked with `!` or a `BREAKING CHANGE:` footer releases 16.0.0. Mark a commit as breaking only when the next major is planned (see `developers/BRANCHES.md`).
 - Never commit directly to `master` or `release-v14`; always create a feature branch (see `developers/BRANCHES.md`). v15 work targets `master`; v14 fixes target `release-v14`.
 - Never commit unless explicitly requested.
 
