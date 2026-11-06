@@ -21,8 +21,9 @@ export const layouts: LayoutDescriptor[] = [
 ];
 
 // The toggle, only while a channel or thread is open beside the list. With nothing open,
-// collapsing the sidebar would leave an empty screen. A channel or thread stacked over another is
-// not in `openChannels` / `openThreads`, but always sits over one that is.
+// collapsing the sidebar would leave an empty screen. `openChannels` / `openThreads` hold the
+// channels and threads the panels were opened with, so checking both covers a thread stacked over
+// a channel.
 const SidebarToggleWhileContentOpen = () => {
   const { openChannels, openThreads } = useWorkspaceNavigation();
   return openChannels.length > 0 || openThreads.length > 0 ? <SidebarToggle /> : null;

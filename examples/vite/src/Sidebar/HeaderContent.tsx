@@ -16,9 +16,10 @@ export const HeaderStartWithSidebarToggle = () => (
 );
 
 /** The sidebar toggle while a channel or thread is open beside the list. With nothing open,
- *  collapsing the sidebar would leave an empty screen. `openChannels` / `openThreads` hold what is
- *  bound to the panels; a channel or thread stacked over one is not in them, but always sits over
- *  something that is, so checking both lists covers it. */
+ *  collapsing the sidebar would leave an empty screen. `openChannels` / `openThreads` hold the
+ *  channels and threads the panels were opened with, so checking both covers a thread stacked over
+ *  a channel. A panel opened with a user profile is in neither list, and the toggle stays hidden
+ *  next to it. */
 export const SidebarToggleWhileContentOpen = () => {
   const { openChannels, openThreads } = useWorkspaceNavigation();
   return openChannels.length > 0 || openThreads.length > 0 ? <SidebarToggle /> : null;
