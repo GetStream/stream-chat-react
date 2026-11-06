@@ -27,6 +27,7 @@ import { ResizeObserverMock } from '../../../mock-builders/browser';
 import { Message } from '../../Message';
 import { Channel } from '../../Channel';
 import { Chat } from '../../Chat';
+import { ThreadProvider } from '../../Threads';
 import { convertDateToTimestamp } from '../../../mock-builders';
 
 (window as any).ResizeObserver = ResizeObserverMock;
@@ -83,6 +84,7 @@ async function renderMessageActions({
   customChatContext = {},
   customMessageContext = {},
   messageActionsProps = {},
+  threadParentMessage,
 }: any = {}) {
   const client = chatClient || (await getTestClientWithUser(alice));
   if (customChatContext.mutes) {
@@ -99,19 +101,25 @@ async function renderMessageActions({
     },
   });
 
+  const thread = threadParentMessage
+    ? client.threads.ensure({ channel, parentMessage: threadParentMessage })
+    : undefined;
+
   return render(
     <Chat client={client}>
       <Channel channel={channel}>
-        <DialogManagerProvider id='message-actions-dialog-provider'>
-          <MessageProvider
-            value={mockMessageContext({
-              ...defaultMessageContextValue,
-              ...customMessageContext,
-            })}
-          >
-            <MessageActions {...messageActionsProps} />
-          </MessageProvider>
-        </DialogManagerProvider>
+        <ThreadProvider thread={thread}>
+          <DialogManagerProvider id='message-actions-dialog-provider'>
+            <MessageProvider
+              value={mockMessageContext({
+                ...defaultMessageContextValue,
+                ...customMessageContext,
+              })}
+            >
+              <MessageActions {...messageActionsProps} />
+            </MessageProvider>
+          </DialogManagerProvider>
+        </ThreadProvider>
       </Channel>
     </Chat>,
   );
@@ -154,13 +162,25 @@ describe('<MessageActions />', () => {
       expect(queryByTestId(MESSAGE_ACTIONS_HOST_TEST_ID)).not.toBeInTheDocument();
     });
 
-    it('should not render when message is parent message in a thread', async () => {
-      const { queryByTestId } = await renderMessageActions({
-        customMessageContext: {
-          initialMessage: true,
-        },
+    it('should not render for the parent message of the thread it is rendered in', async () => {
+      const message = generateMessage({ user: alice });
+      const { container } = await renderMessageActions({
+        customMessageContext: { message },
+        threadParentMessage: message,
       });
-      expect(queryByTestId(MESSAGE_ACTIONS_HOST_TEST_ID)).not.toBeInTheDocument();
+      expect(
+        container.querySelector('.str-chat__message-options'),
+      ).not.toBeInTheDocument();
+    });
+
+    it('should render for a reply in a thread', async () => {
+      const parentMessage = generateMessage({ user: alice });
+      const message = generateMessage({ parent_id: parentMessage.id, user: alice });
+      const { container } = await renderMessageActions({
+        customMessageContext: { message },
+        threadParentMessage: parentMessage,
+      });
+      expect(container.querySelector('.str-chat__message-options')).toBeInTheDocument();
     });
 
     it('should render correctly when not open', async () => {
