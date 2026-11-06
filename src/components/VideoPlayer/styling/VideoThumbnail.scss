@@ -10,6 +10,10 @@
       height: 100%;
     }
 
+    .str-chat__message-attachment__video-thumbnail-placeholder {
+      background-color: var(--str-chat__background-core-overlay-light);
+    }
+
     .str-chat__message-attachment__video-thumbnail__play-indicator,
     .str-chat__button.str-chat__button--solid.str-chat__message-attachment__video-thumbnail__play-indicator {
       display: flex;
