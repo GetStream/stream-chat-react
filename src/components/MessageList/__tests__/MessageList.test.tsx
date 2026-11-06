@@ -618,6 +618,25 @@ describe('MessageList', () => {
     });
   });
 
+  it('should give the system message list item the str-chat__li class', async () => {
+    const system = generateMessage({
+      text: 'system message in a list item',
+      type: 'system',
+    });
+
+    renderComponent({
+      channelProps: { channel },
+      chatClient,
+      msgListProps: {
+        messages: [system],
+      },
+    });
+
+    await waitFor(() => {
+      expect(screen.getByText(system.text).closest('li')).toHaveClass('str-chat__li');
+    });
+  });
+
   it('should use custom message list renderer if provided', async () => {
     const customRenderMessages = ({
       messages,
