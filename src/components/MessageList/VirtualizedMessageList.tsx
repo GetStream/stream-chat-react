@@ -19,6 +19,7 @@ import {
 import { useMarkRead } from './hooks/useMarkRead';
 import { useScrollerViewport } from './hooks/VirtualizedMessageList/useScrollerViewport';
 import { useAfterInitialLocation } from './hooks/VirtualizedMessageList/useAfterInitialLocation';
+import { useStickToBottomOnGrowth } from './hooks/VirtualizedMessageList/useStickToBottomOnGrowth';
 import { useMessageFocusSignalViewed } from './hooks/VirtualizedMessageList/useMessageFocusSignalViewed';
 
 import {
@@ -442,12 +443,24 @@ const VirtualizedMessageListWithContext = (
 
   // Content can grow without the scroller resizing or scrolling (e.g. an avatar or image loading
   // late), which moves the true bottom without firing either event the hook observes.
+  // A reader at the bottom stays there while the content grows (an image loading, a reply
+  // streaming in, messages measuring taller than estimated), except in an older window, whose
+  // bottom loads newer pages. `suppressAutoscroll` keeps new messages from moving the list.
+  const stickToBottomOnGrowth = useStickToBottomOnGrowth({
+    enabled: !hasMoreNewer,
+    followNewItems: !suppressAutoscroll,
+    itemCount: processedMessages.length,
+    scroller: scrollerElement,
+    threshold,
+  });
+
   const totalListHeightChanged = useCallback(
     (height: number) => {
       remeasure();
+      stickToBottomOnGrowth(height);
       totalListHeightChangedFromProps?.(height);
     },
-    [remeasure, totalListHeightChangedFromProps],
+    [remeasure, stickToBottomOnGrowth, totalListHeightChangedFromProps],
   );
 
   useMarkRead({
