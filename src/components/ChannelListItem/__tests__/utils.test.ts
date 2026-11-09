@@ -243,6 +243,39 @@ describe('ChannelPreview utils', () => {
       expect(preview).toBe('📊 Ana voted: Manzanas');
     });
 
+    it('announces a vote by the original option text when the user language has no translation', async () => {
+      const voter = generateUser({ id: 'voter', name: 'Ana' });
+      const vote = {
+        created_at: convertDateToTimestamp(),
+        id: 'vote-1',
+        option_id: 'apples',
+        poll_id: 'poll-voted-untranslated',
+        updated_at: convertDateToTimestamp(),
+        user: voter,
+        user_id: voter.id,
+      };
+      const channel = await getQueriedChannelInstance(
+        generateChannel({
+          messages: [
+            generateMessage({
+              poll: {
+                id: 'poll-voted-untranslated',
+                latest_votes_by_option: { apples: [vote] },
+                name: 'Fruit?',
+                options: [
+                  { id: 'apples', text: 'Apples', text_i18n: { es_text: 'Manzanas' } },
+                ],
+                vote_count: 1,
+              },
+              text: '',
+            }),
+          ],
+        }),
+      );
+      const preview = getLatestMessagePreview(channel, tAria, 'de');
+      expect(preview).toBe('📊 Ana voted: Apples');
+    });
+
     it('announces an attachment-only message with a localized type label', async () => {
       const channel = await getQueriedChannelInstance(
         generateChannel({
