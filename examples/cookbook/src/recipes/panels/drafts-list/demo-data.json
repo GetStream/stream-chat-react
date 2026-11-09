@@ -1,0 +1,68 @@
+{
+  "channels": [
+    {
+      "id": "docs-v15-cb-craft-fair",
+      "name": "Craft fair",
+      "members": ["docs-v15-ck-cleo", "docs-v15-ck-bob", "docs-v15-ck-cara"],
+      "messages": [
+        {
+          "id": "docs-v15-ck-craft-fair-1",
+          "user": "docs-v15-ck-bob",
+          "text": "The craft fair is on the first Saturday of next month."
+        },
+        {
+          "id": "docs-v15-ck-craft-fair-2",
+          "user": "docs-v15-ck-cara",
+          "text": "I can paint the signs for our stall."
+        }
+      ],
+      "draftsForCurrentUser": [{ "text": "I can bring the folding table and a few" }]
+    },
+    {
+      "id": "docs-v15-cb-kite-day",
+      "name": "Kite day",
+      "members": ["docs-v15-ck-cleo", "docs-v15-ck-cara", "docs-v15-ck-dan"],
+      "messages": [
+        {
+          "id": "docs-v15-ck-kite-day-1",
+          "user": "docs-v15-ck-dan",
+          "text": "Which hill should we fly the kites from on Sunday?"
+        },
+        {
+          "id": "docs-v15-ck-kite-day-1-r1",
+          "user": "docs-v15-ck-cara",
+          "parent": "docs-v15-ck-kite-day-1",
+          "text": "The one by the old mill gets the most wind."
+        },
+        {
+          "id": "docs-v15-ck-kite-day-2",
+          "user": "docs-v15-ck-cara",
+          "text": "Remember to bring spare string."
+        }
+      ],
+      "draftsForCurrentUser": [
+        {
+          "parent": "docs-v15-ck-kite-day-1",
+          "text": "The mill hill works for me, as long as we"
+        },
+        {
+          "quotedMessage": "docs-v15-ck-kite-day-2",
+          "text": "I have a whole spool, so"
+        }
+      ]
+    },
+    {
+      "id": "docs-v15-cb-dog-walks",
+      "name": "Dog walks",
+      "members": ["docs-v15-ck-cleo", "docs-v15-ck-bob", "docs-v15-ck-dan"],
+      "messages": [
+        {
+          "id": "docs-v15-ck-dog-walks-1",
+          "user": "docs-v15-ck-bob",
+          "text": "Morning walk at eight tomorrow, same park as usual?"
+        }
+      ],
+      "draftsForCurrentUser": [{ "text": "Count me in, I might be a few minutes" }]
+    }
+  ]
+}

@@ -7,6 +7,7 @@ import {
   useContext,
   useEffect,
   useMemo,
+  useRef,
   useState,
 } from 'react';
 import type React from 'react';
@@ -20,13 +21,14 @@ import { useStateStore } from '../../../store';
 import { useStableCallback } from '../../../utils/useStableCallback';
 import { useStableId } from '../../../components/UtilityComponents/useStableId';
 import { AttachmentPreview } from './AttachmentPreview';
+import { ChatOptions as ChatOptionsBase, type ChatOptionsProps } from './ChatOptions';
 import { useSpeechToText, type UseSpeechToTextOptions } from './hooks/useSpeechToText';
+import { useIsomorphicLayoutEffect } from '../utils';
 
 const nanoId = customAlphabet('abcdefghijklmnopqrstuvwxyz0123456789', 15);
 
-// Visually hidden but still focusable: the native file input is the keyboard
-// target (Enter/Space open the picker, it is announced with its aria-label),
-// while the label is the visual/pointer target.
+// Visually hidden but still focusable: the native file input is the keyboard target and the
+// label is the pointer target.
 const visuallyHiddenInputStyle: CSSProperties = {
   border: 0,
   clip: 'rect(0, 0, 0, 0)',
@@ -82,7 +84,7 @@ const WithStableId = ({
 }: {
   children?: ReactNode | (({ id }: { id: string }) => ReactNode);
 }) => {
-  // SSR/hydration-safe on React 18+ (React.useId), client-only id on React 17
+  // SSR/hydration-safe on React 18+ (React.useId), client-only ID on React 17
   const id = `file-input-${useStableId()}`;
 
   return <>{typeof children === 'function' ? children({ id }) : children}</>;
@@ -243,8 +245,8 @@ export const useIsDisabled = () => {
 
 type AIMessageComposerProps = ComponentPropsWithoutRef<'form'> & {
   /**
-   * Resets a value of an input with name `attachments` and of type `file` when user selects files so that
-   * they can select the same file again if needed.
+   * Clears the file input named `attachments` (see `nameMapping`) after each selection, so the same
+   * file can be selected again.
    *
    * @default true
    */
@@ -254,9 +256,7 @@ type AIMessageComposerProps = ComponentPropsWithoutRef<'form'> & {
     attachments?: string;
   };
 
-  /**
-   * Disables the composer.
-   */
+  /** Disables the composer. */
   disabled?: boolean;
 };
 
@@ -268,10 +268,12 @@ interface AIMessageComposer {
   SubmitButton: typeof SubmitButton;
   ModelSelect: typeof ModelSelect;
   AttachmentPreview: typeof AttachmentPreview;
+  ChatOptions: typeof ChatOptions;
 }
 
 export const AIMessageComposer: AIMessageComposer = ({
   children,
+  className,
   disabled,
   nameMapping,
   onChange,
@@ -345,7 +347,7 @@ export const AIMessageComposer: AIMessageComposer = ({
   return (
     <AIMessageComposerContext.Provider value={stateStore}>
       <form
-        className='str-chat__ai-message-composer__form'
+        className={clsx('str-chat__ai-message-composer__form', className)}
         onChange={handleChange}
         onReset={handleReset}
         {...restProps}
@@ -364,28 +366,78 @@ const useHasMounted = () => {
   return hasMounted;
 };
 
-const TextInput = (props: ComponentPropsWithoutRef<'input'>) => {
+/** The tallest the text input grows to, in pixels, before it scrolls. */
+const TEXT_INPUT_MAX_HEIGHT = 200;
+
+/** Makes a text input as tall as its lines, measured from one line so it shrinks again too. */
+const fitToLines = (element: HTMLTextAreaElement) => {
+  element.style.height = 'auto';
+  element.style.height = `${Math.min(element.scrollHeight, TEXT_INPUT_MAX_HEIGHT)}px`;
+};
+
+/**
+ * Where the message is written. It takes several lines and grows with them, up to a limit:
+ * Enter sends, Shift+Enter starts a new line, and Enter while an input method is still composing
+ * a character does neither.
+ */
+const TextInput = ({ onKeyDown, ...props }: ComponentPropsWithoutRef<'textarea'>) => {
   const { text } = useText();
   const { disabled } = useIsDisabled();
   const { t } = useTranslationContext();
+  const ref = useRef<HTMLTextAreaElement>(null);
+
+  // Sized to its lines: each time the text changes, and each time its width does, which wraps
+  // them differently (a resized window, or a composer first laid out while hidden).
+  useIsomorphicLayoutEffect(() => {
+    const element = ref.current;
+    if (element) fitToLines(element);
+  }, [text]);
+
+  useEffect(() => {
+    const element = ref.current;
+    if (!element || typeof ResizeObserver === 'undefined') return;
+    let width = element.clientWidth;
+    const observer = new ResizeObserver(() => {
+      if (element.clientWidth === width) return;
+      width = element.clientWidth;
+      fitToLines(element);
+    });
+    observer.observe(element);
+    return () => observer.disconnect();
+  }, []);
+
+  const handleKeyDown = (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    onKeyDown?.(event);
+    if (
+      event.defaultPrevented ||
+      event.key !== 'Enter' ||
+      event.shiftKey ||
+      event.nativeEvent.isComposing
+    ) {
+      return;
+    }
+    event.preventDefault();
+    event.currentTarget.form?.requestSubmit();
+  };
 
   return (
-    <input
+    <textarea
       autoComplete='off'
       className='str-chat__ai-message-composer__text-input'
       name='message'
-      // React requires onChange when value is set, defaultValue stops working
-      // when input gets "dirty"
-      // actual on-change is handled at the form level
+      // A controlled input needs an onChange (`defaultValue` stops working once the input is
+      // dirty); changes are handled at the form level.
       onChange={noop}
       placeholder={t(
         'aiComponents.messageComposer.textInput.placeholder',
         'Ask a question...',
       )}
-      type='text'
+      ref={ref}
+      rows={1}
       value={text}
       {...props}
       disabled={disabled}
+      onKeyDown={handleKeyDown}
     />
   );
 };
@@ -472,6 +524,12 @@ const SubmitButton = ({
   );
 };
 
+// Follows the composer's disabled state unless told otherwise.
+const ChatOptions = (props: ChatOptionsProps) => {
+  const { disabled } = useIsDisabled();
+  return <ChatOptionsBase {...props} disabled={props.disabled ?? disabled} />;
+};
+
 const availableModels = [
   { label: 'GPT-4o mini', platform: 'openai', value: 'gpt-4o-mini' },
   { label: 'GPT-4o', platform: 'openai', value: 'gpt-4o' },
@@ -516,3 +574,4 @@ AIMessageComposer.SpeechToTextButton = SpeechToTextButton;
 AIMessageComposer.SubmitButton = SubmitButton;
 AIMessageComposer.ModelSelect = ModelSelect;
 AIMessageComposer.AttachmentPreview = AttachmentPreview;
+AIMessageComposer.ChatOptions = ChatOptions;

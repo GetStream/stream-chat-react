@@ -1,6 +1,6 @@
 import React from 'react';
 
-/** Three dots for typing indicator; fill and opacity animation come from TypingIndicator.scss (--chat-text-typing-indicator). */
+/** Three dots, filled and animated only inside a `.str-chat__typing-indicator__dots` element. */
 export const TypingIndicatorDots = () => (
   <svg
     aria-hidden

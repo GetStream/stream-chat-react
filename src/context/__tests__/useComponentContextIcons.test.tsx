@@ -78,9 +78,8 @@ describe('useComponentContextIcons', () => {
   });
 
   it('keeps each icon component stable across re-renders, so icon subtrees are not remounted', () => {
-    // What React compares when deciding to remount is the element type — the icon component
-    // itself — not the object holding it. That stays stable even when a consumer passes
-    // `overrides` inline and the containing object is rebuilt.
+    // React remounts on a changed element type (the icon component), not on the object holding it,
+    // so inline `overrides` that rebuild that object must not matter.
     const { rerender, result } = renderHook(() => useComponentContextIcons(), {
       wrapper: withIcons({ IconFlag: CustomFlag }),
     });
@@ -108,8 +107,8 @@ describe('useComponentContextIcons', () => {
   });
 
   it('picks up an override swapped at runtime', () => {
-    // The reason this hook keys its memo on `icons` rather than on `[]`: a consumer that swaps an
-    // icon after mount must see the new one. Keyed on `[]` this assertion fails.
+    // A consumer swapping an icon after mount must see the new one, which a memo keyed on `[]`
+    // would miss.
     const Probe = () => {
       const { IconFlag } = useComponentContextIcons();
       return <IconFlag />;
@@ -131,7 +130,7 @@ describe('useComponentContextIcons', () => {
 
   it('a non-component override does not overwrite the SDK icon', () => {
     const { result } = renderHook(() => useComponentContextIcons(), {
-      // a consumer computing overrides dynamically can hand us a hole
+      // a consumer computing overrides dynamically can pass a non-component
       wrapper: withIcons({ IconFlag: null as unknown as IconSlots['IconFlag'] }),
     });
 

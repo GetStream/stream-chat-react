@@ -17,10 +17,6 @@ import {
 } from '../../../mock-builders';
 import { mockT } from '../../../mock-builders/translator';
 
-// MERGE-RECONCILE (test migration): ThreadStart moved off the deleted ChannelStateContext.
-// It now reads the parent message from the thread instance in ThreadContext via
-// `useStateStore(thread.state, ...)`. Provide a thread instance whose `.state` StateStore
-// exposes `parentMessage` instead of passing `thread` through ChannelStateContext.
 let client: StreamChat;
 
 const makeThread = (parentMessage: LocalMessage) =>

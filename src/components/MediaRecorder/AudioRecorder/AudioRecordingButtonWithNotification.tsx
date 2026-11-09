@@ -20,21 +20,25 @@ export const AudioRecordingButtonWithNotification = () => {
   } = useComponentContext();
   const { asyncMessagesMultiSendEnabled, recordingController } =
     useMessageComposerContext();
-  const { attachments } = useAttachmentManagerState();
+  const { attachments, isUploadEnabled } = useAttachmentManagerState();
 
   const { dialog, dialogManager } = useDialogOnNearestManager({ id: dialogId });
 
   const audioRecordingBtnRef = useRef<HTMLButtonElement | null>(null);
   const isRecording = !!recordingController.recordingState;
+  const hasVoiceRecordingAttachment = attachments.some(
+    (a) => a.type === RecordingAttachmentType.VOICE_RECORDING,
+  );
+  // A recording is sent as an uploaded file, so it cannot start while uploads are off.
+  const canStartRecording =
+    !isRecording &&
+    isUploadEnabled &&
+    (asyncMessagesMultiSendEnabled || !hasVoiceRecordingAttachment);
 
   return (
     <>
       <StartRecordingAudioButton
-        disabled={
-          isRecording ||
-          (!asyncMessagesMultiSendEnabled &&
-            attachments.some((a) => a.type === RecordingAttachmentType.VOICE_RECORDING))
-        }
+        disabled={!canStartRecording}
         onClick={() => {
           recordingController.recorder?.start();
 

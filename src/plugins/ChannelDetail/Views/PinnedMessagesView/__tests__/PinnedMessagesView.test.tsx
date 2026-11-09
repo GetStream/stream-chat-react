@@ -10,14 +10,10 @@ import type {
 } from 'stream-chat';
 import { fromPartial } from '@total-typescript/shoehorn';
 
-// MERGE-RECONCILE (test migration): the deleted ChannelActionContext.jumpToMessage was replaced by
-// channel.messagePaginator.jumpToMessage (PR #2909), so useChannelActionContext is no longer
-// imported/mocked here; the channel stub exposes a messagePaginator instead.
 import {
   useChatContext,
   useComponentContext,
   useComponentContextIcons,
-  useModalContext,
   useTranslationContext,
   useWorkspaceNavigation,
 } from '../../../../../context';
@@ -25,6 +21,8 @@ import * as DEFAULT_ICONS from '../../../../../components/Icons/icons';
 import { mockT } from '../../../../../mock-builders/translator';
 import { useStateStore } from '../../../../../store';
 import { ChannelDetailProvider } from '../../../ChannelDetailContext';
+// The real provider: the context barrel is auto-mocked in this file.
+import { ModalContextProvider } from '../../../../../context/ModalContext';
 import { PinnedMessagesView } from '../PinnedMessagesView';
 
 const mocks = vi.hoisted(() => ({
@@ -83,9 +81,8 @@ vi.mock('stream-chat', async (importOriginal) => {
 vi.mock('../../../../../context');
 vi.mock('../../../../../store');
 
-// Render react-virtuoso synchronously: jsdom has no layout, so the real
-// component would window down to zero items. The stub renders every item plus
-// the empty/footer slots so behavior assertions still hold.
+// Renders react-virtuoso synchronously: jsdom has no layout, so the real component would window
+// down to zero items. The stub renders every item plus the empty/footer slots.
 vi.mock('react-virtuoso', () => ({
   Virtuoso: ({
     components = {},
@@ -220,8 +217,8 @@ const mockSearchSourceState = (
 
 describe('PinnedMessagesView', () => {
   beforeEach(() => {
-    // The context module is auto-mocked, so the icon hook would return undefined; hand back
-    // the real icons rather than stubs, so assertions still describe what users see.
+    // The context module is auto-mocked, so the icon hook would return undefined; hand back the
+    // real icons so assertions still describe what users see.
     vi.mocked(useComponentContextIcons).mockReturnValue(DEFAULT_ICONS);
     vi.clearAllMocks();
     mocks.virtuosoRenderCount = 0;
@@ -250,10 +247,6 @@ describe('PinnedMessagesView', () => {
       {} as ReturnType<typeof useComponentContext>,
     );
 
-    vi.mocked(useModalContext).mockReturnValue({
-      close: vi.fn(),
-    } as ReturnType<typeof useModalContext>);
-
     vi.mocked(useWorkspaceNavigation).mockReturnValue(
       fromPartial({ openChannel: vi.fn() }),
     );
@@ -267,13 +260,16 @@ describe('PinnedMessagesView', () => {
     const openChannel = vi.fn();
     const close = vi.fn();
     vi.mocked(useWorkspaceNavigation).mockReturnValue(fromPartial({ openChannel }));
-    vi.mocked(useModalContext).mockReturnValue({
-      close,
-    } as unknown as ReturnType<typeof useModalContext>);
     mockSearchSourceState({ messages: pinnedMessages });
     const channel = createChannel();
 
-    renderWithChannel(<PinnedMessagesView layout='tabs' />, channel);
+    render(
+      <ModalContextProvider value={{ close }}>
+        <ChannelDetailProvider channel={channel}>
+          <PinnedMessagesView layout='tabs' />
+        </ChannelDetailProvider>
+      </ModalContextProvider>,
+    );
     fireEvent.click(screen.getByText('Release timeline: Code freeze March 18'));
 
     expect(openChannel).toHaveBeenCalledWith(channel);
@@ -425,13 +421,11 @@ describe('PinnedMessagesView', () => {
       </ChannelDetailProvider>,
     );
 
-    // No pinned messages yet: the search input is suppressed and nothing loads.
     expect(screen.queryByRole('searchbox', { name: 'Search' })).not.toBeInTheDocument();
     expect(mocks.searchSourceSearch).not.toHaveBeenCalled();
 
-    // A message is pinned. The paginator (channel.pinnedMessagesPaginator) is updated; the reactive
-    // re-render is exercised by usePinnedMessagesCount's own test, so here we re-render to reflect the
-    // new count (useStateStore is mocked non-reactively in this suite).
+    // useStateStore is mocked non-reactively here, so re-render by hand after pinning; the reactive
+    // update is covered by usePinnedMessagesCount's own test.
     act(() => {
       channel.pinnedMessagesPaginator.state.partialNext({ items: pinnedMessages });
     });
@@ -457,7 +451,6 @@ describe('PinnedMessagesView', () => {
       <PinnedMessagesView layout='tabs' searchSource={customSearchSource} />,
     );
 
-    // No own source is constructed, and the provided one drives the first load.
     expect(mocks.searchSourceInstances).toHaveLength(0);
     expect(customSearchSource.search).toHaveBeenCalledWith('');
   });

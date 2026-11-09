@@ -2,7 +2,7 @@ import React from 'react';
 import { act, renderHook, type RenderHookResult } from '@testing-library/react';
 import { fromPartial } from '@total-typescript/shoehorn';
 
-// Imported through the package entry: the hook is public API, named in the migration guide.
+// Imported through the package entry because the hook is a public export.
 import { useIsCooldownActive } from '../../../../index';
 
 import { Chat } from '../../../Chat';

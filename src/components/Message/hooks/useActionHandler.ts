@@ -13,8 +13,8 @@ export type ActionHandlerReturnType = (
   event?: React.BaseSyntheticEvent,
 ) => Promise<void> | void;
 
-export const handleActionWarning = `Action handler was called, but it is missing one of its required arguments. 
-Make sure the ChannelAction and ChannelState contexts are properly set and the hook is initialized with a valid message.`;
+export const handleActionWarning = `Action handler was called, but it is missing one of its required arguments.
+Make sure the hook is used within a Channel and is initialized with a valid message.`;
 
 export function useActionHandler(message?: LocalMessage): ActionHandlerReturnType {
   const channel = useChannel();
@@ -31,7 +31,7 @@ export function useActionHandler(message?: LocalMessage): ActionHandlerReturnTyp
     const messageId = message.id;
     let formData: FormData = {};
 
-    // deprecated: value&name should be removed in favor of data obj
+    // Deprecated: the separate `name` and `value` arguments. Pass a data object instead.
     if (typeof dataOrName === 'string') {
       formData[dataOrName] = value as string;
     } else {

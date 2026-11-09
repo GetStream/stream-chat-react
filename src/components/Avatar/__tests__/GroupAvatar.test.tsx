@@ -2,8 +2,9 @@ import React from 'react';
 
 import { cleanup, render } from '@testing-library/react';
 
-import { ChannelAvatar } from '../ChannelAvatar';
+import { ChannelAvatar, type ChannelAvatarProps } from '../ChannelAvatar';
 import { GroupAvatar } from '../GroupAvatar';
+import { WithComponents } from '../../../context';
 
 afterEach(cleanup);
 
@@ -155,6 +156,27 @@ describe('GroupAvatar', () => {
       'str-chat__avatar-group',
       'custom-class',
     );
+  });
+
+  // The `Avatar` slot can hold `ChannelAvatar`, which renders `GroupAvatar`; reading the slot here
+  // would recurse forever.
+  it('renders its own Avatar tiles when the Avatar slot holds ChannelAvatar', () => {
+    let slotRenders = 0;
+    const SlotAvatar = (props: ChannelAvatarProps) => {
+      slotRenders += 1;
+      if (slotRenders > 5)
+        throw new Error('GroupAvatar rendered the Avatar slot recursively');
+      return <ChannelAvatar {...props} />;
+    };
+    const { getAllByTestId, getByTestId } = render(
+      <WithComponents overrides={{ Avatar: SlotAvatar }}>
+        <SlotAvatar displayMembers={[member1]} size='xl' />
+        <GroupAvatar displayMembers={[member1, member2]} size='xl' />
+      </WithComponents>,
+    );
+
+    expect(getByTestId('group-avatar')).toBeInTheDocument();
+    expect(getAllByTestId('avatar')).toHaveLength(3);
   });
 });
 

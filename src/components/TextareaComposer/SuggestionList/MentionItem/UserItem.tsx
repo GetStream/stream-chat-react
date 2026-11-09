@@ -23,9 +23,7 @@ export type UserItemProps = MentionItemComponentProps<
   LegacyUserSuggestionEntity | UserSuggestion
 >;
 
-/**
- * UI component for mentions rendered in suggestion list
- */
+/** User row of the mention suggestion list. */
 export const UserItem = ({ entity, focused, ...buttonProps }: UserItemProps) => {
   const { Avatar = DefaultAvatar, extractDisplayInfo = defaultExtractDisplayInfo } =
     useComponentContext();
@@ -36,8 +34,7 @@ export const UserItem = ({ entity, focused, ...buttonProps }: UserItemProps) => 
     const displayInfo = extractDisplayInfo({ user: entity });
 
     return function UserItemAvatar() {
-      // Decorative: the option's accessible name already carries the user's name (title +
-      // tokenized display name), so the avatar's fallback initials/role would only add noise.
+      // Decorative: the option's accessible name already carries the user's name.
       return <Avatar {...displayInfo} aria-hidden size='md' />;
     };
   }, [Avatar, entity, extractDisplayInfo]);

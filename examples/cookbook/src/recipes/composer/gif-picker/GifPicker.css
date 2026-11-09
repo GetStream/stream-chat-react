@@ -1,0 +1,92 @@
+@layer stream-overrides {
+  .cookbook-gif-picker {
+    display: flex;
+    flex-direction: column;
+    gap: var(--str-chat__spacing-xs);
+    width: 360px;
+    padding: var(--str-chat__spacing-sm);
+    border-radius: var(--str-chat__radius-lg);
+    background: var(--str-chat__background-core-elevation-1);
+    box-shadow: var(--str-chat__box-shadow-3);
+    color: var(--str-chat__text-primary);
+  }
+
+  .cookbook-gif-picker__input {
+    width: 100%;
+    padding: var(--str-chat__spacing-xs) var(--str-chat__spacing-md);
+    border: 1px solid var(--str-chat__border-core-default);
+    border-radius: var(--str-chat__radius-full);
+    background: var(--str-chat__background-core-surface-subtle);
+    color: var(--str-chat__text-primary);
+    font: var(--str-chat__font-body-default);
+  }
+
+  .cookbook-gif-picker__input:focus-visible {
+    border-color: var(--str-chat__accent-primary);
+    outline: none;
+  }
+
+  .cookbook-gif-picker__heading {
+    padding-inline: var(--str-chat__spacing-xxs);
+    color: var(--str-chat__text-secondary);
+    font: var(--str-chat__font-caption-emphasis);
+  }
+
+  .cookbook-gif-picker__scroller {
+    height: 264px;
+    overflow-y: auto;
+  }
+
+  .cookbook-gif-picker__grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--str-chat__spacing-xxs);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .cookbook-gif-picker__tile {
+    display: block;
+    width: 100%;
+    padding: 0;
+    border: 2px solid transparent;
+    border-radius: var(--str-chat__radius-md);
+    background: var(--str-chat__background-core-surface-subtle);
+    overflow: hidden;
+    cursor: pointer;
+  }
+
+  .cookbook-gif-picker__tile:hover,
+  .cookbook-gif-picker__tile:focus-visible {
+    border-color: var(--str-chat__accent-primary);
+    outline: none;
+  }
+
+  .cookbook-gif-picker__image {
+    display: block;
+    width: 100%;
+    aspect-ratio: 4 / 3;
+    object-fit: cover;
+  }
+
+  .cookbook-gif-picker__status {
+    margin: 0;
+    padding: var(--str-chat__spacing-sm);
+    color: var(--str-chat__text-secondary);
+    font: var(--str-chat__font-caption-default);
+    text-align: center;
+  }
+
+  /* The status stays in the page while it has nothing to say, so it takes no room then. */
+  .cookbook-gif-picker__status:empty {
+    padding: 0;
+  }
+
+  .cookbook-gif-picker__attribution {
+    margin: 0;
+    color: var(--str-chat__text-tertiary);
+    font: var(--str-chat__font-caption-default);
+    text-align: end;
+  }
+}

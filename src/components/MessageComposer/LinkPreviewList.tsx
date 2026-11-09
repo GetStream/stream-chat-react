@@ -6,9 +6,9 @@ import { useStateStore } from '../../store';
 import { PopperTooltip } from '../Tooltip';
 import { useEnterLeaveHandlers } from '../Tooltip/hooks';
 import { useMessageComposerController } from './hooks';
-import { BaseImage } from '../BaseImage';
+import { BaseImage as DefaultBaseImage } from '../BaseImage';
 import { RemoveAttachmentPreviewButton } from './RemoveAttachmentPreviewButton';
-import { useComponentContextIcons } from '../../context';
+import { useComponentContext, useComponentContextIcons } from '../../context';
 
 export type LinkPreviewListProps = {
   displayLinkCount?: number;
@@ -47,11 +47,12 @@ type LinkPreviewProps = {
 
 export const LinkPreviewCard = ({ linkPreview }: LinkPreviewProps) => {
   const { IconLink } = useComponentContextIcons();
+  const { BaseImage = DefaultBaseImage } = useComponentContext();
   const { linkPreviewsManager } = useMessageComposerController();
   const { handleEnter, handleLeave, tooltipVisible } =
     useEnterLeaveHandlers<HTMLDivElement>();
   const [referenceElement, setReferenceElement] = useState<HTMLDivElement | null>(null);
-  const { image_url, thumb_url, title, title_link } = linkPreview;
+  const { image_url, thumb_url, title } = linkPreview;
 
   if (
     !LinkPreviewsManager.previewIsLoaded(linkPreview) &&
@@ -59,7 +60,7 @@ export const LinkPreviewCard = ({ linkPreview }: LinkPreviewProps) => {
   )
     return null;
 
-  const previewImageSrc = title_link || image_url || thumb_url;
+  const previewImageSrc = image_url || thumb_url;
   return (
     <div
       className={clsx('str-chat__link-preview-card', {

@@ -32,7 +32,7 @@ export const ChannelPreviewOverlay = () => {
   const handleJoin = useCallback(async () => {
     setJoining(true);
     try {
-      await channel.addMembers([client.userID!]);
+      await channel.addMembers({ members: [client.userID!] });
     } catch (error) {
       addNotification({
         emitter: 'ChannelPreviewOverlay',

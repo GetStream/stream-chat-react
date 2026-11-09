@@ -24,9 +24,8 @@ const avatarWithChannelDetailDialogRootProps = {
 };
 
 /**
- * Whether the channel exists on the server: a query's response was applied to it, or it was restored
- * from the offline database. The details are loaded from the server, so a channel created only
- * locally (sent to the server with its first message) has none to show yet.
+ * Whether the channel exists on the server: a query response was applied to it, or it was restored
+ * from the offline database. A channel created only locally has no details to show yet.
  */
 const existsOnServerSelector = ({ initialized, offlineMode }: ChannelStateData) => ({
   existsOnServer: initialized || offlineMode,

@@ -1,0 +1,45 @@
+@layer stream-overrides {
+  .cookbook-edit-poll__add-option {
+    align-self: flex-start;
+  }
+
+  .cookbook-edit-poll__footer {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--str-chat__spacing-sm);
+    width: 100%;
+  }
+
+  .cookbook-edit-poll__poll-actions {
+    display: flex;
+    gap: var(--str-chat__spacing-xs);
+  }
+
+  .cookbook-edit-poll__confirm {
+    margin: 0;
+    color: var(--str-chat__text-primary);
+    font: var(--str-chat__font-body-emphasis);
+  }
+
+  .cookbook-edit-poll__remove-confirm {
+    display: flex;
+    align-items: center;
+    gap: var(--str-chat__spacing-xs);
+    padding-top: var(--str-chat__spacing-xs);
+  }
+
+  .cookbook-edit-poll__remove-confirm-text {
+    flex: 1;
+    margin: 0;
+    color: var(--str-chat__text-primary);
+    font: var(--str-chat__font-caption-emphasis);
+  }
+
+  .cookbook-edit-poll__error {
+    margin: 0;
+    color: var(--str-chat__accent-error);
+    font: var(--str-chat__font-caption-default);
+  }
+}

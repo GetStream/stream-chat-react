@@ -11,7 +11,6 @@ import {
 
 import './layout.css';
 import { apiKey, tokenProvider, userId, userName } from '../2-client-setup/credentials';
-import { setUpCommandMiddlewares } from '../2-client-setup/commandMiddlewares';
 
 const user: ClientUser = {
   id: userId,
@@ -27,38 +26,23 @@ const App = () => {
     userData: user,
   });
 
-  // Commands such as /giphy need their middlewares in every composer (see
-  // `setUpCommandMiddlewares`). A setup function applies to composers created after it is set, so
-  // it is registered before the effects below create any.
-  useEffect(() => {
-    if (!chatClient) return;
-    chatClient.config.setSetupFunction('messageComposer', ({ composer }) =>
-      setUpCommandMiddlewares(composer),
-    );
-  }, [chatClient]);
-
   useEffect(() => {
     if (!chatClient) return;
 
     const initChannel = async () => {
-      const spaceChannel = chatClient.channelManager.ensure({
-        data: {
-          // custom channel fields live under `custom` since v10
-          custom: {
-            image: 'https://goo.gl/Zefkbx',
-            name: 'SpaceX launch discussion',
-          },
+      const spaceChannel = chatClient.channel('livestream', 'spacex', {
+        // custom channel fields live under `custom` since v10
+        custom: {
+          image: 'https://goo.gl/Zefkbx',
+          name: 'SpaceX launch discussion',
         },
-        id: 'spacex',
-        type: 'livestream',
       });
 
       // `Channel` binds a channel to its subtree; it does not query one, so initializing is the
-      // caller's job. The cached instance may already be loaded, so query only when it is not --
-      // and when a query is needed, `channel.ensureWatched()` de-duplicates calls that overlap in time.
-      if (!spaceChannel.initialized) {
-        await spaceChannel.ensureWatched();
-      }
+      // caller's job. `spaceChannel.watch()` sends nothing for a channel already watched and
+      // loaded, and joins a watch in flight, so a re-run of this effect still sends one request at
+      // most.
+      await spaceChannel.watch();
       setChannel(spaceChannel);
     };
 

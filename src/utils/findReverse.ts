@@ -1,4 +1,4 @@
-// last own message should be tracked in the low-level client
+/** Returns the last item that satisfies `matches`, or `undefined`. */
 export const findReverse = <T>(
   items: T[],
   matches: (items: T) => boolean,

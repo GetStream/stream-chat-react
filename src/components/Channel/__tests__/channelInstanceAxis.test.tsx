@@ -1,13 +1,8 @@
-// What "the channel" means to `Channel`: the Channel *instance*, never its `cid`.
-//
-// A `cid` names a conversation; it does not identify the object representing it. The client's cache
-// holds one instance per cid at a time, but evicts entries on `channel.deleted`,
-// `notification.removed_from_channel` and `disconnectUser` -- so a second object for the same cid
-// is an ordinary occurrence, and anything bound to the old one is bound to something the client has
-// stopped feeding. These tests pin that a replacement instance is subscribed and activated, and
-// that re-rendering the same instance does neither again.
-//
-// Companion file: channelSwitchReset.test.tsx, for what is rebuilt and what survives on a switch.
+// `Channel` follows the channel instance, never its `cid`: a `cid` names a conversation, and the
+// client evicts cache entries on `channel.deleted`, `notification.removed_from_channel` and
+// `disconnectUser`, so a second object for the same `cid` is ordinary. These tests pin that a
+// replacement instance is subscribed and activated, and that re-rendering the same instance does
+// neither again. Companion file: channelSwitchReset.test.tsx, for what a channel switch resets.
 
 import React from 'react';
 import { render, waitFor } from '@testing-library/react';
@@ -28,9 +23,8 @@ const renderChannel = (client: StreamChat, channel: ChannelType) => (
   </Chat>
 );
 
-// `cid` names a conversation; it does not identify the object representing it. Anything scoped to
-// "the channel" has to follow the instance, or a replacement instance is left unwatched while its
-// children have already rebound to it.
+// Anything scoped to "the channel" has to follow the instance, or a replacement instance is left
+// unwatched while its children have already rebound to it.
 describe('a replacement Channel instance for the same cid', () => {
   const setup = async () => {
     const {
@@ -40,8 +34,8 @@ describe('a replacement Channel instance for the same cid', () => {
       channelsData: [{ channel: { id: 'channel-a', type: 'messaging' } }],
     });
 
-    // A second object for the same cid. The client creates one after it drops the first (a deletion,
-    // `disconnectUser`), which also tears the first down; built directly here, the first stays usable.
+    // A second object for the same `cid`. The client creates one after dropping the first, which
+    // also tears the first down; built directly here, the first stays usable.
     const second = new StreamChannel(client, 'messaging', 'channel-a', {});
 
     return { client, first, second };
@@ -95,7 +89,7 @@ describe('the same Channel instance re-rendered', () => {
 
     rerender(renderChannel(client, channel));
 
-    // A remount would release the channel and claim it again; the same instance keeps the same key.
+    // A remount would release the channel and claim it again.
     expect(activate).toHaveBeenCalledTimes(1);
     expect(channel.active).toBe(true);
   });

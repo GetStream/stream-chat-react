@@ -1,0 +1,6 @@
+@layer stream-overrides {
+  .str-chat {
+    --str-chat__channel-list-width: 320px;
+    --str-chat__thread-list-width: 320px;
+  }
+}

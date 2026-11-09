@@ -1,5 +1,7 @@
 # stream-chat-react v13 → v14 AI Migration Guide
 
+> **Upgrading from v14 to v15?** This guide covers v13 → v14 only. Use [`ai-migration-v14-v15.md`](https://github.com/GetStream/stream-chat-react/blob/master/ai-docs/ai-migration-v14-v15.md) (raw: `https://raw.githubusercontent.com/GetStream/stream-chat-react/master/ai-docs/ai-migration-v14-v15.md`).
+
 Execution-only guide for a coding agent migrating a third-party app from `stream-chat-react` v13 to v14. Run the phases in order; stop and fix each phase's errors before moving to the next. For evidence or edge cases, fall back to `./breaking-changes.md`.
 
 ## Source of Truth

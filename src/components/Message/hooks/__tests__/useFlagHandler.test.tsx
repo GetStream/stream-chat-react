@@ -9,10 +9,8 @@ import { generateMessage, initClientWithChannels } from '../../../../mock-builde
 import { Channel } from '../../../Channel';
 import { Chat } from '../../../Chat';
 
-// MERGE-RECONCILE (test migration): the master merge removed ChannelStateContext.
-// `useFlagHandler` reads the client from ChatContext and flags through `client.moderation.flagMessage`.
-// The wrapper now uses the real <Chat>/<Channel> providers and assertions spy on
-// `client.moderation.flagMessage` instead of stubbing it on a mocked client.
+// `useFlagHandler` flags through `client.moderation.flagMessage`. The wrapper uses real
+// <Chat>/<Channel> providers and assertions spy on that method.
 
 let channel: ChannelType;
 let client: StreamChat;
@@ -52,11 +50,13 @@ describe('useHandleFlag custom hook', () => {
     expect(typeof handleFlag).toBe('function');
   });
 
-  it('should throw a warning when there are missing parameters and the handler is called', async () => {
-    const consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementationOnce(() => null);
+  it('should throw when there are missing parameters and the handler is called', async () => {
+    const flagSpy = vi.spyOn(client.moderation, 'flagMessage');
     const handleFlag = await renderUseHandleFlagHook(undefined);
-    await handleFlag(mouseEventMock);
-    expect(consoleWarnSpy).toHaveBeenCalledWith(missingUseFlagHandlerParameterWarning);
+    await expect(handleFlag(mouseEventMock)).rejects.toThrow(
+      missingUseFlagHandlerParameterWarning,
+    );
+    expect(flagSpy).not.toHaveBeenCalled();
   });
 
   it('should allow to flag a message when it is successful', async () => {
@@ -66,7 +66,7 @@ describe('useHandleFlag custom hook', () => {
       .mockResolvedValue(fromPartial({}));
     const handleFlag = await renderUseHandleFlagHook(message);
     await handleFlag(mouseEventMock);
-    expect(flagSpy).toHaveBeenCalledWith(message.id);
+    expect(flagSpy).toHaveBeenCalledWith({ message_id: message.id });
   });
 
   it('should throw when flagging fails', async () => {
@@ -76,6 +76,6 @@ describe('useHandleFlag custom hook', () => {
       .mockRejectedValue(new Error('flag failed'));
     const handleFlag = await renderUseHandleFlagHook(message);
     await expect(handleFlag(mouseEventMock)).rejects.toThrow('flag failed');
-    expect(flagSpy).toHaveBeenCalledWith(message.id);
+    expect(flagSpy).toHaveBeenCalledWith({ message_id: message.id });
   });
 });

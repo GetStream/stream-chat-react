@@ -20,16 +20,13 @@ const searchControllerStateSelector = (state: SearchControllerState) => ({
 });
 
 /**
- * Channel navigation region: owns the search-results ↔ channel-list swap so the
- * list components stay pure. Renders the `ChannelListHeader`, then `Search` (bar
- * always; results while active), then the paginator-driven `ChannelLists` only while
- * search is inactive. Mapped to the channel-navigation slot; `Search` is customizable
- * via the `ComponentContext` `Search` slot.
+ * Channel navigation region: `ChannelListHeader`, `Search` (the bar always, results while active),
+ * `ChannelLists` while search is inactive, and the channel-list `NotificationList`. All but
+ * `ChannelLists` are `ComponentContext` slots.
  *
- * Outside `ChatView` its root carries the `str-chat <theme>` scope itself, so the design tokens
- * apply; inside one it inherits `ChatView`'s instead of resetting them with a nested scope.
- * `customClasses.chat` / `customClasses.channelList` replace the `str-chat` /
- * `str-chat__channel-list` classes.
+ * Outside `ChatView` the root applies the `str-chat <theme>` scope itself; inside one it inherits
+ * `ChatView`'s, since a nested scope would reset overridden design tokens. `customClasses.chat` and
+ * `customClasses.channelList` replace the `str-chat` and `str-chat__channel-list` classes.
  */
 export const ChannelNavigation = () => {
   const {

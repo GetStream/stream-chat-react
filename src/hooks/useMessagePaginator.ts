@@ -3,7 +3,8 @@ import { useChannel } from '../context';
 import { useThreadContext } from '../components';
 
 /**
- * Hook can be used only in children of <Channel/> and <Thread/> components.
+ * Returns the message paginator of the thread when inside one, otherwise of the channel. Must be
+ * used within a `Channel` or `Thread` subtree.
  */
 export const useMessagePaginator = (): MessagePaginator => {
   const channel = useChannel();

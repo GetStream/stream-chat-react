@@ -10,5 +10,11 @@ export {
 } from './ComposerStateDialog';
 export { ComposerStateInspectorPanel } from './ComposerStateInspector';
 export { listComposers } from './composerRegistry';
+export { applySimulatedListQueryFailures } from './simulateListQueryFailures';
 export { StreamDebugHandles } from './StreamDebugHandles';
 export { toDebugJson } from './serialize';
+export {
+  PaginationScenariosDialog,
+  paginationScenariosDialogId,
+  usePaginationScenariosDialog,
+} from './PaginationScenariosDialog';

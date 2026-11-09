@@ -9,7 +9,7 @@ import { useTranslationContext } from '../../../context';
 type SeekParams = Parameters<AudioPlayerSeekFn>[0];
 
 export type ProgressBarProps = {
-  /** Progress expressed in fractional number value btw 0 and 100. */
+  /** Progress as a number from 0 to 100. */
   progress: number;
   /** Total track duration in seconds. */
   durationSeconds?: number;

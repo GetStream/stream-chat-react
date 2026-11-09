@@ -7,18 +7,21 @@ import { getDateString } from '../../i18n/utils';
 import type { TimestampFormatterOptions } from '../../i18n/types';
 
 export type DateSeparatorProps = TimestampFormatterOptions & {
-  /** Optional className for the root element */
+  /** Class name added to the root element. */
   className?: string;
-  /** The date to format */
+  /** The date to format. */
   date: Date;
-  /** When true, applies floating positioning (fixed at top when scrolling) */
+  /** Positions the separator absolutely at the top of its container. */
   floating?: boolean;
-  /** Override the default formatting of the date. This is a function that has access to the original date object. */
+  /** Replaces the default date formatting. */
   formatDate?: (date: Date) => string;
   // todo: position and unread are not necessary anymore
-  /** Set the position of the date in the separator, options are 'left', 'center', 'right', @default right */
+  /**
+   * Has no effect: every position renders the same markup.
+   * @default right
+   */
   position?: 'left' | 'center' | 'right';
-  /** If following messages are not new */
+  /** Has no effect. */
   unread?: boolean;
 };
 
@@ -59,9 +62,7 @@ const UnMemoizedDateSeparator = (props: DateSeparatorProps) => {
   );
 };
 
-/**
- * A simple date separator between messages.
- */
+/** A date separator between messages. */
 export const DateSeparator = React.memo(
   UnMemoizedDateSeparator,
 ) as typeof UnMemoizedDateSeparator;

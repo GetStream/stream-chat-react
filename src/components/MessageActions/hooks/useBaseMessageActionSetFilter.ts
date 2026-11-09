@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 
 import { useChannel, useMessageContext } from '../../../context';
-import { useUserRole } from '../../Message/hooks';
+import { useIsRenderedAsThreadParent, useMessagePermissions } from '../../Message/hooks';
 import {
   ACTIONS_NOT_WORKING_IN_THREAD,
   isMessageBounced,
@@ -10,14 +10,10 @@ import {
   isNetworkSendFailure,
 } from '../../Message/utils';
 
-import type { MessageActionSetItem } from '../MessageActions';
-import {
-  isAudioAttachment,
-  isFileAttachment,
-  isImageAttachment,
-  isVideoAttachment,
-  isVoiceRecordingAttachment,
-} from 'stream-chat';
+import type {
+  MessageActionSetItem,
+  MessageActionVisibilityFilterParams,
+} from '../MessageActions';
 import type { ChannelConfig } from 'stream-chat';
 import { useStateStore } from '../../../store';
 
@@ -26,17 +22,23 @@ const userMessageRemindersStateSelector = ({ userMessageReminders }: ChannelConf
 });
 
 /**
- * Base filter hook which covers actions of type `delete`, `edit`,
- * `flag`, `markUnread`, `mute`, `quote`, `react` and `reply`, whether
- * the rendered message is a reply (replies are limited to certain actions) and
- * whether the message has appropriate type and status (including soft-deleted).
+ * Filters a message action set by the user's capabilities, the features enabled on the server,
+ * whether the message is a thread reply, and the message type and status (including soft-deleted
+ * and failed messages). An action these allow still shows only while its own `isVisible` holds.
+ *
+ * @param messageActionSet - Actions to filter.
+ * @param disable - Skips the checks above when true, leaving only each action's `isVisible`.
+ * Defaults to false.
+ * @returns The actions that apply to the message, none for bounced, system, ephemeral, sending or
+ * typeless messages, or for the parent message of the thread it is rendered in.
  */
 export const useBaseMessageActionSetFilter = (
   messageActionSet: MessageActionSetItem[],
   disable = false,
 ) => {
   const channel = useChannel();
-  const { initialMessage: isInitialMessage, message } = useMessageContext();
+  const { message } = useMessageContext();
+  const isThreadParent = useIsRenderedAsThreadParent();
   const { userMessageRemindersEnabled } = useStateStore(
     channel.configState,
     userMessageRemindersStateSelector,
@@ -49,23 +51,35 @@ export const useBaseMessageActionSetFilter = (
     canFlag,
     canMarkUnread,
     canMute,
+    canPin,
     canQuote,
     canReact,
     canReply,
     canSendMessage,
-  } = useUserRole(message);
+    isMyMessage,
+  } = useMessagePermissions(message);
   const isMessageThreadReply = typeof message.parent_id === 'string';
   const isBounced = isMessageBounced(message);
   const allowRetry = isMessageErrorRetryable(message);
   const hasNetworkSendFailure = isNetworkSendFailure(message);
 
   return useMemo(() => {
-    if (disable) return messageActionSet;
+    const visibilityFilterParams: MessageActionVisibilityFilterParams = {
+      isMyMessage,
+      isThreadReply: isMessageThreadReply,
+      message,
+    };
+    const passesOwnRule = (action: MessageActionSetItem) =>
+      action.placement === 'quick-dropdown-toggle' ||
+      !action.isVisible ||
+      action.isVisible(visibilityFilterParams);
 
-    // filter out all actions if any of these are true
+    if (disable) return messageActionSet.filter(passesOwnRule);
+
+    // These messages get no actions.
     if (
       isBounced ||
-      isInitialMessage || // not sure whether this thing even works anymore
+      isThreadParent ||
       !message.type ||
       message.type === 'system' ||
       message.type === 'ephemeral' ||
@@ -73,16 +87,16 @@ export const useBaseMessageActionSetFilter = (
     )
       return [];
 
-    return messageActionSet.filter((action) => {
+    const allowedActions = messageActionSet.filter((action) => {
       if (action.placement === 'quick-dropdown-toggle') return true;
 
       const type = action.type;
 
-      // filter out actions with types that do not work in thread
+      // Thread replies do not support some actions.
       if (ACTIONS_NOT_WORKING_IN_THREAD.includes(type) && isMessageThreadReply)
         return false;
 
-      // failed message menu has special treatment
+      // A failed message keeps only the resend, edit and delete actions that apply to it.
       if (message.error) {
         return (
           (type === 'resendMessage' && canSendMessage && (allowRetry || isBounced)) ||
@@ -96,21 +110,12 @@ export const useBaseMessageActionSetFilter = (
       if (
         type === 'resendMessage' ||
         (type === 'blockUser' && !canBlockUser) ||
-        (type === 'copyMessageText' && !message.text) ||
-        (type === 'download' &&
-          !message.attachments?.some(
-            (attachment) =>
-              isFileAttachment(attachment) ||
-              isImageAttachment(attachment) ||
-              isVideoAttachment(attachment) ||
-              isAudioAttachment(attachment) ||
-              isVoiceRecordingAttachment(attachment),
-          )) ||
         (type === 'delete' && (!canDelete || messageIsDeleted)) ||
         (type === 'edit' && !canEdit) ||
         (type === 'flag' && !canFlag) ||
         (type === 'markUnread' && !canMarkUnread) ||
         (type === 'mute' && !canMute) ||
+        (type === 'pin' && !canPin) ||
         (type === 'quote' && !canQuote) ||
         (type === 'react' && !canReact) ||
         (type === 'reply' && !canReply) ||
@@ -121,6 +126,8 @@ export const useBaseMessageActionSetFilter = (
 
       return true;
     });
+
+    return allowedActions.filter(passesOwnRule);
   }, [
     allowRetry,
     canBlockUser,
@@ -129,20 +136,18 @@ export const useBaseMessageActionSetFilter = (
     canFlag,
     canMarkUnread,
     canMute,
+    canPin,
     canQuote,
     canReact,
     canReply,
     canSendMessage,
     userMessageRemindersEnabled,
     isBounced,
-    isInitialMessage,
+    isThreadParent,
     messageIsDeleted,
     isMessageThreadReply,
-    message.error,
-    message.attachments,
-    message.status,
-    message.text,
-    message.type,
+    isMyMessage,
+    message,
     disable,
     hasNetworkSendFailure,
     messageActionSet,

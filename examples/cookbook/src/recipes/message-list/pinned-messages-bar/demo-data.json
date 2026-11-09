@@ -1,0 +1,114 @@
+{
+  "channels": [
+    {
+      "id": "docs-v15-cb-moving-day",
+      "name": "Moving day",
+      "members": [
+        "docs-v15-ck-cleo",
+        "docs-v15-ck-bob",
+        "docs-v15-ck-cara",
+        "docs-v15-ck-dan"
+      ],
+      "messages": [
+        {
+          "id": "docs-v15-ck-moving-1",
+          "user": "docs-v15-ck-dan",
+          "text": "I am moving to the new flat on Saturday. Who can help?"
+        },
+        {
+          "id": "docs-v15-ck-moving-2",
+          "user": "docs-v15-ck-dan",
+          "text": "We meet at the old flat at 9:00. Coffee and pastries are on me.",
+          "pinnedBy": "docs-v15-ck-dan"
+        },
+        {
+          "id": "docs-v15-ck-moving-3",
+          "user": "docs-v15-ck-bob",
+          "text": "I am in! I can bring my car for the small boxes."
+        },
+        {
+          "id": "docs-v15-ck-moving-4",
+          "user": "docs-v15-ck-cara",
+          "text": "Count me in too. I will come after lunch."
+        },
+        {
+          "id": "docs-v15-ck-moving-5",
+          "user": "docs-v15-ck-cleo",
+          "text": "I will help in the morning. Do we have enough boxes?"
+        },
+        {
+          "id": "docs-v15-ck-moving-6",
+          "user": "docs-v15-ck-dan",
+          "text": "I have about twenty, but more would help."
+        },
+        {
+          "id": "docs-v15-ck-moving-7",
+          "user": "docs-v15-ck-cara",
+          "text": "Packing list: tape, markers, blankets for the mirror and a toolbox.",
+          "pinnedBy": "docs-v15-ck-cara"
+        },
+        {
+          "id": "docs-v15-ck-moving-8",
+          "user": "docs-v15-ck-bob",
+          "text": "I have a toolbox, I will bring it."
+        },
+        {
+          "id": "docs-v15-ck-moving-9",
+          "user": "docs-v15-ck-cleo",
+          "text": "I can pick up more boxes on Friday."
+        },
+        {
+          "id": "docs-v15-ck-moving-10",
+          "user": "docs-v15-ck-dan",
+          "text": "The van is booked from 10:00 to 14:00, so we load first and unpack after.",
+          "pinnedBy": "docs-v15-ck-dan"
+        },
+        {
+          "id": "docs-v15-ck-moving-11",
+          "user": "docs-v15-ck-cara",
+          "text": "Should we order pizza for lunch?"
+        },
+        {
+          "id": "docs-v15-ck-moving-12",
+          "user": "docs-v15-ck-cleo",
+          "text": "Yes, I will order it once we are at the new place."
+        },
+        {
+          "id": "docs-v15-ck-moving-13",
+          "user": "docs-v15-ck-bob",
+          "text": "Sounds good. I will bring snacks for the drive."
+        },
+        {
+          "id": "docs-v15-ck-moving-14",
+          "user": "docs-v15-ck-dan",
+          "text": "Who wants to carry the sofa? It is lighter than it looks."
+        },
+        {
+          "id": "docs-v15-ck-moving-15",
+          "user": "docs-v15-ck-bob",
+          "text": "Famous last words."
+        },
+        {
+          "id": "docs-v15-ck-moving-16",
+          "user": "docs-v15-ck-cara",
+          "text": "I will hold the doors open, that is my specialty."
+        },
+        {
+          "id": "docs-v15-ck-moving-17",
+          "user": "docs-v15-ck-cleo",
+          "text": "Then Bob and I take the sofa, Dan takes the plants."
+        },
+        {
+          "id": "docs-v15-ck-moving-18",
+          "user": "docs-v15-ck-dan",
+          "text": "Deal. You are all the best, see you Saturday!"
+        },
+        {
+          "id": "docs-v15-ck-moving-19",
+          "user": "docs-v15-ck-cara",
+          "text": "See you there!"
+        }
+      ]
+    }
+  ]
+}

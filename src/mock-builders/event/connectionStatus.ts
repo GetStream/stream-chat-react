@@ -1,18 +1,13 @@
 import type { StreamChat } from 'stream-chat';
 
 /**
- * Drives this client's WebSocket status, the way a real socket coming up or going down would.
+ * Sets the client's WebSocket status as a real socket coming up or going down would, by writing the
+ * public `client.wsConnection.state` store instead of the internal `_setStatus`. The matching
+ * timestamp is stamped too, since the real socket never reports a status without one.
  *
- * Connectivity is published as `client.wsConnection.state` and `client.networkConnection.state`, so
- * driving a test means writing the store.
- *
- * Through the public store rather than the socket's internal `_setStatus`, which
- * `no-underscore-dangle` rightly rejects. Timestamps are stamped too, since a status without one is a
- * state the real socket never produces.
- *
- * Anything reading this through the `<Chat>` banner holds a drop for
- * `client.wsConnection.config.offlineNotificationDisplayDelayMs` before showing it, so a test
- * asserting on that banner has to advance timers.
+ * The `<Chat>` banner holds a drop for
+ * `client.wsConnection.config.offlineNotificationDisplayDelayMs`, so a test asserting on it has to
+ * advance timers.
  */
 export const setWSConnectionStatus = (
   client: StreamChat,
@@ -24,8 +19,8 @@ export const setWSConnectionStatus = (
       ? { isHealthy, lastHealthyAt: new Date() }
       : { isHealthy, lastUnhealthyAt: new Date() },
   );
-  // The id is separate state with its own lifecycle: published when the socket announces itself,
-  // dropped when it goes down so no request carries one the server has closed.
+  // The connection ID is published when the socket comes up and dropped when it goes down, so no
+  // request carries one the server has closed.
   if (isHealthy) client.connectionIdManager.resolveConnectionId(connectionId);
   else client.connectionIdManager.invalidate();
 };

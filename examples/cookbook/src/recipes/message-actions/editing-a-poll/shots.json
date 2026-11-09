@@ -1,0 +1,48 @@
+[
+  {
+    "file": "editing-a-poll-menu.png",
+    "query": {
+      "channel": "docs-v15-cb-trip",
+      "editPoll": "menu",
+      "poll": "local"
+    },
+    "viewport": {
+      "width": 1280,
+      "height": 900
+    },
+    "waitFor": ".str-chat__message-actions-box--open",
+    "hover": "[data-message-id='docs-v15-ck-trip-edit-poll'] .str-chat__message-bubble",
+    "clip": ".str-chat__message-list",
+    "padding": 0
+  },
+  {
+    "file": "editing-a-poll-dialog.png",
+    "query": {
+      "channel": "docs-v15-cb-trip",
+      "editPoll": "dialog",
+      "poll": "local"
+    },
+    "waitFor": ".cookbook-edit-poll",
+    "clip": ".cookbook-edit-poll"
+  },
+  {
+    "file": "editing-a-poll-remove-voted.png",
+    "query": {
+      "channel": "docs-v15-cb-trip",
+      "editPoll": "remove",
+      "poll": "local"
+    },
+    "waitFor": ".cookbook-edit-poll__remove-confirm",
+    "clip": ".cookbook-edit-poll"
+  },
+  {
+    "file": "editing-a-poll-settings.png",
+    "query": {
+      "channel": "docs-v15-cb-trip",
+      "editPoll": "settings",
+      "poll": "local"
+    },
+    "waitFor": ".cookbook-edit-poll",
+    "clip": ".cookbook-edit-poll"
+  }
+]

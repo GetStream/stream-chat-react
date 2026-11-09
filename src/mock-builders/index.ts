@@ -8,28 +8,20 @@ const token = 'dummy_token';
 
 const connectUser = (client: StreamChat, user: Partial<UserResponse>) =>
   new Promise<void>((resolve) => {
-    // Mark the socket up, which is what "connected" means to the client: `channel.watch()` and
-    // `client.queryChannels()` wait for a live connection instead of degrading to `watch: false`.
-    //
-    // Written through the public store rather than the socket's internal `_setStatus`, which
-    // `no-underscore-dangle` rightly rejects — and a fixture standing in for a connection it never
-    // opens is exactly the case for setting the state directly. `lastHealthyAt` is stamped too, since
-    // online-without-a-timestamp is a state the real socket never produces.
-    //
+    // Marks the socket up: `channel.watch()` and `client.queryChannels()` wait for a live
+    // connection instead of degrading to `watch: false`. Written through the public store, not the
+    // internal `_setStatus`; `lastHealthyAt` is stamped since a real socket never goes online
+    // without it.
     client.wsConnection.state.partialNext({
       isHealthy: true,
       lastHealthyAt: new Date(),
     });
-    // The id lives on its own manager, and the request layer holds any watching request until one
-    // exists — so a fixture that omits this makes every mocked `watch()` wait forever.
+    // The request layer holds any watching request until a connection ID exists, so omitting this
+    // makes every mocked `watch()` wait forever.
     client.connectionIdManager.resolveConnectionId('dummy_connection_id');
     client.user = { ...user, mutes: [] } as UserResponse;
     client['_user'] = { ...user } as UserResponse;
-    // `userID` is a getter in v10 (derives from `client.user?.id`), so it can't be assigned;
-    // setting `client.user` above is what populates it.
-    // `userToken` was never a field on `StreamChat` — only `userTokenOrProvider`, a parameter — so
-    // this assignment wrote a property nothing reads. The `tokenManager` mock below is what actually
-    // supplies the token.
+    // `userID` is a getter derived from `client.user?.id` (set above), so it is not assigned.
     client.wsPromise = Promise.resolve() as StreamChat['wsPromise'];
     resolve();
   });

@@ -2,11 +2,12 @@ import React from 'react';
 import { prettifyFileSize } from '../../MessageComposer/hooks/utils';
 
 export type FileSizeIndicatorProps = {
-  /** file size in byte */
+  /** File size in bytes. Renders nothing when it is not a finite number. */
   fileSize?: number | string;
   /**
-   The maximum number of fraction digits to display. If not set, the default behavior is to round to 3 significant digits.
-   @default undefined
+   * Significant digits of the formatted size, passed to `prettifyFileSize` as its precision. 0
+   * rounds to an integer. When unset, `prettifyFileSize` uses 3.
+   * @default undefined
    */
   maximumFractionDigits?: number;
 };

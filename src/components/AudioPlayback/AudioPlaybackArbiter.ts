@@ -6,14 +6,10 @@ export type AudioPlaybackArbiterState = {
 };
 
 /**
- * Decides who is allowed to play, across every {@link AudioPlayerPool} that shares it.
- *
- * It owns the single `Audio` element and hands ownership between players: starting one pauses
- * whoever held the element. Exclusivity has to live here rather than in the pool because a pool is
- * scoped to a surface -- `Channel` and `Thread` each mount their own -- and two voice messages
- * playing over each other is exactly what happens when each surface arbitrates for itself.
- *
- * Reusing one element is also what keeps playback working on iOS, where an element must be unlocked
+ * Decides which player may play across every {@link AudioPlayerPool} that shares it, and owns the
+ * single `Audio` element they take turns on: starting a player pauses the previous holder.
+ * Exclusivity lives here, not in a pool, because each surface (`Channel`, `Thread`) mounts its own
+ * pool. One reused element also keeps playback working on iOS, where an element must be unlocked
  * by a user gesture before it can be played programmatically.
  */
 export class AudioPlaybackArbiter {
@@ -28,6 +24,9 @@ export class AudioPlaybackArbiter {
 
   /**
    * Hands the shared element to `owner`, pausing the previous holder, and loads `src` into it.
+   * @param params.owner - Player that takes the element.
+   * @param params.src - Audio source to load. Only assigned when it differs from the current one.
+   * @returns The shared element.
    */
   acquire = ({ owner, src }: { owner: AudioPlayer; src: string }) => {
     if (!this.element) {
@@ -42,16 +41,16 @@ export class AudioPlaybackArbiter {
     this.owner = owner;
 
     if (this.element.src !== src) {
-      // setting src starts loading; avoid explicit load() to prevent currentTime reset flicker
+      // Setting `src` starts loading; an explicit load() would reset currentTime and flicker.
       this.element.src = src;
     }
     return this.element;
   };
 
   /**
-   * Drops `owner`'s claim on the shared element and pauses it. A release from anyone who is not the
-   * current holder is ignored, so a player torn down in the background cannot stop the one that has
-   * since taken over.
+   * Drops `owner`'s claim on the shared element and pauses it. Ignored when `owner` is not the
+   * current holder, so a player torn down in the background cannot stop its successor.
+   * @param owner - Player releasing the element.
    */
   release = (owner: AudioPlayer) => {
     if (this.owner !== owner) return;

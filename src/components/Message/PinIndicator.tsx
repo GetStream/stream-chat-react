@@ -12,8 +12,8 @@ export type PinIndicatorProps = {
 };
 
 /**
- * Default pinned message indicator. Renders "Pinned by [name]" with pin icon above the message bubble.
- * Name is taken from message.pinned_by (who pinned).
+ * Default pinned-message indicator: a pin icon with "Pinned by You", "Pinned by <name>" (from
+ * `message.pinned_by`), or "Message pinned" when the pinner is unknown.
  */
 export const PinIndicator = ({ message }: PinIndicatorProps) => {
   const { IconPin } = useComponentContextIcons();

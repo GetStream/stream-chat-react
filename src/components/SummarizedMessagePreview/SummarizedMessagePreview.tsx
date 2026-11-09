@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import clsx from 'clsx';
 import {
   type ChannelPreviewDeliveryStatus,
@@ -6,13 +6,14 @@ import {
   useLatestMessagePreview,
   type UseLatestMessagePreviewParams,
 } from './hooks/useLatestMessagePreview';
-import { useComponentContextIcons } from '../../context';
+import { getPlainPreviewText } from './previewText';
+import {
+  useChatContext,
+  useComponentContextIcons,
+  useTranslationContext,
+} from '../../context';
 
-/**
- * Props for {@link SummarizedMessagePreview}. Override the component via `ComponentContext`
- * (`<Chat>`/`<Channel>` prop `SummarizedMessagePreview`) to customize how a channel-list item renders
- * the preview of its latest message.
- */
+/** Props of {@link SummarizedMessagePreview} and of a `ComponentContext` override of it. */
 export type SummarizedMessagePreviewProps = UseLatestMessagePreviewParams;
 
 export const SummarizedMessagePreview = ({
@@ -35,6 +36,8 @@ export const SummarizedMessagePreview = ({
     IconVideo,
     IconVoice,
   } = useComponentContextIcons();
+  const { isMessageAIGenerated } = useChatContext();
+  const { userLanguage } = useTranslationContext();
 
   const deliveryStatusIconMap: Record<ChannelPreviewDeliveryStatus, React.ComponentType> =
     {
@@ -64,6 +67,20 @@ export const SummarizedMessagePreview = ({
     messageDeliveryStatus,
     participantCount,
   });
+  // The preview is a single line of plain text: the message text shows without inline markdown
+  // syntax, while lists and tables keep their markers.
+  const plainText = useMemo(
+    () =>
+      getPlainPreviewText({
+        format: 'display',
+        isMessageAIGenerated,
+        latestMessage,
+        text,
+        type,
+        userLanguage,
+      }),
+    [isMessageAIGenerated, latestMessage, text, type, userLanguage],
+  );
 
   const DeliveryStatusIcon = deliveryStatus
     ? deliveryStatusIconMap[deliveryStatus]
@@ -96,7 +113,7 @@ export const SummarizedMessagePreview = ({
         </>
       )}
       {ContentTypeIcon && <ContentTypeIcon />}
-      <span className='str-chat__summarized-message-preview__text'>{text}</span>
+      <span className='str-chat__summarized-message-preview__text'>{plainText}</span>
     </div>
   );
 };

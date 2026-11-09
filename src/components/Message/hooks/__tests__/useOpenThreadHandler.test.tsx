@@ -9,13 +9,8 @@ import { generateMessage, initClientWithChannels } from '../../../../mock-builde
 import { Channel } from '../../../Channel';
 import { Chat } from '../../../Chat';
 
-// MERGE-RECONCILE (test migration): master's useOpenThreadHandler read `openThread` from the
-// deleted ChannelActionContext. It now opens threads through the core workspace-navigation adapter
-// (`useWorkspaceNavigation().openThread`) with the channel + message. The adapter is mocked at the
-// `WorkspaceNavigationContext` submodule (the `context` barrel re-exports it) so the real
-// <Chat>/<Channel> providers still supply the client and channel. The obsolete "warn if openThread
-// is not defined in the channel context" case was dropped — there is no context handler to omit.
-
+// The navigation adapter is mocked at its context submodule (the `context` barrel re-exports it),
+// while the real <Chat> and <Channel> still supply the client and channel.
 const { openThreadMock } = vi.hoisted(() => ({ openThreadMock: vi.fn() }));
 
 vi.mock('../../../../context/WorkspaceNavigationContext', async (importOriginal) => ({

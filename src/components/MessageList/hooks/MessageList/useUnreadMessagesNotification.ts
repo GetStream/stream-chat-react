@@ -24,11 +24,10 @@ const targetScrolledBelowVisibleContainerArea = (
 };
 
 export type UseUnreadMessagesNotificationParams = {
-  /** Scroll container (the element with overflow that actually scrolls). When provided, used as IntersectionObserver root and for initial visibility. */
+  /** Scroll container, used as the IntersectionObserver root and for the initial visibility. */
   listElement: HTMLDivElement | null;
   isMessageListScrolledToBottom: boolean;
   showAlways: boolean;
-  unreadCount?: number;
 };
 
 const messagePaginatorStateSelector = (state: MessagePaginatorState) => ({
@@ -56,6 +55,9 @@ export const useUnreadMessagesNotification = ({
     unreadStateSnapshotSelector,
   );
   const [show, setShow] = useState(false);
+  // Where the unread separator sits relative to the viewport: below it after scrolling up past it.
+  // `undefined` while no separator is rendered (the unread messages are outside the loaded window).
+  const [unreadIsBelow, setUnreadIsBelow] = useState<boolean | undefined>(undefined);
   const isScrolledAboveTargetTop = useRef(false);
   const intersectionObserverIsSupported = typeof IntersectionObserver !== 'undefined';
 
@@ -76,15 +78,19 @@ export const useUnreadMessagesNotification = ({
       );
       if (!observedTarget) {
         setShow(unreadCount > 0);
+        setUnreadIsBelow(undefined);
       }
       return;
     }
 
-    const [observedTarget] = document.getElementsByClassName(
+    // Only this list's separator: with several lists on screen (channels side by side), the first one
+    // in the page can belong to another list.
+    const [observedTarget] = scrollRoot.getElementsByClassName(
       UNREAD_MESSAGE_SEPARATOR_CLASS,
     );
     if (!observedTarget) {
       setShow(unreadCount > 0);
+      setUnreadIsBelow(undefined);
       return;
     }
 
@@ -102,6 +108,7 @@ export const useUnreadMessagesNotification = ({
         ? scrolledBelowSeparator || scrolledAboveSeparator
         : scrolledBelowSeparator,
     );
+    setUnreadIsBelow(scrolledAboveSeparator);
 
     const observer = new IntersectionObserver(
       (elements) => {
@@ -115,6 +122,7 @@ export const useUnreadMessagesNotification = ({
         const rootTop = rootBounds?.top ?? 0;
         const separatorIsAboveContainerTop = boundingClientRect.bottom < rootTop;
         setShow(showAlways || separatorIsAboveContainerTop);
+        setUnreadIsBelow(!separatorIsAboveContainerTop);
         isScrolledAboveTargetTop.current = separatorIsAboveContainerTop;
       },
       { root: scrollRoot },
@@ -134,12 +142,8 @@ export const useUnreadMessagesNotification = ({
   ]);
 
   useEffect(() => {
-    /**
-     * Handle situation when scrollToBottom is called from another component when the msg list is scrolled above the observed target (unread separator).
-     * The intersection observer is not triggered when Element.scrollTo() is called. So we end up in a situation when we are scrolled to the bottom
-     * and at the same time scrolled above the observed target.
-     */
-
+    // `Element.scrollTo()` does not trigger the IntersectionObserver, so a list scrolled to the
+    // bottom by another component can still be recorded as scrolled above the unread separator.
     if (
       unreadCount &&
       isMessageListScrolledToBottom &&
@@ -150,5 +154,5 @@ export const useUnreadMessagesNotification = ({
     }
   }, [isMessageListScrolledToBottom, unreadCount]);
 
-  return { show: show && intersectionObserverIsSupported };
+  return { show: show && intersectionObserverIsSupported, unreadIsBelow };
 };

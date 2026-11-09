@@ -28,6 +28,7 @@ import {
 import { MessageActions, type MessageActionSetItem } from './MessageActions';
 import { QuickMessageActionsButton } from './QuickMessageActionButton';
 import clsx from 'clsx';
+import type { LocalMessage } from 'stream-chat';
 import { DeleteMessageAlert } from './DeleteMessageAlert';
 import { downloadAttachment, isDownloadableAttachment } from './downloadUtils';
 
@@ -51,19 +52,67 @@ const getNotificationError = (error: unknown): Error | undefined => {
   return undefined;
 };
 
+const COMPOSER_TEXTAREA_SELECTOR = '.str-chat__textarea__textarea';
+
+/**
+ * The composer next to the message list the menu was opened from: the thread's for a message in a
+ * thread, the channel's otherwise. Several composers can be on screen (a thread panel, channels side
+ * by side), so it is looked up from the menu's anchor. Only an anchor outside any channel or thread
+ * (a custom layout) falls back to the first composer in the page: inside one, a composer showing no
+ * textarea (while recording audio, say) leaves focus where it is rather than moving it elsewhere.
+ */
+const findComposerTextarea = (
+  anchor: HTMLElement | null | undefined,
+  message: LocalMessage,
+): HTMLTextAreaElement | undefined => {
+  const thread = anchor?.closest('.str-chat__thread') ?? null;
+  const container = thread ?? anchor?.closest('.str-chat__channel');
+  if (container) {
+    return Array.from(
+      container.querySelectorAll<HTMLTextAreaElement>(COMPOSER_TEXTAREA_SELECTOR),
+    ).find((candidate) => candidate.closest('.str-chat__thread') === thread);
+  }
+  const fallback = document
+    .querySelectorAll(
+      message.parent_id
+        ? `.str-chat__thread ${COMPOSER_TEXTAREA_SELECTOR}`
+        : COMPOSER_TEXTAREA_SELECTOR,
+    )
+    .item(0);
+  return fallback instanceof HTMLTextAreaElement ? fallback : undefined;
+};
+
+/**
+ * Focuses the message's composer (see {@link findComposerTextarea}) on the next frame: by then the
+ * menu, which traps focus while open, has started closing and no longer pulls focus back, and the
+ * composed text has rendered, so the caret can go after it.
+ */
+const focusComposerTextarea = (
+  anchor: HTMLElement | null | undefined,
+  message: LocalMessage,
+  { caretAtEnd = false }: { caretAtEnd?: boolean } = {},
+) => {
+  // Looked up now, while the anchor is still in the document.
+  const textarea = findComposerTextarea(anchor, message);
+  if (!textarea) return;
+
+  window.requestAnimationFrame(() => {
+    textarea.focus();
+    if (caretAtEnd)
+      textarea.setSelectionRange(textarea.value.length, textarea.value.length);
+  });
+};
+
 const DefaultMessageActionComponents = {
   dropdown: {
     React() {
       const { IconEmoji } = useComponentContextIcons();
       const { ReactionSelector = DefaultReactionSelector } = useComponentContext();
       const { anchorReferenceElement } = useContextMenuContext();
-      const { isMyMessage, message, threadList } = useMessageContext();
+      const { isMyMessage, message } = useMessageContext();
       const { t } = useTranslationContext();
       const [referenceElement, setReferenceElement] = useState<HTMLElement | null>(null);
-      const dialogId = `${DefaultReactionSelector.getDialogId({
-        messageId: message.id,
-        threadList,
-      })}-dropdown`;
+      const dialogId = `${DefaultReactionSelector.getDialogId({ messageId: message.id })}-dropdown`;
       const { dialog, dialogManager } = useDialogOnNearestManager({
         id: dialogId,
       });
@@ -135,22 +184,14 @@ const DefaultMessageActionComponents = {
     },
     Quote() {
       const { IconQuote } = useComponentContextIcons();
-      const { closeMenu } = useContextMenuContext();
+      const { anchorReferenceElement, closeMenu } = useContextMenuContext();
       const { message } = useMessageContext();
       const { t } = useTranslationContext();
       const messageComposer = useMessageComposerController();
 
       const handleQuote = () => {
         messageComposer.setQuotedMessage(message);
-
-        const elements = message.parent_id
-          ? document.querySelectorAll('.str-chat__thread .str-chat__textarea__textarea')
-          : document.getElementsByClassName('str-chat__textarea__textarea');
-        const textarea = elements.item(0);
-
-        if (textarea instanceof HTMLTextAreaElement) {
-          textarea.focus();
-        }
+        focusComposerTextarea(anchorReferenceElement, message);
       };
 
       return (
@@ -305,7 +346,7 @@ const DefaultMessageActionComponents = {
       const messageComposer = useMessageComposerController();
       const { message } = useMessageContext();
       const { t } = useTranslationContext();
-      const { closeMenu } = useContextMenuContext();
+      const { anchorReferenceElement, closeMenu } = useContextMenuContext();
 
       return (
         <MessageActionsMenuItemButton
@@ -315,6 +356,7 @@ const DefaultMessageActionComponents = {
           onClick={() => {
             savePreEditSnapshot(messageComposer);
             messageComposer.initState({ composition: message });
+            focusComposerTextarea(anchorReferenceElement, message, { caretAtEnd: true });
             closeMenu();
           }}
         >
@@ -734,7 +776,7 @@ const DefaultMessageActionComponents = {
     DropdownToggle: forwardRef<HTMLButtonElement>((_, ref) => {
       const { IconMore } = useComponentContextIcons();
       const { t } = useTranslationContext();
-      const { message, threadList } = useMessageContext();
+      const { message } = useMessageContext();
       const dropdownDialogIsOpen = useDialogIsOpen(
         MessageActions.getDialogId({ messageId: message.id }),
       );
@@ -743,7 +785,6 @@ const DefaultMessageActionComponents = {
       });
       const reactionSelectorDialogId = DefaultReactionSelector.getDialogId({
         messageId: message.id,
-        threadList,
       });
       const { dialog: dropdownReactionSelectorDialog } = useDialogOnNearestManager({
         id: `${reactionSelectorDialogId}-dropdown`,
@@ -772,8 +813,7 @@ const DefaultMessageActionComponents = {
       );
     }),
     React() {
-      // No `ReactionIcon`: the component resolves the `IconEmoji` slot itself. Passing it from
-      // here would read the same value and only add a hop that invites a direct import later.
+      // No `ReactionIcon` prop: the component resolves the `IconEmoji` slot itself.
       return <ReactionSelectorWithButton />;
     },
     Reply() {
@@ -795,6 +835,11 @@ const DefaultMessageActionComponents = {
   },
 };
 
+/**
+ * The actions `MessageActions` renders by default. Each item's `isVisible` holds the action's own
+ * rule about the message; replace an item to change it. Capabilities, server-side features and the
+ * message's status are checked by `useBaseMessageActionSetFilter` and cannot be overridden.
+ */
 export const defaultMessageActionSet: MessageActionSetItem[] = [
   {
     Component: DefaultMessageActionComponents.quick.DropdownToggle,
@@ -827,6 +872,7 @@ export const defaultMessageActionSet: MessageActionSetItem[] = [
   },
   {
     Component: DefaultMessageActionComponents.dropdown.Download,
+    isVisible: ({ message }) => !!message.attachments?.some(isDownloadableAttachment),
     placement: 'dropdown',
     type: 'download',
   },
@@ -837,6 +883,7 @@ export const defaultMessageActionSet: MessageActionSetItem[] = [
   },
   {
     Component: DefaultMessageActionComponents.dropdown.CopyMessageText,
+    isVisible: ({ message }) => !!message.text,
     placement: 'dropdown',
     type: 'copyMessageText',
   },
@@ -847,6 +894,8 @@ export const defaultMessageActionSet: MessageActionSetItem[] = [
   },
   {
     Component: DefaultMessageActionComponents.dropdown.Edit,
+    // A poll message and a giphy have no content the composer can edit.
+    isVisible: ({ message }) => !message.poll_id && message.command !== 'giphy',
     placement: 'dropdown',
     type: 'edit',
   },

@@ -97,9 +97,8 @@ const ChannelMembersAddViewItem = ({
     [isSelected, toggleSelectedUser, user.id],
   );
 
-  // Only non-members can be selected for adding. Existing members are
-  // listed (and flagged below) but render as a non-actionable row, like
-  // the read-only no-permission case.
+  // Only non-members can be selected for adding. Existing members are listed (and flagged below)
+  // but render as a non-actionable row, like the read-only no-permission case.
   if (canManageChannelMembers && !isMember) {
     return (
       <ListItemLayout
@@ -209,8 +208,7 @@ export const ChannelMembersAddView = ({
     ],
   );
 
-  // Only show the "no results" copy once a query has resolved (`users` is an
-  // array); while the first page loads `users` is undefined and nothing shows.
+  // `users` is undefined until the first page resolves, so "no results" shows only after a query.
   const EmptyPlaceholder = useMemo(
     () =>
       function ChannelMembersAddEmptyPlaceholder() {
@@ -237,7 +235,7 @@ export const ChannelMembersAddView = ({
 
     setIsSaving(true);
     try {
-      await channel.addMembers(selectedUserIds);
+      await channel.addMembers({ members: selectedUserIds });
       addNotification({
         context: { channel },
         emitter: 'ChannelMembersView',

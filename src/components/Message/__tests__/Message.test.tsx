@@ -3,6 +3,7 @@ import { cleanup, render } from '@testing-library/react';
 import { fromPartial } from '@total-typescript/shoehorn';
 
 import { Message } from '../Message';
+import { MessageUI } from '../MessageUI';
 
 import { Channel } from '../../Channel';
 import { Chat } from '../../Chat';
@@ -30,15 +31,6 @@ import type {
 import type { ComponentContextValue } from '../../../context';
 import type { MessageProps } from '../types';
 
-// MERGE-RECONCILE (test migration): the deleted ChannelStateContext/ChannelActionContext are
-// replaced by the real <Chat>/<Channel> providers. Channel/client methods that formerly lived on
-// ChannelActionContext are now called directly on the channel/client:
-//   - sendReaction / deleteReaction               -> client methods (spied below)
-//   - sendAction                                  -> channel method (spied below)
-//   - reaction/action optimistic updates          -> channel.messagePaginator.ingestItem / removeItem
-//   - retrySendMessage                             -> channel.messageOperations.retry
-//   - openThread / onMentionsClick / onMentionsHover -> <Message> props
-//   - capabilities/roles                           -> channel own_capabilities + membership role
 vi.mock('../../ChatView', async (importOriginal) => {
   const actual = await importOriginal<typeof import('../../ChatView')>();
   return {
@@ -76,6 +68,8 @@ let lastChannel: ChannelType;
 const capabilitiesObjectToArray = (capabilities: Record<string, boolean> = {}) =>
   Object.keys(capabilities).filter((key) => capabilities[key]);
 
+// Renders under real <Chat>/<Channel> providers. Capabilities come from the channel's
+// `own_capabilities` and the membership role.
 async function renderComponent({
   channelActionOpts = {},
   channelConfig = { replies: true },
@@ -119,7 +113,7 @@ async function renderComponent({
     });
     // eslint-disable-next-line react-hooks/rules-of-hooks
     useMockedApis(client, [getOrCreateChannelApi(channelData)]);
-    channel = client.channelManager.ensure({ id: channelData.channel.id, type });
+    channel = client.channel(type, channelData.channel.id);
     await channel.watch();
     client.channelServerConfigsStore.partialNext({
       configs: { ...client.channelServerConfigs, [channel.cid]: config as never },
@@ -134,7 +128,7 @@ async function renderComponent({
     }));
   }
 
-  // Apply membership/members/watchers overrides (formerly ChannelStateContext state).
+  // Applies membership, members and watchers overrides to the channel state.
   if (stateOverrides) {
     if (stateOverrides.membership) {
       channel.state.membership = {
@@ -158,29 +152,34 @@ async function renderComponent({
 
   lastChannel = channel;
 
-  return renderer(
+  // Built once, so a rerender changes only the message props and exercises the memo bail-out.
+  const overrides = {
+    MessageUI: () => <CustomMessageUIComponent contextCallback={contextCallback} />,
+    reactionOptions: defaultReactionOptions,
+    ...components,
+  };
+  const renderTree = (messageProps: typeof props) => (
     <Chat client={client}>
       <Channel channel={channel}>
-        <WithComponents
-          overrides={{
-            MessageUI: () => (
-              <CustomMessageUIComponent contextCallback={contextCallback} />
-            ),
-            reactionOptions: defaultReactionOptions,
-            ...components,
-          }}
-        >
+        <WithComponents overrides={overrides}>
           <Message
             message={message}
             onMentionsClick={channelActionOpts.onMentionsClick as any}
             onMentionsHover={channelActionOpts.onMentionsHover as any}
             openThread={channelActionOpts.openThread as any}
-            {...props}
+            {...messageProps}
           />
         </WithComponents>
       </Channel>
-    </Chat>,
+    </Chat>
   );
+
+  const result = renderer(renderTree(props));
+  return {
+    ...result,
+    rerenderWithProps: (nextProps: typeof props) =>
+      result.rerender(renderTree(nextProps)),
+  };
 }
 
 function renderComponentWithMessage(
@@ -301,9 +300,6 @@ describe('<Message /> component', () => {
     );
   });
 
-  // MERGE-RECONCILE (test migration): the reaction handler no longer gates on the
-  // 'send-reaction' capability (gating moved to the reaction UI / useUserRole.canReact). The
-  // handler sends unconditionally, so we assert canReact reflects the missing capability instead.
   it('should rollback reaction if channel update fails', async () => {
     const reaction = generateReaction({ user: bob });
     const message = generateMessage({ own_reactions: [] });
@@ -316,12 +312,27 @@ describe('<Message /> component', () => {
       message,
     });
 
-    const ingestSpy = vi.spyOn(lastChannel.messagePaginator, 'ingestItem');
-    sendReaction.mockImplementationOnce(() => Promise.reject());
+    lastChannel.messagePaginator.ingestItem({ ...message, cid: lastChannel.cid });
+    let rejectRequest: () => void = () => undefined;
+    sendReaction.mockImplementationOnce(
+      () => new Promise((_, reject) => (rejectRequest = reject)),
+    );
 
-    await context.handleReaction(reaction.type);
-    // On failure the optimistic update is reverted by re-ingesting the original message.
-    expect(ingestSpy).toHaveBeenCalledWith(expect.objectContaining({ id: message.id }));
+    const pending = context.handleReaction(reaction.type);
+    expect(
+      lastChannel.getClient().messageStore.get(message.id)?.own_reactions,
+    ).toHaveLength(1);
+    rejectRequest();
+    await pending;
+    expect(sendReaction).toHaveBeenCalledWith(
+      { id: message.id },
+      expect.objectContaining({
+        reaction: expect.objectContaining({ type: reaction.type }),
+      }),
+    );
+    expect(lastChannel.getClient().messageStore.get(message.id)?.own_reactions).toEqual(
+      [],
+    );
   });
 
   it('should update message after an action', async () => {
@@ -398,6 +409,24 @@ describe('<Message /> component', () => {
     });
   });
 
+  it('does not reject when a retry fails again', async () => {
+    const message = generateMessage();
+    let context: MessageContextValue;
+
+    await renderComponent({
+      contextCallback: (ctx) => {
+        context = ctx;
+      },
+      message,
+    });
+
+    vi.spyOn(lastChannel.messageOperations, 'retry').mockRejectedValue(
+      new Error('still failing'),
+    );
+
+    await expect(context.handleRetry(message)).resolves.toBeUndefined();
+  });
+
   it('should trigger channel mentions handler when there is one set and user clicks on a mention', async () => {
     const message = generateMessage({ mentioned_users: [bob] });
     const onMentionsClick = vi.fn(() => {});
@@ -411,12 +440,8 @@ describe('<Message /> component', () => {
       message,
     });
 
-    context.onMentionsClickMessage(mouseEventMock);
-    expect(onMentionsClick).toHaveBeenCalledWith(
-      mouseEventMock,
-      message.mentioned_users,
-      message,
-    );
+    context.onMentionsClickMessage?.(mouseEventMock);
+    expect(onMentionsClick).toHaveBeenCalledWith(mouseEventMock, message);
   });
 
   it('should trigger channel mentions hover on mentions hover', async () => {
@@ -432,12 +457,55 @@ describe('<Message /> component', () => {
       message,
     });
 
-    context.onMentionsHoverMessage(mouseEventMock);
-    expect(onMentionsHover).toHaveBeenCalledWith(
-      mouseEventMock,
-      message.mentioned_users,
+    context.onMentionsHoverMessage?.(mouseEventMock);
+    expect(onMentionsHover).toHaveBeenCalledWith(mouseEventMock, message);
+  });
+
+  it('should leave the mention handlers undefined when none is set', async () => {
+    const message = generateMessage({ mentioned_users: [bob] });
+    let context: MessageContextValue;
+
+    await renderComponent({
+      contextCallback: (ctx) => {
+        context = ctx;
+      },
       message,
-    );
+    });
+
+    expect(context.onMentionsClickMessage).toBeUndefined();
+    expect(context.onMentionsHoverMessage).toBeUndefined();
+  });
+
+  it('should provide showAvatar and its later changes in the message context', async () => {
+    const message = generateMessage({ user: alice });
+    let context: MessageContextValue;
+
+    const { rerenderWithProps } = await renderComponent({
+      contextCallback: (ctx) => {
+        context = ctx;
+      },
+      message,
+      props: { showAvatar: 'incoming' },
+    });
+    expect(context.showAvatar).toBe('incoming');
+
+    rerenderWithProps({ showAvatar: false });
+    expect(context.showAvatar).toBe(false);
+  });
+
+  it('should update the default MessageUI avatar class when showAvatar changes', async () => {
+    const message = generateMessage({ user: bob });
+
+    const { container, rerenderWithProps } = await renderComponent({
+      components: { MessageUI },
+      message,
+      props: { showAvatar: 'incoming' },
+    });
+    const messageElement = () => container.querySelector('.str-chat__message');
+    expect(messageElement()).toHaveClass('str-chat__message--with-avatar');
+
+    rerenderWithProps({ showAvatar: false });
+    expect(messageElement()).not.toHaveClass('str-chat__message--with-avatar');
   });
 
   it('should trigger channel onUserClick handler when a user element is clicked', async () => {
@@ -456,6 +524,39 @@ describe('<Message /> component', () => {
     context.onUserClick(mouseEventMock);
     expect(onUserClickMock).toHaveBeenCalledWith(mouseEventMock, message.user);
   });
+
+  it.each([
+    ['onUserClick', 'onUserClick', 'user'],
+    ['onUserHover', 'onUserHover', 'user'],
+    ['onMentionsClick', 'onMentionsClickMessage', 'message'],
+    ['onMentionsHover', 'onMentionsHoverMessage', 'message'],
+  ] as const)(
+    'should call the latest %s after the handler is swapped',
+    async (propName, contextName, secondArgument) => {
+      const message = generateMessage({ mentioned_users: [bob], user: bob });
+      const firstHandler = vi.fn();
+      const nextHandler = vi.fn();
+      let context: MessageContextValue;
+
+      const { rerenderWithProps } = await renderComponent({
+        contextCallback: (ctx) => {
+          context = ctx;
+        },
+        message,
+        props: { [propName]: firstHandler },
+      });
+      const handlerBeforeSwap = context[contextName];
+
+      rerenderWithProps({ [propName]: nextHandler });
+      handlerBeforeSwap?.(mouseEventMock);
+
+      expect(firstHandler).not.toHaveBeenCalled();
+      expect(nextHandler).toHaveBeenCalledWith(
+        mouseEventMock,
+        secondArgument === 'user' ? message.user : message,
+      );
+    },
+  );
 
   it('should trigger channel onUserHover handler when a user element is hovered', async () => {
     const message = generateMessage({ user: bob });
@@ -512,7 +613,7 @@ describe('<Message /> component', () => {
       message,
     });
 
-    await context.handleMute(mouseEventMock);
+    await expect(context.handleMute(mouseEventMock)).rejects.toThrow('mute failed');
 
     expect(muteUser).toHaveBeenCalledWith({ target_ids: [bob.id] });
   });
@@ -559,7 +660,7 @@ describe('<Message /> component', () => {
       message,
     });
 
-    await context.handleMute(mouseEventMock);
+    await expect(context.handleMute(mouseEventMock)).rejects.toThrow('unmute failed');
 
     expect(unmuteUser).toHaveBeenCalledWith({ target_ids: [bob.id] });
   });
@@ -582,7 +683,7 @@ describe('<Message /> component', () => {
 
     await context.handleFlag(mouseEventMock);
 
-    expect(flagMessage).toHaveBeenCalledWith(message.id);
+    expect(flagMessage).toHaveBeenCalledWith({ message_id: message.id });
   });
 
   it('should throw when flagging a message fails', async () => {
@@ -602,7 +703,7 @@ describe('<Message /> component', () => {
 
     await expect(context.handleFlag(mouseEventMock)).rejects.toThrow('flag failed');
 
-    expect(flagMessage).toHaveBeenCalledWith(message.id);
+    expect(flagMessage).toHaveBeenCalledWith({ message_id: message.id });
   });
 
   it('should allow user to retry sending a message', async () => {
@@ -667,9 +768,8 @@ describe('<Message /> component', () => {
     });
 
     const updatedMessage = generateMessage({ text: 'Hello*', user: alice });
-    // Not a count: mount renders more than once by design, because the translator arrives through
-    // `Streami18n`'s store and the context updates when `init()` settles. What this test measures is
-    // the re-render below, so assert it mounted at all and then count from a clean slate.
+    // Mount renders more than once (the translator arrives through `Streami18n`'s store when
+    // `init()` settles), so only assert it mounted, then count from a clean slate.
     expect(UIMock).toHaveBeenCalled();
     UIMock.mockClear();
 
@@ -691,9 +791,8 @@ describe('<Message /> component', () => {
       message,
     });
 
-    // Not a count: mount renders more than once by design, because the translator arrives through
-    // `Streami18n`'s store and the context updates when `init()` settles. What this test measures is
-    // the re-render below, so assert it mounted at all and then count from a clean slate.
+    // Mount renders more than once (the translator arrives through `Streami18n`'s store when
+    // `init()` settles), so only assert it mounted, then count from a clean slate.
     expect(UIMock).toHaveBeenCalled();
     UIMock.mockClear();
 
@@ -717,9 +816,8 @@ describe('<Message /> component', () => {
       props: { groupStyles: ['bottom'] },
     });
 
-    // Not a count: mount renders more than once by design, because the translator arrives through
-    // `Streami18n`'s store and the context updates when `init()` settles. What this test measures is
-    // the re-render below, so assert it mounted at all and then count from a clean slate.
+    // Mount renders more than once (the translator arrives through `Streami18n`'s store when
+    // `init()` settles), so only assert it mounted, then count from a clean slate.
     expect(UIMock).toHaveBeenCalled();
     UIMock.mockClear();
 
@@ -743,9 +841,8 @@ describe('<Message /> component', () => {
       props: { lastReceivedId: 'last-received-id-1' },
     });
 
-    // Not a count: mount renders more than once by design, because the translator arrives through
-    // `Streami18n`'s store and the context updates when `init()` settles. What this test measures is
-    // the re-render below, so assert it mounted at all and then count from a clean slate.
+    // Mount renders more than once (the translator arrives through `Streami18n`'s store when
+    // `init()` settles), so only assert it mounted, then count from a clean slate.
     expect(UIMock).toHaveBeenCalled();
     UIMock.mockClear();
 
@@ -776,9 +873,8 @@ describe('<Message /> component', () => {
       },
     });
 
-    // Not a count: mount renders more than once by design, because the translator arrives through
-    // `Streami18n`'s store and the context updates when `init()` settles. What this test measures is
-    // the re-render below, so assert it mounted at all and then count from a clean slate.
+    // Mount renders more than once (the translator arrives through `Streami18n`'s store when
+    // `init()` settles), so only assert it mounted, then count from a clean slate.
     expect(UIMock).toHaveBeenCalled();
     UIMock.mockClear();
 

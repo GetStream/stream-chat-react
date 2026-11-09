@@ -18,7 +18,7 @@ export enum MessageDeliveryStatus {
 
 type UseMessageStatusParamsChannelPreviewProps = {
   channel: Channel;
-  /** The last message received in a channel */
+  /** The channel's last message. */
   lastMessage?: LocalMessage;
 };
 
@@ -48,15 +48,12 @@ export const useMessageDeliveryStatus = ({
   );
 
   const messageDeliveryStatus = useMemo(() => {
-    // empty channel
     if (!lastMessage) return undefined;
 
     const lastMessageIsOwn = isOwnMessage(lastMessage);
     if (!lastMessageIsOwn) return undefined;
 
-    // Read against the cursors rather than asking who sits on this message: a member whose cursor
-    // is behind the latest message has still received everything up to it, and the old lookup
-    // reported that as `SENT`.
+    // A cursor at or after the message's timestamp counts, even when it sits on a later message.
     if (hasCursorReached(lastMessage, trackerSnapshot?.lastReadRefByOthers ?? null)) {
       return MessageDeliveryStatus.READ;
     }

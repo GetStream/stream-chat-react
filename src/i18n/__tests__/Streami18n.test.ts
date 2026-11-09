@@ -77,9 +77,8 @@ describe('Streami18n translationBuilder', () => {
 });
 
 describe('Streami18n - a custom dictionary keeps the keys that have no inline copy', () => {
-  // The 71 `runtimeDefaults` entries are the only keys with no `defaultValue` at their call site,
-  // and `fallbackLng` is false. A dictionary that replaced rather than merged left them
-  // unresolvable, so every timestamp in the UI rendered as the literal key.
+  // The bundled `runtimeDefaults` are the only keys with no `defaultValue` at their call site and
+  // `fallbackLng` is false, so a dictionary that replaced them would render timestamps as the key.
   const TIMESTAMP = '2024-01-01T10:30:00.000Z';
 
   it.each([
@@ -153,9 +152,8 @@ describe('Streami18n - a custom dictionary keeps the keys that have no inline co
 });
 
 describe('Streami18n - dictionary key types', () => {
-  // The SDK only ships `_one`/`_other`, but a plural key accepts every `Intl.PluralRules` category
-  // so a language needing `_few`/`_many`/`_zero` keeps its keys checked instead of widening to
-  // LooseTranslationDictionary.
+  // A plural key accepts every `Intl.PluralRules` category, so a language needing `_few`, `_many`
+  // or `_zero` stays type-checked instead of widening to LooseTranslationDictionary.
   it('accepts every plural category on a plural key, and resolves them at runtime', async () => {
     const K = 'channelDetail.channelMembersView.members.title';
     const ru: TranslationDictionary = {
@@ -185,7 +183,7 @@ describe('Streami18n - dictionary key types', () => {
   });
 
   // The completeness diff in ai-docs/i18n-v15-migration.md relies on `as const satisfies`, which
-  // has to keep working now that the type is an intersection.
+  // must work with the intersection catalog type.
   it('supports the documented `as const satisfies` completeness diff', () => {
     const de = {
       'common.cancel.label': 'Abbrechen',
@@ -199,8 +197,8 @@ describe('Streami18n - dictionary key types', () => {
     expect(Object.keys(de)).toHaveLength(2);
   });
 
-  // The params are strict, so the default call shape — an inline object literal — is checked.
-  // A typo here used to compile and then silently never apply at runtime.
+  // The params are strict, so an inline object literal is checked: a typo must not compile and then
+  // silently never apply.
   it('rejects an unknown key passed inline, and still accepts a loose dictionary', async () => {
     const i18n = new Streami18n({ logger: () => null });
 
@@ -226,16 +224,14 @@ describe('Streami18n - dictionary key types', () => {
     i18n.registerTranslation('en', withOwnKeys);
     new Streami18n({ logger: () => null, translationsForLanguage: withOwnKeys });
 
-    // Asserted by rendering rather than by reading the resource store, which is no longer exposed:
-    // whether the app's own key resolves is the thing that matters, and `getTranslations()` only ever
-    // confirmed it had been written down.
+    // Asserted by rendering: what matters is that the app's own key resolves, not that it was set.
     const { t } = await i18n.init();
     expect(t(asDynamicKey('myApp.somethingElse'))).toBe('Hello');
   });
 
-  // Compile-time contract, asserted here so it cannot regress silently. TranslationDictionary
-  // must accept the `_one`/`_other` plural entries a translator has to supply — keying a dictionary
-  // on TranslationKey rejects them, because that union is what `t()` takes (the bare handle).
+  // Compile-time contract: TranslationDictionary must accept the `_one`/`_other` plural entries a
+  // translator supplies, which a dictionary keyed on TranslationKey rejects (`t()` takes that
+  // union).
   it('accepts plural forms and rejects stale keys, and both resolve at runtime', async () => {
     const de: TranslationDictionary = {
       'common.cancel.label': 'Abbrechen',
@@ -267,10 +263,10 @@ describe('Streami18n - dictionary key types', () => {
 });
 
 describe('Streami18n - the calendar keys that carry English words', () => {
-  // dayjs takes the calendar wording as part of the format string, so a handful of `timestamp.*`
-  // values embed English day words. A per-key `calendarFormats` replaces the locale's calendar
-  // wholesale, so `dayjsLocaleConfigForLanguage` cannot translate them — only overriding the key
-  // can. The migration guide names these four; this keeps that list honest.
+  // dayjs takes the calendar wording in the format string, so a few `timestamp.*` values embed
+  // English day words. A per-key `calendarFormats` replaces the locale's calendar, so
+  // `dayjsLocaleConfigForLanguage` cannot translate them; only overriding the key can. The
+  // migration guide names these four, and this keeps that list honest.
   const KEYS_WITH_ENGLISH_WORDS = [
     'timestamp.ChannelDetailPinnedMessageTimestamp',
     'timestamp.ChannelPreviewTimestamp',
@@ -320,7 +316,7 @@ describe('Streami18n - the calendar keys that carry English words', () => {
 
     // A key that formats against the locale's own calendar picks the config up.
     expect(stamp('timestamp.LiveLocation', relativeDay(0))).toContain('heute um');
-    // One that passes its own calendarFormats does not — this is the documented gap.
+    // One that passes its own calendarFormats does not: this is the documented gap.
     expect(stamp('timestamp.DateSeparator', relativeDay(0))).toBe('Today');
     expect(stamp('timestamp.ChannelPreviewTimestamp', relativeDay(-1))).toBe('Yesterday');
   });

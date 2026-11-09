@@ -1,9 +1,7 @@
 import type { TranslationContextValue } from '../../../context/TranslationContext';
 import type { TypingEntry } from '../hooks/useDebouncedTypingActive';
 
-/**
- * Build a localized typing-status message for screen-reader and inline indicator text.
- */
+/** Localized typing status for the live region and the inline header: names, or a count. */
 export const getTypingStatusMessage = (
   displayUsers: readonly TypingEntry[],
   t: TranslationContextValue['t'],
@@ -18,8 +16,10 @@ export const getTypingStatusMessage = (
   }
 
   if (count === 2 && namedUsers.length === 2) {
-    return t('typing.twoUsers', '{{ typing }} are typing', {
-      typing: `${namedUsers[0]} and ${namedUsers[1]}`,
+    // Each name is its own value, so a translation words the whole sentence, conjunction included.
+    return t('typing.twoUsers', '{{ firstUser }} and {{ secondUser }} are typing', {
+      firstUser: namedUsers[0],
+      secondUser: namedUsers[1],
     });
   }
 

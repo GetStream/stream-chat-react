@@ -1,50 +1,24 @@
 import React, { useEffect, useMemo } from 'react';
 import clsx from 'clsx';
-import type {
-  ChannelConfig,
-  EventPayload,
-  TextComposerState,
-  ThreadState,
-} from 'stream-chat';
-
 import { AvatarStack as DefaultAvatarStack } from '../Avatar';
 import { extractDisplayInfo as defaultExtractDisplayInfo } from '../Avatar/utils';
 import { TypingIndicatorDots } from './TypingIndicatorDots';
 import { VisuallyHidden } from '../VisuallyHidden';
 import { useMessageComposerController } from '../MessageComposer/hooks/useMessageComposerController';
 import { useThreadContext } from '../Threads/ThreadContext';
-import {
-  useChatContext,
-  useComponentContext,
-  useTranslationContext,
-} from '../../context';
-import { useStateStore } from '../../store';
+import { useComponentContext, useTranslationContext } from '../../context';
 
 import { useDebouncedTypingActive } from './hooks/useDebouncedTypingActive';
+import { useTypingUsers } from './hooks/useTypingUsers';
 import { getTypingStatusMessage } from './utils/getTypingStatusMessage';
 
-const typingEventsStateSelector = ({ typingEvents }: ChannelConfig) => ({
-  typingEventsEnabled: typingEvents.enabled,
-});
-
-const textComposerTypingSelector = ({ typing }: TextComposerState) => ({ typing });
-
-const threadParentMessageSelector = ({ parentMessage }: ThreadState) => ({
-  parentMessage,
-});
-
 export type TypingIndicatorProps = {
-  /** When false, the indicator is not rendered (e.g. when list is not scrolled to bottom). Omit or true to show when typing. */
+  /** Whether the message list is scrolled to the latest message. Defaults to `true`. */
   isMessageListScrolledToBottom?: boolean;
-  /** Scrolls the message list to the latest message; invoked when a typing indicator appears. */
+  /** Called when the indicator appears while the list is scrolled to the latest message. */
   scrollToBottom?: () => void;
 };
 
-/**
- * TypingIndicator shows avatars of users currently typing and a bubble with animated dots.
- * Renders only for other participants (never the current user), only when scrolled to the latest
- * message if `isMessageListScrolledToBottom` is provided. It must be a child of Channel component.
- */
 const UnMemoizedTypingIndicator = (props: TypingIndicatorProps) => {
   const { isMessageListScrolledToBottom = true, scrollToBottom } = props;
 
@@ -53,37 +27,9 @@ const UnMemoizedTypingIndicator = (props: TypingIndicatorProps) => {
     extractDisplayInfo = defaultExtractDisplayInfo,
   } = useComponentContext();
   const messageComposer = useMessageComposerController();
-  const { typingEventsEnabled } = useStateStore(
-    messageComposer.channel.configState,
-    typingEventsStateSelector,
-  );
-  const { client } = useChatContext();
   const { t } = useTranslationContext();
-  const { typing = {} } =
-    useStateStore(messageComposer.textComposer?.state, textComposerTypingSelector) ?? {};
   const thread = useThreadContext();
-  const isThreadList = !!thread;
-  const { parentMessage } =
-    useStateStore(thread?.state, threadParentMessageSelector) ?? {};
-
-  const typingEntries = Object.values(typing) as EventPayload<
-    'typing.start' | 'typing.stop'
-  >[];
-
-  const typingInChannel = !isThreadList
-    ? typingEntries.filter(
-        ({ parent_id, user }) => user?.id !== client.user?.id && !parent_id,
-      )
-    : [];
-
-  const typingInThread = isThreadList
-    ? typingEntries.filter(
-        ({ parent_id, user }) =>
-          user?.id !== client.user?.id && parent_id === parentMessage?.id,
-      )
-    : [];
-
-  const typingUsers = isThreadList ? typingInThread : typingInChannel;
+  const typingUsers = useTypingUsers(messageComposer.channel, thread?.id);
   const { displayUsers } = useDebouncedTypingActive(typingUsers);
   const showIndicator = displayUsers.length > 0;
   const typingAnnouncement = useMemo(
@@ -100,7 +46,7 @@ const UnMemoizedTypingIndicator = (props: TypingIndicatorProps) => {
     if (showIndicator && isMessageListScrolledToBottom) scrollToBottom?.();
   }, [scrollToBottom, isMessageListScrolledToBottom, showIndicator]);
 
-  if (typingEventsEnabled === false || !showIndicator || !isMessageListScrolledToBottom) {
+  if (!showIndicator || !isMessageListScrolledToBottom) {
     return null;
   }
 
@@ -139,6 +85,11 @@ const UnMemoizedTypingIndicator = (props: TypingIndicatorProps) => {
   );
 };
 
+/**
+ * Avatars and animated dots for the other users typing in the channel, or in the thread when one
+ * is in context. Renders nothing when typing events are disabled or when
+ * `isMessageListScrolledToBottom` is false. Must render inside a `Channel` or a `Thread`.
+ */
 export const TypingIndicator = React.memo(
   UnMemoizedTypingIndicator,
 ) as typeof UnMemoizedTypingIndicator;

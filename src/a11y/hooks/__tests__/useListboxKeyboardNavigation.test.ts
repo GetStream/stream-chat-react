@@ -107,7 +107,7 @@ describe('useListboxKeyboardNavigation', () => {
 
       sibling.focus();
       result.current.onKeyDown(makeEvent('ArrowUp'));
-      expect(document.activeElement).toBe(options[0]); // previous
+      expect(document.activeElement).toBe(options[0]);
     });
 
     it('falls back to first/last when the resolver returns null', () => {
@@ -121,7 +121,7 @@ describe('useListboxKeyboardNavigation', () => {
       sibling.focus();
 
       result.current.onKeyDown(makeEvent('ArrowDown'));
-      expect(document.activeElement).toBe(options[0]); // first
+      expect(document.activeElement).toBe(options[0]);
     });
   });
 

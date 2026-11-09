@@ -1,0 +1,475 @@
+// Intentionally declares no `--str-chat__ai-*` custom properties; see _tokens.scss.
+@use './tokens' as *;
+
+// VoiceGlow drawn with CSS: the shader's composition. An opaque color field (a base and the
+// masses mixed over it in order) is seen through an alpha that the first mass makes: a faint
+// static body plus a mask riding its orbit, with the inverse turns inside the mask keeping the
+// colors still. Only `transform` and `opacity` animate, so the compositor runs the motion. Sizes
+// follow the shader: R = 0.24 of the shorter side, the soft edge at 1.06 R.
+//
+// The script sets the palette (--str-ai-glow-k0, -col-b to -col-e, -base, -halo, -ring), the
+// falloff gradients and the mask, the expressivity (--str-ai-glow-amp), each animation's
+// playback rate for the state, and the live audio level. Until it runs, the masses take the
+// theme's voice color.
+
+// Registered so a state change eases them, and every keyframe that reads them, instead of
+// jumping.
+@property --str-ai-glow-breath {
+  syntax: '<number>';
+  inherits: true;
+  initial-value: 0.015;
+}
+
+@property --str-ai-glow-speech {
+  syntax: '<number>';
+  inherits: true;
+  initial-value: 0;
+}
+
+@property --str-ai-glow-pulse {
+  syntax: '<number>';
+  inherits: true;
+  initial-value: 0;
+}
+
+@property --str-ai-glow-sway {
+  syntax: '<angle>';
+  inherits: true;
+  initial-value: 40deg;
+}
+
+@property --str-ai-glow-halo-alpha {
+  syntax: '<percentage>';
+  inherits: true;
+  initial-value: 5.6%;
+}
+
+// Written every frame while a live audio level is given; not inherited, so only the element
+// that scales with it restyles.
+@property --str-ai-glow-level {
+  syntax: '<number>';
+  inherits: false;
+  initial-value: 0;
+}
+
+$glow: '.str-chat__ai-voice-glow';
+$ease: 0.6s ease-out;
+
+#{$glow}--css {
+  --str-ai-glow-k0: #{ai-token(voice-color)};
+  --str-ai-glow-col-b: var(--str-ai-glow-k0);
+  --str-ai-glow-col-c: var(--str-ai-glow-k0);
+  --str-ai-glow-col-d: var(--str-ai-glow-k0);
+  --str-ai-glow-col-e: var(--str-ai-glow-k0);
+  --str-ai-glow-base: var(--str-ai-glow-k0);
+  --str-ai-glow-halo: var(--str-ai-glow-k0);
+  --str-ai-glow-ring: var(--str-ai-glow-k0);
+
+  display: grid;
+  place-items: center;
+  container-type: size;
+  transition:
+    --str-ai-glow-breath $ease,
+    --str-ai-glow-speech $ease,
+    --str-ai-glow-pulse $ease,
+    --str-ai-glow-sway $ease,
+    --str-ai-glow-halo-alpha $ease;
+
+  // How far each state moves; how fast is the script's playback rates.
+  &[data-state='idle'] {
+    --str-ai-glow-breath: 0.015;
+    --str-ai-glow-speech: 0;
+    --str-ai-glow-pulse: 0;
+    --str-ai-glow-sway: 40deg;
+    --str-ai-glow-halo-alpha: 5.6%;
+  }
+
+  &[data-state='connecting'] {
+    --str-ai-glow-breath: 0.05;
+    --str-ai-glow-speech: 0;
+    --str-ai-glow-pulse: 1;
+    --str-ai-glow-sway: 50deg;
+    --str-ai-glow-halo-alpha: 5%;
+  }
+
+  &[data-state='listening'] {
+    --str-ai-glow-breath: 0.04;
+    --str-ai-glow-speech: 0.35;
+    --str-ai-glow-pulse: 0;
+    --str-ai-glow-sway: 45deg;
+    --str-ai-glow-halo-alpha: 7.3%;
+  }
+
+  &[data-state='thinking'] {
+    --str-ai-glow-breath: 0.02;
+    --str-ai-glow-speech: 0;
+    --str-ai-glow-pulse: 0;
+    --str-ai-glow-sway: 60deg;
+    --str-ai-glow-halo-alpha: 5%;
+  }
+
+  &[data-state='speaking'] {
+    --str-ai-glow-breath: 0.04;
+    --str-ai-glow-speech: 1;
+    --str-ai-glow-pulse: 0;
+    --str-ai-glow-sway: 45deg;
+    --str-ai-glow-halo-alpha: 10%;
+  }
+
+  &[data-state][data-dark='true'] {
+    --str-ai-glow-halo-alpha: 12%;
+  }
+
+  // A live audio level replaces the self-animated speech, as in the other renderers.
+  &[data-state][data-live='true'] {
+    --str-ai-glow-speech: 0;
+  }
+
+  // Off screen nothing animates, as the canvas renderers stop drawing there.
+  &[data-offscreen='true'] * {
+    animation-play-state: paused;
+  }
+}
+
+#{$glow}__halo,
+#{$glow}__level {
+  grid-area: 1 / 1;
+  // Fades in once the script has set the palette, as the canvas renderers fade in.
+  opacity: 0;
+  transition: opacity 0.3s ease-out;
+
+  #{$glow}--css[data-ready='true'] > & {
+    opacity: 1;
+  }
+}
+
+// Behind the globe: solid to 0.8 R, e^-1 a further 0.09 of the side, gone at 0.8 R + 0.25 side.
+#{$glow}__halo {
+  width: 88.4cqmin;
+  height: 88.4cqmin;
+  border-radius: 50%;
+  background: radial-gradient(
+    closest-side,
+    color-mix(in srgb, var(--str-ai-glow-halo) var(--str-ai-glow-halo-alpha), transparent)
+      43%,
+    color-mix(
+        in srgb,
+        var(--str-ai-glow-halo) calc(var(--str-ai-glow-halo-alpha) * 0.37),
+        transparent
+      )
+      63%,
+    transparent 100%
+  );
+  animation: str-ai-glow-breath 3.9s ease-in-out infinite alternate;
+}
+
+#{$glow}__level {
+  position: relative;
+  width: 50.9cqmin;
+  height: 50.9cqmin;
+  transform: scale(calc(1 + var(--str-ai-glow-level) * 0.2));
+}
+
+#{$glow}__bounce,
+#{$glow}__breath,
+#{$glow}__gate,
+#{$glow}__speech,
+#{$glow}__pulse,
+#{$glow}__globe,
+#{$glow}__body,
+#{$glow}__field,
+#{$glow}__base,
+#{$glow}__flow,
+#{$glow}__unflow,
+#{$glow}__orbit,
+#{$glow}__unorbit,
+#{$glow}__sway,
+#{$glow}__unsway {
+  position: absolute;
+  inset: 0;
+}
+
+// The slow expand and contract every state has.
+#{$glow}__breath {
+  animation: str-ai-glow-breath 3.9s ease-in-out infinite alternate;
+}
+
+@keyframes str-ai-glow-breath {
+  from {
+    transform: scale(
+      calc(1 + var(--str-ai-glow-breath) * var(--str-ai-glow-amp, 1) * 0.2)
+    );
+  }
+
+  to {
+    transform: scale(calc(1 + var(--str-ai-glow-breath) * var(--str-ai-glow-amp, 1)));
+  }
+}
+
+// Speech: swells of mismatched lengths, so together they ebb and pause like words rather than
+// loop. Their size is --str-ai-glow-speech, so other states keep them flat.
+#{$glow}__speech {
+  animation: str-ai-glow-syllables 0.83s ease-in-out infinite alternate;
+}
+
+#{$glow}__gate {
+  animation: str-ai-glow-phrases 2.9s ease-in-out infinite;
+}
+
+@keyframes str-ai-glow-syllables {
+  from {
+    transform: scale(
+      calc(1 + var(--str-ai-glow-speech) * var(--str-ai-glow-amp, 1) * 0.02)
+    );
+  }
+
+  to {
+    transform: scale(
+      calc(1 + var(--str-ai-glow-speech) * var(--str-ai-glow-amp, 1) * 0.12)
+    );
+  }
+}
+
+@keyframes str-ai-glow-phrases {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+
+  20% {
+    transform: scale(
+      calc(1 + var(--str-ai-glow-speech) * var(--str-ai-glow-amp, 1) * 0.08)
+    );
+  }
+
+  45% {
+    transform: scale(
+      calc(1 + var(--str-ai-glow-speech) * var(--str-ai-glow-amp, 1) * 0.02)
+    );
+  }
+
+  70% {
+    transform: scale(
+      calc(1 + var(--str-ai-glow-speech) * var(--str-ai-glow-amp, 1) * 0.1)
+    );
+  }
+}
+
+// Connecting: the glow dims and brightens, as 0.45 + 0.35 sin(2t) in the shader.
+#{$glow}__pulse {
+  animation: str-ai-glow-pulse 3.14s ease-in-out infinite alternate;
+}
+
+@keyframes str-ai-glow-pulse {
+  from {
+    opacity: calc(1 - var(--str-ai-glow-pulse) * 0.9);
+  }
+
+  to {
+    opacity: calc(1 - var(--str-ai-glow-pulse) * 0.2);
+  }
+}
+
+// The globe: body = smoothstep(1.06, 0.62, r / R), as a static mask. Masks only read alpha, so
+// they are drawn in the root's (opaque) color.
+#{$glow}__globe {
+  border-radius: 50%;
+  overflow: hidden;
+  isolation: isolate;
+  -webkit-mask-image: radial-gradient(
+    closest-side,
+    currentColor 58.5%,
+    color-mix(in srgb, currentColor 84%, transparent) 69%,
+    color-mix(in srgb, currentColor 50%, transparent) 79%,
+    color-mix(in srgb, currentColor 16%, transparent) 89%,
+    transparent 100%
+  );
+  mask-image: radial-gradient(
+    closest-side,
+    currentColor 58.5%,
+    color-mix(in srgb, currentColor 84%, transparent) 69%,
+    color-mix(in srgb, currentColor 50%, transparent) 79%,
+    color-mix(in srgb, currentColor 16%, transparent) 89%,
+    transparent 100%
+  );
+}
+
+// The faint body everywhere: 0.15, a touch more at the core.
+#{$glow}__body--still {
+  -webkit-mask-image: radial-gradient(
+    closest-side,
+    color-mix(in srgb, currentColor 21%, transparent),
+    color-mix(in srgb, currentColor 15%, transparent)
+  );
+  mask-image: radial-gradient(
+    closest-side,
+    color-mix(in srgb, currentColor 21%, transparent),
+    color-mix(in srgb, currentColor 15%, transparent)
+  );
+}
+
+// Thinking turns the whole field of color slowly; other states play it at rate 0.
+#{$glow}__flow {
+  animation: str-ai-glow-flow 16.8s linear infinite;
+}
+
+#{$glow}__unflow {
+  animation: str-ai-glow-unflow 16.8s linear infinite;
+}
+
+@keyframes str-ai-glow-flow {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes str-ai-glow-unflow {
+  to {
+    transform: rotate(-360deg);
+  }
+}
+
+// Each mass orbits the centre at its own pace and direction, swaying on top in place of the
+// noise that wobbles its orbit. The un- versions are exact inverses, run in step.
+#{$glow}__orbit {
+  animation: str-ai-glow-spin var(--str-ai-glow-period) linear infinite
+    var(--str-ai-glow-direction, normal);
+}
+
+#{$glow}__unorbit {
+  animation: str-ai-glow-unspin var(--str-ai-glow-period) linear infinite
+    var(--str-ai-glow-direction, normal);
+}
+
+#{$glow}__sway {
+  animation: str-ai-glow-sway var(--str-ai-glow-sway-period) ease-in-out infinite
+    alternate;
+}
+
+#{$glow}__unsway {
+  animation: str-ai-glow-unsway var(--str-ai-glow-sway-period) ease-in-out infinite
+    alternate;
+}
+
+@keyframes str-ai-glow-spin {
+  from {
+    transform: rotate(var(--str-ai-glow-start));
+  }
+
+  to {
+    transform: rotate(calc(var(--str-ai-glow-start) + 360deg));
+  }
+}
+
+@keyframes str-ai-glow-unspin {
+  from {
+    transform: rotate(calc(var(--str-ai-glow-start) * -1));
+  }
+
+  to {
+    transform: rotate(calc(var(--str-ai-glow-start) * -1 - 360deg));
+  }
+}
+
+@keyframes str-ai-glow-sway {
+  from {
+    transform: rotate(calc(var(--str-ai-glow-sway) * var(--str-ai-glow-amp, 1) * -1));
+  }
+
+  to {
+    transform: rotate(calc(var(--str-ai-glow-sway) * var(--str-ai-glow-amp, 1)));
+  }
+}
+
+@keyframes str-ai-glow-unsway {
+  from {
+    transform: rotate(calc(var(--str-ai-glow-sway) * var(--str-ai-glow-amp, 1)));
+  }
+
+  to {
+    transform: rotate(calc(var(--str-ai-glow-sway) * var(--str-ai-glow-amp, 1) * -1));
+  }
+}
+
+#{$glow}__sway#{$glow}__sway--mask {
+  -webkit-mask-image: var(--str-ai-glow-mask);
+  mask-image: var(--str-ai-glow-mask);
+}
+
+#{$glow}__field {
+  isolation: isolate;
+}
+
+#{$glow}__base {
+  background: var(--str-ai-glow-base);
+}
+
+// A mass: centred 0.4 R from the middle, reaching its reach in R. Its falloff comes from the
+// script.
+#{$glow}__mass {
+  position: absolute;
+  top: 50%;
+  left: calc(50% + var(--str-ai-glow-dist));
+  width: calc(var(--str-ai-glow-reach) * 94.34%);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  translate: -50% -50%;
+}
+
+// A tap: the same dip and overshoot as the other renderers, and a ring in place of the ripple.
+#{$glow}__bounce--active {
+  animation: str-ai-glow-bounce 0.34s ease-out;
+}
+
+@keyframes str-ai-glow-bounce {
+  0% {
+    transform: scale(1);
+  }
+
+  30% {
+    transform: scale(0.93);
+  }
+
+  62% {
+    transform: scale(1.03);
+  }
+
+  100% {
+    transform: scale(1);
+  }
+}
+
+#{$glow}__ripple {
+  position: absolute;
+  width: 20cqmin;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  translate: -50% -50%;
+  border: 2px solid color-mix(in srgb, var(--str-ai-glow-ring) 60%, transparent);
+  pointer-events: none;
+  animation: str-ai-glow-ripple 0.9s ease-out forwards;
+}
+
+@keyframes str-ai-glow-ripple {
+  from {
+    transform: scale(0.2);
+    opacity: 0.8;
+  }
+
+  to {
+    transform: scale(2.4);
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #{$glow}__halo,
+  #{$glow}__level {
+    transition: none;
+  }
+
+  #{$glow}__ripple,
+  #{$glow}__bounce--active {
+    animation: none;
+  }
+}

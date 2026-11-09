@@ -1,10 +1,10 @@
 import React, { useRef } from 'react';
-import { act, render, screen } from '@testing-library/react';
+import { act, fireEvent, render, screen } from '@testing-library/react';
 import { fromPartial } from '@total-typescript/shoehorn';
 
-// `../../../context` must be evaluated before the component: they form an import cycle
-// (TextareaComposer -> composer hooks -> context), and the other order leaves `useChannel`
-// undefined at call time.
+// `../../../context` must be imported before the component: they form an import cycle
+// (TextareaComposer -> composer hooks -> context) and the other order leaves `useChannel`
+// undefined.
 import { ChannelInstanceProvider, ChatProvider } from '../../../context';
 import { MessageComposerContextProvider } from '../../../context/MessageComposerContext';
 import { TextareaComposer } from '../TextareaComposer';
@@ -12,16 +12,9 @@ import { ThreadProvider } from '../../Threads/ThreadContext';
 import { initClientWithChannels, mockChatContext } from '../../../mock-builders';
 
 import type { Channel, StreamChat, Thread } from 'stream-chat';
+import type { MessageComposerContextValue } from '../../../context/MessageComposerContext';
+import type { TextareaComposerProps } from '../TextareaComposer';
 
-/**
- * Opening a different thread focuses its composer.
- *
- * Since `Thread` stopped keying its subtree on the thread, a thread switch swaps the composer in
- * place instead of remounting the textarea, so this no longer rides on a fresh mount. It holds
- * because the focus effect depends on `attachments`, and each composer carries its own array --
- * incidental enough to be worth pinning: make empty attachments a shared constant and focus breaks
- * silently, with nothing else to catch it.
- */
 const Harness = ({
   channel,
   client,
@@ -31,7 +24,6 @@ const Harness = ({
   client: StreamChat;
   thread: Thread;
 }) => {
-  // The real provider owns this ref; the textarea attaches itself to it.
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   return (
@@ -66,7 +58,7 @@ const setup = async () => {
     ],
   });
 
-  // Two threads of the same channel, each with its own composer -- what a thread switch changes.
+  // Two threads, each with its own composer.
   const threadA = fromPartial<Thread>({
     id: 'parent-a',
     messageComposer: channel.messageComposer,
@@ -81,6 +73,9 @@ const setup = async () => {
 
 describe('TextareaComposer', () => {
   describe('autofocus', () => {
+    // A thread switch swaps the composer without remounting the textarea. Focus holds because the
+    // focus effect depends on `attachments` and each composer has its own array; a shared
+    // constant for empty attachments would break it silently.
     it('focuses the textarea when the composer is swapped in place', async () => {
       const { channel, client, threadA, threadB } = await setup();
 
@@ -88,7 +83,6 @@ describe('TextareaComposer', () => {
       const textarea = screen.getByTestId('message-input');
       expect(document.activeElement).toBe(textarea);
 
-      // Move focus away, as clicking elsewhere in the app would.
       act(() => (document.activeElement as HTMLElement)?.blur());
       expect(document.activeElement).not.toBe(textarea);
 
@@ -106,6 +100,86 @@ describe('TextareaComposer', () => {
       rerender(renderTextarea({ channel, client, thread: threadA }));
 
       expect(document.activeElement).not.toBe(screen.getByTestId('message-input'));
+    });
+  });
+
+  describe('additionalTextareaProps', () => {
+    const renderWithContext = async (
+      contextValue: Partial<MessageComposerContextValue>,
+      props: TextareaComposerProps = {},
+    ) => {
+      const { channel, client, threadA } = await setup();
+      const textareaRef = React.createRef<HTMLTextAreaElement>();
+      render(
+        <ChatProvider value={mockChatContext({ client })}>
+          <ChannelInstanceProvider value={{ channel }}>
+            <ThreadProvider thread={threadA}>
+              <MessageComposerContextProvider
+                value={fromPartial({ textareaRef, ...contextValue })}
+              >
+                <TextareaComposer {...props} />
+              </MessageComposerContextProvider>
+            </ThreadProvider>
+          </ChannelInstanceProvider>
+        </ChatProvider>,
+      );
+      return screen.getByTestId('message-input');
+    };
+
+    it('adds their className next to the own className', async () => {
+      const textarea = await renderWithContext(
+        { additionalTextareaProps: { className: 'from-composer' } },
+        { className: 'from-props' },
+      );
+
+      expect(textarea).toHaveClass(
+        'str-chat__message-textarea',
+        'from-composer',
+        'from-props',
+      );
+    });
+
+    it('calls their onPaste before the default paste handling', async () => {
+      const calls: string[] = [];
+      const textarea = await renderWithContext({
+        additionalTextareaProps: { onPaste: () => calls.push('custom') },
+        onPaste: () => calls.push('default'),
+      });
+
+      fireEvent.paste(textarea);
+
+      expect(calls).toEqual(['custom', 'default']);
+    });
+
+    it('skips the default paste handling when their onPaste prevents the default', async () => {
+      const defaultOnPaste = vi.fn();
+      const textarea = await renderWithContext({
+        additionalTextareaProps: { onPaste: (event) => event.preventDefault() },
+        onPaste: defaultOnPaste,
+      });
+
+      fireEvent.paste(textarea);
+
+      expect(defaultOnPaste).not.toHaveBeenCalled();
+    });
+
+    it('prefers the own onPaste prop over theirs, and still runs the default handling', async () => {
+      const composerOnPaste = vi.fn();
+      const defaultOnPaste = vi.fn();
+      const propOnPaste = vi.fn();
+      const textarea = await renderWithContext(
+        {
+          additionalTextareaProps: { onPaste: composerOnPaste },
+          onPaste: defaultOnPaste,
+        },
+        { onPaste: propOnPaste },
+      );
+
+      fireEvent.paste(textarea);
+
+      expect(propOnPaste).toHaveBeenCalledTimes(1);
+      expect(composerOnPaste).not.toHaveBeenCalled();
+      expect(defaultOnPaste).toHaveBeenCalledTimes(1);
     });
   });
 });

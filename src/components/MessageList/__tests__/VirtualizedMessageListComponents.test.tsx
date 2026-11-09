@@ -1,5 +1,5 @@
 import React from 'react';
-import { act, render, screen } from '@testing-library/react';
+import { act, fireEvent, render, screen } from '@testing-library/react';
 import { fromPartial } from '@total-typescript/shoehorn';
 import {
   EmptyPlaceholder,
@@ -23,33 +23,29 @@ import {
 } from '../../../context';
 import type { ComponentContextValue } from '../../../context';
 import { Chat } from '../../Chat';
+import { EventComponent } from '../../EventComponent';
+import type { EventComponentProps } from '../../EventComponent';
 import { Channel as ChannelComponent } from '../../Channel';
 import { ThreadProvider } from '../../Threads';
-import { MessageUI } from '../../Message';
 import { UnreadMessagesSeparator } from '../UnreadMessagesSeparator';
 import type { GroupStyle, RenderedMessage } from '../utils';
-import type { Channel, StreamChat, Thread } from 'stream-chat';
+import type { Channel, LocalMessage, StreamChat, Thread } from 'stream-chat';
 import { convertDateToTimestamp } from '../../../mock-builders';
 
-// EmptyPlaceholder derives thread-ness from useThreadContext() rather than context.threadList,
-// so a truthy thread must be provided to exercise the thread branch.
+// `EmptyPlaceholder` reads thread-ness from `useThreadContext()`, so provide a truthy thread to
+// exercise the thread branch.
 const threadStub = {} as unknown as Thread;
 
-// MERGE-RECONCILE (test migration): the removed ChannelStateContext / ChannelActionContext
-// providers and the removed ChatViewContext are gone. Item / Header / EmptyPlaceholder only consume
-// ComponentContext + ThreadContext (and TranslationContext via their default sub-components), so
-// they use a lightweight provider wrapper that renders no DOM chrome, keeping the original
-// snapshots intact. Tests that render an actual Message use the real <Chat>/<Channel> providers
-// (renderWithChannel), which supply the full context stack the Message component requires.
-
 const prependOffset = 0;
-const user1 = generateUser();
-const user2 = generateUser();
 let client: StreamChat;
 let channel: Channel;
 
 const PREPEND_OFFSET = 10 ** 7;
 
+// Item, Header and EmptyPlaceholder only consume `ComponentContext`, `ThreadContext` and
+// `TranslationContext` (through their default sub-components), so this wrapper provides just those
+// and renders no DOM chrome. Tests that render a `Message` use `renderWithChannel` instead, which
+// supplies the full context stack.
 const Wrapper = ({
   children,
   componentContext = {},
@@ -259,11 +255,7 @@ describe('VirtualizedMessageComponents', () => {
     });
 
     it('should render empty for thread by default', () => {
-      const { container } = renderElements(
-        <EmptyPlaceholder context={{ threadList: true } as unknown as VirtuosoContext} />,
-        undefined,
-        threadStub,
-      );
+      const { container } = renderElements(<EmptyPlaceholder />, undefined, threadStub);
       expect(container).toBeEmptyDOMElement();
     });
     it('should render custom EmptyStateIndicator for main message list', () => {
@@ -273,7 +265,7 @@ describe('VirtualizedMessageComponents', () => {
 
     it('should render custom EmptyStateIndicator for thread', () => {
       const { container } = renderElements(
-        <EmptyPlaceholder context={{ threadList: true } as unknown as VirtuosoContext} />,
+        <EmptyPlaceholder />,
         componentContext,
         threadStub,
       );
@@ -289,8 +281,9 @@ describe('VirtualizedMessageComponents', () => {
     it('should render empty in thread if EmptyStateIndicator nullified', () => {
       const componentContext = { EmptyStateIndicator: NullEmptyStateIndicator };
       const { container } = renderElements(
-        <EmptyPlaceholder context={{ threadList: true } as unknown as VirtuosoContext} />,
+        <EmptyPlaceholder />,
         componentContext,
+        threadStub,
       );
       expect(container).toBeEmptyDOMElement();
     });
@@ -358,6 +351,116 @@ describe('VirtualizedMessageComponents', () => {
           messageGroupStyles[processedMessages[0].id],
         ]);
       });
+
+      describe('list-wide message props', () => {
+        const author = generateUser({ name: 'author' });
+        const mentionedUser = generateUser({ name: 'mentioned' });
+
+        // Renders one message with the default message UI, so the props reach real DOM handlers.
+        const renderMessage = async (
+          message: LocalMessage,
+          messageProps: Partial<VirtuosoContext>,
+        ) => {
+          const virtuosoContext = {
+            ...messageProps,
+            channel,
+            messageGroupStyles: {},
+            numItemsPrepended,
+            ownMessagesDeliveredToOthers: {},
+            ownMessagesReadByOthers: {},
+            processedMessages: [message],
+            virtuosoRef: { current: {} },
+          } as unknown as VirtuosoContext;
+          let result: ReturnType<typeof render>;
+          // eslint-disable-next-line require-await
+          await act(async () => {
+            result = renderWithChannel(
+              messageRenderer(virtuosoIndex, undefined, virtuosoContext),
+            );
+          });
+          return result!;
+        };
+
+        const mentionMessage = () =>
+          generateMessage({
+            mentioned_users: [mentionedUser],
+            text: `@${mentionedUser.name} hello`,
+            user: author,
+          });
+
+        it('should call onMentionsClick and onMentionsHover with the message', async () => {
+          const onMentionsClick = vi.fn();
+          const onMentionsHover = vi.fn();
+          const message = mentionMessage();
+          await renderMessage(message, { onMentionsClick, onMentionsHover });
+
+          const text = screen.getByTestId('message-text-inner-wrapper');
+          fireEvent.click(text);
+          fireEvent.mouseOver(text);
+
+          expect(onMentionsClick).toHaveBeenCalledTimes(1);
+          expect(onMentionsClick).toHaveBeenCalledWith(
+            expect.anything(),
+            expect.objectContaining({ id: message.id }),
+          );
+          expect(onMentionsHover).toHaveBeenCalledTimes(1);
+          expect(onMentionsHover).toHaveBeenCalledWith(
+            expect.anything(),
+            expect.objectContaining({ id: message.id }),
+          );
+        });
+
+        it('should call onUserClick and onUserHover with the message author', async () => {
+          const onUserClick = vi.fn();
+          const onUserHover = vi.fn();
+          await renderMessage(generateMessage({ user: author }), {
+            onUserClick,
+            onUserHover,
+          });
+
+          const avatar = screen.getByTitle(author.name as string);
+          fireEvent.click(avatar);
+          fireEvent.mouseOver(avatar);
+
+          expect(onUserClick).toHaveBeenCalledTimes(1);
+          expect(onUserClick).toHaveBeenCalledWith(
+            expect.anything(),
+            expect.objectContaining({ id: author.id }),
+          );
+          expect(onUserHover).toHaveBeenCalledTimes(1);
+          expect(onUserHover).toHaveBeenCalledWith(
+            expect.anything(),
+            expect.objectContaining({ id: author.id }),
+          );
+        });
+
+        it('should render the message HTML when unsafeHTML is set', async () => {
+          await renderMessage(
+            generateMessage({
+              html: '<span data-testid="custom-html" />',
+              user: author,
+            }),
+            { unsafeHTML: true },
+          );
+
+          expect(screen.getByTestId('custom-html')).toBeInTheDocument();
+        });
+
+        it('should render the message text instead of its HTML without unsafeHTML', async () => {
+          await renderMessage(
+            generateMessage({
+              html: '<span data-testid="custom-html" />',
+              text: 'plain text',
+              user: author,
+            }),
+            {},
+          );
+
+          expect(screen.queryByTestId('custom-html')).not.toBeInTheDocument();
+          expect(screen.getByText('plain text')).toBeInTheDocument();
+        });
+      });
+
       it('should render nothing if MessageSystem component is undefined for system messages', () => {
         const virtuosoContext = {
           numItemsPrepended,
@@ -391,6 +494,88 @@ describe('VirtualizedMessageComponents', () => {
           ),
         );
         expect(screen.getByText(text)).toBeInTheDocument();
+      });
+
+      describe('system message HTML', () => {
+        // Renders a system message that has both HTML and text with the default MessageSystem.
+        const renderSystemMessage = (unsafeHTML?: boolean) => {
+          const virtuosoContext = {
+            MessageSystem: EventComponent,
+            numItemsPrepended,
+            processedMessages: [
+              generateMessage({
+                html: '<span data-testid="custom-html" />',
+                text: 'system text',
+                type: 'system',
+              }),
+            ],
+            unsafeHTML,
+          };
+          render(
+            messageRenderer(
+              virtuosoIndex,
+              undefined,
+              virtuosoContext as unknown as VirtuosoContext,
+            ),
+          );
+        };
+
+        it("should render a system message's HTML when unsafeHTML is set", () => {
+          renderSystemMessage(true);
+
+          expect(screen.getByTestId('custom-html')).toBeInTheDocument();
+          expect(screen.queryByText('system text')).not.toBeInTheDocument();
+        });
+
+        describe('with a MessageSystem override that sets its own unsafeHTML', () => {
+          const MessageSystem = (props: EventComponentProps) => (
+            <EventComponent unsafeHTML {...props} />
+          );
+          const renderWithOverride = (unsafeHTML?: boolean) => {
+            const virtuosoContext = {
+              MessageSystem,
+              numItemsPrepended,
+              processedMessages: [
+                generateMessage({
+                  html: '<span data-testid="custom-html" />',
+                  text: 'system text',
+                  type: 'system',
+                }),
+              ],
+              unsafeHTML,
+            };
+            render(
+              messageRenderer(
+                virtuosoIndex,
+                undefined,
+                virtuosoContext as unknown as VirtuosoContext,
+              ),
+            );
+          };
+
+          it("should keep the override's value when the list doesn't set unsafeHTML", () => {
+            renderWithOverride();
+
+            expect(screen.getByTestId('custom-html')).toBeInTheDocument();
+          });
+
+          it('should pass unsafeHTML false from the list over the override', () => {
+            renderWithOverride(false);
+
+            expect(screen.getByText('system text')).toBeInTheDocument();
+            expect(screen.queryByTestId('custom-html')).not.toBeInTheDocument();
+          });
+        });
+
+        it.each([false, undefined])(
+          "should render a system message's text when unsafeHTML is %s",
+          (unsafeHTML) => {
+            renderSystemMessage(unsafeHTML);
+
+            expect(screen.getByText('system text')).toBeInTheDocument();
+            expect(screen.queryByTestId('custom-html')).not.toBeInTheDocument();
+          },
+        );
       });
 
       it('should render nothing if DateSeparator component is undefined for custom message type date', () => {
@@ -480,8 +665,7 @@ describe('VirtualizedMessageComponents', () => {
             channels: [markUnreadChannel],
             client: markUnreadClient,
           } = await initClientWithChannels();
-          // messageRenderer's getIsFirstUnreadMessage now requires a channel on the context
-          // (returns false without one), so inject the created channel into the context.
+          // `getIsFirstUnreadMessage` returns false without a channel on the context, so add one.
           const ctx = {
             ...virtuosoContext,
             channel: markUnreadChannel,
@@ -549,10 +733,8 @@ describe('VirtualizedMessageComponents', () => {
           expect(container.querySelector('.message-component')).toBeInTheDocument();
         });
 
-        // MERGE-RECONCILE (behavior change): getIsFirstUnreadMessage now short-circuits on
-        // `!unreadCount` before considering `firstUnreadMessageId` (unread separator is
-        // snapshot-driven per the source comment). A known first-unread id no longer forces the
-        // separator when the unread count is 0, so this now asserts the separator is NOT rendered.
+        // `getIsFirstUnreadMessage` returns false on a falsy `unreadCount` before considering
+        // `firstUnreadMessageId`: the unread separator is snapshot-driven.
         it('should not be rendered if unread count is falsy even when the first unread message is known', async () => {
           const { container } = await renderMarkUnread({
             virtuosoContext: {
@@ -617,90 +799,6 @@ describe('VirtualizedMessageComponents', () => {
           expect(container.querySelector('.message-component')).toBeInTheDocument();
         });
       });
-
-      // In v14, grouping CSS classes (groupedByUser, firstOfGroup, endOfGroup) are no longer
-      // derived inside messageRenderer. The messageGroupStyles map determines groupStyles prop
-      // passed to Message, but the --group/--first/--end CSS classes are only applied when
-      // the Message component receives groupedByUser/firstOfGroup/endOfGroup props directly.
-      it.each([
-        ['not ', 'by default', 'not ', false],
-        ['not ', '(grouping CSS classes are now set externally)', 'not ', true],
-      ])(
-        'should %sgroup messages %s and mark the first and the last group message',
-        (_, __, ___, shouldGroupByUser) => {
-          const virtuosoRef = { current: {} };
-          const user1MessageGroup = [
-            generateMessage({ user: user1 }),
-            generateMessage({ user: user1 }),
-            generateMessage({ user: user1 }),
-            generateMessage({ user: user1 }),
-          ];
-          const processedMessages = [
-            generateMessage({ user: user2 }),
-            ...user1MessageGroup,
-            generateMessage({ user: user2 }),
-          ];
-
-          // In v14, grouping is pre-computed and passed via messageGroupStyles
-          // rather than being computed inside messageRenderer via shouldGroupByUser
-          const messageGroupStyles = {};
-          if (shouldGroupByUser) {
-            // user2 message (single)
-            messageGroupStyles[processedMessages[0].id] = 'single';
-            // user1 group: top, middle, middle, bottom
-            messageGroupStyles[processedMessages[1].id] = 'top';
-            messageGroupStyles[processedMessages[2].id] = 'middle';
-            messageGroupStyles[processedMessages[3].id] = 'middle';
-            messageGroupStyles[processedMessages[4].id] = 'bottom';
-            // user2 message (single)
-            messageGroupStyles[processedMessages[5].id] = 'single';
-          }
-
-          const { container } = renderWithChannel(
-            <>
-              {processedMessages.map((_, numItemsPrepended) => {
-                const virtuosoContext = {
-                  messageGroupStyles,
-                  numItemsPrepended,
-                  ownMessagesDeliveredToOthers: {},
-                  ownMessagesReadByOthers: {},
-                  prependOffset,
-                  processedMessages,
-                  shouldGroupByUser,
-                  virtuosoRef,
-                };
-                return (
-                  <div key={numItemsPrepended}>
-                    {messageRenderer(
-                      virtuosoIndex,
-                      undefined,
-                      virtuosoContext as unknown as VirtuosoContext,
-                    )}
-                  </div>
-                );
-              })}
-            </>,
-            { MessageUI },
-          );
-          const messageElements = container.querySelectorAll('.str-chat__message');
-
-          // Grouping CSS classes (--group, --first, --end) are no longer applied via
-          // messageRenderer in v14; they require explicit groupedByUser/firstOfGroup/endOfGroup
-          // props to be passed to the Message component from higher up the tree.
-          // Here we verify that messages render without grouping classes.
-          const firstGroupItemClass = 'str-chat__virtual-message__wrapper--first';
-          const lastGroupItemClass = 'str-chat__virtual-message__wrapper--end';
-          expect(
-            container.getElementsByClassName('str-chat__virtual-message__wrapper--group'),
-          ).toHaveLength(0);
-
-          expect(container.getElementsByClassName(firstGroupItemClass)).toHaveLength(0);
-          expect(container.getElementsByClassName(lastGroupItemClass)).toHaveLength(0);
-
-          // Verify that messages are rendered
-          expect(messageElements.length).toBe(processedMessages.length);
-        },
-      );
     });
   });
 });

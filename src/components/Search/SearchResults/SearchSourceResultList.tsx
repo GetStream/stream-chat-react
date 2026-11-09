@@ -15,6 +15,10 @@ const searchSourceStateSelector = (nextValue: SearchSourceState) => ({
 });
 
 export type SearchSourceResultListProps = {
+  /**
+   * The minimum interval, in milliseconds, between two checks of the scroll position for loading
+   * the next page (`InfiniteScrollPaginator`'s `loadNextDebounceMs`).
+   */
   loadMoreDebounceMs?: number;
   loadMoreThresholdPx?: number;
   SearchResultItems?: SearchResultItemComponents;

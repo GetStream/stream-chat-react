@@ -12,7 +12,7 @@ import { axe } from '../../../../axe-helper';
 
 const setupClient = async () => {
   const client = await getTestClientWithUser({ id: 'user_x' });
-  // no paginator is registered, so nothing should query
+  // No paginator is registered, so nothing queries.
   vi.spyOn(client, 'queryChannelsAndHydrate').mockRejectedValue(
     new Error('unexpected channel query'),
   );

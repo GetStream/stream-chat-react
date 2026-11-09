@@ -5,11 +5,12 @@ import { useWorkspaceNavigation, useWorkspacePanel } from '../../../context';
 import type { WorkspaceNavigationOptions } from '../../../context';
 
 /**
- * Closes the thread in context: releases the slot it occupies. The thread's activation belongs to
- * whoever activated it (`useActiveThread` releases it when the panel unmounts), so closing doesn't
- * touch it. Components that close a thread (`ThreadHeader`, custom headers) call this rather
- * than receiving a handler, so they work wherever a `ThreadProvider` is in scope. The panel the
- * caller renders in is passed along, so the right one closes when the thread is open in several.
+ * Returns a function that closes the thread in context by releasing the slot it occupies. The
+ * thread's activation belongs to whoever activated it (`useActiveThread` releases it on unmount),
+ * so closing does not touch it. The calling panel is passed along, so the right one closes when
+ * the thread is open in several.
+ *
+ * @returns Close handler. Its options are merged over `{ panel }` and passed to `closeThread`.
  */
 export const useCloseThread = () => {
   const { closeThread } = useWorkspaceNavigation();

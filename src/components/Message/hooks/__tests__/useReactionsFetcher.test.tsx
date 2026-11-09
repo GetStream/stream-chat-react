@@ -52,7 +52,7 @@ describe('useReactionsFetcher', () => {
     });
 
     expect(queryReactions).toHaveBeenCalledTimes(2);
-    // v10: the message id is a path parameter, separate from the request.
+    // The message ID is a path parameter, separate from the request.
     expect(queryReactions.mock.calls[0]?.slice(0, 2)).toEqual([
       { id: message.id },
       expect.objectContaining({ limit: 25, next: undefined }),

@@ -6,16 +6,15 @@ import { getDateString, isDate } from '../../i18n/utils';
 import type { TimestampFormatterOptions } from '../../i18n/types';
 
 export interface TimestampProps extends TimestampFormatterOptions {
-  /* Adds a CSS class name to the component's outer `time` container. */
+  /** Class name for the outer `time` element. */
   customClass?: string;
-  /* Timestamp to display */
   timestamp?: Date | string;
 }
 
 export function Timestamp(props: TimestampProps) {
   const { calendar, calendarFormats, customClass, format, timestamp } = props;
 
-  // also rendered outside a message (channel list items, composer previews)
+  // Also renders outside a message (e.g. search results, thread list items).
   const { formatDate } = useContext(MessageContext) ?? {};
   const { t, tDateTimeParser } = useTranslationContext();
 

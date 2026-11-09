@@ -31,8 +31,7 @@ function RemindMeContent({ reminder }: { reminder: Reminder }) {
   const { timeLeftMs } = useStateStore(reminder?.state, reminderStateSelector) ?? {};
 
   const stopRefreshBoundaryMs = reminder?.timer.stopRefreshBoundaryMs;
-  // Nullish, not truthy: `remindAt` is unix nanoseconds and `0` is a legitimate value (the epoch),
-  // so a truthiness guard leaves an overdue epoch reminder with no refresh boundary at all.
+  // Nullish, not truthy: `remindAt` is in unix nanoseconds and 0 (the epoch) is a valid value.
   const stopRefreshTimeStamp =
     reminder?.remindAt != null && stopRefreshBoundaryMs != null
       ? nsToMs(reminder.remindAt) + stopRefreshBoundaryMs
@@ -51,10 +50,8 @@ function RemindMeContent({ reminder }: { reminder: Reminder }) {
 
   const renderTime = () => {
     if (isBehindRefreshBoundary) {
-      // Past: reminder time has passed
       if (useAbsoluteFormat) {
-        // > 59 min ago: calendar + time (same as DateSeparator + HH:mm)
-        // e.g. "Due since Today at 15:00", "Due since Yesterday at 09:30"
+        // More than 59 minutes ago: calendar date and time, e.g. "Due since Yesterday at 09:30".
         return t(
           'message.reminderNotification.dueSince.label',
           'Due since {{ dueSince }}',
@@ -66,8 +63,7 @@ function RemindMeContent({ reminder }: { reminder: Reminder }) {
           },
         );
       }
-      // Within 59 min ago: relative
-      // e.g. "Due since 5 minutes ago", "Due since a minute ago"
+      // Within 59 minutes: relative, e.g. "Due since 5 minutes ago".
       return t(
         'message.reminderNotification.dueSince.label',
         'Due since {{ dueSince }}',
@@ -78,16 +74,14 @@ function RemindMeContent({ reminder }: { reminder: Reminder }) {
         },
       );
     }
-    // Future: reminder not yet due
     if (useAbsoluteFormat) {
-      // > 59 min from now: calendar + time (no "Due" prefix)
-      // e.g. "Today at 15:00", "Tomorrow at 09:30"
+      // More than 59 minutes from now: calendar date and time without a "Due" prefix, e.g.
+      // "Tomorrow at 09:30".
       return t('timestamp.ReminderNotification', {
         timestamp: reminder.remindAt != null ? nsToDate(reminder.remindAt) : undefined,
       });
     }
-    // Within 59 min from now: relative
-    // e.g. "Due in 30 minutes", "Due in a minute"
+    // Within 59 minutes: relative, e.g. "Due in 30 minutes".
     return t('message.reminderNotification.due.label', 'Due {{ timeLeft }}', {
       timeLeft: t('duration.messageReminder', {
         milliseconds: timeLeftMs,

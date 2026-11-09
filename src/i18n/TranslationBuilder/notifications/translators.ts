@@ -25,8 +25,8 @@ export const translateAttachmentUploadBlocked: Translator<
   );
 };
 
-// The reason-or-fallback pairs below are written out at each call site rather than routed
-// through a helper: the extractor only sees keys that appear literally in a `t()` call.
+// The reason and fallback `t()` calls below are spelled out instead of built by a helper: the key
+// extractor only sees keys that appear literally in a `t()` call.
 export const translateAttachmentUploadFailed: Translator<
   NotificationTranslatorOptions
 > = ({ options: { notification }, t }) => {

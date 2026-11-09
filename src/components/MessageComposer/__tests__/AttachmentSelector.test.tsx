@@ -1,7 +1,6 @@
-// Import the package barrel first so it evaluates in its natural order (components
-// then context). MessageComposer's send/update hooks import `useChannel` from this
-// root barrel; importing a deep component path first would trigger a partial circular
-// re-entry that leaves `useChannel` undefined under Vitest.
+// Import the package barrel first so it evaluates in its natural order (components, then
+// context). MessageComposer's send/update hooks import `useChannel` from this root barrel, and
+// a deep component import first would re-enter it and leave `useChannel` undefined under Vitest.
 import '../../..';
 import React from 'react';
 import {
@@ -14,7 +13,7 @@ import {
 } from '@testing-library/react';
 import { fromPartial } from '@total-typescript/shoehorn';
 import { Thread } from 'stream-chat';
-import type { Command } from 'stream-chat';
+import type { Command, Channel as StreamChannel, StreamChat } from 'stream-chat';
 import { MessageComposer } from '../MessageComposer';
 import { Chat } from '../../Chat';
 import { Channel } from '../../Channel';
@@ -24,7 +23,14 @@ import {
   initClientWithChannels,
   mockMessageContext,
 } from '../../../mock-builders';
-import { AttachmentSelector } from '../AttachmentSelector/AttachmentSelector';
+import {
+  AttachmentSelector,
+  type AttachmentSelectorAction,
+  type AttachmentSelectorStandaloneButtonProps,
+  defaultAttachmentSelectorActionSet,
+  DefaultAttachmentSelectorComponents,
+  FileUploadButton,
+} from '../AttachmentSelector/AttachmentSelector';
 import { ThreadProvider } from '../../Threads';
 
 const ATTACHMENT_SELECTOR__ACTIONS_MENU_TEST_ID = 'attachment-selector-actions-menu';
@@ -41,11 +47,19 @@ const SHARE_LOCATION_BUTTON_CLASS =
 const SIMPLE_ATTACHMENT_SELECTOR_TEST_ID = 'invoke-attachment-selector-button';
 const UPLOAD_INPUT_TEST_ID = 'file-input';
 
-// Capabilities & config now live on the channel (own_capabilities +
-// client.channelServerConfigsStore) rather than in a ChannelStateContext. These defaults grant every
-// attachment option so the full AttachmentSelector menu renders.
+// Capabilities and config live on the channel (`own_capabilities` and
+// `client.channelServerConfigsStore`). These defaults grant every attachment option so the full
+// AttachmentSelector menu renders.
 const DEFAULT_OWN_CAPABILITIES = ['upload-file', 'send-poll'];
 const DEFAULT_CONFIG = { polls: true, shared_locations: true, uploads: true };
+
+// The menu trigger and the plain button share a test id; only the menu trigger has a popup.
+const expectPlainFileButton = () => {
+  expect(screen.getByTestId(SIMPLE_ATTACHMENT_SELECTOR_TEST_ID)).not.toHaveAttribute(
+    'aria-haspopup',
+  );
+  expect(screen.getByTestId(UPLOAD_INPUT_TEST_ID)).toBeInTheDocument();
+};
 
 const invokeMenu = async () => {
   await act(async () => {
@@ -304,11 +318,9 @@ describe('AttachmentSelector', () => {
   });
 
   it('hides location when the client disables it, even though the server allows it', async () => {
-    // The composer resolves `location.enabled` by ANDing the integrator's declarative configuration with
-    // the channel type's `shared_locations`, so either side can switch the feature off. This menu used to
-    // read the raw server flag instead, which meant it saw only the server's half of that answer: with a
-    // permissive server it offered an action the composer had already disabled and would refuse to
-    // compose. Reading the composer's resolved config is what makes the two agree.
+    // The composer resolves `location.enabled` by ANDing the integrator's configuration with the
+    // channel type's `shared_locations`, so either side can switch the feature off. The menu reads
+    // the composer's resolved config, so it never offers an action the composer would refuse.
     const {
       channels: [customChannel],
       client: customClient,
@@ -330,7 +342,7 @@ describe('AttachmentSelector', () => {
 
     await renderComponent({ customChannel, customClient });
 
-    // The two halves of the answer, so a future reader can see the divergence this pins down.
+    // The two halves of the answer diverge: the client disables it, the server allows it.
     expect(customChannel.messageComposer.config.location.enabled).toBe(false);
     expect(customChannel.serverConfig?.shared_locations).toBe(true);
 
@@ -348,10 +360,8 @@ describe('AttachmentSelector', () => {
       name: 'the composer configuration changes',
     },
   ])('drops the File action while the menu is open when $name', async ({ change }) => {
-    // `isUploadEnabled` is a getter, so nothing re-renders on its own. This hook subscribes to the
-    // configuration and the capability store precisely so that a change to either reaches the screen;
-    // without those subscriptions the only trigger was the attachment list moving, and an action the SDK
-    // had already stopped honouring stayed on offer until something unrelated happened.
+    // The File rule reads the composer configuration and the capability store; the selector
+    // subscribes to both, so a change to either reaches the screen.
     const {
       channels: [customChannel],
       client: customClient,
@@ -375,7 +385,7 @@ describe('AttachmentSelector', () => {
       screen.getByTestId(ATTACHMENT_SELECTOR__ACTIONS_MENU_TEST_ID),
     ).toHaveTextContent('File');
 
-    // No re-open, no unrelated state change — the open menu has to update by itself.
+    // No re-open and no unrelated state change: the open menu updates by itself.
     act(() => {
       change(customClient);
     });
@@ -386,9 +396,8 @@ describe('AttachmentSelector', () => {
   });
 
   it('offers File without the upload-file capability when files go to storage outside Stream', async () => {
-    // `attachments.customCdn` declares that bytes never reach Stream, so Stream's `upload-file` capability
-    // has nothing to permit or refuse. The menu asks the composer rather than the capability directly,
-    // which is what lets the two agree.
+    // `attachments.customCdn` declares that bytes never reach Stream, so Stream's `upload-file`
+    // capability has nothing to permit or refuse. The menu asks the composer, not the capability.
     const {
       channels: [customChannel],
       client: customClient,
@@ -429,9 +438,8 @@ describe('AttachmentSelector', () => {
   ])(
     'hides $action when the client disables $path, even though the server allows it',
     async ({ action, path }) => {
-      // Same reconciliation as location: the composer ANDs `attachments.enabled` with the channel type's
-      // `uploads`, and `polls.enabled` with `polls`. The menu reads the composer's answer, so an
-      // integrator can switch either feature off against a permissive server.
+      // Same as location: the composer ANDs `attachments.enabled` with the channel type's
+      // `uploads`, and `polls.enabled` with `polls`. The menu reads the composer's answer.
       const {
         channels: [customChannel],
         client: customClient,
@@ -486,11 +494,222 @@ describe('AttachmentSelector', () => {
       customChannel,
       customClient,
     });
-    // When only file uploads are enabled, the full context menu is not rendered; only the simple button
+    // With only file uploads enabled, only the simple button renders, not the full context menu.
     expect(
       screen.queryByTestId('attachment-selector-actions-menu'),
     ).not.toBeInTheDocument();
     expect(screen.getByTestId(SIMPLE_ATTACHMENT_SELECTOR_TEST_ID)).toBeInTheDocument();
+  });
+
+  it('renders the single file button without the upload-file capability when files go to storage outside Stream', async () => {
+    // With File as the only action, the selector renders a plain button instead of a menu. The
+    // button follows the same rule as the menu's File action, so `customCdn` makes it appear.
+    const {
+      channels: [customChannel],
+      client: customClient,
+    } = await initClientWithChannels({
+      channelsData: [
+        {
+          channel: {
+            cid: 'type:id',
+            config: {
+              commands: [],
+              polls: false,
+              shared_locations: false,
+              uploads: true,
+            },
+            id: 'id',
+            own_capabilities: [],
+            type: 'type',
+          },
+        },
+      ],
+    });
+    customClient.config.set({ messageComposer: { attachments: { customCdn: true } } });
+
+    await renderComponent({ customChannel, customClient });
+
+    expectPlainFileButton();
+  });
+
+  it('always offers an action of a type of its own, even one that reuses the File button', async () => {
+    // Only the built-in types are filtered. A custom type is how an app offers an action the
+    // built-in rules would hide; the upload itself is still subject to `isUploadEnabled`.
+    const CustomAttachmentSelector = () => (
+      <AttachmentSelector
+        attachmentSelectorActionSet={[
+          {
+            ActionButton: DefaultAttachmentSelectorComponents.File,
+            type: 'customUpload',
+          },
+          ...defaultAttachmentSelectorActionSet,
+        ]}
+      />
+    );
+
+    await renderComponent({
+      componentContext: { AttachmentSelector: CustomAttachmentSelector },
+      config: { ...DEFAULT_CONFIG, uploads: false },
+    });
+
+    await invokeMenu();
+    const menu = screen.getByTestId(ATTACHMENT_SELECTOR__ACTIONS_MENU_TEST_ID);
+    expect(menu.querySelectorAll(`.${UPLOAD_FILE_BUTTON_CLASS}`)).toHaveLength(1);
+    expect(menu).toHaveTextContent('Poll');
+  });
+
+  describe('StandaloneButton of a lone action', () => {
+    // Only File is offered by the built-in rules, so the action set decides what renders alone.
+    const ONLY_UPLOADS_CONFIG = {
+      commands: [],
+      polls: false,
+      shared_locations: false,
+      uploads: true,
+    };
+    const renderWithActionSet = (actionSet: AttachmentSelectorAction[]) =>
+      renderComponent({
+        componentContext: {
+          AttachmentSelector: () => (
+            <AttachmentSelector
+              attachmentSelectorActionSet={actionSet}
+              buttonProps={{ className: 'custom-trigger' }}
+            />
+          ),
+        },
+        config: ONLY_UPLOADS_CONFIG,
+      });
+
+    it('renders the StandaloneButton of a lone action of a type of its own instead of the menu', async () => {
+      await renderWithActionSet([
+        {
+          ActionButton: DefaultAttachmentSelectorComponents.File,
+          StandaloneButton: FileUploadButton,
+          type: 'customUpload',
+        },
+      ]);
+
+      expectPlainFileButton();
+      expect(screen.getByTestId(SIMPLE_ATTACHMENT_SELECTOR_TEST_ID)).toHaveClass(
+        'custom-trigger',
+      );
+    });
+
+    it("renders a custom StandaloneButton in the selector's root element with the buttonProps", async () => {
+      const StandaloneButton = ({
+        buttonProps,
+      }: AttachmentSelectorStandaloneButtonProps) => (
+        <button className={buttonProps?.className} data-testid='custom-standalone' />
+      );
+      await renderWithActionSet([
+        {
+          ActionButton: DefaultAttachmentSelectorComponents.File,
+          StandaloneButton,
+          type: 'customUpload',
+        },
+      ]);
+
+      const button = screen.getByTestId('custom-standalone');
+      expect(button).toHaveClass('custom-trigger');
+      expect(button.parentElement).toHaveClass('str-chat__attachment-selector');
+      expect(
+        screen.queryByTestId(SIMPLE_ATTACHMENT_SELECTOR_TEST_ID),
+      ).not.toBeInTheDocument();
+    });
+
+    it('hides a custom StandaloneButton from the a11y tree while a command is active', async () => {
+      const { channel } = await renderWithActionSet([
+        {
+          ActionButton: DefaultAttachmentSelectorComponents.File,
+          StandaloneButton: () => <button data-testid='custom-standalone' />,
+          type: 'customUpload',
+        },
+      ]);
+
+      await act(() => {
+        channel.messageComposer.textComposer.setCommand(
+          fromPartial<Command>({ args: '[text]', name: 'giphy' }),
+        );
+      });
+
+      await waitFor(() => {
+        expect(screen.getByTestId('custom-standalone').parentElement).toHaveAttribute(
+          'inert',
+        );
+      });
+    });
+
+    it('disables a custom StandaloneButton during the send cooldown', async () => {
+      const StandaloneButton = ({
+        buttonProps,
+      }: AttachmentSelectorStandaloneButtonProps) => (
+        <button data-testid='custom-standalone' disabled={buttonProps?.disabled} />
+      );
+      const { channel } = await renderWithActionSet([
+        {
+          ActionButton: DefaultAttachmentSelectorComponents.File,
+          StandaloneButton,
+          type: 'customUpload',
+        },
+      ]);
+      expect(screen.getByTestId('custom-standalone')).toBeEnabled();
+
+      await act(() => {
+        channel.cooldownTimer.state.next(fromPartial({ cooldownRemaining: 5 }));
+      });
+
+      expect(screen.getByTestId('custom-standalone')).toBeDisabled();
+    });
+
+    it('keeps the StandaloneButton an uploadFile action brings', async () => {
+      await renderWithActionSet([
+        {
+          ActionButton: DefaultAttachmentSelectorComponents.File,
+          StandaloneButton: () => <button data-testid='custom-standalone' />,
+          type: 'uploadFile',
+        },
+      ]);
+
+      expect(screen.getByTestId('custom-standalone')).toBeInTheDocument();
+      expect(
+        screen.queryByTestId(SIMPLE_ATTACHMENT_SELECTOR_TEST_ID),
+      ).not.toBeInTheDocument();
+    });
+
+    it('gives an uploadFile action FileUploadButton when it has no StandaloneButton', async () => {
+      const ActionButton = () => <button>Custom file</button>;
+      await renderWithActionSet([{ ActionButton, type: 'uploadFile' }]);
+
+      expectPlainFileButton();
+    });
+
+    it('shows a lone action without a StandaloneButton as the only item of the menu', async () => {
+      await renderWithActionSet([
+        { ActionButton: DefaultAttachmentSelectorComponents.File, type: 'customUpload' },
+      ]);
+
+      expect(screen.getByTestId(SIMPLE_ATTACHMENT_SELECTOR_TEST_ID)).toHaveAttribute(
+        'aria-haspopup',
+      );
+      await invokeMenu();
+      const menu = screen.getByTestId(ATTACHMENT_SELECTOR__ACTIONS_MENU_TEST_ID);
+      expect(menu.querySelectorAll(`.${UPLOAD_FILE_BUTTON_CLASS}`)).toHaveLength(1);
+    });
+
+    it('ignores the StandaloneButton while other actions are offered', async () => {
+      await renderWithActionSet([
+        {
+          ActionButton: DefaultAttachmentSelectorComponents.File,
+          StandaloneButton: () => <button data-testid='custom-standalone' />,
+          type: 'customUpload',
+        },
+        ...defaultAttachmentSelectorActionSet,
+      ]);
+
+      expect(screen.queryByTestId('custom-standalone')).not.toBeInTheDocument();
+      await invokeMenu();
+      const menu = screen.getByTestId(ATTACHMENT_SELECTOR__ACTIONS_MENU_TEST_ID);
+      expect(menu.querySelectorAll(`.${UPLOAD_FILE_BUTTON_CLASS}`)).toHaveLength(2);
+    });
   });
 
   it('does not render SimpleAttachmentSelector neither AttachmentSelector menu if upload permission is granted but file upload disabled', async () => {
@@ -555,7 +774,7 @@ describe('AttachmentSelector', () => {
       customClient,
       thread: generateMessage({ cid: customChannel.cid }),
     });
-    // In a thread, the full AttachmentSelector context menu is not used; only the simple button is rendered
+    // In a thread, only the simple button renders, not the full context menu.
     expect(
       screen.queryByTestId('attachment-selector-actions-menu'),
     ).not.toBeInTheDocument();
@@ -597,6 +816,73 @@ describe('AttachmentSelector', () => {
     ).not.toBeInTheDocument();
   });
 
+  describe('at the file limit', () => {
+    const fillFileLimit = (channel: StreamChannel, client: StreamChat) =>
+      act(() => {
+        client.config.set({
+          messageComposer: { attachments: { maxNumberOfFilesPerMessage: 1 } },
+        });
+        channel.messageComposer.attachmentManager.upsertAttachments([
+          {
+            asset_url: 'https://example.com/file.pdf',
+            localMetadata: { id: 'uploaded-file', uploadState: 'finished' },
+            type: 'file',
+          },
+        ]);
+      });
+
+    it('keeps File in the menu, disabled', async () => {
+      const { channel, client } = await renderComponent();
+      fillFileLimit(channel, client);
+
+      await invokeMenu();
+      const fileButton = screen
+        .getByTestId(ATTACHMENT_SELECTOR__ACTIONS_MENU_TEST_ID)
+        .querySelector(`.${UPLOAD_FILE_BUTTON_CLASS}`);
+      expect(fileButton).toBeDisabled();
+    });
+
+    it('keeps the plain button of a lone File action, disabled', async () => {
+      const { channel, client } = await renderComponent({
+        config: { commands: [], polls: false, shared_locations: false, uploads: true },
+      });
+      fillFileLimit(channel, client);
+
+      expectPlainFileButton();
+      expect(screen.getByTestId(SIMPLE_ATTACHMENT_SELECTOR_TEST_ID)).toBeDisabled();
+    });
+  });
+
+  it('closes the open modal once its action is no longer offered, so it does not reappear', async () => {
+    const { client } = await renderComponent({
+      config: { commands: [], polls: true, shared_locations: false, uploads: true },
+    });
+    await invokeMenu();
+    fireEvent.click(
+      screen
+        .getByTestId(ATTACHMENT_SELECTOR__ACTIONS_MENU_TEST_ID)
+        .querySelector(`.${CREATE_POLL_BUTTON_CLASS}`),
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId(POLL_CREATION_DIALOG_TEST_ID)).toBeInTheDocument();
+    });
+
+    // File is left alone, so the plain button replaces the menu and its modal.
+    await act(() => {
+      client.config.set({ messageComposer: { polls: { enabled: false } } });
+    });
+    expectPlainFileButton();
+    expect(screen.queryByTestId(POLL_CREATION_DIALOG_TEST_ID)).not.toBeInTheDocument();
+
+    await act(() => {
+      client.config.set({ messageComposer: { polls: { enabled: true } } });
+    });
+    expect(screen.getByTestId(SIMPLE_ATTACHMENT_SELECTOR_TEST_ID)).toHaveAttribute(
+      'aria-haspopup',
+    );
+    expect(screen.queryByTestId(POLL_CREATION_DIALOG_TEST_ID)).not.toBeInTheDocument();
+  });
+
   it('opens poll creation dialog if Poll option is selected and closes the attachment selector menu', async () => {
     await renderComponent();
     const invokeButton = screen.getByTestId('invoke-attachment-selector-button');
@@ -614,15 +900,15 @@ describe('AttachmentSelector', () => {
     // Accessible name comes from the translated dialog title (en: "Create Poll").
     const dialog = screen.getByRole('dialog', { name: 'Create Poll' });
     const questionInput = screen.getByLabelText('Question');
-    // The description id is per-instance (unique across stacked modals), so read it rather than
-    // hardcoding the shared base.
+    // The description ID is per instance (unique across stacked modals), so it is read rather than
+    // hardcoded.
     const descriptionId = dialog.getAttribute('aria-describedby');
     expect(descriptionId).toMatch(/-description$/);
     expect(document.getElementById(descriptionId!)).toHaveTextContent(
       'Create a question, add options, and configure poll settings',
     );
-    // Initial focus lands on the dialog surface (so the SR announces the dialog identity before a
-    // field's focus could supersede it).
+    // Initial focus lands on the dialog surface, so the SR announces the dialog before a field's
+    // focus could supersede it.
     await waitFor(() => {
       expect(dialog).toHaveFocus();
     });
@@ -696,8 +982,8 @@ describe('AttachmentSelector', () => {
     await waitFor(() =>
       expect(screen.queryByTestId(POLL_CREATION_DIALOG_TEST_ID)).not.toBeInTheDocument(),
     );
-    // The fix: focus lands on the composer textarea, and neither focus-restorer (react-aria's
-    // FocusScope nor AttachmentSelector's own trigger restore) blips focus back to the "+" trigger.
+    // Focus lands on the composer textarea, and neither focus restorer (react-aria's FocusScope,
+    // AttachmentSelector's own trigger restore) blips it back to the "+" trigger.
     await waitFor(() => {
       expect(document.activeElement?.tagName).toBe('TEXTAREA');
     });
@@ -902,7 +1188,7 @@ const getSimpleAttachmentSelectorInvokeElement = () =>
 
 describe('SimpleAttachmentSelector', () => {
   const message = generateMessage();
-  // Only file uploads enabled => AttachmentSelector falls back to SimpleAttachmentSelector.
+  // Only file uploads are enabled, so AttachmentSelector falls back to SimpleAttachmentSelector.
   const renderSimple = (overrides: Record<string, unknown> = {}) =>
     renderComponent({
       config: { uploads: true },
@@ -940,6 +1226,153 @@ describe('SimpleAttachmentSelector', () => {
     expect(
       screen.queryByTestId('invoke-attachment-selector-button'),
     ).not.toBeInTheDocument();
+  });
+
+  it('renders without the "upload-file" capability when files go to storage outside Stream', async () => {
+    const {
+      channels: [customChannel],
+      client: customClient,
+    } = await initClientWithChannels({
+      channelsData: [
+        { channel: { config: { uploads: true }, own_capabilities: ['send-poll'] } },
+      ],
+    });
+    customClient.config.set({ messageComposer: { attachments: { customCdn: true } } });
+
+    await renderComponent({ customChannel, customClient, message });
+
+    expect(screen.getByTestId(SIMPLE_ATTACHMENT_SELECTOR_TEST_ID)).toBeInTheDocument();
+  });
+
+  it("renders when files go to storage outside Stream although the channel type's uploads are off", async () => {
+    // With `customCdn`, the channel type's `uploads` flag does not apply; `attachments.enabled`
+    // decides alone.
+    const {
+      channels: [customChannel],
+      client: customClient,
+    } = await initClientWithChannels({
+      channelsData: [{ channel: { config: { uploads: false }, own_capabilities: [] } }],
+    });
+    customClient.config.set({ messageComposer: { attachments: { customCdn: true } } });
+
+    await renderComponent({ customChannel, customClient, message });
+
+    expect(screen.getByTestId(SIMPLE_ATTACHMENT_SELECTOR_TEST_ID)).toBeInTheDocument();
+  });
+
+  it('renders in a thread composer when files go to storage outside Stream', async () => {
+    const {
+      channels: [customChannel],
+      client: customClient,
+    } = await initClientWithChannels({
+      channelsData: [
+        {
+          channel: {
+            config: {
+              commands: [],
+              polls: false,
+              shared_locations: false,
+              uploads: true,
+            },
+            own_capabilities: [],
+          },
+        },
+      ],
+    });
+    customClient.config.set({ messageComposer: { attachments: { customCdn: true } } });
+
+    await renderComponent({
+      customChannel,
+      customClient,
+      thread: generateMessage({ cid: customChannel.cid }),
+    });
+
+    expect(screen.getByTestId(SIMPLE_ATTACHMENT_SELECTOR_TEST_ID)).toBeInTheDocument();
+    expect(
+      screen.queryByTestId(ATTACHMENT_SELECTOR__ACTIONS_MENU_TEST_ID),
+    ).not.toBeInTheDocument();
+  });
+
+  it('does not render when the client disables attachments, even with the "upload-file" capability', async () => {
+    const { client } = await renderSimple();
+    expect(screen.getByTestId(SIMPLE_ATTACHMENT_SELECTOR_TEST_ID)).toBeInTheDocument();
+
+    act(() => {
+      client.config.set({ messageComposer: { attachments: { enabled: false } } });
+    });
+
+    expect(
+      screen.queryByTestId(SIMPLE_ATTACHMENT_SELECTOR_TEST_ID),
+    ).not.toBeInTheDocument();
+  });
+
+  it('is disabled while the message holds as many files as allowed', async () => {
+    const { channel, client } = await renderSimple();
+    act(() => {
+      client.config.set({
+        messageComposer: { attachments: { maxNumberOfFilesPerMessage: 1 } },
+      });
+    });
+    expect(screen.getByTestId(SIMPLE_ATTACHMENT_SELECTOR_TEST_ID)).toBeInTheDocument();
+
+    act(() => {
+      channel.messageComposer.attachmentManager.upsertAttachments([
+        {
+          asset_url: 'https://example.com/file.pdf',
+          localMetadata: { id: 'uploaded-file', uploadState: 'finished' },
+          type: 'file',
+        },
+      ]);
+    });
+
+    expect(screen.getByTestId(SIMPLE_ATTACHMENT_SELECTOR_TEST_ID)).toBeDisabled();
+
+    act(() => {
+      channel.messageComposer.attachmentManager.removeAttachments(['uploaded-file']);
+    });
+
+    expect(screen.getByTestId(SIMPLE_ATTACHMENT_SELECTOR_TEST_ID)).toBeEnabled();
+  });
+
+  it('counts an upload in progress toward the file limit', async () => {
+    const { channel, client } = await renderSimple();
+    act(() => {
+      client.config.set({
+        messageComposer: { attachments: { maxNumberOfFilesPerMessage: 1 } },
+      });
+      channel.messageComposer.attachmentManager.upsertAttachments([
+        {
+          localMetadata: { id: 'uploading-file', uploadState: 'uploading' },
+          type: 'file',
+        },
+      ]);
+    });
+
+    expect(screen.getByTestId(SIMPLE_ATTACHMENT_SELECTOR_TEST_ID)).toBeDisabled();
+  });
+
+  it('is disabled during the send cooldown', async () => {
+    const { channel } = await renderSimple();
+    expect(screen.getByTestId(SIMPLE_ATTACHMENT_SELECTOR_TEST_ID)).toBeEnabled();
+
+    act(() => {
+      channel.cooldownTimer.state.next(fromPartial({ cooldownRemaining: 5 }));
+    });
+
+    expect(screen.getByTestId(SIMPLE_ATTACHMENT_SELECTOR_TEST_ID)).toBeDisabled();
+  });
+
+  it('follows a change of the "upload-file" capability', async () => {
+    const { channel } = await renderSimple({ ownCapabilities: [] });
+    expect(
+      screen.queryByTestId(SIMPLE_ATTACHMENT_SELECTOR_TEST_ID),
+    ).not.toBeInTheDocument();
+
+    act(() => {
+      channel.data = { ...channel.data, own_capabilities: ['upload-file'] };
+    });
+
+    expect(screen.getByTestId(SIMPLE_ATTACHMENT_SELECTOR_TEST_ID)).toBeInTheDocument();
   });
 
   it('opens on Space key up', async () => {
@@ -996,7 +1429,7 @@ describe('SimpleAttachmentSelector', () => {
     await renderSimple({
       componentContext: { FileUploadIcon },
     });
-    // FileUploadIcon is no longer used by SimpleAttachmentSelector
+    // SimpleAttachmentSelector ignores FileUploadIcon.
     expect(screen.queryByTestId('customFileUploadIcon')).not.toBeInTheDocument();
   });
 
@@ -1034,7 +1467,7 @@ describe('SimpleAttachmentSelector', () => {
         expect(el).not.toHaveAttribute('inert');
         expect(el).not.toHaveAttribute('aria-hidden');
         expect(el).not.toHaveAttribute('tabindex');
-        // never display:none — the CSS transition handles visual hiding.
+        // Never `display: none`: the CSS transition handles the visual hiding.
         expect(el).not.toHaveAttribute('hidden');
       });
     });
@@ -1054,7 +1487,7 @@ describe('SimpleAttachmentSelector', () => {
           expect(el).toHaveAttribute('aria-hidden', 'true');
           expect(el).toHaveAttribute('tabindex', '-1');
           expect(el).toHaveAttribute('inert');
-          // visual hiding is CSS-only; the `hidden` attribute must NOT be set.
+          // Visual hiding is CSS-only, so the `hidden` attribute must not be set.
           expect(el).not.toHaveAttribute('hidden');
         });
       });

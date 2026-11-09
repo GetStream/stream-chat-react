@@ -1,8 +1,12 @@
-import { BaseImage, type BaseImageProps } from '../BaseImage';
+import { type BaseImageProps, BaseImage as DefaultBaseImage } from '../BaseImage';
 import { Button } from '../Button';
 import clsx from 'clsx';
 import React from 'react';
-import { useComponentContextIcons, useTranslationContext } from '../../context';
+import {
+  useComponentContext,
+  useComponentContextIcons,
+  useTranslationContext,
+} from '../../context';
 
 export type VideoThumbnailProps = BaseImageProps & {
   onPlay?: () => void;
@@ -14,14 +18,31 @@ export const VideoThumbnail = ({
   ...imageProps
 }: VideoThumbnailProps) => {
   const { IconPlayFill } = useComponentContextIcons();
+  const { BaseImage = DefaultBaseImage } = useComponentContext();
   const { t } = useTranslationContext();
 
   return (
     <div className='str-chat__message-attachment__video-thumbnail'>
-      <BaseImage
-        className={clsx('str-chat__message-attachment__video-thumbnail-image', className)}
-        {...imageProps}
-      />
+      {imageProps.src ? (
+        <BaseImage
+          className={clsx(
+            'str-chat__message-attachment__video-thumbnail-image',
+            className,
+          )}
+          {...imageProps}
+        />
+      ) : (
+        // A video without a thumbnail shows a blank frame under the play indicator.
+        <div
+          aria-hidden='true'
+          className={clsx(
+            'str-chat__message-attachment__video-thumbnail-image',
+            'str-chat__message-attachment__video-thumbnail-placeholder',
+            className,
+          )}
+          data-testid='str-chat__video-thumbnail-placeholder'
+        />
+      )}
       {onPlay ? (
         <Button
           appearance='solid'

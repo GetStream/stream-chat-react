@@ -33,8 +33,8 @@ export const useChat = ({ client }: UseChatParams) => {
 
     const userAgent = client.getUserAgent();
     if (!userAgent.includes('stream-chat-react')) {
-      // result looks like: 'stream-chat-react-2.3.2-stream-chat-javascript-client-browser-2.2.2'
-      // the upper-case text between double underscores is replaced with the actual semantic version of the library
+      // e.g. 'stream-chat-react-2.3.2-stream-chat-javascript-client-browser-2.2.2'. The build
+      // replaces `process.env.STREAM_CHAT_REACT_VERSION` with the package version.
       client.setUserAgent(`stream-chat-react-${version}-${userAgent}`);
     }
 

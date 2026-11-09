@@ -12,20 +12,20 @@ import type { ReactionResponse } from 'stream-chat';
 import { useComponentContextIcons } from '../../context';
 
 export type ReactionSelectorProps = {
-  /** Override dialog id used by the selector popover. */
+  /** Dialog ID of the selector popover. Defaults to the ID from `ReactionSelector.getDialogId`. */
   dialogId?: string;
-  /** Function that adds/removes a reaction on a message (overrides the function stored in `MessageContext`) */
+  /** Adds or removes a reaction on the message. Defaults to the `MessageContext` handler. */
   handleReaction?: (
     reactionType: string,
     event: React.BaseSyntheticEvent,
   ) => Promise<void>;
-  /** An array of the own reaction objects to distinguish own reactions visually */
+  /** Own reactions, whose types show as pressed. Defaults to the message's own reactions. */
   own_reactions?: ReactionResponse[];
 };
 
 interface ReactionSelectorInterface {
   (props: ReactionSelectorProps): ReactNode;
-  getDialogId: (_: { messageId: string; threadList?: boolean }) => string;
+  getDialogId: (_: { messageId: string }) => string;
   displayName: string;
   ExtendedList: React.ComponentType<ReactionSelectorProps & { dialogId?: string }>;
 }
@@ -50,15 +50,10 @@ export const ReactionSelector: ReactionSelectorInterface = (props) => {
     closeReactionSelectorOnClick,
     handleReaction: contextHandleReaction,
     message,
-    threadList,
   } = useMessageContext();
   const { t } = useTranslationContext();
   const dialogId =
-    propDialogId ??
-    ReactionSelector.getDialogId({
-      messageId: message.id,
-      threadList,
-    });
+    propDialogId ?? ReactionSelector.getDialogId({ messageId: message.id });
   const { dialog } = useDialogOnNearestManager({ id: dialogId });
 
   const handleReaction = propHandleReaction ?? contextHandleReaction;
@@ -169,10 +164,7 @@ export const ReactionSelector: ReactionSelectorInterface = (props) => {
   );
 };
 
-ReactionSelector.getDialogId = ({ messageId, threadList }) => {
-  const dialogIdNamespace = threadList ? '-thread' : '';
-  return `reaction-selector${dialogIdNamespace}-${messageId}`;
-};
+ReactionSelector.getDialogId = ({ messageId }) => `reaction-selector-${messageId}`;
 
 ReactionSelector.displayName = 'ReactionSelector';
 

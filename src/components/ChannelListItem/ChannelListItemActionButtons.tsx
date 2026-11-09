@@ -10,7 +10,8 @@ import {
 import { useSplitActionSet } from '../Chat/hooks/useSplitActionSet';
 import { useChannelListItemContext } from './ChannelListItem';
 
-export type ChannelListItemActionButtonsProps = ComponentProps<ComponentType>; // hack to allow empty props
+/** No props. Spelled via `ComponentProps` because lint rejects an empty `{}` type. */
+export type ChannelListItemActionButtonsProps = ComponentProps<ComponentType>;
 
 interface ChannelListItemActionButtonsInterface {
   (props: ChannelListItemActionButtonsProps): ReactNode;
@@ -57,7 +58,6 @@ export const ChannelListItemActionButtons: ChannelListItemActionButtonsInterface
     useSplitActionSet(filteredActionSet);
 
   if (quickActionSet.length + dropdownActionSet.length === 0) {
-    // no buttons to render, omit rendering wrapper
     return null;
   }
 

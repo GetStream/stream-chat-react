@@ -49,25 +49,21 @@ import { VisibilityDisclaimer } from './VisibilityDisclaimer';
 import { VideoAttachment } from './VideoAttachment';
 import type { AttachmentProps } from './Attachment';
 import { useComponentContext } from '../../context/ComponentContext';
-import { AttachmentUploadProgressIndicator as DefaultAttachmentUploadProgressIndicator } from './components';
-
-/**
- * Whether there is anything to render the attachment from: a CDN url, or the local file while
- * its upload is in flight — or after it failed, since a failed message can be retried and the
- * user has to see what they are retrying.
- *
- * Deliberately non-reactive (payload only): `UploadManager` drops its record a microtask before
- * the resolved URL is written back, and gating on the live record would blink the attachment out
- * of the DOM in between.
- */
-const hasRenderableSource = (attachment: Attachment | LocalAttachment) =>
-  isPendingUpload(attachment) ||
-  !!getAttachmentPreviewUrl(attachment, attachment.asset_url);
-
 import {
   type ImageAttachmentConfiguration,
   useAttachmentContext,
 } from '../../context/AttachmentContext';
+import { AttachmentUploadProgressIndicator as DefaultAttachmentUploadProgressIndicator } from './components';
+
+/**
+ * Whether there is anything to render the attachment from: a CDN URL, or the local file while
+ * its upload is in flight or after it failed (a failed message can be retried, so the user has
+ * to see it). Reads the payload only: `UploadManager` drops its record a microtask before the
+ * resolved URL is written back, so gating on the live record would blink the attachment out.
+ */
+const hasRenderableSource = (attachment: Attachment | LocalAttachment) =>
+  isPendingUpload(attachment) ||
+  !!getAttachmentPreviewUrl(attachment, attachment.asset_url);
 
 export type AttachmentContainerProps = {
   attachment: Attachment | GalleryAttachment | SharedLocationResponseData;
@@ -206,8 +202,8 @@ export const FileContainer = (props: RenderAttachmentProps) => {
   const { attachment } = props;
 
   if (isVoiceRecordingAttachment(attachment)) {
-    // Audio and voice recordings render nothing without a source — `useAudioPlayer` needs one —
-    // but their containers would still occupy layout, so they are filtered here too.
+    // Without a source `Audio` and `VoiceRecording` render nothing (`useAudioPlayer` needs one),
+    // but their containers would still take up layout.
     return hasRenderableSource(attachment) ? (
       <VoiceRecordingContainer {...props} />
     ) : null;
@@ -249,8 +245,8 @@ export const GalleryContainer = ({
   return (
     <AttachmentWithinContainer attachment={attachment} componentType='gallery'>
       <ModalGallery items={items} key='gallery' />
-      {/* One combined bar for the gallery — per-item overlays are not possible here,
-          because ModalGallery receives positioned descriptors, not the attachments. */}
+      {/* One combined bar for the gallery: ModalGallery receives positioned descriptors, not the
+          attachments, so per-item overlays are not possible. */}
       <AttachmentUploadProgressIndicator
         attachments={attachment.items}
         variant='overlay'

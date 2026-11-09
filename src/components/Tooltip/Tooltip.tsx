@@ -11,15 +11,15 @@ export const Tooltip = ({ children, className, ...rest }: ComponentProps<'div'>)
 );
 
 export type PopperTooltipProps<T extends HTMLElement> = React.PropsWithChildren<{
-  /** Reference element to which the tooltip should attach to */
+  /** Element the tooltip attaches to. */
   referenceElement: T | null;
-  /** Custom class to be merged along the defaults */
+  /** Class merged with the default. */
   className?: string;
-  /** Popper's modifier (offset) property - [xAxis offset, yAxis offset], default [0, 10] */
+  /** Offset in pixels as `[crossAxis, mainAxis]`. Defaults to `[0, 10]`. */
   offset?: [number, number];
-  /** Popper's placement property defining default position of the tooltip, default 'top' */
+  /** Placement of the tooltip relative to the reference element. Defaults to `'top'`. */
   placement?: PopperLikePlacement;
-  /** Tells component whether to render its contents */
+  /** Whether to render the contents. Defaults to `false`. */
   visible?: boolean;
 }>;
 

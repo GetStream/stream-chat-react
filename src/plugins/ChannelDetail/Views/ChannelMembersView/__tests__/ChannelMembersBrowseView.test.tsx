@@ -52,9 +52,8 @@ vi.mock('stream-chat', async (importOriginal) => {
 vi.mock('../../../../../context');
 vi.mock('../../../../../store');
 
-// Render react-virtuoso synchronously: jsdom has no layout, so the real
-// component would window down to zero items. The stub renders every item plus
-// the empty/footer slots so behavior assertions still hold.
+// Renders react-virtuoso synchronously: jsdom has no layout, so the real component would window
+// down to zero items. The stub renders every item plus the empty/footer slots.
 vi.mock('react-virtuoso', () => ({
   Virtuoso: ({
     components = {},
@@ -114,8 +113,8 @@ const members: ChannelMemberResponse[] = [
 
 describe('ChannelMembersBrowseView', () => {
   beforeEach(() => {
-    // The context module is auto-mocked, so the icon hook would return undefined; hand back
-    // the real icons rather than stubs, so assertions still describe what users see.
+    // The context module is auto-mocked, so the icon hook would return undefined; hand back the
+    // real icons so assertions still describe what users see.
     vi.mocked(useComponentContextIcons).mockReturnValue(DEFAULT_ICONS);
     vi.clearAllMocks();
     mocks.virtuosoRenderCount = 0;
@@ -185,12 +184,10 @@ describe('ChannelMembersBrowseView', () => {
 
     renderWithChannel(<ChannelMembersBrowseView />, channel);
 
-    // No members yet: the search input is suppressed and nothing is queried.
     expect(screen.queryByRole('searchbox')).not.toBeInTheDocument();
     expect(mocks.searchSourceSearch).not.toHaveBeenCalled();
 
-    // A member joins; the count is tracked reactively, so the list activates
-    // without a remount.
+    // A member joins; the count is reactive, so the list activates without a remount.
     channel.data!.member_count = 1;
     channel.state.members['user-1'] = {
       user: { id: 'user-1', name: 'Alice' },

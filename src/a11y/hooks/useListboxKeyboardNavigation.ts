@@ -7,60 +7,52 @@ const VERTICAL_KEYS = ['ArrowUp', 'ArrowDown', 'Home', 'End'];
 
 /** State handed to a {@link ListboxKeyHandler} when its key is pressed inside the container. */
 export type ListboxNavigationContext = {
-  /** The focused element — guaranteed to be inside the container. */
+  /** The focused element, always inside the container. */
   active: HTMLElement;
   /** The listbox container element. */
   container: HTMLElement;
-  /** The current option elements (live). */
+  /** Queries the current option elements on each call. */
   getOptions: () => HTMLElement[];
   /** Whether {@link ListboxNavigationContext.active} is itself an option. */
   onOption: boolean;
 };
 
 /**
- * Handler for a non-roving key. Return `true` if it handled the key — the hook then
- * `preventDefault()`s and `stopPropagation()`s so nothing else acts on it. Return nothing to let the
- * key fall through (default behaviour preserved).
+ * Handler for a non-roving key. Returning `true` marks the key as handled and the hook calls
+ * `preventDefault()` and `stopPropagation()`; any other return lets the key fall through.
  */
 export type ListboxKeyHandler = (context: ListboxNavigationContext) => boolean | void;
 
 export type ListboxKeyboardNavigationConfig = {
   /**
-   * Where the roving (vertical) keys are active:
-   * - `'option'` (default): only when focus is already on an option — a plain listbox.
+   * Where the roving (Up/Down/Home/End) keys are active. Defaults to `'option'`.
+   * - `'option'`: only while focus is on an option.
    * - `'container'`: anywhere inside the container, so focus can enter the list from a preceding
-   *   control (e.g. a filter tag); when not on an option, Down/Home land on the first, Up/End on the
-   *   last.
+   *   control. Off an option, Down and Home focus the first option, Up and End the last.
    */
   enterScope?: 'container' | 'option';
   /**
-   * Extra keys to handle, beyond the built-in roving. Mapped by `event.key` to a handler that
-   * receives the current {@link ListboxNavigationContext} and decides what to do. The hook does not
-   * prescribe any particular keys (e.g. ArrowRight to reach a row's actions) — compose what you need,
-   * optionally with {@link createRowActionKeyHandlers}. Roving keys (Up/Down/Home/End) are reserved.
+   * Extra handlers by `event.key`; {@link createRowActionKeyHandlers} builds a ready-made set.
+   * Up, Down, Home and End are reserved for roving and never reach a handler.
    */
   keyHandlers?: Record<string, ListboxKeyHandler>;
-  /** Selector for the navigable options. Default `[role="option"]`. */
+  /** Selector for the navigable options. Defaults to `[role="option"]`. */
   optionSelector?: string;
   /**
-   * Maps the focused element to the option that vertical roving (Up/Down/Home/End) should move
-   * relative to. Use with `enterScope: 'container'` so those keys work while focus is on something
-   * inside an option's row (e.g. its action buttons) and step to the next/previous option from that
-   * row, rather than jumping to the first/last. Return `null` to fall back to that default.
+   * Maps the focused element to the option that roving moves relative to, for focus on something
+   * inside an option's row. Use with `enterScope: 'container'`. Returning `null` treats no option
+   * as active, so Down lands on the first option and Up on the last.
    */
   resolveActiveOption?: (active: HTMLElement) => HTMLElement | null;
 };
 
 /**
- * Keyboard navigation for a list of options (the channel list, the search results, …). Returns an
- * `onKeyDown` to spread onto the container plus `getOptions` for callers that need the current
- * options (e.g. load-more focus management):
- * - **ArrowUp/ArrowDown/Home/End** rove the options (scope set by `enterScope`).
- * - any other key listed in `keyHandlers` is delegated to its handler.
+ * Keyboard navigation for a listbox. Returns `onKeyDown` to spread onto the container and
+ * `getOptions` to query the current options.
  *
- * For keys, it handles it `stopPropagation()`s, so it stays authoritative — nothing downstream (a
- * parent handler, or the browser/AT "jump to first/last focusable" fallback) can move focus to a
- * non-option. Stateless — safe to call on every render; the handlers read the DOM live.
+ * ArrowUp/ArrowDown/Home/End rove the options (see `enterScope`); other keys go to `keyHandlers`.
+ * Handled keys call `preventDefault()` and `stopPropagation()`, so neither an ancestor handler nor
+ * a browser default can move focus to a non-option. Options are read from the DOM on each key.
  */
 export const useListboxKeyboardNavigation = (
   containerRef: RefObject<HTMLElement | null>,
@@ -86,8 +78,7 @@ export const useListboxKeyboardNavigation = (
     if (VERTICAL_KEYS.includes(event.key)) {
       if (enterScope === 'option' && !onOption) return;
       const options = getOptions();
-      // The option the move is relative to: the focused option itself, or — when focus is on
-      // something inside an option's row (e.g. an action button) — the option that row maps to.
+      // Move relative to the focused option, or to the one `resolveActiveOption` maps the focus to.
       const current = onOption ? active : (resolveActiveOption?.(active) ?? null);
       const nextIndex = getNextRovingFocusIndex({
         activeIndex: current ? options.indexOf(current) : -1,
@@ -117,12 +108,10 @@ export const useListboxKeyboardNavigation = (
 };
 
 /**
- * Composable {@link ListboxKeyHandler}s for the "each option sits in a row alongside one or more
- * action targets" pattern (e.g. a channel row + its actions/menu buttons). The option and its
- * actions form one **horizontal cyclic group** in DOM order: from the option **ArrowRight** enters
- * the actions; **ArrowLeft/ArrowRight** move between the actions; stepping off either end returns to
- * the option (so the actions need not be in the Tab order). Rows with no actions (a lone option)
- * leave the keys unhandled. Pass the result as (part of) `keyHandlers`.
+ * ArrowLeft/ArrowRight {@link ListboxKeyHandler}s for an option that sits in a row next to action
+ * targets. The option and its actions form one cyclic group in DOM order, so the actions need not
+ * be in the Tab order. A row with a lone option leaves the keys unhandled. Pass the result as (part
+ * of) `keyHandlers`.
  */
 export const createRowActionKeyHandlers = ({
   actionSelector,
@@ -138,11 +127,11 @@ export const createRowActionKeyHandlers = ({
     ({ active }) => {
       const row = active.closest(rowSelector);
       if (!row) return;
-      // The option + its action targets, in document order, as one cyclic group.
+      // The option and its action targets in DOM order, as one cyclic group.
       const items = Array.from(
         row.querySelectorAll<HTMLElement>(`${optionSelector}, ${actionSelector}`),
       );
-      if (items.length < 2) return; // a lone option — nothing to move between
+      if (items.length < 2) return; // A lone option has nothing to move between.
       const index = items.indexOf(active);
       if (index === -1) return;
       items[(index + step + items.length) % items.length].focus();

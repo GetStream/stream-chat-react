@@ -76,9 +76,7 @@ export const useProcessReactions = (params: UseProcessReactionsParams) => {
     [reactionOptions],
   );
 
-  /**
-   * Amount of unique reaction types ("haha", "like", etc.) on a message.
-   */
+  // Number of reaction types on the message that the reaction options support.
   const uniqueReactionTypeCount = useMemo(() => {
     if (!reactionGroups) {
       return 0;
@@ -89,9 +87,7 @@ export const useProcessReactions = (params: UseProcessReactionsParams) => {
     ).length;
   }, [isSupportedReaction, reactionGroups]);
 
-  // Group the reacting user names by reaction type in a single pass, so each
-  // reaction group can look its names up in O(1) instead of re-scanning the
-  // whole `latestReactions` array per type (previously O(types × reactions)).
+  // Reacting user names by reaction type, grouped in one pass so each type looks them up in O(1).
   const latestReactedUserNamesByType = useMemo(() => {
     const namesByType = new Map<string, string[]>();
     if (!latestReactions) return namesByType;

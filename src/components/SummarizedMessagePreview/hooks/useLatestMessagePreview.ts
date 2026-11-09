@@ -42,37 +42,20 @@ const SUPPORTED_VIDEO_FORMATS: string[] = [
 ];
 
 /**
- * Delivery status of the last own message.
- * Determines which delivery status icon to render in the preview.
- *
- * - `sending` — Clock icon
- * - `sent` — Single checkmark icon
- * - `delivered` — Double checkmark icon
- * - `read` — Double checkmark icon (with distinct color)
+ * Delivery status of the last own message, which selects the status icon: a clock for `sending`, a
+ * checkmark for `sent`, double checkmarks for `delivered` and `read`.
  */
 export type ChannelPreviewDeliveryStatus = 'sending' | 'sent' | 'delivered' | 'read';
 
 export type LatestMessagePreviewData = {
-  /**
-   * The type of content being previewed.
-   * Use this to render the appropriate content-type icon.
-   */
+  /** Kind of content previewed, which selects the content-type icon. */
   type: ChannelPreviewMessageType;
-  /**
-   * The preview text to display.
-   */
   text: string;
-  /**
-   * Delivery status of own message.
-   * Only present for own messages that are not in error state.
-   * Use this to render the delivery status icon (clock, checkmark, double checkmark).
-   */
+  /** Set only for own messages that did not fail to send. */
   deliveryStatus?: ChannelPreviewDeliveryStatus;
   /**
-   * Sender name prefix.
-   * - `"You"` (translated) for own messages
-   * - Sender's display name for incoming messages in group channels (>2 members)
-   * - `undefined` for incoming messages in direct conversations
+   * Sender prefix: "You" (translated) for own messages, the sender's name for incoming messages
+   * when `participantCount` is above 2, otherwise undefined.
    */
   senderName?: string;
 };
@@ -143,14 +126,13 @@ function getAttachmentFallbackText(
 }
 
 export type UseLatestMessagePreviewParams = {
-  /** The channel to generate preview for */
+  /** Number of channel participants. Incoming messages show the sender above 2. */
   participantCount?: number;
-  /** The latest message in the channel */
+  /** Message to preview. Without one the preview is the empty-state text. */
   latestMessage?: LocalMessage;
   /**
-   * Delivery status from the `useMessageDeliveryStatus` hook.
-   * When provided, used to determine the delivery status icon.
-   * When omitted, delivery status icons are not shown.
+   * Delivery status from `useMessageDeliveryStatus`. Defaults to the message's own `status` for
+   * own messages.
    */
   messageDeliveryStatus?: MessageDeliveryStatus;
 };
@@ -185,7 +167,10 @@ export const useLatestMessagePreview = ({
 
     let deliveryStatus: ChannelPreviewDeliveryStatus | undefined;
     if (isOwnMessage) {
-      deliveryStatus = messageDeliveryStatus ?? (latestMessage.status as 'sending');
+      // Of the message's own statuses only `sending` is a delivery status.
+      deliveryStatus =
+        messageDeliveryStatus ??
+        (latestMessage.status === 'sending' ? 'sending' : undefined);
     }
 
     let senderName: string | undefined;
@@ -247,21 +232,21 @@ export const useLatestMessagePreview = ({
       let text =
         contentType === 'giphy'
           ? `GIPHY ${firstAttachment.title ?? ''}`.trim()
-          : // prioritize message text content if available
+          : // message text first
             textContent ||
-            // then fallback text of the single attachment if only one attachment is present and it's not a voice recording (fallback text is generic for voice recordings, so not useful in the preview)
+            // then a lone attachment's fallback or title, skipped for voice and unsupported ones
+            // because their fallback text is generic
             (attachments.length === 1 &&
             contentType !== 'voice' &&
             contentType !== 'unsupported'
               ? firstAttachment.fallback || firstAttachment.title
               : '') ||
-            // then generic fallback text based on attachment type and count
+            // then a generic label from the attachment type and count
             getAttachmentFallbackText(contentType, attachments.length, t);
 
-      // attach duration for audio/video attachments if available
-      // `Attachment.custom` is typed as required by the OpenAPI models, but it is not guaranteed
-      // at runtime (og-scraped, giphy and custom-integration attachments arrive without it), and
-      // this cast is applied to attachments of ANY type - so it must be read defensively.
+      // Appends the duration of a lone attachment that has one. `Attachment.custom` is typed as
+      // required but is missing at runtime on some attachments (og-scraped, giphy, custom
+      // integrations), and the cast covers every type, so it is read defensively.
       const firstAttachmentDuration = (firstAttachment as VoiceRecordingAttachment).custom
         ?.duration;
       if (attachments.length === 1 && typeof firstAttachmentDuration === 'number') {

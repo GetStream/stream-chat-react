@@ -8,11 +8,9 @@ import { Prompt, type PromptHeaderProps } from '../../../components/Dialog';
 export type SectionNavigatorHeaderProps = Omit<PromptHeaderProps, 'LeadingContent'>;
 
 /**
- * Generic header for content rendered inside a `SectionNavigator`. It renders a
- * `Prompt.Header` and, in the inline layout (where the navigation sidebar is not
- * shown), prepends a hamburger button that opens the navigation drawer. The
- * hamburger is omitted on nested views that already show a back button
- * (`goBack`), where it would compete with the back affordance.
+ * Header for `SectionNavigator` content: a `Prompt.Header` that gets a hamburger button opening the
+ * navigation drawer in the inline layout (no sidebar). The button is omitted when `goBack` is set,
+ * so it does not compete with the back button.
  */
 export const SectionNavigatorHeader = (props: SectionNavigatorHeaderProps) => {
   const { t } = useTranslationContext();

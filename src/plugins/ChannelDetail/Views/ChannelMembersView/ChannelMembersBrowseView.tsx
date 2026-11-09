@@ -151,8 +151,8 @@ export const ChannelMembersBrowseView = ({
     [mutes],
   );
 
-  // Only members with a resolvable user id are rendered; pre-filtering keeps the
-  // virtualized item renderer total in sync with what it can actually display.
+  // Only members with a resolvable user ID render; pre-filtering keeps the virtualized list's item
+  // count in sync with what it can display.
   const renderableMembers = useMemo(
     () => displayedMembers.filter((member) => getMemberUserId(member)),
     [displayedMembers],

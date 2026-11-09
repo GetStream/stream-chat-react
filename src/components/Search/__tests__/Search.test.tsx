@@ -74,8 +74,8 @@ describe('Search', () => {
       searchSourceTypes: [],
       sources: [],
     });
-    // The module is auto-mocked, so the icon hook would return undefined; hand back the real
-    // icons rather than stubs, so these tests keep asserting against what users actually see.
+    // The module is auto-mocked, so the icon hook would return undefined; the real icons keep the
+    // tests asserting what users see.
     vi.mocked(useComponentContextIcons).mockReturnValue(DEFAULT_ICONS);
   });
 

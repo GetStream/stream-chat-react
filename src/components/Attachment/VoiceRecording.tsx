@@ -70,10 +70,9 @@ const VoiceRecordingPlayerUI = ({
         <div className='str-chat__message-attachment__voice-recording-widget__audio-state'>
           <div className='str-chat__message-attachment__voice-recording-widget__timer'>
             {/*
-              While uploading, the upload progress takes this slot. It has to outrank the
-              duration: `MediaRecorderController` stamps `duration` on every recording before it
-              is ever uploaded, so checking the duration first meant an uploading voice message
-              showed no upload indication at all.
+              While uploading, the upload progress takes this slot, ahead of the duration:
+              `MediaRecorderController` stamps `duration` on every recording before upload, which
+              would hide the upload state.
             */}
             {isUploading ? (
               <AttachmentUploadProgressIndicator attachment={attachment} />
@@ -116,7 +115,7 @@ const VoiceRecordingPlayerUI = ({
 };
 
 export type VoiceRecordingPlayerProps = Pick<VoiceRecordingProps, 'attachment'> & {
-  /** An array of fractional numeric values of playback speed to override the defaults (1.0, 1.5, 2.0) */
+  /** Playback speeds that replace the defaults (1.0, 1.5, 2.0). */
   playbackRates?: number[];
 };
 
@@ -134,16 +133,8 @@ export const VoiceRecordingPlayer = ({
     waveform_data,
   } = (attachment as VoiceRecordingAttachment).custom ?? {};
 
-  /**
-   * Introducing message context. This could be breaking change, therefore the fallback to {} is provided.
-   * If this component is used outside the message context, then there will be no audio player namespacing
-   * => scrolling away from the message in virtualized ML would create a new AudioPlayer instance.
-   *
-   * Edge case: the requester (message) has multiple attachments with the same assetURL - does not happen
-   * with the default SDK components, but can be done with custom API calls.In this case all the Audio
-   * widgets will share the state.
-   */
-  // also rendered from composer previews, where there is no message
+  // Players are namespaced by message (and thread) through `requester`. Outside a message, or when
+  // several attachments of one message share an asset URL, widgets for the same URL share a player.
   const { message } = useContext(MessageContext) ?? {};
   const threadInstance = useThreadContext();
 
@@ -195,9 +186,9 @@ export const QuotedVoiceRecording = ({ attachment }: QuotedVoiceRecordingProps) 
 };
 
 export type VoiceRecordingProps = {
-  /** The attachment object from the message's attachment list. */
+  /** Voice recording attachment to render. */
   attachment: Attachment;
-  /** A boolean flag to signal whether the attachment will be rendered inside the quoted reply. */
+  /** Whether the attachment is in a quoted message, where it renders without a player. */
   isQuoted?: boolean;
 };
 

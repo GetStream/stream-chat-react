@@ -1,0 +1,14 @@
+@layer stream-overrides {
+  /*
+   * Lucide draws outlines. A few SDK rules fill the svg or the paths inside an icon, for example
+   * the image placeholder's picture icon, so the outlines are kept hollow here.
+   */
+  .cookbook-lucide-outline,
+  .cookbook-lucide-outline * {
+    fill: none;
+  }
+
+  .cookbook-file-icon {
+    color: var(--str-chat__accent-primary);
+  }
+}

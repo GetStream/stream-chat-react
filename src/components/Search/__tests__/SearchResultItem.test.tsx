@@ -16,6 +16,7 @@ import {
   ChatProvider,
   DialogManagerProvider,
   TranslationProvider,
+  WithComponents,
 } from '../../../context';
 import {
   generateChannel,
@@ -25,6 +26,7 @@ import {
   initClientWithChannels,
   mockTranslationContextValue,
 } from '../../../mock-builders';
+import { convertDateToTimestamp } from '../../../mock-builders/generator/time';
 import { mockT } from '../../../mock-builders/translator';
 
 const CHANNEL_PREVIEW_BUTTON_TEST_ID = 'channel-list-item-button';
@@ -34,8 +36,8 @@ const mockOpenChannel = vi.fn();
 let mockIngestChannel: MockInstance<StreamChat['channelManager']['ingestChannel']>;
 const directMessagingChannelType = 'X';
 
-// Selection opens the channel in the workspace (one navigation model); the item's
-// "active" highlight comes from isChannelActive (stubbed inactive here).
+// Selection opens the channel in the workspace; the item's "active" highlight comes from
+// isChannelActive (stubbed inactive here).
 vi.mock('../../../context', async (importOriginal) => ({
   ...((await importOriginal()) as object),
   useWorkspaceNavigation: () => ({
@@ -182,7 +184,7 @@ describe('SearchResultItem Components', () => {
       );
     });
 
-    it('does not watch an opened channel that is already watched', async () => {
+    it('sends no watch query for an opened channel already watched and loaded', async () => {
       const channelSearchData = generateChannel();
       const { client } = await renderComponent({
         channelSearchData,
@@ -190,12 +192,16 @@ describe('SearchResultItem Components', () => {
       });
       const channel = client.channelManager.get(channelSearchData.channel.cid);
       if (!channel) throw new Error('the result channel is not stored');
+      // watched, with its state and messages loaded: `watch()` has nothing to send
       channel.watchStatus = ChannelWatchStatus.Watching;
-      const watch = vi.spyOn(channel, 'watch');
+      channel.initialized = true;
+      channel.messagePaginator.placeExternalQueryPage([], 25);
+      const getOrCreate = vi.spyOn(channel, 'getOrCreate');
 
       fireEvent.click(screen.getByTestId(CHANNEL_PREVIEW_BUTTON_TEST_ID));
 
-      expect(watch).not.toHaveBeenCalled();
+      await act(() => Promise.resolve());
+      expect(getOrCreate).not.toHaveBeenCalled();
     });
 
     it('runs a custom onSelect instead of the default open', async () => {
@@ -241,24 +247,20 @@ describe('SearchResultItem Components', () => {
       });
       const { id, type } = messageResponseData.channel;
       const jumpToMessage = vi
-        .spyOn(
-          client.channelManager.ensure({ id, type }).messagePaginator,
-          'jumpToMessage',
-        )
+        .spyOn(client.channel(type, id).messagePaginator, 'jumpToMessage')
         .mockResolvedValue(true);
 
       await act(() => {
         fireEvent.click(screen.getByTestId(CHANNEL_PREVIEW_BUTTON_TEST_ID));
       });
 
-      // Selecting a result jumps its channel's own paginator — no separate focus state to keep in
-      // step with the highlight the jump leaves behind — and watches the channel if it isn't yet.
+      // Selecting a result jumps its channel's paginator and watches the channel if it is not yet.
       expect(jumpToMessage).toHaveBeenCalledWith(message.id, { watchChannel: true });
       expect(mockOpenChannel.mock.calls[0][0].id).toBe(messageResponseData.channel.id);
       expect(mockIngestChannel).toHaveBeenCalledTimes(1);
     });
 
-    it('loads a channel that was never loaded before jumping to the message', async () => {
+    it('loads a channel that was never loaded with the jump to the message alone', async () => {
       const message = generateMessage();
       const messageResponseData = {
         id: message.id,
@@ -269,24 +271,27 @@ describe('SearchResultItem Components', () => {
         SearchResultItemComponent,
       });
       const { id, type } = messageResponseData.channel;
-      const channel = client.channelManager.ensure({ id, type });
+      const channel = client.channel(type, id);
       channel.state.partialNext({ initialized: false });
       const calls: string[] = [];
-      vi.spyOn(channel, 'ensureWatched').mockImplementation(() => {
-        calls.push('ensureWatched');
+      vi.spyOn(channel, 'watch').mockImplementation(() => {
+        calls.push('watch');
         return Promise.resolve(channel);
       });
-      vi.spyOn(channel.messagePaginator, 'jumpToMessage').mockImplementation(() => {
-        calls.push('jumpToMessage');
-        return Promise.resolve(true);
-      });
+      const jumpToMessage = vi
+        .spyOn(channel.messagePaginator, 'jumpToMessage')
+        .mockImplementation(() => {
+          calls.push('jumpToMessage');
+          return Promise.resolve(true);
+        });
 
       await act(async () => {
         fireEvent.click(screen.getByTestId(CHANNEL_PREVIEW_BUTTON_TEST_ID));
         await Promise.resolve();
       });
 
-      expect(calls).toEqual(['ensureWatched', 'jumpToMessage']);
+      expect(calls).toEqual(['jumpToMessage']);
+      expect(jumpToMessage).toHaveBeenCalledWith(message.id, { watchChannel: true });
     });
 
     it('renders its stored channel without a connected user', async () => {
@@ -391,8 +396,34 @@ describe('SearchResultItem Components', () => {
       await renderComponent({ SearchResultItemComponent, userData: user });
 
       expect(screen.getByTestId('avatar')).toBeInTheDocument();
-      // `generateUser` always sets a name, but `UserResponse.name` is optional in v10 types
+      // `generateUser` always sets a name, but `UserResponse.name` is optional
       expect(screen.getByText(String(user.name))).toBeInTheDocument();
+    });
+
+    it('renders the Timestamp from ComponentContext with the last active date', async () => {
+      const lastActive = new Date('2026-01-02T03:04:05.000Z');
+      const CustomTimestamp = vi.fn(() => <span data-testid='custom-timestamp' />);
+      const UserSearchResultItemWithTimestamp = (
+        props: React.ComponentProps<typeof UserSearchResultItem>,
+      ) => (
+        <WithComponents overrides={{ Timestamp: CustomTimestamp }}>
+          <UserSearchResultItem {...props} />
+        </WithComponents>
+      );
+
+      await renderComponent({
+        SearchResultItemComponent: UserSearchResultItemWithTimestamp,
+        userData: { ...user, last_active: convertDateToTimestamp(lastActive) },
+      });
+
+      expect(screen.getByTestId('custom-timestamp')).toBeInTheDocument();
+      expect(CustomTimestamp).toHaveBeenCalledWith(
+        expect.objectContaining({
+          customClass: 'str-chat__search-result__last-active-timestamp',
+          timestamp: lastActive,
+        }),
+        undefined,
+      );
     });
 
     it('handles user selection', async () => {
@@ -435,11 +466,11 @@ describe('SearchResultItem Components', () => {
     it('adds the direct-message channel to the lists only once its watch resolves', async () => {
       await renderComponent({ SearchResultItemComponent, userData: user });
       let resolveWatch: () => void = () => undefined;
-      const ensureWatched = vi
-        .spyOn(Channel.prototype, 'ensureWatched')
-        .mockImplementation(function (this: Channel) {
-          return new Promise<Channel>((resolve) => (resolveWatch = () => resolve(this)));
-        });
+      const watch = vi.spyOn(Channel.prototype, 'watch').mockImplementation(function (
+        this: Channel,
+      ) {
+        return new Promise<Channel>((resolve) => (resolveWatch = () => resolve(this)));
+      });
 
       await act(() => {
         fireEvent.click(screen.getByRole('option'));
@@ -452,8 +483,8 @@ describe('SearchResultItem Components', () => {
         await Promise.resolve();
       });
 
-      expect(mockIngestChannel).toHaveBeenCalledWith(ensureWatched.mock.contexts[0]);
-      ensureWatched.mockRestore();
+      expect(mockIngestChannel).toHaveBeenCalledWith(watch.mock.contexts[0]);
+      watch.mockRestore();
     });
 
     it('adds the stored instance when the direct message was superseded during its watch', async () => {
@@ -461,17 +492,15 @@ describe('SearchResultItem Components', () => {
         SearchResultItemComponent,
         userData: user,
       });
-      const stored = client.channelManager.ensure({ id: 'stored-dm', type: 'messaging' });
-      const ensureWatched = vi
-        .spyOn(Channel.prototype, 'ensureWatched')
-        .mockResolvedValue(stored);
+      const stored = client.channel('messaging', 'stored-dm');
+      const watch = vi.spyOn(Channel.prototype, 'watch').mockResolvedValue(stored);
 
       await act(() => {
         fireEvent.click(screen.getByRole('option'));
       });
 
       await vi.waitFor(() => expect(mockIngestChannel).toHaveBeenCalledWith(stored));
-      ensureWatched.mockRestore();
+      watch.mockRestore();
     });
 
     it('runs a custom onSelect instead of the default DM open', async () => {

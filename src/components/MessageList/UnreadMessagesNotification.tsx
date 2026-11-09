@@ -9,40 +9,58 @@ import { useMessagePaginator } from '../../hooks';
 import { Button } from '../Button';
 import clsx from 'clsx';
 import { useThreadContext } from '../Threads';
-import type { UnreadSnapshotState } from 'stream-chat';
+import type { MessagePaginatorState, UnreadSnapshotState } from 'stream-chat';
 import { useStateStore } from '../../store';
 
 export type UnreadMessagesNotificationProps = {
-  /**
-   * Configuration parameter to determine the message page size, when jumping to the first unread message.
-   */
+  /** Page size used when jumping to the first unread message. */
   queryMessageLimit?: number;
-  /**
-   * Configuration parameter to determine, whether the unread count is to be shown on the component. Enabled by default.
-   */
+  /** Whether to show the unread count. Defaults to `true`. */
   showCount?: boolean;
+  /**
+   * Whether the first unread message is below the viewport, which turns the arrow down. When
+   * omitted, it is derived from the loaded window: below when every loaded message is older than the
+   * last read one.
+   */
+  unreadIsBelow?: boolean;
   // todo: maybe remove?
   unreadCount?: number;
 };
 
 const unreadStateSnapshotSelector = (state: UnreadSnapshotState) => ({
+  lastReadAt: state.lastReadAt,
   unreadCount: state.unreadCount,
+});
+
+const newestLoadedMessageSelector = (state: MessagePaginatorState) => ({
+  newestLoadedAt: state.items?.[state.items.length - 1]?.created_at,
 });
 
 export const UnreadMessagesNotification = ({
   queryMessageLimit,
   showCount = true,
+  unreadIsBelow: unreadIsBelowProp,
 }: UnreadMessagesNotificationProps) => {
-  const { IconArrowUp, IconXmark } = useComponentContextIcons();
+  const { IconArrowDown, IconArrowUp, IconXmark } = useComponentContextIcons();
   // todo: move into a hook dedicated to unread count from the snapshot
   const channel = useChannel();
   const { client } = useChatContext();
   const thread = useThreadContext();
   const messagePaginator = useMessagePaginator();
-  const { unreadCount } = useStateStore(
+  const { lastReadAt, unreadCount } = useStateStore(
     messagePaginator.unreadStateSnapshot,
     unreadStateSnapshotSelector,
   );
+  const { newestLoadedAt } = useStateStore(
+    messagePaginator.state,
+    newestLoadedMessageSelector,
+  );
+  // The first unread message is usually above what is on screen. It is below when the loaded window
+  // is older than the last read message, e.g. after jumping back in history while new ones arrived.
+  const unreadIsBelow =
+    unreadIsBelowProp ??
+    (lastReadAt != null && newestLoadedAt != null && newestLoadedAt <= lastReadAt);
+  const ArrowIcon = unreadIsBelow ? IconArrowDown : IconArrowUp;
 
   const { t } = useTranslationContext();
 
@@ -62,7 +80,7 @@ export const UnreadMessagesNotification = ({
         }
         variant='secondary'
       >
-        <IconArrowUp />
+        <ArrowIcon />
         {unreadCount && showCount
           ? t('messageList.unreadMessagesNotification.unread.text', {
               count: unreadCount,

@@ -1,0 +1,41 @@
+[
+  {
+    "file": "image-gallery-grid.png",
+    "query": {
+      "channel": "docs-v15-cb-trail-photos"
+    },
+    "waitFor": ".cookbook-image-grid",
+    "clip": ".str-chat__li",
+    "hasText": "favourites from the trail",
+    "padding": 0
+  },
+  {
+    "file": "image-gallery-lightbox.png",
+    "query": {
+      "channel": "docs-v15-cb-trail-photos",
+      "lightbox": "2"
+    },
+    "waitFor": ".cookbook-thumbnail-strip",
+    "settleMs": 1500
+  },
+  {
+    "file": "image-gallery-video.png",
+    "query": {
+      "channel": "docs-v15-cb-trail-photos"
+    },
+    "waitFor": ".cookbook-image-grid__play",
+    "clip": ".str-chat__li",
+    "hasText": "a short clip",
+    "padding": 0
+  },
+  {
+    "file": "image-gallery-lightbox-video.png",
+    "query": {
+      "channel": "docs-v15-cb-trail-photos",
+      "lightbox": "3",
+      "in": "a short clip"
+    },
+    "waitFor": ".cookbook-lightbox video",
+    "settleMs": 2500
+  }
+]

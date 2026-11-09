@@ -28,7 +28,6 @@ import { PollCreationDialog as DefaultPollCreationDialog } from '../../Poll';
 import { Portal } from '../../Portal/Portal';
 import { UploadFileInput } from '../../ReactFileUtilities';
 import {
-  useChannel,
   useComponentContext,
   useComponentContextIcons,
   useTranslationContext,
@@ -51,12 +50,53 @@ import {
 } from './CommandsMenu';
 import { useChannelCapabilities } from '../../Channel/hooks/useChannelCapabilities';
 import type { ChannelConfig } from 'stream-chat';
+import {
+  type AttachmentSelectorActionAvailabilityContext,
+  canUploadFiles,
+  isAttachmentSelectorActionAvailable,
+} from './attachmentSelectorActionAvailability';
 
 const availableCommandsStateSelector = ({ availableCommands }: ChannelConfig) => ({
   availableCommands,
 });
 
 const textComposerStateSelector = ({ command }: TextComposerState) => ({ command });
+
+/** Collects what the action availability rules read, subscribed so that a change re-renders. */
+const useAttachmentSelectorActionAvailabilityContext =
+  (): AttachmentSelectorActionAvailabilityContext => {
+    const { attachmentsEnabled, customCdn, locationEnabled, pollsEnabled } =
+      useAttachmentManagerState();
+    const messageComposer = useMessageComposerController();
+    const channelCapabilities = useChannelCapabilities({
+      cid: messageComposer.channel.cid,
+    });
+    const { availableCommands } = useStateStore(
+      messageComposer.channel.configState,
+      availableCommandsStateSelector,
+    );
+
+    return useMemo(
+      () => ({
+        attachmentsEnabled,
+        availableCommands,
+        channelCapabilities,
+        customCdn: !!customCdn,
+        locationEnabled,
+        messageComposer,
+        pollsEnabled,
+      }),
+      [
+        attachmentsEnabled,
+        availableCommands,
+        channelCapabilities,
+        customCdn,
+        locationEnabled,
+        messageComposer,
+        pollsEnabled,
+      ],
+    );
+  };
 
 const AttachmentSelectorMenuInitButtonIcon = ({ className }: { className?: string }) => {
   const { AttachmentSelectorInitiationButtonContents } = useComponentContext();
@@ -97,28 +137,29 @@ export const AttachmentSelectorButton = forwardRef<
   );
 });
 
-type SimpleAttachmentSelectorProps = {
+export type AttachmentSelectorStandaloneButtonProps = {
+  /**
+   * The selector's `buttonProps`, with `disabled` replaced by whether the send cooldown is
+   * active.
+   */
   buttonProps?: Omit<ButtonProps, 'onClick'>;
 };
 
-export const SimpleAttachmentSelector = ({
+type SimpleAttachmentSelectorProps = AttachmentSelectorStandaloneButtonProps;
+
+/**
+ * A button that opens the file picker, rendered whether or not uploads are available and
+ * disabled once the message holds as many files as allowed. The default `StandaloneButton` of an
+ * `uploadFile` action.
+ */
+export const FileUploadButton = ({
   buttonProps,
-}: SimpleAttachmentSelectorProps = {}) => {
-  const channel = useChannel();
-  const channelCapabilities = useChannelCapabilities({ cid: channel.cid });
+}: AttachmentSelectorStandaloneButtonProps) => {
   const { t } = useTranslationContext();
+  const { hasAvailableUploadSlots } = useAttachmentManagerState();
   const inputRef = useRef<HTMLInputElement | null>(null);
   const [buttonElement, setButtonElement] = useState<HTMLButtonElement | null>(null);
   const id = useStableId();
-  const isCooldownActive = useIsCooldownActive();
-  const messageComposer = useMessageComposerController();
-  const { command } = useStateStore(
-    messageComposer.textComposer.state,
-    textComposerStateSelector,
-  );
-  // Visually hidden via a CSS transition while a command is active; keep it out
-  // of the a11y tree and tab order without setting `display: none`.
-  const inertProps = useInertWhenHidden(!!command, { setHiddenAttribute: false });
 
   useEffect(() => {
     if (!buttonElement) return;
@@ -133,22 +174,64 @@ export const SimpleAttachmentSelector = ({
     };
   }, [buttonElement]);
 
-  if (!channelCapabilities.has('upload-file')) return null;
-
   return (
-    <div className='str-chat__attachment-selector' {...inertProps}>
+    <>
       <AttachmentSelectorButton
         {...buttonProps}
         aria-label={t(
           'messageComposer.attachmentSelector.openAttachmentSelector.ariaLabel',
           'Open Attachment Selector',
         )}
-        disabled={isCooldownActive}
+        disabled={buttonProps?.disabled || !hasAvailableUploadSlots}
         onClick={() => inputRef.current?.click()}
         ref={setButtonElement}
       />
       <UploadFileInput id={id} ref={inputRef} />
+    </>
+  );
+};
+
+/**
+ * Renders a lone button in the selector's root element (`.str-chat__attachment-selector`), which
+ * the composer layout sizes and hides while a command is active. The button is disabled during
+ * the send cooldown.
+ */
+const StandaloneButtonSlot = ({
+  buttonProps,
+  StandaloneButton,
+}: AttachmentSelectorStandaloneButtonProps & {
+  StandaloneButton: ComponentType<AttachmentSelectorStandaloneButtonProps>;
+}) => {
+  const isCooldownActive = useIsCooldownActive();
+  const messageComposer = useMessageComposerController();
+  const { command } = useStateStore(
+    messageComposer.textComposer.state,
+    textComposerStateSelector,
+  );
+  // Hidden by a CSS transition while a command is active. Inert keeps it out of the a11y tree
+  // and tab order without `display: none`, which would break the transition.
+  const inertProps = useInertWhenHidden(!!command, { setHiddenAttribute: false });
+
+  return (
+    <div className='str-chat__attachment-selector' {...inertProps}>
+      <StandaloneButton buttonProps={{ ...buttonProps, disabled: isCooldownActive }} />
     </div>
+  );
+};
+
+/**
+ * A single button that opens the file picker, rendered while files can be uploaded and disabled
+ * once the message holds as many files as allowed.
+ */
+export const SimpleAttachmentSelector = ({
+  buttonProps,
+}: SimpleAttachmentSelectorProps = {}) => {
+  const availabilityContext = useAttachmentSelectorActionAvailabilityContext();
+
+  if (!canUploadFiles(availabilityContext)) return null;
+
+  return (
+    <StandaloneButtonSlot buttonProps={buttonProps} StandaloneButton={FileUploadButton} />
   );
 };
 
@@ -162,6 +245,12 @@ export type AttachmentSelectorAction = {
   ModalContent?: React.ComponentType<AttachmentSelectorModalContentProps>;
   Submenu?: ContextMenuSubmenu;
   Header?: ContextMenuHeaderComponent;
+  /**
+   * Rendered in place of the menu when this is the only action offered, inside the selector's
+   * root element but with no menu or modal. Without it, a lone action is the only item of the
+   * menu. An `uploadFile` action defaults to `FileUploadButton`.
+   */
+  StandaloneButton?: ComponentType<AttachmentSelectorStandaloneButtonProps>;
   type: 'uploadFile' | 'createPoll' | 'addLocation' | 'selectCommand' | (string & {});
 };
 
@@ -205,10 +294,12 @@ export const DefaultAttachmentSelectorComponents = {
     const { IconAttachment } = useComponentContextIcons();
     const { fileInput } = useAttachmentSelectorContext();
     const { closeMenu } = useContextMenuContext();
+    const { hasAvailableUploadSlots } = useAttachmentManagerState();
 
     return (
       <ContextMenuButton
         className='str-chat__attachment-selector-actions-menu__button str-chat__attachment-selector-actions-menu__upload-file-button'
+        disabled={!hasAvailableUploadSlots}
         Icon={IconAttachment}
         onClick={() => {
           fileInput?.click();
@@ -255,9 +346,7 @@ export const DefaultAttachmentSelectorComponents = {
   },
 };
 
-/**
- * Order of AttachmentSelectorAction objects defines the order in the context menu width index 0 being at the top.
- */
+/** Default actions of the attachment selector menu, listed from the top of the menu down. */
 export const defaultAttachmentSelectorActionSet: AttachmentSelectorAction[] = [
   {
     ActionButton: DefaultAttachmentSelectorComponents.File,
@@ -290,39 +379,14 @@ const useAttachmentSelectorActionsFiltered = (original: AttachmentSelectorAction
     PollCreationDialog = DefaultPollCreationDialog,
     ShareLocationDialog = DefaultLocationDialog,
   } = useComponentContext();
-  const { isUploadEnabled, locationEnabled, pollsEnabled } = useAttachmentManagerState();
-  const messageComposer = useMessageComposerController();
-  const channelCapabilities = useChannelCapabilities({
-    cid: messageComposer.channel.cid,
-  });
-  const { availableCommands } = useStateStore(
-    messageComposer.channel.configState,
-    availableCommandsStateSelector,
-  );
+  const availabilityContext = useAttachmentSelectorActionAvailabilityContext();
 
   return useMemo(
     () =>
       original
-        .filter((action) => {
-          if (action.type === 'uploadFile') return isUploadEnabled;
-
-          if (action.type === 'createPoll')
-            return (
-              channelCapabilities.has('send-poll') &&
-              !messageComposer.threadId &&
-              pollsEnabled
-            );
-
-          if (action.type === 'addLocation') {
-            return locationEnabled && !messageComposer.threadId;
-          }
-
-          if (action.type === 'selectCommand') {
-            return !!availableCommands.some((command) => !!command.name);
-          }
-
-          return true;
-        })
+        .filter((action) =>
+          isAttachmentSelectorActionAvailable(action, availabilityContext),
+        )
         .map((action) => {
           if (action.type === 'createPoll' && !action.ModalContent) {
             return { ...action, ModalContent: PollCreationDialog };
@@ -330,19 +394,12 @@ const useAttachmentSelectorActionsFiltered = (original: AttachmentSelectorAction
           if (action.type === 'addLocation' && !action.ModalContent) {
             return { ...action, ModalContent: ShareLocationDialog };
           }
+          if (action.type === 'uploadFile' && !action.StandaloneButton) {
+            return { ...action, StandaloneButton: FileUploadButton };
+          }
           return action;
         }),
-    [
-      PollCreationDialog,
-      ShareLocationDialog,
-      channelCapabilities,
-      availableCommands,
-      isUploadEnabled,
-      locationEnabled,
-      messageComposer.threadId,
-      original,
-      pollsEnabled,
-    ],
+    [PollCreationDialog, ShareLocationDialog, availabilityContext, original],
   );
 };
 
@@ -360,9 +417,8 @@ export const AttachmentSelector = ({
     messageComposer.textComposer.state,
     textComposerStateSelector,
   );
-  // The selector is visually hidden via a CSS transition while a command is
-  // active; keep it out of the a11y tree and tab order without setting
-  // `display: none` (which would break the transition).
+  // Hidden by a CSS transition while a command is active. Inert keeps it out of the a11y tree
+  // and tab order without `display: none`, which would break the transition.
   const inertProps = useInertWhenHidden(!!command, { setHiddenAttribute: false });
   const actions = useAttachmentSelectorActionsFiltered(attachmentSelectorActionSet);
 
@@ -379,9 +435,8 @@ export const AttachmentSelector = ({
     (actionType: AttachmentSelectorAction['type']) => {
       const action = actions.find((a) => a.type === actionType);
       if (!action?.ModalContent) return;
-      // Reset composer state when the dialog is opened (not on close), so every
-      // open starts from a fresh form without flashing cleared fields right
-      // before the modal unmounts on cancel/submit.
+      // Reset on open, not on close, so each open starts from a fresh form and cleared fields
+      // do not flash before the modal unmounts.
       if (actionType === 'createPoll') {
         messageComposer.pollComposer.initState();
       }
@@ -395,6 +450,18 @@ export const AttachmentSelector = ({
     setModalContentActionAction(undefined);
   }, []);
 
+  const StandaloneButton = actions.length === 1 ? actions[0].StandaloneButton : undefined;
+  const rendersMenu = actions.length > 0 && !StandaloneButton;
+
+  // The modal belongs to the menu: it closes once the menu is not rendered or no longer offers
+  // the modal's action, so it does not reappear when the menu returns.
+  useEffect(() => {
+    if (!modalContentAction) return;
+    const modalActionIsOffered =
+      rendersMenu && actions.some(({ type }) => type === modalContentAction.type);
+    if (!modalActionIsOffered) setModalContentActionAction(undefined);
+  }, [actions, modalContentAction, rendersMenu]);
+
   const [fileInput, setFileInput] = useState<HTMLInputElement | null>(null);
   const menuButtonRef = useRef<HTMLButtonElement>(null);
 
@@ -403,11 +470,9 @@ export const AttachmentSelector = ({
 
     const frame = requestAnimationFrame(() => {
       shouldRestoreFocusToTriggerRef.current = false;
-      // Only restore focus to the trigger if focus actually fell to <body> when the dialog closed
-      // (the cancel/escape case). If the dialog content purposefully moved focus elsewhere — e.g.
-      // the poll dialog returns focus to the composer on a successful send — leave it there. This
-      // mirrors react-aria FocusScope's own restore guard and prevents a focus blip through the
-      // trigger before the content's intended target.
+      // Restore focus to the trigger only if it fell to <body> when the dialog closed (cancel or
+      // escape). When the content moved focus on purpose, e.g. the poll dialog returning it to
+      // the composer after a send, leave it there so focus does not blip through the trigger.
       const active = document.activeElement;
       if (active && active !== document.body) return;
       menuButtonRef.current?.focus();
@@ -436,8 +501,15 @@ export const AttachmentSelector = ({
 
   if (actions.length === 0) return null;
 
-  if (actions.length === 1 && actions[0].type === 'uploadFile')
-    return <SimpleAttachmentSelector buttonProps={buttonProps} />;
+  // The actions are already filtered by the availability rules, so the StandaloneButton renders
+  // without checking availability again.
+  if (StandaloneButton)
+    return (
+      <StandaloneButtonSlot
+        buttonProps={buttonProps}
+        StandaloneButton={StandaloneButton}
+      />
+    );
 
   const ModalContent = modalContentAction?.ModalContent;
   const modalIsOpen = !!ModalContent;
@@ -488,10 +560,9 @@ export const AttachmentSelector = ({
               'str-chat__share-location-modal':
                 modalContentAction?.type === 'addLocation',
             })}
-            // Focus the dialog surface on open (not a field): a field's focus would supersede the
-            // screen reader's dialog identity/description announcement. The user then presses Enter
-            // to step into the dialog's default field (see GlobalModal's `[data-autofocus]`
-            // handling).
+            // Focus the dialog surface on open, not a field: a field's focus would supersede the
+            // screen reader's dialog announcement. Enter steps into the default field
+            // (`[data-autofocus]`, handled by GlobalModal).
             initialFocusStrategy='dialog'
             onClose={closeModal}
             open={modalIsOpen}

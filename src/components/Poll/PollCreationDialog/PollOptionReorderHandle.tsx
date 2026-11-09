@@ -13,9 +13,7 @@ type PollOptionReorderHandleProps = {
   onMove: (direction: -1 | 1) => void;
   option: PollComposerOption;
   registerRef: (index: number, element: HTMLButtonElement | null) => void;
-  /** Total number of options. Used to embed "position N of total" into the
-   * active handle's aria-label so VoiceOver's native focus announcement after a
-   * move carries the new position instead of just "Reorder option N". */
+  /** Total number of options, used for the "position N of total" in the active handle's label. */
   totalOptionCount: number;
 };
 
@@ -39,12 +37,8 @@ export const PollOptionReorderHandle = ({
   const optionLabel =
     option.text.trim() ||
     t('poll.optionFieldSet.option.ariaLabel', 'Option {{ position }}', { position });
-  // While picked up, fold the option text + new position into the aria-label
-  // so VoiceOver speaks "Reorder 'option B' at position 1 of 3" on the focus
-  // event triggered by ArrowUp/ArrowDown. That replaces the otherwise
-  // redundant "Reorder option N, selected, toggle button" native announcement
-  // and removes the need for a duplicate live-region "moved to position"
-  // message.
+  // While picked up, the label carries the option text and new position, so the focus
+  // announcement after each move already speaks them and no live-region message is needed.
   const ariaLabel = isActive
     ? t(
         'poll.optionReorder.reorderPosition.ariaLabel',

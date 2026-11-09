@@ -5,11 +5,9 @@ import type { PropsWithChildren } from 'react';
 import { useChatContext } from './ChatContext';
 
 /**
- * Whether the subtree already renders inside an element carrying the `str-chat <theme>` scope that
- * the design tokens hang off. `.str-chat` declares the whole token set, so a second one nested
- * inside the first would reset every token an app overrides on the outer element. Components that
- * also render standalone (the channel navigation, a channel list) therefore apply the scope only
- * when nothing above them has.
+ * Whether the subtree already renders inside the `str-chat <theme>` scope. A nested `.str-chat`
+ * would reset every design token an app overrides on the outer element, so standalone components
+ * apply the scope only when nothing above them has.
  */
 const ThemeScopeContext = createContext(false);
 
@@ -20,7 +18,7 @@ export const ThemeScopeProvider = ({ children }: PropsWithChildren) => (
 
 export const useIsInThemeScope = () => useContext(ThemeScopeContext);
 
-/** The scope's classes: `customClasses.chat` (default `str-chat`) and the `Chat` theme. */
+/** The scope's classes: the `Chat` theme and `customClasses.chat`, which defaults to `str-chat`. */
 export const useThemeScopeClassName = () => {
   const { customClasses, theme } = useChatContext();
   return clsx(customClasses?.chat ?? 'str-chat', theme);

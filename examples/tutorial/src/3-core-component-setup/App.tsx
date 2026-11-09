@@ -16,7 +16,6 @@ import { ChatView, ThreadSlot } from 'stream-chat-react/slot-layout';
 import 'stream-chat-react/dist/css/index.css';
 import './layout.css';
 import { apiKey, tokenProvider, userId, userName } from '../2-client-setup/credentials';
-import { setUpCommandMiddlewares } from '../2-client-setup/commandMiddlewares';
 
 const user: ClientUser = {
   id: userId,
@@ -54,43 +53,27 @@ const App = () => {
     userData: user,
   });
 
-  // Commands such as /giphy need their middlewares in every composer (see
-  // `setUpCommandMiddlewares`). A setup function applies to composers created after it is set, so
-  // it is registered before the effects below create any.
-  useEffect(() => {
-    if (!client) return;
-    client.config.setSetupFunction('messageComposer', ({ composer }) =>
-      setUpCommandMiddlewares(composer),
-    );
-  }, [client]);
-
   useEffect(() => {
     if (!client) return;
 
     const initChannel = async () => {
-      const channel = client.channelManager.ensure({
-        data: {
-          members: [userId],
-          // custom channel fields live under `custom` since v10
-          custom: {
-            image: 'https://getstream.io/random_png/?name=react',
-            name: 'Talk about React',
-          },
+      const channel = client.channel('messaging', 'custom_channel_id', {
+        members: [userId],
+        // custom channel fields live under `custom` since v10
+        custom: {
+          image: 'https://getstream.io/random_png/?name=react',
+          name: 'Talk about React',
         },
-        id: 'custom_channel_id',
-        type: 'messaging',
       });
 
       // `Channel` binds a channel to its subtree; it does not query one. Whoever supplies the
       // channel initializes it.
       //
-      // `client.channelManager.ensure()` returns the stored instance for this cid, so a re-run of this effect
-      // can hand back a channel that is already loaded -- query only when it is not. When a query
-      // is needed, `channel.ensureWatched()` de-duplicates concurrent calls for the same channel, so two
-      // overlapping runs still produce a single request.
-      if (!channel.initialized) {
-        await channel.ensureWatched();
-      }
+      // `client.channel()` returns the stored instance for this cid, so a re-run of
+      // this effect can hand back a channel that is already loaded. `channel.watch()` sends nothing
+      // for a channel already watched and loaded, and joins a watch in flight, so two overlapping
+      // runs still produce a single request.
+      await channel.watch();
 
       setChannel(channel);
     };

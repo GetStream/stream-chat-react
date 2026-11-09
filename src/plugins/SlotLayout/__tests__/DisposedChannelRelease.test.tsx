@@ -24,7 +24,7 @@ describe('DisposedChannelRelease', () => {
 
   beforeEach(async () => {
     client = await getTestClientWithUser({ id: 'ann' });
-    channel = client.channelManager.ensure({ id: 'general', type: 'messaging' });
+    channel = client.channel('messaging', 'general');
     layoutController = new LayoutController({
       initialState: { availableSlots: ['slot1'] },
     });
@@ -90,7 +90,7 @@ describe('DisposedChannelRelease', () => {
   });
 
   it('leaves a slot that shows another channel', () => {
-    const other = client.channelManager.ensure({ id: 'other', type: 'messaging' });
+    const other = client.channel('messaging', 'other');
     renderInChatView();
 
     act(() => {

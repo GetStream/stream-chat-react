@@ -5,8 +5,9 @@ import type { MessageComposerProps } from '../components/MessageComposer';
 import type { UseMessageComposerBindingsParams } from '../components/MessageComposer/hooks/useMessageComposerBindings';
 import { requireContext } from './requireContext';
 
+/** The `MessageComposer` props, except those its bindings consume, plus the bindings. */
 export type MessageComposerContextValue = UseMessageComposerBindingsParams &
-  Omit<MessageComposerProps, 'Input'>;
+  Omit<MessageComposerProps, 'audioRecordingConfig' | 'generateRecordingTitle'>;
 
 export const MessageComposerContext = createContext<
   MessageComposerContextValue | undefined
@@ -31,8 +32,8 @@ export const useMessageComposerContext = () =>
   );
 
 /**
- * Whether the caller sits beneath a `MessageComposerContextProvider`, for components that render
- * both inside and outside a composer. See `WithDragAndDropUpload`.
+ * Whether the caller is rendered within a `MessageComposerContextProvider`, for components that
+ * render both inside and outside a composer (see `WithDragAndDropUpload`).
  */
 export const useIsWithinMessageComposerContext = () =>
   useContext(MessageComposerContext) !== undefined;

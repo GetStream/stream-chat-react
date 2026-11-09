@@ -21,7 +21,6 @@ describe('audioPlayerNotificationsPluginFactory', () => {
       t,
     });
 
-    // simulate failed-to-start
     plugin.onError?.({ errCode: 'failed-to-start', player: fromPartial({}) });
 
     expect(addNotification).toHaveBeenCalledTimes(1);
@@ -31,14 +30,12 @@ describe('audioPlayerNotificationsPluginFactory', () => {
     expect(call.emitter).toBe('AudioPlayer');
     expect(call.severity).toBe('error');
 
-    // simulate not-playable
     plugin.onError?.({ errCode: 'not-playable', player: fromPartial({}) });
     call = addNotification.mock.calls[1][0];
     expect(call.message).toBe(
       'Recording format is not supported and cannot be reproduced',
     );
 
-    // simulate seek-not-supported
     plugin.onError?.({ errCode: 'seek-not-supported', player: fromPartial({}) });
     call = addNotification.mock.calls[2][0];
     expect(call.message).toBe('Cannot seek in the recording');

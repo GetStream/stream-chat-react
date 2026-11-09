@@ -1,0 +1,26 @@
+@layer stream-overrides {
+  .cookbook-share-location-map {
+    overflow: hidden;
+    height: 240px;
+    border-radius: var(--str-chat__radius-lg);
+  }
+
+  .cookbook-share-location-map__status {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: var(--str-chat__spacing-sm);
+    height: 240px;
+    padding: var(--str-chat__spacing-md);
+    border-radius: var(--str-chat__radius-lg);
+    background: var(--str-chat__background-core-surface-subtle);
+    color: var(--str-chat__text-secondary);
+    font: var(--str-chat__font-body-default);
+    text-align: center;
+  }
+
+  .cookbook-share-location-map__status p {
+    margin: 0;
+  }
+}

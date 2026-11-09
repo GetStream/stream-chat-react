@@ -15,12 +15,10 @@ type UseResolvedModalAriaPropsParams = {
 };
 
 /**
- * Resolves modal labeling/description attributes from explicit props first,
- * then from the modal dialog id convention (`${dialogId}-title|description`).
- *
- * Rules:
- * - `aria-labelledby` wins over `aria-label`.
- * - `aria-describedby` defaults to inferred id when explicit value is absent.
+ * Resolves a modal's `aria-label`, `aria-labelledby` and `aria-describedby`. Explicit values win;
+ * otherwise `<dialogId>-title` and `<dialogId>-description` fill in `aria-labelledby` and
+ * `aria-describedby`. An explicit `ariaLabel` suppresses the inferred title ID, and
+ * `aria-labelledby` wins over `aria-label`.
  */
 export const useResolvedModalAriaProps = ({
   ariaDescribedby,

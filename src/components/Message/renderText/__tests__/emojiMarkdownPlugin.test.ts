@@ -4,9 +4,8 @@ import emojiRegex from 'emoji-regex';
 
 import { emojiMarkdownPlugin } from '../rehypePlugins/emojiMarkdownPlugin';
 
-// `findAndReplace` only visits text nodes that live inside an element, so the
-// text is wrapped in a <p>. The plugin mutates the tree in place, replacing any
-// matched emoji with an `<emoji>` element node whose single child is the emoji.
+// `findAndReplace` only visits text nodes inside an element, hence the <p>. The plugin mutates
+// the tree in place, replacing each emoji with an `<emoji>` element wrapping it.
 const buildTree = (text: string): Root => ({
   children: [
     {
@@ -54,16 +53,13 @@ describe('emojiMarkdownPlugin', () => {
     expect(collectEmojiNodes(tree)).toHaveLength(3);
   });
 
-  // Regression guard for the shared module-scope emoji RegExp in
-  // emojiMarkdownPlugin.ts. That RegExp is global, so a stale `lastIndex`
-  // leaking between transform() calls would make later calls miss matches.
-  // `hast-util-find-and-replace` resets `lastIndex` before each use; if a future
-  // version of that library stops doing so, the assertions below start failing.
+  // Guards the shared global `EMOJI_REGEX` (emojiRegex.ts): a `lastIndex` leaked between
+  // transform() calls would make later calls miss matches.
   it('keeps matching across repeated calls regardless of emoji position', () => {
     const transform = emojiMarkdownPlugin();
 
-    // Position the emoji differently each call: a leaked `lastIndex` that began
-    // the search mid-string would skip an earlier-positioned emoji.
+    // The emoji sits at a different position each call: a leaked `lastIndex` that began the
+    // search mid-string would skip an earlier emoji.
     const inputs = ['😀 leading', 'trailing 😀', 'mid 😀 dle', '😀', 'tail end 😀'];
 
     for (const input of inputs) {
@@ -73,11 +69,8 @@ describe('emojiMarkdownPlugin', () => {
     }
   });
 
-  // The reason reusing a single global RegExp is safe: `findAndReplace` resets
-  // the regexp's `lastIndex` before scanning. This asserts that behaviour
-  // directly by poisoning `lastIndex` first — if a future version of
-  // `hast-util-find-and-replace` stops resetting it, `exec` would start past the
-  // input, the emoji would go unmatched, and this test fails.
+  // Reusing one global regexp is safe only because `findAndReplace` resets its `lastIndex`
+  // before scanning. This asserts that directly by poisoning `lastIndex` first.
   it('findAndReplace resets a global regexp lastIndex before scanning', () => {
     const regex = emojiRegex();
     // Simulate stale state leaked from a previous use: point lastIndex past the input.

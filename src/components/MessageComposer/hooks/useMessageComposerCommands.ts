@@ -40,7 +40,7 @@ export const useMessageComposerCommands = () => {
           command,
           enabled: !messageComposer.isCommandDisabled(command),
         })),
-    // editedMessage and quotedMessage are necessary in deps for reactivity
+    // `editedMessage` and `quotedMessage` are deps because they decide if a command is disabled.
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [availableCommands, editedMessage, messageComposer, quotedMessage],
   );

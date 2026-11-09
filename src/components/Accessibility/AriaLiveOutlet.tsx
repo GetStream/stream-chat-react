@@ -6,26 +6,23 @@ import { VisuallyHidden } from '../VisuallyHidden';
 
 export type AriaLiveOutletProps = {
   /**
-   * Stacking layer. The {@link AriaLiveAnnouncerProvider} renders into the highest-layer
-   * outlet (ties resolve to the most recently registered). Outlets inside an `aria-modal`
-   * subtree must use a layer above the root outlet so announcements land inside the modal
-   * (assistive technologies suppress live regions outside the active modal). Defaults to `0`.
+   * Stacking layer: the highest-layer outlet renders the live regions, ties go to the most recently
+   * registered. An outlet inside an `aria-modal` subtree needs a layer above the root outlet,
+   * because assistive technology ignores live regions outside the active modal. Defaults to `0`.
    */
   layer?: number;
   /**
-   * When true, render the live region into a `document.body` portal instead of in place.
-   * Use for the root outlet; modal outlets must render in place (omit) so they stay inside
-   * the `aria-modal` subtree.
+   * Renders the live regions into a `document.body` portal instead of in place. Meant for the root
+   * outlet; modal outlets render in place to stay inside the `aria-modal` subtree. Defaults to
+   * `false`.
    */
   portal?: boolean;
 };
 
 /**
- * Dumb render target for the unified announcer. Registers itself with the nearest
- * {@link AriaLiveAnnouncerProvider} and renders the polite/assertive live regions ONLY when
- * it is the active (innermost) outlet, so exactly one region is live at a time — always in
- * the active accessibility-tree scope. Mount one at the `Chat` root and one inside each
- * `aria-modal` dialog (with a higher `layer`).
+ * Registers with the nearest {@link AriaLiveAnnouncerProvider} and renders the polite and assertive
+ * live regions only while it is the active (highest-layer) outlet. `Chat` mounts the root one; each
+ * `aria-modal` dialog needs its own with a higher `layer`.
  */
 export const AriaLiveOutlet = ({ layer = 0, portal = false }: AriaLiveOutletProps) => {
   const context = useAriaLiveOutletContext();

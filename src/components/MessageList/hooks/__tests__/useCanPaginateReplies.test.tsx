@@ -47,8 +47,8 @@ describe('useCanPaginateReplies', () => {
   });
 
   it('refuses when the list already holds every reply', () => {
-    // The state right after the first reply is sent: it is ingested locally and the parent's count
-    // has caught up, so arming the scroller would fetch a page that is already in hand.
+    // Right after the first reply is sent it is ingested locally and the parent's count has caught
+    // up, so a fetch would load a page that is already in hand.
     const { result } = renderWithThread(
       makeThread({ items: [generateMessage() as LocalMessage], replyCount: 1 }),
     );
@@ -65,8 +65,8 @@ describe('useCanPaginateReplies', () => {
   });
 
   it('refuses while nothing is loaded, even on a thread that has replies', () => {
-    // The first page belongs to `Thread.reload()` (`GET /threads/:id`, which also hydrates and
-    // watches). Arming here would fetch the same page again as `GET /messages/:id/replies`.
+    // The first page belongs to `Thread.reload()` (`GET /threads/:id`); arming here would fetch it
+    // again as `GET /messages/:id/replies`.
     const { result } = renderWithThread(makeThread({ items: undefined, replyCount: 2 }));
 
     expect(result.current).toBe(false);

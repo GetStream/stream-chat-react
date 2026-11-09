@@ -3,12 +3,12 @@ import type { PollComposerState } from 'stream-chat';
 import { MultipleAnswersField } from './MultipleAnswersField';
 import { NameField } from './NameField';
 import { OptionFieldSet } from './OptionFieldSet';
-import { PollCreationDialogControls } from './PollCreationDialogControls';
+import { PollCreationDialogControls as DefaultPollCreationDialogControls } from './PollCreationDialogControls';
 import { Prompt } from '../../Dialog';
 import { SwitchField } from '../../Form/SwitchField';
 import { useInteractionAnnouncements } from '../../Accessibility';
 import { useMessageComposerController } from '../../MessageComposer/hooks/useMessageComposerController';
-import { useTranslationContext } from '../../../context';
+import { useComponentContext, useTranslationContext } from '../../../context';
 import { useStateStore } from '../../../store';
 
 export type PollCreationDialogProps = {
@@ -22,6 +22,8 @@ const pollComposerStateSelector = (state: PollComposerState) => ({
 });
 
 export const PollCreationDialog = ({ close }: PollCreationDialogProps) => {
+  const { PollCreationDialogControls = DefaultPollCreationDialogControls } =
+    useComponentContext();
   const { t } = useTranslationContext();
   const { announceInteraction } = useInteractionAnnouncements();
   const { pollComposer } = useMessageComposerController();
@@ -60,7 +62,7 @@ export const PollCreationDialog = ({ close }: PollCreationDialogProps) => {
               id='voting_visibility'
               onChange={(e) =>
                 pollComposer.updateFields({
-                  voting_visibility: e.target.checked ? 'anonymous' : 'public',
+                  data: { voting_visibility: e.target.checked ? 'anonymous' : 'public' },
                 })
               }
               title={t('poll.creationDialog.anonymousPoll.title', 'Anonymous Poll')}
@@ -74,7 +76,7 @@ export const PollCreationDialog = ({ close }: PollCreationDialogProps) => {
               id='allow_user_suggested_options'
               onChange={(e) =>
                 pollComposer.updateFields({
-                  allow_user_suggested_options: e.target.checked,
+                  data: { allow_user_suggested_options: e.target.checked },
                 })
               }
               title={t('poll.actions.suggestOption.label', 'Suggest an Option')}
@@ -87,7 +89,7 @@ export const PollCreationDialog = ({ close }: PollCreationDialogProps) => {
               )}
               id='allow_answers'
               onChange={(e) =>
-                pollComposer.updateFields({ allow_answers: e.target.checked })
+                pollComposer.updateFields({ data: { allow_answers: e.target.checked } })
               }
               title={t('poll.addCommentPrompt.addComment.label', 'Add a Comment')}
             />

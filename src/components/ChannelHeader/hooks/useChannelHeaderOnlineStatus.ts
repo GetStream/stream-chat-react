@@ -14,12 +14,9 @@ const watcherCountSelector = (nextValue: ChannelWatchState) => ({
 });
 
 /**
- * Returns the channel header online status text (e.g. "Online", "Offline", or
- * "X members · Y online"). Returns null when the channel has no members (nothing to show).
- *
- * Reactive counts come from the channel's unified reactive state; DM detection and
- * "others online" are delegated to `useIsDmChannel` / `useChannelHasMembersOnline`, which
- * subscribe to the state they each need.
+ * Online status text for the channel in context, as the channel header shows it: "Online" or
+ * "Offline" for a direct message, otherwise "N members · M online", translated. Returns null when
+ * the channel has no members. `ChannelHeaderSubtitle` renders it when nobody is typing.
  */
 export function useChannelHeaderOnlineStatus(): string | null {
   const { t } = useTranslationContext();

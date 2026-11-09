@@ -3,16 +3,9 @@ import { FixedSizeQueueCache, withoutConcurrency } from 'stream-chat';
 
 export type LocalVideoDimensions = { height: number; width: number };
 
-/**
- * Probing creates a media element, and browsers cap how many can exist at once (Chrome allows a
- * few dozen per page), so the rendered players of other attachments compete for the same budget.
- * Two guards keep this bounded no matter how many videos are in flight:
- *
- * - results are cached by source, so a blob is probed once even if its widget remounts (a
- *   virtualized list unmounts and remounts widgets as the user scrolls) or is rendered twice;
- * - probes run one at a time under a shared tag, so N uploading videos never hold N extra media
- *   elements open. Each is a metadata read off an in-memory blob, so the queue drains fast.
- */
+// Probing creates a media element and browsers cap how many can exist at once, so probes are
+// bounded: results are cached by source (widgets remount in virtualized lists), and probes run one
+// at a time under a shared tag so uploading videos never hold many extra media elements open.
 const dimensionsBySource = new FixedSizeQueueCache<string, LocalVideoDimensions>(100);
 const PROBE_TAG = 'stream-chat-react/local-video-dimensions';
 /** A file the browser cannot decode never fires `loadedmetadata`; do not block the queue on it. */
@@ -34,7 +27,7 @@ const probeDimensions = (src: string) =>
 
     const handleLoadedMetadata = () => {
       const { videoHeight, videoWidth } = probe;
-      // An undecodable file reports 0x0 — no better than the CSS fallback.
+      // An undecodable file reports 0x0, no better than the CSS fallback.
       finish(
         videoWidth > 0 && videoHeight > 0
           ? { height: videoHeight, width: videoWidth }
@@ -51,14 +44,12 @@ const probeDimensions = (src: string) =>
   });
 
 /**
- * Reads the intrinsic dimensions of a video that is not on the CDN yet.
+ * Reads the intrinsic dimensions of a video that is not on the CDN yet. Sizing otherwise comes
+ * from the `oh`/`ow` parameters of the CDN `thumb_url`, which an uploading video lacks, so its
+ * box would lay out from the `1000000x1000000` fallback and resize later.
  *
- * Sizing normally comes from the `oh`/`ow` parameters on the attachment's CDN `thumb_url`
- * (`getCssDimensionsVariables`). A video whose upload is still in flight has no `thumb_url`, so
- * the box falls back to `1000000x1000000` and lays out square — and then resizes the moment the
- * real dimensions arrive. The local file answers the same question without a network request.
- *
- * Returns `undefined` until the metadata is in, or if the file cannot be decoded.
+ * @param src - Local video URL, e.g. a blob URL. No dimensions are read when undefined.
+ * @returns The dimensions, or `undefined` until the metadata is in or if decoding fails.
  */
 export const useLocalVideoDimensions = (src?: string) => {
   const [dimensions, setDimensions] = useState<LocalVideoDimensions | undefined>(() =>

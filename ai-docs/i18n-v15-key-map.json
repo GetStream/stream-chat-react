@@ -1,6 +1,6 @@
 {
-  "$comment": "Migration table: natural-language translation key (v14) -> namespaced key (v15). Hand-reviewed; nothing regenerates it. Integrators who passed translationsForLanguage/registerTranslation dictionaries keyed on the old strings should use this to rename their keys. See ai-docs/i18n-v15-migration.md.",
-  "count": 621,
+  "$comment": "Migration table: natural-language translation key (v14) -> namespaced key (v15). Hand-reviewed; nothing regenerates it. Integrators who passed translationsForLanguage/registerTranslation dictionaries keyed on the old strings should use this to rename their keys. Where one v14 key became several v15 keys, `key` is the first and `also` lists the rest: copy the translation to each. Where the interpolation values changed, `values` lists the v14 and the v15 names: rewrite the translation around the v15 ones. See ai-docs/i18n-v15-migration.md.",
+  "count": 661,
   "keys": {
     "aria/Active": {
       "key": "a11y.accessibleLabel.active.ariaLabel",
@@ -130,12 +130,72 @@
       "key": "aiComponents.chart.unknownType.text",
       "prose": true
     },
+    "aria/Chat options": {
+      "key": "aiComponents.chatOptions.chatOptions.ariaLabel",
+      "prose": true
+    },
+    "aria/Loading older messages": {
+      "key": "aiComponents.conversation.loadingOlderMessages.ariaLabel",
+      "prose": true
+    },
+    "aria/Scroll to latest": {
+      "key": "aiComponents.conversation.scrollToLatest.ariaLabel",
+      "prose": true
+    },
     "aria/Start voice input": {
       "key": "aiComponents.messageComposer.speechToText.ariaLabel",
       "prose": true
     },
     "Ask a question...": {
       "key": "aiComponents.messageComposer.textInput.placeholder",
+      "prose": true
+    },
+    "A step this app version can't show": {
+      "key": "aiComponents.messageParts.unsupportedStep.text",
+      "prose": true
+    },
+    "Thinking…": {
+      "key": "aiComponents.reasoning.thinking.title",
+      "prose": true
+    },
+    "Thinking… {{ duration }}": {
+      "key": "aiComponents.reasoning.thinkingFor.title",
+      "prose": true
+    },
+    "Thought for {{ duration }}": {
+      "key": "aiComponents.reasoning.thoughtFor.title",
+      "prose": true
+    },
+    "Thought process": {
+      "key": "aiComponents.reasoning.thoughtProcess.title",
+      "prose": true
+    },
+    "aria/Bad response": {
+      "key": "aiComponents.replyActions.badResponse.ariaLabel",
+      "prose": true
+    },
+    "aria/Copied": {
+      "key": "aiComponents.replyActions.copied.ariaLabel",
+      "prose": true
+    },
+    "aria/Copy": {
+      "key": "aiComponents.replyActions.copy.ariaLabel",
+      "prose": true
+    },
+    "aria/Good response": {
+      "key": "aiComponents.replyActions.goodResponse.ariaLabel",
+      "prose": true
+    },
+    "aria/Regenerate": {
+      "key": "aiComponents.replyActions.regenerate.ariaLabel",
+      "prose": true
+    },
+    "aria/Reply actions": {
+      "key": "aiComponents.replyActions.replyActions.ariaLabel",
+      "prose": true
+    },
+    "aria/Share": {
+      "key": "aiComponents.replyActions.share.ariaLabel",
       "prose": true
     },
     "Brewing up an answer": {
@@ -184,6 +244,112 @@
     },
     "Working my magic": {
       "key": "aiComponents.stateIndicator.workingMyMagic.text",
+      "prose": true
+    },
+    "Allow": {
+      "key": "aiComponents.toolApproval.allow.label",
+      "prose": true
+    },
+    "Your answer couldn't be sent. Try again.": {
+      "key": "aiComponents.toolApproval.answerNotSent.text",
+      "prose": true,
+      "also": ["aiComponents.toolAuthorization.answerNotSent.text"]
+    },
+    "What it sends": {
+      "key": "aiComponents.toolApproval.arguments.ariaLabel",
+      "prose": true,
+      "also": ["aiComponents.toolApproval.arguments.label"]
+    },
+    "Don't Allow": {
+      "key": "aiComponents.toolApproval.dontAllow.label",
+      "prose": true
+    },
+    "Connect": {
+      "key": "aiComponents.toolAuthorization.connect.label",
+      "prose": true
+    },
+    "Connected to {{ provider }}": {
+      "key": "aiComponents.toolAuthorization.connectedTo.text",
+      "prose": true
+    },
+    "Connecting…": {
+      "key": "aiComponents.toolAuthorization.connecting.label",
+      "prose": true
+    },
+    "Not connected": {
+      "key": "aiComponents.toolAuthorization.notConnected.text",
+      "prose": true
+    },
+    "Not now": {
+      "key": "aiComponents.toolAuthorization.notNow.label",
+      "prose": true
+    },
+    "Your browser blocked the sign-in window. Allow pop-ups and try again.": {
+      "key": "aiComponents.toolAuthorization.popupBlocked.text",
+      "prose": true
+    },
+    "The sign-in couldn't be opened. Try again.": {
+      "key": "aiComponents.toolAuthorization.signInCouldntOpen.text",
+      "prose": true
+    },
+    "The sign-in didn't complete.": {
+      "key": "aiComponents.toolAuthorization.signInDidntComplete.text",
+      "prose": true
+    },
+    "This sign-in has expired.": {
+      "key": "aiComponents.toolAuthorization.signInExpired.text",
+      "prose": true
+    },
+    "Cancelled": {
+      "key": "aiComponents.toolCall.cancelled.text",
+      "prose": true
+    },
+    "Declined": {
+      "key": "aiComponents.toolCall.declined.text",
+      "prose": true
+    },
+    "Didn't complete": {
+      "key": "aiComponents.toolCall.didntComplete.text",
+      "prose": true
+    },
+    "Waiting for approval": {
+      "key": "aiComponents.toolCall.waitingForApproval.text",
+      "prose": true
+    },
+    "Waiting for the device": {
+      "key": "aiComponents.toolCall.waitingForDevice.text",
+      "prose": true
+    },
+    "Waiting for you to sign in": {
+      "key": "aiComponents.toolCall.waitingForSignIn.text",
+      "prose": true
+    },
+    "aria/Edit": {
+      "key": "aiComponents.userMessage.edit.ariaLabel",
+      "prose": true
+    },
+    "Connecting": {
+      "key": "aiComponents.voiceVisualization.connecting.text",
+      "prose": true
+    },
+    "Listening": {
+      "key": "aiComponents.voiceVisualization.listening.text",
+      "prose": true
+    },
+    "Ready": {
+      "key": "aiComponents.voiceVisualization.ready.text",
+      "prose": true
+    },
+    "Speaking": {
+      "key": "aiComponents.voiceVisualization.speaking.text",
+      "prose": true
+    },
+    "Thinking": {
+      "key": "aiComponents.voiceVisualization.thinking.text",
+      "prose": true
+    },
+    "aria/Voice agent: {{ state }}": {
+      "key": "aiComponents.voiceVisualization.voiceAgent.ariaLabel",
       "prose": true
     },
     "Generating...": {
@@ -1059,7 +1225,8 @@
     "Search": {
       "key": "common.search.ariaLabel",
       "prose": true,
-      "shared": true
+      "shared": true,
+      "also": ["aiComponents.a2ui.choicePickerFilter.placeholder"]
     },
     "Send": {
       "key": "common.send.label",
@@ -1795,7 +1962,8 @@
     },
     "File": {
       "key": "messageComposer.attachmentSelector.file.text",
-      "prose": true
+      "prose": true,
+      "also": ["aiComponents.messageAttachment.file.text"]
     },
     "aria/Open Attachment Selector": {
       "key": "messageComposer.attachmentSelector.openAttachmentSelector.ariaLabel",
@@ -1855,10 +2023,6 @@
     },
     "Shared location": {
       "key": "messageComposer.geolocationPreview.sharedLocation.title",
-      "prose": true
-    },
-    "Attach files": {
-      "key": "messageComposer.icons.attachFiles.text",
       "prose": true
     },
     "aria/Cancel Reply": {
@@ -2254,7 +2418,8 @@
     },
     "aria/Remove option: {{ option }}": {
       "key": "poll.optionFieldSet.removeOption.ariaLabel",
-      "prose": true
+      "prose": true,
+      "also": ["aiComponents.chatOptions.removeOption.ariaLabel"]
     },
     "+{{count}} more options": {
       "key": "poll.optionList.moreOptions.label",
@@ -2447,7 +2612,8 @@
     },
     "aria/Suggestions": {
       "key": "textareaComposer.suggestionList.suggestions.ariaLabel",
-      "prose": true
+      "prose": true,
+      "also": ["aiComponents.suggestions.suggestions.ariaLabel"]
     },
     "Search GIFs": {
       "key": "textareaComposer.textareaPlaceholder.searchGiFs.label",
@@ -2564,7 +2730,8 @@
     },
     "{{ typing }} are typing": {
       "key": "typing.twoUsers",
-      "prose": true
+      "prose": true,
+      "values": { "v14": ["typing"], "v15": ["firstUser", "secondUser"] }
     },
     "Play video": {
       "key": "videoPlayer.videoThumbnail.playVideo.ariaLabel",

@@ -58,6 +58,18 @@
       "require": "./dist/cjs/ai-components.js",
       "default": "./dist/cjs/ai-components.js"
     },
+    "./a2ui": {
+      "types": "./dist/types/plugins/A2UI/index.d.ts",
+      "import": "./dist/es/a2ui.mjs",
+      "require": "./dist/cjs/a2ui-require.js",
+      "default": "./dist/es/a2ui.mjs"
+    },
+    "./openui": {
+      "types": "./dist/types/plugins/OpenUI/index.d.ts",
+      "import": "./dist/es/openui.mjs",
+      "require": "./dist/cjs/openui.js",
+      "default": "./dist/es/openui.mjs"
+    },
     "./dist/css/*": {
       "default": "./dist/css/*"
     },
@@ -84,6 +96,12 @@
       ],
       "ai-components": [
         "./dist/types/plugins/AIComponents/index.d.ts"
+      ],
+      "a2ui": [
+        "./dist/types/plugins/A2UI/index.d.ts"
+      ],
+      "openui": [
+        "./dist/types/plugins/OpenUI/index.d.ts"
       ]
     }
   },
@@ -104,8 +122,8 @@
     "@braintree/sanitize-url": "^7.1.2",
     "@floating-ui/react": "^0.27.19",
     "@react-aria/focus": "^3.22.0",
-    "@stream-io/i18n": "^1.0.2",
-    "@stream-io/state-store": "^1.1.6",
+    "@stream-io/i18n": "^1.1.0",
+    "@stream-io/state-store": "^1.2.0",
     "chart.js": "^4.5.1",
     "clsx": "^2.1.1",
     "emoji-regex": "^9.2.2",
@@ -132,25 +150,38 @@
     "unist-builder": "^4.0.0",
     "unist-util-visit": "^5.1.0",
     "use-sync-external-store": "^1.7.0",
-    "zod": "^4.1.12"
-  },
-  "optionalDependencies": {
-    "@stream-io/transliterate": "^1.5.5"
+    "zod": "^4.2.0"
   },
   "peerDependencies": {
+    "@a2ui/react": "~0.15.0",
+    "@a2ui/web_core": "~0.15.0",
     "@breezystack/lamejs": "^1.2.7",
     "@emoji-mart/data": "^1.1.0",
+    "@openuidev/react-lang": "~1.0.2",
+    "@openuidev/react-ui": "~0.18.1",
     "emoji-mart": "^5.4.0",
     "modern-normalize": "^3.0.1",
     "react": "^19.0.0 || ^18.0.0 || ^17.0.0",
     "react-dom": "^19.0.0 || ^18.0.0 || ^17.0.0",
-    "stream-chat": "^10.0.0-rc.20"
+    "stream-chat": "^10.0.0"
   },
   "peerDependenciesMeta": {
+    "@a2ui/react": {
+      "optional": true
+    },
+    "@a2ui/web_core": {
+      "optional": true
+    },
     "@breezystack/lamejs": {
       "optional": true
     },
     "@emoji-mart/data": {
+      "optional": true
+    },
+    "@openuidev/react-lang": {
+      "optional": true
+    },
+    "@openuidev/react-ui": {
       "optional": true
     },
     "emoji-mart": {
@@ -166,11 +197,16 @@
     "README.md"
   ],
   "devDependencies": {
+    "@a2ui/react": "0.15.0",
+    "@a2ui/web_core": "0.15.0",
     "@breezystack/lamejs": "^1.2.7",
     "@commitlint/cli": "^21.0.1",
     "@commitlint/config-conventional": "^21.0.1",
     "@emoji-mart/data": "^1.2.1",
     "@eslint/js": "^9.39.4",
+    "@openuidev/react-headless": "0.18.1",
+    "@openuidev/react-lang": "1.0.2",
+    "@openuidev/react-ui": "0.18.1",
     "@semantic-release/changelog": "^6.0.3",
     "@semantic-release/git": "^10.0.1",
     "@semantic-release/github": "^12.0.8",
@@ -210,12 +246,13 @@
     "react-dom": "^19.2.6",
     "sass": "^1.100.0",
     "semantic-release": "^25.0.3",
-    "stream-chat": "^10.0.0-rc.22",
+    "stream-chat": "^10.0.0",
     "typescript": "^6.0.3",
     "typescript-eslint": "^8.59.4",
     "vite": "^8.1.3",
     "vitest": "^4.1.9",
-    "vitest-axe": "^0.1.0"
+    "vitest-axe": "^0.1.0",
+    "zustand": "4.5.7"
   },
   "scripts": {
     "clean": "rm -rf dist",
@@ -234,7 +271,9 @@
     "start": "tsc -p tsconfig.lib.json -w",
     "start:css": "node scripts/watch-styling.mjs",
     "start:ai-chatbot": "yarn workspace @stream-io/stream-chat-react-ai-chatbot dev",
+    "start:ai-ui-gallery": "yarn workspace @stream-io/stream-chat-react-ai-ui-gallery dev",
     "start:tutorial": "yarn workspace @stream-io/stream-chat-react-tutorial dev",
+    "start:cookbook": "yarn workspace @stream-io/stream-chat-react-cookbook dev",
     "start:vite": "yarn workspace @stream-io/stream-chat-react-vite dev",
     "postinstall": "node -e \"require('fs').existsSync('scripts/install-husky.mjs') && import('./scripts/install-husky.mjs')\"",
     "test": "vitest run",
@@ -245,6 +284,7 @@
     "validate-cjs": "concurrently 'node scripts/validate-cjs-node-bundle.cjs' 'node scripts/validate-cjs-browser-bundle.cjs'",
     "validate-esm": "node scripts/validate-esm-node-bundle.mjs",
     "validate-entry-isolation": "node scripts/validate-entry-isolation.mts",
+    "validate-ai-ui-tokens": "node scripts/validate-ai-ui-tokens.mts",
     "api-surface": "node scripts/api-surface.mts",
     "semantic-release": "semantic-release",
     "prepack": "yarn build",

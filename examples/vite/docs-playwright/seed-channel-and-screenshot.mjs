@@ -636,13 +636,9 @@ async function run() {
           const client = findClient();
           if (!client) return { ok: false, reason: 'no client' };
           try {
-            const ch = client.channelManager.ensure({
-              type: 'messaging',
-              id: channelId,
-              data: {
-                members: [userA, userB],
-                name: 'Design redesign — v14',
-              },
+            const ch = client.channel('messaging', channelId, {
+              members: [userA, userB],
+              name: 'Design redesign — v14',
             });
             await ch.watch();
             const existingCount = (ch.state.messages || []).length;
@@ -761,19 +757,13 @@ async function run() {
             const results = [];
             for (const [channelId, data] of Object.entries(channelImages)) {
               try {
-                const ch = client.channelManager.ensure({
-                  type: 'public',
-                  id: channelId,
-                });
+                const ch = client.channel('public', channelId);
                 await ch.updatePartial({ set: { image: data.image } });
                 results.push(channelId + ': ok');
               } catch (e) {
                 // Try messaging type too
                 try {
-                  const ch = client.channelManager.ensure({
-                    type: 'messaging',
-                    id: channelId,
-                  });
+                  const ch = client.channel('messaging', channelId);
                   await ch.updatePartial({ set: { image: data.image } });
                   results.push(channelId + ': ok (messaging)');
                 } catch (e2) {

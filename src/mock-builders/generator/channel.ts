@@ -23,8 +23,8 @@ export const generateChannel = (options?: GenerateChannelOptions): ChannelAPIRes
 
   const { messages: optionMessages, ...optionsBesidesChannelAndMessages } =
     optionsBesidesChannel;
-  // Real channel query responses carry the channel cid on each message, and the message paginator
-  // filters ingested messages by cid — so stamp it (respecting any explicit per-message cid).
+  // Real channel query responses carry the channel cid on each message and the message paginator
+  // filters ingested messages by cid, so stamp it unless a message sets its own.
   const messages = (optionMessages ?? []).map((message) => ({ cid, ...message }));
 
   return {

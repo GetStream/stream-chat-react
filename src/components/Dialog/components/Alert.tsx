@@ -3,7 +3,7 @@ import clsx from 'clsx';
 import { useModalContext } from '../../../context';
 import { useAriaIdentifiers } from '../../../a11y/hooks/useAriaIdentifiers';
 
-export const Root = forwardRef<HTMLDivElement, ComponentProps<'div'>>(function AlertRoot(
+const Root = forwardRef<HTMLDivElement, ComponentProps<'div'>>(function AlertRoot(
   { children, className, ...props }: ComponentProps<'div'>,
   ref,
 ) {
@@ -22,7 +22,7 @@ export type AlertHeaderProps = ComponentProps<'div'> & {
   titleId?: string;
 };
 
-export const Header = forwardRef<HTMLDivElement, AlertHeaderProps>(function AlertHeader(
+const Header = forwardRef<HTMLDivElement, AlertHeaderProps>(function AlertHeader(
   { children, className, description, descriptionId, Icon, title, titleId, ...props },
   ref,
 ) {

@@ -6,7 +6,7 @@ import type { NotificationTargetPanel } from './notificationTarget';
 import type { NotificationListFilter } from './NotificationList';
 
 export type NotificationDisplayFilterParams = {
-  /** Fallback panel used by the receiving NotificationList when a notification has no explicit target. */
+  /** Fallback panel of the receiving list for notifications with no explicit target. */
   fallbackPanel?: NotificationTargetPanel;
   /** Local NotificationList filter. Runs only after the display filter accepts the notification. */
   filter?: NotificationListFilter;

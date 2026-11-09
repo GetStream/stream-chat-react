@@ -67,7 +67,7 @@ describe('EventComponent', () => {
     expect(span).toBeInTheDocument();
     expect(span).toHaveTextContent('system event');
 
-    // No line dividers or date section in the new structure
+    // No line dividers or date section.
     expect(
       systemMsg.querySelector('.str-chat__message--system__line'),
     ).not.toBeInTheDocument();
@@ -93,13 +93,22 @@ describe('EventComponent', () => {
     expect(unsafeDiv.innerHTML).toBe('<strong>html event</strong>');
   });
 
+  it('should render the text when unsafeHTML is true but the message has no HTML', async () => {
+    await renderComponent({
+      props: { message: { ...message, text: 'system event' }, unsafeHTML: true },
+    });
+    const systemMsg = screen.getByTestId(SYSTEM_MSG_TEST_ID);
+    expect(systemMsg.querySelector('[data-unsafe-inner-html]')).not.toBeInTheDocument();
+    expect(systemMsg).toHaveTextContent('system event');
+  });
+
   it('should render system event text content (no timestamp displayed)', async () => {
     await renderComponent({
       props: { message: { ...message, text: 'a system message' } },
     });
     const systemMsg = screen.getByTestId(SYSTEM_MSG_TEST_ID);
     expect(systemMsg).toHaveTextContent('a system message');
-    // Component no longer renders timestamps
+    // Timestamps are not rendered.
     expect(
       systemMsg.querySelector('.str-chat__message--system__date'),
     ).not.toBeInTheDocument();

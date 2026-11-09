@@ -12,16 +12,15 @@ export const useAudioPlaybackChangeAnnouncements = (
 ) => {
   const { announceInteraction } = useInteractionAnnouncements();
 
-  // Announce a playback-speed change to assistive tech. The rate button only changes an icon/label
-  // in place, so a screen reader gets no confirmation; announce off the state so it reflects the new
-  // rate regardless of which widget's button was pressed (voice recording or audio attachment).
+  // The rate button only changes an icon/label in place, so a screen reader gets no confirmation.
+  // Announcing from the player state covers every widget that changes the rate.
   const { currentPlaybackRate } =
     useStateStore(audioPlayer?.state, playbackRateSelector) ?? {};
   const previousPlaybackRateRef = useRef(currentPlaybackRate);
   useEffect(() => {
     const previous = previousPlaybackRateRef.current;
     previousPlaybackRateRef.current = currentPlaybackRate;
-    // Skip the initial value and no-op re-renders; announce only a real change to a defined rate.
+    // Skips the initial value and unchanged rates.
     if (
       currentPlaybackRate === undefined ||
       previous === undefined ||

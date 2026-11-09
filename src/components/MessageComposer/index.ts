@@ -1,6 +1,7 @@
 export * from './AttachmentSelector';
 export {
   AttachmentPreviewList,
+  GeolocationPreview,
   UnsupportedAttachmentPreview,
   VoiceRecordingPreviewSlot,
 } from './AttachmentPreviewList';
@@ -16,11 +17,14 @@ export type {
 } from './AttachmentPreviewList';
 export * from './CommandChip';
 export * from './CooldownTimer';
+export * from './EditedMessagePreview';
 export * from './hooks';
 export * from './icons';
 export * from './LinkPreviewList';
 export * from './MessageComposer';
 export * from './MessageComposerActions';
+export * from './MessageComposerPreviews';
+export * from './MessageComposerPreviews.defaults';
 export * from './MessageComposerUI';
 export * from './QuotedMessagePreview';
 export * from './RemoveAttachmentPreviewButton';

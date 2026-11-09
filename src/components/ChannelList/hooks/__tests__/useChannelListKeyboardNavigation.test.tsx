@@ -27,9 +27,9 @@ const Harness = ({
 }: {
   initialCount?: number;
   loadMoreAddsCount?: number;
-  // When true, the Load more button only arms the hook (no rows appended); page loading and an
-  // unrelated "WebSocket" prepend are driven by separate controls so a mid-window insert can be
-  // injected before the next page renders. Ids are stable so React keeps each row's DOM node.
+  // When true, the Load more button only arms the hook; appending the page and an unrelated
+  // "WebSocket" prepend are separate controls, so an insert can land before the page renders. IDs
+  // are stable so React keeps each row's DOM node.
   manualLoadMore?: boolean;
   withLoadMore?: boolean;
 }) => {
@@ -136,17 +136,15 @@ describe('useChannelListKeyboardNavigation', () => {
   it('navigates between channels with ArrowDown/ArrowUp/Home/End while focus is on a row action', () => {
     render(<Harness />);
 
-    // From an action button, ArrowDown moves to the next channel (relative to that row).
+    // From an action button, the keys move relative to that action's row.
     screen.getByTestId('menu-1').focus();
     fireEvent.keyDown(screen.getByTestId('menu-1'), { key: 'ArrowDown' });
     expect(screen.getByTestId('option-2')).toHaveFocus();
 
-    // ArrowUp from an action moves to the previous channel.
     screen.getByTestId('action-1').focus();
     fireEvent.keyDown(screen.getByTestId('action-1'), { key: 'ArrowUp' });
     expect(screen.getByTestId('option-0')).toHaveFocus();
 
-    // Home/End jump to the first/last channel from an action too.
     screen.getByTestId('menu-2').focus();
     fireEvent.keyDown(screen.getByTestId('menu-2'), { key: 'Home' });
     expect(screen.getByTestId('option-0')).toHaveFocus();
@@ -178,7 +176,7 @@ describe('useChannelListKeyboardNavigation', () => {
   it('focuses the first item of the next page after Load more', async () => {
     render(<Harness loadMoreAddsCount={2} withLoadMore />);
 
-    // 3 options initially; activating Load more appends 2 → option-3 is the first new item.
+    // 3 options initially; activating Load more appends 2, so option-3 is the first new item.
     fireEvent.click(screen.getByTestId('load-more-button'));
 
     await waitFor(() => {
@@ -193,13 +191,13 @@ describe('useChannelListKeyboardNavigation', () => {
     fireEvent.click(screen.getByTestId('load-more-button'));
 
     // A channel arrives over the WebSocket and sorts to the top during the load window: the list
-    // grows, but this row is not the next page and must NOT receive focus.
+    // grows, but this row is not the next page and must not receive focus.
     fireEvent.click(screen.getByTestId('ws-prepend'));
     await Promise.resolve();
     expect(screen.getByTestId('option--1')).not.toHaveFocus();
     expect(document.body).toHaveFocus();
 
-    // The real next page renders (appended after the pre-load boundary) → its first row is focused.
+    // The real next page renders after the pre-load boundary, so its first row is focused.
     fireEvent.click(screen.getByTestId('append-page'));
     await waitFor(() => {
       expect(screen.getByTestId('option-3')).toHaveFocus();

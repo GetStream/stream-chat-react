@@ -1,0 +1,65 @@
+@layer stream-overrides {
+  .cookbook-image-preview {
+    position: relative;
+  }
+
+  .cookbook-image-preview__thumbnail {
+    overflow: hidden;
+    width: 48px;
+    height: 48px;
+    padding: 0;
+    border: 1px solid var(--str-chat__border-core-default);
+    border-radius: var(--str-chat__radius-lg);
+    background: var(--str-chat__background-core-surface-subtle);
+    cursor: pointer;
+  }
+
+  .cookbook-image-preview__thumbnail:disabled {
+    cursor: default;
+  }
+
+  .cookbook-image-preview__thumbnail img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  /* The progress ring sits over the thumbnail. */
+  .cookbook-image-preview__progress {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--str-chat__radius-lg);
+    background: var(--str-chat__background-core-overlay-light);
+    pointer-events: none;
+  }
+
+  /* A file that can't be uploaded shows the error mark over a dimmed thumbnail. */
+  .cookbook-image-preview__error {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--str-chat__border-utility-error);
+    border-radius: var(--str-chat__radius-lg);
+    background: var(--str-chat__background-core-overlay-light);
+    color: var(--str-chat__accent-error);
+    pointer-events: none;
+  }
+
+  .cookbook-image-preview__retry {
+    position: absolute;
+    inset-inline: 0;
+    bottom: 0;
+    padding: var(--str-chat__spacing-xxs);
+    border: 0;
+    border-radius: var(--str-chat__radius-max);
+    background: var(--str-chat__accent-error);
+    color: var(--str-chat__text-on-accent);
+    font: var(--str-chat__font-caption-emphasis);
+    cursor: pointer;
+  }
+}

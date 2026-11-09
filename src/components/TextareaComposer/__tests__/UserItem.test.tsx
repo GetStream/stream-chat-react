@@ -42,7 +42,7 @@ describe('UserItem', () => {
         />
       </div>,
     );
-    // The avatar (and its fallback initials) must not contribute to the option's name.
+    // The avatar and its fallback initials must not contribute to the option's name.
     expect(getByTestId('avatar')).toHaveAttribute('aria-hidden', 'true');
   });
 

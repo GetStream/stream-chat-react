@@ -1,0 +1,35 @@
+@layer stream-overrides {
+  /* The separator: an accent-colored chip. */
+  .str-chat__unread-messages-separator-wrapper .str-chat__unread-messages-separator {
+    border-color: var(--str-chat__accent-primary);
+    background: var(--str-chat__background-core-surface-subtle);
+    color: var(--str-chat__accent-primary);
+  }
+
+  /* The banner: filled with the accent color, with white text and icons. */
+  .str-chat__unread-messages-notification {
+    border-color: var(--str-chat__accent-primary);
+    background: var(--str-chat__accent-primary);
+    box-shadow: var(--str-chat__box-shadow-2);
+  }
+
+  .str-chat__unread-messages-notification .str-chat__button {
+    background: none;
+    color: var(--str-chat__text-on-accent);
+  }
+
+  /* The scroll-to-latest button: accent-colored, with the count on an inverse badge. */
+  .str-chat__jump-to-latest-message {
+    background-color: var(--str-chat__accent-primary);
+    box-shadow: var(--str-chat__box-shadow-2);
+  }
+
+  .str-chat__jump-to-latest-message .str-chat__jump-to-latest-message__button {
+    color: var(--str-chat__text-on-accent);
+  }
+
+  .str-chat__jump-to-latest-message .str-chat__jump-to-latest__unread-count {
+    background: var(--str-chat__background-core-inverse);
+    color: var(--str-chat__text-on-inverse);
+  }
+}

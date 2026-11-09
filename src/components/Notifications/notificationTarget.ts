@@ -8,10 +8,7 @@ const NOTIFICATION_TARGET_PANELS = [
   'modal',
 ] as const;
 
-/**
- * Panel where a notification should be consumed.
- * Use in origin.context.panel when publishing so NotificationList can filter by panel.
- */
+/** Panel where a notification is consumed. Set it in `origin.context.panel` to route by panel. */
 export type NotificationTargetPanel = (typeof NOTIFICATION_TARGET_PANELS)[number];
 
 export const isNotificationTargetPanel = (
@@ -20,13 +17,8 @@ export const isNotificationTargetPanel = (
   typeof value === 'string' &&
   (NOTIFICATION_TARGET_PANELS as readonly string[]).includes(value);
 
-/**
- * Panel implied by the composer that raised a notification. `stream-chat` cannot name a panel -- it
- * has no notion of one -- but every composer-scoped emitter puts the composer in `origin.context`,
- * and a thread composer's upload failure belongs in that thread rather than in the channel the
- * thread hangs off. Only the two contexts that correspond to a panel are mapped; `message` and
- * `legacy_thread` have none.
- */
+// Panel implied by the composer in `origin.context`, so a thread composer's upload failure shows
+// in the thread, not its channel. Only the `thread` and `channel` contexts map to a panel.
 const getPanelFromComposerContext = (
   notification: Notification,
 ): NotificationTargetPanel | undefined => {

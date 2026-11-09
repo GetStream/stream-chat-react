@@ -36,7 +36,7 @@ describe('ChannelPreview utils', () => {
     // eslint-disable-next-line react-hooks/rules-of-hooks
     useMockedApis(chatClient, [getOrCreateChannelApi(c)]);
 
-    const channel = chatClient.channelManager.ensure({ type: 'messaging' });
+    const channel = chatClient.channel('messaging');
 
     await channel.watch();
 
@@ -158,6 +158,16 @@ describe('ChannelPreview utils', () => {
         }),
       );
       expect(getLatestMessagePreviewText(channel, t)).toBe('bold and em and link');
+    });
+
+    it('announces separate paragraphs and list items as separate words', async () => {
+      const t = mockT as TranslationContextValue['t'];
+      const channel = await getQueriedChannelInstance(
+        generateChannel({
+          messages: [generateMessage({ text: 'first\n\n- one\n- two' })],
+        }),
+      );
+      expect(getLatestMessagePreviewText(channel, t)).toBe('first one two');
     });
 
     it('returns AI-generated text verbatim (not stripped), matching the display path', async () => {
@@ -477,7 +487,8 @@ describe('ChannelPreview utils', () => {
       });
 
       expect(label).toContain('Last message from Alice: look at these');
-      // mock t does not pluralize, so it yields the base "{{ count }} attachment" → "2 attachment"
+      // The mock `t` does not pluralize, so it yields the base "{{ count }} attachment", i.e.
+      // "2 attachment".
       expect(label).toContain('2 attachment');
     });
 
@@ -576,7 +587,7 @@ describe('ChannelPreview utils', () => {
         tDateTimeParser,
       });
 
-      // The message text AND the link are both announced (link as its own segment after it).
+      // The message text and the link are both announced (link as its own segment after it).
       expect(label).toContain('Last message from Alice: https://example.com');
       expect(label).toContain('Shared a link with title: Example Domain');
     });
@@ -611,7 +622,7 @@ describe('ChannelPreview utils', () => {
         generateChannel({ messages: [generateMessage({ text: 'x', user: bob })] }),
       );
       const latestMessage =
-        channel.messagePaginator.aggregateState.getLatestValue().lastMessage;
+        channel.messagePaginator.aggregateState.getLatestValue().latestMessage;
 
       const label = composeChannelListItemAccessibleLabel(
         {

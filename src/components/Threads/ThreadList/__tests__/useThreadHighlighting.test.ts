@@ -11,10 +11,6 @@ import type {
   ThreadManagerState,
 } from 'stream-chat';
 
-/**
- * The flash means "a thread arrived while you were looking at the list". Threads that merely
- * appear for the first time (the first page on load, each page while scrolling) are not arrivals.
- */
 const thread = (id: string) => fromPartial<Thread>({ id });
 
 const setup = ({ items }: { items?: Thread[] } = {}) => {
@@ -28,6 +24,8 @@ const setup = ({ items }: { items?: Thread[] } = {}) => {
   return { listState, result, state };
 };
 
+// The flash means "a thread arrived while you were looking at the list". Threads that merely
+// appear for the first time (the first page on load, each page while scrolling) are not arrivals.
 describe('useThreadHighlighting', () => {
   it('does not flash the first page arriving on a cold load', () => {
     const { listState, result } = setup();
@@ -52,8 +50,8 @@ describe('useThreadHighlighting', () => {
     act(() => state.partialNext({ unseenThreadIds: ['new-one'] }));
     expect(Object.keys(result.current)).toEqual([]);
 
-    // `reload()` brings it into the list, then clears `unseenThreadIds` -- which is why the id has
-    // to have been remembered when it was reported.
+    // `reload()` brings it into the list, then clears `unseenThreadIds`, so the ID must have been
+    // remembered when it was reported.
     act(() => listState.partialNext({ items: [thread('new-one'), thread('a')] }));
     act(() => state.partialNext({ unseenThreadIds: [] }));
 

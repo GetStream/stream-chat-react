@@ -1,7 +1,6 @@
-// MERGE-RECONCILE (test migration): import the package barrel first so it evaluates in its
-// natural order (components then context). MessageComposer's send/update hooks import
-// `useChannel` from this root barrel; importing a deep component path first would trigger a
-// partial circular re-entry that leaves `useChannel` undefined under Vitest.
+// Import the package barrel first so it evaluates in its natural order (components, then context).
+// MessageComposer's send/update hooks import `useChannel` from this barrel, and a deep component
+// import first causes a partial circular re-entry that leaves `useChannel` undefined in Vitest.
 import '../../../..';
 import React from 'react';
 import {
@@ -69,11 +68,10 @@ vi.spyOn(HTMLDivElement.prototype, 'getBoundingClientRect').mockReturnValue(
   fromPartial<DOMRect>({ width: 120 }),
 );
 
-// MERGE-RECONCILE (test migration): channel state/actions moved onto the stream-chat client,
-// so the removed ChannelState/ChannelAction/Chat/Component providers are replaced by the
-// real <Chat>/<Channel> tree. A caller may pass an already-initialized channel/client (with
-// preset composer text/attachments) via `channelStateCtx.channel` / `chatCtx.client`;
-// otherwise a fresh pair is created. Custom component overrides pass through <Channel> props.
+// Renders a real <Chat>/<Channel> tree. A caller may pass an initialized channel and client (e.g.
+// with preset composer text or attachments) via `channelStateCtx.channel` / `chatCtx.client`;
+// otherwise a fresh pair is created, with a channel that allows uploads, which a recording needs.
+// `componentCtx` is applied through `WithComponents`.
 const renderComponent = async ({
   channelStateCtx,
   chatCtx,
@@ -86,7 +84,9 @@ const renderComponent = async ({
     ({
       channels: [channel],
       client,
-    } = await initClientWithChannels());
+    } = await initClientWithChannels({
+      channelsData: [{ channel: { own_capabilities: ['upload-file'] } }],
+    }));
   }
   let result: RenderResult;
   await act(async () => {
@@ -149,9 +149,8 @@ describe('MessageInput', () => {
     (navigator as any).mediaDevices = {
       getUserMedia: vi.fn().mockResolvedValue({}),
     };
-    // Reset the permissions query each test: vi.clearAllMocks() clears call history but keeps
-    // mock implementations, so a persistent mockResolvedValue set by the permission tests would
-    // otherwise leak a 'denied' status into later tests.
+    // vi.clearAllMocks() keeps mock implementations, so a `mockResolvedValue` set by the permission
+    // tests would leak a 'denied' status into later tests; reset the permissions query each time.
     (navigator as any).permissions = { query: vi.fn() };
   });
   afterEach(() => {
@@ -181,8 +180,57 @@ describe('MessageInput', () => {
     expect(btn).toBeEnabled();
   });
 
+  it.each([
+    [
+      'the channel does not allow uploads',
+      async () => {
+        const {
+          channels: [channel],
+          client,
+        } = await initClientWithChannels();
+        return { channel, client };
+      },
+    ],
+    [
+      'the composer has attachments disabled',
+      async () => {
+        const {
+          channels: [channel],
+          client,
+        } = await initClientWithChannels({
+          channelsData: [{ channel: { own_capabilities: ['upload-file'] } }],
+        });
+        channel.messageComposer.updateConfig({ attachments: { enabled: false } });
+        return { channel, client };
+      },
+    ],
+  ])('disables the start recording button when %s', async (_, setUp) => {
+    const { channel, client } = await setUp();
+    await renderComponent({ channelStateCtx: { channel }, chatCtx: { client } });
+    expect(screen.getByTestId(START_RECORDING_AUDIO_BUTTON_TEST_ID)).toBeDisabled();
+  });
+
+  it('enables and disables the start recording button as composer uploads are turned on and off', async () => {
+    const {
+      channels: [channel],
+      client,
+    } = await initClientWithChannels({
+      channelsData: [{ channel: { own_capabilities: ['upload-file'] } }],
+    });
+    await renderComponent({ channelStateCtx: { channel }, chatCtx: { client } });
+    expect(screen.getByTestId(START_RECORDING_AUDIO_BUTTON_TEST_ID)).toBeEnabled();
+    await act(() => {
+      channel.messageComposer.updateConfig({ attachments: { enabled: false } });
+    });
+    expect(screen.getByTestId(START_RECORDING_AUDIO_BUTTON_TEST_ID)).toBeDisabled();
+    await act(() => {
+      channel.messageComposer.updateConfig({ attachments: { enabled: true } });
+    });
+    expect(screen.getByTestId(START_RECORDING_AUDIO_BUTTON_TEST_ID)).toBeEnabled();
+  });
+
   it('does not render start recording button when message input contains text', async () => {
-    // In v14, the recording button is hidden when content is present (send button shows instead)
+    // The recording button is hidden when content is present (the send button shows instead).
     const {
       channels: [channel],
       client,
@@ -194,7 +242,7 @@ describe('MessageInput', () => {
   });
 
   it('does not render start recording button when message input contains attachments', async () => {
-    // In v14, the recording button is hidden when content is present (send button shows instead)
+    // The recording button is hidden when content is present (the send button shows instead).
     const {
       channels: [channel],
       client,
@@ -226,7 +274,7 @@ describe('MessageInput', () => {
   });
 
   it('does not render start recording button when voiceRecording attachment already present', async () => {
-    // In v14, the recording button is hidden when content is present
+    // The recording button is hidden when content is present.
     const {
       channels: [channel],
       client,
@@ -267,8 +315,7 @@ describe('MessageInput', () => {
       });
 
       if (state === MediaRecordingState.PAUSED) {
-        // In v14, there's a toggle button (pause/resume) without a specific test ID.
-        // Click the toggle button (has class str-chat__audio_recorder__toggle-recording-button)
+        // The pause/resume toggle has no test ID, so it is selected by class.
         const toggleBtn = container.querySelector(
           '.str-chat__audio_recorder__toggle-recording-button',
         );
@@ -322,8 +369,8 @@ describe('MessageInput', () => {
     });
   });
 
-  it('uploads the recording on completion and schedules submit when multiple async messages disabled', async () => {
-    // Enable auto-emit so MediaRecorderMock.stop() triggers dataavailable like a real browser
+  it('uploads and sends the recording on completion when multiple async messages disabled', async () => {
+    // Auto-emit makes MediaRecorderMock.stop() trigger `dataavailable` like a real browser.
     MediaRecorderMock.autoEmitDataOnStop = true;
     const {
       channels: [channel],
@@ -333,27 +380,41 @@ describe('MessageInput', () => {
     });
     // Mock getAppSettings so the SDK's upload config check doesn't make a real network request
     vi.spyOn(client, 'getAppSettings').mockResolvedValue(fromPartial({}));
+    // Differs from the local preview URL, so the assertion below proves the upload's URL is sent.
+    const uploadedFileURL = 'https://cdn.example.com/recording.wav';
     const uploadFileSpy = vi
       .spyOn(channel, 'uploadFile')
-      .mockResolvedValue(fromPartial({ file: fileObjectURL }));
+      .mockResolvedValue(fromPartial({ file: uploadedFileURL }));
+    const sendMessageSpy = vi
+      .spyOn(channel, 'sendMessage')
+      .mockResolvedValue(fromPartial({}));
     await renderComponent({
       channelStateCtx: { channel },
       chatCtx: { client },
     });
 
-    // Start recording
     fireEvent.click(screen.getByTestId(START_RECORDING_AUDIO_BUTTON_TEST_ID));
     await waitFor(() => {
       expect(screen.getByTestId(AUDIO_RECORDER_TEST_ID)).toBeInTheDocument();
     });
 
-    // Complete recording — this calls recorder.stop() which triggers dataavailable via our mock,
-    // then uploads the attachment
+    // Stopping triggers `dataavailable` through the mock, which uploads the attachment.
     fireEvent.click(screen.getByTestId(AUDIO_RECORDER_STOP_BTN_TEST_ID));
 
     await waitFor(() => {
       expect(uploadFileSpy).toHaveBeenCalledTimes(1);
     });
+    await waitFor(() => {
+      expect(sendMessageSpy).toHaveBeenCalledTimes(1);
+    });
+    // The recording is sent as its uploaded attachment, without its local metadata.
+    const sentAttachments = sendMessageSpy.mock.calls[0][0].message.attachments ?? [];
+    expect(sentAttachments).toHaveLength(1);
+    expect(sentAttachments[0]).toMatchObject({
+      asset_url: uploadedFileURL,
+      type: 'voiceRecording',
+    });
+    expect(sentAttachments[0]).not.toHaveProperty('localMetadata');
   });
 
   it('uploads but does not submit message on recording completion and multiple async messages enabled', async () => {
@@ -378,13 +439,11 @@ describe('MessageInput', () => {
       props: { asyncMessagesMultiSendEnabled: true },
     });
 
-    // Start recording
     fireEvent.click(screen.getByTestId(START_RECORDING_AUDIO_BUTTON_TEST_ID));
     await waitFor(() => {
       expect(screen.getByTestId(AUDIO_RECORDER_TEST_ID)).toBeInTheDocument();
     });
 
-    // Complete recording — uploads but should NOT submit when multi-send is enabled
     fireEvent.click(screen.getByTestId(AUDIO_RECORDER_STOP_BTN_TEST_ID));
 
     await waitFor(() => {
@@ -495,6 +554,22 @@ describe('AudioRecorder', () => {
         recordingState: state,
       });
       expect(container).toMatchSnapshot();
+    },
+  );
+
+  it.each([
+    [MediaRecordingState.RECORDING, false],
+    [MediaRecordingState.PAUSED, false],
+    [MediaRecordingState.STOPPED, true],
+  ])(
+    'disables the pause/resume toggle only when stopped (%s)',
+    async (recordingState, disabled) => {
+      const { container } = await renderAudioRecorder({ recordingState });
+      // The pause/resume toggle has no test ID, so it is selected by class.
+      const toggleBtn = container.querySelector(
+        '.str-chat__audio_recorder__toggle-recording-button',
+      );
+      expect((toggleBtn as HTMLButtonElement).disabled).toBe(disabled);
     },
   );
 

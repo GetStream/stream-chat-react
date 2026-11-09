@@ -1,11 +1,12 @@
 import React, { useCallback, useContext, useEffect, useRef, useState } from 'react';
 
-import { BaseImage } from '../BaseImage';
+import { BaseImage as DefaultBaseImage } from '../BaseImage';
 import { GalleryHeader } from './GalleryHeader';
 import { useGalleryContext } from './GalleryContext';
 import { Button, type ButtonProps } from '../Button';
 import {
   ModalContext,
+  useComponentContext,
   useComponentContextIcons,
   useTranslationContext,
 } from '../../context';
@@ -19,6 +20,7 @@ const TRANSITION_DURATION = 300;
 
 export const GalleryUI = () => {
   const { IconChevronLeft, IconChevronRight } = useComponentContextIcons();
+  const { BaseImage = DefaultBaseImage } = useComponentContext();
   const { t } = useTranslationContext();
   const {
     closeOnBackgroundClick,
@@ -33,9 +35,12 @@ export const GalleryUI = () => {
   } = useGalleryContext();
   const modalContext = useContext(ModalContext);
 
-  const [showVideo, setShowVideo] = useState(false);
+  // Index of the item whose thumbnail play button was clicked. Comparing it with `currentIndex`
+  // keeps the next item from rendering with the previous item's playback state.
+  const [playRequestedIndex, setPlayRequestedIndex] = useState<number | null>(null);
+  const playVideo = playRequestedIndex === currentIndex;
+  const hasVideoThumbnail = Boolean(currentItem.videoThumbnailUrl);
 
-  // Slide transition state
   const isTransitioningRef = useRef(false);
   const [slideOffset, setSlideOffset] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
@@ -43,20 +48,16 @@ export const GalleryUI = () => {
     null,
   );
 
-  // Touch tracking refs
-  // Some touch interactions on the slide container are followed by a click; suppress
-  // that one-shot click so swipe navigation doesn't immediately trigger background close.
+  // A swipe or drag can be followed by a click; skip that one so it does not close the gallery.
   const ignoreNextClickRef = useRef(false);
   const touchStartRef = useRef<{ x: number; y: number } | null>(null);
   const isVerticalSwipeRef = useRef(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
-  // Reset video play state when navigating to a new item
   useEffect(() => {
-    setShowVideo(false);
+    setPlayRequestedIndex(null);
   }, [currentIndex]);
 
-  // Slide animation on index change
   const prevIndexRef = useRef(currentIndex);
   useEffect(() => {
     if (prevIndexRef.current === currentIndex) return;
@@ -75,7 +76,7 @@ export const GalleryUI = () => {
     return () => clearTimeout(timer);
   }, [currentIndex]);
 
-  // Wrapped navigation functions that respect transition lock
+  // Navigation is ignored while a slide transition is running.
   const handleGoToNext = useCallback(() => {
     if (isTransitioningRef.current) return;
     goToNext();
@@ -86,7 +87,6 @@ export const GalleryUI = () => {
     goToPrevious();
   }, [goToPrevious]);
 
-  // Keyboard navigation
   const handleKeyDown = useCallback(
     (event: KeyboardEvent) => {
       if (event.key === 'ArrowLeft') {
@@ -105,7 +105,6 @@ export const GalleryUI = () => {
     return () => document.removeEventListener('keydown', handleKeyDown);
   }, [handleKeyDown]);
 
-  // Touch event handlers
   const handleTouchStart = useCallback((event: React.TouchEvent) => {
     if (isTransitioningRef.current) return;
     const touch = event.touches[0];
@@ -122,7 +121,7 @@ export const GalleryUI = () => {
       const deltaX = touch.clientX - touchStartRef.current.x;
       const deltaY = touch.clientY - touchStartRef.current.y;
 
-      // Determine swipe direction on first significant movement
+      // The first movement past 10px decides between a vertical swipe (ignored) and a drag.
       if (!isDragging && !isVerticalSwipeRef.current) {
         if (Math.abs(deltaY) > Math.abs(deltaX) && Math.abs(deltaY) > 10) {
           ignoreNextClickRef.current = true;
@@ -137,9 +136,9 @@ export const GalleryUI = () => {
 
       if (isVerticalSwipeRef.current) return;
 
-      // Constrain drag when at boundaries
+      // Dragging past the first or last item is damped to 30% (rubber band).
       if ((!hasNext && deltaX < 0) || (!hasPrevious && deltaX > 0)) {
-        setSlideOffset(deltaX * 0.3); // Rubber-band effect
+        setSlideOffset(deltaX * 0.3);
       } else {
         setSlideOffset(deltaX);
       }
@@ -166,11 +165,11 @@ export const GalleryUI = () => {
       } else if (offset > 0 && hasPrevious) {
         goToPrevious();
       } else {
-        // Snap back — at boundary
+        // Snap back: there is no item in that direction.
         setSlideOffset(0);
       }
     } else {
-      // Snap back — below threshold
+      // Snap back: the swipe is below the threshold.
       setSlideOffset(0);
     }
 
@@ -232,14 +231,15 @@ export const GalleryUI = () => {
             })}
             style={mediaStyle}
           >
-            {currentItem.videoUrl && currentItem.videoThumbnailUrl ? (
+            {currentItem.videoUrl ? (
               <div className='str-chat__gallery__media str-chat__gallery__media--video'>
-                {showVideo ? (
-                  <VideoPlayer isPlaying videoUrl={currentItem.videoUrl} />
+                {/* Without a thumbnail to click, the player shows right away and waits for play. */}
+                {playVideo || !hasVideoThumbnail ? (
+                  <VideoPlayer isPlaying={playVideo} videoUrl={currentItem.videoUrl} />
                 ) : (
                   <VideoThumbnail
                     alt={currentItem.title ?? ''}
-                    onPlay={() => setShowVideo(true)}
+                    onPlay={() => setPlayRequestedIndex(currentIndex)}
                     src={currentItem.videoThumbnailUrl}
                   />
                 )}

@@ -1,0 +1,33 @@
+[
+  {
+    "file": "composer-square-image-previews.png",
+    "query": { "channel": "docs-v15-cb-design", "attachments": "images" },
+    "waitFor": ".cookbook-image-preview__progress",
+    "clip": ".str-chat__message-composer-container",
+    "padding": 0
+  },
+  {
+    "file": "composer-upload-percent.png",
+    "variant": "upload-percent",
+    "query": { "channel": "docs-v15-cb-design", "attachments": "images" },
+    "waitFor": ".cookbook-upload-percent",
+    "clip": ".str-chat__message-composer-container",
+    "padding": 0
+  },
+  {
+    "file": "composer-event-attachment-preview.png",
+    "variant": "event",
+    "query": { "channel": "docs-v15-cb-design", "attachments": "event" },
+    "waitFor": ".cookbook-event-preview",
+    "clip": ".str-chat__message-composer-container",
+    "padding": 0
+  },
+  {
+    "file": "composer-voice-recording-preview.png",
+    "variant": "voice",
+    "query": { "channel": "docs-v15-cb-design", "attachments": "voice" },
+    "waitFor": ".cookbook-voice-preview",
+    "clip": ".str-chat__message-composer-container",
+    "padding": 0
+  }
+]

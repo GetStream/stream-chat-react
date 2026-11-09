@@ -50,13 +50,13 @@ export const Geolocation = ({
     if (!isSchedulableExpiry(endAt)) return;
 
     const arm = () => {
-      // Both operands are wire timestamps, so the difference is in nanoseconds. Passing it raw
-      // made `setTimeout` fire immediately and end sharing on mount.
+      // Wire timestamps are nanoseconds: the difference must go through `nsToMs`, or `setTimeout`
+      // fires immediately and ends sharing on mount.
       const remaining = Math.max(0, nsToMs(endAt - nowNs()));
       timeoutRef.current =
         remaining > MAX_TIMEOUT_MS
-          ? // Wait the maximum, then re-arm. One call would be clamped to 1 ms, showing
-            // "sharing ended" on mount for any share longer than ~24.9 days.
+          ? // Wait the maximum, then re-arm: one call is clamped to 1 ms, ending sharing on mount
+            // for any share longer than ~24.9 days.
             setTimeout(arm, MAX_TIMEOUT_MS)
           : setTimeout(() => setStoppedSharing(true), remaining);
     };
@@ -90,9 +90,8 @@ export const Geolocation = ({
                 appearance='outline'
                 className='str-chat__message-attachment-geolocation__stop-sharing-button'
                 onClick={() =>
-                  // The request shape, not the whole response: `stopLiveLocationSharing` stamps
-                  // `end_at` itself, and the response's timestamps are wire numbers a request
-                  // field cannot take.
+                  // Only `message_id`, not the whole response: `stopLiveLocationSharing` stamps
+                  // `end_at` itself.
                   channel?.stopLiveLocationSharing({ message_id: location.message_id })
                 }
                 size='sm'

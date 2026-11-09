@@ -11,12 +11,9 @@ const paginatorsSelector = (state: ChannelManagerState) => ({
 });
 
 /**
- * Renders one `<ChannelList/>` per paginator held by the `ChannelManager` on
- * `ChatContext` — i.e. its data source is the `ChannelManager` (the whole set of lists). Each child
- * `ChannelList` registers the (ref-counted) WS subscriptions. The primary (`paginators[0]`)
- * paginator is exposed through `ChannelListContext` so descendants (search results, member
- * actions, notification targeting) can read/mutate the loaded list without knowing about the
- * channel manager.
+ * Renders one `ChannelList` per paginator held by the `ChannelManager` on `ChatContext`. The
+ * primary paginator (`paginators[0]`) is exposed through `ChannelListContext`, so descendants can
+ * read and mutate the loaded list without knowing about the channel manager.
  */
 export const ChannelLists = () => {
   const { channelManager } = useChatContext();

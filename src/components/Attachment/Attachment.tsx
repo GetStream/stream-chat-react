@@ -68,54 +68,51 @@ export type VideoAttachmentSizeHandler = (
 ) => VideoAttachmentConfiguration;
 
 export type AttachmentProps = {
-  /** The message attachments to render, see [attachment structure](https://getstream.io/chat/docs/javascript/message_format/?language=javascript) **/
+  /** Attachments to render. See [attachment structure](https://getstream.io/chat/docs/javascript/message_format/?language=javascript). */
   attachments: (StreamAttachment | SharedLocationResponseData)[];
-  /**	The handler function to call when an action is performed on an attachment, examples include canceling a \/giphy command or shuffling the results. */
+  /** Called when an attachment action is performed, e.g. sending or shuffling a giphy preview. */
   actionHandler?: ActionHandlerReturnType;
   /**
-   * Which attachment action button receives focus on initial render, keyed by attachment type.
-   * Values must match an action's `value` (e.g. `'send'`, `'cancel'`, `'shuffle'` for giphy attachment).
-   * Default: `{ giphy: 'send' }`.
-   * To disable auto-focus (e.g. when rendering the Giphy preview above the composer so focus
-   * stays in the message input), pass an empty object: `attachmentActionsDefaultFocus={{}}`.
+   * Which action button gets initial focus, keyed by attachment type. Values match an action's
+   * `value` (e.g. `'send'`, `'cancel'`, `'shuffle'` for giphy). Defaults to `{ giphy: 'send' }`.
+   * Pass an empty object to disable auto-focus, e.g. when the Giphy preview sits above the
+   * composer and focus should stay in the message input.
    */
   attachmentActionsDefaultFocus?: AttachmentActionsDefaultFocusByType;
-  /** Custom UI component for displaying attachment actions, defaults to and accepts same props as: [AttachmentActions](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Attachment/AttachmentActions.tsx) */
+  /** Custom attachment actions UI. Defaults to `AttachmentActions`. */
   AttachmentActions?: React.ComponentType<AttachmentActionsProps>;
-  /** Custom UI component for displaying an audio type attachment, defaults to and accepts same props as: [Audio](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Attachment/Audio.tsx) */
+  /** Custom UI for audio attachments. Defaults to `Audio`. */
   Audio?: React.ComponentType<AudioProps>;
-  /** Custom UI component for displaying a card type attachment, defaults to and accepts same props as: [Card](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Attachment/Card.tsx) */
+  /** Custom UI for card attachments. Defaults to `Card`. */
   Card?: React.ComponentType<CardProps>;
-  /** Custom UI component for displaying a file type attachment, defaults to and accepts same props as: [File](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Attachment/FileAttachment.tsx) */
+  /** Custom UI for file attachments. Defaults to `FileAttachment`. */
   File?: React.ComponentType<FileAttachmentProps>;
-  /** Custom UI component for displaying a gallery of image type attachments, defaults to and accepts same props as: [ModalGallery](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Gallery/ModalGallery.tsx) */
+  /** Custom UI for the gallery of image attachments. Defaults to `ModalGallery`. */
   ModalGallery?: React.ComponentType<ModalGalleryProps>;
   Geolocation?: React.ComponentType<GeolocationProps>;
-  /** Custom UI component for displaying a Giphy image, defaults to and accepts same props as: [Giphy](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Attachment/Giphy.tsx) */
+  /** Custom UI for Giphy attachments. Defaults to `Giphy`. */
   Giphy?: React.ComponentType<GiphyAttachmentProps>;
-  /** Custom UI component for displaying an image type attachment, defaults to and accepts same props as: [Image](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Gallery/Image.tsx) */
+  /** Custom UI for image attachments. Defaults to `ImageComponent`. */
   Image?: React.ComponentType<ImageProps>;
-  /** Giphy rendition to use when rendering giphy attachments */
+  /** Giphy rendition to render. Defaults to `'fixed_height'`. */
   giphyVersion?: GiphyVersions;
-  /** Handler used to size image attachments responsively */
+  /** Computes the responsive size configuration of an image attachment. */
   imageAttachmentSizeHandler?: ImageAttachmentSizeHandler;
-  /** Optional flag to signal that an attachment is a displayed as a part of a quoted message */
+  /** Whether the attachments belong to a quoted message. */
   isQuoted?: boolean;
-  /** Custom UI component for displaying a media type attachment, defaults to `ReactPlayer` from 'react-player' */
+  /** Custom UI for video attachments. Defaults to `VideoPlayer`. */
   Media?: React.ComponentType<VideoPlayerProps>;
-  /** Whether a video thumbnail should be rendered before playback starts */
+  /** Whether videos show their thumbnail before playback starts. Defaults to true. */
   shouldGenerateVideoThumbnail?: boolean;
-  /** Custom UI component for displaying unsupported attachment types, defaults to NullComponent */
+  /** Custom UI for unsupported attachment types. Defaults to `UnsupportedAttachment`. */
   UnsupportedAttachment?: React.ComponentType<UnsupportedAttachmentProps>;
-  /** Handler used to size video attachments responsively */
+  /** Computes the responsive size configuration of a video attachment. */
   videoAttachmentSizeHandler?: VideoAttachmentSizeHandler;
-  /** Custom UI component for displaying an audio recording attachment, defaults to and accepts same props as: [VoiceRecording](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Attachment/VoiceRecording.tsx) */
+  /** Custom UI for voice recording attachments. Defaults to `VoiceRecording`. */
   VoiceRecording?: React.ComponentType<VoiceRecordingProps>;
 };
 
-/**
- * A component used for rendering message attachments.
- */
+/** Renders message attachments grouped by type. */
 export const Attachment = (props: AttachmentProps) => {
   const {
     attachmentActionsDefaultFocus = defaultAttachmentActionsDefaultFocus,

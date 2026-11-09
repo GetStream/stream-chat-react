@@ -1,135 +1,69 @@
 import type React from 'react';
-import { useCallback } from 'react';
+import { useMemo } from 'react';
 import throttle from 'lodash.throttle';
 
-import { useChatContext } from '../../../context/ChatContext';
-import { useComponentContext } from '../../../context/ComponentContext';
+import { useChannel, useChatContext, useComponentContext } from '../../../context';
 import {
   defaultReactionOptions,
   getEmojiCodeByReactionType,
 } from '../../Reactions/reactionOptions';
-import { useMessagePaginator } from '../../../hooks';
+import { useThreadContext } from '../../Threads';
 
-import {
-  formatMessage,
-  type LocalMessage,
-  type MessageResponse,
-  type ReactionRequest,
-  type ReactionResponse,
-} from 'stream-chat';
-import { nowNs } from 'stream-chat';
+import type { LocalMessage, ReactionResponse } from 'stream-chat';
 
 export const reactionHandlerWarning = `Reaction handler was called, but it is missing one of its required arguments.
-Make sure the ChannelAction and ChannelState contexts are properly set and the hook is initialized with a valid message.`;
+Make sure the hook is initialized with a valid message.`;
+
+type ToggleReactionParams = {
+  add: boolean;
+  emojiCode?: string;
+  messageId: string;
+  type: string;
+};
 
 export const useReactionHandler = (message?: LocalMessage) => {
-  const messagePaginator = useMessagePaginator();
+  const channel = useChannel();
+  const thread = useThreadContext();
   const { client } = useChatContext();
   const { reactionOptions = defaultReactionOptions } = useComponentContext();
 
-  const updateMessage = useCallback(
-    (updatedMessage: LocalMessage | MessageResponse) => {
-      const formattedMessage = formatMessage(updatedMessage);
-      messagePaginator.ingestItem(formattedMessage);
-    },
-    [messagePaginator],
-  );
+  const { messageOperations } = thread ?? channel;
 
-  const createMessagePreview = useCallback(
-    (add: boolean, reaction: ReactionResponse, message: LocalMessage): LocalMessage => {
-      // Copied, not aliased. The assignments and `delete` below used to write straight into the
-      // message's own `reaction_groups`, so the optimistic message and the one it was derived from
-      // shared that object — and no comparator, identity or deep, could see a reaction-group
-      // change. `areMessagesEqual` compares it by reference.
-      const newReactionGroups = { ...(message?.reaction_groups ?? {}) };
-      const reactionType = reaction.type;
-      const hasReaction = !!newReactionGroups[reactionType];
-
-      if (add) {
-        const timestamp = nowNs();
-        newReactionGroups[reactionType] = hasReaction
-          ? {
-              ...newReactionGroups[reactionType],
-              count: newReactionGroups[reactionType].count + 1,
-            }
-          : {
-              count: 1,
-              first_reaction_at: timestamp,
-              last_reaction_at: timestamp,
-              latest_reactions_by: [],
-              sum_scores: 1,
-            };
-      } else {
-        if (hasReaction && newReactionGroups[reactionType].count > 1) {
-          newReactionGroups[reactionType] = {
-            ...newReactionGroups[reactionType],
-            count: newReactionGroups[reactionType].count - 1,
-          };
+  // One throttle per message and reaction type, kept per `messageOperations` so it holds across the
+  // re-render each optimistic update causes. Repeated toggles of one reaction are throttled; a
+  // different reaction is not held back by them.
+  const toggleReaction = useMemo(() => {
+    const send = async ({ add, emojiCode, messageId, type }: ToggleReactionParams) => {
+      try {
+        if (add) {
+          await messageOperations.addReaction({
+            messageId,
+            // The native emoji, sent as `emoji_code` so push notifications in mobile SDKs can render it.
+            reaction: { type, ...(emojiCode && { emoji_code: emojiCode }) },
+          });
         } else {
-          delete newReactionGroups[reactionType];
+          await messageOperations.deleteReaction({ messageId, type });
         }
+      } catch {
+        // A failed reaction shows no error: `messageOperations` has already rolled back the
+        // optimistic change, unless the request is queued for replay.
       }
+    };
+    const throttledByReaction = new Map<
+      string,
+      (params: ToggleReactionParams) => Promise<void> | undefined
+    >();
 
-      const newReactions: ReactionResponse[] | undefined = add
-        ? [reaction, ...(message?.latest_reactions || [])]
-        : message.latest_reactions?.filter(
-            (item) => !(item.type === reaction.type && item.user_id === reaction.user_id),
-          );
-
-      const newOwnReactions = add
-        ? [reaction, ...(message?.own_reactions || [])]
-        : message?.own_reactions?.filter((item) => item.type !== reaction.type);
-
-      return {
-        ...message,
-        latest_reactions: newReactions || message.latest_reactions,
-        own_reactions: newOwnReactions,
-        reaction_groups: newReactionGroups,
-      };
-    },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [client.user, client.userID],
-  );
-
-  const createReactionPreview = (type: string, emojiCode?: string) => ({
-    message_id: message?.id,
-    score: 1,
-    type,
-    user: client.user,
-    user_id: client.user?.id,
-    ...(emojiCode && { emoji_code: emojiCode }),
-  });
-
-  const toggleReaction = throttle(async (id: string, type: string, add: boolean) => {
-    if (!message) return;
-
-    // Native emoji (e.g. "👍") for this reaction type, sent as `emoji_code` so
-    // push notifications in mobile SDKs can render the emoji.
-    const emojiCode = getEmojiCodeByReactionType(reactionOptions, type);
-    const newReaction = createReactionPreview(type, emojiCode) as ReactionResponse;
-    const tempMessage = createMessagePreview(add, newReaction, message);
-
-    try {
-      updateMessage(tempMessage);
-      const messageResponse = add
-        ? await client.sendReaction(
-            { id },
-            {
-              reaction: {
-                type,
-                ...(emojiCode && { emoji_code: emojiCode }),
-              } as ReactionRequest,
-            },
-          )
-        : await client.deleteReaction({ id, type });
-
-      // seems useless as we're expecting WS event to come in and replace this anyway
-      updateMessage(messageResponse.message);
-    } catch (error) {
-      // revert to the original message if the API call fails
-      updateMessage(message);
-    }
-  }, 1000);
+    return (params: ToggleReactionParams) => {
+      const key = `${params.messageId}:${params.type}`;
+      let throttled = throttledByReaction.get(key);
+      if (!throttled) {
+        throttled = throttle(send, 1000);
+        throttledByReaction.set(key, throttled);
+      }
+      return throttled(params);
+    };
+  }, [messageOperations]);
 
   return async (reactionType: string, event?: React.BaseSyntheticEvent) => {
     if (event?.preventDefault) {
@@ -144,8 +78,8 @@ export const useReactionHandler = (message?: LocalMessage) => {
 
     if (message.own_reactions) {
       message.own_reactions.forEach((reaction) => {
-        // own user should only ever contain the current user id
-        // just in case we check to prevent bugs with message updates from breaking reactions
+        // `own_reactions` should only hold the current user's reactions; the check guards
+        // against a bad message update breaking reactions.
         if (
           reaction.user &&
           client.userID === reaction.user.id &&
@@ -162,9 +96,18 @@ export const useReactionHandler = (message?: LocalMessage) => {
 
     try {
       if (userExistingReaction) {
-        await toggleReaction(message.id, userExistingReaction.type, false);
+        await toggleReaction({
+          add: false,
+          messageId: message.id,
+          type: userExistingReaction.type,
+        });
       } else {
-        await toggleReaction(message.id, reactionType, true);
+        await toggleReaction({
+          add: true,
+          emojiCode: getEmojiCodeByReactionType(reactionOptions, reactionType),
+          messageId: message.id,
+          type: reactionType,
+        });
       }
     } catch (error) {
       console.log({ error });

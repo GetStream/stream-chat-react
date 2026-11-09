@@ -23,8 +23,7 @@ import {
 } from '../../../context';
 import { mockT } from '../../../mock-builders/translator';
 
-// Selection is one navigation model: clicking the item opens the channel in the
-// workspace via the navigation adapter (no more setActiveChannel).
+// Clicking the item opens the channel in the workspace through the navigation.
 const mockOpenChannel = vi.fn();
 vi.mock('../../../context', async (importOriginal) => ({
   ...((await importOriginal()) as object),
@@ -88,7 +87,7 @@ describe('ChannelPreviewMessenger', () => {
     // eslint-disable-next-line react-hooks/rules-of-hooks
     useMockedApis(chatClient, [getOrCreateChannelApi(c)]);
 
-    channel = chatClient.channelManager.ensure({ type: 'messaging' });
+    channel = chatClient.channel('messaging');
 
     await channel.watch();
   };

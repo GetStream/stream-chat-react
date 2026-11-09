@@ -53,7 +53,7 @@ describe('Gallery', () => {
 
   it('should render default GalleryUI when no GalleryUI is provided', () => {
     const items = [makeImageItem()];
-    // the default GalleryUI renders GalleryHeader, which reads the current user from chat context
+    // The default GalleryUI renders GalleryHeader, which reads the current user from chat context.
     render(
       <ChatProvider value={mockChatContext({ client: { userID: 'me' } })}>
         <Gallery items={items} />
@@ -97,7 +97,6 @@ describe('Gallery', () => {
 
     render(<Gallery GalleryUI={ContextReader} items={items} />);
 
-    // At index 0: hasPrevious=false, hasNext=true
     expect(screen.getByTestId('has-previous')).toHaveTextContent('false');
     expect(screen.getByTestId('has-next')).toHaveTextContent('true');
   });
@@ -187,7 +186,7 @@ describe('Gallery', () => {
       <Gallery GalleryUI={ContextReader} items={items} onIndexChange={onIndexChange} />,
     );
 
-    // Called on mount with initial index
+    // Called on mount with the initial index.
     expect(onIndexChange).toHaveBeenCalledWith(0);
 
     act(() => {

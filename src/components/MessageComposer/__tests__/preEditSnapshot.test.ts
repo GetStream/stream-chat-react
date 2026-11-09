@@ -65,7 +65,7 @@ describe('preEditSnapshot', () => {
     savePreEditSnapshot(composer);
     composer.initState({ composition: generateMessage({ text: 'first edit', user }) });
 
-    // Second edit — should NOT overwrite the original snapshot
+    // The second save must not overwrite the original snapshot.
     savePreEditSnapshot(composer);
     composer.initState({ composition: generateMessage({ text: 'second edit', user }) });
 

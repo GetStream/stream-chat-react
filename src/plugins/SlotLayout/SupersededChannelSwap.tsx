@@ -13,7 +13,7 @@ import type {
 } from './layoutController/layoutControllerTypes';
 
 const supersededBySelector = ({ supersededBy }: ChannelStateData) => ({ supersededBy });
-// a channel created from members adopts its real cid in the query that also sets `initialized`
+// A channel created from members adopts its real cid in the query that also sets `initialized`.
 const initializedSelector = ({ initialized }: ChannelStateData) => ({ initialized });
 const activeSelector = ({ active }: ChannelStateData) => ({ active });
 const editingAuditStateSelector = (state: EditingAuditState) => state;
@@ -33,17 +33,11 @@ const slotShowsChannel = (
 /**
  * Keeps a slot's binding on its channel's current instance and cid.
  *
- * A channel created from members is bound under its temporary cid until its first query gives it
- * the real one. The slot is then bound again to the same instance under the real cid, so lookups by
- * cid (the active row in a channel list, closing the channel) and the URL find it.
- *
- * It also moves a slot from a superseded channel to the instance that replaced it (`channel.supersededBy`):
- * a channel created without an id whose cid, once the server answered, another instance already
- * held. stream-chat has moved the conversation to that instance; this moves the screen.
- *
- * The swap happens right away, except when the replacing instance is open in another slot and this
- * one's composer still holds something: stream-chat moves a composer only into one nobody is using,
- * so the slot stays until its composer is empty, typically once its message is sent.
+ * A channel created from members is bound under a temporary cid until its first query gives it the
+ * real one; the slot is then rebound to the same instance under the real cid, so lookups by cid
+ * find it. A channel superseded by another instance (`channel.supersededBy`) is swapped for that
+ * instance, except while the successor is open in another slot and this channel's composer is not
+ * empty: stream-chat moves a composer only into a channel nobody is using.
  */
 export const SupersededChannelSwap = ({
   bindingKey,
@@ -51,20 +45,19 @@ export const SupersededChannelSwap = ({
   layoutController,
   slot,
 }: {
-  /** The key the slot's binding currently has. */
   bindingKey?: string;
   channel: StreamChannel;
   layoutController: LayoutController;
   slot: SlotName;
 }) => {
-  // a slot source without channel state (a stand-in object) never swaps
+  // A slot source without channel state (a stand-in object) never swaps.
   const { supersededBy } = useStateStore(channel.state, supersededBySelector) ?? {};
   const successorActive =
     useStateStore(supersededBy?.state, activeSelector)?.active ?? false;
-  // re-rendered on every composer change, so the emptiness read below stays current
+  // Re-renders on every composer change, so the emptiness read below stays current.
   useStateStore(channel.messageComposer?.editingAuditState, editingAuditStateSelector);
   const composerIsEmpty = channel.messageComposer?.compositionIsEmpty ?? true;
-  // re-rendered when the query that gives a channel created from members its real cid completes
+  // Re-renders when the query that gives a channel created from members its real cid completes.
   useStateStore(channel.state, initializedSelector);
   const cid = channel.cid;
 

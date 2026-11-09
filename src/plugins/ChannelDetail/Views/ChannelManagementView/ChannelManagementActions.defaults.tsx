@@ -6,7 +6,6 @@ import {
   useChatContext,
   useComponentContext,
   useComponentContextIcons,
-  useModalContext,
   useTranslationContext,
 } from '../../../../context';
 import { isDmChannel, useStableCallback } from '../../../../utils';
@@ -232,9 +231,8 @@ const ChannelMuteAction = () => {
             }),
           )
           .catch((error) => {
-            // Reconcile to the truth source rather than a hard-coded value: with
-            // the debounced request, optimistic state may have flipped multiple
-            // times, so a fixed boolean can land on the wrong state.
+            // Resync with the source of truth: the debounced request may follow several optimistic
+            // flips, so a fixed boolean could be wrong.
             setOptimisticChannelMuted(channelMuted);
 
             return addNotification({
@@ -368,9 +366,8 @@ const UserMuteAction = () => {
             }),
           )
           .catch((error) => {
-            // Reconcile to the truth source rather than a hard-coded value: with
-            // the debounced request, optimistic state may have flipped multiple
-            // times, so a fixed boolean can land on the wrong state.
+            // Resync with the source of truth: the debounced request may follow several optimistic
+            // flips, so a fixed boolean could be wrong.
             setOptimisticUserMuted(userMuted);
 
             return addNotification({
@@ -620,9 +617,8 @@ const BlockUserAction = () => {
 
 const LeaveChannelAction = () => {
   const { client } = useChatContext();
-  const { channel } = useChannelDetailContext();
+  const { channel, close } = useChannelDetailContext();
   const { Modal = GlobalModal } = useComponentContext();
-  const { close } = useModalContext();
   const { addNotification } = useNotificationApi();
   const { t } = useTranslationContext();
   const [alertOpen, setAlertOpen] = useState(false);
@@ -641,7 +637,7 @@ const LeaveChannelAction = () => {
 
     try {
       setLeaveChannelInProgress(true);
-      await channel.removeMembers([client.userID]);
+      await channel.removeMembers({ members: [client.userID] });
       addNotification({
         context: { channel },
         emitter: 'ChannelManagementView',
@@ -650,7 +646,7 @@ const LeaveChannelAction = () => {
         type: 'api:channel:leave:success',
       });
       setAlertOpen(false);
-      close();
+      close?.();
     } catch (error) {
       addNotification({
         context: { channel },
@@ -710,9 +706,8 @@ const LeaveChannelAction = () => {
 };
 
 const DeleteChatAction = () => {
-  const { channel } = useChannelDetailContext();
+  const { channel, close: closeChannelDetail } = useChannelDetailContext();
   const { Modal = GlobalModal } = useComponentContext();
-  const { close: closeChannelDetail } = useModalContext();
   const { addNotification } = useNotificationApi();
   const { t } = useTranslationContext();
   const otherMember = useOtherMember();
@@ -743,7 +738,7 @@ const DeleteChatAction = () => {
         type: 'api:channel:delete:success',
       });
       setAlertOpen(false);
-      closeChannelDetail();
+      closeChannelDetail?.();
     } catch (error) {
       addNotification({
         context: { channel },

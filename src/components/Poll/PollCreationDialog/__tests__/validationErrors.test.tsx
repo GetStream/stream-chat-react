@@ -13,14 +13,10 @@ import {
   mockTranslationContextValue,
 } from '../../../../mock-builders';
 
-// The poll composer reports a field error as `{ code, message }`, where `message` is UNTRANSLATED
-// English that the client documents as not part of its public contract. These components must
-// resolve their copy from the code through `t()` and never fall back to `message` — a regression
-// there is invisible to a test that asserts English copy, because the translated default and the
-// raw `message` are the same words.
-//
-// So `t` here returns a marker instead of the English default. Any string that is not a marker is
-// therefore something that bypassed translation.
+// The composer reports a field error as `{ code, message }`, where `message` is untranslated
+// English and not part of the client's public contract. Fields must resolve their copy from the
+// code through `t()`. A test asserting English copy cannot catch a fallback to `message`, so `t`
+// returns a marker and any text that is not a marker bypassed translation.
 const marker = (key: string) => `__t(${key})__`;
 const localizedT = ((key: string) => marker(key)) as ReturnType<
   typeof mockTranslationContextValue
@@ -29,13 +25,9 @@ const localizedT = ((key: string) => marker(key)) as ReturnType<
 const NAME_ERROR_TEST_ID = 'poll-name-input-field-error';
 const OPTION_ERROR_TEST_ID = 'poll-option-input-field-error';
 
-/**
- * A code the client emits that this SDK's copy tables do not map — e.g. one added to the client
- * before the SDK catches up. Such an error still carries the client's untranslated English
- * `message`, which is deliberately what the fields fall back to: it degrades to readable text
- * rather than to a blank field. (`pollComposerValidationError` leaves `message` undefined for an
- * unrecognized code, so the literal here is what actually exercises that fallback.)
- */
+// A code the SDK's copy tables do not map, e.g. one the client added first. Fields fall back to
+// its `message`, a literal here because `pollComposerValidationError` leaves it undefined for
+// unknown codes.
 const UNMAPPED_CODE = 'validation:poll:unknown:future' as PollComposerValidationCode;
 const UNMAPPED_MESSAGE = 'A future validation failure';
 const unmappedError = { code: UNMAPPED_CODE, message: UNMAPPED_MESSAGE };
@@ -79,7 +71,7 @@ describe('poll field validation errors', () => {
 
       const error = screen.getByTestId(NAME_ERROR_TEST_ID);
       expect(error).toHaveTextContent(marker('poll.nameField.questionRequired.label'));
-      // the guard: the client's English fallback must never reach the DOM
+      // the client's English fallback must never reach the DOM
       expect(error).not.toHaveTextContent('Question is required');
     });
 
@@ -125,9 +117,8 @@ describe('poll field validation errors', () => {
   });
 
   it('renders distinct translated copy for every code a text field can receive', async () => {
-    // Asserts against the DOM, so deleting a mapping from a component's copy table fails here.
-    // (Comparing two lists both derived from POLL_COMPOSER_VALIDATION_CODE would prove nothing —
-    // it would only restate the constant.)
+    // Asserts against the DOM so deleting a copy table entry fails; comparing two lists derived
+    // from POLL_COMPOSER_VALIDATION_CODE would only restate the constant.
     const cases = [
       {
         code: POLL_COMPOSER_VALIDATION_CODE.nameRequired,
@@ -163,16 +154,15 @@ describe('poll field validation errors', () => {
       await renderField(field, seed(code));
       const error = screen.getByTestId(testId);
       expect(error).toHaveTextContent(marker(key));
-      // not the client's untranslated English — proves this code is mapped, not merely handled
+      // not the client's untranslated English: proves the code is mapped, not merely handled
       expect(error).not.toHaveTextContent(UNMAPPED_MESSAGE);
     }
   });
 
   it('has a copy table entry for every code the client can emit', () => {
-    // Deliberately literal, NOT derived from POLL_COMPOSER_VALIDATION_CODE: this is a tripwire for
-    // the client adding a code, which would otherwise degrade silently to the generic "Error".
-    // When it fires, map the new code in the relevant field (and cover it above) before updating
-    // this list.
+    // Literal, not derived from POLL_COMPOSER_VALIDATION_CODE: a tripwire for the client adding a
+    // code, which would otherwise degrade silently to the generic "Error". When it fires, map the
+    // new code in the relevant field and cover it above before updating this list.
     expect(Object.values(POLL_COMPOSER_VALIDATION_CODE).sort()).toEqual(
       [
         'validation:poll:maxVotes:notNumeric',
@@ -185,8 +175,6 @@ describe('poll field validation errors', () => {
     );
   });
 
-  // NOTE: the three `maxVotes:*` codes are NOT asserted against the DOM above, because
-  // MultipleAnswersField never renders its copy — `errorText` only toggles error styling on the
-  // label (NumericInput has no error-message slot). Its `knownValidationErrors` entries are
-  // therefore unreachable today; see the note in that component.
+  // The three `maxVotes:*` codes are not asserted against the DOM above: MultipleAnswersField never
+  // renders their copy, because `errorText` only toggles error styling on the label.
 });

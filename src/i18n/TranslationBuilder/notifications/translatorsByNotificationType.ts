@@ -15,13 +15,9 @@ import type { Translator } from '../../index';
 type NotificationTranslator = Translator<NotificationTranslatorOptions>;
 
 /**
- * A translator for every notification `stream-chat` itself emits.
- *
- * `Record<CoreNotificationType, …>` is the point: a new identifier in core fails to compile here until
- * it is mapped, and an entry for one that no longer exists is rejected. Before core exported the union,
- * this table and the React Native SDK's equivalent were hand-maintained copies of each other, and both
- * had drifted — carrying entries nothing emits while missing identifiers that fell through to
- * untranslated English.
+ * A translator for every notification `stream-chat` itself emits. The
+ * `Record<CoreNotificationType, ...>` type fails to compile when core adds an unmapped identifier
+ * or an entry names one it lacks.
  */
 const coreNotificationTranslators: Record<CoreNotificationType, NotificationTranslator> =
   {
@@ -41,7 +37,6 @@ const coreNotificationTranslators: Record<CoreNotificationType, NotificationTran
       t('notification.commandNotReady', 'Command not ready to be sent'),
     [CORE_NOTIFICATION_TYPE.locationCreateFailed]: ({ t }) =>
       t('notification.locationShareFailed', 'Failed to share location'),
-    // Previously unmapped, so these rendered untranslated English from `notification.message`.
     [CORE_NOTIFICATION_TYPE.messageJumpFailed]: ({ t }) =>
       t('notification.messageJumpFailed', 'Failed to jump to the message'),
     [CORE_NOTIFICATION_TYPE.messageJumpToLatestFailed]: ({ t }) =>
@@ -59,12 +54,8 @@ const coreNotificationTranslators: Record<CoreNotificationType, NotificationTran
   };
 
 /**
- * Translators for notifications this SDK emits itself, which core knows nothing about.
- *
- * Deliberately not exhaustiveness-checked — there is no union to check against — so keep it to
- * identifiers that are actually emitted. `api:reply:search:failed` and
- * `channel:jumpToFirstUnread:failed` were removed here: both were copied between the two UI SDKs and
- * neither is emitted by this one.
+ * Translators for notifications this SDK emits itself, which core does not know. There is no union
+ * to check them against, so list only identifiers this SDK actually emits.
  */
 const sdkNotificationTranslators: Record<string, NotificationTranslator> = {
   'api:location:share:failed': ({ t }) =>

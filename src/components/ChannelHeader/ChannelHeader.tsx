@@ -1,37 +1,35 @@
 import React from 'react';
+import type { Channel } from 'stream-chat';
 
 import { type ChannelAvatarProps, ChannelAvatar as DefaultAvatar } from '../Avatar';
 import { TypingIndicatorHeader } from '../TypingIndicator/TypingIndicatorHeader';
+import { useTypingUsers } from '../TypingIndicator/hooks/useTypingUsers';
 import { useChannelHeaderOnlineStatus } from './hooks/useChannelHeaderOnlineStatus';
 import { useChannelPreviewInfo } from '../ChannelListItem/hooks/useChannelPreviewInfo';
-import { useChannel, useChatContext } from '../../context';
+import { useChannel } from '../../context';
 import { WorkspaceNavigationBackButton, WorkspaceNavigationCloseButton } from '../Button';
-import { useMessageComposerController } from '../MessageComposer/hooks/useMessageComposerController';
-import { useStateStore } from '../../store';
 
-import type { ChannelConfig, EventPayload, TextComposerState } from 'stream-chat';
+export type ChannelHeaderTitleProps = {
+  /** The channel the header belongs to. */
+  channel: Channel;
+  /** The title to show: the `title` passed to `ChannelHeader`, else the channel display name. */
+  displayTitle?: string;
+};
 
-const typingEventsStateSelector = ({ typingEvents }: ChannelConfig) => ({
-  typingEventsEnabled: typingEvents.enabled,
-});
+/** Default title of `ChannelHeader`: the display title in a `div`. */
+export const ChannelHeaderTitle = ({ displayTitle }: ChannelHeaderTitleProps) => (
+  <div className='str-chat__channel-header__data__title'>{displayTitle}</div>
+);
 
-const textComposerTypingSelector = ({ typing }: TextComposerState) => ({ typing });
-
-const ChannelHeaderSubtitle = () => {
+/**
+ * Default subtitle of `ChannelHeader`, for the channel in context. Shows the typing indicator while
+ * other users type, otherwise the online status from `useChannelHeaderOnlineStatus`, and
+ * transitions between the two. Renders nothing when there is neither.
+ */
+export const ChannelHeaderSubtitle = () => {
   const channel = useChannel();
-  const { typingEventsEnabled } = useStateStore(
-    channel.configState,
-    typingEventsStateSelector,
-  );
-  const { client } = useChatContext();
-  const messageComposer = useMessageComposerController();
-  const { typing = {} } =
-    useStateStore(messageComposer.textComposer?.state, textComposerTypingSelector) ?? {};
   const onlineStatusText = useChannelHeaderOnlineStatus();
-  const typingInChannel = (
-    Object.values(typing) as EventPayload<'typing.start' | 'typing.stop'>[]
-  ).filter(({ parent_id, user }) => user?.id !== client.user?.id && !parent_id);
-  const hasTyping = typingEventsEnabled !== false && typingInChannel.length > 0;
+  const hasTyping = useTypingUsers(channel).length > 0;
 
   if (!hasTyping && !onlineStatusText) return null;
 
@@ -48,35 +46,44 @@ const ChannelHeaderSubtitle = () => {
 };
 
 export type ChannelHeaderProps = {
-  /** UI component to display an avatar, defaults to [Avatar](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Avatar/Avatar.tsx) component and accepts the same props as: [ChannelAvatar](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Avatar/ChannelAvatar.tsx) */
+  /** Avatar component. Defaults to `ChannelAvatar`. */
   Avatar?: React.ComponentType<ChannelAvatarProps>;
   /**
    * Rendered at the end of the header, after the avatar. Defaults to
-   * `WorkspaceNavigationCloseButton`, the close button of a panel that can be dismissed; a component
-   * passed here replaces it, and can render the button itself to keep it.
+   * `WorkspaceNavigationCloseButton`; a component passed here replaces it and can render that
+   * button to keep it.
    */
   EndContent?: React.ComponentType;
   /**
-   * Rendered at the start of the header. Defaults to `WorkspaceNavigationBackButton`, the back
-   * button of a panel stacked over other content; a component passed here replaces it, and can
-   * render the button itself to keep it.
+   * Rendered at the start of the header. Defaults to `WorkspaceNavigationBackButton`; a component
+   * passed here replaces it and can render that button to keep it.
    */
   StartContent?: React.ComponentType;
-  /** Manually set the image to render, defaults to the Channel image */
+  /**
+   * Replaces the subtitle below the title. Defaults to `ChannelHeaderSubtitle`. Read the channel
+   * with `useChannel()` and the status text with `useChannelHeaderOnlineStatus()`.
+   */
+  Subtitle?: React.ComponentType;
+  /**
+   * Replaces the title. Defaults to `ChannelHeaderTitle`. Receives the channel and its display
+   * title, so it can render the title as a button, for example. The subtitle stays below it.
+   */
+  Title?: React.ComponentType<ChannelHeaderTitleProps>;
+  /** Overrides the channel image. */
   image?: string;
-  /** Set title manually */
+  /** Overrides the channel title. */
   title?: string;
 };
 
-/**
- * The ChannelHeader component renders some basic information about a Channel.
- */
+/** Header of the bound channel: avatar, title, and online status or typing indicator. */
 export const ChannelHeader = (props: ChannelHeaderProps) => {
   const {
     Avatar = DefaultAvatar,
     EndContent = WorkspaceNavigationCloseButton,
     image: overrideImage,
     StartContent = WorkspaceNavigationBackButton,
+    Subtitle = ChannelHeaderSubtitle,
+    Title = ChannelHeaderTitle,
     title: overrideTitle,
   } = props;
 
@@ -93,8 +100,8 @@ export const ChannelHeader = (props: ChannelHeaderProps) => {
         <StartContent />
       </div>
       <div className='str-chat__channel-header__data'>
-        <div className='str-chat__channel-header__data__title'>{displayTitle}</div>
-        <ChannelHeaderSubtitle />
+        <Title channel={channel} displayTitle={displayTitle} />
+        <Subtitle />
       </div>
       <div className='str-chat__channel-header__end'>
         <Avatar

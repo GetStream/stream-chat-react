@@ -4,11 +4,14 @@ const CARET_MARKER_CLASS = 'str-chat__textarea-caret-marker';
 export type TextareaCaretRect = DOMRect | null;
 
 /**
- * Returns the caret rectangle for a textarea using a mirror-measure hack.
- * It clones computed styles and content into a hidden element to infer the
- * caret position because textarea doesn't expose caret geometry.
+ * Measures the caret of a textarea by mirroring its styles and text into a hidden element, because
+ * a textarea exposes no caret geometry.
+ *
+ * @param textarea - Textarea to measure.
+ * @param selectionEnd - Caret index. Defaults to `textarea.selectionEnd`.
+ * @returns A zero-width rect at the caret in viewport coordinates, or `null` when there is no
+ * textarea or no `window`.
  */
-
 export const getTextareaCaretRect = (
   textarea: HTMLTextAreaElement | null,
   selectionEnd?: number,

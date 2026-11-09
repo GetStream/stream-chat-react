@@ -6,7 +6,7 @@ import type { BaseImageProps } from '../BaseImage';
 import type { GalleryItem } from '../Gallery/GalleryContext';
 import { BaseImage as DefaultBaseImage } from '../BaseImage';
 import { Gallery as DefaultGallery, GalleryUI } from '../Gallery';
-import { LoadingIndicator } from '../Loading';
+import { LoadingIndicator as DefaultLoadingIndicator } from '../Loading';
 import { GlobalModal, type ModalCloseSource } from '../Modal';
 import {
   MessageContext,
@@ -42,10 +42,13 @@ type PartialBaseImagePropMap = Partial<
 >;
 
 export type ModalGalleryProps = {
-  /** Array of media attachments to display */
+  /**
+   * Media items to display. Only the first four render as thumbnails; the fourth gets a "+N"
+   * overlay for the rest.
+   */
   items: GalleryItem[];
   className?: string;
-  /** Whether clicking the empty gallery background should close the modal (default: true) */
+  /** Whether clicking the empty gallery background closes the modal. Defaults to true. */
   closeOnBackgroundClick?: boolean;
   modalClassName?: string;
 };
@@ -61,11 +64,11 @@ export const ModalGallery = ({
     Gallery = DefaultGallery,
     Modal = GlobalModal,
   } = useComponentContext();
-  // ModalGallery is also usable standalone, outside a message
+  // ModalGallery also renders outside a message, where there is no `MessageContext`.
   const { message } = useContext(MessageContext) ?? {};
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState(0);
-  // the gallery header renders outside this provider, so sender and timestamp travel on the items
+  // The gallery header renders outside `MessageContext`, so the items carry sender and timestamp.
   const itemsWithSender = useMemo(
     () =>
       items.map((item) => ({
@@ -162,13 +165,17 @@ const ThumbnailButton = ({
   showOverlay,
 }: ThumbnailButtonProps) => {
   const { IconRetry } = useComponentContextIcons();
+  const { LoadingIndicator = DefaultLoadingIndicator } = useComponentContext();
   const { t } = useTranslationContext();
   const imageUrl = item.imageUrl;
+  const isVideo = Boolean(item.videoUrl || item.videoThumbnailUrl);
+  // A video item may carry its preview frame in `imageUrl` instead of `videoThumbnailUrl`.
+  const videoThumbnailUrl = item.videoThumbnailUrl || imageUrl;
   const [isLoadFailed, setIsLoadFailed] = useState(false);
-  const [isImageLoading, setIsImageLoading] = useState(Boolean(imageUrl));
-  // Cache-busting suffix appended to image src on retry. Using a suffix instead of
-  // a React key remount keeps the component (and its placeholder) mounted, preventing
-  // layout shifts and height collapse during the reload attempt.
+  // Load and retry state is tracked for image items only.
+  const [isImageLoading, setIsImageLoading] = useState(!isVideo && Boolean(imageUrl));
+  // Cache-busting suffix appended to the image src on retry; keeps the component and its
+  // placeholder mounted, avoiding layout shifts and height collapse during the reload.
   const [retrySuffix, setRetrySuffix] = useState('');
 
   const {
@@ -204,10 +211,10 @@ const ThumbnailButton = ({
       onClick={handleButtonClick}
       type='button'
     >
-      {item.videoThumbnailUrl ? (
+      {isVideo ? (
         <VideoThumbnail
           alt={t('common.userUploadedContent.label', 'User uploaded content')}
-          src={item.videoThumbnailUrl}
+          src={videoThumbnailUrl}
         />
       ) : (
         <BaseImage

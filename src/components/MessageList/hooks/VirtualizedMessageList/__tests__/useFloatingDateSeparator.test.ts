@@ -44,11 +44,26 @@ describe('useFloatingDateSeparator', () => {
       result.current.onItemsRendered([makeMessage('m2', jan1)]);
     });
 
-    expect(result.current.showFloatingDate).toBe(false);
-    expect(result.current.floatingDate).toBeNull();
+    expect(result.current.firstRenderedItemDate).toBeNull();
   });
 
-  it('shows floating with the first visible date separator value', () => {
+  it('takes the own date of an inline date separator rendered first and flags it', () => {
+    const { result } = renderHook(() =>
+      useFloatingDateSeparator({
+        processedMessages,
+        withDateSeparator: true,
+      }),
+    );
+
+    act(() => {
+      result.current.onItemsRendered([makeDateSeparator(jan2), makeMessage('m3', jan2)]);
+    });
+
+    expect(result.current.firstRenderedItemDate).toEqual(jan2);
+    expect(result.current.isFirstRenderedItemDateSeparator).toBe(true);
+  });
+
+  it('clears the flag once a message is rendered first', () => {
     const { result } = renderHook(() =>
       useFloatingDateSeparator({
         processedMessages,
@@ -59,12 +74,16 @@ describe('useFloatingDateSeparator', () => {
     act(() => {
       result.current.onItemsRendered([makeDateSeparator(jan1), makeMessage('m1', jan1)]);
     });
+    expect(result.current.isFirstRenderedItemDateSeparator).toBe(true);
 
-    expect(result.current.showFloatingDate).toBe(true);
-    expect(result.current.floatingDate).toEqual(jan1);
+    act(() => {
+      result.current.onItemsRendered([makeMessage('m1', jan1), makeMessage('m2', jan1)]);
+    });
+    expect(result.current.isFirstRenderedItemDateSeparator).toBe(false);
+    expect(result.current.firstRenderedItemDate).toEqual(jan1);
   });
 
-  it('shows floating with correct date when first visible is a message', () => {
+  it('takes the date of the separator above a message rendered first', () => {
     const { result } = renderHook(() =>
       useFloatingDateSeparator({
         processedMessages,
@@ -76,8 +95,7 @@ describe('useFloatingDateSeparator', () => {
       result.current.onItemsRendered([makeMessage('m2', jan1), makeMessage('m3', jan2)]);
     });
 
-    expect(result.current.showFloatingDate).toBe(true);
-    expect(result.current.floatingDate).toEqual(jan1);
+    expect(result.current.firstRenderedItemDate).toEqual(jan1);
   });
 
   it('keeps top group date when a later date separator is also visible', () => {
@@ -96,7 +114,6 @@ describe('useFloatingDateSeparator', () => {
       ]);
     });
 
-    expect(result.current.showFloatingDate).toBe(true);
-    expect(result.current.floatingDate).toEqual(jan1);
+    expect(result.current.firstRenderedItemDate).toEqual(jan1);
   });
 });

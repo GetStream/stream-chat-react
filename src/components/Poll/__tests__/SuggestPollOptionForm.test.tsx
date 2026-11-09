@@ -63,7 +63,6 @@ describe('SuggestPollOptionPrompt', () => {
     });
 
     await waitFor(() => {
-      // v10 takes a single request object: `createPollOption({ poll_id, text })`.
       expect(createPollOptionSpy).toHaveBeenCalledWith(
         { poll_id: poll.id },
         { text: newlyTypedValue },

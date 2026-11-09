@@ -26,23 +26,21 @@ export const VideoAttachment = ({
   const videoElement = useRef<HTMLDivElement>(null);
   const [attachmentConfiguration, setAttachmentConfiguration] =
     useState<VideoAttachmentConfiguration>();
-  // A video that mounted while uploading has been showing its player all along, so it stays on
-  // the player once the upload lands. Falling back to the thumbnail would swap the rendered
-  // element twice — once when `thumb_url` arrives, once when the user clicks play — and each swap
-  // resizes the bubble, because the bubble is `fit-content` and the three renderings (local
-  // `<video>`, CDN thumbnail `<img>`, CDN `<video>`) contribute different intrinsic widths.
+  // A video that mounts while uploading stays on the player after the upload lands: switching to
+  // the thumbnail would swap the rendered element when `thumb_url` arrives and again on play, and
+  // each swap resizes the `fit-content` bubble (local `<video>`, CDN `<img>` and CDN `<video>`
+  // have different intrinsic widths).
   const [showVideo, setShowVideo] = React.useState(
     () => !shouldGenerateVideoThumbnail || isPendingUpload(attachment),
   );
-  // Only a click on the thumbnail's play button asks for playback. Kept separate from
-  // `showVideo`, which is also true for a video that never had a thumbnail to click.
+  // Only a click on the thumbnail's play button requests playback; `showVideo` is also true for
+  // videos that never had a thumbnail to click.
   const [playbackRequested, setPlaybackRequested] = React.useState(false);
-  // Structural: the bytes are not on the CDN, so there is nothing to play — independent of
-  // whether a request happens to be running this instant.
+  // Whether the upload is still pending: the bytes are not on the CDN yet, whether or not a
+  // request is running right now.
   const isUploading = isPendingUpload(attachment);
-  // While the upload is in flight there is no CDN `thumb_url` to read `oh`/`ow` from, so the box
-  // would lay out from the 1000000x1000000 fallback and then resize once the real dimensions
-  // arrive. The local file knows them already.
+  // While the upload is pending there is no CDN `thumb_url` to read `oh`/`ow` from, so the box
+  // would lay out from the 1000000x1000000 fallback and resize later. The local file knows them.
   const localDimensions = useLocalVideoDimensions(
     isUploading ? getAttachmentPreviewUrl(attachment) : undefined,
   );
@@ -77,8 +75,8 @@ export const VideoAttachment = ({
   return (
     <div
       className={clsx('str-chat__player-wrapper', {
-        // Only until the dimensions are known — the class lets the element lay out at its own
-        // aspect ratio instead of the square the fallback would produce.
+        // Only until the dimensions are known: lets the element use its own aspect ratio instead
+        // of the fallback square.
         'str-chat__player-wrapper--uploading': isUploading && !localDimensions,
       })}
       data-testid='video-wrapper'
@@ -98,14 +96,10 @@ export const VideoAttachment = ({
         />
       ) : (
         <VideoPlayer
-          // Playback stays available while the upload runs: the local blob plays, and every
-          // message-list widget behaves this way (audio too), as does stream-chat-react-native.
-          // The progress overlay is positioned clear of the transport controls.
-          //
-          // Autoplay only when the user asked for it by clicking the thumbnail. This used to be
-          // `renderThumbnailFirst`, which stands for "a thumbnail exists" — so a video watched
-          // from its local blob started playing again by itself the moment the upload finished
-          // and `thumb_url` arrived.
+          // Playback stays available while the upload runs (the local blob plays); the progress
+          // overlay sits clear of the transport controls. Autoplay only after a click on the
+          // thumbnail: `renderThumbnailFirst` only says a thumbnail exists, so using it would
+          // restart a video watched from its local blob once `thumb_url` arrives.
           isPlaying={playbackRequested}
           thumbnailUrl={attachmentConfiguration?.thumbUrl}
           // Falls back to the local blob preview while the upload is still in flight.

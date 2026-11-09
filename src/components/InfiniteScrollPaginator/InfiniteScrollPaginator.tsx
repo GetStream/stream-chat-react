@@ -1,46 +1,90 @@
 import clsx from 'clsx';
-import debounce from 'lodash.debounce';
+import throttle from 'lodash.throttle';
 import type { PropsWithChildren } from 'react';
 import { forwardRef } from 'react';
-import React, { useEffect, useMemo, useRef } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef } from 'react';
 import { DEFAULT_LOAD_PAGE_SCROLL_THRESHOLD } from '../../constants/limits';
+import { useStableCallback } from '../../utils/useStableCallback';
 
-/**
- * Prevents Chrome hangups
- * See: https://stackoverflow.com/questions/47524205/random-high-content-download-time-in-chrome/47684257#47684257
- */
+// Prevents Chrome hangups, see:
+// https://stackoverflow.com/questions/47524205/random-high-content-download-time-in-chrome/47684257#47684257
 const mousewheelListener = (event: Event) => {
   if (event instanceof WheelEvent && event.deltaY === 1) {
     event.preventDefault();
   }
 };
 
+type DistancesToEdges = { distanceFromBottom: number; distanceFromTop: number };
+
+/** The scroll position's distance to both ends of the content; `null` while hidden or unmounted. */
+const getDistancesToEdges = (
+  root: HTMLElement | null,
+  content: HTMLElement | null,
+): DistancesToEdges | null => {
+  if (!root || root.offsetParent === null || !content) return null;
+  return {
+    distanceFromBottom: content.scrollHeight - root.scrollTop - root.clientHeight,
+    distanceFromTop: root.scrollTop,
+  };
+};
+
+type EdgesWithinThreshold = { nearBottom: boolean; nearTop: boolean };
+
+const NO_EDGE_WITHIN_THRESHOLD: EdgesWithinThreshold = {
+  nearBottom: false,
+  nearTop: false,
+};
+
+/** The edges whose next page the scroll position is close enough to load. */
+const getEdgesWithinThreshold = (
+  { distanceFromBottom, distanceFromTop }: DistancesToEdges,
+  threshold: number,
+): EdgesWithinThreshold => ({
+  nearBottom: distanceFromBottom < threshold,
+  nearTop: distanceFromTop < threshold,
+});
+
+/** Whether `current` is within the threshold of an edge that `previous` was not. */
+const reachedAnotherEdge = (
+  previous: EdgesWithinThreshold,
+  current: EdgesWithinThreshold,
+) =>
+  (current.nearTop && !previous.nearTop) || (current.nearBottom && !previous.nearBottom);
+
 type InfiniteScrollPaginatorOwnProps = {
   element?: React.ElementType;
   /**
-   * Props spread onto the inner content wrapper (the element that directly wraps
-   * `children`). Use this to e.g. mark the wrapper `role="presentation"` so it stays
-   * transparent in the accessibility tree and does not break the ownership between an
-   * ancestor (`listbox`/`menu`) and its `option`/`menuitem` children.
+   * Props for the inner element that wraps `children`, e.g. `role="presentation"` to keep it out of
+   * the accessibility tree so a `listbox` or `menu` ancestor still owns its `option` or `menuitem`
+   * children.
    */
   contentProps?: React.ComponentProps<'div'>;
+  /**
+   * Called with the scroll distances on each check of the distance to the edges (see
+   * `loadNextDebounceMs`).
+   */
   listenToScroll?: (
     distanceFromBottom: number,
     distanceFromTop: number,
     threshold: number,
   ) => void;
+  /**
+   * The minimum interval, in milliseconds, between two checks of the distance to the edges while
+   * the list scrolls or resizes. Scrolling is checked as it happens, not once it stops: the first
+   * scroll, and the first one within `threshold` of an edge, are checked at once, and a final check
+   * runs when the interval ends, so the position the scrolling stopped at is always checked.
+   * Defaults to 500.
+   */
   loadNextDebounceMs?: number;
   loadNextOnScrollToBottom?: () => void;
   loadNextOnScrollToTop?: () => void;
-  /** Offset from when to start the loadNextPage call */
+  /** Distance (px) from the top or bottom within which the `loadNextOnScroll*` callbacks fire. */
   threshold?: number;
   useCapture?: boolean;
 };
 
-// polymorphic props, defaulting to 'div'. `ref` is carried by `ComponentPropsWithRef<C>`
-// (it is not omitted below), so the props type already exposes the correct ref — no separate
-// `ref?` signature is needed (and the react-compat lint rule forbids a literal one; the
-// component is a real `forwardRef` below).
+// Polymorphic props, defaulting to 'div'. `ref` comes from `ComponentPropsWithRef<C>`, so no
+// separate `ref?` member is declared (the react-compat lint rule forbids one in a prop type).
 export type InfiniteScrollPaginatorProps<C extends React.ElementType = 'div'> =
   PropsWithChildren<
     InfiniteScrollPaginatorOwnProps & {
@@ -82,39 +126,45 @@ export const InfiniteScrollPaginator = forwardRef(function InfiniteScrollPaginat
   const rootRef = useRef<HTMLElement | null>(null);
   const childRef = useRef<HTMLDivElement | null>(null);
 
-  const scrollListener = useMemo(
-    () =>
-      debounce(() => {
-        const root = rootRef.current;
-        const child = childRef.current;
-        if (!root || root.offsetParent === null || !child) {
-          return;
-        }
+  // Reports the distances and loads the next page at an edge, with the props of the latest render.
+  // The loaders guard against being called while a page loads.
+  const checkEdges = useStableCallback(() => {
+    const distances = getDistancesToEdges(rootRef.current, childRef.current);
+    if (!distances) return;
 
-        const distanceFromBottom =
-          child.scrollHeight - root.scrollTop - root.clientHeight;
-        const distanceFromTop = root.scrollTop;
+    listenToScroll?.(distances.distanceFromBottom, distances.distanceFromTop, threshold);
 
-        if (listenToScroll) {
-          listenToScroll(distanceFromBottom, distanceFromTop, threshold);
-        }
+    const { nearBottom, nearTop } = getEdgesWithinThreshold(distances, threshold);
+    if (nearTop) loadNextOnScrollToTop?.();
+    if (nearBottom) loadNextOnScrollToBottom?.();
+  });
 
-        if (distanceFromTop < Number(threshold)) {
-          loadNextOnScrollToTop?.();
-        }
-
-        if (distanceFromBottom < Number(threshold)) {
-          loadNextOnScrollToBottom?.();
-        }
-      }, loadNextDebounceMs),
-    [
-      listenToScroll,
-      loadNextDebounceMs,
-      loadNextOnScrollToBottom,
-      loadNextOnScrollToTop,
-      threshold,
-    ],
+  // Runs the check at most once per interval (the first call at once, the latest one when the
+  // interval ends). New callback props do not restart the interval: a check left for its end runs
+  // with them.
+  const checkDistanceToEdges = useMemo(
+    () => throttle(checkEdges, loadNextDebounceMs, { leading: true, trailing: true }),
+    [checkEdges, loadNextDebounceMs],
   );
+
+  useEffect(() => () => checkDistanceToEdges.cancel(), [checkDistanceToEdges]);
+
+  const edgesWithinThresholdRef = useRef(NO_EDGE_WITHIN_THRESHOLD);
+
+  // Checks while scrolling rather than once it stops. Reaching an edge's threshold runs the check at
+  // once: waiting for the interval to end would let a fast scroll reach the edge before the next
+  // page starts loading.
+  const scrollListener = useCallback(() => {
+    checkDistanceToEdges();
+    const distances = getDistancesToEdges(rootRef.current, childRef.current);
+    const edgesWithinThreshold = distances
+      ? getEdgesWithinThreshold(distances, threshold)
+      : NO_EDGE_WITHIN_THRESHOLD;
+    if (reachedAnotherEdge(edgesWithinThresholdRef.current, edgesWithinThreshold)) {
+      checkDistanceToEdges.flush();
+    }
+    edgesWithinThresholdRef.current = edgesWithinThreshold;
+  }, [checkDistanceToEdges, threshold]);
 
   useEffect(() => {
     const scrollElement = rootRef.current;
@@ -129,12 +179,25 @@ export const InfiniteScrollPaginator = forwardRef(function InfiniteScrollPaginat
 
   useEffect(() => {
     const root = rootRef.current;
-    if (!root || typeof ResizeObserver === 'undefined' || !scrollListener) return;
-    const observer = new ResizeObserver(scrollListener);
+    if (!root || typeof ResizeObserver === 'undefined') return;
+    // The check runs in the next animation frame, not in the observer's callback. It can load a
+    // page, and the store update renders synchronously before the callback returns: a root sized by
+    // its content would resize while the browser is still delivering resize notifications, which it
+    // reports as "ResizeObserver loop completed with undelivered notifications". From a frame, the
+    // page renders before layout, and the observer reports that resize in its next delivery.
+    let frameId: number | undefined;
+    const observer = new ResizeObserver(() => {
+      if (typeof frameId !== 'undefined') return;
+      frameId = window.requestAnimationFrame(() => {
+        frameId = undefined;
+        scrollListener();
+      });
+    });
     observer.observe(root as Element);
 
     return () => {
       observer.disconnect();
+      if (typeof frameId !== 'undefined') window.cancelAnimationFrame(frameId);
     };
   }, [scrollListener]);
 
@@ -145,10 +208,10 @@ export const InfiniteScrollPaginator = forwardRef(function InfiniteScrollPaginat
     }
     return () => {
       if (root) {
-        root.removeEventListener('wheel', mousewheelListener, useCapture);
+        root.removeEventListener('wheel', mousewheelListener);
       }
     };
-  }, [useCapture]);
+  }, []);
 
   return renderPolymorphic(
     Component as E,

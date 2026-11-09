@@ -5,17 +5,15 @@ import { useMessageAlsoSentInChannelNavigation } from './hooks';
 
 export type MessageAlsoSentInChannelIndicatorProps = {
   /**
-   * Overrides the "View" click handler. Defaults to the built-in reference navigation
-   * (`useMessageAlsoSentInChannelNavigation().viewReference`). Integrators can supply their own —
-   * e.g. to run extra layout side effects around the jump — by composing that hook, without
-   * re-implementing the component. Returning a promise is supported.
+   * Overrides the "View" click handler. Defaults to
+   * `useMessageAlsoSentInChannelNavigation().viewReference`. May return a promise.
    */
   onView?: () => void | Promise<void>;
 };
 
 /**
- * Indicator shown when the message was also sent to the main channel (show_in_channel === true).
- * The navigation lives in {@link useMessageAlsoSentInChannelNavigation} so it can be reused.
+ * Indicator for a message that is also shown in the channel (`show_in_channel`). Navigation comes
+ * from {@link useMessageAlsoSentInChannelNavigation}.
  */
 export const MessageAlsoSentInChannelIndicator = ({
   onView,

@@ -24,8 +24,7 @@ vi.mock('../../MessageComposer/hooks', () => ({
 vi.mock('../../../context', async (importOriginal) => {
   const actual = await importOriginal<typeof import('../../../context')>();
   return {
-    // The real hook: with no provider it returns the SDK icons, which is what these
-    // assertions are written against.
+    // The real hook: without a provider it returns the SDK icons the assertions expect.
     useComponentContextIcons: actual.useComponentContextIcons,
     useTranslationContext: () => ({
       t: (key: string, second?: unknown, third?: unknown) => {
@@ -60,7 +59,6 @@ describe('commandItem', () => {
 
   it('should render nothing with empty entity (no name)', () => {
     const { container } = render(<CommandItem entity={fromPartial({})} />);
-    // CommandItem returns null when entity.name is falsy
     expect(container).toBeEmptyDOMElement();
   });
 
@@ -73,8 +71,6 @@ describe('commandItem', () => {
     const Component = <CommandItem entity={entity} />;
 
     const { getByText } = render(Component);
-    // Component now renders via CommandContextMenuItem (ContextMenuButton)
-    // name appears as label, args combined with name as details ("/name args")
     expect(getByText(entity.name)).toBeInTheDocument();
 
     const { container } = render(Component);

@@ -9,18 +9,17 @@ import React, {
 import { useComponentContextIcons } from '../../context';
 
 export type AvatarProps = {
-  /** Custom icon rendered when there is no image and no initials */
+  /** Rendered when there is no image and no initials. Defaults to the `IconUser` icon slot. */
   FallbackIcon?: ComponentType<ComponentPropsWithoutRef<'svg'>>;
-  /** URL of the avatar image */
   imageUrl?: string;
-  /** Name of the user (first and last name), used for avatar image alt text and title fallback */
+  /** Name of the user, used to generate the initials and as the `title` and image `alt`. */
   userName?: string;
   /**
-   * Initials that are used directly instead of generating intials from `userName` property.
+   * Initials shown instead of the ones generated from `userName`.
    * @note Providing more than two characters will break the default UI.
    */
   initials?: string;
-  /** Online status indicator, not rendered if not of type boolean */
+  /** Renders an online or offline status badge when set to a boolean. */
   isOnline?: boolean;
   size: '2xl' | 'xl' | 'lg' | 'md' | 'sm' | 'xs' | (string & {}) | null;
 } & ComponentPropsWithoutRef<'div'>;
@@ -46,9 +45,7 @@ const getInitials = (name?: string) => {
   return `${startInitial}${endInitial}`;
 };
 
-/**
- * A round avatar image with fallback to username's first letter
- */
+/** Round avatar showing the image, falling back to initials and then `FallbackIcon`. */
 export const Avatar = ({
   className,
   FallbackIcon,
@@ -60,7 +57,7 @@ export const Avatar = ({
   ...rest
 }: AvatarProps) => {
   const { IconUser } = useComponentContextIcons();
-  // The prop still wins over the context slot: it targets one avatar, the slot rebrands all of them.
+  // The prop wins over the context slot: it targets one avatar, the slot rebrands all of them.
   const ResolvedFallbackIcon = FallbackIcon ?? IconUser;
   const [error, setError] = useState(false);
 

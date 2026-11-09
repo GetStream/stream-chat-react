@@ -38,6 +38,9 @@ export const useTimeElapsed = ({
     };
   }, [startCounter, startOnMount, stopCounter]);
 
+  // The counter can also be started through startCounter(), so stop it on unmount too
+  useEffect(() => stopCounter, [stopCounter]);
+
   return {
     secondsElapsed,
     startCounter,

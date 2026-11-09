@@ -14,8 +14,11 @@ import type { MessageContextValue } from '../../context';
 import type { StreamTFunction } from '../../i18n/types';
 
 /**
- * Following function validates a function which returns notification message.
- * It validates if the first parameter is function and also if return value of function is string or no.
+ * Calls `func` with `args` and returns the result when it is a string, otherwise null.
+ *
+ * @param func - Function returning a notification message. Null is returned when not a function.
+ * @param args - Arguments for `func`. A non-array value is wrapped in an array.
+ * @returns The string `func` returned, or null.
  */
 export const validateAndGetMessage = <T extends unknown[]>(
   func: (...args: T) => unknown,
@@ -23,8 +26,7 @@ export const validateAndGetMessage = <T extends unknown[]>(
 ) => {
   if (!func || typeof func !== 'function') return null;
 
-  // below is due to tests passing a single argument
-  // rather than an array.
+  // Tests pass a single argument rather than an array.
   if (!Array.isArray(args)) {
     args = [args] as unknown as T;
   }
@@ -37,7 +39,11 @@ export const validateAndGetMessage = <T extends unknown[]>(
 };
 
 /**
- * Tell if the owner of the current message is muted
+ * Whether the author of the message is muted.
+ *
+ * @param message - Message whose author is checked.
+ * @param mutes - Muted users. False is returned when it is missing.
+ * @returns True when the author is among the muted users.
  */
 export const isUserMuted = (message: LocalMessage, mutes?: UserMuteResponse[]) => {
   if (!mutes || !message) return false;
@@ -78,13 +84,14 @@ function areMessagesEqual(prevMessage: LocalMessage, nextMessage: LocalMessage):
   );
 }
 
+type MemoizedMessageProps = MessageProps &
+  Pick<MessageContextValue, 'onMentionsClickMessage' | 'onMentionsHoverMessage'> & {
+    showDetailedReactions?: boolean;
+  };
+
 export const areMessagePropsEqual = (
-  prevProps: MessageProps & {
-    showDetailedReactions?: boolean;
-  },
-  nextProps: MessageProps & {
-    showDetailedReactions?: boolean;
-  },
+  prevProps: MemoizedMessageProps,
+  nextProps: MemoizedMessageProps,
 ) => {
   const { message: prevMessage } = prevProps;
   const { message: nextMessage } = nextProps;
@@ -99,6 +106,17 @@ export const areMessagePropsEqual = (
     return false;
   }
 
+  if (nextProps.showAvatar !== prevProps.showAvatar) return false;
+
+  // Whether a mention handler is set decides if mentions are interactive, so a handler set or
+  // removed after the first render has to reach the message. Their identity is not compared.
+  if (
+    !!nextProps.onMentionsClickMessage !== !!prevProps.onMentionsClickMessage ||
+    !!nextProps.onMentionsHoverMessage !== !!prevProps.onMentionsHoverMessage
+  ) {
+    return false;
+  }
+
   const messagesAreEqual = areMessagesEqual(prevMessage, nextMessage);
   if (!messagesAreEqual) return false;
 
@@ -106,7 +124,7 @@ export const areMessagePropsEqual = (
     deepequal(nextProps.readBy, prevProps.readBy) &&
     deepequal(nextProps.deliveredTo, prevProps.deliveredTo) &&
     deepequal(nextProps.highlighted, prevProps.highlighted) &&
-    deepequal(nextProps.groupStyles, prevProps.groupStyles) && // last 3 messages can have different group styles
+    deepequal(nextProps.groupStyles, prevProps.groupStyles) && // depends on neighboring messages
     deepequal(nextProps.lastReceivedId, prevProps.lastReceivedId);
 
   if (!deepEqualProps) return false;
@@ -128,10 +146,10 @@ export const areMessageUIPropsEqual = (
   const { lastReceivedId: nextLastReceivedId, message: nextMessage } = nextProps;
 
   if (prevProps.highlighted !== nextProps.highlighted) return false;
-  if (prevProps.endOfGroup !== nextProps.endOfGroup) return false;
   if (prevProps.readBy?.length !== nextProps.readBy?.length) return false;
   if (prevProps.deliveredTo?.length !== nextProps.deliveredTo?.length) return false;
   if (prevProps.groupStyles !== nextProps.groupStyles) return false;
+  if (prevProps.showAvatar !== nextProps.showAvatar) return false;
 
   if (prevProps.showDetailedReactions !== nextProps.showDetailedReactions) {
     return false;
@@ -181,9 +199,10 @@ export interface TooltipUsernameMapper {
 }
 
 /**
- * Default Tooltip Username mapper implementation.
+ * Default tooltip username mapper.
  *
- * @param user the user.
+ * @param user - User to map.
+ * @returns The user's name, falling back to the ID.
  */
 export const mapToUserNameOrId: TooltipUsernameMapper = (user) => user.name || user.id;
 
@@ -206,7 +225,7 @@ export const getReadByTooltipText = (
       'getReadByTooltipText was called, but tooltipUserNameMapper function is not available',
     );
   }
-  // first filter out client user, so restLength won't count it
+  // Exclude the current user so `restLength` does not count it.
   const otherUsers = users
     .filter((item) => item && client?.user && item.id !== client.user.id)
     .map(tooltipUserNameMapper);
@@ -217,8 +236,7 @@ export const getReadByTooltipText = (
   if (slicedArr.length === 1) {
     outStr = `${slicedArr[0]} `;
   } else if (slicedArr.length === 2) {
-    // joins all with "and" but =no commas
-    // example: "bob and sam"
+    // Two users: "bob and sam".
     outStr = t(
       'message.and.withFirstUserAndSecondUser.label',
       '{{ firstUser }} and {{ secondUser }}',
@@ -228,10 +246,10 @@ export const getReadByTooltipText = (
       },
     );
   } else if (slicedArr.length > 2) {
-    // joins all with commas, but last one gets ", and" (oxford comma!)
-    // example: "bob, joe, sam and 4 more"
+    // Three or more: when all fit, the last one follows ", and" (Oxford comma); otherwise an
+    // "and N more" suffix follows.
     if (restLength === 0) {
-      // mutate slicedArr to remove last user to display it separately
+      // Splice out the last user to display it separately.
       const [lastUser] = slicedArr.splice(slicedArr.length - 1, 1);
       outStr = t(
         'message.and.withCommaSeparatedUsersAndLastUser.label',

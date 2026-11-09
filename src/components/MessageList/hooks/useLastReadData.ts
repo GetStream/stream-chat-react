@@ -9,7 +9,7 @@ type UseLastReadDataParams = {
   lastOwnMessage?: LocalMessage;
 };
 
-/** Who has read each rendered message — see {@link useReceiptsByMessageId}. */
+/** Who has read each rendered message. See {@link useReceiptsByMessageId}. */
 export const useLastReadData = (
   props: UseLastReadDataParams,
 ): Record<string, UserResponse[]> => useReceiptsByMessageId({ ...props, kind: 'read' });

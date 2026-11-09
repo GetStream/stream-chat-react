@@ -42,10 +42,8 @@ import type { Channel, StreamChat, Thread } from 'stream-chat';
 import type { ComponentContextValue, MessageContextValue } from '../../../context';
 import { convertDateToTimestamp } from '../../../mock-builders';
 
-// MERGE-RECONCILE (test migration): thread opening moved from the deleted ChannelActionContext
-// `openThread` handler to the core workspace-navigation adapter `openThread`. We mock the
-// WorkspaceNavigationContext submodule (the `context` barrel re-exports it) so a single spy
-// (openThreadMock) captures navigation from the reply-count button and the also-sent "View" button.
+// Mocks the WorkspaceNavigationContext submodule (the `context` barrel re-exports it) so a single
+// spy captures navigation from the reply-count button and the also-sent "View" button.
 const { openThreadMock } = vi.hoisted(() => ({ openThreadMock: vi.fn() }));
 
 vi.mock('../../../context/WorkspaceNavigationContext', async (importOriginal) => ({
@@ -64,12 +62,9 @@ vi.mock('../../../context/WorkspaceNavigationContext', async (importOriginal) =>
   }),
 }));
 
-// MERGE-RECONCILE (test migration): the bounce retry action moved from ChannelActionContext
-// `retrySendMessage` to the `useRetryHandler` hook (channel.messageOperations.retry).
-// Mocking this leaf hook doubles as a spy for the retry action AND sidesteps a source-level
-// circular-import fragility: MessageBounceContext imports useRetryHandler through the top
-// `../components` barrel, whose re-export resolves to `undefined` under the test module graph
-// (the same hook imported via the short `./hooks` path works — see report).
+// Mocking this leaf hook spies on the retry action and sidesteps a circular import:
+// MessageBounceContext imports useRetryHandler through the `../components` barrel, whose re-export
+// resolves to `undefined` under the test module graph.
 const { retryHandlerMock } = vi.hoisted(() => ({
   retryHandlerMock: vi.fn(() => Promise.resolve()),
 }));
@@ -138,27 +133,26 @@ describe('<MessageSimple />', () => {
 
   async function renderMessageSimple({
     components = {} as Partial<ComponentContextValue>,
+    inThread = false,
     message,
     props = {} as Partial<MessageContextValue>,
     renderer = render,
   }: {
-    // channelCapabilities / channelConfigOverrides kept for call-site compatibility; the
-    // capabilities/config now live on the real channel created in beforeEach.
+    // Accepted for call-site compatibility but unused: capabilities and config live on the real
+    // channel created in beforeEach.
     channelCapabilities?: Record<string, boolean>;
     channelConfigOverrides?: Record<string, unknown>;
     components?: Partial<ComponentContextValue>;
+    /** Renders the message under a `ThreadProvider`, which is how a message knows it is in a thread. */
+    inThread?: boolean;
     message: ReturnType<typeof generateMessage>;
     props?: Partial<MessageContextValue>;
     renderer?: typeof render;
   }) {
-    // MERGE-RECONCILE (test migration): "in a thread" is now derived from useThreadContext()
-    // (a <Thread>/ThreadProvider), not the legacy `threadList` prop. Wrap in ThreadProvider when
-    // the caller opts into thread-list rendering so status suppression behaves as before.
     const messageElement = (
       <Message
         {...fromPartial<MessageProps>({
           message,
-          threadList: false,
           ...props,
         })}
       />
@@ -176,7 +170,7 @@ describe('<MessageSimple />', () => {
                 ...components,
               }}
             >
-              {props.threadList ? (
+              {inThread ? (
                 <ThreadProvider thread={fromPartial<Thread>({})}>
                   {messageElement}
                 </ThreadProvider>
@@ -217,8 +211,7 @@ describe('<MessageSimple />', () => {
       ],
       customUser: alice,
     }));
-    // Bounce delete removes the local message via the message paginator (formerly
-    // ChannelActionContext removeMessage / channel.state.removeMessage).
+    // Bounce delete removes the local message via the message paginator.
     vi.spyOn(channel.messagePaginator, 'removeItem').mockImplementation(
       removeMessageMock,
     );
@@ -533,11 +526,11 @@ describe('<MessageSimple />', () => {
     it('should not render status when rendered in a thread list and was delivered to other members', async () => {
       const message = generateAliceMessage();
       const { container, queryByTestId } = await renderMessageSimple({
+        inThread: true,
         message,
         props: {
           deliveredTo: [alice, bob],
           readBy: [alice],
-          threadList: true,
         },
       });
       expect(queryByTestId(/message-status/)).not.toBeInTheDocument();
@@ -548,10 +541,10 @@ describe('<MessageSimple />', () => {
     it('should not render status when rendered in a thread list and was read by other members', async () => {
       const message = generateAliceMessage();
       const { container, queryByTestId } = await renderMessageSimple({
+        inThread: true,
         message,
         props: {
           readBy: [alice, bob, carol],
-          threadList: true,
         },
       });
       expect(queryByTestId(/message-status/)).not.toBeInTheDocument();
@@ -719,10 +712,9 @@ describe('<MessageSimple />', () => {
     expect(results).toHaveNoViolations();
   });
 
-  // MERGE-RECONCILE (test migration): the also-sent-in-channel "View" navigation moved from the
-  // ChannelActionContext `openThread` handler to useMessageAlsoSentInChannelNavigation, which
-  // resolves the parent thread through `client.threads.get()`, fetching it with
-  // `client.getThreadAndHydrate` when it is not registered, and then navigates through ChatView `open`.
+  // The "View" navigation (useMessageAlsoSentInChannelNavigation) resolves the parent thread
+  // through `client.threads.get()`, fetching it with `client.getThreadAndHydrate` when it is not
+  // registered, then calls `openThread`.
   it('should open thread when View button is clicked and parent thread is resolved', async () => {
     const parentMessage = generateMessage({ id: 'x' });
     const message = generateAliceMessage({
@@ -785,7 +777,7 @@ describe('<MessageSimple />', () => {
     fireEvent.click(getByText('View'));
     await waitFor(() =>
       expect(getThreadSpy).toHaveBeenCalledWith(
-        parentMessage.id,
+        { message_id: parentMessage.id },
         expect.objectContaining({ watch: true }),
       ),
     );
@@ -826,7 +818,6 @@ describe('<MessageSimple />', () => {
     expect(getByText(bob.name)).toBeInTheDocument();
     const results = await axe(container);
     expect(results).toHaveNoViolations();
-    // Reset members
     channel.state.members = {};
   });
 
@@ -843,10 +834,20 @@ describe('<MessageSimple />', () => {
     expect(results).toHaveNoViolations();
   });
 
-  // MERGE-RECONCILE (stream-chat v10): the v1 moderation shape (`message.moderation_details`
-  // with `MESSAGE_RESPONSE_ACTION_BOUNCE`) no longer exists in the v10 (OpenAPI) type surface —
-  // `isMessageBounced`/`isMessageBlocked` now read `message.moderation.action` only — so the `v1`
-  // parametrization was dropped. `v2` retains full behavioral coverage.
+  // Grouped messages keep their metadata in the DOM; the default CSS hides it on `top` and `middle`
+  // list items, so an app can show it again with CSS alone.
+  it.each([['top'], ['middle'], ['bottom'], ['single']] as const)(
+    'should render the metadata of a %s group message',
+    async (groupStyle) => {
+      const { container } = await renderMessageSimple({
+        message: generateAliceMessage(),
+        props: { groupStyles: [groupStyle] },
+      });
+      expect(container.querySelector('.str-chat__message-metadata')).toBeInTheDocument();
+    },
+  );
+
+  // A bounced message has `type: 'error'` and `moderation.action === 'bounce'`.
   describe.each<
     [string, Parameters<typeof generateMessage>[0] & Record<string, unknown>]
   >([

@@ -9,7 +9,7 @@ const user = (id: string): UserResponse => ({ id }) as UserResponse;
 const message = (id: string, createdAt: number) =>
   ({ created_at: createdAt, id }) as LocalMessage;
 
-// m1 … m4, oldest first, as the list renders them.
+// m1 to m4, oldest first, as the list renders them.
 const messages = [
   message('m1', 1000),
   message('m2', 2000),
@@ -17,10 +17,8 @@ const messages = [
   message('m4', 4000),
 ];
 
-/**
- * Cursors: bob stopped on m1, alice on m3. Nobody is past m4, so its answer is empty and each
- * older message adds whoever stopped there.
- */
+// Most tests stop bob's cursor on m1 and alice's on m3. Nobody is past m4, so its answer is empty
+// and each older message adds whoever stopped there.
 const setup = ({
   deliveredByMessageId = {},
   readersByMessageId = {},
@@ -72,7 +70,7 @@ describe('useReceiptsByMessageId', () => {
       }),
     );
 
-    // alice stopped on m3, so she has read m1 and m2 as well — the whole point.
+    // alice stopped on m3, so she has read m1 and m2 too.
     expect(result.current.m1.map((u) => u.id).sort()).toEqual(['alice', 'bob']);
     expect(result.current.m2.map((u) => u.id)).toEqual(['alice']);
     expect(result.current.m3.map((u) => u.id)).toEqual(['alice']);

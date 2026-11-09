@@ -12,9 +12,9 @@ import {
 } from '../../context';
 
 export type MessageEditedIndicatorProps = TimestampFormatterOptions & {
-  /* Adds a CSS class name to the component's outer container. */
+  /** Replaces the default `str-chat__message-edited-indicator` class on the outer `span`. */
   customClass?: string;
-  /* The `StreamChat` message object, which provides necessary data to the underlying UI components (overrides the value from `MessageContext`) */
+  /** Message to render; overrides the one from `MessageContext`. */
   message?: LocalMessage;
 };
 

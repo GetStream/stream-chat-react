@@ -15,15 +15,9 @@ import { Channel } from '../../../Channel';
 import { Chat } from '../../../Chat';
 import { act } from '@testing-library/react';
 
-// MERGE-RECONCILE (test migration): PR #2909 rewrote useDeleteHandler to delete via the
-// channel's own `messageOperations.delete` (with a `client.deleteMessage` +
-// messagePaginator.ingestItem fallback) instead of the removed ChannelActionContext
-// `deleteMessage`/`updateMessage`/`removeMessage` handlers. The wrapper now uses the real
-// <Chat>/<Channel> providers (ChannelInstanceProvider + messagePaginator) and assertions spy
-// on `channel.messageOperations.delete`. Tests for the removed ChannelActionContext
-// behaviors (context updateMessage after delete; removeMessage special-case for
-// network-failed messages; promise rejection on server failure — the hook now swallows and
-// notifies) were dropped as obsolete.
+// `useDeleteHandler` deletes through `messageOperations.delete` of the thread or channel, falling
+// back to `client.deleteMessage` plus `messagePaginator.ingestItem`. The wrapper uses real
+// <Chat>/<Channel> providers and assertions spy on `channel.messageOperations.delete`.
 
 let channel: ChannelType;
 let client: StreamChat;
@@ -53,10 +47,7 @@ describe('useDeleteHandler custom hook', () => {
     client = await getTestClientWithUser(generateUser());
     const channelData = generateChannel();
     useMockedApis(client, [getOrCreateChannelApi(channelData)]);
-    channel = client.channelManager.ensure({
-      id: channelData.channel.id,
-      type: 'messaging',
-    });
+    channel = client.channel('messaging', channelData.channel.id);
   });
 
   afterEach(() => {
@@ -66,6 +57,19 @@ describe('useDeleteHandler custom hook', () => {
   it('should generate function that handles message deletion', async () => {
     const handleDelete = await renderUseDeleteHandler();
     expect(typeof handleDelete).toBe('function');
+  });
+
+  it('should throw without deleting when the message has no id', async () => {
+    const deleteSpy = vi.spyOn(channel.messageOperations, 'delete');
+    const handleDelete = await renderUseDeleteHandler(
+      generateMessage({ id: undefined }) as typeof testMessage,
+    );
+    await act(async () => {
+      await expect(handleDelete()).rejects.toThrow(
+        'useDeleteHandler was called but it is missing one or more necessary parameters.',
+      );
+    });
+    expect(deleteSpy).not.toHaveBeenCalled();
   });
 
   it('should delete a message without options via the channel local-update path', async () => {
@@ -98,15 +102,25 @@ describe('useDeleteHandler custom hook', () => {
     });
   });
 
-  it('should notify (and not throw) when the delete request fails', async () => {
+  it('should notify and throw when the delete request fails', async () => {
     vi.spyOn(channel.messageOperations, 'delete').mockRejectedValue(
       new Error('delete failed'),
     );
     const notify = vi.fn();
     const handleDelete = await renderUseDeleteHandler(testMessage, { notify });
     await act(async () => {
-      await expect(handleDelete()).resolves.toBeUndefined();
+      await expect(handleDelete()).rejects.toThrow('delete failed');
     });
     expect(notify).toHaveBeenCalledWith('Error deleting message', 'error');
+  });
+
+  it('should throw when the delete request fails without notifications configured', async () => {
+    vi.spyOn(channel.messageOperations, 'delete').mockRejectedValue(
+      new Error('delete failed'),
+    );
+    const handleDelete = await renderUseDeleteHandler(testMessage);
+    await act(async () => {
+      await expect(handleDelete()).rejects.toThrow('delete failed');
+    });
   });
 });

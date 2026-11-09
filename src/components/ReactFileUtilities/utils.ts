@@ -42,13 +42,12 @@ export async function dataTransferItemsToFiles(
     return [];
   }
 
-  // If there are files inside the DataTransferItem prefer those
+  // File items take precedence over images extracted from HTML.
   const fileLikes = getFileLikes(items);
   if (fileLikes.length) {
     return fileLikes;
   }
 
-  // Otherwise extract images from html
   const blobPromises = [];
   for (const item of items) {
     if (item.type === 'text/html') {

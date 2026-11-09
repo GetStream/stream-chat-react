@@ -2,12 +2,8 @@ import React from 'react';
 import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { fromPartial } from '@total-typescript/shoehorn';
 
-import { ChannelHeader } from '../ChannelHeader';
+import { ChannelHeader, ChannelHeaderSubtitle } from '../ChannelHeader';
 
-// MERGE-RECONCILE (test migration): the deleted ChannelStateContext/ChatContext mock providers were
-// replaced by the real <Chat client><Channel channel> tree (which supplies the channel instance,
-// translation and component contexts). Component-slot overrides are provided via
-// <WithComponents> nested inside <Channel>.
 import { Channel } from '../../Channel';
 import { Chat } from '../../Chat';
 import { WithComponents } from '../../../context/WithComponents';
@@ -36,7 +32,7 @@ import type {
   UserResponse,
 } from 'stream-chat';
 import type { ComponentContextValue } from '../../../context';
-import type { ChannelHeaderProps } from '../ChannelHeader';
+import type { ChannelHeaderProps, ChannelHeaderTitleProps } from '../ChannelHeader';
 import type { GenerateChannelOptions } from '../../../mock-builders/generator/channel';
 
 const AVATAR_IMG_TEST_ID = 'avatar-img';
@@ -50,8 +46,8 @@ const defaultChannelState = {
   members: [generateMember({ user: user1 }), generateMember({ user: user2 })],
 };
 
-// stream-chat v10: channel custom data is nested - `channel.data.custom.name` /
-// `channel.data.custom.image` (the display helpers read exactly those paths).
+// Channel custom data is nested: `channel.data.custom.name` and `channel.data.custom.image`, the
+// paths the display helpers read.
 const channelCustom = (custom: Record<string, unknown>) => ({ custom });
 
 const renderComponentBase = ({
@@ -79,21 +75,20 @@ async function renderComponent({
   channelData,
   channelType = 'messaging',
   props,
+  typing,
 }: {
   channelData?: Partial<ChannelResponse> & Record<string, unknown>;
   channelType?: string;
   props?: ChannelHeaderProps;
+  typing?: ChannelType['state']['typing'];
 } = {}) {
   client = await getTestClientWithUser(user1);
   testChannel1 = generateChannel({ ...defaultChannelState, channel: channelData });
   /* eslint-disable-next-line react-hooks/rules-of-hooks */
   useMockedApis(client, [getOrCreateChannelApi(testChannel1)]);
-  const channel = client.channelManager.ensure({
-    data: channelData,
-    id: testChannel1.channel.id,
-    type: channelType,
-  });
+  const channel = client.channel(channelType, testChannel1.channel.id, channelData);
   await channel.query();
+  if (typing) channel.state.typing = typing;
 
   return renderComponentBase({ channel, client, props });
 }
@@ -147,11 +142,10 @@ describe('ChannelHeader', () => {
     });
     const results = await axe(container);
     expect(results).toHaveNoViolations();
-    // The subtitle area now shows online status or typing indicator, not channel.data.subtitle
     const subtitleEl = container.querySelector(
       '.str-chat__channel-header__data__subtitle',
     );
-    // Subtitle renders when there is member count and thus online status text
+    // The subtitle renders because a member count yields online status text.
     await waitFor(() => {
       expect(subtitleEl).toBeInTheDocument();
     });
@@ -190,6 +184,31 @@ describe('ChannelHeader', () => {
     });
   });
 
+  describe('typing', () => {
+    it('shows the typing indicator while another user types in the channel', async () => {
+      await renderComponent({
+        typing: { [user2.id]: fromPartial({ type: 'typing.start', user: user2 }) },
+      });
+
+      expect(await screen.findByTestId('typing-indicator-header')).toBeInTheDocument();
+    });
+
+    it('ignores typing in a thread and by the current user', async () => {
+      await renderComponent({
+        typing: {
+          [user1.id]: fromPartial({ type: 'typing.start', user: user1 }),
+          [user2.id]: fromPartial({
+            parent_id: 'parent-message',
+            type: 'typing.start',
+            user: user2,
+          }),
+        },
+      });
+
+      expect(screen.queryByTestId('typing-indicator-header')).not.toBeInTheDocument();
+    });
+  });
+
   describe('StartContent prop', () => {
     const StartContent = () => <div data-testid='sidebar-toggle' />;
 
@@ -202,10 +221,7 @@ describe('ChannelHeader', () => {
       client = await getTestClientWithUser(user1);
       testChannel1 = generateChannel({ ...defaultChannelState });
       useMockedApis(client, [getOrCreateChannelApi(testChannel1)]);
-      const channel = client.channelManager.ensure({
-        id: testChannel1.channel.id,
-        type: 'messaging',
-      });
+      const channel = client.channel('messaging', testChannel1.channel.id);
       await channel.query();
 
       renderComponentBase({
@@ -229,10 +245,7 @@ describe('ChannelHeader', () => {
       testChannel1 = generateChannel({ ...defaultChannelState });
       /* eslint-disable-next-line react-hooks/rules-of-hooks */
       useMockedApis(client, [getOrCreateChannelApi(testChannel1)]);
-      const channel = client.channelManager.ensure({
-        id: testChannel1.channel.id,
-        type: 'messaging',
-      });
+      const channel = client.channel('messaging', testChannel1.channel.id);
       await channel.query();
 
       render(
@@ -366,8 +379,7 @@ describe('ChannelHeader', () => {
       });
       await renderComponentBase({ channel, client, props });
       await waitFor(() => {
-        // For 5 members, getGroupChannelDisplayInfo returns overflowCount,
-        // so GroupAvatar renders 2 avatars + a "+N" overflow badge
+        // With more than 4 members (5 here), `GroupAvatar` renders 2 avatars and a "+N" badge.
         const groupAvatar = screen.getByTestId('group-avatar');
         expect(groupAvatar).toBeInTheDocument();
         const avatarImages = screen.getAllByTestId(AVATAR_IMG_TEST_ID);
@@ -496,7 +508,7 @@ describe('ChannelHeader', () => {
         channelsData: [channelState],
         customUser: ownUser,
       });
-      // v10: arbitrary user attributes live under `user.custom` (an object, not a string).
+      // Arbitrary user attributes live under `user.custom`, which is an object.
       const updatedAttribute = { custom: { someAttribute: 'new-custom' } };
       await renderComponentBase({ channel, client, props });
 
@@ -539,7 +551,7 @@ describe('ChannelHeader', () => {
         channelsData: [channelState],
         customUser: ownUser,
       });
-      // v10: arbitrary user attributes live under `user.custom` (an object, not a string).
+      // Arbitrary user attributes live under `user.custom`, which is an object.
       const updatedAttribute = { custom: { someAttribute: 'new-custom' } };
       await renderComponentBase({ channel, client, props });
 
@@ -571,6 +583,115 @@ describe('ChannelHeader', () => {
           expect(img).toHaveAttribute('src', channelState.members[i].user?.image);
         });
       });
+    });
+  });
+
+  describe('Title prop', () => {
+    it('renders the display title in the default title element', async () => {
+      const { container } = await renderComponent({
+        channelData: channelCustom({ name: 'test-channel-1' }),
+      });
+
+      await waitFor(() => {
+        const titleEl = container.querySelector('.str-chat__channel-header__data__title');
+        expect(titleEl?.tagName).toBe('DIV');
+        expect(titleEl).toHaveTextContent('test-channel-1');
+      });
+    });
+
+    it('renders the Title passed to it in place of the default title', async () => {
+      const onClick = vi.fn();
+      const receivedProps: ChannelHeaderTitleProps[] = [];
+      const Title = (titleProps: ChannelHeaderTitleProps) => {
+        receivedProps.push(titleProps);
+        return (
+          <button
+            className='str-chat__channel-header__data__title'
+            onClick={onClick}
+            type='button'
+          >
+            {titleProps.displayTitle}
+          </button>
+        );
+      };
+
+      const { container } = await renderComponent({
+        channelData: { ...channelCustom({ name: 'test-channel-1' }), member_count: 5 },
+        props: { Title, title: 'Custom Title' },
+      });
+
+      const button = await screen.findByRole('button', { name: 'Custom Title' });
+      fireEvent.click(button);
+      expect(onClick).toHaveBeenCalledTimes(1);
+      expect(receivedProps.at(-1)).toEqual({
+        channel: expect.objectContaining({ cid: `messaging:${testChannel1.channel.id}` }),
+        displayTitle: 'Custom Title',
+      });
+      expect(
+        container.querySelectorAll('.str-chat__channel-header__data__title'),
+      ).toHaveLength(1);
+      // The subtitle stays below the replaced title.
+      expect(
+        container.querySelector('.str-chat__channel-header__data__subtitle'),
+      ).toBeInTheDocument();
+      expect(await axe(container)).toHaveNoViolations();
+    });
+  });
+
+  describe('Subtitle prop', () => {
+    it('renders the Subtitle passed to it in place of the default subtitle', async () => {
+      const Subtitle = () => <div data-testid='custom-subtitle'>Custom subtitle</div>;
+
+      const { container } = await renderComponent({
+        channelData: { ...channelCustom({ name: 'test-channel-1' }), member_count: 5 },
+        props: { Subtitle },
+      });
+
+      expect(await screen.findByTestId('custom-subtitle')).toBeInTheDocument();
+      expect(
+        container.querySelector('.str-chat__channel-header__data__subtitle'),
+      ).not.toBeInTheDocument();
+      expect(screen.getByText('test-channel-1')).toBeInTheDocument();
+      expect(await axe(container)).toHaveNoViolations();
+    });
+  });
+
+  describe('ChannelHeaderSubtitle', () => {
+    const renderSubtitle = async (watchers: UserResponse[]) => {
+      client = await getTestClientWithUser(user1);
+      testChannel1 = generateChannel({
+        ...defaultChannelState,
+        channel: { member_count: 2 },
+      });
+      /* eslint-disable-next-line react-hooks/rules-of-hooks */
+      useMockedApis(client, [getOrCreateChannelApi(testChannel1)]);
+      const channel = client.channel('messaging', testChannel1.channel.id);
+      await channel.query();
+      channel.state.watchers = Object.fromEntries(
+        watchers.map((user) => [user.id, user]),
+      );
+
+      return render(
+        <Chat client={client}>
+          <Channel channel={channel}>
+            <ChannelHeaderSubtitle />
+          </Channel>
+        </Chat>,
+      );
+    };
+
+    it('shows Online for a direct message whose other member is watching', async () => {
+      const { container } = await renderSubtitle([user2]);
+
+      expect(await screen.findByText('Online')).toBeInTheDocument();
+      expect(await axe(container)).toHaveNoViolations();
+    });
+
+    it('shows Offline for a direct message whose other member is not watching', async () => {
+      const { container } = await renderSubtitle([user1]);
+
+      expect(await screen.findByText('Offline')).toBeInTheDocument();
+      expect(await axe(container)).toHaveNoViolations();
     });
   });
 });

@@ -9,18 +9,11 @@ import { Channel } from '../../../Channel';
 import { asTimestampNS, msToNs, nowNs } from 'stream-chat';
 import { convertDateToTimestamp } from '../../../../mock-builders/generator/time';
 
-// MERGE-RECONCILE (test migration): useUnreadMessagesNotificationVirtualized was rewritten to
-// read `unreadCount`/`lastReadAt` from `channel.messagePaginator.unreadStateSnapshot` (via
-// useStateStore) instead of receiving `unreadCount`/`lastRead` as params. The hook now only
-// takes `{ showAlways }`. Tests set the unread state through
-// `channel.messagePaginator.setUnreadSnapshot(...)` and render inside the real
-// <Chat>/<Channel> providers so `useMessagePaginator` can resolve the channel.
-//
-// The snapshot has to be seeded AFTER the <Channel> bootstrap has settled: mounting <Channel>
-// runs the paginator's first-page query, whose postQueryReconcile calls
-// `MessagePaginator.seedUnreadSnapshot()` and (re)derives the snapshot from `channel.state.read`
-// — which for a generated channel means `unreadCount: 0` and a fresh `last_read`. Seeding before
-// the render would therefore be overwritten before the hook ever observed it.
+// The hook reads `channel.messagePaginator.unreadStateSnapshot`, so tests seed it with
+// `setUnreadSnapshot` and render inside the real <Chat>/<Channel> so `useMessagePaginator` resolves
+// the channel. The snapshot is seeded after the <Channel> bootstrap settles: its first-page query
+// re-derives the snapshot from `channel.state.read` (`unreadCount: 0` for a generated channel),
+// which would overwrite an earlier seed.
 const render = async ({
   lastRead = null,
   showAlways = false,
@@ -43,8 +36,8 @@ const render = async ({
     () => useUnreadMessagesNotificationVirtualized({ showAlways }),
     { wrapper },
   );
-  // flush the <Channel> bootstrap (and its unread-snapshot re-seed) before seeding the snapshot
-  // the test actually wants the hook to observe.
+  // Flush the <Channel> bootstrap and its unread-snapshot re-seed before seeding the test's
+  // snapshot.
   await act(async () => {
     await Promise.resolve();
   });
@@ -194,5 +187,41 @@ describe('useUnreadMessagesNotificationVirtualized', () => {
         expect(result.current.show).toBe(false);
       },
     );
+  });
+
+  // Newer messages can be loaded past the rendered range, so the loaded window cannot tell which way
+  // the unread messages are.
+  describe('unreadIsBelow', () => {
+    it('is true when every rendered message is older than the last read one', async () => {
+      const now = nowNs();
+      const lastRead = now - msToNs(1000);
+      const messages = [
+        generateMessage({ created_at: now - msToNs(1002) }),
+        generateMessage({ created_at: now - msToNs(1001) }),
+      ];
+      const { result } = await render({ lastRead, showAlways: true, unreadCount: 1 });
+      await act(() => {
+        result.current.toggleShowUnreadMessagesNotification(
+          messages as RenderedMessage[],
+        );
+      });
+      expect(result.current.unreadIsBelow).toBe(true);
+    });
+
+    it('is false when every rendered message is newer than the last read one', async () => {
+      const now = nowNs();
+      const lastRead = now - msToNs(1000);
+      const messages = [
+        generateMessage({ created_at: now - msToNs(500) }),
+        generateMessage({ created_at: now }),
+      ];
+      const { result } = await render({ lastRead, unreadCount: 1 });
+      await act(() => {
+        result.current.toggleShowUnreadMessagesNotification(
+          messages as RenderedMessage[],
+        );
+      });
+      expect(result.current.unreadIsBelow).toBe(false);
+    });
   });
 });

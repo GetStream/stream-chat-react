@@ -44,12 +44,12 @@ export const useMessageListElements = (props: UseMessageListElementsProps) => {
   const channel = useChannel();
   const messagePaginator = useMessagePaginator();
   const components = useComponentContext();
-  // The rendered list's own snapshot: in a thread that is the thread's, as for the rest of the list.
+  // The snapshot of the rendered list: the thread's in a thread, the channel's otherwise.
   const channelUnreadUiState = useStateStore(
     messagePaginator.unreadStateSnapshot,
     unreadStateSnapshotSelector,
   );
-  // get the readData, but only for messages submitted by the user themselves
+  // Read data only for the user's own messages.
   const readData = useLastReadData({
     channel,
     lastOwnMessage,

@@ -16,10 +16,9 @@ const repliesStateSelector = ({ replies }: ChannelConfig) => ({
 
 export type ThreadProps = PropsWithChildren<{
   /**
-   * The thread to render. Get it from `client.threads.ensure()` (or `client.threads.get()`) rather
-   * than constructing it, so it is registered with the `ThreadManager` and receives events. `Thread`
-   * loads it while its state is stale, which is how a thread built from its parent message starts
-   * when it may have replies to load.
+   * The thread to render. Get it from `client.threads.ensure()` or `client.threads.get()` so it is
+   * registered with the `ThreadManager` and receives events. `Thread` loads it while its state is
+   * stale, which is how a thread built from its parent message gets its replies.
    */
   thread: StreamThread;
 }>;
@@ -30,8 +29,7 @@ const selector = ({
   parentMessage,
   replyCount,
 }: ThreadState) => ({
-  // Whether the parent reports a reply. Selected as a boolean so the panel does not re-render on
-  // every incoming reply -- only on the transition that matters.
+  // A boolean, so incoming replies do not re-render the panel.
   hasReplies: replyCount > 0,
   isLoading,
   isStateStale,
@@ -39,13 +37,10 @@ const selector = ({
 });
 
 /**
- * The container for a thread panel: it provides the thread to its subtree, loads it while its state
- * is stale, scopes audio playback to it, and renders whatever you compose inside. It does not
- * register the thread with the `ThreadManager`; `client.threads.ensure()` or `thread.activate()`
- * does.
- *
- * It renders no UI of its own, the way `Channel` does not -- put the parts you want in as
- * children, and their own props say how they behave:
+ * Container for a thread panel: provides the thread to its subtree, loads it while its state is
+ * stale, scopes audio playback to it, and renders its children. It renders no other UI and does
+ * not register the thread with the `ThreadManager`; `client.threads.ensure()` or
+ * `thread.activate()` does.
  *
  * ```tsx
  * <Thread thread={thread}>
@@ -55,13 +50,7 @@ const selector = ({
  * </Thread>
  * ```
  *
- * The parent message is not composed here: a message list renders it above its replies (see
- * `useThreadHead`), because it has to sit inside the list's scroll container.
- *
- * One component: the wrapper that used to sit here existed only to key this subtree on the thread,
- * which rebuilt everything below on a thread switch -- including parts that hold no per-thread
- * state. The reset now lives in the message list, which is what actually carries state scoped to
- * the replies it shows.
+ * The message list renders the parent message above its replies (see `useThreadHead`).
  */
 export const Thread = ({ children, thread }: ThreadProps) => {
   const { customClasses } = useChatContext();
@@ -73,17 +62,15 @@ export const Thread = ({ children, thread }: ThreadProps) => {
     thread.state,
     selector,
   );
-  // The thread and reply state the current staleness episode last loaded for.
+  // The thread and reply state that the current staleness episode last loaded for.
   const loadedFor = useRef<{ hasReplies: boolean; thread: StreamThread } | undefined>(
     undefined,
   );
 
-  // The only load trigger: a stale thread loads, once per staleness episode and reply state. A
-  // thread built from its parent message starts stale when it may have replies to load; listed
-  // threads and `getThreadAndHydrate()` instances arrive loaded. A thread without replies on the
-  // server answers not-found, which `reload()` takes as an empty thread and leaves stale, so it
-  // loads again once its parent reports a reply. `thread.reload()` ignores a call while a load is
-  // in flight, so a reply reported during a load is loaded once that load settles.
+  // The only load trigger: a stale thread loads once per staleness episode and reply state. A
+  // thread without replies on the server answers not-found, which `reload()` takes as an empty
+  // thread and leaves stale, so it loads again once its parent reports a reply. A load in flight is
+  // waited out, so a reply reported during a load loads after it settles.
   useEffect(() => {
     if (!isStateStale) {
       loadedFor.current = undefined;
@@ -98,9 +85,8 @@ export const Thread = ({ children, thread }: ThreadProps) => {
 
   if (!parentMessage || repliesEnabled === false) return null;
 
-  // The thread owns its audio-player pool (rather than inheriting one from an ambient <Channel>)
-  // because a slot-bound Thread is a sibling of the channel, not nested inside it. Scoping it here
-  // means thread audio stops when the thread closes.
+  // The thread owns its audio-player pool: a slot-bound Thread is a sibling of the channel, not
+  // nested in it, and scoping here stops thread audio when the thread closes.
   return (
     <div
       className={customClasses?.thread || 'str-chat__thread-container str-chat__thread'}

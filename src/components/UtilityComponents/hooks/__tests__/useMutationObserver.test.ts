@@ -54,7 +54,7 @@ describe('useMutationObserver', () => {
         }),
       { initialProps: { enabled: true } },
     );
-    expect(onMutation).toHaveBeenCalledTimes(1); // ran on connect
+    expect(onMutation).toHaveBeenCalledTimes(1);
 
     rerender({ enabled: false });
     expect(onDisconnect).toHaveBeenCalledTimes(1);
@@ -109,7 +109,7 @@ describe('useMutationObserver', () => {
         useMutationObserver({ current: container }, onMutation, { onDisconnect }),
       );
 
-      expect(onMutation).toHaveBeenCalledTimes(1); // ran on connect
+      expect(onMutation).toHaveBeenCalledTimes(1);
       unmount();
       expect(onDisconnect).toHaveBeenCalledTimes(1);
     });

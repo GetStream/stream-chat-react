@@ -11,16 +11,14 @@ export type UseFloatingDateSeparatorParams = {
 };
 
 export type UseFloatingDateSeparatorResult = {
-  floatingDate: Date | null;
+  /** Date of the first item Virtuoso rendered: a separator's own date, or a message's day. */
+  firstRenderedItemDate: Date | null;
+  /** Whether the first item Virtuoso rendered is an inline date separator. */
+  isFirstRenderedItemDateSeparator: boolean;
   onItemsRendered: (rendered: RenderedMessage[]) => void;
-  showFloatingDate: boolean;
 };
 
-/**
- * Returns the date to show in the floating date separator based on currently visible messages.
- * When the first visible item is a message (not a date separator), we've scrolled past its
- * date separator — find that separator's date.
- */
+// Date of the closest separator above `firstMessage`, else its `created_at`. Null for the intro.
 function getFloatingDateForFirstMessage(
   firstMessage: RenderedMessage,
   processedMessages: RenderedMessage[],
@@ -28,7 +26,6 @@ function getFloatingDateForFirstMessage(
 ): Date | null {
   if (isIntroMessage(firstMessage)) return null;
 
-  // Walk backwards to find the last date separator before this message
   for (let i = firstMessageIndex - 1; i >= 0; i -= 1) {
     const item = processedMessages[i];
     if (isDateSeparatorMessage(item)) {
@@ -36,7 +33,6 @@ function getFloatingDateForFirstMessage(
     }
   }
 
-  // No preceding date separator; use message's created_at
   const msg = firstMessage as LocalMessage;
   const created = msg.created_at;
   if (created != null) {
@@ -46,30 +42,39 @@ function getFloatingDateForFirstMessage(
   return null;
 }
 
-function getFloatingDateForFirstItem(
+// A date separator carries its own date; a message takes the date of the separator above it.
+function getFirstRenderedItemDate(
   firstItem: RenderedMessage,
   processedMessages: RenderedMessage[],
-  firstItemIndex: number,
 ): Date | null {
   if (isDateSeparatorMessage(firstItem)) return firstItem.date;
 
+  const firstItemIndex = processedMessages.findIndex((m) => m.id === firstItem.id);
+  if (firstItemIndex < 0) return null;
   return getFloatingDateForFirstMessage(firstItem, processedMessages, firstItemIndex);
 }
 
-/**
- * Controls the floating date separator as a sticky "current section" label.
- * It follows the date separator represented by the first visible item.
- */
-const HIDDEN_STATE = { date: null, visible: false } as const;
+type FloatingDateState = {
+  date: Date | null;
+  isFirstRenderedItemDateSeparator: boolean;
+};
 
+const HIDDEN_STATE: FloatingDateState = {
+  date: null,
+  isFirstRenderedItemDateSeparator: false,
+};
+
+/**
+ * Tracks the first item Virtuoso rendered for the floating date separator of
+ * `VirtualizedMessageList`: its date, and whether it is a date separator. The rendered items carry
+ * no geometry, and with a raised `overscan` or `increaseViewportBy.top` they include items above the
+ * viewport, so the caller measures the DOM where it can.
+ */
 export const useFloatingDateSeparator = ({
   processedMessages,
   withDateSeparator,
 }: UseFloatingDateSeparatorParams): UseFloatingDateSeparatorResult => {
-  const [state, setState] = useState<{
-    date: Date | null;
-    visible: boolean;
-  }>(HIDDEN_STATE);
+  const [state, setState] = useState<FloatingDateState>(HIDDEN_STATE);
 
   const onItemsRendered = useCallback(
     (rendered: RenderedMessage[]) => {
@@ -85,26 +90,27 @@ export const useFloatingDateSeparator = ({
       }
 
       const first = valid[0];
-      const firstIndex = processedMessages.findIndex((m) => m.id === first.id);
-      const date =
-        firstIndex >= 0
-          ? getFloatingDateForFirstItem(first, processedMessages, firstIndex)
-          : null;
+      const date = getFirstRenderedItemDate(first, processedMessages);
+      const isFirstRenderedItemDateSeparator = isDateSeparatorMessage(first);
 
-      const visible = date !== null;
       setState((prev) => {
         const prevTime = prev.date?.getTime() ?? null;
         const nextTime = date?.getTime() ?? null;
-        if (prev.visible === visible && prevTime === nextTime) return prev;
-        return { date, visible };
+        if (
+          prevTime === nextTime &&
+          prev.isFirstRenderedItemDateSeparator === isFirstRenderedItemDateSeparator
+        ) {
+          return prev;
+        }
+        return { date, isFirstRenderedItemDateSeparator };
       });
     },
     [withDateSeparator, processedMessages],
   );
 
   return {
-    floatingDate: state.date,
+    firstRenderedItemDate: state.date,
+    isFirstRenderedItemDateSeparator: state.isFirstRenderedItemDateSeparator,
     onItemsRendered,
-    showFloatingDate: !!state.date && state.visible,
   };
 };

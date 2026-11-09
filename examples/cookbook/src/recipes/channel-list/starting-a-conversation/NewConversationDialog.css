@@ -1,0 +1,124 @@
+@layer stream-overrides {
+  /* A fixed size, so the dialog doesn't resize as people are picked and results change. */
+  .cookbook-new-conversation {
+    width: 440px;
+    max-width: calc(100vw - 2 * var(--str-chat__spacing-md));
+    height: 560px;
+    max-height: calc(100vh - 2 * var(--str-chat__spacing-xl));
+  }
+
+  /* The form holds the body and the footer, so it takes over the prompt's column. */
+  .cookbook-new-conversation__form {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    min-height: 0;
+  }
+
+  .cookbook-new-conversation__chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--str-chat__spacing-xs);
+    margin: 0 0 var(--str-chat__spacing-md);
+    padding: 0;
+    list-style: none;
+  }
+
+  .cookbook-new-conversation__chip {
+    display: flex;
+    align-items: center;
+    gap: var(--str-chat__spacing-xxs);
+    padding: var(--str-chat__spacing-xxxs) var(--str-chat__spacing-xxxs)
+      var(--str-chat__spacing-xxxs) var(--str-chat__spacing-xxs);
+    border-radius: var(--str-chat__radius-full);
+    background: var(--str-chat__background-utility-selected);
+    color: var(--str-chat__text-primary);
+    font: var(--str-chat__font-caption-emphasis);
+  }
+
+  .cookbook-new-conversation__chip-remove {
+    display: flex;
+    padding: var(--str-chat__spacing-xxxs);
+    border: 0;
+    border-radius: var(--str-chat__radius-full);
+    background: none;
+    color: var(--str-chat__text-secondary);
+    cursor: pointer;
+  }
+
+  .cookbook-new-conversation__chip-remove:hover {
+    background: var(--str-chat__background-utility-hover);
+  }
+
+  .cookbook-new-conversation__chip-remove svg {
+    width: 14px;
+    height: 14px;
+  }
+
+  .cookbook-new-conversation__label {
+    display: block;
+    margin-bottom: var(--str-chat__spacing-xxs);
+    color: var(--str-chat__text-secondary);
+    font: var(--str-chat__font-caption-emphasis);
+  }
+
+  .cookbook-new-conversation__input {
+    width: 100%;
+    margin-bottom: var(--str-chat__spacing-sm);
+    padding: var(--str-chat__spacing-sm) var(--str-chat__spacing-md);
+    border: 1px solid var(--str-chat__border-core-default);
+    border-radius: var(--str-chat__radius-full);
+    background: var(--str-chat__background-core-surface-subtle);
+    color: var(--str-chat__text-primary);
+    font: var(--str-chat__font-body-default);
+  }
+
+  .cookbook-new-conversation__input:focus-visible {
+    border-color: var(--str-chat__accent-primary);
+    outline: none;
+  }
+
+  .cookbook-new-conversation__results {
+    margin: 0 0 var(--str-chat__spacing-sm);
+    padding: 0;
+    list-style: none;
+  }
+
+  .cookbook-new-conversation__result-button {
+    display: flex;
+    align-items: center;
+    gap: var(--str-chat__spacing-sm);
+    width: 100%;
+    padding: var(--str-chat__spacing-xs) var(--str-chat__spacing-sm);
+    border: 0;
+    border-radius: var(--str-chat__radius-lg);
+    background: none;
+    color: var(--str-chat__text-primary);
+    font: var(--str-chat__font-body-emphasis);
+    text-align: start;
+    cursor: pointer;
+  }
+
+  .cookbook-new-conversation__result-button:hover {
+    background: var(--str-chat__background-utility-hover);
+  }
+
+  .cookbook-new-conversation__result-button:focus-visible {
+    outline: 2px solid var(--str-chat__accent-primary);
+    outline-offset: -2px;
+  }
+
+  .cookbook-new-conversation__status,
+  .cookbook-new-conversation__error {
+    margin: 0 0 var(--str-chat__spacing-sm);
+    font: var(--str-chat__font-caption-default);
+  }
+
+  .cookbook-new-conversation__status {
+    color: var(--str-chat__text-tertiary);
+  }
+
+  .cookbook-new-conversation__error {
+    color: var(--str-chat__accent-error);
+  }
+}

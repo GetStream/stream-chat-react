@@ -1,0 +1,87 @@
+@layer stream-overrides {
+  .cookbook-drafts {
+    display: flex;
+    flex-direction: column;
+    padding-block-end: var(--str-chat__spacing-md);
+  }
+
+  .cookbook-drafts__list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  /* The draft's button fills the row; the delete button sits at its end. */
+  .cookbook-draft {
+    display: flex;
+    align-items: center;
+    gap: var(--str-chat__spacing-xxs);
+    padding-inline-end: var(--str-chat__spacing-sm);
+    border-block-end: 1px solid var(--str-chat__border-core-subtle);
+  }
+
+  .cookbook-draft:hover {
+    background: var(--str-chat__background-utility-hover);
+  }
+
+  .cookbook-draft__open {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    gap: var(--str-chat__spacing-xxs);
+    min-width: 0;
+    padding: var(--str-chat__spacing-sm) var(--str-chat__spacing-md);
+    border: 0;
+    background: none;
+    color: var(--str-chat__text-primary);
+    font: var(--str-chat__font-body-default);
+    text-align: start;
+    cursor: pointer;
+  }
+
+  .cookbook-draft__open:focus-visible {
+    outline: 2px solid var(--str-chat__accent-primary);
+    outline-offset: -2px;
+  }
+
+  .cookbook-draft__header {
+    display: flex;
+    align-items: baseline;
+    gap: var(--str-chat__spacing-xs);
+    color: var(--str-chat__text-secondary);
+    font: var(--str-chat__font-caption-default);
+  }
+
+  .cookbook-draft__where {
+    color: var(--str-chat__text-primary);
+    font: var(--str-chat__font-caption-emphasis);
+  }
+
+  .cookbook-draft__time {
+    margin-inline-start: auto;
+  }
+
+  /* A thread's draft shows the message that started the thread above its own text. */
+  .cookbook-draft__parent {
+    overflow: hidden;
+    color: var(--str-chat__text-secondary);
+    font: var(--str-chat__font-caption-default);
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .cookbook-drafts__note {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--str-chat__spacing-sm);
+    margin: 0;
+    padding: var(--str-chat__spacing-md);
+    color: var(--str-chat__text-secondary);
+    font: var(--str-chat__font-body-default);
+  }
+
+  .cookbook-drafts__note p {
+    margin: 0;
+  }
+}

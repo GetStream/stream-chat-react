@@ -5,6 +5,7 @@ import type { ChatView } from '../ChatView';
 export type SlotName = string;
 export type LayoutView = ChatView;
 
+/** What a slot shows: `payload` is rendered in it and the optional `key` identifies duplicates. */
 export type LayoutSlotBinding = {
   key?: string;
   payload: unknown;
@@ -21,26 +22,22 @@ export type ChatViewLayoutViewState = {
   slotHistory: Record<SlotName, LayoutSlotBinding[] | undefined>;
   slotForwardHistory: Record<SlotName, LayoutSlotBinding[] | undefined>;
   /**
-   * Per-slot **layer stack** rendered *above* the slot's base `slotBindings[slot]`. Unlike
-   * history (past bindings, unmounted) a layer coexists with the base and the layers beneath it —
-   * all kept mounted, only the topmost visible — so revealing a lower layer restores its exact
-   * state (e.g. a thread's scroll position). Index 0 is the bottom layer, the last entry is the
-   * top/active one. Ephemeral: intentionally left out of serialization so a reload restores only
-   * the base bindings, never a transient overlay.
+   * Per-slot layers stacked above the base `slotBindings[slot]`, bottom layer first. While a slot
+   * has layers, its base and every layer stay mounted and only the topmost is visible, so revealing
+   * a lower layer restores its state (e.g. a thread's scroll position). The base remounts when the
+   * first layer is pushed and when the last is popped. Left out of serialization: a reload
+   * restores only the base bindings.
    */
   slotLayers?: Record<SlotName, LayoutSlotBinding[] | undefined>;
   slotMeta: Record<SlotName, LayoutSlotMeta | undefined>;
   slotNames?: SlotName[];
 };
 
-// D7 — per-layout runtime state. A "view" is just a named layout; each layout
-// keeps its own slot runtime state (bindings/history/hidden/…). Structurally
-// identical to the projected `ChatViewLayoutViewState`.
+/** Slot state of one view's layout; each view keeps its own. */
 export type LayoutRuntimeState = ChatViewLayoutViewState;
 
 export type ChatViewLayoutState = {
   activeView: ChatView;
-  // One map keyed by layout id (was seven parallel `*ByView` maps).
   layouts?: Partial<Record<ChatView, LayoutRuntimeState>>;
 };
 
@@ -117,9 +114,10 @@ export type RestoreLayoutStateOptions = {
   deserializeEntityBinding?: DeserializeLayoutEntityBinding;
 };
 
-// `initialState` also accepts a flat single-view shorthand: the per-view runtime fields
-// (availableSlots/hiddenSlots/slotBindings/…) may be given at the top level and are folded
-// into the active view's layout (an explicit `layouts[activeView]` still wins).
+/**
+ * Initial layout state. Per-view runtime fields (e.g. `availableSlots`, `slotBindings`) may also
+ * sit at the top level; they seed the active view's layout unless `layouts[activeView]` is given.
+ */
 export type CreateLayoutControllerInitialState = Partial<ChatViewLayoutState> &
   Partial<LayoutRuntimeState>;
 
@@ -132,9 +130,9 @@ export type CreateLayoutControllerOptions = {
 
 export type LayoutController = {
   bind: (slot: SlotName, binding: LayoutSlotBinding) => void;
-  /** Push a binding onto `slot`'s layer stack (above its base + existing layers). */
+  /** Pushes a binding onto the top of `slot`'s layer stack. */
   pushLayer: (slot: SlotName, binding: LayoutSlotBinding) => void;
-  /** Pop the top layer off `slot`'s layer stack (no-op when the stack is empty). */
+  /** Pops the top layer of `slot`. Does nothing when it has none. */
   popLayer: (slot: SlotName) => void;
   release: (slot: SlotName) => void;
   setAvailableSlots: (slots: SlotName[]) => void;

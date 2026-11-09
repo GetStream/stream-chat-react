@@ -40,19 +40,18 @@ const DefaultNotificationIcon = ({ notification }: NotificationIconProps) => {
 };
 
 export type NotificationProps = {
-  /** Notification from client.notifications state */
+  /** Notification from the `client.notifications` state. */
   notification: NotificationType;
-  /** Optional class name */
   className?: string;
   /** Direction from which the notification enters. */
   entryDirection?: NotificationEntryDirection;
-  /** Optional custom icon component. */
+  /** Icon component. Defaults to a severity-based icon. */
   Icon?: React.ComponentType<NotificationIconProps>;
-  /** Optional dismiss handler */
+  /** Called on dismiss. Defaults to removing the notification. */
   onDismiss?: () => void;
-  /** Show close button (for persistent notifications) */
+  /** Shows the close button; persistent notifications (no `duration`) always show it. */
   showClose?: boolean;
-  /** Optional transition state applied by NotificationList. */
+  /** Transition state set by `NotificationList`. */
   transitionState?: NotificationTransitionState;
 };
 
@@ -90,10 +89,8 @@ export const Notification = forwardRef<HTMLDivElement, NotificationProps>(
     const isPersistent = !notification.duration;
 
     const severity = notification.severity;
-    // Priority defaults from severity (errors interrupt; everything else is polite), but a
-    // notification may explicitly opt into a different aria-live priority via
-    // `metadata.ariaLive` — e.g. a success confirmation that should be heard promptly rather than
-    // queued behind a focus-change announcement (see `addNotification`'s `ariaLive` option).
+    // The priority follows severity (errors are assertive, the rest polite) unless
+    // `metadata.ariaLive` overrides it (see the `ariaLive` option of `addNotification`).
     const ariaLiveOverride = notification.metadata?.ariaLive;
     const livePriority: 'assertive' | 'polite' =
       ariaLiveOverride === 'assertive' || ariaLiveOverride === 'polite'

@@ -10,3 +10,5 @@
 
 import '../dist/es/index.mjs';
 import '../dist/es/ai-components.mjs';
+import '../dist/es/a2ui.mjs';
+import '../dist/es/openui.mjs';

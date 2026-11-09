@@ -7,6 +7,7 @@ import {
   MessageText,
   useChatContext,
   useMessageContext,
+  useThreadContext,
 } from 'stream-chat-react';
 
 // ─── Shared Helpers ────────────────────────────────────────────────
@@ -24,7 +25,7 @@ type MessageStatusParams = {
   ownUserId: string;
   deliveredTo: UserResponse[];
   readBy: UserResponse[];
-  threadList: boolean;
+  isInThread: boolean;
 };
 
 const getMessageStatus = ({
@@ -32,19 +33,19 @@ const getMessageStatus = ({
   message,
   ownUserId,
   readBy,
-  threadList,
+  isInThread,
 }: MessageStatusParams): keyof typeof statusIconMap => {
   const [firstReader] = readBy;
   const [firstDeliveredUser] = deliveredTo;
 
   const justReadByMe = readBy?.length === 1 && firstReader?.id === ownUserId;
-  const read = !!(readBy?.length && !justReadByMe && !threadList);
+  const read = !!(readBy?.length && !justReadByMe && !isInThread);
 
   const deliveredOnlyToMe =
     deliveredTo?.length === 1 && firstDeliveredUser?.id === ownUserId;
-  const delivered = !!(deliveredTo?.length && !deliveredOnlyToMe && !read && !threadList);
+  const delivered = !!(deliveredTo?.length && !deliveredOnlyToMe && !read && !isInThread);
 
-  const sent = message.status === 'received' && !delivered && !read && !threadList;
+  const sent = message.status === 'received' && !delivered && !read && !isInThread;
   const sending = message.status === 'sending';
 
   if (read) return 'read';
@@ -152,8 +153,11 @@ const CustomMessageUiMetadata = ({
     handleOpenThread,
     message,
     readBy = [],
-    threadList = false,
   } = useMessageContext();
+  // Read and delivery cursors sit on channel messages, so a thread list's `readBy` / `deliveredTo`
+  // say nothing about its replies, and the parent gets none. As in the SDK's `MessageStatus`, a
+  // message shown in a thread is never read, delivered or sent here.
+  const isInThread = !!useThreadContext();
   const { client } = useChatContext();
   const {
     created_at: createdAt,
@@ -168,9 +172,9 @@ const CustomMessageUiMetadata = ({
         ownUserId: client.user?.id ?? '',
         deliveredTo,
         readBy,
-        threadList,
+        isInThread,
       }),
-    [message, client, deliveredTo, readBy, threadList],
+    [message, client, deliveredTo, readBy, isInThread],
   );
 
   return (
@@ -239,24 +243,52 @@ export const CustomMessageUi_V5 = CustomMessageUi_V4;
 // ─── Actions Component ────────────────────────────────────────────
 
 const CustomMessageUiActions = () => {
-  const { handleDelete, handleFlag, handleOpenThread, handlePin, message, threadList } =
+  const { handleDelete, handleFlag, handleOpenThread, handlePin, message } =
     useMessageContext();
+  const isInThread = !!useThreadContext();
 
-  if (threadList) return null;
+  if (isInThread) return null;
 
   return (
     <div className='custom-message-ui__actions'>
       <div className='custom-message-ui__actions-group'>
-        <button onClick={handlePin} title={message.pinned ? 'Unpin' : 'Pin'}>
+        <button
+          onClick={async (event) => {
+            try {
+              await handlePin(event);
+            } catch (error) {
+              console.error('Failed to update the message pin', error);
+            }
+          }}
+          title={message.pinned ? 'Unpin' : 'Pin'}
+        >
           {message.pinned ? '📍' : '📌'}
         </button>
-        <button onClick={() => handleDelete()} title='Delete'>
+        <button
+          onClick={async () => {
+            try {
+              await handleDelete();
+            } catch (error) {
+              console.error('Failed to delete the message', error);
+            }
+          }}
+          title='Delete'
+        >
           🗑️
         </button>
         <button onClick={handleOpenThread} title='Open thread'>
           ↩️
         </button>
-        <button onClick={handleFlag} title='Flag message'>
+        <button
+          onClick={async (event) => {
+            try {
+              await handleFlag(event);
+            } catch (error) {
+              console.error('Failed to flag the message', error);
+            }
+          }}
+          title='Flag message'
+        >
           {' '}
           🚩
         </button>

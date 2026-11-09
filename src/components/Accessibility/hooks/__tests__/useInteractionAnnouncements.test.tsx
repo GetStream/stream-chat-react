@@ -2,9 +2,9 @@ import { renderHook } from '@testing-library/react';
 
 import { useInteractionAnnouncements } from '../useInteractionAnnouncements';
 
-// Mirrors i18next: render the inline English `defaultValue` (positional, or the
-// `defaultValue_one`/`_other` plural forms) and interpolate `{{ variable }}` from the options.
-// Inlined rather than imported from mock-builders because `vi.hoisted` runs before imports.
+// Mirrors i18next: renders the inline English `defaultValue` (positional, or the `defaultValue_one`
+// / `_other` plural forms) and interpolates `{{ variable }}`. Inlined because `vi.hoisted` runs
+// before imports.
 const { announceMock, tMock } = vi.hoisted(() => ({
   announceMock: vi.fn(),
   tMock: vi.fn((key: string, second?: unknown, third?: unknown) => {
@@ -135,9 +135,9 @@ describe('useInteractionAnnouncements', () => {
 
       result.current.announceInteraction('channel.opened', { name: 'General' });
 
-      // A single deferred emit is handed to the PROVIDER (delayMs) — not a per-call-site debounce —
-      // so it still fires after the list row that triggered it unmounts (e.g. on mobile). The
-      // delay lets it land after the composer's focus announcement instead of competing with it.
+      // The deferred emit is handed to the provider (`delayMs`) rather than debounced per call
+      // site, so it still fires after the list row that triggered it unmounts. The delay lets it
+      // land after the composer's focus announcement instead of competing with it.
       expect(announceMock).toHaveBeenCalledWith('Opened channel: General', {
         delayMs: 1500,
         priority: 'polite',
@@ -146,7 +146,7 @@ describe('useInteractionAnnouncements', () => {
 
     it('supersedes a still-pending delayed confirmation on rapid re-trigger', () => {
       const cancelFirst = vi.fn();
-      // The first announce() returns its cancel fn; the provider (mocked here) hands it back.
+      // The first `announce` call returns `cancelFirst`, standing in for the provider's cancel.
       announceMock.mockReturnValueOnce(cancelFirst);
       const { result } = renderHook(() => useInteractionAnnouncements());
 
@@ -211,7 +211,7 @@ describe('useInteractionAnnouncements', () => {
       result.current.announceInteraction('suggestions.count', { count: 4 });
       result.current.announceInteraction('suggestions.count', { count: 2 });
 
-      // Nothing announced synchronously while the query is still settling.
+      // Nothing is announced while the query is still settling.
       expect(announceMock).not.toHaveBeenCalled();
 
       vi.advanceTimersByTime(500);
@@ -271,10 +271,9 @@ describe('useInteractionAnnouncements', () => {
     });
 
     it('re-announces an unchanged count once the previous announcement has settled', () => {
-      // The hook is a dumb debounced channel: deduping an unchanged value is the caller's
-      // responsibility (e.g. SuggestionList only re-announces on a genuine re-filter). A repeat
-      // separated by the settle window IS announced again — this is what gives the user feedback
-      // when the count stays constant (e.g. emoji results capped at N) as they keep typing.
+      // The hook only debounces; deduping an unchanged value is the caller's job (e.g.
+      // SuggestionList re-announces only on a re-filter). A repeat after the settle window is
+      // announced again, which gives feedback when the count stays constant while the user types.
       const { result } = renderHook(() => useInteractionAnnouncements());
 
       result.current.announceInteraction('suggestions.count', { count: 3 });
@@ -304,7 +303,7 @@ describe('useInteractionAnnouncements', () => {
         debounceMs: 1000,
       });
 
-      // The default window elapses, but the overridden one has not — still silent.
+      // The default window elapses, but the overridden one has not.
       vi.advanceTimersByTime(500);
       expect(announceMock).not.toHaveBeenCalled();
 

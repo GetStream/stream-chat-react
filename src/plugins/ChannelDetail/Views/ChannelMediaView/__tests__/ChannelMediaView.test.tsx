@@ -8,7 +8,6 @@ import {
   useChatContext,
   useComponentContext,
   useComponentContextIcons,
-  useModalContext,
   useTranslationContext,
 } from '../../../../../context';
 import * as DEFAULT_ICONS from '../../../../../components/Icons/icons';
@@ -98,7 +97,7 @@ const messages: MessageResponse[] = [
     attachments: [
       {
         asset_url: 'https://cdn.test/video-1.mp4',
-        // v10: media metadata (duration, …) lives under `attachment.custom`.
+        // Media metadata such as duration lives under `attachment.custom`.
         custom: { duration: 8 },
         thumb_url: 'https://cdn.test/video-1-thumb.png',
         title: 'video-1',
@@ -125,8 +124,8 @@ const renderView = () =>
 
 describe('ChannelMediaView', () => {
   beforeEach(() => {
-    // The context module is auto-mocked, so the icon hook would return undefined; hand back
-    // the real icons rather than stubs, so assertions still describe what users see.
+    // The context module is auto-mocked, so the icon hook would return undefined; hand back the
+    // real icons so assertions still describe what users see.
     vi.mocked(useComponentContextIcons).mockReturnValue(DEFAULT_ICONS);
     vi.clearAllMocks();
     mocks.searchSourceInstances.length = 0;
@@ -139,10 +138,6 @@ describe('ChannelMediaView', () => {
     vi.mocked(useChatContext).mockReturnValue({
       client: { userID: 'user-1' },
     } as ReturnType<typeof useChatContext>);
-
-    vi.mocked(useModalContext).mockReturnValue({
-      close: vi.fn(),
-    } as ReturnType<typeof useModalContext>);
 
     vi.mocked(useComponentContext).mockReturnValue({
       BaseImage: (props: React.ComponentProps<'img'>) => <img {...props} />,
@@ -263,7 +258,6 @@ describe('ChannelMediaView', () => {
 
     renderView();
 
-    // First page: 30 items, previous disabled, next enabled.
     expect(getMediaItems()).toHaveLength(30);
     const previous = screen.getByRole('button', { name: 'Previous page' });
     const next = screen.getByRole('button', { name: 'Next page' });
@@ -272,7 +266,6 @@ describe('ChannelMediaView', () => {
 
     fireEvent.click(next);
 
-    // Last page: remaining 5 items, next disabled, previous enabled.
     expect(getMediaItems()).toHaveLength(5);
     expect(next).toBeDisabled();
     expect(previous).toBeEnabled();
@@ -292,21 +285,18 @@ describe('ChannelMediaView', () => {
 
     renderView();
 
-    // First page is full and the source has more, so next stays enabled.
     const next = screen.getByRole('button', { name: 'Next page' });
     expect(next).toBeEnabled();
 
     mocks.searchSourceSearch.mockClear();
     fireEvent.click(next);
 
-    // Advancing past the loaded 30 items fetches the next page from the source.
     expect(mocks.searchSourceSearch).toHaveBeenCalledTimes(1);
     expect(mocks.searchSourceSearch).toHaveBeenCalledWith();
   });
 
   it('tops up a short first page when more attachments can be fetched', () => {
-    // 30 messages with one attachment each would normally fill a page, but here
-    // only 12 attachments are loaded so far while the source reports more.
+    // Only 12 attachments are loaded while the source reports more, so the first page is short.
     vi.mocked(useStateStore).mockReturnValue({
       hasNext: true,
       isLoading: false,
@@ -330,7 +320,6 @@ describe('ChannelMediaView', () => {
 
     renderView();
 
-    // A full page is loaded, so no loadNext fires until the user navigates.
     expect(mocks.searchSourceSearch).not.toHaveBeenCalledWith();
     expect(mocks.searchSourceSearch).toHaveBeenCalledWith('');
   });
@@ -348,7 +337,6 @@ describe('ChannelMediaView', () => {
       </ChannelDetailProvider>,
     );
 
-    // First page shows 10 (not the default 30); 35 items spread across 4 pages.
     expect(getMediaItems()).toHaveLength(10);
     expect(screen.getByRole('button', { name: 'Previous page' })).toBeDisabled();
     expect(screen.getByRole('button', { name: 'Next page' })).toBeEnabled();

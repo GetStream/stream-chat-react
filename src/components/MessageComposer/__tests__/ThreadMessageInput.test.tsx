@@ -1,7 +1,6 @@
-// Import the package barrel first so it evaluates in its natural order (components
-// then context). MessageComposer's send/update hooks import `useChannel` from this
-// root barrel; importing a deep component path first would trigger a partial circular
-// re-entry that leaves `useChannel` undefined under Vitest.
+// Import the package barrel first so it evaluates in order (components, then context): a deep
+// component import first causes a partial circular re-entry that leaves `useChannel` undefined
+// under Vitest.
 import '../../..';
 import {
   generateChannel,
@@ -29,14 +28,8 @@ import { ThreadProvider } from '../../Threads';
 
 const sendMessageMock = vi.fn();
 
-/**
- * Registers the interception the removed `doSendMessageRequest` prop used to provide.
- *
- * Declarative registration is the replacement for the per-component props: one place, no mount-order
- * arbitration. The adapter below is what the deleted hook did internally — call the spy, and fall back
- * to the real send when it returns nothing, so tests that only assert *that* a send was intercepted keep
- * working without stubbing a whole response.
- */
+// Calls the spy on every send and falls back to the real send when it returns no message, so tests
+// that only assert that a send was intercepted need no stubbed response.
 const registerSendInterceptor = (client, channel) =>
   client.config.set({
     channel: {
@@ -135,9 +128,9 @@ const renderComponent = async ({
       <Chat client={client}>
         <Channel channel={channel} {...channelProps}>
           <ThreadProvider
-            // A real Thread, not a stand-in: `MessageComposer.threadId` is resolved with
-            // `compositionContext instanceof Thread`, so a partial object composes against the
-            // channel -- no thread draft, no "also send in channel".
+            // A real Thread: `MessageComposer.threadId` is resolved with `instanceof Thread`, so a
+            // partial object would compose against the channel (no thread draft, no "also send in
+            // channel").
             thread={
               new Thread({ channel, client, parentMessage: thread ?? mainListMessage })
             }
@@ -257,8 +250,7 @@ describe('MessageInput in Thread', () => {
           generateMember({ user: mentionUser }),
           generateMember({ user: generateUser() }),
         ],
-        // new parent message id has to be provided otherwise the cachedParentMessage in useMessageComposer
-        // will retrieve the composer from the previous test
+        // A new parent message ID is required, otherwise the previous test's composer is reused.
         messages: [{ ...mainListMessage, id: 'x' }],
         threads: [{ ...threadMessage, parent_id: 'x' }],
       }),

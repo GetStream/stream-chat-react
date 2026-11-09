@@ -1,12 +1,6 @@
-// Renderer registry: the single home for per-kind slot policy.
-// Each registered `kind` declares how it renders (`Component`) plus the policy
-// the navigation layer reads — `persistent` (nav-rail lists that `hide` rather
-// than `close`) and `view` (which ChatView a freshly-opened kind belongs to).
-//
-// `Component`, `persistent`, and `view` are all consumed by later steps:
-//   - `Component` here in step 5 (generic <Slot> self-lookup);
-//   - `persistent` in step 7 (replaces the interim `isListEntityKind` set);
-//   - `view` in step 6 (kind -> view coupling for the generic `open`).
+// Per-kind slot policy. Each registered `kind` declares how it renders (`Component`) and the policy
+// the navigation layer reads: `persistent` (nav-rail lists that `hide` rather than `close`) and
+// `view` (the ChatView a newly opened kind belongs to).
 
 import React, { createContext, useContext } from 'react';
 
@@ -24,19 +18,19 @@ import type {
 
 export type SlotKindDefinition<TKind extends ChatViewEntityKind> = {
   /**
-   * Pure renderer for this kind — no slot claiming, no layout-state reads.
-   * Optional: a kind may declare only policy (`view`/`persistent`) and leave the
-   * renderer to the app's `slotRenderers` prop (e.g. `channel`/`thread`).
+   * Pure renderer for this kind: it does not claim slots or read layout state. A kind may declare
+   * only policy and leave rendering to the app's `slotRenderers` (e.g. `channel`).
    */
   Component?: (props: ChatViewSlotRendererProps<TKind>) => ReactNode;
   /**
-   * Persistent kinds (nav-rail lists) are `hide`/`unhide`-only: the resolver
-   * never overwrites them and `close` does not apply. Transient kinds
-   * (channel/thread/profile) are `close`-able and may be replaced. Consumed by
-   * step 7.
+   * Marks nav-rail lists: navigation hides and unhides them but never closes or releases them, and
+   * default slot resolution never picks them for a binding of another kind.
    */
   persistent?: boolean;
-  /** ChatView this kind belongs to; consumed by the generic `open` in step 6. */
+  /**
+   * ChatView that opening a binding of this kind switches to. Without it, the binding opens in the
+   * active view.
+   */
   view?: ChatView;
 };
 
@@ -44,8 +38,7 @@ export type SlotKindRegistry = Partial<{
   [TKind in ChatViewEntityKind]: SlotKindDefinition<TKind>;
 }>;
 
-/** Minimal built-in renderer for the `userProfile` demo kind — proves the
- * registry can render arbitrary UI in a slot, not just channel/thread/list. */
+/** Built-in renderer of the `userProfile` kind: the user ID in a `<div>`. */
 const SlotUserProfile = ({ userId }: { userId: string }) => (
   <div className='str-chat__chat-view__slot-user-profile' data-user-id={userId}>
     {userId}
@@ -53,8 +46,8 @@ const SlotUserProfile = ({ userId }: { userId: string }) => (
 );
 
 export const defaultSlotKindRegistry: SlotKindRegistry = {
-  // `channel`/`thread` declare only policy; their renderer is app-supplied via
-  // the `slotRenderers` prop (folded in by `resolveSlotKindRegistry`).
+  // `channel` declares only policy; its renderer comes from the `slotRenderers` prop (see
+  // `resolveSlotKindRegistry`).
   channel: { view: 'channels' },
   channelList: {
     Component: () => <ChannelNavigation />,
@@ -69,8 +62,7 @@ export const defaultSlotKindRegistry: SlotKindRegistry = {
   },
 };
 
-/** Fold the app's `slotRenderers` prop into a registry, overriding only each
- * kind's `Component` while preserving the built-in policy (`persistent`/`view`). */
+/** Merges the app's `slotRenderers` into a registry, replacing only each kind's `Component`. */
 export const resolveSlotKindRegistry = (
   slotRenderers?: ChatViewSlotRenderers,
   base: SlotKindRegistry = defaultSlotKindRegistry,
@@ -80,8 +72,7 @@ export const resolveSlotKindRegistry = (
   (Object.keys(slotRenderers) as ChatViewEntityKind[]).forEach((kind) => {
     const Component = slotRenderers[kind];
     if (!Component) return;
-    // Correlated-union assignment across a keyed record is not expressible to
-    // TS here; the key/value kinds are guaranteed to match by construction.
+    // TS cannot express a correlated union across a keyed record; each key and value kind match.
     (merged as Record<string, SlotKindDefinition<ChatViewEntityKind>>)[kind] = {
       ...(base[kind] as SlotKindDefinition<ChatViewEntityKind> | undefined),
       Component: Component as SlotKindDefinition<ChatViewEntityKind>['Component'],
@@ -92,16 +83,15 @@ export const resolveSlotKindRegistry = (
 
 /**
  * Whether a slot's content renders anything. React renders nothing for `null`, `undefined` and
- * booleans, so a slot renderer returning `false` (as `condition && <View />` does) leaves the slot
+ * booleans, so a renderer returning `false` (as `condition && <View />` does) leaves the slot
  * empty.
  */
 export const hasSlotContent = (content: ReactNode) =>
   content != null && typeof content !== 'boolean';
 
 /**
- * State-aware dispatch for a slot's current binding. Looks up the bound kind in
- * the registry and renders its pure `Component`; unknown/unregistered kinds and
- * empty slots render nothing (the caller supplies a fallback).
+ * Renders the registered `Component` of the entity's kind. A missing entity, an unregistered kind
+ * or a kind without a `Component` render nothing, leaving any fallback to the caller.
  */
 export const renderSlotFromRegistry = (
   entity: ChatViewEntityBinding | undefined,
@@ -119,7 +109,7 @@ export const renderSlotFromRegistry = (
   return Component({ entity, slot, source: entity.source });
 };
 
-/** Per-kind policy readers used by the navigation layer (D6). */
+/** Whether `kind` is registered as persistent (see {@link SlotKindDefinition.persistent}). */
 export const isPersistentSlotKind = (
   registry: SlotKindRegistry,
   kind?: ChatViewEntityKind,

@@ -24,11 +24,9 @@ export const useChannelMembersSearch = () => {
     () => Object.values(channel.state?.members ?? {}),
     [channel],
   );
-  // Skip activating/searching only when the server explicitly reports zero
-  // members. `member_count` being undefined is treated as "has members" so we
-  // never suppress loading on incomplete channel data. The count is tracked
-  // reactively so a channel that gains its first member activates the list
-  // without a remount.
+  // Skip activating and searching only when the server reports zero members; an undefined
+  // `member_count` counts as "has members" so incomplete channel data never suppresses loading.
+  // The count is reactive, so a channel that gains its first member activates without a remount.
   const memberCount = useChannelMemberCount(channel);
   const hasMembers = channel.data?.member_count === undefined || memberCount !== 0;
   const membersSearchSource = useMemo(

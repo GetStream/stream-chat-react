@@ -1,7 +1,18 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
 
-import { AIMessageComposer, AIStateIndicator } from '..';
+import {
+  AIMessageComposer,
+  AIReasoning,
+  AIReplyActions,
+  AIStateIndicator,
+  AISuggestions,
+  AIToolApprovalCard,
+  AIToolAuthorizationCard,
+  AIToolCall,
+  VoiceGlow,
+  VoiceWave,
+} from '..';
 import { Item } from '../AIMessageComposer/AttachmentPreview';
 import { TranslationProvider } from '../../../context';
 import {
@@ -112,6 +123,95 @@ describe('AI components i18n', () => {
       });
       expect([...seen].sort()).toEqual([...STATE_INDICATOR_KEYS].sort());
     });
+
+    it('uses the v15 keys for the voice visualization names and states', () => {
+      const translate = vi.fn((key: string, ...rest: unknown[]) => {
+        const options = rest.find((arg) => typeof arg === 'object') as
+          | { state?: string }
+          | undefined;
+        return `T:${key}${options?.state ? `|${options.state}` : ''}`;
+      });
+      render(
+        <TranslationProvider
+          value={{
+            t: translate as never,
+            tDateTimeParser: (() => null) as never,
+            userLanguage: 'en',
+          }}
+        >
+          <VoiceWave state='speaking' />
+          <VoiceGlow state='idle' />
+        </TranslationProvider>,
+      );
+      expect(
+        screen.getByRole('img', {
+          name: 'T:aiComponents.voiceVisualization.voiceAgent.ariaLabel|T:aiComponents.voiceVisualization.speaking.text',
+        }),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByRole('img', {
+          name: 'T:aiComponents.voiceVisualization.voiceAgent.ariaLabel|T:aiComponents.voiceVisualization.ready.text',
+        }),
+      ).toBeInTheDocument();
+    });
+    it('uses the v15 keys for the conversation parts', () => {
+      render(
+        <WithKeyEcho>
+          <>
+            <AIToolCall
+              part={{
+                executor: 'server',
+                id: 'c',
+                name: 'get_weather',
+                status: 'cancelled',
+              }}
+            />
+            <AIToolApprovalCard
+              approval={{ title: 'Share your location?' }}
+              onDecide={() => undefined}
+            />
+            <AIToolAuthorizationCard
+              authorization={{
+                provider: 'linear',
+                providerName: 'Linear',
+                title: 'Connect Linear',
+                type: 'oauth',
+                url: 'https://router.example.com/launch/abc',
+              }}
+              onConnect={() => undefined}
+              onDecline={() => undefined}
+            />
+            <AIReasoning text='First thought.' />
+            <AIReplyActions text='The answer' />
+            <AISuggestions onSelect={() => undefined} suggestions={['Plan my day']} />
+            <AIMessageComposer>
+              <AIMessageComposer.ChatOptions
+                options={[{ id: 'think', title: 'Think harder' }]}
+              />
+            </AIMessageComposer>
+          </>
+        </WithKeyEcho>,
+      );
+      for (const text of [
+        'T:aiComponents.toolCall.cancelled.text',
+        'T:aiComponents.toolApproval.allow.label',
+        'T:aiComponents.toolApproval.dontAllow.label',
+        'T:aiComponents.toolAuthorization.connect.label',
+        'T:aiComponents.toolAuthorization.notNow.label',
+        'T:aiComponents.reasoning.thoughtProcess.title',
+      ]) {
+        expect(screen.getByText(text)).toBeInTheDocument();
+      }
+      for (const label of [
+        'T:aiComponents.replyActions.replyActions.ariaLabel',
+        'T:aiComponents.replyActions.copy.ariaLabel',
+        'T:aiComponents.replyActions.share.ariaLabel',
+        'T:aiComponents.suggestions.suggestions.ariaLabel',
+        'T:aiComponents.chatOptions.chatOptions.ariaLabel',
+      ]) {
+        expect(screen.getByLabelText(label)).toBeInTheDocument();
+      }
+    });
   });
 
   describe('without a provider (inline English defaults)', () => {
@@ -136,6 +236,21 @@ describe('AI components i18n', () => {
       );
       expect(screen.getByPlaceholderText('Ask a question...')).toBeInTheDocument();
       expect(container.textContent).toContain('Thinking really hard');
+    });
+
+    it('renders the English voice visualization names', () => {
+      render(
+        <>
+          <VoiceWave state='listening' />
+          <VoiceGlow state='connecting' />
+        </>,
+      );
+      expect(
+        screen.getByRole('img', { name: 'Voice agent: Listening' }),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByRole('img', { name: 'Voice agent: Connecting' }),
+      ).toBeInTheDocument();
     });
   });
 });

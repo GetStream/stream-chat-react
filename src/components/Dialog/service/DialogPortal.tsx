@@ -30,9 +30,8 @@ export const DialogPortalDestination = ({
   const openedDialogCount = useOpenedDialogCount({ dialogManagerId: dialogManager?.id });
   const [destinationRoot, setDestinationRoot] = useState<HTMLDivElement | null>(null);
 
-  // Handle clicks outside dialog contents.
-  // Clicks on the overlay itself or outside it close open dialogs;
-  // only clicks on dialog contents (descendants) are ignored.
+  // Clicks on the overlay itself or outside it close open dialogs; clicks on dialog contents or
+  // inside another portal are ignored.
   useEffect(() => {
     if (!destinationRoot || !dialogManager) return;
 
@@ -43,7 +42,7 @@ export const DialogPortalDestination = ({
       );
       if (clickedOverlay && clickedOverlay !== destinationRoot) return;
       if (target !== destinationRoot && destinationRoot.contains(target)) return;
-      // Defer so target onClick handlers (e.g. context-menu toggle buttons) can run first.
+      // Deferred so the click handlers of the target (e.g. a toggle button) run first.
       setTimeout(() => {
         Object.values(dialogManager.state.getLatestValue().dialogsById).forEach(
           (dialog) => {

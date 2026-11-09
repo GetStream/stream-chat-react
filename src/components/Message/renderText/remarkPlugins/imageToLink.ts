@@ -15,11 +15,12 @@ export type ImageToLinkPluginOptions = {
 const text = (value: string): Text => ({ type: 'text', value });
 
 /**
- * Converts image Markdown links (![Minion](https://octodex.github.com/images/minion.png))
- * to HTML <a href={url}>{url | title | alt}</a>
+ * Converts a Markdown image, e.g. `![Minion](https://octodex.github.com/images/minion.png)`, to a
+ * link to the image URL. The link text is the URL by default, so a server can generate or enrich
+ * a preview from it.
  *
- * By default, the anchor text content is the image url so that image preview can be generated / enriched on the server.
- * @param getTextLabelFrom
+ * @param params.getTextLabelFrom - Image field used as the link text, falling back to the URL.
+ * Defaults to `'url'`.
  */
 export function imageToLink({ getTextLabelFrom = 'url' }: ImageToLinkPluginOptions = {}) {
   return (tree: Node) => {

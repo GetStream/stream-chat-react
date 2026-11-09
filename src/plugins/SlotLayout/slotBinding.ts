@@ -1,7 +1,5 @@
-// Leaf module: entity-binding primitives shared by ChatView, the generic <Slot>
-// dispatcher, and the slot renderer registry. Kept free of ChatView.tsx *value*
-// imports so `Slot`/`slotRegistry` can consume it without an import cycle
-// (ChatView -> WorkspaceLayout -> Slot -> slotRegistry -> here).
+// Entity-binding primitives shared by ChatView, `<Slot>` and the slot renderer registry. It has no
+// value imports from ChatView.tsx, so `Slot` and `slotRegistry` can use it without an import cycle.
 
 import type { Channel as StreamChannel, Thread } from 'stream-chat';
 import type { ReactNode } from 'react';
@@ -15,8 +13,7 @@ export type UserListEntitySource = {
   query: string;
 };
 
-// D7 (iii) — list kinds carry no source; the layout that seeds them picks the
-// kind (`channelList` vs `threadList`), so the old `source.view` indirection is gone.
+// List kinds carry no source: the layout that seeds them picks `channelList` or `threadList`.
 export type ChannelListEntitySource = Record<string, never>;
 export type ThreadListEntitySource = Record<string, never>;
 
@@ -57,9 +54,8 @@ export type ChatViewSlotFallbackProps = {
 };
 
 /**
- * App-facing per-kind render overrides. A thin projection of the renderer
- * registry: supplying `slotRenderers[kind]` overrides only that kind's
- * `Component` while inheriting the built-in policy (`persistent`/`view`).
+ * Per-kind render overrides: `slotRenderers[kind]` replaces only that kind's `Component` and keeps
+ * its built-in `persistent` and `view` policy.
  */
 export type ChatViewSlotRenderers = Partial<{
   [TKind in ChatViewEntityKind]: (props: ChatViewSlotRendererProps<TKind>) => ReactNode;
@@ -84,9 +80,8 @@ export const createChatViewSlotBinding = (
 });
 
 /**
- * Declarative layout preset (D7). A "view" is a `LayoutDescriptor`: a named slot
- * structure plus optional bindings to seed into those slots. Switching view =
- * activating a layout; each layout keeps its own slot state (remembered snapshot).
+ * Declarative layout of a view: its slot names plus optional bindings seeded into them. Each layout
+ * keeps its own slot state across view switches.
  */
 export type LayoutDescriptor = {
   id: ChatView;

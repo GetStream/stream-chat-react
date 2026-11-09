@@ -13,17 +13,16 @@ const mockUseTranslationContext = vi.fn();
 const mockUseStateStore = vi.fn();
 const mockVirtuoso = vi.fn();
 const mockScrollIntoView = vi.fn();
+const mockUseAddNotificationOnError = vi.fn();
 
-// Number of rows the mocked Virtuoso keeps in the DOM — a fixed "window" of the first N threads, so
-// navigating past it exercises the off-window (scroll-into-view) path the same way real
-// virtualization does.
+// Number of rows the mocked Virtuoso keeps in the DOM: a fixed window of the first N threads, so
+// navigating past it takes the off-window scroll-into-view path as real virtualization does.
 const MOCK_WINDOW_SIZE = 3;
 
-// A Virtuoso stand-in that wires the props/handle ThreadList relies on for keyboard navigation:
-// `scrollerRef` (the `role="listbox"` element), `onKeyDown`, and a `ref` exposing `scrollIntoView`
-// (how navigation asks the virtualized list to bring an off-window index into view). It renders only
-// the first MOCK_WINDOW_SIZE threads as `role="option"` buttons (mirroring ThreadListItemUI), so the
-// rest are genuinely absent from the DOM. `scrollIntoView` records the requested index.
+// A Virtuoso stand-in with the props and handle ThreadList uses for keyboard navigation:
+// `scrollerRef`, `onKeyDown` and a `ref` exposing `scrollIntoView`, which records the requested
+// index. It renders only the first MOCK_WINDOW_SIZE threads, as `role="option"` buttons, so the
+// rest are absent from the DOM.
 vi.mock('react-virtuoso', async () => {
   const React = await vi.importActual<typeof import('react')>('react');
   const Virtuoso = React.forwardRef((props: Record<string, any>, ref) => {
@@ -68,7 +67,27 @@ vi.mock('../../../../store', () => ({
 }));
 
 vi.mock('../../../Loading', () => ({
+  ListLoadErrorIndicator: ({
+    isRetrying,
+    listType,
+    retry,
+  }: {
+    isRetrying: boolean;
+    listType: string;
+    retry: () => void;
+  }) => (
+    <button
+      aria-busy={isRetrying}
+      data-testid={`${listType}-load-error`}
+      onClick={retry}
+      type='button'
+    />
+  ),
   LoadingChannels: () => <div data-testid='loading-channels' />,
+}));
+
+vi.mock('../../../Notifications/hooks/useAddNotificationOnError', () => ({
+  useAddNotificationOnError: (...args) => mockUseAddNotificationOnError(...args),
 }));
 
 vi.mock('../ThreadListHeader', () => ({
@@ -84,9 +103,8 @@ vi.mock('../../../Notifications', () => ({
 }));
 
 describe('ThreadList', () => {
-  // A real StreamChat client (via initClientWithChannels), so `client.threads` and its paginator
-  // are genuine. `useStateStore` stays mocked to drive isLoading/threads, and
-  // `client.threads.reload` is stubbed to avoid a network call in the mount effect.
+  // A real client, so `client.threads` and its paginator are genuine. `useStateStore` is mocked to
+  // drive isLoading/threads, and `client.threads.reload` is stubbed to avoid a network call.
   let client: StreamChat;
 
   beforeEach(async () => {
@@ -140,11 +158,154 @@ describe('ThreadList', () => {
     expect(store).toBe(client.threads.paginator.state);
     expect(
       selector({ isLoading: true, items: undefined } as PaginatorState<Thread>),
-    ).toEqual({ isLoading: true, threads: [] });
+    ).toEqual({
+      firstPageLoadError: undefined,
+      isLoading: true,
+      lastQueryError: undefined,
+      threads: [],
+    });
     const threads = [{ id: 'thread-1' }] as Thread[];
     expect(
       selector({ isLoading: false, items: threads } as PaginatorState<Thread>),
-    ).toEqual({ isLoading: false, threads });
+    ).toEqual({
+      firstPageLoadError: undefined,
+      isLoading: false,
+      lastQueryError: undefined,
+      threads,
+    });
+    const lastQueryError = new Error('query failed');
+    expect(
+      selector({
+        isLoading: false,
+        items: undefined,
+        lastQueryError,
+      } as PaginatorState<Thread>),
+    ).toEqual({
+      firstPageLoadError: lastQueryError,
+      isLoading: false,
+      lastQueryError,
+      threads: [],
+    });
+    // A retry of the failed first load shows the skeleton, not the error.
+    expect(
+      selector({
+        isLoading: true,
+        items: undefined,
+        lastQueryError,
+      } as PaginatorState<Thread>),
+    ).toEqual({
+      firstPageLoadError: undefined,
+      isLoading: true,
+      lastQueryError,
+      threads: [],
+    });
+    // A failed reload keeps the loaded threads.
+    expect(
+      selector({
+        isLoading: false,
+        items: threads,
+        lastQueryError,
+      } as PaginatorState<Thread>),
+    ).toEqual({
+      firstPageLoadError: undefined,
+      isLoading: false,
+      lastQueryError,
+      threads,
+    });
+  });
+
+  it('shows the load error with a retry instead of the empty placeholder when the first load failed', () => {
+    mockUseStateStore.mockReturnValue({
+      firstPageLoadError: new Error('query failed'),
+      isLoading: false,
+      threads: [],
+    });
+
+    render(<ThreadList />);
+
+    expect(screen.getByTestId('thread-list-header')).toBeInTheDocument();
+    expect(screen.queryByTestId('virtuoso')).not.toBeInTheDocument();
+    expect(client.threads.reload).toHaveBeenCalledTimes(1);
+
+    fireEvent.click(screen.getByTestId('thread-load-error'));
+
+    expect(client.threads.reload).toHaveBeenCalledTimes(2);
+    expect(client.threads.reload).toHaveBeenLastCalledWith({ force: true });
+  });
+
+  it('keeps the load error on screen instead of the skeleton while a retry loads', () => {
+    mockUseStateStore.mockReturnValue({
+      firstPageLoadError: new Error('query failed'),
+      isLoading: false,
+      threads: [],
+    });
+    const { rerender } = render(<ThreadList />);
+    vi.mocked(client.threads.reload).mockReturnValueOnce(new Promise(() => undefined));
+
+    fireEvent.click(screen.getByTestId('thread-load-error'));
+    // The retry runs: the paginator is loading and reports no first-page error meanwhile.
+    mockUseStateStore.mockReturnValue({ isLoading: true, threads: [] });
+    rerender(<ThreadList />);
+
+    expect(screen.getByTestId('thread-load-error')).toHaveAttribute('aria-busy', 'true');
+    expect(screen.queryByTestId('loading-channels')).not.toBeInTheDocument();
+  });
+
+  it('renders the ThreadListHeader override instead of the default header', () => {
+    mockUseComponentContext.mockReturnValue({
+      ThreadListHeader: () => <div data-testid='custom-thread-list-header' />,
+    });
+
+    render(<ThreadList />);
+
+    expect(screen.getByTestId('custom-thread-list-header')).toBeInTheDocument();
+    expect(screen.queryByTestId('thread-list-header')).not.toBeInTheDocument();
+  });
+
+  it('renders the overrides of the first-load skeleton and the load error', () => {
+    const lastQueryError = new Error('query failed');
+    const ListLoadErrorIndicator = vi.fn(() => <div data-testid='custom-load-error' />);
+    mockUseComponentContext.mockReturnValue({
+      FirstPageLoadingIndicator: () => <div data-testid='custom-skeleton' />,
+      ListLoadErrorIndicator,
+    });
+    mockUseStateStore.mockReturnValue({ isLoading: true, threads: [] });
+
+    const { rerender } = render(<ThreadList />);
+    expect(screen.getByTestId('custom-skeleton')).toBeInTheDocument();
+    expect(screen.queryByTestId('loading-channels')).not.toBeInTheDocument();
+
+    mockUseStateStore.mockReturnValue({
+      firstPageLoadError: lastQueryError,
+      isLoading: false,
+      lastQueryError,
+      threads: [],
+    });
+    rerender(<ThreadList />);
+    expect(screen.getByTestId('custom-load-error')).toBeInTheDocument();
+    expect(ListLoadErrorIndicator.mock.lastCall?.[0]).toEqual({
+      error: lastQueryError,
+      isRetrying: false,
+      retry: expect.any(Function),
+    });
+  });
+
+  it('publishes query errors as notifications for the thread list panel', () => {
+    const lastQueryError = new Error('query failed');
+    mockUseStateStore.mockReturnValue({
+      isLoading: false,
+      lastQueryError,
+      threads: [{ id: 'thread-1' }],
+    });
+
+    render(<ThreadList />);
+
+    expect(mockUseAddNotificationOnError).toHaveBeenLastCalledWith(lastQueryError, {
+      emitter: 'ThreadList',
+      message: "Couldn't load threads",
+      targetPanels: ['thread-list'],
+      type: 'api:thread:query:failed',
+    });
   });
 
   it('keeps the loaded threads on screen while the paginator is loading', () => {
@@ -187,7 +348,7 @@ describe('ThreadList', () => {
     expect(toTail).toHaveBeenCalledTimes(1);
   });
 
-  // 5 threads, but the mocked Virtuoso only renders the first MOCK_WINDOW_SIZE (3).
+  // 5 threads, but the mocked Virtuoso renders only the first MOCK_WINDOW_SIZE (3).
   const FIVE_THREADS = [
     { id: 'thread-1' },
     { id: 'thread-2' },
@@ -211,7 +372,7 @@ describe('ThreadList', () => {
     fireEvent.keyDown(listbox, { key: 'ArrowDown' });
     expect(document.activeElement).toBe(optionFor('thread-3'));
 
-    // All targets so far were already in the DOM — no virtualization scroll needed.
+    // Every target was already in the DOM, so no scroll is requested.
     expect(mockScrollIntoView).not.toHaveBeenCalled();
   });
 
@@ -220,17 +381,17 @@ describe('ThreadList', () => {
 
     render(<ThreadList />);
     const listbox = screen.getByTestId('virtuoso');
-    // Focus the last rendered row (index 2); the next row (index 3) is NOT in the DOM.
+    // Focus the last rendered row (index 2); the next row (index 3) is not in the DOM.
     optionFor('thread-3')!.focus();
 
-    // The regression: a DOM-only roving approach would wrap back to the first rendered option and
-    // never call scrollIntoView. The fix indexes into the full list and asks Virtuoso to scroll.
+    // Regression guard: a DOM-only roving approach wraps to the first rendered option and never
+    // calls scrollIntoView.
     fireEvent.keyDown(listbox, { key: 'ArrowDown' });
     expect(mockScrollIntoView).toHaveBeenLastCalledWith(3);
-    // Focus did NOT wrap back into the window.
+    // Focus does not wrap back into the window.
     expect(document.activeElement).not.toBe(optionFor('thread-1'));
 
-    // End scrolls all the way to the last thread (index 4) — i.e. to the bottom.
+    // End scrolls to the last thread (index 4).
     fireEvent.keyDown(listbox, { key: 'End' });
     expect(mockScrollIntoView).toHaveBeenLastCalledWith(4);
   });

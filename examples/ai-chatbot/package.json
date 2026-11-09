@@ -11,14 +11,14 @@
     "hoistingLimits": "workspaces"
   },
   "dependencies": {
-    "@stream-io/state-store": "^1.1.6",
+    "@stream-io/state-store": "^1.2.0",
     "clsx": "^2.1.1",
     "material-symbols": "^0.43.0",
     "nanoid": "^5.1.7",
     "next": "^16.2.4",
     "react": "^19.2.6",
     "react-dom": "^19.2.6",
-    "stream-chat": "^10.0.0-rc.22",
+    "stream-chat": "^10.0.0",
     "stream-chat-react": "workspace:^"
   },
   "devDependencies": {

@@ -2,12 +2,12 @@ import { fromPartial } from '@total-typescript/shoehorn';
 import { AudioPlayer, type AudioPlayerOptions, elementIsPlaying } from '../AudioPlayer';
 import type { AudioPlayerPool } from '../AudioPlayerPool';
 
-// ---- Keep throttle synchronous so seek assertions are deterministic ----
+// Keeps throttle synchronous so seek assertions are deterministic.
 vi.mock('lodash.throttle', () => ({
   default: (fn: (...args: unknown[]) => unknown) => fn,
 }));
 
-// ---- Stable console noise filter (optional) ----
+// Filters jsdom's "Not implemented" console errors.
 const originalConsoleError = console.error;
 beforeAll(() => {
   vi.spyOn(console, 'error').mockImplementation((...args) => {
@@ -17,7 +17,6 @@ beforeAll(() => {
   });
 });
 
-// ---- Helpers ----
 const SRC = 'https://example.com/a.mp3';
 const MIME = 'audio/mpeg';
 
@@ -47,7 +46,6 @@ const makePlayer = (overrides: Partial<AudioPlayerOptions> = {}) => {
   });
 };
 
-// ---- Tests ----
 describe('AudioPlayer', () => {
   beforeEach(() => {
     const RealAudio = window.Audio;

@@ -1,0 +1,17 @@
+[
+  {
+    "file": "default-system-message.png",
+    "query": { "channel": "docs-v15-cb-trip", "system": "rename" },
+    "waitFor": ".str-chat__message--system",
+    "clip": ".str-chat__message-list .str-chat__ul",
+    "padding": 0
+  },
+  {
+    "file": "custom-system-message.png",
+    "variant": "custom",
+    "query": { "channel": "docs-v15-cb-trip", "system": "rename" },
+    "waitFor": ".cookbook-system-message",
+    "clip": ".str-chat__message-list .str-chat__ul",
+    "padding": 0
+  }
+]

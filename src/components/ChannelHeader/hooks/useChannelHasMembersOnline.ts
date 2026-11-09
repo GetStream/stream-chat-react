@@ -14,12 +14,9 @@ const watchersSelector = (nextValue: ChannelWatchState) => ({
 });
 
 /**
- * Reactively reports whether OTHER members are currently online (watching the channel).
- *
- * Subscribes to the channel's watcher state instead of manually tracking
- * `user.watching.start/stop` events. Watchers include the current user, but "are other
- * members online" must reflect only other users — otherwise (e.g. in a DM) the other
- * participant looks online as soon as the local user starts watching.
+ * Whether anyone but the current user is watching the channel. The current user is excluded: the
+ * other participant of a DM would otherwise look online as soon as the local user starts watching.
+ * `channel` defaults to the channel in context, and `enabled: false` returns false.
  */
 export const useChannelHasMembersOnline = ({
   channel: channelOverride,

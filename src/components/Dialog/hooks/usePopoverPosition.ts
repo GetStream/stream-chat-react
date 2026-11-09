@@ -24,7 +24,7 @@ function autoMiddlewareFor(p: PopperLikePlacement) {
 export type OffsetOpt =
   | number
   | { mainAxis?: number; crossAxis?: number; alignmentAxis?: number }
-  | [crossAxis: number, mainAxis: number]; // keep your tuple compat
+  | [crossAxis: number, mainAxis: number];
 
 function toOffsetMw(opt?: OffsetOpt) {
   if (opt == null) return null;
@@ -38,24 +38,21 @@ function toOffsetMw(opt?: OffsetOpt) {
 
 export type UsePopoverParams = {
   placement?: PopperLikePlacement;
-  /** Add flip() when placement is not 'auto*' */
+  /** Flips on overflow, except for 'auto*', 'left*' and 'right*' placements. Defaults to true. */
   allowFlip?: boolean;
-  /** Keep in viewport; default true to match common popper setups */
+  /** Shifts the popover to stay inside the viewport. Defaults to true. */
   allowShift?: boolean;
-  /** Extra options for Floating UI shift() middleware (merged with default padding: 8) */
+  /** Options for the Floating UI `shift()` middleware, merged over the default `padding: 8`. */
   shiftOptions?: Parameters<typeof shiftMw>[0];
-  /** The floating UI is fitted to the available space (by constraining its max size) instead of letting it overflow; default false */
+  /** Constrains the max size to the available space instead of overflowing. Defaults to false. */
   fitAvailableSpace?: boolean;
-  /** Offset (number, object, or [crossAxis, mainAxis] tuple) */
+  /** Offset as a number, an object, or a `[crossAxis, mainAxis]` tuple. */
   offset?: OffsetOpt;
-  /**
-   * Freeze behavior like Popper's eventListeners: { scroll:false, resize:false }.
-   * If true → no autoUpdate (you can call `update()` manually).
-   */
+  /** Disables `autoUpdate`, so the position updates only through `update()`. Defaults to false. */
   freeze?: boolean;
   /**
-   * Fine-grained control of autoUpdate triggers (only if freeze=false).
-   * Defaults match Popper's "disabled" example when all set to false.
+   * Options of Floating UI's `autoUpdate`, merged over defaults that follow ancestor scroll and
+   * resize (and element resize when `ResizeObserver` exists). Ignored when `freeze` is true.
    */
   autoUpdateOptions?: Partial<Parameters<typeof autoUpdate>[3]>;
 };
@@ -78,18 +75,16 @@ export function usePopoverPosition({
     : { padding: 8 };
 
   const middleware = [
-    // offset first (mirrors common Popper setups)
+    // Offset runs before the other middleware.
     ...(offsetMiddleware ? [offsetMiddleware] : []),
 
-    // choose between autoPlacement (Popper's "auto*") OR flip()
-    // only allow flip when not explicitly 'left*' or 'right*'
+    // Either autoPlacement ('auto*') or flip(); flip() is skipped for 'left*' and 'right*'.
     ...(autoMw ? [autoMw] : allowFlip && !isSidePlacement ? [flipMw()] : []),
 
-    // viewport collision adjustments
     ...(allowShift ? [shiftMw(mergedShiftOptions)] : []),
 
-    // optional size constraining: cap the floating element to the space left in the viewport
-    // (after flip/shift) so a tall popover scrolls inside the viewport instead of overflowing it.
+    // Caps the floating element to the space left in the viewport (after flip/shift) so a tall
+    // popover scrolls inside it instead of overflowing.
     ...(fitAvailableSpace
       ? [
           sizeMw({
@@ -105,7 +100,7 @@ export function usePopoverPosition({
       : []),
   ];
 
-  // if placement is 'auto*', seed with any static placement; autoPlacement will pick the final one
+  // 'auto*' seeds with 'bottom'; autoPlacement picks the final placement.
   const seedPlacement: Placement = String(placement).startsWith('auto')
     ? 'bottom'
     : (placement as Placement);

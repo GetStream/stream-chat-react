@@ -3,18 +3,14 @@ import { render } from '@testing-library/react';
 
 import { Giphy } from '../Giphy';
 import { generateGiphyAttachment } from '../../../mock-builders';
-
-const { channelStateMock } = vi.hoisted(() => ({
-  channelStateMock: {
-    giphyVersion: 'fixed_height',
-    imageAttachmentSizeHandler: undefined,
-  },
-}));
+import {
+  AttachmentContextProvider,
+  defaultAttachmentContextValue,
+} from '../../../context/AttachmentContext';
 
 vi.mock('../../../context', async (importOriginal) => {
   const actual = await importOriginal<typeof import('../../../context')>();
   return {
-    useChannelStateContext: () => channelStateMock,
     useComponentContext: () => ({}),
     // The real hook: with no provider it returns the SDK icons, which is what these
     // assertions are written against.
@@ -57,7 +53,7 @@ describe('Giphy accessible name', () => {
   });
 
   it('never exposes a raw URL as the accessible name', () => {
-    // mimic a payload where the only "title" is a URL (the descriptor's URL fallback)
+    // Mimics a payload where the only "title" is a URL (the descriptor's URL fallback).
     const attachment = generateGiphyAttachment({
       thumb_url: 'https://media.giphy.com/media/abc/giphy.gif',
       title: undefined,
@@ -66,5 +62,85 @@ describe('Giphy accessible name', () => {
     const name = getByRole('img').getAttribute('alt');
     expect(name).not.toMatch(/https?:|\/\//);
     expect(name).toBe('Animated GIF');
+  });
+});
+
+describe('Giphy version', () => {
+  const renderWithVersion = (
+    attachment: ReturnType<typeof generateGiphyAttachment>,
+    contextValue: Partial<typeof defaultAttachmentContextValue> = {},
+  ) =>
+    render(
+      <AttachmentContextProvider
+        value={{ ...defaultAttachmentContextValue, ...contextValue }}
+      >
+        <Giphy attachment={attachment} />
+      </AttachmentContextProvider>,
+    );
+
+  it('loads the image from the selected version', () => {
+    const attachment = generateGiphyAttachment();
+    const { getByRole } = renderWithVersion(attachment, { giphyVersion: 'original' });
+
+    expect(getByRole('img')).toHaveAttribute('src', attachment.giphy!.original.url);
+    expect(getByRole('img')).toHaveAttribute('width', '400');
+  });
+
+  it('loads the default version without a giphyVersion override', () => {
+    const attachment = generateGiphyAttachment();
+    const { getByRole } = render(<Giphy attachment={attachment} />);
+
+    expect(getByRole('img')).toHaveAttribute('src', attachment.giphy!.fixed_height.url);
+  });
+
+  it('falls back to thumb_url when the selected version is missing', () => {
+    const attachment = generateGiphyAttachment({
+      giphy: { fixed_height: generateGiphyAttachment().giphy!.fixed_height },
+      thumb_url: 'https://media.giphy.com/media/abc/thumb.gif',
+    });
+    const { getByRole } = renderWithVersion(attachment, { giphyVersion: 'original' });
+
+    expect(getByRole('img')).toHaveAttribute(
+      'src',
+      'https://media.giphy.com/media/abc/thumb.gif',
+    );
+  });
+
+  it('passes thumb_url to the size handler when the version is missing', () => {
+    const attachment = generateGiphyAttachment({
+      giphy: {},
+      image_url: 'https://media.giphy.com/media/abc/image.gif',
+      thumb_url: 'https://media.giphy.com/media/abc/thumb.gif',
+    });
+    const imageAttachmentSizeHandler = vi.fn(() => ({ url: '' }));
+    renderWithVersion(attachment, {
+      giphyVersion: 'original',
+      imageAttachmentSizeHandler,
+    });
+
+    expect(imageAttachmentSizeHandler).toHaveBeenCalledWith(
+      expect.objectContaining({
+        image_url: 'https://media.giphy.com/media/abc/thumb.gif',
+      }),
+      expect.any(HTMLElement),
+    );
+  });
+
+  it('passes the selected version URL to the size handler', () => {
+    const attachment = generateGiphyAttachment();
+    const imageAttachmentSizeHandler = vi.fn((sizedAttachment) => ({
+      url: `${sizedAttachment.image_url}&resized=1`,
+    }));
+    const { getByRole } = renderWithVersion(attachment, {
+      giphyVersion: 'fixed_width_downsampled',
+      imageAttachmentSizeHandler,
+    });
+    const versionUrl = attachment.giphy!.fixed_width_downsampled.url;
+
+    expect(imageAttachmentSizeHandler).toHaveBeenCalledWith(
+      expect.objectContaining({ image_url: versionUrl }),
+      expect.any(HTMLElement),
+    );
+    expect(getByRole('img')).toHaveAttribute('src', `${versionUrl}&resized=1`);
   });
 });

@@ -4,6 +4,8 @@ import { afterEach, beforeEach, vi } from 'vitest';
 import type { Channel } from 'stream-chat';
 
 import { ChannelDetailProvider } from '../ChannelDetailContext';
+// The real provider: the context barrel is mocked in this file.
+import { ModalContextProvider } from '../../../context/ModalContext';
 import {
   type ChannelManagementActionItem,
   DefaultChannelManagementActions,
@@ -131,7 +133,6 @@ vi.mock('../../../context', async (importOriginal) => {
     }),
     // The real hook: with no provider it returns the SDK icons.
     useComponentContextIcons: actual.useComponentContextIcons,
-    useModalContext: () => ({ close: mocks.close }),
     useTranslationContext: () => ({
       // The unstable variant must still forward the inline defaultValue, or every call would
       // resolve to the raw key.
@@ -160,9 +161,11 @@ const advanceDebounce = async () => {
 
 const renderAction = (action: React.ReactElement) =>
   render(
-    <ChannelDetailProvider channel={mocks.channel as unknown as Channel}>
-      {action}
-    </ChannelDetailProvider>,
+    <ModalContextProvider value={{ close: mocks.close }}>
+      <ChannelDetailProvider channel={mocks.channel as unknown as Channel}>
+        {action}
+      </ChannelDetailProvider>
+    </ModalContextProvider>,
   );
 
 const PermissionProbe = ({
@@ -314,8 +317,8 @@ describe('DefaultChannelManagementActions', () => {
 
     expect(mocks.unmute).toHaveBeenCalledTimes(1);
     expect(mocks.mute).not.toHaveBeenCalled();
-    // The channel was never muted; reconciling to channelMuted (not a hard-coded
-    // `true`) keeps the optimistic state correct after the failure.
+    // The channel was never muted; reconciling to `channelMuted` (not a hard-coded `true`) keeps
+    // the optimistic state correct after the failure.
     expect(screen.getByRole('button', { name: 'Mute chat' })).toHaveAttribute(
       'aria-pressed',
       'false',
@@ -445,7 +448,7 @@ describe('DefaultChannelManagementActions', () => {
       await Promise.resolve();
     });
 
-    expect(mocks.removeMembers).toHaveBeenCalledWith(['own-user']);
+    expect(mocks.removeMembers).toHaveBeenCalledWith({ members: ['own-user'] });
     expect(mocks.close).toHaveBeenCalledTimes(1);
     expect(mocks.addNotification).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -495,8 +498,8 @@ describe('DefaultChannelManagementActions', () => {
 
   it('hides DM user actions when the other member is not yet loaded', () => {
     mocks.channel.data.own_capabilities = ['ban-channel-members', 'mute-channel'];
-    // Still a DM (member_count 2 + own user present), but the other member has
-    // not loaded yet, so muteUser/blockUser must not be enabled.
+    // Still a DM (member_count 2 + own user present), but the other member has not loaded yet, so
+    // muteUser/blockUser must not be enabled.
     mocks.channel.data.members = [{ user: { id: 'own-user' } }];
     mocks.channel.state.members = {
       'own-user': { user: { id: 'own-user' } },

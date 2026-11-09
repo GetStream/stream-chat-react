@@ -21,7 +21,7 @@ export type ChannelMediaItemType = (typeof MEDIA_ATTACHMENT_TYPES)[number];
 export type ChannelMediaItem = {
   /** Item to hand over to the full-screen `Gallery` viewer. */
   galleryItem: GalleryItem;
-  /** Stable identity (messageId + attachment index). */
+  /** Stable identity: message ID and attachment index. */
   id: string;
   type: ChannelMediaItemType;
   /** Video duration in seconds, when known. */
@@ -38,17 +38,15 @@ const getMediaAttachmentType = (
   return undefined;
 };
 
-/**
- * Flattens messages into one renderable media item per image/video attachment,
- * carrying over the gallery descriptor, posting user, and video duration.
- */
+/** Flattens messages into one media item per renderable image or video attachment. */
 export const toChannelMediaItems = (
   messages: Array<MessageResponse | LocalMessage>,
 ): ChannelMediaItem[] => {
   const items: ChannelMediaItem[] = [];
 
   messages.forEach((message) => {
-    // the gallery header hands it to a `MessageTimestamp` override, which takes a `LocalMessage`
+    // Formatted once per message: the gallery header passes it to a `MessageTimestamp` override,
+    // which takes a `LocalMessage`.
     let localMessage: LocalMessage | undefined;
     message.attachments?.forEach((attachment, index) => {
       const type = getMediaAttachmentType(attachment);

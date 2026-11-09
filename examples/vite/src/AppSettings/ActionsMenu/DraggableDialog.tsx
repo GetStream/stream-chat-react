@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import type { CSSProperties, ReactNode, PointerEvent as ReactPointerEvent } from 'react';
 import clsx from 'clsx';
 import {
@@ -75,7 +75,9 @@ export const DraggableDialog = ({
 }) => {
   const { theme } = useChatContext();
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
-  const shellRef = useRef<HTMLDivElement | null>(null);
+  // State, not a ref: the anchor mounts its content a render after opening, so the effects below
+  // must re-run once the shell exists.
+  const [shell, setShell] = useState<HTMLDivElement | null>(null);
   const modalContextValue = {
     close: onClose,
     dialogId,
@@ -87,12 +89,9 @@ export const DraggableDialog = ({
   }, [dialogIsOpen]);
 
   useEffect(() => {
-    if (!dialogIsOpen) return;
+    if (!shell) return;
 
     const clampToViewport = () => {
-      const shell = shellRef.current;
-      if (!shell) return;
-
       const rect = shell.getBoundingClientRect();
       const nextLeft = clamp(
         rect.left,
@@ -113,12 +112,19 @@ export const DraggableDialog = ({
       }));
     };
 
+    // Content that grows (an expanded section) makes the anchor move the dialog while the drag
+    // offset stays, which can push it past an edge; re-clamp whenever the anchor moves it.
+    const anchorObserver = new MutationObserver(clampToViewport);
+    if (shell.parentElement) {
+      anchorObserver.observe(shell.parentElement, { attributeFilter: ['style'] });
+    }
     window.addEventListener('resize', clampToViewport);
 
     return () => {
+      anchorObserver.disconnect();
       window.removeEventListener('resize', clampToViewport);
     };
-  }, [dialogIsOpen]);
+  }, [shell]);
 
   const handleHeaderPointerDown = useCallback(
     (event: ReactPointerEvent<HTMLDivElement>) => {
@@ -126,7 +132,6 @@ export const DraggableDialog = ({
       if (!(event.target instanceof HTMLElement)) return;
       if (event.target.closest('button')) return;
 
-      const shell = shellRef.current;
       if (!shell) return;
 
       event.preventDefault();
@@ -162,7 +167,7 @@ export const DraggableDialog = ({
       window.addEventListener('pointermove', handlePointerMove);
       window.addEventListener('pointerup', handlePointerUp);
     },
-    [dragOffset],
+    [dragOffset, shell],
   );
 
   const shellStyle: CSSProperties = {
@@ -190,7 +195,7 @@ export const DraggableDialog = ({
           empty. */}
       <div
         className={clsx(DRAGGABLE_DIALOG_SHELL_CLASS, 'str-chat', theme, shellClassName)}
-        ref={shellRef}
+        ref={setShell}
         style={shellStyle}
       >
         <ModalContextProvider value={modalContextValue}>

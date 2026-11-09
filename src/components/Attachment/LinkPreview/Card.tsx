@@ -1,5 +1,5 @@
 import React from 'react';
-import { BaseImage } from '../../BaseImage';
+import { BaseImage as DefaultBaseImage } from '../../BaseImage';
 import { SafeAnchor } from '../../SafeAnchor';
 import { useAttachmentContext } from '../../../context/AttachmentContext';
 
@@ -8,7 +8,7 @@ import type { RenderAttachmentProps } from '../utils';
 import type { Dimensions } from '../../../types/types';
 import { UnableToRenderCard } from './UnableToRenderCard';
 import clsx from 'clsx';
-import { useComponentContextIcons } from '../../../context';
+import { useComponentContext, useComponentContextIcons } from '../../../context';
 
 type CardRootProps = {
   cardUrl: string | undefined;
@@ -42,6 +42,7 @@ type CardHeaderProps = Pick<CardProps, 'title' | 'type' | 'image_url' | 'thumb_u
 
 const CardHeader = (props: CardHeaderProps) => {
   const { dimensions, image, image_url, thumb_url, title } = props;
+  const { BaseImage = DefaultBaseImage } = useComponentContext();
 
   return image ? (
     <div
@@ -115,7 +116,5 @@ const UnMemoizedCard = (props: CardProps) => {
   );
 };
 
-/**
- * Simple Card Layout for displaying links
- */
+/** Layout for a link preview card. */
 export const Card = React.memo(UnMemoizedCard) as typeof UnMemoizedCard;

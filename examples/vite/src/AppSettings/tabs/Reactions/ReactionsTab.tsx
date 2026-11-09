@@ -24,10 +24,10 @@ export const ReactionsTab = ({ close }: ReactionsTabProps) => {
   const componentContext = useComponentContext();
   const { client } = useChatContext();
   // A real Channel, never queried or watched: `Message` reaches `channel.state` through
-  // `useUserRole` -> `useChannelCapabilities`, which subscribes to it as a StateStore. A plain
-  // object shaped like channel state crashes there, which is what this preview used to pass.
+  // `useMessagePermissions` -> `useChannelCapabilities`, which subscribes to it as a
+  // StateStore. A plain object shaped like channel state crashes there.
   const previewChannel = useMemo(
-    () => client.channelManager.ensure({ id: 'reactions-preview', type: 'messaging' }),
+    () => client.channel('messaging', 'reactions-preview'),
     [client],
   );
 

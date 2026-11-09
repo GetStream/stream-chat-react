@@ -1,0 +1,9 @@
+@layer stream-overrides {
+  .cookbook-connection-status {
+    padding: var(--str-chat__spacing-xs) var(--str-chat__spacing-md);
+    background: var(--str-chat__background-core-surface-default);
+    color: var(--str-chat__text-primary);
+    font: var(--str-chat__font-caption-emphasis);
+    text-align: center;
+  }
+}

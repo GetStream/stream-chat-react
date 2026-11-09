@@ -3,10 +3,8 @@ import React, { useEffect, useRef, useState } from 'react';
 import type { PaginatorProps } from '../../types/types';
 import { DEFAULT_LOAD_PAGE_SCROLL_THRESHOLD } from '../../constants/limits';
 
-/**
- * Prevents Chrome hangups
- * See: https://stackoverflow.com/questions/47524205/random-high-content-download-time-in-chrome/47684257#47684257
- */
+// Prevents Chrome hangups, see:
+// https://stackoverflow.com/questions/47524205/random-high-content-download-time-in-chrome/47684257#47684257
 const mousewheelListener = (event: Event) => {
   if (event instanceof WheelEvent && event.deltaY === 1) {
     event.preventDefault();
@@ -16,7 +14,7 @@ const mousewheelListener = (event: Event) => {
 export type InfiniteScrollProps = PaginatorProps & {
   className?: string;
   element?: React.ElementType;
-  /** Element to be rendered at the top of the thread message list. By default, Message and ThreadStart components */
+  /** Rendered before `loader` and `children`. */
   head?: React.ReactNode;
   initialLoad?: boolean;
   isLoading?: boolean;
@@ -26,14 +24,9 @@ export type InfiniteScrollProps = PaginatorProps & {
 };
 
 /**
- * This component serves a single purpose - load more items on scroll inside the MessageList component
- * It is not a general purpose infinite scroll controller, because:
- * 1. It is re-rendered whenever queryInProgress, hasNext, hasPrev changes. This can lead to scrollListener to have stale data.
- * 2. It pretends to invoke scrollListener on resize event even though this event is emitted only on window resize. It should
- * rather use ResizeObserver. But then again, it ResizeObserver would invoke a stale version of scrollListener.
- *
- * In general, the infinite scroll controller should not aim for checking the loading state and whether there is more data to load.
- * That should be controlled by the loading function.
+ * Calls `loadPreviousPage` or `loadNextPage` when the parent scroll container comes within
+ * `threshold` of its top or bottom. The `resize` listener on that container never fires for element
+ * resizes (only the window emits `resize`), so growing content does not re-run the check.
  */
 export const InfiniteScroll = (props: PropsWithChildren<InfiniteScrollProps>) => {
   const {
@@ -110,11 +103,8 @@ export const InfiniteScroll = (props: PropsWithChildren<InfiniteScrollProps>) =>
     scrollElement.addEventListener('scroll', scrollListener, useCapture);
     scrollElement.addEventListener('resize', scrollListener, useCapture);
 
-    // Defer the initial proximity check so that any pending scroll-to-bottom
-    // from useLayoutEffect (e.g. the MessageList settle pass) has been applied
-    // to the DOM before we evaluate whether more pages should be loaded.
-    // Without this, scrollTop is still 0 on mount which falsely triggers
-    // loadPreviousPage and breaks the initial scroll position.
+    // Deferred so a pending scroll-to-bottom from a layout effect is applied first; otherwise
+    // `scrollTop` is still 0 on mount, which falsely triggers `loadPreviousPage`.
     const rafId = requestAnimationFrame(() => {
       scrollListener();
     });
@@ -134,9 +124,9 @@ export const InfiniteScroll = (props: PropsWithChildren<InfiniteScrollProps>) =>
     scrollElement.addEventListener('wheel', mousewheelListener, { passive: false });
 
     return () => {
-      scrollElement.removeEventListener('wheel', mousewheelListener, useCapture);
+      scrollElement.removeEventListener('wheel', mousewheelListener);
     };
-  }, [scrollComponent, useCapture]);
+  }, [scrollComponent]);
 
   return (
     <Component {...elementProps} ref={setScrollComponent}>

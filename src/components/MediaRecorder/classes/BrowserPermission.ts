@@ -72,8 +72,7 @@ export class BrowserPermission {
       permissionState = permissionStatus.state;
       this.status.next(permissionStatus);
     } catch (e) {
-      // permission does not exist - cannot be queried
-      // an example would be Firefox - camera, neither microphone perms can be queried
+      // The permission cannot be queried (e.g. camera and microphone in Firefox): assume granted.
       permissionState = 'granted' as PermissionState;
     }
     this.state.next(permissionState);

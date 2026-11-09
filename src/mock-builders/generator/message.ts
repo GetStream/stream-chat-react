@@ -4,13 +4,10 @@ import type { DeepPartial } from '../../types/types';
 import { convertDateToTimestamp } from './time';
 
 /**
- * Timestamp overrides are the unix-nanosecond numbers the API puts on the wire — a fixture holding
- * a `Date` or an ISO string cannot catch the bugs that unit exists to prevent, and the compiler
- * now says so. Where a test reads better against a date literal, convert at the call site with
- * `convertDateToTimestamp`. `timestamp` is the shorthand for the common case of seeding
- * both `created_at` and `updated_at` from one wall-clock value. It is deliberately not called
- * `date`: `DateSeparatorMessage.date` is a real field on the rendered view-model, and a generator
- * param of that name would swallow it.
+ * Timestamp overrides are unix-nanosecond numbers, as on the wire; convert a date literal at the
+ * call site with `convertDateToTimestamp`. `timestamp` seeds both `created_at` and `updated_at`
+ * from one wall-clock value. It is not named `date` because `DateSeparatorMessage.date` is a real
+ * field of the rendered view-model that such a param would swallow.
  */
 type GenerateMessageOptions = DeepPartial<LocalMessage> & {
   timestamp?: Date | number | string;

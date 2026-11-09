@@ -141,10 +141,10 @@ export class MediaRecorderController {
     }
     return `${this.mediaType}_recording_${new Date().toISOString()}.${getExtensionFromMimeType(
       mimeType,
-    )}`; // extension needed so that desktop Safari can play the asset
+    )}`; // The extension is needed for desktop Safari to play the asset.
   };
 
-  makeVoiceRecording = async () => {
+  makeVoiceRecording = async (): Promise<LocalVoiceRecordingAttachment | undefined> => {
     if (this.recordingUri) URL.revokeObjectURL(this.recordingUri);
 
     if (!this.recordedData.length) return;
@@ -153,7 +153,7 @@ export class MediaRecorderController {
     if (mimeType.match('audio/webm')) {
       // The browser does not include duration metadata with the recorded blob
       blob = await fixWebmDuration(blob, this.durationMs, {
-        logger: () => null, // prevents polluting the browser console
+        logger: () => null, // Keeps the library from polluting the browser console.
       });
     }
     if (!mimeType.match('audio/mp4')) {
@@ -186,10 +186,11 @@ export class MediaRecorderController {
       localMetadata: {
         file,
         id: nanoid(),
+        uploadState: 'pending',
       },
       title: file.name,
       type: RecordingAttachmentType.VOICE_RECORDING,
-    } as LocalVoiceRecordingAttachment;
+    };
   };
 
   handleErrorEvent = (e: Event) => {
@@ -235,9 +236,12 @@ export class MediaRecorderController {
     this.startTime = undefined;
   };
 
-  cleanUp = () => {
-    this.resetRecordingState();
-    if (this.recordingUri) URL.revokeObjectURL(this.recordingUri);
+  /**
+   * Stops the microphone and the amplitude recorder and detaches the MediaRecorder's `dataavailable`
+   * and `error` listeners, keeping the recording and its object URL. {@link cleanUp} does this and
+   * also drops the recording.
+   */
+  releaseMicrophone = () => {
     this.amplitudeRecorder?.close();
     if (this.mediaRecorder) {
       disposeOfMediaStream(this.mediaRecorder.stream);
@@ -247,6 +251,13 @@ export class MediaRecorderController {
       );
       this.mediaRecorder.removeEventListener('error', this.handleErrorEvent);
     }
+  };
+
+  /** Releases the microphone and drops the recording and its object URL. */
+  cleanUp = () => {
+    this.resetRecordingState();
+    if (this.recordingUri) URL.revokeObjectURL(this.recordingUri);
+    this.releaseMicrophone();
   };
 
   start = async () => {
@@ -261,7 +272,7 @@ export class MediaRecorderController {
       return;
     }
 
-    // account for requirement on iOS as per this bug report: https://bugs.webkit.org/show_bug.cgi?id=252303
+    // Required on iOS, see https://bugs.webkit.org/show_bug.cgi?id=252303
     if (!navigator.mediaDevices) {
       const error = new Error('Media recording is not supported');
       logError(error);
@@ -327,9 +338,8 @@ export class MediaRecorderController {
 
   pause = () => {
     if (this.recordingState.value !== MediaRecordingState.RECORDING) return;
-    // The native recorder can transition to 'inactive' on its own (e.g. iOS Safari
-    // interruptions or a preceding stop) while recordingState still reads RECORDING.
-    // Calling pause() on a non-recording recorder throws InvalidStateError.
+    // The native recorder can go 'inactive' on its own (e.g. iOS Safari interruptions) while
+    // recordingState still reads RECORDING, and pause() then throws InvalidStateError.
     if (this.mediaRecorder?.state !== 'recording') return;
     if (this.startTime) {
       this.recordedChunkDurations.push(new Date().getTime() - this.startTime);
@@ -344,8 +354,8 @@ export class MediaRecorderController {
 
   resume = () => {
     if (this.recordingState.value !== MediaRecordingState.PAUSED) return;
-    // resume() is only valid on a 'paused' recorder; the native recorder may have gone
-    // inactive while recordingState still reads PAUSED, which would throw InvalidStateError.
+    // The native recorder may have gone inactive while recordingState still reads PAUSED, and
+    // resume() throws InvalidStateError unless the recorder is 'paused'.
     if (this.mediaRecorder?.state !== 'paused') return;
     this.startTime = new Date().getTime();
     this.mediaRecorder?.resume();

@@ -8,10 +8,9 @@ const cooldownTimerStateSelector = (state: CooldownTimerState) => ({
 });
 
 /**
- * Provides and initial value of cooldown, from which the countdown should start, e.g.:
+ * Seconds left in the channel's slow-mode cooldown.
  *
- * The value of channel.data.cooldown is 100s but 30s has already elapsed, user reloads the page,
- * the initial value is now 70s from which the countdown will continue using useTimer() hook.
+ * @returns Seconds remaining, or 0 when no cooldown is running.
  */
 export const useCooldownRemaining = (): number => {
   const channel = useChannel();

@@ -11,17 +11,16 @@ import { useTranslationContext } from '../../../context';
 type SeekParams = Parameters<AudioPlayerSeekFn>[0];
 
 type WaveProgressBarProps = {
-  /** Function that allows to change the track progress */
   seek: (params: SeekParams) => void;
-  /** The array of fractional number values between 0 and 1 representing the height of amplitudes */
+  /** Amplitude bar heights as fractions between 0 and 1. */
   waveformData: number[];
-  /** Progress expressed in fractional number value btw 0 and 100. */
+  /** Progress as a percentage from 0 to 100, clamped to that range. Defaults to 0. */
   progress?: number;
   /** Total track duration in seconds. */
   durationSeconds?: number;
   /** Current elapsed position in seconds. */
   secondsElapsed?: number;
-  /** Absolute gap width between bars in px (overrides computed gap var). */
+  /** Gap between amplitude bars in px. Overrides the gap computed from the track width. */
   amplitudeBarGapWidthPx?: number;
   relativeAmplitudeBarWidth?: number;
   relativeAmplitudeGap?: number;

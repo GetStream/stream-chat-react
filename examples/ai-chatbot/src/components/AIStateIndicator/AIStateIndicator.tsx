@@ -10,20 +10,20 @@ import './AIStateIndicator.scss';
 // to accept the value `useAIState` returns.
 const VISIBLE_STATES: readonly AIState[] = [AIStates.Generating, AIStates.Thinking];
 
-const lastMessageIdSelector = ({ lastMessage }: MessagePaginatorAggregateState) => ({
-  lastMessageId: lastMessage?.id,
+const latestMessageIdSelector = ({ latestMessage }: MessagePaginatorAggregateState) => ({
+  latestMessageId: latestMessage?.id,
 });
 
 export const AIStateIndicator = () => {
   const channel = useChannel();
   const { aiState } = useAIState(channel);
-  const { lastMessageId } = useStateStore(
+  const { latestMessageId } = useStateStore(
     channel.messagePaginator.aggregateState,
-    lastMessageIdSelector,
+    latestMessageIdSelector,
   );
 
   if (!VISIBLE_STATES.includes(aiState)) return null;
 
   // Remount (restarting the animation) whenever a new message lands in the conversation.
-  return <StateIndicator key={lastMessageId} />;
+  return <StateIndicator key={latestMessageId} />;
 };

@@ -4,7 +4,7 @@ import clsx from 'clsx';
 
 export const BASE_FILE_ICON_CLASSNAME = 'str-chat__file-icon' as const;
 export const FILE_ICON_GRAPHIC_CLASSNAME = 'str-chat__file-icon__graphic' as const;
-/** Add this class (e.g. via className) when hiding the label with CSS to center the icon graphic. */
+/** Class to add (e.g. via `className`) when CSS hides the label, to center the icon graphic. */
 export const FILE_ICON_NO_LABEL_CLASSNAME = 'str-chat__file-icon--no-label' as const;
 
 export type FileIconSize = 'sm' | 'md' | 'lg' | 'xl';
@@ -16,7 +16,7 @@ export type FileIconSizeConfigEntry = {
   labelY: number;
 };
 
-/** Rendered dimensions (px) and label position in viewBox coords for consistent spacing. */
+/** Rendered dimensions (px) and label position (viewBox coordinates) per size. */
 export const FILE_ICON_SIZE_CONFIG: Record<FileIconSize, FileIconSizeConfigEntry> = {
   lg: { height: 40, labelX: 16, labelY: 36, width: 32 },
   md: { height: 32, labelX: 16, labelY: 35, width: 26 },
@@ -24,7 +24,7 @@ export const FILE_ICON_SIZE_CONFIG: Record<FileIconSize, FileIconSizeConfigEntry
   xl: { height: 48, labelX: 16, labelY: 36, width: 40 },
 };
 
-/** Merge partial overrides with default config. Use for Chat-level fileIconSizeConfig. */
+/** Merges partial per-size overrides over {@link FILE_ICON_SIZE_CONFIG}. */
 export const mergeFileIconSizeConfig = (
   overrides?: Partial<Record<FileIconSize, Partial<FileIconSizeConfigEntry>>>,
 ): Record<FileIconSize, FileIconSizeConfigEntry> => {
@@ -47,7 +47,7 @@ const FILE_ICON_WITHOUT_CAPTION_SYMBOL_SCALE_Y = 40 / 32;
 
 export type BaseFileIconProps = {
   label?: string;
-  /** Resolved size config (defaults from FILE_ICON_SIZE_CONFIG when omitted). Pass sizeConfig on FileIcon or use AttachmentFileIcon to override. */
+  /** Per-size dimensions and label position. Defaults to {@link FILE_ICON_SIZE_CONFIG}. */
   sizeConfig?: Record<FileIconSize, FileIconSizeConfigEntry>;
   size?: FileIconSize;
 } & ComponentPropsWithoutRef<'svg'>;

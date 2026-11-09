@@ -1,0 +1,22 @@
+[
+  {
+    "file": "channel-list-custom-preview.png",
+    "query": {
+      "channel": "docs-v15-cb-design",
+      "simulate": "unread",
+      "unread": "docs-v15-cb-books",
+      "count": "2"
+    },
+    "waitFor": ".cookbook-channel-row__unread",
+    "clip": ".str-chat__channel-list",
+    "padding": 0
+  },
+  {
+    "file": "channel-list-channel-chips.png",
+    "variant": "chips",
+    "query": { "channel": "docs-v15-cb-design" },
+    "waitFor": ".cookbook-channel-chip__preview:not(:empty)",
+    "clip": ".cookbook-recent-channels-demo",
+    "padding": 0
+  }
+]

@@ -33,7 +33,7 @@ vi.mock('nanoid', () => ({
   nanoid: () => nanoidMockValue,
 }));
 
-vi.spyOn(wavTranscoder, 'encodeToWaw').mockImplementation((file) =>
+vi.spyOn(wavTranscoder, 'encodeToWav').mockImplementation((file) =>
   Promise.resolve(new Blob([file], { type: 'audio/wav' })),
 );
 
@@ -365,17 +365,15 @@ describe('MediaRecorderController', () => {
       expect(controller.recordingState.value).toBe(recordingState);
     });
 
-    // Reproduces the iOS Safari crash reported in production: tapping stop and then
-    // immediately pause leaves the native MediaRecorder in the 'inactive' state while
-    // the controller's recordingState subject can still read RECORDING. Calling
-    // pause() then throws "InvalidStateError: The MediaRecorder's state cannot be
-    // inactive".
+    // Regression: on iOS Safari, stop followed by an immediate pause leaves the native recorder
+    // 'inactive' while recordingState can still read RECORDING, and pause() then throws
+    // InvalidStateError.
     it('does not pause the native recorder when its state is inactive', async () => {
       const controller = new MediaRecorderController();
       await controller.start();
       const recorder = controller.mediaRecorder as unknown as MediaRecorderMockType;
-      // The native recorder went inactive (e.g. the stop button's native stop() or an
-      // interruption) without the controller's recordingState subject transitioning.
+      // The native recorder went inactive (e.g. native stop() or an interruption) while
+      // recordingState did not change.
       recorder.state = 'inactive';
       recorder.pause.mockImplementation(() => {
         if (recorder.state === 'inactive') {
@@ -418,8 +416,7 @@ describe('MediaRecorderController', () => {
       expect(controller.recordingState.value).toBe(recordingState);
     });
 
-    // Symmetric to the pause() crash: resuming a recorder that has gone inactive
-    // throws "InvalidStateError" because resume() is only valid in the 'paused' state.
+    // Like pause(): resume() throws InvalidStateError unless the native recorder is 'paused'.
     it('does not resume the native recorder when its state is inactive', async () => {
       const controller = new MediaRecorderController();
       await controller.start();
@@ -447,7 +444,7 @@ describe('MediaRecorderController', () => {
       const existingRecording =
         generateVoiceRecordingAttachment() as LocalVoiceRecordingAttachment;
       controller.recording.next(existingRecording);
-      // stop() now requires mediaRecorder.state === 'inactive' to return existing recording
+      // stop() returns the existing recording only when mediaRecorder.state is 'inactive'.
       await controller.start();
       (controller.mediaRecorder as unknown as MediaRecorderMockType).state = 'inactive';
       expect(await controller.stop()).toStrictEqual(
@@ -492,6 +489,63 @@ describe('MediaRecorderController', () => {
         expect(controller.recordingState.value).toBe(MediaRecordingState.STOPPED);
       },
     );
+  });
+
+  describe('releaseMicrophone and cleanUp', () => {
+    // A started controller with a live microphone stream and a finished recording.
+    const setUpStoppedController = async () => {
+      const controller = new MediaRecorderController();
+      await controller.start();
+      const track = { stop: vi.fn() };
+      const stream = { active: true, getTracks: () => [track], removeTrack: vi.fn() };
+      const mediaRecorder =
+        controller.mediaRecorder as unknown as MediaRecorderMockType & {
+          stream: typeof stream;
+        };
+      mediaRecorder.stream = stream;
+      mediaRecorder.stop();
+      const recording =
+        generateVoiceRecordingAttachment() as LocalVoiceRecordingAttachment;
+      controller.recording.next(recording);
+      controller.recordingState.next(MediaRecordingState.STOPPED);
+      controller.recordingUri = 'recording-uri';
+      return { controller, mediaRecorder, recording, track };
+    };
+
+    it('releaseMicrophone stops the microphone and keeps the recording', async () => {
+      const { controller, mediaRecorder, recording, track } =
+        await setUpStoppedController();
+      controller.releaseMicrophone();
+      expect(track.stop).toHaveBeenCalledWith();
+      expect(controller.amplitudeRecorder?.state.value).toBe(
+        AmplitudeRecorderState.CLOSED,
+      );
+      expect(mediaRecorder.removeEventListener).toHaveBeenCalledWith(
+        'dataavailable',
+        controller.handleDataavailableEvent,
+      );
+      expect(controller.recording.value).toBe(recording);
+      expect(controller.recordingState.value).toBe(MediaRecordingState.STOPPED);
+      expect(window.URL.revokeObjectURL).not.toHaveBeenCalled();
+    });
+
+    it('keeps the recording for stop() after releaseMicrophone', async () => {
+      const { controller, recording } = await setUpStoppedController();
+      controller.releaseMicrophone();
+      expect(await controller.stop()).toBe(recording);
+    });
+
+    it('cleanUp stops the microphone and drops the recording', async () => {
+      const { controller, track } = await setUpStoppedController();
+      controller.cleanUp();
+      expect(track.stop).toHaveBeenCalledWith();
+      expect(controller.amplitudeRecorder?.state.value).toBe(
+        AmplitudeRecorderState.CLOSED,
+      );
+      expect(controller.recording.value).toBeUndefined();
+      expect(controller.recordingState.value).toBeUndefined();
+      expect(window.URL.revokeObjectURL).toHaveBeenCalledWith('recording-uri');
+    });
   });
 
   describe('handleDataavailable event handler', () => {
@@ -633,7 +687,7 @@ describe('MediaRecorderController', () => {
         expect(recording).toStrictEqual(
           expect.objectContaining({
             asset_url: fileObjectURL,
-            // v10: duration / file_size / mime_type / waveform_data live under `custom`.
+            // duration, file_size, mime_type and waveform_data live under `custom`.
             custom: {
               duration: dataPoints.reduce((acc, n) => acc + n),
               file_size: recordedChunkCount,
@@ -643,6 +697,7 @@ describe('MediaRecorderController', () => {
             localMetadata: {
               file: recordedFile,
               id: nanoidMockValue,
+              uploadState: 'pending',
             },
             title: recordedFile.name,
             type: RecordingAttachmentType.VOICE_RECORDING,
@@ -681,7 +736,7 @@ describe('MediaRecorderController', () => {
         expect(recording).toStrictEqual(
           expect.objectContaining({
             asset_url: fileObjectURL,
-            // v10: duration / file_size / mime_type / waveform_data live under `custom`.
+            // duration, file_size, mime_type and waveform_data live under `custom`.
             custom: {
               duration: dataPoints.reduce((acc, n) => acc + n),
               file_size: recordedChunkCount,
@@ -691,6 +746,7 @@ describe('MediaRecorderController', () => {
             localMetadata: {
               file: recordedFile,
               id: nanoidMockValue,
+              uploadState: 'pending',
             },
             title: recordedFile.name,
             type: RecordingAttachmentType.VOICE_RECORDING,
@@ -723,7 +779,7 @@ describe('MediaRecorderController', () => {
       expect(recording).toStrictEqual(
         expect.objectContaining({
           asset_url: fileObjectURL,
-          // v10: duration / file_size / mime_type / waveform_data live under `custom`.
+          // duration, file_size, mime_type and waveform_data live under `custom`.
           custom: {
             duration: dataPoints.reduce((acc, n) => acc + n),
             file_size: recordedChunkCount,
@@ -733,6 +789,7 @@ describe('MediaRecorderController', () => {
           localMetadata: {
             file: recordedFile,
             id: nanoidMockValue,
+            uploadState: 'pending',
           },
           title: recordedFile.name,
           type: RecordingAttachmentType.VOICE_RECORDING,

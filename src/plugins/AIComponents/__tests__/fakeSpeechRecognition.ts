@@ -1,7 +1,6 @@
 /**
- * Minimal Web Speech API stand-in for jsdom (which has none). Installs a
- * `SpeechRecognition` constructor on `window` and records every instance so
- * tests can inspect the configuration and drive `onresult` / `onerror`.
+ * Minimal Web Speech API stand-in for jsdom, which has none. Records every instance so tests can
+ * inspect the configuration and drive `onresult` / `onerror`.
  */
 export class FakeSpeechRecognition {
   static instances: FakeSpeechRecognition[] = [];

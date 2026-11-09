@@ -14,8 +14,8 @@ export default (
       channel_id: data.id,
       channel_type: data.type,
       cid: data.cid,
-      // Real WS message events carry the channel cid on the message; the paginator ingests only
-      // messages matching its channel filter, so the mock must set it too.
+      // Real WebSocket message events carry the channel cid on the message, and the paginator
+      // ingests only messages matching its channel filter, so the mock sets it too.
       message: { ...newMessage, cid: newMessage.cid ?? data.cid } as MessageResponse,
       type: 'message.new',
       user: newMessage.user,

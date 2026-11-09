@@ -173,9 +173,8 @@ describe('NotificationList', () => {
     triggerLatestIntersection();
     triggerLatestIntersection();
 
-    // Asked once per intersection, deliberately: `ensureTimeout` leaves a countdown that is
-    // already running alone, so the list does not track which ids it has started. Keeping that
-    // record here is what let a remounted list restart a notification's countdown.
+    // Asked once per intersection: `ensureTimeout` leaves a running countdown alone, so the list
+    // does not track which IDs it has started.
     expect(ensureTimeout).toHaveBeenCalledTimes(2);
     expect(ensureTimeout).toHaveBeenCalledWith('n-1');
   });
@@ -401,6 +400,28 @@ describe('NotificationList', () => {
     rerender(<NotificationList minDisplayMs={5000} />);
 
     expect(remove).toHaveBeenCalledWith('n-1');
+    expect(screen.getByTestId('notification-n-2')).toBeInTheDocument();
+  });
+
+  it('keeps the dwell window when the queued same-type notification is older', () => {
+    currentNotifications = [
+      transientFixture({ createdAt: 1, id: 'n-1', message: 'Older', type: 'same' }),
+      transientFixture({ createdAt: 2, id: 'n-2', message: 'Newer', type: 'same' }),
+    ];
+
+    const pickNextLifo = createDefaultPickNext(pickNewest);
+    const { rerender } = render(
+      <NotificationList minDisplayMs={5000} pickNext={pickNextLifo} />,
+    );
+    // LIFO shows the newest first; the older one of the same type is still queued.
+    expect(screen.getByTestId('notification-n-2')).toBeInTheDocument();
+
+    act(() => {
+      vi.advanceTimersByTime(EXIT_ANIMATION_MS + 100);
+    });
+    rerender(<NotificationList minDisplayMs={5000} pickNext={pickNextLifo} />);
+
+    expect(remove).not.toHaveBeenCalled();
     expect(screen.getByTestId('notification-n-2')).toBeInTheDocument();
   });
 

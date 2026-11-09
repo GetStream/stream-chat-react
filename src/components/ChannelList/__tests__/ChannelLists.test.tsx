@@ -26,7 +26,7 @@ const ListItem = ({ item }: { item: Channel }) => (
 
 const setupClient = async () => {
   const client = await getTestClientWithUser({ id: 'user_x' });
-  // no list in these tests should reach the network — they are seeded instead
+  // No list in these tests reaches the network: they are seeded instead.
   vi.spyOn(client, 'queryChannelsAndHydrate').mockRejectedValue(
     new Error('unexpected channel query'),
   );
@@ -38,9 +38,7 @@ const seededPaginator = (client: StreamChat, id: string) => {
   const paginator = new ChannelPaginator({ client, id });
   paginator.setItems({
     isLastPage: true,
-    valueOrFactory: [
-      client.channelManager.ensure({ id: id.replace(':', '-'), type: 'messaging' }),
-    ],
+    valueOrFactory: [client.channel('messaging', id.replace(':', '-'))],
   });
   return paginator;
 };
@@ -97,7 +95,7 @@ describe('ChannelLists', () => {
 
     await waitFor(() => expect(screen.getAllByRole('option')).toHaveLength(2));
     expect(client.channelManager.paginators[0]).toBe(first);
-    // every list — not just the first — sees `paginators[0]` as the primary paginator
+    // Every list, not just the first, sees `paginators[0]` as the primary paginator.
     screen.getAllByRole('option').forEach((option) => {
       expect(option).toHaveAttribute('data-primary-paginator', first.id);
     });

@@ -1,8 +1,10 @@
 import React, { act } from 'react';
-import { cleanup, render, type RenderResult } from '@testing-library/react';
+import { cleanup, render, type RenderResult, screen } from '@testing-library/react';
 import { nanoid } from 'nanoid';
 
 import {
+  dispatchMessageNewEvent,
+  dispatchMessageUpdatedEvent,
   generateChannel,
   generateMember,
   generateMessage,
@@ -22,7 +24,11 @@ import { ThreadProvider } from '../../Threads';
 
 import { StateStore } from '@stream-io/state-store';
 import { fromPartial } from '@total-typescript/shoehorn';
-import type { Thread, ThreadState } from 'stream-chat';
+import type { LocalMessage, Thread, ThreadState } from 'stream-chat';
+import type { MessageProps } from '../../Message';
+import type { ComponentContextValue } from '../../../context';
+import type { VirtualizedMessageListProps } from '../VirtualizedMessageList';
+import type { GiphyPreviewMessageProps } from '../GiphyPreviewMessage';
 
 const threadWithParentMessage = () =>
   fromPartial<Thread>({
@@ -32,9 +38,9 @@ const threadWithParentMessage = () =>
     ),
   });
 
-// Records the props VML hands to Virtuoso and routes the imperative handle through a spy, so the
-// scroll target is assertable. The overrides keep the real Virtuoso renderable under jsdom, which
-// reports every element as 0px.
+// Records the props `VirtualizedMessageList` hands to Virtuoso and routes the imperative handle
+// through a spy, so the scroll target is assertable. The overrides keep the real Virtuoso
+// renderable under jsdom, which reports every element as 0px.
 const { scrollToIndexSpy, virtuosoProps } = vi.hoisted(() => ({
   scrollToIndexSpy: vi.fn(),
   virtuosoProps: [] as Record<string, any>[],
@@ -113,16 +119,13 @@ async function createChannel(empty = false) {
   });
   const client = await getTestClientWithUser({ id: 'id' });
   useMockedApis(client, [getOrCreateChannelApi(mockedChannel)]); // eslint-disable-line react-hooks/rules-of-hooks
-  const channel = client.channelManager.ensure({
-    id: mockedChannel.channel.id,
-    type: 'messaging',
-  });
+  const channel = client.channel('messaging', mockedChannel.channel.id);
   await channel.watch();
 
   return { channel, client };
 }
 
-// simple test since Virtuoso heavily relies on document height and jsdom doesn't support it
+// Virtuoso relies heavily on document height, which jsdom does not support, so tests stay simple.
 describe('VirtualizedMessageList', () => {
   afterEach(cleanup);
   beforeEach(vi.clearAllMocks);
@@ -144,12 +147,12 @@ describe('VirtualizedMessageList', () => {
     expect(result.container).toMatchSnapshot();
   });
 
-  // The `VirtualMessage` override has to beat `MessageUI`, but only for messages rendered
-  // by this list. The list applies it by overriding `MessageUI` for its own subtree, so
-  // these assert on what `useComponentContext()` resolves to inside vs. outside the list.
-  // Virtuoso renders no items under jsdom (it measures document height), so the thread head is
-  // the in-subtree render point available to us — it is the same provider subtree the items
-  // render into. The list renders it whenever a thread is in context.
+  // The `VirtualMessage` override has to beat `MessageUI`, but only for messages rendered by this
+  // list. The list applies it by overriding `MessageUI` for its own subtree, so these assert on
+  // what `useComponentContext()` resolves to inside vs. outside the list. Virtuoso renders no
+  // items under jsdom (it measures document height), so the thread head is the in-subtree probe
+  // point: the list renders it, in the same provider subtree as the items, whenever a thread is in
+  // context.
   describe('VirtualMessage override', () => {
     const CustomMessageUI = () => <div />;
     const CustomVirtualMessage = () => <div />;
@@ -223,25 +226,143 @@ describe('VirtualizedMessageList', () => {
     });
   });
 
+  it('gives the thread parent message the message props of its replies', async () => {
+    const CustomThreadHead = vi.fn<(props: MessageProps) => React.ReactElement>(() => (
+      <div />
+    ));
+    const messageProps = {
+      onMentionsClick: vi.fn(),
+      onMentionsHover: vi.fn(),
+      onUserClick: vi.fn(),
+      onUserHover: vi.fn(),
+      renderText: vi.fn(),
+      showAvatar: false,
+      unsafeHTML: true,
+    };
+    const { channel, client } = await createChannel();
+
+    await act(() => {
+      render(
+        <Chat client={client}>
+          <Channel channel={channel}>
+            <WithComponents overrides={{ ThreadHead: CustomThreadHead }}>
+              <ThreadProvider thread={threadWithParentMessage()}>
+                <VirtualizedMessageList {...messageProps} />
+              </ThreadProvider>
+            </WithComponents>
+          </Channel>
+        </Chat>,
+      );
+    });
+
+    const props = CustomThreadHead.mock.lastCall?.[0];
+    expect(props).toEqual(expect.objectContaining(messageProps));
+    // Props the list was not given stay unset, so an override's own defaults apply.
+    expect(props).not.toHaveProperty('formatDate');
+  });
+
+  it('gives the separate giphy preview the list-wide message props', async () => {
+    const CustomGiphyPreviewMessage = vi.fn<
+      (props: GiphyPreviewMessageProps) => React.ReactElement
+    >(() => <div />);
+    const messageProps = {
+      onMentionsClick: vi.fn(),
+      onUserClick: vi.fn(),
+      unsafeHTML: true,
+    };
+    const user = generateUser({ id: 'id' });
+    const giphyPreview = generateMessage({
+      command: 'giphy',
+      id: 'giphy-preview',
+      type: 'ephemeral',
+      user,
+    });
+    const mockedChannel = generateChannel({
+      members: [generateMember({ user })],
+      messages: [giphyPreview],
+    });
+    const client = await getTestClientWithUser({ id: user.id });
+    useMockedApis(client, [getOrCreateChannelApi(mockedChannel)]);
+    const channel = client.channel('messaging', mockedChannel.channel.id);
+    await channel.watch();
+
+    await act(() => {
+      render(
+        <Chat client={client}>
+          <Channel channel={channel}>
+            <WithComponents
+              overrides={{ GiphyPreviewMessage: CustomGiphyPreviewMessage }}
+            >
+              <VirtualizedMessageList {...messageProps} separateGiphyPreview />
+            </WithComponents>
+          </Channel>
+        </Chat>,
+      );
+    });
+
+    const props = CustomGiphyPreviewMessage.mock.lastCall?.[0];
+    expect(props).toEqual(
+      expect.objectContaining({
+        ...messageProps,
+        message: expect.objectContaining({ id: giphyPreview.id }),
+      }),
+    );
+    // Props the list was not given stay unset, so an override's own defaults apply.
+    expect(props).not.toHaveProperty('formatDate');
+  });
+
+  it('hands the list-wide message props to the item renderer', async () => {
+    const messageProps = {
+      onMentionsClick: vi.fn(),
+      onMentionsHover: vi.fn(),
+      onUserClick: vi.fn(),
+      onUserHover: vi.fn(),
+      unsafeHTML: true,
+    };
+    const { channel, client } = await createChannel();
+    virtuosoProps.length = 0;
+
+    await act(() => {
+      render(
+        <Chat client={client}>
+          <Channel channel={channel}>
+            <VirtualizedMessageList {...messageProps} />
+          </Channel>
+        </Chat>,
+      );
+    });
+
+    expect(virtuosoProps[virtuosoProps.length - 1].context).toEqual(
+      expect.objectContaining(messageProps),
+    );
+  });
+
   // A bare index means align: 'start', which parks the last row's top at the viewport top and
-  // clips its bottom whenever that row is taller than the list -- visible in a short panel.
-  // jsdom has no layout, so these assert the scroll target rather than the clipping.
+  // clips its bottom whenever that row is taller than the list, visible in a short panel. jsdom has
+  // no layout, so these assert the scroll target rather than the clipping.
   describe('scroll anchoring', () => {
     const MESSAGE_COUNT = 20;
 
     let scrollToBottom: (() => Promise<void>) | undefined;
 
-    // VML passes scrollToBottom to TypingIndicator, which it renders inside its own context
-    // provider -- the simplest overridable seam that receives the callback.
+    // `TypingIndicator` is the simplest overridable seam that receives the list's `scrollToBottom`.
     const TypingIndicatorProbe = (props: { scrollToBottom: () => Promise<void> }) => {
       scrollToBottom = props.scrollToBottom;
       return null;
     };
 
-    const renderList = async ({ hasMoreHead = false, listProps = {} } = {}) => {
+    const renderList = async ({
+      hasMoreHead = false,
+      listProps = {},
+      overrides = {},
+    }: {
+      hasMoreHead?: boolean;
+      listProps?: Partial<VirtualizedMessageListProps>;
+      overrides?: Partial<ComponentContextValue>;
+    } = {}) => {
       const user1 = generateUser();
       const user2 = generateUser();
-      // The file-wide nanoid mock collapses generated ids, which would dedupe the messages down
+      // The file-wide nanoid mock collapses generated IDs, which would dedupe the messages down
       // to one and let an off-by-one pass.
       const mockedChannel = generateChannel({
         members: [generateMember({ user: user1 }), generateMember({ user: user2 })],
@@ -251,13 +372,10 @@ describe('VirtualizedMessageList', () => {
       });
       const client = await getTestClientWithUser({ id: 'id' });
       useMockedApis(client, [getOrCreateChannelApi(mockedChannel)]); // eslint-disable-line react-hooks/rules-of-hooks
-      const channel = client.channelManager.ensure({
-        id: mockedChannel.channel.id,
-        type: 'messaging',
-      });
+      const channel = client.channel('messaging', mockedChannel.channel.id);
       await channel.watch();
-      // With older pages still to load, scrollToBottom jumps to the latest message set instead of
-      // scrolling, so pin it to the branch that actually targets a Virtuoso index.
+      // With newer pages still to load, scrollToBottom jumps to the latest message set instead of
+      // scrolling, so pin it to the branch that targets a Virtuoso index.
       vi.spyOn(channel.messagePaginator, 'hasMoreHead', 'get').mockReturnValue(
         hasMoreHead,
       );
@@ -266,7 +384,9 @@ describe('VirtualizedMessageList', () => {
         render(
           <Chat client={client}>
             <Channel channel={channel}>
-              <WithComponents overrides={{ TypingIndicator: TypingIndicatorProbe }}>
+              <WithComponents
+                overrides={{ TypingIndicator: TypingIndicatorProbe, ...overrides }}
+              >
                 <VirtualizedMessageList {...listProps} />
               </WithComponents>
             </Channel>
@@ -279,6 +399,22 @@ describe('VirtualizedMessageList', () => {
     beforeEach(() => {
       virtuosoProps.length = 0;
       scrollToBottom = undefined;
+    });
+
+    it('renders the ScrollToLatestMessageButton override with the list state', async () => {
+      const ScrollToLatestMessageButton = vi.fn(() => (
+        <div data-testid='custom-scroll-to-latest' />
+      ));
+      await renderList({ overrides: { ScrollToLatestMessageButton } });
+
+      expect(screen.getByTestId('custom-scroll-to-latest')).toBeInTheDocument();
+      expect(ScrollToLatestMessageButton).toHaveBeenCalledWith(
+        expect.objectContaining({
+          isNotAtLatestMessageSet: false,
+          onClick: expect.any(Function),
+        }),
+        undefined,
+      );
     });
 
     it('anchors the initial scroll to the end of the last item', async () => {
@@ -340,8 +476,8 @@ describe('VirtualizedMessageList', () => {
       expect(totalListHeightChangedFromProps).toHaveBeenCalledWith(1234);
     });
 
-    // Virtuoso's window-scroll path never calls the supplied scrollerRef, so without feeding the
-    // hook directly the list is never measured and the true-bottom check answers "yes" forever.
+    // Virtuoso's window-scroll path never calls the supplied scrollerRef, so unless the hook is fed
+    // directly the list is never measured and the true-bottom check always answers "yes".
     describe('window scrolling', () => {
       // Virtuoso's own window-viewport hook needs a ResizeObserver, which jsdom does not
       // provide. mock-builders' ResizeObserverMock has no `unobserve`, which Virtuoso calls.
@@ -372,6 +508,101 @@ describe('VirtualizedMessageList', () => {
       });
     });
 
+    // Virtuoso cannot measure anything under jsdom, so "scrolled up" is reported through the
+    // at-bottom callback VML hands it, the same way Virtuoso reports it in a browser.
+    describe('NewMessageNotification', () => {
+      const NEW_MESSAGE_NOTIFICATION_TEST_ID = 'message-notification';
+      const SCROLL_TO_LATEST_MESSAGE_TEST_ID = 'scroll-to-latest-message-button';
+
+      const scrollUp = () =>
+        act(() => {
+          virtuosoProps[virtuosoProps.length - 1].atBottomStateChange(false);
+        });
+
+      const renderListWithChannel = async () => {
+        // The file-wide nanoid mock collapses generated ids, so the ones events rely on are explicit.
+        const user = generateUser({ id: 'other-user' });
+        const mockedChannel = generateChannel({
+          channel: { id: 'notification-channel' },
+          members: [generateMember({ user })],
+          // Fewer than a page, so the loaded window is the latest one.
+          messages: Array.from({ length: 5 }, (_v, i) =>
+            generateMessage({ id: `notification-msg-${i}`, user }),
+          ),
+        });
+        const client = await getTestClientWithUser({ id: 'id' });
+        useMockedApis(client, [getOrCreateChannelApi(mockedChannel)]); // eslint-disable-line react-hooks/rules-of-hooks
+        const channel = client.channel('messaging', mockedChannel.channel.id);
+        await channel.watch();
+
+        await act(() => {
+          render(
+            <Chat client={client}>
+              <Channel channel={channel}>
+                <VirtualizedMessageList />
+              </Channel>
+            </Chat>,
+          );
+        });
+
+        return { channel, client, mockedChannel, user };
+      };
+
+      it('is not shown for a scrolled-up window older than the latest messages', async () => {
+        const { channel } = await renderListWithChannel();
+
+        scrollUp();
+        act(() => {
+          channel.messagePaginator.state.partialNext({ hasMoreHead: true });
+        });
+
+        expect(screen.getByTestId(SCROLL_TO_LATEST_MESSAGE_TEST_ID)).toBeInTheDocument();
+        expect(
+          screen.queryByTestId(NEW_MESSAGE_NOTIFICATION_TEST_ID),
+        ).not.toBeInTheDocument();
+      });
+
+      it('is not shown when the window is replaced by the latest messages while scrolled up', async () => {
+        const { channel, user } = await renderListWithChannel();
+
+        scrollUp();
+        act(() => {
+          channel.messagePaginator.setItems({
+            isFirstPage: true,
+            isLastPage: true,
+            valueOrFactory: Array.from({ length: 5 }, (_v, i) =>
+              fromPartial<LocalMessage>(generateMessage({ id: `latest-msg-${i}`, user })),
+            ),
+          });
+        });
+
+        expect(
+          screen.queryByTestId(NEW_MESSAGE_NOTIFICATION_TEST_ID),
+        ).not.toBeInTheDocument();
+      });
+
+      it('is shown when a message from another user arrives while scrolled up', async () => {
+        const { channel, client, mockedChannel, user } = await renderListWithChannel();
+
+        scrollUp();
+        expect(
+          screen.queryByTestId(NEW_MESSAGE_NOTIFICATION_TEST_ID),
+        ).not.toBeInTheDocument();
+
+        act(() => {
+          dispatchMessageNewEvent(
+            client,
+            generateMessage({ cid: channel.cid, id: 'arrived-msg', user }),
+            mockedChannel.channel,
+          );
+        });
+
+        expect(
+          await screen.findByTestId(NEW_MESSAGE_NOTIFICATION_TEST_ID),
+        ).toBeInTheDocument();
+      });
+    });
+
     it('anchors scrollToBottom to the end of the last item', async () => {
       const props = await renderList();
 
@@ -384,6 +615,69 @@ describe('VirtualizedMessageList', () => {
         align: 'end',
         index: MESSAGE_COUNT - 1,
       });
+    });
+  });
+
+  describe('groupByUser', () => {
+    // Three consecutive messages from one user, with explicit IDs because the file-wide nanoid
+    // mock collapses generated ones.
+    const renderGroupStyles = async (listProps = {}) => {
+      const user = generateUser();
+      const messages = [0, 1, 2].map((i) =>
+        generateMessage({ id: `group-msg-${i}`, user }),
+      );
+      const mockedChannel = generateChannel({
+        members: [generateMember({ user })],
+        messages,
+      });
+      const client = await getTestClientWithUser({ id: 'id' });
+      useMockedApis(client, [getOrCreateChannelApi(mockedChannel)]); // eslint-disable-line react-hooks/rules-of-hooks
+      const channel = client.channel('messaging', mockedChannel.channel.id);
+      await channel.watch();
+      virtuosoProps.length = 0;
+
+      await act(() => {
+        render(
+          <Chat client={client}>
+            <Channel channel={channel}>
+              <VirtualizedMessageList {...listProps} />
+            </Channel>
+          </Chat>,
+        );
+      });
+      const readGroupStyles = () => {
+        const { messageGroupStyles } = virtuosoProps[virtuosoProps.length - 1].context;
+        return messages.map(({ id }) => messageGroupStyles[id]);
+      };
+      return { client, messages, mockedChannel, readGroupStyles };
+    };
+
+    it('does not group messages by user unless set', async () => {
+      const { readGroupStyles } = await renderGroupStyles();
+      expect(readGroupStyles()).toEqual(['single', 'single', 'single']);
+    });
+
+    it('groups consecutive messages from one user when set', async () => {
+      const { readGroupStyles } = await renderGroupStyles({ groupByUser: true });
+      expect(readGroupStyles()).toEqual(['top', 'middle', 'bottom']);
+    });
+
+    // An edited message ends its group, but the number of messages stays the same.
+    it('recomputes the group styles when a message is edited', async () => {
+      const { client, messages, mockedChannel, readGroupStyles } =
+        await renderGroupStyles({
+          groupByUser: true,
+        });
+
+      act(() => {
+        dispatchMessageUpdatedEvent(
+          client,
+          { ...messages[0], message_text_updated_at: messages[0].created_at },
+          mockedChannel.channel,
+        );
+      });
+
+      expect(readGroupStyles()).toEqual(['single', 'top', 'bottom']);
     });
   });
 });

@@ -72,6 +72,12 @@ describe('useLatestMessagePreview', () => {
     });
   });
 
+  it('returns the message text with its markdown syntax', () => {
+    const message = generateMessage({ text: 'item **done**', user: otherUser });
+    const { result } = renderPreviewHook({ latestMessage: message });
+    expect(result.current.text).toBe('item **done**');
+  });
+
   describe('error / failed message', () => {
     it('returns error type for failed message', () => {
       const message = generateMessage({ status: 'failed', user: ownUser });
@@ -101,6 +107,12 @@ describe('useLatestMessagePreview', () => {
       const message = generateMessage({ status: 'sending', user: ownUser });
       const { result } = renderPreviewHook({ latestMessage: message });
       expect(result.current.deliveryStatus).toBe('sending');
+    });
+
+    it('sets no delivery status for a message status that is not a delivery status', () => {
+      const message = generateMessage({ status: 'received', user: ownUser });
+      const { result } = renderPreviewHook({ latestMessage: message });
+      expect(result.current.deliveryStatus).toBeUndefined();
     });
 
     it('does not set delivery status for other users messages', () => {
@@ -341,7 +353,7 @@ describe('useLatestMessagePreview', () => {
       expect(result.current.text).toBe('2 files');
     });
 
-    // v10: attachment-specific fields such as `duration` live under `attachment.custom`.
+    // attachment-specific fields such as `duration` live under `attachment.custom`.
     it('appends duration for single audio/video attachment', () => {
       const message = generateMessage({
         attachments: [

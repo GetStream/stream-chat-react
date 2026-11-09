@@ -10,15 +10,15 @@ import { hasSystemNotificationTag } from './useNotificationApi';
 export type UseSystemNotificationsFilter = (notification: Notification) => boolean;
 
 export type UseSystemNotificationsOptions = {
-  /**
-   * Applied after the built-in filter that keeps only notifications tagged for the system banner.
-   */
+  /** Applied after the built-in filter for system-tagged notifications. */
   filter?: UseSystemNotificationsFilter;
 };
 
 /**
- * Subscribes to `client.notifications` and returns only **system** banner notifications
- * (same subset `NotificationList` excludes from toasts). Optional `filter` narrows further.
+ * Subscribes to `client.notifications` and returns the system banner notifications, which
+ * `NotificationList` leaves out of its toasts.
+ *
+ * @param options.filter - Narrows the system notifications further.
  */
 export const useSystemNotifications = (
   options?: UseSystemNotificationsOptions,

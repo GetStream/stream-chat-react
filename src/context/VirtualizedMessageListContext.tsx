@@ -3,7 +3,7 @@ import type { PropsWithChildren } from 'react';
 import { requireContext } from './requireContext';
 
 export type VirtualizedMessageListContextValue = {
-  /** Function that scrolls the list to the bottom. */
+  /** Scrolls the list to the bottom. */
   scrollToBottom: () => void;
 };
 
@@ -11,9 +11,7 @@ export const VirtualizedMessageListContext = createContext<
   VirtualizedMessageListContextValue | undefined
 >(undefined);
 
-/**
- * Context provider for components rendered within the `VirtualizedMessageList`
- */
+/** Provides the value to components rendered within the `VirtualizedMessageList`. */
 export const VirtualizedMessageListContextProvider = ({
   children,
   value,

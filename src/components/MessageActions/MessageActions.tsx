@@ -1,5 +1,6 @@
 import clsx from 'clsx';
 import React, { type ComponentPropsWithRef, useState } from 'react';
+import type { LocalMessage } from 'stream-chat';
 
 import {
   useComponentContext,
@@ -18,8 +19,8 @@ import { ReactionSelector } from '../Reactions';
 import { useSplitActionSet } from '../Chat/hooks/useSplitActionSet';
 
 /**
- * The action types {@link defaultMessageActionSet} ships. Listed for autocomplete only -- a custom
- * action names itself, so any string is accepted.
+ * The action types {@link defaultMessageActionSet} ships, listed for autocomplete. Any string is
+ * accepted, so custom actions name themselves.
  */
 export type DefaultMessageActionType =
   | 'blockUser'
@@ -38,7 +39,21 @@ export type DefaultMessageActionType =
   | 'resendMessage'
   | 'saveForLater';
 
+/** What an action's `isVisible` rule is checked against. */
+export type MessageActionVisibilityFilterParams = {
+  /** Whether the connected user sent the message. */
+  isMyMessage: boolean;
+  /** Whether the message is a thread reply. */
+  isThreadReply: boolean;
+  message: LocalMessage;
+};
+
 type BaseMessageActionSetItem = {
+  /**
+   * Hides the action for a message, e.g. `edit` for a poll. Cannot show an action the base filter
+   * removes (capabilities, server features, message status). Shown when omitted.
+   */
+  isVisible?: (state: MessageActionVisibilityFilterParams) => boolean;
   type: DefaultMessageActionType | (string & {});
 };
 
@@ -74,15 +89,14 @@ interface MessageActionsInterface {
 }
 
 /**
- * A new actions component to replace current `MessageOptions` component.
- * Exports from `stream-chat-react/experimental` __MIGHT__ change - use with caution
- * and follow release notes in case you notice unexpected behavior.
+ * Renders a message's quick actions and its actions dropdown menu, or nothing when there are no
+ * actions.
  */
 export const MessageActions: MessageActionsInterface = ({
   disableBaseMessageActionSetFilter = false,
   messageActionSet = defaultMessageActionSet,
 }) => {
-  const { isMyMessage, message, threadList } = useMessageContext();
+  const { isMyMessage, message } = useMessageContext();
   const { ContextMenu: ContextMenuComponent = ContextMenu } = useComponentContext();
   const { t } = useTranslationContext();
   const [actionsBoxButtonElement, setActionsBoxButtonElement] =
@@ -99,7 +113,6 @@ export const MessageActions: MessageActionsInterface = ({
   const messageActionsDialogId = MessageActions.getDialogId({ messageId: message.id });
   const reactionSelectorDialogId = ReactionSelector.getDialogId({
     messageId: message.id,
-    threadList,
   });
   const dropdownReactionSelectorDialogId = `${reactionSelectorDialogId}-dropdown`;
   const { dialog, dialogManager } = useDialogOnNearestManager({
@@ -118,7 +131,6 @@ export const MessageActions: MessageActionsInterface = ({
     dialogManager?.id,
   );
 
-  // do not render anything if total action count is zero
   if (dropdownActionSet.length + quickActionSet.length === 0) {
     return null;
   }

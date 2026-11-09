@@ -5,10 +5,10 @@ import clsx from 'clsx';
 
 import type { MessagePaginatorAggregateState, ThreadState } from 'stream-chat';
 
-import { Timestamp } from '../../Message/Timestamp';
+import { Timestamp as DefaultTimestamp } from '../../Message/Timestamp';
 import {
-  Avatar,
   type AvatarProps,
+  Avatar as DefaultAvatar,
   AvatarStack as DefaultAvatarStack,
 } from '../../Avatar';
 import { extractDisplayInfo as defaultExtractDisplayInfo } from '../../Avatar/utils';
@@ -24,9 +24,10 @@ import { useThreadListItemContext } from './ThreadListItem';
 import { useStateStore } from '../../../store';
 import { Badge } from '../../Badge';
 import {
-  SummarizedMessagePreview,
+  SummarizedMessagePreview as DefaultSummarizedMessagePreview,
   useLatestMessagePreview,
 } from '../../SummarizedMessagePreview';
+import { getPlainPreviewText } from '../../SummarizedMessagePreview/previewText';
 import {
   composeThreadListItemAccessibleLabel,
   type ThreadListItemLabelConfig,
@@ -34,8 +35,8 @@ import {
 
 export type ThreadListItemUIProps = ComponentPropsWithoutRef<'button'> & {
   /**
-   * Configures the row's composed accessible name (the `aria-label`). Override individual parts, the
-   * order, the separator, or supply a full `build`. See `composeThreadListItemAccessibleLabel`.
+   * Configures the composed accessible name (`aria-label`): its parts, their order, the separator,
+   * or a full `build`. See `composeThreadListItemAccessibleLabel`.
    */
   accessibleLabelConfig?: ThreadListItemLabelConfig;
   resetHighlighting?: () => void;
@@ -73,13 +74,10 @@ export const ThreadListItemUI = ({
     replyCount,
   } = useStateStore(thread.state, selector);
 
-  // Replies live in the thread's message paginator. The latest reply is tracked on the paginator's
-  // `aggregateState` (advanced on every ingest), NOT derived from the pagination `state`: a reply
-  // arriving via WS lands in the head interval, which is not the active window here, so the
-  // pagination store would not emit. `aggregateState` is written directly on each advance, so this
-  // subscription stays reactive.
+  // `aggregateState` advances on every ingest; the pagination `state` does not emit for a reply
+  // that lands outside the active interval.
   const latestReplySelector = useCallback(
-    (state: MessagePaginatorAggregateState) => ({ latestReply: state.lastMessage }),
+    (state: MessagePaginatorAggregateState) => ({ latestReply: state.latestMessage }),
     [],
   );
 
@@ -93,18 +91,42 @@ export const ThreadListItemUI = ({
   const { announceInteraction } = useInteractionAnnouncements();
   const { isThreadActive, openThread } = useWorkspaceNavigation();
   const {
+    Avatar = DefaultAvatar,
     AvatarStack = DefaultAvatarStack,
     extractDisplayInfo = defaultExtractDisplayInfo,
+    SummarizedMessagePreview = DefaultSummarizedMessagePreview,
+    Timestamp = DefaultTimestamp,
   } = useComponentContext();
   const isSelected = isThreadActive(thread.id);
 
-  // Reuse the SAME preview the visible subtitle renders (text + sender, all message kinds), so the
-  // announced parent message matches what is shown.
-  const { senderName: parentMessageSender, text: parentMessagePreview } =
-    useLatestMessagePreview({
-      latestMessage: parentMessage,
-      participantCount: participants?.length,
-    });
+  // The visible subtitle's preview, read as words: bullets, task checkboxes and table separators
+  // are left out.
+  const {
+    senderName: parentMessageSender,
+    text: parentMessagePreviewText,
+    type: parentMessagePreviewType,
+  } = useLatestMessagePreview({
+    latestMessage: parentMessage,
+    participantCount: participants?.length,
+  });
+  const parentMessagePreview = useMemo(
+    () =>
+      getPlainPreviewText({
+        format: 'announcement',
+        isMessageAIGenerated,
+        latestMessage: parentMessage,
+        text: parentMessagePreviewText,
+        type: parentMessagePreviewType,
+        userLanguage,
+      }),
+    [
+      isMessageAIGenerated,
+      parentMessage,
+      parentMessagePreviewText,
+      parentMessagePreviewType,
+      userLanguage,
+    ],
+  );
 
   const accessibleLabel = useMemo(
     () =>
@@ -186,9 +208,8 @@ export const ThreadListItemUI = ({
         onClick={(event) => {
           // ⌘/ctrl-click opens the thread beside the current one; a plain click replaces it.
           void openThread(thread, { additive: event.ctrlKey || event.metaKey });
-          // Confirm the opened thread to assistive tech, debounced in the registry so it lands after
-          // the thread composer's focus announcement rather than competing with it. Skip when the
-          // row is already the active thread (re-selecting announces nothing new).
+          // Delayed by the registry so the announcement lands after the thread composer's focus
+          // announcement. Skipped when the row is already the active thread.
           if (!isSelected && channelDisplayTitle) {
             announceInteraction('thread.opened', { name: channelDisplayTitle });
           }

@@ -4,10 +4,11 @@ import { Viewer } from '../../Dialog';
 import { PollVote } from '../PollVote';
 import { usePollAnswerPagination, usePollTextTranslation } from '../hooks';
 import { InfiniteScrollPaginator } from '../../InfiniteScrollPaginator/InfiniteScrollPaginator';
-import { LoadingIndicator } from '../../Loading';
+import { LoadingIndicator as DefaultLoadingIndicator } from '../../Loading';
 import { useStateStore } from '../../../store';
 import {
   useChatContext,
+  useComponentContext,
   useModalContext,
   usePollContext,
   useTranslationContext,
@@ -30,6 +31,7 @@ export type PollAnswerListProps = {
 
 export const PollAnswerList = ({ onUpdateOwnAnswerClick }: PollAnswerListProps) => {
   const { client } = useChatContext();
+  const { LoadingIndicator = DefaultLoadingIndicator } = useComponentContext();
   const { t } = useTranslationContext();
   const { poll } = usePollContext();
   const { close } = useModalContext();

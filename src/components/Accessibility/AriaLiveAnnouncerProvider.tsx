@@ -11,12 +11,10 @@ import {
   type AriaLivePriority,
 } from './useAriaLiveAnnouncer';
 
-// How long an announcement node stays in the DOM before cleanup. This is NOT how long the
-// message is "valid" — with `aria-relevant="additions"` a lingering node is never re-announced;
-// the only cost of a longer value is a few extra (visually hidden) nodes transiently. It must be
-// long enough that a polite message queued BEHIND verbose screen-reader speech (e.g. the typing
-// echo + a focused-field re-announcement) is still present when the reader reaches it — a short
-// window (~1.5s) drops those. 7s comfortably covers that.
+// How long an announcement node stays in the DOM. With `aria-relevant="additions"` a lingering node
+// is never re-announced, so a long value only costs a few hidden nodes. It must outlast verbose
+// screen-reader speech (e.g. typing echo) that a polite message can be queued behind; ~1.5s drops
+// those messages.
 const LIVE_ANNOUNCEMENT_TTL_MS = 7000;
 
 type RegisteredOutlet = {
@@ -25,14 +23,9 @@ type RegisteredOutlet = {
 };
 
 /**
- * Owns the aria-live announcement state and the announce() API for one logical announcer
- * (mount ONE per `Chat`). It renders no DOM region itself — the messages are painted by the
- * single active {@link AriaLiveOutlet} chosen from the registered outlet stack (innermost /
- * highest-layer wins). This is the L1 sink of the unified announcer model; see
- * `specs/a11y-react-web/decisions.md` → "Unify the aria-live announcer implementations".
- *
- * All state lives here (per provider instance), never in module scope, so multiple `Chat`
- * instances on one page never share announcements.
+ * Owns the aria-live announcement state and the `announce()` API; `Chat` mounts one. It renders no
+ * live region itself: the highest-layer registered {@link AriaLiveOutlet} paints the messages.
+ * State is per provider instance, so several `Chat` instances on a page never share announcements.
  */
 export const AriaLiveAnnouncerProvider = ({ children }: PropsWithChildren) => {
   const [announcementsByPriority, setAnnouncementsByPriority] =
@@ -44,19 +37,15 @@ export const AriaLiveAnnouncerProvider = ({ children }: PropsWithChildren) => {
   const timeoutByAnnouncementIdRef = useRef<Map<number, ReturnType<typeof setTimeout>>>(
     new Map(),
   );
-  // Pending `delayMs` timers (announcements scheduled but not yet emitted). Tracked so they can
-  // be cleared on provider unmount; each call also returns a `cancel` that clears its own timer.
+  // Pending `delayMs` timers, cleared on unmount.
   const delayTimersRef = useRef<Set<ReturnType<typeof setTimeout>>>(new Set());
-  // Messages emitted within their `dedupeMs` window (message -> expiry timer). Used to suppress
-  // an identical repeat (e.g. a StrictMode-double-invoked effect) within the window.
+  // Messages emitted within their `dedupeMs` window (message -> expiry timer); an identical repeat
+  // inside the window is suppressed.
   const dedupeTimersByMessageRef = useRef<Map<string, ReturnType<typeof setTimeout>>>(
     new Map(),
   );
-  // The exact text last rendered into a live region. Screen readers (notably VoiceOver)
-  // suppress a live-region update whose text is identical to the previous one, so repeated
-  // identical announcements (e.g. shuffling a Giphy, whose description is the constant search
-  // term) would be voiced only once. We alternate a trailing zero-width space to force a
-  // detectable change — see `announce`.
+  // Text last rendered into a live region. Screen readers (notably VoiceOver) skip an update whose
+  // text equals the previous one.
   const lastRenderedMessageRef = useRef('');
 
   const removeAnnouncement = useCallback((priority: AriaLivePriority, id: number) => {
@@ -78,10 +67,8 @@ export const AriaLiveAnnouncerProvider = ({ children }: PropsWithChildren) => {
     (message: string, priority: AriaLivePriority) => {
       const announcementId = nextAnnouncementIdRef.current++;
 
-      // Append a (silent) zero-width space (U+200B) when the text would repeat the previous
-      // render, so consecutive identical announcements still differ and are re-voiced. Because
-      // it only appends when equal to the last render, the rendered text alternates between
-      // `X` and `X` + U+200B, guaranteeing every update is a change the screen reader speaks.
+      // A repeat gets a trailing zero-width space (U+200B), so consecutive identical messages
+      // alternate between `X` and `X` + U+200B and are each voiced.
       const ZERO_WIDTH_SPACE = '\u200B';
       const renderedMessage =
         message === lastRenderedMessageRef.current
@@ -110,13 +97,12 @@ export const AriaLiveAnnouncerProvider = ({ children }: PropsWithChildren) => {
     (message, options) => {
       const { dedupeMs, delayMs, priority = 'polite' } = options ?? {};
 
-      // Emit, applying the dedupe window if requested. The check runs at EMIT time (not call
-      // time) so a delayed announcement that is cancelled before it fires never marks the message
-      // as seen — only an actually-emitted message opens the window.
+      // The dedupe check runs at emit time, so a delayed announcement cancelled before it fires
+      // never opens the window.
       const emitMessage = () => {
         if (dedupeMs) {
           const recent = dedupeTimersByMessageRef.current;
-          if (recent.has(message)) return; // identical message within the window — suppress
+          if (recent.has(message)) return; // Identical message within the window.
           recent.set(
             message,
             setTimeout(() => recent.delete(message), dedupeMs),
@@ -187,12 +173,9 @@ export const AriaLiveAnnouncerProvider = ({ children }: PropsWithChildren) => {
   }, [outlets]);
   const activeOutletId = activeOutlet?.id ?? null;
 
-  // Drop pending announcements when the active outlet falls back to a LOWER layer because a higher
-  // one unmounted (e.g. a modal dialog closed). The shared announcement state otherwise re-renders
-  // into the newly active (main) outlet and the screen reader re-announces it — so messages emitted
-  // inside a dialog (e.g. option-reorder pickup/move/drop) would be voiced again after the dialog
-  // is gone. We only clear on fall-back: when a HIGHER outlet MOUNTS (a dialog opening), the state
-  // must survive so an open-time announcement still renders in the now-active dialog outlet.
+  // Drops the rendered announcements when the active outlet falls back to a lower layer (a dialog
+  // closed): they would re-render into the lower outlet and be voiced again. A higher outlet
+  // mounting drops nothing, so an announcement made as a dialog opens still renders in it.
   const previousActiveLayerRef = useRef(activeOutlet?.layer ?? -1);
   useEffect(() => {
     const currentLayer = activeOutlet?.layer ?? -1;

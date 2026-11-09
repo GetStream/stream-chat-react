@@ -3,7 +3,6 @@ import { visit } from 'unist-util-visit';
 import type { Node, Parent as UnistParent } from 'unist';
 import type { Root, RootContent, ThematicBreak } from 'mdast';
 
-/** Type guard: does the node have mdast children? */
 function isParentWithChildren(
   node: Node,
 ): node is UnistParent & { children: RootContent[] } {
@@ -11,23 +10,31 @@ function isParentWithChildren(
   return Array.isArray(maybe.children);
 }
 
-/** Build a single <br> by mapping a standard mdast node via data.hName */
+/**
+ * A table holds only rows, and the line gap between its rows is not a blank line: the delimiter
+ * row between the header and the first data row is syntax. A `<br>` there would render as an
+ * empty row and is invalid inside `<tbody>`.
+ */
+function holdsOnlyTableRows(node: Node): boolean {
+  return node.type === 'table';
+}
+
+/** A `thematicBreak` that `mdast-util-to-hast` renders as `<br>` through `data.hName`. */
 function brNode(): ThematicBreak {
   return { data: { hName: 'br' }, type: 'thematicBreak' };
 }
 
 /**
- * Inserts runs of <br> between sibling block nodes to preserve the exact
- * number of *blank source lines* between them. No paragraph wrappers are added.
- *
- * Works because `mdast-util-to-hast` respects `data.hName`, turning our
- * `thematicBreak` into `<br>`. Multiple blank lines -> multiple `<br>` siblings.
+ * Preserves the blank source lines between sibling block nodes by inserting a `<br>` for each
+ * blank line. The rows of a table are left as they are.
  */
 export const keepLineBreaksPlugin: Plugin<[], Root> = () => (tree) => {
   visit(
     tree as unknown as UnistParent, // visit needs a Unist parent-like root
     isParentWithChildren, // limit to parents with children
     (parent) => {
+      if (holdsOnlyTableRows(parent)) return;
+
       const children = parent.children as RootContent[];
       if (children.length < 2) return;
 
@@ -50,8 +57,7 @@ export const keepLineBreaksPlugin: Plugin<[], Root> = () => (tree) => {
           continue;
         }
 
-        // Markdown already separates blocks by at least one visual gap.
-        // We add back only the *extra* blank lines from the source.
+        // Each blank source line between the two nodes becomes one `<br>`.
         const extraBlankLines = Math.max(0, nextStartLine - currEndLine - 1);
         if (extraBlankLines > 0) {
           for (let k = 0; k < extraBlankLines; k++) {

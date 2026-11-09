@@ -5,20 +5,15 @@ import type { SearchProps } from './Search';
 import { requireContext } from '../../context/requireContext';
 
 export type SearchContextValue = {
-  /** Instance of the search controller that handles the data management */
   searchController: SearchController;
-  /** Reference to the container element of the search component */
   containerRef: React.RefObject<HTMLDivElement | null>;
-  /** Reference to the container element of the filter buttons */
   filterButtonsContainerRef: React.RefObject<HTMLDivElement | null>;
 } & Pick<SearchProps, 'disabled' | 'inputProps' | 'placeholder'> &
   Required<Pick<SearchProps, 'exitSearchOnInputBlur' | 'directMessagingChannelType'>>;
 
 export const SearchContext = createContext<SearchContextValue | undefined>(undefined);
 
-/**
- * Context provider for components rendered within the `Search` component
- */
+/** Provides the search state to the components rendered inside `Search`. */
 export const SearchContextProvider = ({
   children,
   value,

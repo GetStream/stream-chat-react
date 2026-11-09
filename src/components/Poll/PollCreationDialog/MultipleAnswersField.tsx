@@ -59,7 +59,7 @@ export const MultipleAnswersField = () => {
         id='enforce_unique_vote'
         onChange={(e) => {
           setVoteLimitEnabled(false);
-          pollComposer.updateFields({ enforce_unique_vote: !e.target.checked });
+          pollComposer.updateFields({ data: { enforce_unique_vote: !e.target.checked } });
         }}
         title={t('poll.multipleAnswersField.multipleVotes.title', 'Multiple Votes')}
       />
@@ -72,7 +72,7 @@ export const MultipleAnswersField = () => {
           onChange={(event) => {
             const nextVoteLimitEnabled = event.target.checked;
             setVoteLimitEnabled(nextVoteLimitEnabled);
-            pollComposer.updateFields({ max_votes_allowed: '2' });
+            pollComposer.updateFields({ data: { max_votes_allowed: '2' } });
             if (!nextVoteLimitEnabled) return;
             requestAnimationFrame(() => {
               maxVotesInputRef.current?.focus();
@@ -110,21 +110,20 @@ export const MultipleAnswersField = () => {
                   const nativeFieldValidation =
                     raw !== '' && !/^\d+$/.test(raw)
                       ? {
-                          // Injected field errors take the same shape core produces, so the render
-                          // path is identical whether the error came from here or from the composer.
+                          // Same shape as a composer error, so it renders identically.
                           max_votes_allowed: pollComposerValidationError(
                             POLL_COMPOSER_VALIDATION_CODE.maxVotesNotNumeric,
                           ),
                         }
                       : undefined;
-                  pollComposer.updateFields(
-                    {
+                  pollComposer.updateFields({
+                    data: {
                       max_votes_allowed: nativeFieldValidation
                         ? pollComposer.max_votes_allowed
                         : raw,
                     },
-                    nativeFieldValidation,
-                  );
+                    injectedFieldErrors: nativeFieldValidation,
+                  });
                 }}
                 ref={maxVotesInputRef}
                 value={max_votes_allowed ?? ''}

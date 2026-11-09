@@ -17,18 +17,17 @@ const emptyGroupInfo: GroupChannelDisplayInfo = {
 };
 
 export type ChannelPreviewInfoParams = {
-  /** Channel to read display info from; when undefined, returns undefined display title/image */
+  /** Channel to read display info from. Without one, only the overrides give a title and image. */
   channel?: Channel;
-  /** Manually set the image to render, defaults to the Channel image */
+  /** Image to render instead of the channel image. */
   overrideImage?: string;
-  /** Set title manually */
+  /** Title to render instead of the channel display name. */
   overrideTitle?: string;
 };
 
 /**
  * The title, image and group members a channel preview shows. Derived from the channel's `data`
- * and `members`, so a preview re-renders only when its own channel changes: an updated user reaches
- * the channels that contain them through the member the client replaces.
+ * and `members`, so a preview re-renders only when its own channel changes.
  */
 export const useChannelPreviewInfo = (props: ChannelPreviewInfoParams) => {
   const { channel, overrideImage, overrideTitle } = props;

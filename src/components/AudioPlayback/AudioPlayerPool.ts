@@ -6,9 +6,9 @@ export type AudioPlayerPoolState = AudioPlaybackArbiterState;
 
 export type AudioPlayerPoolOptions = {
   /**
-   * Decides which player may play, and owns the element they share. Pools given the same arbiter
-   * cannot play over each other -- which is how `Channel` and `Thread`, each with their own pool,
-   * stay exclusive. Left out, the pool arbitrates alone.
+   * Decides which player may play and owns the element they share. Pools given the same arbiter
+   * cannot play over each other (`Channel` and `Thread` pools share one). Defaults to an arbiter
+   * used by this pool alone.
    */
   arbiter?: AudioPlaybackArbiter;
 };
@@ -64,7 +64,10 @@ export class AudioPlayerPool {
   setActiveAudioPlayer = (activeAudioPlayer: AudioPlayer | null) =>
     this.arbiter.setActivePlayer(activeAudioPlayer);
 
-  /** Removes the AudioPlayer instance from the pool of players */
+  /**
+   * Removes the player from the pool, and clears the active player if it is that one.
+   * @param id - ID of the player to deregister.
+   */
   deregister(id: string) {
     if (this.pool.has(id)) {
       this.pool.delete(id);
@@ -74,7 +77,10 @@ export class AudioPlayerPool {
     }
   }
 
-  /** Performs all the necessary cleanup actions and removes the player from the pool */
+  /**
+   * Disposes the player with `requestRemoval`, which deregisters it from the pool.
+   * @param id - ID of the player to remove.
+   */
   remove = (id: string) => {
     const player = this.pool.get(id);
     if (!player) return;
@@ -89,8 +95,8 @@ export class AudioPlayerPool {
   };
 
   registerSubscriptions = () => {
-    // Only register subscriptions for players that have an attached element -- every other player
-    // would otherwise cross-wire listeners onto the shared element it does not currently own.
+    // Only players with an attached element register: any other would cross-wire listeners onto
+    // the shared element it does not currently own.
     this.players.forEach((p) => {
       if (p.elementRef) {
         p.registerSubscriptions();

@@ -29,8 +29,8 @@ const makeThread = (id: string) => ({ id }) as unknown as StreamThread;
 // The channels view with two slots side by side.
 const twoSlotLayouts = [{ id: 'channels' as const, slots: ['slot1', 'slot2'] }];
 
-// D7 — active-view slot state lives under `layouts[activeView]`; project it (plus the
-// top-level `activeView`) into one object so assertions can read both.
+// Active-view slot state lives under `layouts[activeView]`; project it with the top-level
+// `activeView` into one object so assertions can read both.
 const viewState = (controller?: LayoutController | null) => {
   if (!controller) return undefined;
   const state = controller.state.getLatestValue();
@@ -485,11 +485,9 @@ describe('useChatViewNavigation', () => {
     );
   });
 
-  // Regression: opening two channels side-by-side (⌘/ctrl-click a channel in the list opens it
-  // into the secondary slot beside the primary channel). This relies on the layout holding two
-  // `channel` bindings in two slots at once. The second channel must open into an EXPLICIT slot
-  // — the default same-kind resolution would otherwise replace the channel already open — and
-  // doing so must leave the first channel's slot untouched.
+  // Regression: a channel opened beside the primary one (cmd/ctrl-click in the list) must target an
+  // explicit slot, because the default same-kind resolution would replace the open channel. The
+  // first channel's slot stays untouched.
   it('keeps two channels bound side-by-side when the second opens into an explicit slot', () => {
     const primaryChannel = makeChannel('messaging:primary');
     const secondaryChannel = makeChannel('messaging:secondary');
@@ -546,7 +544,6 @@ describe('useChatViewNavigation', () => {
     const slot1Binding = getChatViewEntityBinding(state?.slotBindings.slot1);
     const slot2Binding = getChatViewEntityBinding(state?.slotBindings.slot2);
 
-    // Both channels stay bound at once — the second did not replace the first.
     expect(slot1Binding?.kind).toBe('channel');
     expect(slot1Binding?.source).toBe(primaryChannel);
     expect(slot2Binding?.kind).toBe('channel');
@@ -554,10 +551,8 @@ describe('useChatViewNavigation', () => {
     expect(state?.activeView).toBe('channels');
   });
 
-  // Base policy: opening a reply thread while both slots are occupied by channels must NOT evict
-  // either channel. The primary/anchor channel stays put, and — since the only remaining target is
-  // the occupied secondary slot — the thread STACKS as a layer over the 2nd channel instead of
-  // replacing it. `close`/`popLayer` on that slot restores the 2nd channel.
+  // Opening a reply thread while both slots hold channels evicts neither: the thread stacks as a
+  // layer over the secondary channel, and `close`/`popLayer` on that slot restores the channel.
   it('layers a thread over the secondary channel instead of evicting it', () => {
     const primaryChannel = makeChannel('messaging:primary');
     const secondaryChannel = makeChannel('messaging:secondary');
@@ -629,8 +624,6 @@ describe('useChatViewNavigation', () => {
     const slot2Binding = getChatViewEntityBinding(state?.slotBindings.slot2);
     const slot2TopLayer = getChatViewEntityBinding(state?.slotLayers?.slot2?.[0]);
 
-    // Primary channel stays put in slot1; the 2nd channel stays as slot2's base with the thread
-    // stacked on top as a layer.
     expect(slot1Binding?.kind).toBe('channel');
     expect(slot1Binding?.source).toBe(primaryChannel);
     expect(slot2Binding?.kind).toBe('channel');
@@ -753,8 +746,8 @@ describe('useChatViewNavigation', () => {
     });
   });
 
-  // ⌘/ctrl-clicking a channel into a secondary slot that already shows a channel stacks it, so the
-  // header can step back to the previous one or close the whole panel.
+  // cmd/ctrl-clicking a channel into a secondary slot that already shows a channel stacks it, so
+  // the header can step back to the previous one or close the whole panel.
   describe('a channel opened beside the primary one over another channel', () => {
     const primaryChannel = makeChannel('messaging:primary');
     const firstBeside = makeChannel('messaging:first-beside');
@@ -902,8 +895,8 @@ describe('useChatViewNavigation', () => {
     });
   });
 
-  // `ChannelHeader` shows its close button from `isChannelDismissable`: only a channel opened beside
-  // another one can be dismissed, and `closeChannel` releases its slot without touching the primary.
+  // `ChannelHeader` shows its close button from `isChannelDismissable`: only a channel opened
+  // beside another one can be dismissed, and `closeChannel` releases its slot, not the primary's.
   it('lets only a channel opened beside another be dismissed, and closes it', () => {
     const primaryChannel = makeChannel('messaging:primary');
     const secondaryChannel = makeChannel('messaging:secondary');
@@ -980,10 +973,9 @@ describe('useChatViewNavigation', () => {
     expect(screen.getByTestId('dismissable')).toHaveTextContent('false,false');
   });
 
-  // Regression: `open(binding, { additive: true })` — used by ctrl/⌘-click on channel-list and
-  // search results — opens beside the current channel instead of replacing it. Without
-  // `additive`, a same-kind open resolves to the occupied primary slot and replaces it; with
-  // `additive` it must skip that and land in the free secondary slot.
+  // Regression: `open(binding, { additive: true })` (cmd/ctrl-click on the channel list and search
+  // results) opens beside the current channel. Without `additive` a same-kind open replaces the
+  // occupied primary slot; with it the open must land in the free secondary slot.
   it('opens additively into the secondary slot without replacing the primary channel', () => {
     const primaryChannel = makeChannel('messaging:primary');
     const secondaryChannel = makeChannel('messaging:secondary');
@@ -1040,7 +1032,6 @@ describe('useChatViewNavigation', () => {
     const slot1Binding = getChatViewEntityBinding(state?.slotBindings.slot1);
     const slot2Binding = getChatViewEntityBinding(state?.slotBindings.slot2);
 
-    // The additive open landed in the free secondary slot; the primary is untouched.
     expect(slot1Binding?.source).toBe(primaryChannel);
     expect(slot2Binding?.source).toBe(secondaryChannel);
   });
@@ -1175,10 +1166,10 @@ describe('useChatViewNavigation', () => {
     expect(viewState(capturedController)?.slotBindings.slot1).toBeUndefined();
   });
 
-  // Regression: `open(binding, { additive: true, layer: true })` stacks the binding as a layer on
-  // top of the (occupied) secondary slot instead of evicting it, and does NOT run the channel's
-  // dependent thread-release — so ⌘/ctrl-clicking a channel beside an open reply thread covers the
-  // thread without closing it.
+  // Regression: `open(binding, { additive: true, layer: true })` stacks the binding as a layer over
+  // the occupied secondary slot instead of evicting it, and does not release the channel's
+  // dependent thread, so cmd/ctrl-clicking a channel beside an open reply thread covers the thread
+  // without closing it.
   it('layers a channel over an open thread without releasing it', () => {
     const channelA = makeChannel('messaging:layer-primary');
     const channelB = makeChannel('messaging:layer-secondary');
@@ -1246,7 +1237,6 @@ describe('useChatViewNavigation', () => {
     fireEvent.click(screen.getByText('layer-channel'));
 
     const state = viewState(capturedController);
-    // slot2's base binding is still the thread; the 2nd channel sits on top as a layer.
     expect(getChatViewEntityBinding(state?.slotBindings.slot2)?.kind).toBe('thread');
     expect(state?.slotLayers?.slot2).toHaveLength(1);
     const topLayer = getChatViewEntityBinding(state?.slotLayers?.slot2?.[0]);
@@ -1633,6 +1623,74 @@ describe('stacked panels', () => {
       besideThread,
     );
   });
+
+  // A thread of another channel bound as a slot's base also stays when the primary channel is
+  // replaced; only the replaced channel's own threads are released.
+  it.each([
+    ['keeps', 'messaging:other', true],
+    ['releases', 'messaging:primary', false],
+  ])(
+    '%s a thread slot base of %s when the primary channel is replaced',
+    (_, threadCid, kept) => {
+      const primaryChannel = makeChannel('messaging:primary');
+      const nextChannel = makeChannel('messaging:next');
+      const thread = {
+        channel:
+          threadCid === primaryChannel.cid ? primaryChannel : makeChannel(threadCid),
+        id: 'thread',
+      } as unknown as StreamThread;
+      let capturedController: LayoutController | undefined;
+
+      const Harness = () => {
+        const navigation = useChatViewNavigation();
+        const { layoutController } = useChatViewContext();
+        capturedController = layoutController;
+
+        return (
+          <>
+            <button
+              onClick={() => navigation.open(channelBinding(primaryChannel))}
+              type='button'
+            >
+              open-primary
+            </button>
+            <button onClick={() => navigation.open(threadBinding(thread))} type='button'>
+              open-thread
+            </button>
+            <button
+              onClick={() => navigation.open(channelBinding(nextChannel))}
+              type='button'
+            >
+              open-next
+            </button>
+          </>
+        );
+      };
+
+      renderWithProviders(
+        <ChatView layouts={twoSlotLayouts}>
+          <Harness />
+        </ChatView>,
+      );
+
+      fireEvent.click(screen.getByText('open-primary'));
+      fireEvent.click(screen.getByText('open-thread'));
+      expect(
+        getChatViewEntityBinding(viewState(capturedController)?.slotBindings.slot2)
+          ?.source,
+      ).toBe(thread);
+
+      fireEvent.click(screen.getByText('open-next'));
+
+      const state = viewState(capturedController);
+      expect(getChatViewEntityBinding(state?.slotBindings.slot1)?.source).toBe(
+        nextChannel,
+      );
+      expect(getChatViewEntityBinding(state?.slotBindings.slot2)?.source).toBe(
+        kept ? thread : undefined,
+      );
+    },
+  );
 
   // The same channel can be open in both slots (the default duplicate policy allows it). The panel
   // a header renders in then decides which slot its back and close buttons act on.

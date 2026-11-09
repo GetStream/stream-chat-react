@@ -7,12 +7,14 @@ export type EventComponentProps = TimestampFormatterOptions & {
   message: LocalMessage & {
     event?: Event;
   };
+  /**
+   * Renders `message.html`, when the message has one, instead of the text. It is inserted
+   * unescaped, so enable this only for HTML your server trusts or sanitizes.
+   */
   unsafeHTML?: boolean;
 };
 
-/**
- * Component to display system and channel event messages
- */
+/** Displays a system message; renders nothing for other message types. */
 const UnMemoizedEventComponent = (props: EventComponentProps) => {
   const { message, unsafeHTML = false } = props;
   const { type } = message;
@@ -22,9 +24,9 @@ const UnMemoizedEventComponent = (props: EventComponentProps) => {
   return (
     <div className='str-chat__message--system' data-testid='message-system'>
       <div className='str-chat__message--system__text'>
-        {unsafeHTML ? (
+        {unsafeHTML && message.html ? (
           <div
-            dangerouslySetInnerHTML={{ __html: message.html || '' }}
+            dangerouslySetInnerHTML={{ __html: message.html }}
             data-unsafe-inner-html
           />
         ) : (

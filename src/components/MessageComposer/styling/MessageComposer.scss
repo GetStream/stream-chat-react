@@ -215,14 +215,11 @@
       }
     }
 
-    // todo: we need designs for this - I am hard-coding the dimensions
     .str-chat__stop-ai-generation-button {
-      width: 30px;
-      height: 28px;
-      cursor: pointer;
-      background-image: var(--str-chat__circle-stop-icon);
-      background-color: transparent;
-      border-width: 0;
+      .str-chat__icon--stop-fill {
+        height: var(--str-chat__icon-size-md);
+        width: var(--str-chat__icon-size-md);
+      }
     }
 
     .str-chat__message-composer-cooldown {

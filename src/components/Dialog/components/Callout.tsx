@@ -17,15 +17,13 @@ export type CalloutProps = PropsWithChildren<
 >;
 
 /**
- * Callout is a general purpose component that displays content in dialog that has been previously opened by clicking on a reference element
- * and has to be dismissed to disappear.
- * Tooltip on the other side is a dialog that appears upon pointer device cursor hovering above a reference element.
- * @param children
- * @param className
- * @param dialogManagerId
- * @param dialogId
- * @param onClose
- * @param anchorProps
+ * A dialog anchored to a reference element that stays open until it is dismissed.
+ * @param children - Content of the callout.
+ * @param className - Class name passed to the `CalloutDialog`.
+ * @param dialogManagerId - ID of the dialog manager holding the dialog.
+ * @param dialogId - ID of the dialog.
+ * @param onClose - Called by the close button of the default `CalloutDialog`.
+ * @param anchorProps - Remaining `DialogAnchor` props.
  * @constructor
  */
 

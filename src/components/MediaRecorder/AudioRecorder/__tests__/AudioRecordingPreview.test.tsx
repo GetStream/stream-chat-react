@@ -147,7 +147,7 @@ describe('AudioRecordingPlayback', () => {
       },
     });
     const slider = container.querySelector(WAVE_PROGRESS_BAR_INDICATOR_SELECTOR);
-    // Initial position is 0px (pixel-based positioning in v14)
+    // The indicator is positioned in pixels and starts at 0px.
     expect(slider).toHaveStyle({ 'inset-inline-start': '0px' });
     await act(() => {
       fireEvent.pointerDown(screen.getByTestId(WAVE_PROGRESS_BAR_TEST_ID));
@@ -160,7 +160,7 @@ describe('AudioRecordingPlayback', () => {
         },
       });
     });
-    // seek has been invoked, the audio element has been assigned, now it needs to signal it is ready
+    // The seek has assigned the audio element; signal that it is ready.
     vi.spyOn(player.elementRef, 'readyState', 'get').mockReturnValue(1);
     await act(() => {
       player.elementRef.dispatchEvent(new Event('loadedmetadata'));
@@ -168,8 +168,7 @@ describe('AudioRecordingPlayback', () => {
     await act(() => {
       fireEvent.pointerUp(screen.getByTestId(WAVE_PROGRESS_BAR_TEST_ID));
     });
-    // With container width=5 and clientX=3, progress=60%, so indicatorLeft = 3px
-    // But actual value depends on internal calculations including indicator width
+    // Width 5 and clientX 3 give 60% progress, but the inset also depends on the indicator width.
     const leftValue = parseInt((slider as HTMLElement).style.insetInlineStart, 10);
     expect(leftValue).toBeGreaterThan(0);
   });
@@ -190,7 +189,7 @@ describe('AudioRecordingPlayback', () => {
         clientX,
       });
     });
-    // seek has been invoked, the audio element has been assigned, now it needs to signal it is ready
+    // The seek has assigned the audio element; signal that it is ready.
     vi.spyOn(player.elementRef, 'readyState', 'get').mockReturnValue(1);
     await act(() => {
       player.elementRef.dispatchEvent(new Event('loadedmetadata'));

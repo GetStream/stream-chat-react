@@ -1,0 +1,29 @@
+[
+  {
+    "file": "user-details-panel.png",
+    "query": {
+      "channel": "docs-v15-cb-design",
+      "simulate": "online",
+      "online": "docs-v15-ck-bob",
+      "profile": "Bob"
+    },
+    "waitFor": ".cookbook-user-details__presence",
+    "settleMs": 1500
+  },
+  {
+    "file": "user-details-panel-with-thread.png",
+    "query": {
+      "channel": "docs-v15-cb-design",
+      "thread": "docs-v15-ck-design-4",
+      "simulate": "online",
+      "online": "docs-v15-ck-bob",
+      "profile": "Bob"
+    },
+    "waitFor": ".cookbook-user-details__presence",
+    "settleMs": 1500,
+    "viewport": {
+      "width": 1600,
+      "height": 720
+    }
+  }
+]

@@ -15,10 +15,9 @@ export const useFlagHandler = (message?: LocalMessage): ReactEventHandler => {
     event.preventDefault();
 
     if (!client || !t || !message?.id) {
-      console.warn(missingUseFlagHandlerParameterWarning);
-      return;
+      throw new Error(missingUseFlagHandlerParameterWarning);
     }
 
-    await client.moderation.flagMessage(message.id);
+    await client.moderation.flagMessage({ message_id: message.id });
   };
 };

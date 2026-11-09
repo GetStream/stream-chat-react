@@ -9,12 +9,6 @@ import { useChannelHasMembersOnline } from '../useChannelHasMembersOnline';
 
 import type { MockChannelState } from '../../../../mock-builders';
 
-// MERGE-RECONCILE (test migration): PR #2909 reworked useChannelHasMembersOnline from manual
-// `channel.on('user.watching.start/stop')` tracking (via the deleted ChannelStateContext) to a
-// reactive watcher-state subscription (through useChannel), now served by the unified
-// `channel.state`. The test provides a channel with a real state store and asserts the "exclude
-// the current user" logic and reactivity to store changes.
-
 const makeChannel = (watchers: Record<string, UserResponse> = {}) => {
   const state = generateChannelState({
     watcherCount: Object.keys(watchers).length,

@@ -1,12 +1,7 @@
-// What survives a channel change and what does not.
-//
-// `Channel` used to key its whole subtree on the channel, so a switch destroyed everything below
-// it -- including components with no per-channel state of their own. The reset now lives where the
-// state does: each message list keys itself on the channel instance (scroll position and
-// virtualization accounting describe the messages of one instance), while the channel subtree
-// around it is re-rendered rather than rebuilt. These tests pin both halves.
-//
-// Companion file: channelInstanceAxis.test.tsx, for why the identity is the instance, not the cid.
+// What a channel switch resets and what survives it. Each message list keys itself on the channel
+// instance, because scroll position and virtualization accounting describe the messages of one
+// instance, while the channel subtree around it is re-rendered rather than rebuilt. These tests pin
+// both halves. Companion file: channelInstanceAxis.test.tsx, for why the identity is the instance.
 
 import React from 'react';
 import { render, waitFor } from '@testing-library/react';
@@ -29,9 +24,8 @@ const renderChannel = (client: StreamChat, channel: ChannelType) => (
 );
 
 const channelContainer = () => document.getElementById(CHANNEL_CONTAINER_ID);
-// The list element, not the panel: the panel is rendered above the message list's key so the
-// notification area it holds survives a switch, which makes it a poor witness to the rebuild. This
-// one is inside the key, and it is what carries the scroll state the key exists to reset.
+// The list element, not the panel: the panel sits above the message list's key and survives a
+// switch, so it cannot witness the rebuild.
 const messageListElement = () => document.querySelector('.str-chat__message-list');
 
 const setupTwo = () =>
@@ -42,9 +36,8 @@ const setupTwo = () =>
     ],
   });
 
-// `Channel` no longer rebuilds its subtree on a channel change. What the rebuild used to reset is
-// now reset where the state lives: the message list keys itself on the channel instance, and the
-// bootstrap flags are reset by the effect that owns them.
+// The channel subtree is not rebuilt on a switch; the message list keys itself on the channel
+// instance.
 describe('switching channels', () => {
   it('does not rebuild the channel subtree', async () => {
     const {
@@ -93,7 +86,7 @@ describe('switching channels', () => {
       channels: [first],
       client,
     } = await setupTwo();
-    // a second object for the same cid, while the first stays usable
+    // A second object for the same `cid`, while the first stays usable.
     const second = new StreamChannel(client, 'messaging', 'channel-a', {});
 
     const { rerender } = render(renderChannel(client, first));

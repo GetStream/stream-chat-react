@@ -47,8 +47,10 @@ export type GeolocationContainerProps = Omit<AttachmentProps, 'attachments'> & {
   location: SharedLocationResponseData;
 };
 
-// This identity function determines attachment type specific to React.
-// Once made sure other SDKs support the same logic, move to stream-chat-js
+/**
+ * Whether the attachment is a gallery, which this SDK builds from several media attachments.
+ * @param attachment - Attachment to check.
+ */
 export const isGalleryAttachmentType = (
   attachment: Attachment | GalleryAttachment,
 ): attachment is GalleryAttachment =>

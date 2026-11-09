@@ -5,13 +5,13 @@ import { EmojiContextMenuButton } from '../../Dialog';
 
 export type EmoticonItemProps = {
   entity: {
-    /** Name for emoticon */
     name: string;
-    /** Native value or actual emoticon */
+    /** The emoji character. */
     native: string;
-    /** The parts of the Name property of the entity (or id if no name) that can be matched to the user input value.
-     * Default is bold for matches, but can be overwritten in css.
-     * */
+    /**
+     * Parts of the entity's name (or ID when it has none) split around the user input. Parts that
+     * match get the `str-chat__emoji-item--highlight` class.
+     */
     tokenizedDisplayName: { token: string; parts: string[] };
   };
   focused?: boolean;

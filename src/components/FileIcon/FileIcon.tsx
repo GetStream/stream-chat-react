@@ -15,7 +15,7 @@ export type FileIconProps = {
   className?: string;
   fileName?: string;
   mimeType?: string;
-  /** Override dimensions/label position per size (sm, md, lg, xl). */
+  /** Per-size overrides of the dimensions and label position, merged over the defaults. */
   sizeConfig?: FileIconSizeConfigOverride;
   size?: FileIconSize;
 };

@@ -1,0 +1,77 @@
+{
+  "channels": [
+    {
+      "id": "docs-v15-cb-hiking",
+      "name": "Hiking club",
+      "members": ["docs-v15-ck-cleo", "docs-v15-ck-bob", "docs-v15-ck-dan"],
+      "messages": [
+        {
+          "id": "docs-v15-ck-hiking-1",
+          "user": "docs-v15-ck-bob",
+          "text": "Which trail should we take on Sunday?",
+          "unreadForCurrentUser": true
+        },
+        {
+          "id": "docs-v15-ck-hiking-1-r1",
+          "user": "docs-v15-ck-cleo",
+          "parent": "docs-v15-ck-hiking-1",
+          "text": "The lake loop sounds good to me."
+        },
+        {
+          "id": "docs-v15-ck-hiking-1-r2",
+          "user": "docs-v15-ck-dan",
+          "parent": "docs-v15-ck-hiking-1",
+          "text": "Same here, it is shorter and has a picnic spot."
+        },
+        {
+          "id": "docs-v15-ck-hiking-1-r3",
+          "user": "docs-v15-ck-bob",
+          "parent": "docs-v15-ck-hiking-1",
+          "text": "Lake loop it is. Meet at the car park at nine?"
+        },
+        {
+          "id": "docs-v15-ck-hiking-2",
+          "user": "docs-v15-ck-dan",
+          "text": "Does anyone have a spare water bottle?"
+        },
+        {
+          "id": "docs-v15-ck-hiking-2-r1",
+          "user": "docs-v15-ck-cleo",
+          "parent": "docs-v15-ck-hiking-2",
+          "text": "I have two, I will bring one for you."
+        }
+      ]
+    },
+    {
+      "id": "docs-v15-cb-bake-sale",
+      "name": "Bake sale",
+      "members": ["docs-v15-ck-cleo", "docs-v15-ck-cara", "docs-v15-ck-dan"],
+      "messages": [
+        {
+          "id": "docs-v15-ck-bake-sale-1",
+          "user": "docs-v15-ck-cara",
+          "text": "What should we bake for Friday?",
+          "unreadForCurrentUser": true
+        },
+        {
+          "id": "docs-v15-ck-bake-sale-1-r1",
+          "user": "docs-v15-ck-cleo",
+          "parent": "docs-v15-ck-bake-sale-1",
+          "text": "Lemon bars? They travel well."
+        },
+        {
+          "id": "docs-v15-ck-bake-sale-1-r2",
+          "user": "docs-v15-ck-dan",
+          "parent": "docs-v15-ck-bake-sale-1",
+          "text": "Cookies too, they always sell first."
+        },
+        {
+          "id": "docs-v15-ck-bake-sale-1-r3",
+          "user": "docs-v15-ck-cara",
+          "parent": "docs-v15-ck-bake-sale-1",
+          "text": "Great, I will put up a sign-up sheet."
+        }
+      ]
+    }
+  ]
+}

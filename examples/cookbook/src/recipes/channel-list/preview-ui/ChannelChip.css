@@ -1,0 +1,41 @@
+@layer stream-overrides {
+  .cookbook-channel-chip {
+    display: flex;
+    align-items: center;
+    gap: var(--str-chat__spacing-sm);
+    width: 200px;
+    padding: var(--str-chat__spacing-xs) var(--str-chat__spacing-sm);
+    border: 1px solid var(--str-chat__border-core-default);
+    border-radius: var(--str-chat__radius-lg);
+    background: var(--str-chat__background-core-elevation-1);
+    color: var(--str-chat__text-primary);
+    text-align: start;
+    cursor: pointer;
+  }
+
+  .cookbook-channel-chip:hover {
+    background: var(--str-chat__background-utility-hover);
+  }
+
+  .cookbook-channel-chip__text {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+  }
+
+  .cookbook-channel-chip__title,
+  .cookbook-channel-chip__preview {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .cookbook-channel-chip__title {
+    font: var(--str-chat__font-caption-emphasis);
+  }
+
+  .cookbook-channel-chip__preview {
+    color: var(--str-chat__text-secondary);
+    font: var(--str-chat__font-caption-default);
+  }
+}

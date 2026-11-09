@@ -27,65 +27,13 @@ import { VisuallyHidden } from '../../VisuallyHidden';
 import { useStableId } from '../../UtilityComponents/useStableId';
 import { requireContext } from '../../../context/requireContext';
 
-/**
- * ContextMenu module
- *
- * What this file provides
- * - Primitives for contextual action UIs:
- *   `ContextMenu`, `ContextMenuContent`, `ContextMenuButton`, `ContextMenuHeader`,
- *   `ContextMenuBody`, `ContextMenuBackButton`, and user/emoji button variants.
- * - A small runtime context (`useContextMenuContext`) used by menu items to:
- *   - close the current menu (`closeMenu`)
- *   - open a submenu (`openSubmenu`)
- *   - return to parent level (`returnToParentMenu`)
- *
- * Rendering modes
- * - Anchored mode (most common): pass `id` and `referenceElement`.
- *   The component renders inside `DialogAnchor` and uses dialog manager state.
- * - Inline mode: omit anchor props and render as a plain contextual list.
- * - Outside click dismissal can be overridden per menu via `closeOnClickOutside`;
- *   otherwise manager default is used.
- *
- * Submenu model
- * - Submenus are represented as a stack of menu levels.
- * - Each level can define `Header`, `Submenu`, `items`, `ItemsWrapper`,
- *   and `menuClassName`.
- * - Opening submenu pushes a level to the stack; going back pops one level.
- * - When anchored menu closes, stack resets to root to avoid stale submenu state
- *   on next open.
- *
- * Animation model
- * - Root menu open/close is handled by `DialogAnchor` transition timing.
- * - `ContextMenu` defaults `closeTransitionMs` to `130` so close animations can be visible.
- * - `DialogAnchor` marks rendered content with `data-str-chat-dialog-state`:
- *   - `open` while visible
- *   - `closing` during delayed unmount window (`closeTransitionMs`)
- * - Context-menu closing keyframes in `ContextMenu.scss` target
- *   `[data-str-chat-dialog-state='closing']` + placement selectors.
- * - Level-to-level transitions are directional:
- *   - forward: parent -> submenu
- *   - backward: submenu -> parent
- * - Direction is tracked in `ContextMenu` and passed to `ContextMenuContent`.
- * - `ContextMenuContent` bumps an internal key for `ContextMenuBody` so React
- *   remounts the body and CSS enter animation reliably restarts on each level change.
- * - Initial/root menu render does not apply submenu forward/backward classes;
- *   directional animation classes are used only for submenu transitions.
- * - `enableAnimations` can disable content animations through data attributes/CSS.
- * - `submenuTransitionDurationMs` controls how long directional transition state is kept.
- *
- * Submenu popover behavior (`ContextMenuButton` with `Submenu`)
- * - Submenu can be rendered by passing `Submenu` (and optional placement/container props).
- * - Default submenu roll axis is `x` (override with `submenuRollAxis`).
- * - Hover/focus management uses a "keep open" ref flag plus lazy close timeout to avoid
- *   accidental submenu dismissal when moving pointer/focus between parent and submenu.
- *
- * Customization via `ComponentContext`
- * - `ComponentContext.ContextMenu` replaces the whole menu component at SDK call sites.
- * - `ComponentContext.ContextMenuContent` replaces content-level behavior while preserving
- *   default anchoring/dialog integration from `ContextMenu`.
- * - Built-in call sites (message actions, channel list action buttons, attachment selector,
- *   suggestion list) resolve `ContextMenu` from `ComponentContext` with fallback to default.
- */
+// Submenus are a stack of levels, reset to the root when an anchored menu closes. Forward and
+// backward animation classes apply only to submenu transitions in anchored mode, and the body is
+// remounted on each level change so the CSS enter animation restarts. `closeTransitionMs` defaults
+// to 130 (0 in `DialogAnchor`) so the closing keyframes in `ContextMenu.scss` can play. A submenu
+// button closes its popover after a short delay unless pointer or focus is still inside, so moving
+// between the button and its submenu does not dismiss it.
+
 export type BaseContextMenuButtonProps = {
   details?: ReactNode;
   hasSubMenu?: boolean;
@@ -162,9 +110,7 @@ export const UserContextMenuButton = ({
       role={role}
       type='button'
     >
-      {/* The avatar is decorative here: the button already carries the user's name as its
-          label, so exposing the avatar (its fallback initials, title, and role="button")
-          to assistive tech only adds noise to the option's accessible name. */}
+      {/* The label already names the user, so the avatar is hidden from assistive tech. */}
       <Avatar aria-hidden imageUrl={imageUrl} size='sm' userName={userName} />
       <div className='str-chat__context-menu__button__label'>{children ?? userName}</div>
     </button>
@@ -470,17 +416,14 @@ export const DEFAULT_CONTEXT_MENU_KEYBOARD_NAVIGATION_ITEM_SELECTOR = [
 ].join(',');
 
 const isVisibleContextMenuKeyboardNavigationItem = (item: HTMLElement) => {
-  // Fast path: offsetParent is null for display:none elements (and their descendants).
-  // offsetHeight covers position:fixed elements which have no offsetParent.
+  // offsetParent is null for display:none elements; offsetHeight covers position:fixed ones.
   if (item.offsetParent !== null || item.offsetHeight > 0) return true;
 
-  // In environments without layout (e.g. jsdom), offsetParent/offsetHeight are always 0/null.
-  // Fall back to checking inline style and the `hidden` attribute.
+  // Without layout (e.g. jsdom) both are always null/0, so fall back to `hidden` and inline style.
   if (item.hidden) return false;
   const display = item.style.display;
   if (display === 'none') return false;
 
-  // If no layout info and no explicit hiding signal, assume visible.
   return true;
 };
 
@@ -527,10 +470,8 @@ const resolveContextMenuFocusRestoreTarget = ({
 }) => {
   if (!request) return null;
 
-  // Prefer the original element if it's still in the DOM.
   if (request.target?.isConnected) return request.target;
 
-  // Fall back to positional index when the element has been unmounted.
   if (request.index >= 0) {
     return (
       getVisibleContextMenuKeyboardNavigationItems(contextMenuRoot)[request.index] ?? null
@@ -543,12 +484,9 @@ const resolveContextMenuFocusRestoreTarget = ({
 const CONTEXT_MENU_HEADER_SELECTOR = '.str-chat__context-menu__header';
 
 /**
- * Where focus should land when a submenu OPENS (forward navigation):
- * - `'first-item'` (default): the first focusable item that is NOT in the header — i.e. the first
- *   real menu option, skipping a back-button header — falling back to the very first item when the
- *   body has none.
- * - `'first'`: the first focusable item overall (the back-button header when present).
- * - `'none'`: do not move focus on open.
+ * Where focus lands when a submenu opens: the first item outside the header (`'first-item'`,
+ * falling back to the first item overall), the first item overall (`'first'`), or nowhere
+ * (`'none'`).
  */
 export type ContextMenuSubmenuInitialFocus = 'first' | 'first-item' | 'none';
 
@@ -569,8 +507,6 @@ const resolveSubmenuInitialFocusTarget = ({
   );
   if (initialFocus === 'first') return items[0] ?? null;
 
-  // 'first-item': skip the header (e.g. the back button) and land on the first content item;
-  // fall back to the first item overall if the body has no focusable item.
   return (
     items.find((item) => !item.closest(CONTEXT_MENU_HEADER_SELECTOR)) ?? items[0] ?? null
   );
@@ -578,8 +514,8 @@ const resolveSubmenuInitialFocusTarget = ({
 
 export type ContextMenuKeyboardNavigation = {
   /**
-   * CSS selector used to collect focusable menu items.
-   * Defaults to `[role="menuitem"]:not(:disabled)`.
+   * CSS selector for the items keyboard navigation and initial focus move across. Defaults to
+   * non-disabled `menuitem`, `menuitemradio` and `menuitemcheckbox` elements.
    */
   itemSelector?: string;
 };
@@ -603,8 +539,8 @@ export const useContextMenuContext = () =>
 type ContextMenuLevel = {
   focusRestoreRequest?: ContextMenuFocusRestoreRequest;
   /**
-   * Where focus lands when this level is opened as a submenu (forward navigation). Defaults to
-   * `'first-item'`. Ignored for the root level (its initial focus is the dialog's `autoFocus`).
+   * Where focus lands when this level opens as a submenu. Defaults to `'first-item'`. Ignored for
+   * the root level, whose focus comes from the dialog's `focus` prop.
    */
   initialFocus?: ContextMenuSubmenuInitialFocus;
   items?: ContextMenuItemComponent[];
@@ -619,20 +555,15 @@ type ContextMenuBaseProps = ComponentPropsWithoutRef<'div'> & {
   backLabel?: ReactNode;
   enableAnimations?: boolean;
   Header?: ContextMenuHeaderComponent;
-  /**
-   * Customizes roving-focus keyboard navigation for menu items.
-   * ArrowUp/ArrowDown/Home/End move focus across items matched by
-   * `keyboardNavigation.itemSelector` (defaults to `[role="menuitem"]:not(:disabled)`).
-   * Navigation is always enabled; use this prop only to override the item selector.
-   */
+  /** Overrides the item selector used by the always-enabled arrow, Home and End navigation. */
   keyboardNavigation?: ContextMenuKeyboardNavigation;
   onClose?: () => void;
   onMenuLevelChange?: (level: number) => void;
-  /** Duration (ms) to keep submenu transition direction active for forward/backward animations. */
+  /** How long (ms) the forward/backward transition direction stays set. Defaults to 460. */
   submenuTransitionDurationMs?: number;
 } & ContextMenuLevel;
 
-/** When provided, ContextMenu renders inside DialogAnchor and wires menu level for submenu alignment. */
+/** Passing `id` renders the menu inside `DialogAnchor` (anchored mode). */
 type ContextMenuAnchorProps = Partial<
   Pick<
     DialogAnchorProps,
@@ -657,13 +588,7 @@ export type ContextMenuContentProps = ContextMenuBaseProps & {
   transitionDirection?: 'forward' | 'backward';
 };
 
-/**
- * Internal/default content renderer for {@link ContextMenu}.
- *
- * Override this through `ComponentContext.ContextMenuContent` when you need to
- * customize submenu/back navigation behavior while keeping the same anchor/focus
- * handling from `ContextMenu`.
- */
+/** Default content of {@link ContextMenu}; replace it via `ComponentContext.ContextMenuContent`. */
 export function ContextMenuContent({
   anchorReferenceElement,
   backButtonAriaLabel,
@@ -703,8 +628,7 @@ export function ContextMenuContent({
   const [menuBodyAnimationKey, setMenuBodyAnimationKey] = useState(0);
   const contextMenuRootRef = useRef<HTMLDivElement | null>(null);
   const focusRestoreRequestRef = useRef<ContextMenuFocusRestoreRequest | null>(null);
-  // Where to place focus when the NEXT level opens (forward navigation). Symmetric to
-  // `focusRestoreRequestRef`, which handles returning to the parent (backward).
+  // Focus target for the next level to open; the counterpart of `focusRestoreRequestRef`.
   const pendingForwardFocusRef = useRef<ContextMenuSubmenuInitialFocus | null>(null);
   const activeMenu = menuStack[menuStack.length - 1];
 
@@ -727,9 +651,8 @@ export function ContextMenuContent({
       menuClassName,
       Submenu,
     }: ContextMenuOpenSubmenuParams) => {
-      // Record where focus should land in the opening submenu, so the level-change effect can move
-      // it there once the new level has rendered (mirrors the backward focus restore). Clear any
-      // backward request so the forward intent is what applies for this transition.
+      // The level-change effect moves focus once the new level renders; clear any backward
+      // request so only the forward one applies.
       pendingForwardFocusRef.current = initialFocus;
       focusRestoreRequestRef.current = null;
       const nextLevel: ContextMenuLevel = {
@@ -753,7 +676,7 @@ export function ContextMenuContent({
       if (current.length <= 1) return current;
       focusRestoreRequestRef.current =
         current[current.length - 1]?.focusRestoreRequest ?? null;
-      // Clear any forward intent so the backward restore is what applies for this transition.
+      // Clear any forward request so only the backward restore applies.
       pendingForwardFocusRef.current = null;
       return current.slice(0, -1);
     });
@@ -770,27 +693,21 @@ export function ContextMenuContent({
     onMenuLevelChange?.(menuStack.length);
   }, [menuStack.length, onMenuLevelChange]);
 
-  // Move focus on menu-level changes. Runs in a LAYOUT effect (before paint) and re-runs when the
-  // body remounts (`menuBodyAnimationKey`) — the body is remounted a step after the level changes
-  // to restart the enter animation, which removes the just-focused node. Re-applying focus in the
-  // same commit that mounts the new body keeps focus in the menu with no `<body>` flicker (a naive
-  // post-paint / single-rAF focus lands one frame before that remount and gets dropped). The
-  // request refs are NOT consumed here (so this re-run can re-apply); each transition
-  // (`openSubmenu`/`returnToParentMenu`) sets one ref and clears the other.
+  // Layout effect that re-runs on body remount (`menuBodyAnimationKey`): the remount restarts the
+  // enter animation and drops the just-focused node. The request refs are not consumed here.
   useLayoutEffect(() => {
     const focusRestoreRequest = focusRestoreRequestRef.current;
     const pendingForwardFocus = pendingForwardFocusRef.current;
     if (!focusRestoreRequest && !pendingForwardFocus) return;
 
     const contextMenuRoot = contextMenuRootRef.current;
-    // Backward (return to parent) restores the remembered element; it takes precedence.
+    // A backward restore takes precedence over a forward request.
     const target = focusRestoreRequest
       ? resolveContextMenuFocusRestoreTarget({
           contextMenuRoot,
           request: focusRestoreRequest,
         })
-      : // Forward (submenu opened): move focus INTO the new level per its `initialFocus`, so it is
-        // not lost to <body> when the parent item that had focus unmounts.
+      : // Forward: the parent item that had focus unmounts, so focus moves into the new level.
         resolveSubmenuInitialFocusTarget({
           contextMenuRoot,
           initialFocus: pendingForwardFocus as ContextMenuSubmenuInitialFocus,
@@ -928,39 +845,17 @@ export function ContextMenuContent({
 }
 
 /**
- * Contextual actions menu that can be used in two modes:
+ * Contextual actions menu: anchored to `referenceElement` in a `DialogAnchor` when `id` is set,
+ * a plain inline list otherwise.
  *
- * - Anchored dialog mode: pass `id` + `referenceElement` (submenu-aware positioning).
- * - Inline mode: omit `id` and render a plain contextual list.
- *
- * Customization via `ComponentContext`:
- *
- * - `ContextMenu`: replace the whole menu container/behavior.
- * - `ContextMenuContent`: keep default container behavior but customize menu content
- *   rendering (items, submenu transitions, back navigation UI).
- * - To customize outside-click dismissal via `ComponentContext`, provide a custom
- *   `ContextMenu` that sets `closeOnClickOutside`:
+ * Replace the whole menu with `ComponentContext.ContextMenu`, or only its content with
+ * `ComponentContext.ContextMenuContent`. To change outside-click dismissal, wrap the default:
  *
  * ```tsx
  * const CustomContextMenu = (props: ContextMenuProps) => (
  *   <ContextMenu {...props} closeOnClickOutside={false} />
  * );
- *
- * <ComponentProvider value={{ ContextMenu: CustomContextMenu }}>
- *   <Chat client={client}>{children}</Chat>
- * </ComponentProvider>
- * ```
- *
- * Example:
- * ```tsx
- * <ComponentProvider
- *   value={{
- *     ContextMenu: MyContextMenu,
- *     ContextMenuContent: MyContextMenuContent,
- *   }}
- * >
- *   <Chat client={client}>{children}</Chat>
- * </ComponentProvider>
+ * <ComponentProvider value={{ ContextMenu: CustomContextMenu }}>{children}</ComponentProvider>
  * ```
  */
 export const ContextMenu = (props: ContextMenuProps) => {

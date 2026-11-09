@@ -9,17 +9,6 @@ import {
   type LocalUploadAttachment,
 } from 'stream-chat';
 
-/**
- * Download behavior notes:
- *
- * - Remote attachments prefer `fetch -> blob -> objectURL` instead of direct link clicks.
- * - In Chromium, direct sequential clicks on cross-origin URLs can yield only one actual
- *   downloaded file even when multiple anchor clicks are fired.
- * - Blob URLs are same-document downloads and preserve caller-provided `a.download` names
- *   more reliably than direct remote URLs.
- * - If remote fetch fails (e.g. CORS/policy/network), the code falls back to direct URL
- *   download so the action remains functional.
- */
 export type DownloadableAttachment = {
   asset_url?: string;
   image_url?: string;
@@ -57,7 +46,7 @@ const triggerUrlDownload = ({
   anchor.download = filename;
   anchor.href = url;
   anchor.rel = 'noopener noreferrer';
-  // Keep chat in place for direct remote URLs by opening in a new tab when requested.
+  // A direct remote URL opens in a new tab when requested, so the chat stays in place.
   if (openInNewTab && !url.startsWith('blob:')) {
     anchor.target = '_blank';
   }
@@ -83,6 +72,18 @@ const fetchRemoteAttachmentAsObjectUrl = async (url: string) => {
   return URL.createObjectURL(blob);
 };
 
+/**
+ * Downloads an attachment from its local file when it has one, otherwise from its URL. A remote
+ * URL is fetched into a blob first, because sequential direct clicks on cross-origin URLs can
+ * yield a single file in Chromium and blob URLs keep the `a.download` name more reliably. When
+ * the fetch fails (e.g. CORS), the URL is downloaded directly.
+ *
+ * @param attachment - Attachment to download. Does nothing without a local file or URL.
+ * @param options.openRemoteInNewTab - Open a directly downloaded remote URL in a new tab.
+ * Defaults to true.
+ * @param options.preferRemoteFetch - Fetch a remote URL as a blob before downloading it.
+ * Defaults to true.
+ */
 export const downloadAttachment = async (
   attachment: DownloadableAttachment,
   options: { openRemoteInNewTab?: boolean; preferRemoteFetch?: boolean } = {},
@@ -112,7 +113,6 @@ export const downloadAttachment = async (
   const url = attachment.asset_url ?? attachment.image_url;
   if (!url) return;
 
-  // Prefer blob-based download for remote files when requested.
   if (preferRemoteFetch) {
     try {
       const objectUrl = await fetchRemoteAttachmentAsObjectUrl(url);
@@ -132,7 +132,7 @@ export const downloadAttachment = async (
 };
 
 export const downloadAllAttachments = async (attachments: DownloadableAttachment[]) => {
-  // Sequential execution keeps user intent clear and avoids bursting simultaneous requests.
+  // One at a time, to avoid a burst of simultaneous requests.
   for (const attachment of attachments) {
     await downloadAttachment(attachment, {
       openRemoteInNewTab: true,

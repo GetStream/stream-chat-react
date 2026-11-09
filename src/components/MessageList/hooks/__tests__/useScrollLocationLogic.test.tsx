@@ -8,14 +8,10 @@ import { getTestClientWithUser, mockChatContext } from '../../../../mock-builder
 
 import type { LocalMessage, StreamChat } from 'stream-chat';
 
-/**
- * Regression cover for the viewport jumping to the newest message when a window the user had
- * jumped to (a search result deep in history) merges into the live head.
- *
- * The merge shows up here as `hasMoreNewer` flipping true -> false while messages are appended
- * below the loaded window. The user is reading where they jumped; nothing about that transition
- * asks for the viewport to move.
- */
+// Regression cover for the viewport jumping to the newest message when a window the user jumped to
+// (a search result deep in history) merges into the live head. The merge shows up as
+// `hasMoreNewer` flipping true -> false while messages are appended below the loaded window; the
+// viewport must not move for it.
 
 let client: StreamChat;
 
@@ -69,6 +65,23 @@ describe('useScrollLocationLogic', () => {
     client = await getTestClientWithUser({ id: 'alice' });
   });
 
+  // The list can open at the bottom without a scroll event reporting it (the autoscroll lands before
+  // the content is tall enough to scroll). The first scroll up must still leave "scrolled to bottom".
+  it('reports the first scroll up after opening as no longer at the bottom', () => {
+    const listElement = createListElement();
+    const { result } = renderScrollLogic({
+      hasMoreNewer: false,
+      listElement,
+      messages: generateMessages(25),
+    });
+    expect(result.current.isMessageListScrolledToBottom).toBe(true);
+
+    (listElement as { scrollTop: number }).scrollTop = 10000;
+    act(() => result.current.onScroll(fromPartial({ target: listElement })));
+
+    expect(result.current.isMessageListScrolledToBottom).toBe(false);
+  });
+
   it('does not scroll to the newest message when a jumped-to window merges into the live head', () => {
     const listElement = createListElement();
     const loadedWindow = generateMessages(25);
@@ -114,8 +127,51 @@ describe('useScrollLocationLogic', () => {
     expect(listElement.scrollTo).toHaveBeenCalled();
   });
 
+  describe('another window replaces the rendered messages', () => {
+    // A reconnect across a gap replaces the loaded messages with the newest page.
+    const renderWindowSwitch = ({ focusedMessageId }: { focusedMessageId?: string }) => {
+      const listElement = createListElement();
+      const { rerender, result } = renderHook(
+        (props: { focusedMessageId?: string; messages: LocalMessage[] }) =>
+          useScrollLocationLogic({
+            focusedMessageId: props.focusedMessageId,
+            hasMoreNewer: false,
+            listElement,
+            loadMoreScrollThreshold: 100,
+            messages: props.messages,
+            scrolledUpThreshold: 200,
+          }),
+        {
+          initialProps: { messages: generateMessages(25) },
+          wrapper: ({ children }: React.PropsWithChildren) => (
+            <ChatProvider value={mockChatContext({ client })}>{children}</ChatProvider>
+          ),
+        },
+      );
+      act(() => result.current.onScroll(fromPartial({ target: listElement })));
+      listElement.scrollTo.mockClear();
+
+      rerender({ focusedMessageId, messages: generateMessages(27, 94) });
+      return listElement;
+    };
+
+    it('scrolls to the bottom of the newest messages', () => {
+      const listElement = renderWindowSwitch({});
+
+      expect(listElement.scrollTo).toHaveBeenCalledWith(
+        expect.objectContaining({ top: listElement.scrollHeight }),
+      );
+    });
+
+    it('leaves the list to the jump focusing a message', () => {
+      const listElement = renderWindowSwitch({ focusedMessageId: '100' });
+
+      expect(listElement.scrollTo).not.toHaveBeenCalled();
+    });
+  });
+
   describe('older page prepended', () => {
-    // The anchor message sits at the top of the viewport (100 px from the list's top edge) when
+    // The anchor message sits at the top of the list's viewport (both rects start at 100) when
     // loading starts. After the prepend its layout offset inside the list is `ANCHOR_CONTENT_TOP`.
     const ANCHOR_CONTENT_TOP = 520;
     const ANCHOR_ID = '25';
@@ -146,8 +202,8 @@ describe('useScrollLocationLogic', () => {
       const anchorElement = {
         dataset: { messageId: ANCHOR_ID },
         getBoundingClientRect: () => {
-          // Exact until the older page lands (that is when the anchor is captured). Afterwards iOS
-          // WebKit can still report pre-scroll geometry, so every read differs.
+          // Exact until the older page lands; the anchor is captured before that. Afterwards every
+          // read differs, as iOS WebKit can still report pre-scroll geometry.
           const pageLanded = (element as { scrollHeight: number }).scrollHeight > 600;
           const top =
             unstableRects && pageLanded

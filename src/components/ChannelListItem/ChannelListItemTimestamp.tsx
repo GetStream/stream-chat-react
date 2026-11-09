@@ -6,7 +6,7 @@ import { getDateString } from '../../i18n/utils';
 import { convertTimestampToDate } from 'stream-chat';
 
 export type ChannelListItemTimestampProps = {
-  /** The message previewed by the item, used to extract the timestamp */
+  /** Message whose `created_at` is shown. */
   previewedMessage?: LocalMessage;
 };
 
@@ -16,8 +16,7 @@ export function ChannelListItemTimestamp({
   const { t, tDateTimeParser } = useTranslationContext();
 
   const timestamp = previewedMessage?.created_at;
-  // `isDate` correctly reports that a wire number is not a `Date`, so the old idiom here returned
-  // `undefined` for every message and the timestamp vanished from the list. Convert instead.
+  // `created_at` can be a wire timestamp (a number), not a `Date`, so it is converted.
   const normalizedTimestamp =
     timestamp != null ? convertTimestampToDate(timestamp)?.toISOString() : undefined;
 

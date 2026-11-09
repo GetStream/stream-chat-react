@@ -28,10 +28,8 @@ import {
 import { mockT } from '../../../mock-builders/translator';
 import { convertDateToTimestamp } from '../../../mock-builders';
 
-// MERGE-RECONCILE (test migration): the deleted ChannelStateContext no longer provides
-// `channelCapabilities`. Poll components now read capabilities via useChannelCapabilities({ cid }),
-// which subscribes to the unified `channel.state` (`ownCapabilities`, a string[]). Convert the legacy
-// `{ 'cap': boolean }` object into that string[] and seed a real ChannelInstanceProvider channel.
+// Poll components read capabilities through `useChannelCapabilities`, which subscribes to
+// `channel.state.ownCapabilities` (a string[]), so the capability map becomes that array.
 const toOwnCapabilities = (capabilities: Record<string, boolean> = {}) =>
   Object.entries(capabilities)
     .filter(([, enabled]) => enabled)
@@ -49,9 +47,7 @@ const CHECKMARK_SELECTOR = '.str-chat__checkmark';
 const CHECKMARK_CHECKED_SELECTOR = '.str-chat__checkmark--checked';
 const VOTE_COUNT_SELECTOR = '.str-chat__poll-option-vote-count';
 
-// NOTE: the component interpolates `options.length` (6 here), not the number of *hidden*
-// options (3). That reads oddly but is pre-existing behaviour — the previous assertion
-// matched the uninterpolated template, so it never surfaced.
+// The component interpolates `options.length` (6 here), not the number of hidden options (3).
 const MORE_OPTIONS_ACTION_TEXT = '+6 more options';
 
 const pollWithNoVotes = generatePoll({
@@ -363,7 +359,7 @@ describe('PollOptionList', () => {
       fireEvent.click(firstOption);
     });
 
-    // checked synchronously: a debounced or otherwise delayed vote would not be sent yet
+    // checked synchronously: a delayed vote would not be sent yet
     expect(castVoteSpy).toHaveBeenCalledTimes(1);
     expect(castVoteSpy).toHaveBeenCalledWith(
       pollWithNoVotes.options[0].id,

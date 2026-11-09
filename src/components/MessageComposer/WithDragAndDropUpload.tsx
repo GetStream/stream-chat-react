@@ -5,6 +5,7 @@ import clsx from 'clsx';
 import type { MessageComposerConfig } from 'stream-chat';
 
 import {
+  useComponentContext,
   useComponentContextIcons,
   useIsWithinMessageComposerContext,
   useTranslationContext,
@@ -22,10 +23,10 @@ const DragAndDropUploadContext = React.createContext<{
 export const useDragAndDropUploadContext = () => useContext(DragAndDropUploadContext);
 
 /**
- * @private This hook should be used only once directly in the `MessageComposerProvider` to
- * register `uploadNewFiles` functions of the rendered message composers. Each `MessageComposer`
- * will then be notified when the drop event occurs from within the `WithDragAndDropUpload`
- * component.
+ * Registers the composer's `attachmentManager.uploadFiles` as a drop handler of the enclosing
+ * `WithDragAndDropUpload`. Call it once, directly in `MessageComposerProvider`.
+ *
+ * @private
  */
 export const useRegisterDropHandlers = () => {
   const { subscribeToDrop } = useDragAndDropUploadContext();
@@ -45,16 +46,18 @@ const attachmentManagerConfigStateSelector = (state: MessageComposerConfig) => (
 });
 
 /**
- * Wrapper to replace now deprecated `Channel.dragAndDropWindow` option.
+ * Wraps its children in a drop zone that uploads dropped files to the message composers inside it.
+ * The accepted file types come from the composer config (`attachments.acceptedFiles`), and the
+ * overlay shown while dragging is the `FileDragAndDropContent` slot.
  *
  * @example
  * ```tsx
- * <Channel>
+ * <Channel channel={channel}>
  *  <WithDragAndDropUpload component="section" className="message-list-dnd-wrapper">
  *    <MessageList />
  *    <MessageComposer />
  *  </WithDragAndDropUpload>
- * <Channel>
+ * </Channel>
  * ```
  */
 export const WithDragAndDropUpload = ({
@@ -63,9 +66,8 @@ export const WithDragAndDropUpload = ({
   component: Component = 'div',
   style,
 }: PropsWithChildren<{
-  acceptedFiles?: string[];
   /**
-   * @description An element to render as a wrapper onto which drag & drop functionality will be applied.
+   * @description Element rendered as the wrapper that handles drag and drop.
    * @default 'div'
    */
   component?: ElementType;
@@ -73,6 +75,9 @@ export const WithDragAndDropUpload = ({
   style?: CSSProperties;
 }>) => {
   const dropHandlersRef = useRef<Set<(f: File[]) => void>>(new Set());
+  const {
+    FileDragAndDropContent: FileDragAndDropContentComponent = FileDragAndDropContent,
+  } = useComponentContext();
   const dragAndDropUploadContext = useDragAndDropUploadContext();
   const messageComposer = useMessageComposerController();
   const { isUploadEnabled } = useAttachmentManagerState();
@@ -82,7 +87,7 @@ export const WithDragAndDropUpload = ({
   );
 
   const isCooldownActive = useIsCooldownActive();
-  // if message composer context is available, there's no need to use the queue
+  // Within a message composer context, that composer handles the drop itself.
   const isWithinMessageComposerContext = useIsWithinMessageComposerContext();
 
   const accept = useMemo(
@@ -112,8 +117,8 @@ export const WithDragAndDropUpload = ({
     isDragReject: isDragRejected,
   } = useDropzone({
     accept,
-    // apply `disabled` rules if available, otherwise allow anything and
-    // let the `uploadNewFiles` handle the limitations internally
+    // Outside a composer context the zone is never disabled; each composer's `uploadFiles`
+    // enforces the limitations internally.
     disabled: isWithinMessageComposerContext
       ? !isUploadEnabled || isCooldownActive
       : false,
@@ -125,10 +130,14 @@ export const WithDragAndDropUpload = ({
       : handleDrop,
   });
 
-  // nested WithDragAndDropUpload components render wrappers without functionality
-  // (MessageComposerUI has a default WithDragAndDropUpload)
+  // A nested WithDragAndDropUpload, e.g. the one `MessageComposerUI` always renders, is a plain
+  // wrapper: the outermost one handles the drop.
   if (dragAndDropUploadContext.subscribeToDrop !== null) {
-    return <Component className={className}>{children}</Component>;
+    return (
+      <Component className={className} style={style}>
+        {children}
+      </Component>
+    );
   }
 
   const rootClassName = clsx('str-chat__dropzone-root', className);
@@ -143,7 +152,7 @@ export const WithDragAndDropUpload = ({
             })}
             role='presentation'
           >
-            <FileDragAndDropContent isDragRejected={isDragRejected} />
+            <FileDragAndDropContentComponent isDragRejected={isDragRejected} />
           </div>
         )}
         {children}

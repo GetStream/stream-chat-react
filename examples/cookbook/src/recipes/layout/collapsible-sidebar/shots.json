@@ -1,0 +1,17 @@
+[
+  {
+    "file": "collapsible-sidebar-open.png",
+    "query": {
+      "channel": "docs-v15-cb-design"
+    },
+    "waitFor": ".str-chat__channel-list .cookbook-sidebar-toggle"
+  },
+  {
+    "file": "collapsible-sidebar-collapsed.png",
+    "query": {
+      "channel": "docs-v15-cb-design",
+      "sidebar": "collapsed"
+    },
+    "waitFor": ".str-chat__channel-header .cookbook-sidebar-toggle"
+  }
+]

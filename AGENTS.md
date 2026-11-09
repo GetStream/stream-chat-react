@@ -10,7 +10,7 @@ Agents should prioritize API stability and high test coverage when changing code
 
 Stream's React Chat SDK — React components, hooks and contexts for building chat UIs on the Stream Chat API. The published package (`stream-chat-react`) lives at the repo root; `examples/*` are private Yarn workspaces consuming it via `workspace:^`.
 
-This is the **v15** line, developed on `master` and published as release candidates (npm `rc`). The stable v14 line lives on `release-v14` (npm `latest`). It is built on `stream-chat` v10 (the "LLC"), which owns message, thread and composer state; this package renders it.
+This is the **v15** line, developed on `master` and published under npm `latest`. The v14 maintenance line lives on `release-v14` (npm `release-v14`). It is built on `stream-chat` v10 (the "LLC"), which owns message, thread and composer state; this package renders it.
 
 ## Tech & toolchain
 
@@ -38,7 +38,7 @@ Respect repo-specific rules. Do not suppress lint rules broadly; justify and sco
 - `src/` — library source: `components/`, `context/`, `hooks/`, `store/`, `i18n/`, `styling/`, `a11y/`, `plugins/`, `utils/`, `types/`, `constants/`, `mock-builders/`
 - `src/plugins/` — separately exported entry points: `AIComponents`, `ChannelDetail`, `Emojis`, `SlotGeometry`, `SlotLayout`, `encoders`
 - `scripts/` — build/validation scripts
-- `examples/` — private example workspaces: `examples/tutorial` (one folder per tutorial step), `examples/vite` (complete app), `examples/ai-chatbot` (Next.js AI chatbot)
+- `examples/` — private example workspaces: `examples/tutorial` (one folder per tutorial step), `examples/vite` (complete app), `examples/ai-chatbot` (Next.js AI chatbot), `examples/ai-ui-gallery` (A2UI and OpenUI replies in every theme cell, with a contrast check; no credentials), `examples/cookbook` (the base app and code of the docs' UI Cookbook recipes; see `.agents/skills/react-ui-cookbook/SKILL.md`)
 - `ai-docs/` — integrator-facing migration guides (`ai-migration-v14-v15.md`, `i18n-v15-migration.md`, `instance-configuration.md`, …) and the hand-reviewed `i18n-v15-key-map.json`
 - `developers/` — dev notes (`BRANCHES.md`, `COMMIT.md`, `DEPRECATIONS.md`, `DEVELOPMENT.md`, `DOCUMENTATION.md`, `PR.md`, `RELEASE.md`)
 
@@ -80,11 +80,14 @@ yarn i18n:export          # write an en.json on demand (for a translator or TMS)
 yarn validate-cjs         # loads dist/cjs in Node + a browser-like context
 yarn validate-esm         # imports dist/es in Node
 yarn validate-entry-isolation # fails if the main entry's ESM graph reaches ai-components or its deps
+yarn validate-ai-ui-tokens # fails if A2UI or OpenUI styles read a colour the --str-chat__ai-* tokens leave unset
 
 # Examples
 yarn start:tutorial       # @stream-io/stream-chat-react-tutorial dev server
 yarn start:vite           # @stream-io/stream-chat-react-vite dev server
+yarn start:cookbook       # @stream-io/stream-chat-react-cookbook dev server (UI Cookbook recipes)
 yarn start:ai-chatbot     # @stream-io/stream-chat-react-ai-chatbot dev server (run yarn build first)
+yarn start:ai-ui-gallery  # @stream-io/stream-chat-react-ai-ui-gallery dev server (run yarn build first)
 yarn examples:build       # build all example workspaces
 ```
 
@@ -123,7 +126,7 @@ Each is a `StateStore`. Components read them with `useStateStore(store, selector
           └─ <MessageComposer>
 ```
 
-`Channel` takes a single `channel` prop (`src/components/Channel/Channel.tsx`). It activates the channel on mount, deactivates it on unmount, seeds the paginator's unread snapshot, and re-queries on `user.deleted` — nothing else. It does not query the channel for you: initialize it first (`channel.ensureWatched()` sends one watch for overlapping calls, and none for a channel already watched). There is no `Window` component in v15; compose layout yourself or through `ChatView` slots.
+`Channel` takes a single `channel` prop (`src/components/Channel/Channel.tsx`). It activates the channel on mount, deactivates it on unmount, seeds the paginator's unread snapshot, and re-queries on `user.deleted` — nothing else. It does not query the channel for you: initialize it first (`channel.watch()` sends one watch for overlapping calls, and none for a channel already watched and loaded). There is no `Window` component in v15; compose layout yourself or through `ChatView` slots.
 
 Read the bound channel with `useChannel()` (`src/context/useChannel.ts`, thread's channel first, then the `Channel` subtree's) and the active message list with `useMessagePaginator()` (`src/hooks/useMessagePaginator.ts`, thread first, then channel). `useMessagePaginator()` is also exported from the package root, so integrator-facing docs and examples can use it too.
 
@@ -160,7 +163,7 @@ Some components also take component props for their own parts — `Attachment` (
 
 When adding a customizable component: add the slot to `ComponentContextValue` (`src/context/ComponentContext.tsx`), provide a default implementation, and read it through `useComponentContext()`.
 
-Request customization is not a component prop either: `sendMessageRequest`, `updateMessageRequest`, `deleteMessageRequest` and `markReadRequest` handlers are registered on `client.config` (see "Per-component request-handler props removed" in `ai-docs/ai-migration-v14-v15.md`).
+Request customization is not a component prop either: `sendMessageRequest`, `updateMessageRequest`, `deleteMessageRequest` and `markReadRequest` handlers are registered on `client.config` (see [section 14, "Request handlers"](ai-docs/ai-migration-v14-v15.md#14-request-handlers) of the v14 → v15 migration guide).
 
 ### `useStateStore` requires a selector
 
@@ -220,7 +223,7 @@ Date separators come from `withDateSeparator`: on by default in `MessageList`, o
 ### 3. Memoization
 
 - `useStateStore` selectors scope re-renders: an over-broad or unstable slice re-renders everything that reads it.
-- `areMessageUIPropsEqual` (`src/components/Message/utils.tsx`) is the per-message `React.memo` comparator. It checks cheap props first (`highlighted`, `endOfGroup`, `readBy.length`, `deliveredTo.length`, `groupStyles`, `showDetailedReactions`, `lastReceivedId`) before comparing messages. A prop it does not check will not re-render a message.
+- `areMessageUIPropsEqual` (`src/components/Message/utils.tsx`) is the per-message `React.memo` comparator. It checks cheap props first (`highlighted`, `readBy.length`, `deliveredTo.length`, `groupStyles`, `showDetailedReactions`, `lastReceivedId`) before comparing messages. A prop it does not check will not re-render a message.
 
 ## Critical gotchas & invariants
 
@@ -282,7 +285,7 @@ const {
 // Manual setup when you need control over the API responses
 const client = await getTestClientWithUser({ id: 'test-user' });
 useMockedApis(client, [getOrCreateChannelApi(mockedChannelData)]);
-const channel = client.channelManager.ensure({ id: channelId, type: 'messaging' });
+const channel = client.channel('messaging', channelId);
 await channel.watch();
 ```
 
@@ -321,10 +324,12 @@ Mock modules with `vi.mock('../../EmptyStateIndicator', () => ({ … }))`; use `
 | Import path                        | Source                             |
 | ---------------------------------- | ---------------------------------- |
 | `stream-chat-react`                | `src/index.ts`                     |
+| `stream-chat-react/a2ui`           | `src/plugins/A2UI/`                |
 | `stream-chat-react/ai-components`  | `src/plugins/AIComponents/`        |
 | `stream-chat-react/channel-detail` | `src/plugins/ChannelDetail/`       |
 | `stream-chat-react/emojis`         | `src/plugins/Emojis/`              |
 | `stream-chat-react/mp3-encoder`    | `src/plugins/encoders/mp3.ts`      |
+| `stream-chat-react/openui`         | `src/plugins/OpenUI/`              |
 | `stream-chat-react/slot-geometry`  | `src/plugins/SlotGeometry/`        |
 | `stream-chat-react/slot-layout`    | `src/plugins/SlotLayout/index.tsx` |
 | `stream-chat-react/css/*`          | `dist/css/*`                       |
@@ -438,7 +443,7 @@ Implement MediaRecorder API integration with MP3 encoding.
 Closes #123
 ```
 
-- v15 is a major release line: a change that breaks the v14 API is marked with `!` and a `BREAKING CHANGE:` footer, and gets an entry in `ai-docs/ai-migration-v14-v15.md`.
+- `master` publishes v15 under `latest`, so a commit marked with `!` or a `BREAKING CHANGE:` footer releases 16.0.0. Mark a commit as breaking only when the next major is planned (see `developers/BRANCHES.md`).
 - Never commit directly to `master` or `release-v14`; always create a feature branch (see `developers/BRANCHES.md`). v15 work targets `master`; v14 fixes target `release-v14`.
 - Never commit unless explicitly requested.
 
@@ -447,6 +452,8 @@ The **pre-commit hook** runs `lint-staged`: eslint (`--max-warnings 0`) on stage
 ### Pull requests
 
 Follow `.github/pull_request_template.md` (Goal / Implementation details / UI Changes). Keep PRs small and focused; include tests.
+
+**Linear ticket required.** Before opening a PR, find the Linear ticket for the work (or create one in the `REACT` team) and put its ID in the PR body, not the title, to keep the commit history clean, e.g. `gh pr create --title "…" --body "Ticket: https://linear.app/stream/issue/REACT-123"` (or `--body-file`). Pass the body as a flag: the check runs before `gh` prompts for anything, so an interactive `gh pr create` is blocked. Tickets from the `RN`, `CHAT` and `VID` teams are accepted too. A Claude Code PreToolUse hook (`.claude/hooks/require-linear-ticket.sh`) blocks `gh pr create` and MCP PR-creation tools unless a `REACT-…`, `RN-…`, `CHAT-…` or `VID-…` ID appears in the PR title or PR body. The branch name does not count. If `LINEAR_API_KEY` is set, it also checks that the ticket exists.
 
 - [ ] `yarn lint-fix` passed
 - [ ] `yarn test` passed
@@ -457,7 +464,7 @@ Follow `.github/pull_request_template.md` (Goal / Implementation details / UI Ch
 - [ ] Screenshots (before/after) for UI changes
 - [ ] Public API changes documented
 
-**CI** (`.github/workflows/ci.yml`, on every PR): lint (`yarn lint`, `yarn types`, `yarn types:scripts`) · build + `validate-cjs` + `validate-esm` + `validate-entry-isolation` + `keys.ts` drift check + `yarn examples:build` · `yarn coverage` → Codecov · deploy `examples/vite` to Vercel. `pr-check.yml` lints the PR title; `size.yml` reports bundle size.
+**CI** (`.github/workflows/ci.yml`, on every PR): lint (`yarn lint`, `yarn types`, `yarn types:scripts`) · build + `validate-cjs` + `validate-esm` + `validate-entry-isolation` + `validate-ai-ui-tokens` + `keys.ts` drift check + `yarn examples:build` · `yarn coverage` → Codecov · deploy `examples/vite` to Vercel. `pr-check.yml` lints the PR title; `size.yml` reports bundle size.
 
 **Release:** automated via semantic-release (`.releaserc.json`) from commit messages.
 

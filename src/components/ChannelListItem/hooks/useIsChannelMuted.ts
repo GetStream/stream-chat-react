@@ -7,11 +7,8 @@ const muteStatusSelector = (nextValue: MuteStatusState) => ({
 });
 
 /**
- * Reactively reports whether the channel is muted for the current user.
- *
- * Reads the channel's `muteStatus` state slice, which the client keeps in sync with its own
- * `mutedChannels` (on `notification.channel_mutes_updated` and `health.check`) and republishes only
- * when the status actually changes.
+ * Reactively returns the channel's mute status for the current user. Re-renders only when the
+ * status changes, not on every client update of the muted channels.
  */
 export const useIsChannelMuted = (channel: Channel) =>
   useStateStore(channel.state, muteStatusSelector).muteStatus;

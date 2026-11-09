@@ -21,7 +21,7 @@ const UPLOAD_ID = 'local-attachment-id';
 
 const uploadedFile = {
   asset_url: 'https://example.com/dummy.pdf',
-  // stream-chat v10 moved attachment-specific fields under `custom`.
+  // Attachment-specific fields live under `custom`.
   custom: { file_size: 1337 },
   mime_type: 'application/pdf',
   title: 'Nice file',
@@ -62,8 +62,8 @@ describe('AttachmentUploadProgressIndicator', () => {
   });
 
   it('renders nothing until uploadManager holds a live record, making the UI opt-in', () => {
-    // `uploadState: 'uploading'` on the payload is not enough on its own — an integration that
-    // never drives uploads through uploadManager gets none of this UI.
+    // `uploadState: 'uploading'` on the payload is not enough: an integration that never drives
+    // uploads through uploadManager gets none of this UI.
     renderWithClient(
       client,
       <AttachmentUploadProgressIndicator attachment={uploadingFile} />,
@@ -73,10 +73,9 @@ describe('AttachmentUploadProgressIndicator', () => {
   });
 
   it('stops reporting progress once the live record is gone (no phantom spinner)', () => {
-    // Regression guard. A message can outlive its request — upload aborted, disconnectUser
-    // calling uploadManager.reset(), or a message rehydrated from an offline store with a
-    // stale localMetadata.uploadState. Keying off the frozen payload left such an attachment
-    // showing an indeterminate spinner forever.
+    // Regression guard: a message can outlive its request (aborted upload, disconnectUser calling
+    // uploadManager.reset(), a message rehydrated from an offline store with a stale
+    // localMetadata.uploadState). The frozen payload must not keep an indeterminate spinner.
     renderWithClient(
       client,
       <AttachmentUploadProgressIndicator attachment={uploadingFile} />,
@@ -115,9 +114,9 @@ describe('AttachmentUploadProgressIndicator', () => {
   });
 
   it('goes indeterminate when the record reports uploadConfirmationPending', () => {
-    // Upload progress counts bytes written to the socket, not bytes the server acknowledged, so
-    // it hits 100% while the CDN is still ingesting. `UploadRecord.uploadConfirmationPending` marks that
-    // window; a bar parked at 100% would claim the upload is confirmed when it is not.
+    // Upload progress counts bytes written to the socket, not bytes the server acknowledged, so it
+    // hits 100% while the CDN is still ingesting. `UploadRecord.uploadConfirmationPending` marks
+    // that window; a bar parked at 100% would claim the upload is confirmed.
     renderWithClient(
       client,
       <AttachmentUploadProgressIndicator attachment={uploadingFile} />,
@@ -138,7 +137,7 @@ describe('AttachmentUploadProgressIndicator', () => {
     expect(screen.getByTestId('attachment-upload-progress')).toBeInTheDocument();
     expect(screen.getByTestId('loading-indicator')).toBeInTheDocument();
     expect(screen.queryByTestId('circular-progress-ring')).not.toBeInTheDocument();
-    // The byte readout still tells the truth: everything has been sent.
+    // The byte readout stays accurate: everything has been sent.
     expect(screen.getByTestId('upload-size-fraction')).toHaveTextContent(
       '1.31 kB / 1.31 kB',
     );
@@ -171,8 +170,7 @@ describe('AttachmentUploadProgressIndicator', () => {
   });
 
   it('infers the awaiting window when the record has no uploadConfirmationPending field', () => {
-    // Back-compat: `uploadConfirmationPending` was added in stream-chat v9.51. Against an older resolved
-    // stream-chat the field is absent and a live record at 100% means the same thing.
+    // Without the field (older `stream-chat`), a live record at 100% implies the same window.
     renderWithClient(
       client,
       <AttachmentUploadProgressIndicator attachment={uploadingFile} />,
@@ -231,7 +229,7 @@ describe('FileAttachment upload progress integration', () => {
     const dataRow = () =>
       container.querySelector('.str-chat__message-attachment-file--item__data');
 
-    // Without a live record the widget is untouched — the opt-in property, at widget level.
+    // Without a live record the widget is untouched.
     expect(screen.getByTestId('file-size-indicator')).toBeInTheDocument();
     expect(screen.queryByTestId('attachment-upload-progress')).not.toBeInTheDocument();
 
@@ -241,9 +239,8 @@ describe('FileAttachment upload progress integration', () => {
       });
     });
 
-    // The size slot now holds the progress instead. (Its own uploaded/total readout reuses
-    // FileSizeIndicator internally, so assert on the slot's contents rather than a global
-    // testid count.)
+    // The size slot holds the progress. Its uploaded/total readout reuses FileSizeIndicator
+    // internally, so assert on the slot's contents rather than a global testid count.
     expect(dataRow()?.children).toHaveLength(1);
     expect(
       dataRow()?.querySelector('[data-testid="attachment-upload-progress"]'),
@@ -298,9 +295,8 @@ describe('VideoAttachment during upload', () => {
   };
 
   it('stays on the player once the upload settles, instead of falling back to the thumbnail', async () => {
-    // Otherwise the rendered element swaps twice — to the CDN thumbnail when `thumb_url` arrives,
-    // then back to a player when the user clicks — and each swap resizes the bubble, which is
-    // sized to its content.
+    // Otherwise the element swaps to the CDN thumbnail when `thumb_url` arrives and back to a
+    // player on click, and each swap resizes the content-sized bubble.
     const { container, rerender } = renderWithClient(
       client,
       <VideoAttachment attachment={uploadingVideo} />,
@@ -320,17 +316,15 @@ describe('VideoAttachment during upload', () => {
       </Chat>,
     );
 
-    // The thumbnail is the fallback we are avoiding. (The player's own `src` comes from
-    // `videoAttachmentSizeHandler`, which lives on AttachmentContext on v15, so it stays empty in
-    // this standalone render — hence asserting on the thumbnail's absence rather than the
-    // player's presence.)
+    // Assert on the thumbnail's absence: the player's own `src` comes from
+    // `videoAttachmentSizeHandler` (AttachmentContext) and stays empty in this standalone render.
     expect(container.querySelector('img')).not.toBeInTheDocument();
     expect(screen.getByTestId('video-wrapper')).toBeInTheDocument();
   });
 
   it('does not start playing by itself when the upload finishes', () => {
-    // A video watched from its local blob used to restart on its own: `isPlaying` was derived
-    // from "a thumbnail exists", and `thumb_url` arrives with the upload's response.
+    // `isPlaying` must not derive from "a thumbnail exists": `thumb_url` arrives with the upload's
+    // response and would restart a video watched from its local blob.
     const VideoPlayerSpy = vi.fn(() => null);
     const { rerender } = renderWithClient(
       client,
@@ -398,8 +392,7 @@ describe('VideoAttachment during upload', () => {
   });
 
   it('keeps the transport controls while the upload is in flight', async () => {
-    // The local blob plays, so there is something to play; withholding the controls here would
-    // make video the only message-list widget that cannot be played mid-upload.
+    // The local blob plays, so the controls stay available during the upload.
     const { container } = renderWithClient(
       client,
       <VideoAttachment
@@ -452,8 +445,8 @@ describe('audio and voice recording widgets during upload', () => {
     });
 
   it('shows upload progress on a voice recording that already knows its duration', () => {
-    // `MediaRecorderController` stamps `duration` on every recording before it is uploaded, so a
-    // duration-first check left an uploading voice message with no upload indication at all.
+    // `MediaRecorderController` stamps `duration` on every recording before upload, so the upload
+    // progress must outrank the duration or an uploading voice message shows no upload state.
     renderWithClient(
       client,
       <WithAudioPlayback>
@@ -469,8 +462,7 @@ describe('audio and voice recording widgets during upload', () => {
     startUpload();
 
     expect(screen.getByTestId('attachment-upload-progress')).toBeInTheDocument();
-    // Playback stays available: the local blob plays, and every message-list widget behaves this
-    // way (video keeps its transport controls), as does stream-chat-react-native.
+    // Playback stays available: the local blob plays.
     expect(screen.getByTestId('play-audio')).toBeEnabled();
   });
 
@@ -540,8 +532,8 @@ describe('FileContainer source guard', () => {
   ])(
     'renders nothing for a %s attachment with no source at all',
     (_label, attachment) => {
-      // The audio widgets return null without a source anyway, but their containers would still
-      // occupy layout.
+      // The audio widgets return null without a source, but their containers would still take up
+      // layout.
       const { container } = renderContainer(attachment);
 
       expect(container).toBeEmptyDOMElement();

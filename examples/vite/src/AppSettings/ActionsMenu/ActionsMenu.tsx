@@ -75,8 +75,10 @@ const ActionsMenuButton = ({
 import {
   ChannelStoreDialog,
   ComposerStateDialog,
+  PaginationScenariosDialog,
   useChannelStoreDialog,
   useComposerStateDialog,
+  usePaginationScenariosDialog,
 } from '../../Debug';
 import { usePersistentDialog } from './usePersistentDialog';
 
@@ -85,6 +87,7 @@ export const ActionsMenu = ({ iconOnly = true }: { iconOnly?: boolean }) => {
   // which of the two call sites reaches getOrCreate first.
   const { dialog: composerStateDialog } = useComposerStateDialog();
   const { dialog: channelStoreDialog } = useChannelStoreDialog();
+  const { dialog: paginationScenariosDialog } = usePaginationScenariosDialog();
   const [menuButtonElement, setMenuButtonElement] = useState<HTMLButtonElement | null>(
     null,
   );
@@ -125,6 +128,7 @@ export const ActionsMenu = ({ iconOnly = true }: { iconOnly?: boolean }) => {
         <TriggerWebSocketEventAction onTrigger={webSocketEventDialog.open} />
         <TriggerComposerStateInspectorAction onTrigger={composerStateDialog.open} />
         <TriggerChannelStoreAction onTrigger={channelStoreDialog.open} />
+        <TriggerPaginationScenariosAction onTrigger={paginationScenariosDialog.open} />
         {serverSideClientEnabled && (
           <TriggerServerSideClientAction onTrigger={serverSideClientDialog.open} />
         )}
@@ -134,6 +138,7 @@ export const ActionsMenu = ({ iconOnly = true }: { iconOnly?: boolean }) => {
       <WebSocketEventPromptDialog referenceElement={menuButtonElement} />
       <ComposerStateDialog referenceElement={menuButtonElement} />
       <ChannelStoreDialog referenceElement={menuButtonElement} />
+      <PaginationScenariosDialog referenceElement={menuButtonElement} />
       {serverSideClientEnabled && (
         <ServerSideClientPromptDialog referenceElement={menuButtonElement} />
       )}
@@ -217,6 +222,20 @@ function TriggerChannelStoreAction({ onTrigger }: { onTrigger: () => void }) {
   return (
     <ContextMenuButton
       label='Channel Store'
+      onClick={() => {
+        closeMenu();
+        onTrigger();
+      }}
+    />
+  );
+}
+
+function TriggerPaginationScenariosAction({ onTrigger }: { onTrigger: () => void }) {
+  const { closeMenu } = useContextMenuContext();
+
+  return (
+    <ContextMenuButton
+      label='Pagination Scenarios'
       onClick={() => {
         closeMenu();
         onTrigger();

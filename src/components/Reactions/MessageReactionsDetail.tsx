@@ -24,10 +24,9 @@ export type MessageReactionsDetailProps = Partial<
   reactions: ReactionSummary[];
   selectedReactionType: ReactionType | null;
   onSelectedReactionTypeChange?: (reactionType: ReactionType | null) => void;
-  sort?: SortParamRequest[];
   totalReactionCount?: number;
   reactionGroups?: ReturnType<typeof useProcessReactions>['reactionGroups'];
-} & ReactionSelectorProps;
+} & Omit<ReactionSelectorProps, 'dialogId'>;
 
 const defaultReactionDetailsSort: SortParamRequest[] = [
   { direction: -1, field: 'created_at' },
@@ -256,7 +255,7 @@ export const MessageReactionsDetail: MessageReactionsDetailInterface = ({
 
                             await contextHandleReaction(type, e);
 
-                            // was 1, should be 0 after removal, display all reactions
+                            // Removing the last reaction of the selected type shows all reactions.
                             if (
                               selectedReactionType !== null &&
                               reactionCountBeforeRemoval <= 1

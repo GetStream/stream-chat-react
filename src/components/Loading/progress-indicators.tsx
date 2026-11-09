@@ -3,14 +3,14 @@ import React from 'react';
 import { useTranslationContext } from '../../context/TranslationContext';
 
 export type ProgressIndicatorProps = {
-  /** Clamped 0–100 completion. */
+  /** Completion from 0 to 100. */
   percent: number;
 };
 
 const RING_RADIUS = 12;
 const RING_CIRCUMFERENCE = 2 * Math.PI * RING_RADIUS;
 
-/** Circular progress indicator with input from 0 to 100. */
+/** Circular progress ring for a `percent` from 0 to 100. */
 export const CircularProgressIndicator = ({ percent }: ProgressIndicatorProps) => {
   const { t } = useTranslationContext();
   const dashOffset = RING_CIRCUMFERENCE * (1 - percent / 100);

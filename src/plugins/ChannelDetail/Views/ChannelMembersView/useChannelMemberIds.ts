@@ -3,13 +3,11 @@ import type { Channel } from 'stream-chat';
 
 import { getChannelMemberUserIds } from './ChannelMembersView.utils';
 
-// Channel events that add, remove or change a member. `channel.state.members` is
-// kept in sync by the SDK on these events, so re-reading the member ids on each
-// keeps the derived set reactive — no imperative bookkeeping from the views that
-// mutate membership.
+// Channel events that add, remove or change a member; the SDK keeps `channel.state.members` in sync
+// on them. Re-reading the IDs on each needs no bookkeeping in the views that change membership.
 const MEMBER_IDS_EVENTS = ['member.added', 'member.removed', 'member.updated'] as const;
 
-/** Reactive set of channel member user ids derived from real channel state. */
+/** Reactive set of channel member user IDs. */
 export const useChannelMemberIds = (channel: Channel) => {
   const [memberIds, setMemberIds] = useState(() => getChannelMemberUserIds(channel));
 

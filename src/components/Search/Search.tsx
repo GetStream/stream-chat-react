@@ -17,20 +17,19 @@ const searchControllerStateSelector = (
 ): SearchControllerStateSelectorReturnValue => ({ isActive: nextValue.isActive });
 
 export type SearchProps = {
-  /** The type of channel to create on user result select, defaults to `messaging` */
+  /** Type of the channel created when a user result is selected. Defaults to `messaging`. */
   directMessagingChannelType?: string;
-  /** Sets the input element into disabled state */
+  /** Disables the search input. */
   disabled?: boolean;
-  /** Clear the search state/results on every click outside the search input, defaults to `false` */
+  /** Exits search (clearing query and results) when focus leaves the widget. Defaults to false. */
   exitSearchOnInputBlur?: boolean;
   /**
-   * Extra props spread onto the search `<input>` element — e.g. to opt the field out of password
-   * managers (`data-1p-ignore`, `data-lpignore`, `autoComplete: 'off'`) or add `name`/`aria-*`
-   * attributes. The component's own controlled props (`value`, `onChange`, `onBlur`, `type`, `id`,
-   * `disabled`, `ref`) take precedence and cannot be overridden; `className` is merged.
+   * Props spread onto the search `<input>`, e.g. to opt out of password managers or to add `name`.
+   * The component's own props, such as `aria-label`, `disabled`, `onBlur`, `onChange`, `type` and
+   * `value`, take precedence; `className` is merged.
    */
   inputProps?: React.ComponentPropsWithoutRef<'input'>;
-  /** Custom placeholder text to be displayed in the search input */
+  /** Placeholder of the search input. Defaults to the translated "Search". */
   placeholder?: string;
 };
 

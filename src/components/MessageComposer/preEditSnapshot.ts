@@ -5,8 +5,8 @@ type RestoreFunction = () => void;
 const snapshots = new WeakMap<MessageComposer, RestoreFunction>();
 
 /**
- * Captures a full state snapshot of the composer before entering edit mode.
- * Does nothing if a snapshot already exists (e.g. switching between edits).
+ * Snapshots the composer state before it enters edit mode. Does nothing when a snapshot already
+ * exists, such as when switching between edits.
  */
 export const savePreEditSnapshot = (messageComposer: MessageComposer) => {
   if (snapshots.has(messageComposer)) return;
@@ -30,10 +30,7 @@ export const savePreEditSnapshot = (messageComposer: MessageComposer) => {
   });
 };
 
-/**
- * Restores the composer to the state captured before editing began.
- * Falls back to `clear()` if no snapshot exists.
- */
+/** Restores the snapshot and drops it. Calls `clear()` when there is no snapshot. */
 export const restorePreEditSnapshot = (messageComposer: MessageComposer) => {
   const restore = snapshots.get(messageComposer);
   snapshots.delete(messageComposer);
@@ -44,9 +41,7 @@ export const restorePreEditSnapshot = (messageComposer: MessageComposer) => {
   }
 };
 
-/**
- * Discards the snapshot without restoring (e.g. after a successful edit save).
- */
+/** Drops the snapshot without restoring it, e.g. after a successful edit save. */
 export const discardPreEditSnapshot = (messageComposer: MessageComposer) => {
   snapshots.delete(messageComposer);
 };

@@ -33,7 +33,6 @@ describe('SearchResultsHeader', () => {
   beforeEach(() => {
     vi.clearAllMocks();
 
-    // Reset mock sources
     Object.values(mockSources).forEach((source) => {
       source.items = source.type === 'messages' ? ['message1'] : [];
       source.search.mockClear();

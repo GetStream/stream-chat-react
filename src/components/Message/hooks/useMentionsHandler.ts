@@ -1,55 +1,49 @@
 import type React from 'react';
-import type { LocalMessage, UserResponse } from 'stream-chat';
+import type { LocalMessage } from 'stream-chat';
 
+import { messageHasMentions } from '../renderText/rehypePlugins';
+import { useStableCallback } from '../../../utils';
 import type { ReactEventHandler } from '../types';
 
 export type CustomMentionHandler = (
   event: React.BaseSyntheticEvent,
-  /**
-   * @deprecated Use the third `message` argument to access mention metadata instead.
-   * FIXME: Remove this argument in the next major release.
-   */
-  mentioned_users: UserResponse[],
   message: LocalMessage,
 ) => void;
 
-export type MentionedUserEventHandler = (
+/** Calls `handler` with the message, only for a message that mentions anyone. */
+const callForMentions = (
+  handler: CustomMentionHandler | undefined,
   event: React.BaseSyntheticEvent,
-  mentionedUsers: UserResponse[],
-) => void;
-
-function createEventHandler(
-  fn?: CustomMentionHandler,
   message?: LocalMessage,
-): ReactEventHandler {
-  return (event) => {
-    const hasMentions = Boolean(
-      message?.mentioned_users?.length ||
-      message?.mentioned_channel ||
-      message?.mentioned_here ||
-      message?.mentioned_roles?.length ||
-      message?.mentioned_groups?.length,
-    );
+) => {
+  if (!handler || !message || !messageHasMentions(message)) return;
+  handler(event, message);
+};
 
-    if (typeof fn !== 'function' || !message || !hasMentions) {
-      return;
-    }
-    fn(event, message?.mentioned_users ?? [], message);
-  };
-}
-
+/**
+ * Returns the event handlers for a message's mentions, each `undefined` when its custom handler is
+ * not set. A returned handler keeps its identity across renders and always calls the latest custom
+ * handler and message, so a memoized message that keeps an earlier one still runs the current.
+ */
 export const useMentionsHandler = (
   message?: LocalMessage,
   customMentionHandler?: {
     onMentionsClick?: CustomMentionHandler;
     onMentionsHover?: CustomMentionHandler;
   },
-) => {
-  const onMentionsClick = customMentionHandler?.onMentionsClick || (() => null);
-  const onMentionsHover = customMentionHandler?.onMentionsHover || (() => null);
+): {
+  onMentionsClick?: ReactEventHandler;
+  onMentionsHover?: ReactEventHandler;
+} => {
+  const onMentionsClick = useStableCallback((event: React.BaseSyntheticEvent) =>
+    callForMentions(customMentionHandler?.onMentionsClick, event, message),
+  );
+  const onMentionsHover = useStableCallback((event: React.BaseSyntheticEvent) =>
+    callForMentions(customMentionHandler?.onMentionsHover, event, message),
+  );
 
   return {
-    onMentionsClick: createEventHandler(onMentionsClick, message),
-    onMentionsHover: createEventHandler(onMentionsHover, message),
+    onMentionsClick: customMentionHandler?.onMentionsClick ? onMentionsClick : undefined,
+    onMentionsHover: customMentionHandler?.onMentionsHover ? onMentionsHover : undefined,
   };
 };

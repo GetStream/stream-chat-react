@@ -2,7 +2,14 @@ import { cleanup, fireEvent, render, screen } from '@testing-library/react';
 import React from 'react';
 import { fromPartial } from '@total-typescript/shoehorn';
 import { StateStore } from '@stream-io/state-store';
-import type { Channel, LocalMessage, Thread, ThreadState } from 'stream-chat';
+import type {
+  Channel,
+  ChannelConfig,
+  ChannelStateData,
+  LocalMessage,
+  Thread,
+  ThreadState,
+} from 'stream-chat';
 
 import {
   ChannelInstanceProvider,
@@ -15,19 +22,9 @@ import { TranslationProvider } from '../../../context/TranslationContext';
 import type { TranslationContextValue } from '../../../context/TranslationContext';
 import { ThreadHeader } from '../ThreadHeader';
 
-// MERGE-RECONCILE (test migration): ThreadHeader moved off the deleted ChannelStateContext.
-// It now resolves the channel via useChannel() (ChannelInstanceContext), the reply count from
-// the (optional) thread instance in ThreadContext, and the channel title from
-// useChannelPreviewInfo. The subtitle fallback is the parent message author's name. We seed a
-// ChannelInstanceProvider channel and mock the composer controller / store so the header renders
-// without a fully initialized <Channel>. Assertions are unchanged.
-
+// The channel preview mock lets the header render without an initialized `<Channel>`.
 vi.mock('../../ChannelListItem/hooks/useChannelPreviewInfo', () => ({
   useChannelPreviewInfo: vi.fn(() => ({ displayTitle: undefined })),
-}));
-
-vi.mock('../../MessageComposer/hooks/useMessageComposerController', () => ({
-  useMessageComposerController: vi.fn(() => fromPartial({})),
 }));
 
 vi.mock('../../TypingIndicator/TypingIndicatorHeader', () => ({
@@ -39,7 +36,7 @@ vi.mock('../../Threads', () => ({
   useCloseThread: vi.fn(() => closeThreadInContext),
   useThreadContext: vi.fn(() => undefined),
 }));
-// The header's back and close buttons read the same hooks from their own modules.
+// The back and close buttons read these hooks from their own modules.
 vi.mock('../../Threads/ThreadContext', async (importOriginal) => ({
   ...(await importOriginal<typeof import('../../Threads/ThreadContext')>()),
   useThreadContext: (await import('../../Threads')).useThreadContext,
@@ -60,8 +57,7 @@ import { mockT } from '../../../mock-builders/translator';
 
 const alice = { id: 'alice', name: 'Alice' };
 
-// The header reads the parent message and the reply count off the thread instance, so the
-// fixture is a thread whose state carries both.
+// The header reads the parent message and reply count from the thread state.
 const createThreadInstance = (user?: { id: string; name?: string }) =>
   fromPartial<Thread>({
     id: `${user?.id ?? 'thread'}-message`,
@@ -79,12 +75,14 @@ const createThreadInstance = (user?: { id: string; name?: string }) =>
 
 const renderComponent = ({
   activeView = 'channels',
+  channelTyping = {},
   dismissable = false,
   navigation = {},
   props = {},
   threadContext = createThreadInstance(alice),
 }: {
   activeView?: string;
+  channelTyping?: ChannelStateData['typing'];
   dismissable?: boolean;
   navigation?: Partial<typeof defaultWorkspaceNavigation>;
   props?: Partial<React.ComponentProps<typeof ThreadHeader>>;
@@ -96,7 +94,16 @@ const renderComponent = ({
     user: alice,
     userID: alice.id,
   });
-  const channel = fromPartial<Channel>({ cid: 'messaging:thread-header-test' });
+  // Typing users are read from the channel's state, which holds the typing of every thread.
+  const channel = fromPartial<Channel>({
+    cid: 'messaging:thread-header-test',
+    configState: new StateStore<ChannelConfig>(
+      fromPartial<ChannelConfig>({ typingEvents: { enabled: true } }),
+    ),
+    state: new StateStore<ChannelStateData>(
+      fromPartial<ChannelStateData>({ typing: channelTyping }),
+    ),
+  });
 
   vi.mocked(useChatViewContext).mockReturnValue(
     fromPartial<ReturnType<typeof useChatViewContext>>({
@@ -170,9 +177,44 @@ describe('ThreadHeader', () => {
     expect(screen.queryByText(/^undefined ·/)).not.toBeInTheDocument();
   });
 
+  it('replaces the subtitle with the typing indicator while someone types in this thread', () => {
+    renderComponent({
+      channelTyping: {
+        bob: fromPartial({
+          parent_id: 'alice-message',
+          type: 'typing.start',
+          user: { id: 'bob' },
+        }),
+      },
+    });
+
+    expect(screen.getByText('Typing...')).toBeInTheDocument();
+    expect(screen.queryByText('Alice · 2 replies')).not.toBeInTheDocument();
+  });
+
+  it('ignores typing in the channel, in other threads and by the current user', () => {
+    renderComponent({
+      channelTyping: {
+        alice: fromPartial({
+          parent_id: 'alice-message',
+          type: 'typing.start',
+          user: alice,
+        }),
+        bob: fromPartial({ type: 'typing.start', user: { id: 'bob' } }),
+        carol: fromPartial({
+          parent_id: 'other-message',
+          type: 'typing.start',
+          user: { id: 'carol' },
+        }),
+      },
+    });
+
+    expect(screen.queryByText('Typing...')).not.toBeInTheDocument();
+    expect(screen.getByText('Alice · 2 replies')).toBeInTheDocument();
+  });
+
   it('closes the thread in context when the close button is pressed', () => {
-    // No prop carries the handler any more -- the header closes through the workspace navigation
-    // the app configures centrally.
+    // The header closes through the workspace navigation, which the app configures centrally.
     renderComponent({ dismissable: true });
 
     fireEvent.click(screen.getByTestId('close-thread-button'));
@@ -196,8 +238,8 @@ describe('ThreadHeader', () => {
     expect(goBack).toHaveBeenCalledWith(threadContext.id, expect.anything());
   });
 
-  // The back and close buttons are only the defaults, in every view: start/end content passed to
-  // the header takes their place.
+  // The back and close buttons are defaults in every view: `StartContent` and `EndContent` replace
+  // them.
   it('gives way to the StartContent and EndContent passed to it', () => {
     renderComponent({
       dismissable: true,

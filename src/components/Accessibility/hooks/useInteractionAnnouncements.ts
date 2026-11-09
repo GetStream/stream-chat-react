@@ -8,35 +8,27 @@ import { useTranslationContext } from '../../../context/TranslationContext';
 type TranslateFn = ReturnType<typeof useTranslationContext>['t'];
 
 /**
- * Optional delivery overrides a call site may pass ALONGSIDE an interaction's message params.
- * These are not consumed by the message resolver — they only affect how the announcement is
- * delivered. `debounceMs` overrides that interaction's default debounce ({@link
- * INTERACTION_DEBOUNCE_MS}) for THIS call, and enables debouncing for an interaction that has no
- * default. `delayMs` overrides the default delay ({@link INTERACTION_DELAY_MS}) for the
- * (non-debounced) immediate path. Param-less (discrete) interactions are always immediate and do
- * not accept overrides.
+ * Delivery overrides passed alongside an interaction's message params. `debounceMs` overrides the
+ * interaction's default debounce for this call and enables debouncing for one that has none.
+ * `delayMs` overrides the default delay of the immediate path. `debounceMs` wins when both are set,
+ * and interactions without params are always immediate.
  *
- * `debounceMs` vs `delayMs`: a debounce collapses rapid repeats on a per-call-site timer and is
- * **cancelled if that call site unmounts** — right for a value that keeps changing in place (a
- * result count). `delayMs` schedules a single deferred emit in the shared announcer PROVIDER, so it
- * **survives the caller unmounting** — right for a one-shot confirmation whose origin (e.g. a list
- * row) disappears on the very action being confirmed (opening a channel/thread hides the list on
- * mobile). Both let the message land after a competing focus/typing read-out. `debounceMs` wins if
- * both are given.
+ * A debounce runs on a per-call-site timer that is cancelled when the call site unmounts, which
+ * suits a value that keeps changing in place. `delayMs` is scheduled in the announcer provider and
+ * survives the caller unmounting, which suits a one-shot confirmation whose origin disappears.
  */
 export type InteractionDeliveryOptions = { debounceMs?: number; delayMs?: number };
 
 /**
- * Parameters accepted by each parameterized interaction announcement.
- * Interactions that take no parameters map to `undefined`. Param-ful interactions additionally
- * accept {@link InteractionDeliveryOptions} (e.g. a per-call `debounceMs`).
+ * Params of each interaction announcement. Interactions without params map to `undefined`; the
+ * others also accept {@link InteractionDeliveryOptions}.
  */
 export type InteractionAnnouncementParams = {
-  /** Audio playback speed was changed via the playback-rate button. `rate` is the new multiplier. */
+  /** The audio playback rate changed. `rate` is the new multiplier. */
   'audioPlayer.playbackRateChanged': InteractionDeliveryOptions & { rate: number };
-  /** A channel was opened from the channel list. `name` is its display title. */
+  /** A channel was opened from the list. `name` is its display title. */
   'channel.opened': InteractionDeliveryOptions & { name: string };
-  /** A slash command was activated from the Instant Commands menu. `command` is its name. */
+  /** A slash command was picked from the Instant Commands menu. `command` is its name. */
   'command.selected': InteractionDeliveryOptions & { command: string };
   'giphy.canceled': undefined;
   'giphy.sent': undefined;
@@ -47,13 +39,13 @@ export type InteractionAnnouncementParams = {
     option: string;
     position: number;
   };
-  /** A poll option was picked up to start a keyboard reorder. `option` is its text (or a fallback). */
+  /** A poll option was picked up to start a keyboard reorder. `option` is its text or fallback. */
   'poll.optionPickedUp': InteractionDeliveryOptions & { option: string };
   'poll.optionRemoved': InteractionDeliveryOptions & { option: string };
   'poll.sent': undefined;
   'search.cleared': undefined;
   'search.resultCount': InteractionDeliveryOptions & {
-    /** Whether every active source is fully loaded — appends an "all results loaded" clause. */
+    /** Whether every active source is fully loaded; appends an "all results loaded" clause. */
     allResultsLoaded?: boolean;
     count: number;
   };
@@ -61,10 +53,10 @@ export type InteractionAnnouncementParams = {
     count: number;
     suggestionsLabel?: string;
   };
-  /** A thread was opened from the thread list. `name` is its channel's display title. */
+  /** A thread was opened from the list. `name` is its channel's display title. */
   'thread.opened': InteractionDeliveryOptions & { name: string };
   'user.selected': InteractionDeliveryOptions & { user: string };
-  /** A finished voice recording was added to the composer (async multi-send: not sent yet). */
+  /** A finished voice recording was added to the composer (async multi-send, not sent yet). */
   'voiceRecording.attached': undefined;
   'voiceRecording.paused': undefined;
   'voiceRecording.resumed': undefined;
@@ -76,13 +68,10 @@ export type InteractionAnnouncementParams = {
 export type InteractionAnnouncementType = keyof InteractionAnnouncementParams;
 
 /**
- * One entry per interaction — the single place an interaction is registered. Each
- * resolver contains a LITERAL `t(key, 'English copy')` call, which is what puts the key in the
- * catalog: `yarn build-translations` parses the call sites to generate `src/i18n/keys.ts`. Keys
- * must never be built dynamically (e.g. `t(someVariable)`) or they are missed, and an integrator
- * has no way to discover them. Adding an interaction = one line here + one
- * line in {@link InteractionAnnouncementParams} (+ an override in
- * {@link INTERACTION_PRIORITIES} only if it is not `polite`).
+ * One resolver per interaction. Each calls `t()` with a literal key and inline English copy,
+ * because `yarn build-translations` extracts keys from the call sites and misses dynamic keys.
+ * A new interaction needs an entry here and in {@link InteractionAnnouncementParams}, plus one in
+ * {@link INTERACTION_PRIORITIES} if it is not `polite`.
  */
 const INTERACTION_MESSAGES: {
   [T in InteractionAnnouncementType]: (
@@ -90,26 +79,19 @@ const INTERACTION_MESSAGES: {
     params: InteractionAnnouncementParams[T],
   ) => string;
 } = {
-  // Confirms the new audio playback speed after the user cycles it with the playback-rate button.
-  // Reuses the existing (already-localized) button label so the spoken text matches the control.
+  // Reuses the already-localized button label so the spoken text matches the control.
   'audioPlayer.playbackRateChanged': (t, params) =>
     t('common.playbackSpeedX.label', 'Playback speed {{ rate }}x', { rate: params.rate }),
-  // Confirms which channel was opened after selecting it from the list. Delayed (see
-  // INTERACTION_DELAY_MS) so it lands AFTER the screen reader's announcement of the newly-focused
-  // element (the message composer auto-focuses on channel change) rather than competing with — and
-  // being superseded by — that native focus read-out. A provider-managed delay (not a per-row
-  // debounce) so it still fires when selecting the channel unmounts the list (mobile).
+  // Delayed (see INTERACTION_DELAY_MS) so it lands after the screen reader announces the element
+  // that auto-focuses on channel change (the composer), which would otherwise supersede it.
   'channel.opened': (t, params) =>
     t(
       'a11y.interactionAnnouncements.openedChannel.ariaLabel',
       'Opened channel: {{ name }}',
       { name: params.name },
     ),
-  // Confirms which slash command was activated after picking it from the Instant Commands menu.
-  // Delayed (INTERACTION_DELAY_MS) for the same reason as the "opened" confirmations: selecting a
-  // command closes the menu and focuses the composer textarea (whose name changes, e.g. to
-  // "Search GIFs"), so the screen reader reads that focus first — this lands after it. A provider
-  // delay (not a debounce) because the menu that fired it unmounts on selection.
+  // Delayed like the "opened" confirmations: selecting a command closes the menu and focuses the
+  // composer textarea, whose name the screen reader reads first.
   'command.selected': (t, params) =>
     t(
       'a11y.interactionAnnouncements.commandActivated.ariaLabel',
@@ -120,8 +102,7 @@ const INTERACTION_MESSAGES: {
     t('a11y.interactionAnnouncements.giphyCanceled.ariaLabel', 'Giphy canceled'),
   'giphy.sent': (t) =>
     t('a11y.interactionAnnouncements.giphySent.ariaLabel', 'Giphy sent'),
-  // Giphy payloads rarely carry a human title, so include it only when present; otherwise a
-  // generic "changed" confirmation. Both literal keys land in the catalog.
+  // Giphy payloads rarely carry a title, so it is included only when present.
   'giphy.shuffled': (t, params) =>
     params.title
       ? t(
@@ -133,16 +114,13 @@ const INTERACTION_MESSAGES: {
           'a11y.interactionAnnouncements.giphyImageChanged.ariaLabel',
           'Giphy image changed',
         ),
-  // Spoken on poll-dialog open. Reuses the already-localized visible description for the middle
-  // clause (so the spoken and visible text stay consistent) and adds two short aria-only phrases:
-  // an explicit "opened" confirmation and the Enter affordance to step into the Question field.
+  // Reuses the already-localized visible description between an "opened" confirmation and the
+  // Enter affordance, so spoken and visible text stay consistent.
   'poll.dialogOpened': (t) =>
     `${t('a11y.interactionAnnouncements.pollDialogOpened.ariaLabel', 'Poll dialog opened')}. ${t(
       'common.createQuestionAddOptions.label',
       'Create a question, add options, and configure poll settings',
     )}. ${t('a11y.interactionAnnouncements.pressEnterStartTyping.ariaLabel', 'Press Enter to start typing')}.`,
-  // Keyboard reorder pickup/drop. Assertive (see INTERACTION_PRIORITIES) — immediate drag feedback
-  // that must not be queued behind other polite messages.
   'poll.optionDropped': (t, params) =>
     t(
       'a11y.interactionAnnouncements.droppedPosition.ariaLabel',
@@ -158,8 +136,7 @@ const INTERACTION_MESSAGES: {
       'Picked up "{{ option }}". Use arrow keys to reorder. Press Space or Tab to drop.',
       { option: params.option },
     ),
-  // Confirms a poll option was removed, naming it by its text (or positional fallback). Polite so it
-  // queues behind the focus move to the next option field instead of interrupting it.
+  // Polite, so it queues behind the focus move to the next option field instead of interrupting it.
   'poll.optionRemoved': (t, params) =>
     t(
       'a11y.interactionAnnouncements.removedOption.ariaLabel',
@@ -169,10 +146,9 @@ const INTERACTION_MESSAGES: {
   'poll.sent': (t) => t('a11y.interactionAnnouncements.pollSent.ariaLabel', 'Poll sent'),
   'search.cleared': (t) =>
     t('a11y.interactionAnnouncements.searchCleared.ariaLabel', 'Search cleared'),
-  // The number of items currently listed in the search results; an empty result set is spelled out
-  // rather than announced as "0". When the list is fully loaded, the end-of-list status is folded
-  // into THIS one announcement (reusing the visible footer's "All results loaded" text) instead of a
-  // competing second live-region message that would supersede the count.
+  // An empty result set is spelled out rather than announced as "0". The end-of-list status is part
+  // of this announcement (reusing the footer's "All results loaded" text), so no second message
+  // supersedes the count.
   'search.resultCount': (t, params) => {
     if (params.count <= 0)
       return t(
@@ -188,9 +164,8 @@ const INTERACTION_MESSAGES: {
       ? `${count}. ${t('common.resultsLoaded.label', 'All results loaded')}`
       : count;
   },
-  // Name the suggestion type by reusing the already-localized list label ("5 Command
-  // Suggestions") so the user knows what the results are; fall back to the bare count when no
-  // label is given. Both literal keys are extracted.
+  // Names the suggestion type by reusing the already-localized list label (e.g. "5 Command
+  // Suggestions"); without a label it is the bare count.
   'suggestions.count': (t, params) =>
     params.suggestionsLabel
       ? t('a11y.interactionAnnouncements.suggestionsWithLabel.ariaLabel', {
@@ -204,9 +179,8 @@ const INTERACTION_MESSAGES: {
           defaultValue_one: '{{ count }} suggestion',
           defaultValue_other: '{{ count }} suggestions',
         }),
-  // Confirms which thread was opened after selecting it from the list; `name` is the thread's
-  // channel display title. Delayed for the same reason as `channel.opened` (the thread composer
-  // auto-focuses on open, and its focus announcement would otherwise supersede this one).
+  // Delayed like `channel.opened`: the thread composer auto-focuses on open and its focus
+  // announcement would otherwise supersede this one.
   'thread.opened': (t, params) =>
     t(
       'a11y.interactionAnnouncements.openedThread.ariaLabel',
@@ -219,9 +193,8 @@ const INTERACTION_MESSAGES: {
       'User selected: {{ user }}',
       { user: params.user },
     ),
-  // Voice recorder lifecycle — discrete, immediate, polite confirmations. Cancellation is NOT here:
-  // it already emits an app notification ("Voice message deleted") announced by NotificationAnnouncer,
-  // and recording errors surface as error notifications; adding them here would double-announce.
+  // Voice recording cancellation and errors are not listed: they surface as notifications announced
+  // by `NotificationAnnouncer`, so listing them here would announce them twice.
   'voiceRecording.attached': (t) =>
     t(
       'a11y.interactionAnnouncements.voiceRecordingAttached.ariaLabel',
@@ -237,69 +210,54 @@ const INTERACTION_MESSAGES: {
     t('a11y.interactionAnnouncements.recordingStarted.ariaLabel', 'Recording started'),
 };
 
-/**
- * Per-interaction aria-live priority. Interactions default to `polite`; list one
- * here only to override it (e.g. with `assertive`).
- */
+/** Per-interaction aria-live priority. Interactions default to `polite`. */
 const INTERACTION_PRIORITIES: Partial<
   Record<InteractionAnnouncementType, AriaLivePriority>
 > = {
-  // Assertive on open: a polite update fired around the dialog's focus-entry announcement is
-  // dropped; assertive interrupts and is spoken (VoiceOver demotes the aria-describedby hint).
+  // A polite update fired around the dialog's focus announcement is dropped; assertive is spoken.
   'poll.dialogOpened': 'assertive',
-  // Keyboard reorder feedback must be immediate (interrupt), not queued behind polite messages.
+  // Keyboard reorder feedback must be immediate, not queued behind polite messages.
   'poll.optionDropped': 'assertive',
   'poll.optionPickedUp': 'assertive',
 };
 
 /**
- * Per-interaction dedupe window (ms): an identical message for this interaction is announced at
- * most once per window (see {@link AriaLiveAnnounceOptions.dedupeMs}). List an interaction here
- * only when the SAME open/mount can fire it more than once in quick succession — e.g. a mount
- * effect double-invoked by React StrictMode (dev) — so the user does not hear a duplicate.
+ * Per-interaction dedupe window (ms), see `AriaLiveAnnounceOptions.dedupeMs`. List an
+ * interaction only when one event can fire it more than once in quick succession, e.g. an effect
+ * double-invoked by React StrictMode.
  */
 const INTERACTION_DEDUPE_MS: Partial<Record<InteractionAnnouncementType, number>> = {
-  // The audio player is pooled: if the same asset is rendered by two widgets they share one player,
-  // so a single rate change fires this from both consumers. Dedupe collapses the identical message.
-  // (Cycling always lands on a different rate → different text, so this never swallows a real change.)
+  // Widgets rendering the same asset for the same requester share one pooled player, so one rate
+  // change fires this from each of them. Consecutive rates differ in text, so a change is not lost.
   'audioPlayer.playbackRateChanged': 300,
   'poll.dialogOpened': 1000,
 };
 
 /**
- * Default per-interaction debounce delay (ms). Only list rapidly-updating streams where just the
- * settled value should be read (e.g. the autocomplete count as the query filters). Discrete
- * confirmations (Giphy/Poll sent, user selected) are NOT listed and announce immediately. A call
- * site can override (or opt into) a delay for a single call via `params.debounceMs` — see
- * {@link InteractionDeliveryOptions}.
+ * Default per-interaction debounce (ms), for rapidly updating values where only the settled one
+ * should be read. Discrete confirmations are not listed and announce immediately. A call can
+ * override or opt in via `params.debounceMs`, see {@link InteractionDeliveryOptions}.
  *
- * `suggestions.count` is a CONSEQUENCE OF TYPING, so the delay does double duty: it coalesces
- * rapid filters into the settled value AND lets the screen reader's per-keystroke typing echo
- * (the spoken character + field re-read) finish first. A polite update that lands mid-echo gets
- * queued behind a long re-read and is perceived as buried; waiting past the echo makes the count
- * the next thing spoken once the user pauses. This is a heuristic — echo length varies with the
- * SR's "speak typed words/characters" setting and field content — so tune if it still collides.
+ * `suggestions.count` follows typing, so its delay also lets the screen reader's per-keystroke
+ * echo finish: a polite update landing mid-echo is queued behind it and gets buried. Echo length
+ * varies with screen-reader settings and field content, so tune the value if it still collides.
  */
 const INTERACTION_DEBOUNCE_MS: Partial<Record<InteractionAnnouncementType, number>> = {
-  // Coalesce the result count as the query filters / results stream in, and let the screen reader's
-  // typing echo finish first (same rationale as `suggestions.count`, slightly longer as search
-  // results can arrive over the network in bursts). The end-of-list status rides along in this same
-  // message (see `search.resultCount` resolver), so there is no second announcement to compete.
+  // Same rationale as `suggestions.count`, but longer because search results arrive over the
+  // network in bursts.
   'search.resultCount': 1000,
   'suggestions.count': 500,
 };
 
 /**
- * Default per-interaction delay (ms) for the immediate (non-debounced) path — a single deferred
- * emit scheduled in the announcer PROVIDER (see {@link AriaLiveAnnounceOptions.delayMs}), so it
- * SURVIVES the calling component unmounting (unlike a debounce, whose timer is cleared on unmount).
+ * Default per-interaction delay (ms) for the immediate path: a single deferred emit scheduled in
+ * the announcer provider (see `AriaLiveAnnounceOptions.delayMs`), so it survives the caller
+ * unmounting, unlike a debounce.
  *
- * Opening a channel/thread moves focus to the (auto-focusing) message composer; the screen reader
- * announces that newly-focused element first, and a live-region message emitted alongside it is
- * superseded and dropped. The delay defers the confirmation past that focus read-out so it is spoken
- * next, in a calm moment. It is a provider delay rather than a debounce specifically because
- * selecting the item can unmount its list row (and the whole list, on mobile) — a per-row debounce
- * would be cancelled mid-flight, swallowing the confirmation.
+ * Opening a channel or thread focuses the composer, and a live-region message emitted alongside the
+ * screen reader's focus announcement is dropped, so the delay moves the confirmation past it.
+ * Selecting the item can unmount its list row (the whole list on mobile), which would cancel a
+ * per-row debounce.
  */
 const INTERACTION_DELAY_MS: Partial<Record<InteractionAnnouncementType, number>> = {
   'channel.opened': 1500,
@@ -307,8 +265,7 @@ const INTERACTION_DELAY_MS: Partial<Record<InteractionAnnouncementType, number>>
   'thread.opened': 1500,
 };
 
-// Overloads enforce that parameterized interactions require their params and that
-// param-less interactions reject extra arguments.
+// Overloads require params for parameterized interactions and reject them for param-less ones.
 type AnnounceInteraction = {
   <T extends InteractionAnnouncementType>(
     interaction: InteractionAnnouncementParams[T] extends undefined ? T : never,
@@ -320,41 +277,30 @@ type AnnounceInteraction = {
 };
 
 export type UseInteractionAnnouncementsValue = {
-  /**
-   * Announce a predefined interaction event to assistive technology. The
-   * interaction name maps to a localized message and a baked-in aria-live
-   * priority.
-   */
+  /** Announces a predefined interaction; it maps to a localized message and a fixed priority. */
   announceInteraction: AnnounceInteraction;
   /**
-   * Cancel pending (debounced, not-yet-spoken) announcements: a single `interaction`, or all when
-   * omitted. Call this when the source of a debounced announcement is torn down (e.g. search exited)
-   * so a queued message is not spoken after its context is gone. An announcement already emitted into
-   * the live region cannot be recalled.
+   * Cancels pending (debounced or delayed, not yet emitted) announcements: one `interaction`, or
+   * all when omitted. Call it when the source is torn down so a queued message is not spoken out
+   * of context. An announcement already emitted into the live region cannot be recalled.
    */
   cancelInteraction: (interaction?: InteractionAnnouncementType) => void;
 };
 
 /**
- * Thin, typed wrapper over the aria-live announcer exposing intention-revealing
- * helpers for transient, user-initiated UI interactions (e.g. a Giphy being
- * sent, a poll being created, a mention being picked). They map to i18n keys with
- * baked-in priorities and reuse the existing live region via
- * {@link useAriaLiveAnnouncer}. New interactions are registered as a single entry
- * in {@link INTERACTION_MESSAGES}.
+ * Typed wrapper over {@link useAriaLiveAnnouncer} for transient, user-initiated UI interactions.
+ * Each interaction maps to an i18n key and a fixed priority, and is registered as one entry in
+ * {@link INTERACTION_MESSAGES}.
  */
 export const useInteractionAnnouncements = (): UseInteractionAnnouncementsValue => {
   const announce = useAriaLiveAnnouncer();
   const { t } = useTranslationContext();
-  // Per-interaction debounce: each type has its own timer + delay from INTERACTION_DEBOUNCE_MS,
-  // so e.g. the typing-driven `suggestions.count` can wait longer (to clear the screen reader's
-  // typing echo) without affecting any other debounced interaction.
+  // One debounce timer per interaction type; each call passes its own delay.
   const { announce: announceDebounced, cancel: cancelDebounced } =
     useDebouncedAnnounce(announce);
-  // Cancel fn of the still-pending provider-delayed emit per interaction. A second trigger of the
-  // same interaction within its delay window supersedes the first (so only the latest is spoken).
-  // NOT cleared on unmount on purpose — provider-delayed emits are designed to survive the caller
-  // unmounting (e.g. channel.opened fires after its list row is gone).
+  // Cancel function of the pending provider-delayed emit per interaction; a re-trigger within the
+  // delay supersedes it. Not cleared on unmount: delayed emits are meant to survive the caller
+  // (e.g. `channel.opened` fires after its list row is gone).
   const pendingImmediateCancelsRef = useRef<
     Partial<Record<InteractionAnnouncementType, () => void>>
   >({});
@@ -375,20 +321,18 @@ export const useInteractionAnnouncements = (): UseInteractionAnnouncementsValue 
         const message = resolveMessage(t, params as never);
         const priority = INTERACTION_PRIORITIES[interaction] ?? 'polite';
 
-        // A per-call `params.debounceMs` overrides the registered default (and can opt an
-        // otherwise-immediate interaction into debouncing).
+        // A per-call `debounceMs` overrides the default and can opt an immediate interaction in.
         const debounceMs =
           (params as InteractionDeliveryOptions | undefined)?.debounceMs ??
           INTERACTION_DEBOUNCE_MS[interaction];
         if (debounceMs === undefined) {
-          // Immediate path. `delayMs` (if any) is a provider-managed deferral that survives this
-          // call site unmounting — used by the "opened" confirmations, whose list row disappears on
-          // selection. `debounceMs` takes precedence over `delayMs` when both are set.
+          // Immediate path; `delayMs` is a provider-managed deferral that survives this call site
+          // unmounting.
           const delayMs =
             (params as InteractionDeliveryOptions | undefined)?.delayMs ??
             INTERACTION_DELAY_MS[interaction];
-          // Supersede a still-pending delayed emit of the same interaction so a rapid re-trigger
-          // (e.g. selecting a second channel within the 1500ms window) speaks only the latest.
+          // A re-trigger within the delay window supersedes the pending emit, so only the latest is
+          // spoken.
           pendingImmediateCancelsRef.current[interaction]?.();
           pendingImmediateCancelsRef.current[interaction] = announce(message, {
             dedupeMs: INTERACTION_DEDUPE_MS[interaction],
@@ -398,12 +342,9 @@ export const useInteractionAnnouncements = (): UseInteractionAnnouncementsValue 
           return;
         }
 
-        // Debounced stream (e.g. suggestions.count): coalesce rapid updates into the settled
-        // value, on a channel keyed by interaction type with that type's own delay. We do NOT
-        // dedupe an unchanged message here — whether a repeat is meaningful is the caller's call
-        // (e.g. SuggestionList re-announces the count on each genuine re-filter so the user gets
-        // feedback even when the count is steady, such as emoji results capped at a constant N).
-        // The debounce window already collapses idle/rapid duplicates.
+        // Rapid updates collapse into the settled value, keyed by interaction type. An unchanged
+        // message is not deduped here: whether a repeat is meaningful is up to the caller (a steady
+        // suggestion count still re-announces on each re-filter).
         announceDebounced(interaction, message, debounceMs, priority);
       },
       cancelInteraction: (interaction?: InteractionAnnouncementType) => {

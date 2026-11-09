@@ -7,12 +7,13 @@ import {
   useChatContext,
   useComponentContext,
   useComponentContextIcons,
-  useModalContext,
   useTranslationContext,
   useWorkspaceNavigation,
 } from '../../../../../context';
 import * as DEFAULT_ICONS from '../../../../../components/Icons/icons';
 import { ChannelDetailProvider } from '../../../ChannelDetailContext';
+// The real provider: the context barrel is auto-mocked in this file.
+import { ModalContextProvider } from '../../../../../context/ModalContext';
 import {
   ChannelMemberActionProvider,
   DefaultChannelMemberActions,
@@ -34,20 +35,23 @@ const member = fromPartial<ChannelMemberResponse>({
 
 describe('SendDirectMessage action', () => {
   const ingestChannel = vi.fn();
+  const closeChannelDetail = vi.fn();
 
   const renderAction = (created: Channel) => {
     vi.mocked(useChatContext).mockReturnValue({
       channelManager: { ingestChannel },
-      client: { channelManager: { ensure: () => created }, userID: 'user-me' },
+      client: { channel: () => created, userID: 'user-me' },
     } as unknown as ReturnType<typeof useChatContext>);
     render(
-      <ChannelDetailProvider channel={fromPartial<Channel>({ type: 'messaging' })}>
-        <ChannelMemberActionProvider
-          value={{ member, memberDisplayName: 'Bob', targetUserId: 'user-2' }}
-        >
-          <DefaultChannelMemberActions.SendDirectMessage />
-        </ChannelMemberActionProvider>
-      </ChannelDetailProvider>,
+      <ModalContextProvider value={{ close: closeChannelDetail }}>
+        <ChannelDetailProvider channel={fromPartial<Channel>({ type: 'messaging' })}>
+          <ChannelMemberActionProvider
+            value={{ member, memberDisplayName: 'Bob', targetUserId: 'user-2' }}
+          >
+            <DefaultChannelMemberActions.SendDirectMessage />
+          </ChannelMemberActionProvider>
+        </ChannelDetailProvider>
+      </ModalContextProvider>,
     );
   };
 
@@ -57,9 +61,6 @@ describe('SendDirectMessage action', () => {
     vi.mocked(useTranslationContext).mockReturnValue({
       t: mockT,
     } as ReturnType<typeof useTranslationContext>);
-    vi.mocked(useModalContext).mockReturnValue({
-      close: vi.fn(),
-    } as ReturnType<typeof useModalContext>);
     vi.mocked(useComponentContext).mockReturnValue(
       {} as ReturnType<typeof useComponentContext>,
     );
@@ -72,8 +73,7 @@ describe('SendDirectMessage action', () => {
 
   it('opens and lists the direct message once it is watched', async () => {
     const created = fromPartial<Channel>({ cid: 'messaging:dm' });
-    (created as { ensureWatched: () => Promise<Channel> }).ensureWatched = () =>
-      Promise.resolve(created);
+    (created as { watch: () => Promise<Channel> }).watch = () => Promise.resolve(created);
     renderAction(created);
 
     await act(async () => {
@@ -83,14 +83,14 @@ describe('SendDirectMessage action', () => {
 
     expect(mockOpenChannel).toHaveBeenCalledWith(created);
     expect(ingestChannel).toHaveBeenCalledWith(created);
+    expect(closeChannelDetail).toHaveBeenCalledTimes(1);
   });
 
   it('opens and lists the stored instance when the direct message was superseded during its watch', async () => {
     const stored = fromPartial<Channel>({ cid: 'messaging:dm' });
     const created = fromPartial<Channel>({ cid: 'messaging:dm', supersededBy: stored });
-    // as stream-chat does: `ensureWatched()` resolves with the instance that superseded it
-    (created as { ensureWatched: () => Promise<Channel> }).ensureWatched = () =>
-      Promise.resolve(stored);
+    // as stream-chat does: `watch()` resolves with the instance that superseded it
+    (created as { watch: () => Promise<Channel> }).watch = () => Promise.resolve(stored);
     renderAction(created);
 
     await act(async () => {

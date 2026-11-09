@@ -1,8 +1,5 @@
-/**
- * The `TranslationBuilder` / `TranslationTopic` / `Translator` plumbing now lives in
- * `@stream-io/i18n`, shared with the React Native SDK. Only the *topics* are this SDK's own, since
- * they reference its key names.
- */
+// The translation plumbing comes from `@stream-io/i18n`; only the topics are this SDK's own,
+// because they reference its key names.
 export {
   TranslationBuilder,
   TranslationTopic,

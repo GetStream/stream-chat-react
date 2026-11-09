@@ -4,7 +4,7 @@ import type { RenderedMessage } from '../../utils';
 type UseScrollToBottomOnNewMessageParams = {
   scrollToBottom: () => void;
   messages?: RenderedMessage[];
-  /** When `true`, the list will scroll to the latest message when the window regains focus */
+  /** Scrolls to the latest message when the window regains focus after new messages arrived. */
   scrollToLatestMessageOnFocus?: boolean;
 };
 

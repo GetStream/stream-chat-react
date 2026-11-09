@@ -1,0 +1,19 @@
+[
+  {
+    "file": "layout-restored-after-reload.png",
+    "query": {
+      "seed-layout": "1"
+    },
+    "waitFor": ".str-chat__channel-header:has-text('Weekend trip')",
+    "settleMs": 1500
+  },
+  {
+    "file": "layout-opened-from-link.png",
+    "query": {
+      "seed-layout": "1",
+      "channel": "messaging:docs-v15-cb-garden"
+    },
+    "waitFor": ".str-chat__channel-header:has-text('Garden plot')",
+    "settleMs": 1500
+  }
+]

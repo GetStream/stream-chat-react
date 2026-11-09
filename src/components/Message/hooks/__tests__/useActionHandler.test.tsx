@@ -10,13 +10,9 @@ import { generateMessage, initClientWithChannels } from '../../../../mock-builde
 import { Channel } from '../../../Channel';
 import { Chat } from '../../../Chat';
 
-// MERGE-RECONCILE (test migration): the master merge removed ChannelActionContext.
-// `useActionHandler` now reads the channel from ChannelInstanceContext (useChannel) and the
-// paginator from useMessagePaginator. It sends the action through `channel.sendAction` and then
-// either ingests the returned message into the paginator (`messagePaginator.ingestItem`) or
-// removes the local message (`messagePaginator.removeItem`) — replacing the removed context
-// `updateMessage`/`removeMessage` handlers. The wrapper uses the real <Chat>/<Channel>
-// providers and assertions spy on `channel.sendAction` and the paginator methods.
+// `useActionHandler` sends the action through `channel.sendAction`, then ingests the returned
+// message into the paginator (`ingestItem`) or removes the local message (`removeItem`). The
+// wrapper uses real <Chat>/<Channel> providers and assertions spy on those methods.
 
 let channel: ChannelType;
 let client: StreamChat;

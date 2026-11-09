@@ -1,7 +1,17 @@
 import React, { type ReactNode } from 'react';
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 
-import { AIMessageComposer, AIStateIndicator } from '..';
+import {
+  AIConversation,
+  AIMessageComposer,
+  AIStateIndicator,
+  AISuggestions,
+  type AIToolApprover,
+  AIToolAuthorizationCard,
+  parseMessageParts,
+  VoiceGlow,
+  VoiceWave,
+} from '..';
 import { Item } from '../AIMessageComposer/AttachmentPreview';
 import { TranslationProvider } from '../../../context';
 import { mockT } from '../../../mock-builders/translator';
@@ -33,6 +43,24 @@ const FullComposer = () => (
     </AIMessageComposer>
   </WithEnglish>
 );
+
+// jsdom cannot compute pseudo-element styles, so axe's color-contrast rule cannot run
+// meaningfully here and only emits "Not implemented" noise.
+const axeRules = { rules: { 'color-contrast': { enabled: false } } };
+
+const approver: AIToolApprover = {
+  authorizer: { connect: () => Promise.resolve(true), decline: () => Promise.resolve() },
+  clientId: 'web-1',
+  decide: () => Promise.resolve(),
+  userId: 'alex',
+};
+
+const replyParts = parseMessageParts([
+  { duration_ms: 3000, id: 'r1', preview: 'Thinking about the weather.', status: 'completed', type: 'ai_reasoning', v: 1 },
+  { approval: { title: 'Share your location?' }, executor: 'client', id: 'call_1', name: 'get_location', status: 'awaiting_approval', target_client_id: 'web-1', target_user_id: 'alex', type: 'ai_tool_call', v: 1 },
+  { authorization: { provider: 'linear', provider_name: 'Linear', title: 'Connect Linear', type: 'oauth', url: 'https://router.example.com/launch/abc' }, id: 'call_2', name: 'linear_create_issue', status: 'awaiting_authorization', target_user_id: 'alex', type: 'ai_tool_call', v: 1 },
+  { id: 'call_3', name: 'get_weather', status: 'completed', summary: 'Sunny, 21°C', type: 'ai_tool_call', v: 1 },
+]); // prettier-ignore
 
 describe('AI components accessibility', () => {
   beforeEach(() => {
@@ -96,10 +124,72 @@ describe('AI components accessibility', () => {
     expect(screen.getByRole('button', { name: 'Retry upload' })).toBeInTheDocument();
   });
 
+  it('voice visualizations have no axe violations and are named with their state', async () => {
+    const { container } = render(
+      <WithEnglish>
+        <VoiceWave state='listening' />
+        <VoiceGlow state='thinking' />
+        <VoiceGlow rendering='css' state='speaking' />
+      </WithEnglish>,
+    );
+    expect(await axe(container)).toHaveNoViolations();
+    expect(
+      screen.getByRole('img', { name: 'Voice agent: Listening' }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('img', { name: 'Voice agent: Thinking' }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('img', { name: 'Voice agent: Speaking' }),
+    ).toBeInTheDocument();
+  });
+
   it('announces the AI state politely', () => {
     render(<AIStateIndicator text='Thinking' />);
     const status = screen.getByRole('status');
     expect(status).toHaveAttribute('aria-live', 'polite');
     expect(status).toHaveTextContent('Thinking');
+  });
+  it('a conversation with reasoning, tool calls, approval and sign-in has no axe violations', async () => {
+    const { container } = render(
+      <AIConversation
+        approver={approver}
+        messages={[
+          { id: 'u1', role: 'user', text: 'What is the weather?' },
+          { id: 'a1', parts: replyParts, role: 'assistant', text: 'It is **sunny**.' },
+        ]}
+      />,
+    );
+    expect(screen.getByRole('button', { name: 'Allow' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Connect' })).toBeInTheDocument();
+    expect(await axe(container, axeRules)).toHaveNoViolations();
+  });
+
+  it('the standalone sign-in card, suggestions and chat options have no axe violations', async () => {
+    const { container } = render(
+      <>
+        <AIToolAuthorizationCard
+          authorization={{ provider: 'linear', providerName: 'Linear', title: 'Connect Linear', type: 'oauth', url: 'https://router.example.com/launch/abc' }}
+          onConnect={() => undefined}
+          onDecline={() => undefined}
+        />
+        <AISuggestions onSelect={() => undefined} suggestions={['Plan my day', 'Summarise my inbox']} />
+        <AIMessageComposer aria-label='Message composer'>
+          <AIMessageComposer.TextInput />
+          <AIMessageComposer.ChatOptions options={[{ id: 'think', title: 'Think harder' }]} />
+        </AIMessageComposer>
+      </>,
+    ); // prettier-ignore
+    fireEvent.click(screen.getByRole('button', { name: 'Chat options' }));
+    expect(
+      screen.getByRole('menuitemradio', { name: /Think harder/ }),
+    ).toBeInTheDocument();
+    // The open menu may render outside the container, so check the whole page. Its `region` rule
+    // asks a page to keep its content in landmarks, which a test page without a <main> never does.
+    expect(
+      await axe(container.ownerDocument.body, {
+        rules: { ...axeRules.rules, region: { enabled: false } },
+      }),
+    ).toHaveNoViolations();
   });
 });

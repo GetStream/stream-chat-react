@@ -9,22 +9,36 @@ import { ThreadListEmptyPlaceholder as DefaultThreadListEmptyPlaceholder } from 
 import { ThreadListUnseenThreadsBanner as DefaultThreadListUnseenThreadsBanner } from './ThreadListUnseenThreadsBanner';
 import { useThreadHighlighting } from './useThreadHighlighting';
 import { ThreadListLoadingIndicator as DefaultThreadListLoadingIndicator } from './ThreadListLoadingIndicator';
-import { LoadingChannels } from '../../Loading';
+import {
+  ListLoadErrorIndicator as BaseListLoadErrorIndicator,
+  type ListLoadErrorIndicatorProps,
+  LoadingChannels,
+} from '../../Loading';
 import { NotificationList } from '../../Notifications';
+import { getFirstPageLoadError } from '../../Loading/getFirstPageLoadError';
+import { useFirstPageLoadRetry } from '../../Loading/hooks/useFirstPageLoadRetry';
+import { useAddNotificationOnError } from '../../Notifications/hooks/useAddNotificationOnError';
 import {
   useChatContext,
   useComponentContext,
   useTranslationContext,
 } from '../../../context';
 import { useStateStore } from '../../../store';
-import { ThreadListHeader } from './ThreadListHeader';
+import { ThreadListHeader as DefaultThreadListHeader } from './ThreadListHeader';
 
 const noThreads: Thread[] = [];
 
 const selector = (nextValue: PaginatorState<Thread>) => ({
+  // A failed first load leaves no threads to show; a failed reload keeps the loaded ones.
+  firstPageLoadError: getFirstPageLoadError(nextValue),
   isLoading: nextValue.isLoading,
+  lastQueryError: nextValue.lastQueryError,
   threads: nextValue.items ?? noThreads,
 });
+
+const DefaultListLoadErrorIndicator = (props: ListLoadErrorIndicatorProps) => (
+  <BaseListLoadErrorIndicator {...props} listType='thread' />
+);
 
 const computeItemKey: ComputeItemKey<Thread, unknown> = (_, item) => item.id;
 
@@ -62,20 +76,24 @@ export const ThreadList = ({ virtuosoProps }: ThreadListProps) => {
   const { client } = useChatContext();
   const { t } = useTranslationContext();
   const {
+    FirstPageLoadingIndicator = LoadingChannels,
+    ListLoadErrorIndicator = DefaultListLoadErrorIndicator,
     NotificationList: NotificationListFromContext = NotificationList,
     ThreadListEmptyPlaceholder = DefaultThreadListEmptyPlaceholder,
+    ThreadListHeader = DefaultThreadListHeader,
     ThreadListItem = DefaultThreadListItem,
     ThreadListLoadingIndicator = DefaultThreadListLoadingIndicator,
     ThreadListUnseenThreadsBanner = DefaultThreadListUnseenThreadsBanner,
   } = useComponentContext();
-  const { isLoading, threads } = useStateStore(client.threads.paginator.state, selector);
+  const { firstPageLoadError, isLoading, lastQueryError, threads } = useStateStore(
+    client.threads.paginator.state,
+    selector,
+  );
 
   const resetByThreadId = useThreadHighlighting(client.threads);
 
-  // Keyboard roving for the thread list (a `role="listbox"` of `role="option"` rows, no row actions
-  // → ArrowUp/Down/Home/End only). The list is virtualized, so only a window of rows exists in the
-  // DOM at a time; `useVirtualizedListboxKeyboardNavigation` indexes into the full `threads` array
-  // and drives Virtuoso's `scrollIntoView` to bring off-window rows into existence before focusing.
+  // The list is virtualized, so keyboard navigation indexes into the full `threads` array and uses
+  // Virtuoso's `scrollIntoView` to render off-window rows before focusing them.
   const virtuosoRef = useRef<VirtuosoHandle>(null);
   const scrollerRef = useRef<HTMLElement | null>(null);
 
@@ -93,21 +111,25 @@ export const ThreadList = ({ virtuosoProps }: ThreadListProps) => {
 
   useThreadList();
 
-  // Only the first load shows the placeholder; a reload keeps the loaded threads until the new ones land.
-  if (isLoading && !threads.length) {
-    return (
-      <div className='str-chat__thread-list-container'>
-        <ThreadListHeader />
-        <div className='str-chat__thread-list str-chat__thread-list--loading'>
-          <LoadingChannels />
-        </div>
-      </div>
-    );
-  }
+  useAddNotificationOnError(lastQueryError, {
+    emitter: 'ThreadList',
+    message: t('threadList.loadError.text', "Couldn't load threads"),
+    targetPanels: ['thread-list'],
+    type: 'api:thread:query:failed',
+  });
 
-  return (
-    <div className='str-chat__thread-list-container'>
-      <ThreadListHeader />
+  const firstPageLoadRetry = useFirstPageLoadRetry({
+    firstPageLoadError,
+    loadedMessage: t('threadList.loaded.text', 'Threads loaded'),
+    paginator: client.threads.paginator,
+    reload: () => client.threads.reload({ force: true }),
+  });
+
+  // Only the first load shows the skeleton; a reload keeps the loaded threads until new ones land.
+  const isLoadingFirstPage = isLoading && !threads.length;
+
+  const renderList = () => (
+    <>
       {/* TODO: allow re-load on stale ThreadManager state */}
       <ThreadListUnseenThreadsBanner />
       <Virtuoso
@@ -140,6 +162,34 @@ export const ThreadList = ({ virtuosoProps }: ThreadListProps) => {
         // itemsRendered={(items) => console.log({ items })}
         {...virtuosoProps}
       />
+    </>
+  );
+
+  // A failed first load shows the error instead of the empty placeholder, which would read as
+  // "no threads".
+  const renderFirstPageLoadError = (error: Error) => (
+    <ListLoadErrorIndicator
+      error={error}
+      isRetrying={firstPageLoadRetry.isRetrying}
+      retry={firstPageLoadRetry.retry}
+    />
+  );
+
+  const renderFirstPageLoading = () => (
+    <div className='str-chat__thread-list str-chat__thread-list--loading'>
+      <FirstPageLoadingIndicator />
+    </div>
+  );
+
+  return (
+    <div className='str-chat__thread-list-container'>
+      <ThreadListHeader />
+      {/* The error comes first: a retry loads, and keeps the error on screen while it runs. */}
+      {firstPageLoadRetry.error
+        ? renderFirstPageLoadError(firstPageLoadRetry.error)
+        : isLoadingFirstPage
+          ? renderFirstPageLoading()
+          : renderList()}
       <NotificationListFromContext panel='thread-list' />
     </div>
   );

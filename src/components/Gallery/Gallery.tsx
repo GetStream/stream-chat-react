@@ -7,17 +7,16 @@ import { useComponentContext } from '../../context';
 import type { GalleryContextValue, GalleryItem } from './GalleryContext';
 
 export type GalleryProps = {
-  /** Whether clicking the empty gallery background should request close (default: true) */
+  /** Whether clicking the empty gallery background requests close. Defaults to true. */
   closeOnBackgroundClick?: boolean;
-  /** Array of media attachments to display */
   items: GalleryItem[];
-  /** Custom UI component to replace the default GalleryUI */
+  /** Replaces the default UI and takes precedence over `ComponentContext.GalleryUI`. */
   GalleryUI?: React.ComponentType;
-  /** Initial index of the item to display (default: 0) */
+  /** Index of the item shown first. Defaults to 0. */
   initialIndex?: number;
-  /** Callback when the active item changes */
+  /** Called on mount and whenever the active index changes. */
   onIndexChange?: (index: number) => void;
-  /** Callback invoked when the gallery requests to close */
+  /** Called when the gallery requests to close. */
   onRequestClose?: () => void;
 };
 

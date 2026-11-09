@@ -78,6 +78,8 @@ typings/
 /.env.local
 /.env.development
 /.env.production
+# Local env files in the example apps, such as the cookbook's Giphy key
+examples/*/.env*.local
 
 # next.js build output
 .next

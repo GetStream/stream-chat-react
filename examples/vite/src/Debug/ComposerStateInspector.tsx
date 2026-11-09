@@ -29,7 +29,7 @@ const Section = ({ children, defaultOpen = false, title, value }: SectionProps) 
   </details>
 );
 
-const Flag = ({ label, on }: { label: string; on: boolean }) => (
+export const Flag = ({ label, on }: { label: string; on: boolean }) => (
   <span
     className={`app__composer-inspector__flag app__composer-inspector__flag--${on ? 'on' : 'off'}`}
   >

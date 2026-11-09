@@ -52,8 +52,10 @@ export type DropdownTriggerProps = Pick<
 
 export type DropdownProps = PropsWithChildren<{
   className?: string;
-  /** Cap the menu to the space left in the viewport (after flip/shift) so it scrolls within
-   *  the viewport instead of overflowing it. Combine with `overflow: auto` on the menu. */
+  /**
+   * Caps the menu to the space left in the viewport (after flip/shift) so it scrolls within it
+   * instead of overflowing. Combine with `overflow: auto` on the menu. Defaults to false.
+   */
   fitAvailableSpace?: boolean;
   matchReferenceWidth?: boolean;
   onClose?: () => void;

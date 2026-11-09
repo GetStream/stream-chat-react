@@ -98,10 +98,29 @@ describe('Message utils', () => {
       expect(shouldUpdate).toBe(false);
     });
 
-    // `formatMessage` runs only on the write path, so an unchanged message keeps its reference and
-    // the memo always bailed for it. What changed with numbers: `updated_at` is no longer a fresh
-    // `Date` per ingest, so it no longer forces a repaint on every re-ingest — which is what makes
-    // the compared-field list load-bearing. These pin the fields that list has to cover.
+    describe.each(['onMentionsClickMessage', 'onMentionsHoverMessage'] as const)(
+      '%s',
+      (handlerName) => {
+        type ComparedProps = Parameters<typeof areMessagePropsEqual>[0];
+        const message = generateMessage();
+        const withHandler = (handler = vi.fn()) =>
+          fromPartial<ComparedProps>({ [handlerName]: handler, message });
+        const withoutHandler = fromPartial<ComparedProps>({ message });
+
+        it('should update when the handler is set or removed', () => {
+          expect(areMessagePropsEqual(withHandler(), withoutHandler)).toBe(false);
+          expect(areMessagePropsEqual(withoutHandler, withHandler())).toBe(false);
+        });
+
+        it('should not update when only the handler identity changes', () => {
+          expect(areMessagePropsEqual(withHandler(), withHandler())).toBe(true);
+        });
+      },
+    );
+
+    // `updated_at` is a number, not a fresh `Date` per ingest, so a re-ingest does not force a
+    // repaint on its own and the compared-field list is load-bearing. These pin the fields it has
+    // to cover.
     describe('memoization with nanosecond timestamps', () => {
       it('bails out for an identical message, which a fresh Date used to prevent', () => {
         const message = generateMessage({ id: 'm' });
@@ -128,8 +147,8 @@ describe('Message utils', () => {
       });
 
       it('sees an attachments swap', () => {
-        // Compared by reference: the SDK builds a new array for any real change, so this needs no
-        // deep equality. An upload thumbnail resolving used to leave the row stale.
+        // Compared by reference: the SDK builds a new array for any real change (e.g. an upload
+        // thumbnail resolving), so no deep equality is needed.
         const message = generateMessage({ id: 'm' });
 
         expect(

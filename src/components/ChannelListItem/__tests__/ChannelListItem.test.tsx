@@ -56,8 +56,8 @@ const PreviewUIComponent = (props: ChannelListItemUIProps) => (
     <div data-testid='pinned'>{String(!!props.pinned)}</div>
   </>
 );
-// The badge reads the channel's own unread count (`read[ownUserId].unread_messages`), which is what
-// `countUnread()` returns, so tests seed that slice rather than stubbing the method.
+// The badge reads `read[ownUserId].unread_messages`, which `countUnread()` returns, so tests seed
+// that slice instead of stubbing the method.
 const seedUnreadCount = (
   channel: Channel,
   unread_messages: number,
@@ -77,7 +77,9 @@ const expectUnreadCountToBe = async (
   expectedValue: string | number,
 ) => {
   await waitFor(() => {
-    expect(getByTestId('unread-count')).toHaveTextContent(String(expectedValue));
+    expect(getByTestId('unread-count')).toHaveTextContent(
+      new RegExp(`^${expectedValue}$`),
+    );
   });
 };
 const expectLastEventMessageToBe = async (
@@ -108,9 +110,7 @@ describe('ChannelPreview', () => {
     renderer(
       <ChatContext.Provider
         value={fromPartial<ChatContextValue>({
-          channel: props.activeChannel,
           client,
-          setActiveChannel: () => vi.fn(),
         })}
       >
         <TranslationProvider value={mockTranslationContextValue()}>
@@ -125,8 +125,8 @@ describe('ChannelPreview', () => {
 
   beforeEach(async () => {
     client = await getTestClientWithUser(user);
-    // Distinct, increasing created_at so "newest" is unambiguous — the message paginator orders by
-    // created_at (with an id tiebreaker), so identical timestamps would make its head diverge from
+    // Distinct, increasing created_at so "newest" is unambiguous: the message paginator orders by
+    // created_at (with an ID tiebreaker), so identical timestamps would make its head diverge from
     // the mocked response's array order.
     const genMessages = () =>
       Array.from({ length: 5 }, (_, i) =>
@@ -143,41 +143,15 @@ describe('ChannelPreview', () => {
       ]),
     ]);
 
-    // v10: `client.queryChannels()` returns the raw API response; `queryChannelsAndHydrate()` is
-    // the one that hydrates and returns `Channel[]`.
+    // `client.queryChannels()` returns the raw API response; `queryChannelsAndHydrate()` hydrates
+    // and returns `Channel[]`.
     [c0, c1] = await client.queryChannelsAndHydrate({}, {});
   });
 
-  it('should mark channel as read, when set as active channel', async () => {
-    // Mock the countUnread function on channel, to return 10.
-    seedUnreadCount(c0, 10);
-
-    const { getByTestId, rerender } = renderComponent(
-      {
-        activeChannel: c1,
-        channel: c0,
-      },
-      render,
-    );
-    // Wait for list of channels to load in DOM.
-    await expectUnreadCountToBe(getByTestId, 10);
-
-    renderComponent(
-      {
-        activeChannel: c0,
-        channel: c0,
-      },
-      rerender,
-    );
-
-    await expectUnreadCountToBe(getByTestId, 0);
-  });
-
-  // `channelUpdateCount` used to force a re-read of `countUnread()`. The badge subscribes to the
-  // channel's read state now, so it follows along without being told to.
+  // The badge subscribes to the channel's read state, so it follows along without a forced update.
   it('follows the channel unread count with no forced update', async () => {
     seedUnreadCount(c0, 100);
-    const { getByTestId } = renderComponent({ activeChannel: c1, channel: c0 }, render);
+    const { getByTestId } = renderComponent({ channel: c0 }, render);
 
     await expectUnreadCountToBe(getByTestId, 100);
 
@@ -192,7 +166,7 @@ describe('ChannelPreview', () => {
   // trailing call. Without the throttle the intermediate value below would reach the badge.
   it('coalesces a burst of unread changes', async () => {
     seedUnreadCount(c0, 1);
-    const { getByTestId } = renderComponent({ activeChannel: c1, channel: c0 }, render);
+    const { getByTestId } = renderComponent({ channel: c0 }, render);
     await expectUnreadCountToBe(getByTestId, 1);
 
     act(() => {
@@ -200,8 +174,8 @@ describe('ChannelPreview', () => {
       seedUnreadCount(c0, 3);
     });
 
-    // still the leading value - the burst has not been flushed yet
-    expect(getByTestId('unread-count')).toHaveTextContent('1');
+    // Still the leading value: the burst has not been flushed yet.
+    expect(getByTestId('unread-count')).toHaveTextContent(/^1$/);
 
     await expectUnreadCountToBe(getByTestId, 3);
   });
@@ -215,12 +189,11 @@ describe('ChannelPreview', () => {
 
     const { getByTestId } = renderComponent(
       {
-        activeChannel: c0,
         channel: c0,
       },
       render,
       {
-        // Stub the action buttons — their default needs a DialogManager not present in this harness.
+        // Stub the action buttons: their default needs a DialogManager not present in this harness.
         ChannelListItemActionButtons: () => null,
         // Use the real ChannelListItemUI so it reads SummarizedMessagePreview from the context.
         ChannelListItemUI: DefaultChannelListItemUI,
@@ -240,7 +213,6 @@ describe('ChannelPreview', () => {
     );
     const { rerender } = renderComponent(
       {
-        activeChannel: c1,
         channel: c0,
       },
       render,
@@ -253,7 +225,6 @@ describe('ChannelPreview', () => {
     renderComponent(
       {
         active: true,
-        activeChannel: c1,
         channel: c0,
       },
       rerender,
@@ -279,7 +250,6 @@ describe('ChannelPreview', () => {
 
         const { getByTestId } = renderComponent(
           {
-            activeChannel: c1,
             channel: c0,
           },
           render,
@@ -292,7 +262,7 @@ describe('ChannelPreview', () => {
         const message =
           eventType === 'message.new'
             ? generateMessage()
-            : c0.messagePaginator.headmostItem;
+            : c0.messagePaginator.latestMessage;
         await act(async () => {
           await dispatcher(client, message, c0);
         });
@@ -306,7 +276,6 @@ describe('ChannelPreview', () => {
 
         const { getByTestId } = renderComponent(
           {
-            activeChannel: c1,
             channel: c0,
           },
           render,
@@ -329,7 +298,6 @@ describe('ChannelPreview', () => {
         seedUnreadCount(c0, unreadCount);
         const { getByTestId } = renderComponent(
           {
-            activeChannel: c0,
             channel: c0,
           },
           render,
@@ -363,7 +331,6 @@ describe('ChannelPreview', () => {
 
         const { getByTestId } = renderComponent(
           {
-            activeChannel: c1,
             channel: c0,
           },
           render,
@@ -386,7 +353,6 @@ describe('ChannelPreview', () => {
 
     const { getByTestId } = renderComponent(
       {
-        activeChannel: c1,
         channel: c0,
       },
       render,
@@ -415,7 +381,6 @@ describe('ChannelPreview', () => {
 
       const { getByTestId } = renderComponent(
         {
-          activeChannel: c1,
           channel: c0,
         },
         render,
@@ -425,8 +390,8 @@ describe('ChannelPreview', () => {
         expect(getByTestId('channel-id')).toBeInTheDocument();
       });
 
-      const lastMessage = c0.messagePaginator.headmostItem;
-      const penultimateMessage = c0.messagePaginator.headItems.slice(-2)[0];
+      const lastMessage = c0.messagePaginator.latestMessage;
+      const penultimateMessage = c0.messagePaginator.anchoredHeadItems.slice(-2)[0];
       await act(async () => {
         await dispatcher(client, penultimateMessage, c0);
       });
@@ -558,7 +523,7 @@ describe('ChannelPreview', () => {
         expect(lastMessagePreviews.length).toBe(2);
         expect(lastMessagePreviews[0]).toHaveTextContent(deletedMessageText);
         expect(lastMessagePreviews[1]).toHaveTextContent(
-          c1.messagePaginator.headmostItem.text,
+          c1.messagePaginator.latestMessage!.text,
         );
       });
     });
@@ -566,14 +531,13 @@ describe('ChannelPreview', () => {
 
   describe('notification.mark_read', () => {
     // Mark-all-read names no channel. The client fans the reset across its active channels, and
-    // only when the event says nothing is left unread - `unread_channels > 0` means some other
+    // only when the event says nothing is left unread: `unread_channels > 0` means some other
     // channel still is, so zeroing every one of them would be wrong.
     it('should set unread count to 0 when everything was marked read', async () => {
       const unreadCount = getRandomInt(1, 10);
       seedUnreadCount(c0, unreadCount);
       renderComponent(
         {
-          activeChannel: c1,
           channel: c0,
         },
         render,
@@ -590,7 +554,6 @@ describe('ChannelPreview', () => {
       seedUnreadCount(c0, unreadCount);
       renderComponent(
         {
-          activeChannel: c1,
           channel: c0,
         },
         render,
@@ -608,7 +571,6 @@ describe('ChannelPreview', () => {
       seedUnreadCount(c0, unreadCount);
       renderComponent(
         {
-          activeChannel: c1,
           channel: channelInPreview,
         },
         render,
@@ -622,19 +584,18 @@ describe('ChannelPreview', () => {
 
     it('should be ignored if not targeted for the current channel', async () => {
       const channelInPreview = c0;
-      const activeChannel = c1;
+      const otherChannel = c1;
       const unreadCount = getRandomInt(1, 10);
       seedUnreadCount(c0, unreadCount);
       renderComponent(
         {
-          activeChannel,
           channel: channelInPreview,
         },
         render,
       );
       await expectUnreadCountToBe(screen.getByTestId, unreadCount);
       await act(() => {
-        dispatchNotificationMarkRead({ channel: activeChannel, client, user });
+        dispatchNotificationMarkRead({ channel: otherChannel, client, user });
       });
       await expectUnreadCountToBe(screen.getByTestId, unreadCount);
     });
@@ -642,7 +603,7 @@ describe('ChannelPreview', () => {
     it('should be ignored if originated from another user', async () => {
       const unreadCount = getRandomInt(1, 10);
       seedUnreadCount(c0, unreadCount);
-      renderComponent({ activeChannel: c1, channel: c0 }, render);
+      renderComponent({ channel: c0 }, render);
       await expectUnreadCountToBe(screen.getByTestId, unreadCount);
 
       await act(() => {
@@ -655,7 +616,7 @@ describe('ChannelPreview', () => {
     it('should be ignored if only a thread was marked read', async () => {
       const unreadCount = getRandomInt(1, 10);
       seedUnreadCount(c0, unreadCount);
-      renderComponent({ activeChannel: c1, channel: c0 }, render);
+      renderComponent({ channel: c0 }, render);
       await expectUnreadCountToBe(screen.getByTestId, unreadCount);
 
       await act(() => {
@@ -671,14 +632,13 @@ describe('ChannelPreview', () => {
     });
   });
 
-  // https://github.com/GetStream/stream-chat-react/issues/3264
   // Marking a channel read emits two independent events for the reading user: `message.read`
   // (channel-scoped) and `notification.mark_read` (personal). Only the former resets
   // `channel.state.unreadCount`, so the badge has to reach 0 whichever arrives first.
   describe('marking a channel read with another channel still unread', () => {
     const renderUnreadChannelPreview = async () => {
       seedUnreadCount(c0, 5);
-      renderComponent({ activeChannel: c1, channel: c0 }, render);
+      renderComponent({ channel: c0 }, render);
       await expectUnreadCountToBe(screen.getByTestId, 5);
     };
 
@@ -738,7 +698,7 @@ describe('ChannelPreview', () => {
       await expectUnreadCountToBe(screen.getByTestId, 5);
     });
 
-    // The stand-in a channel with read events disabled gets instead of a server read.
+    // `markReadLocally()` stands in for a server read on a channel with read events disabled.
     it('clears the badge on a local read', async () => {
       await renderUnreadChannelPreview();
 
@@ -754,11 +714,9 @@ describe('ChannelPreview', () => {
     it('should be ignored if not originated from the current user', async () => {
       const unreadCount = 0;
       const channelInPreview = c0;
-      const activeChannel = c1;
       seedUnreadCount(channelInPreview, unreadCount);
       renderComponent(
         {
-          activeChannel,
           channel: channelInPreview,
         },
         render,
@@ -778,11 +736,10 @@ describe('ChannelPreview', () => {
     it('should be ignored if not targeted for the current channel', async () => {
       const unreadCount = 0;
       const channelInPreview = c0;
-      const activeChannel = c1;
+      const otherChannel = c1;
       seedUnreadCount(channelInPreview, unreadCount);
       renderComponent(
         {
-          activeChannel,
           channel: channelInPreview,
         },
         render,
@@ -790,7 +747,7 @@ describe('ChannelPreview', () => {
       await expectUnreadCountToBe(screen.getByTestId, unreadCount);
       await act(() => {
         dispatchNotificationMarkUnread({
-          channel: activeChannel,
+          channel: otherChannel,
           client,
           payload: { unread_channels: 2, unread_messages: 5 },
           user,
@@ -799,41 +756,13 @@ describe('ChannelPreview', () => {
       await expectUnreadCountToBe(screen.getByTestId, unreadCount);
     });
 
-    it("should set unread count from client's unread count state for active channel", async () => {
-      const unreadCount = 0;
-      const activeChannel = c1;
-      // countUnread() is deliberately NOT stubbed: the event updates channel.state.unreadCount, and
-      // reading it back is what this test asserts
-      renderComponent(
-        {
-          activeChannel,
-          channel: activeChannel,
-        },
-        render,
-      );
-      await expectUnreadCountToBe(screen.getByTestId, unreadCount);
-
-      const eventPayload = { unread_channels: 2, unread_messages: 5 };
-      await act(() => {
-        dispatchNotificationMarkUnread({
-          channel: activeChannel,
-          client,
-          payload: { unread_channels: 2, unread_messages: 5 },
-          user,
-        });
-      });
-      await expectUnreadCountToBe(screen.getByTestId, eventPayload.unread_messages);
-    });
-
-    it("should set unread count from client's unread count state for non-active channel", async () => {
+    it("should set unread count from the channel's read state", async () => {
       const unreadCount = 0;
       const channelInPreview = c0;
-      const activeChannel = c1;
-      // countUnread() is deliberately NOT stubbed: the event updates channel.state.unreadCount, and
-      // reading it back is what this test asserts
+      // `countUnread()` is not stubbed: the event updates `channel.state.unreadCount`, and this
+      // test asserts reading it back.
       renderComponent(
         {
-          activeChannel,
           channel: channelInPreview,
         },
         render,
@@ -857,7 +786,6 @@ describe('ChannelPreview', () => {
     it('should pass pinned=false when membership has no pinned_at', async () => {
       renderComponent(
         {
-          activeChannel: c1,
           channel: c0,
         },
         render,
@@ -875,7 +803,6 @@ describe('ChannelPreview', () => {
 
       renderComponent(
         {
-          activeChannel: c1,
           channel: c0,
         },
         render,
@@ -1040,7 +967,7 @@ describe('ChannelPreview', () => {
         await renderComponent({ channel, client, componentOverrides });
         await waitFor(() => {
           const avatarImages = screen.getAllByTestId(AVATAR_IMG_TEST_ID);
-          // With overflowCount set (5 members > 4), GroupAvatar shows 2 avatars + "+N" badge
+          // With more than 4 members (5 here), `GroupAvatar` shows 2 avatars and a "+N" badge.
           expect(avatarImages).toHaveLength(2);
           avatarImages.forEach((img, i) => {
             expect(img).toHaveAttribute('src', channelState.members[i].user.image);

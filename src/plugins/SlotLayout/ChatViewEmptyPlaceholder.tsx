@@ -11,7 +11,7 @@ import { useComponentContextIcons, useTranslationContext } from '../../context';
 export const ChatViewEmptyPlaceholder = () => {
   const { IconMessageBubble } = useComponentContextIcons();
   const { t } = useTranslationContext();
-  // outside a ChatView there is no active view; the channels wording applies
+  // Outside a ChatView there is no active view, so the channels wording applies.
   const activeView = useContext(ChatViewContext)?.activeView ?? 'channels';
 
   return (

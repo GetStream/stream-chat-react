@@ -3,9 +3,9 @@ import type { ComponentProps } from 'react';
 import React, { forwardRef, useCallback, useMemo } from 'react';
 import { GroupedVirtuoso } from 'react-virtuoso';
 
-import { useModalContext, useTranslationContext } from '../../../../context';
+import { useComponentContext, useTranslationContext } from '../../../../context';
 import { getDateString } from '../../../../i18n/utils';
-import { FileSizeIndicator } from '../../../../components/Attachment/components/FileSizeIndicator';
+import { FileSizeIndicator as DefaultFileSizeIndicator } from '../../../../components/Attachment/components/FileSizeIndicator';
 import { Prompt } from '../../../../components/Dialog';
 import { FileIcon } from '../../../../components/FileIcon';
 import { ListItemLayout } from '../../../../components/ListItemLayout';
@@ -13,13 +13,14 @@ import {
   SectionNavigatorHeader,
   type SectionNavigatorSectionContentProps,
 } from '../../SectionNavigator';
+import { useChannelDetailContext } from '../../ChannelDetailContext';
 import { ChannelDetailListLoadingIndicator } from '../../ChannelDetailListLoadingIndicator';
 import { ChannelFilesEmptyList } from './ChannelFilesEmptyList';
 import type { ChannelFileItem } from './ChannelFilesView.utils';
 import { useChannelFilesSearch } from './useChannelFilesSearch';
 
-// Wraps each virtualized file row so the horizontal inset can be applied to a
-// stable class without padding the full-bleed sticky month headers.
+// Wraps each virtualized file row so the horizontal inset lands on a stable class instead of
+// padding the full-bleed sticky month headers.
 const ChannelFilesItem = forwardRef<HTMLDivElement, ComponentProps<'div'>>(
   function ChannelFilesItem({ className, ...props }, ref) {
     return (
@@ -32,9 +33,8 @@ const ChannelFilesItem = forwardRef<HTMLDivElement, ComponentProps<'div'>>(
   },
 );
 
-// Wraps each sticky month header. react-virtuoso applies `position: sticky` but
-// leaves `top: auto`, so the headers never pin to the scroller top and
-// consecutive months overlap; the class supplies the required `top: 0`.
+// Wraps each sticky month header. react-virtuoso sets `position: sticky` but leaves `top: auto`,
+// so headers would not pin and consecutive months would overlap; the class supplies `top: 0`.
 const ChannelFilesGroup = forwardRef<HTMLDivElement, ComponentProps<'div'>>(
   function ChannelFilesGroup({ className, ...props }, ref) {
     return (
@@ -67,6 +67,7 @@ const getAttachmentFileName = (attachment: ChannelFileItem['attachment']) =>
   attachment.title || attachment.fallback || '';
 
 const ChannelFileListItem = ({ item }: { item: ChannelFileItem }) => {
+  const { FileSizeIndicator = DefaultFileSizeIndicator } = useComponentContext();
   const { attachment } = item;
   const fileName = getAttachmentFileName(attachment);
   const assetUrl = attachment.asset_url;
@@ -95,7 +96,7 @@ const ChannelFileListItem = ({ item }: { item: ChannelFileItem }) => {
       title: fileName,
       titleClassName: 'str-chat__channel-detail__files-view__list-item__name',
     }),
-    [fileSize, fileName, LeadingSlot],
+    [FileSizeIndicator, fileSize, fileName, LeadingSlot],
   );
 
   const linkRootProps = useMemo(
@@ -125,7 +126,7 @@ export type ChannelFilesViewProps = SectionNavigatorSectionContentProps;
 
 export const ChannelFilesView: React.ComponentType<ChannelFilesViewProps> = () => {
   const { t } = useTranslationContext();
-  const { close } = useModalContext();
+  const { close } = useChannelDetailContext();
   const { channelFilesSearchSource, fileItems, groupCounts, hasResultsLoaded, sections } =
     useChannelFilesSearch();
 
@@ -136,12 +137,9 @@ export const ChannelFilesView: React.ComponentType<ChannelFilesViewProps> = () =
     [sections],
   );
 
-  // In grouped mode the `index` passed here is the flat item index (0-based
-  // across all items, excluding group headers), so it indexes `fileItems`
-  // directly. We intentionally don't pass `computeItemKey`: GroupedVirtuoso
-  // calls it with the absolute group+item location index (and no item data),
-  // so it can't be used to look items up — the default position keys are
-  // correct for this append-only list.
+  // In grouped mode `index` is the flat item index (0-based, excluding group headers), so it
+  // indexes `fileItems` directly. `computeItemKey` is not passed: GroupedVirtuoso calls it with
+  // the group+item location index and no item data, so the default position keys are used.
   const itemContent = useCallback(
     (index: number) => <ChannelFileListItem item={fileItems[index]} />,
     [fileItems],

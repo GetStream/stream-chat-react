@@ -6,38 +6,38 @@ import { useComponentContextIcons } from '../../context';
 
 export type TextInputVariant = 'outline' | 'ghost';
 
-/** Where the active field message (error, success, or neutral) sits relative to the bordered control */
+/** Where the field message sits relative to the bordered control. */
 export type TextInputFieldMessagePlacement = 'outside' | 'inside';
 
 export type TextInputProps = Omit<ComponentProps<'input'>, 'className'> & {
-  /** Root class name */
+  /** Root class name. */
   className?: string;
   /**
-   * `outside` (default): message below the bordered wrapper.
-   * `inside`: message under the value row, inside the border (error, success, or neutral).
+   * `outside` shows the message below the bordered wrapper, `inside` under the value row within
+   * the border. Defaults to `outside`.
    */
   fieldMessagePlacement?: TextInputFieldMessagePlacement;
-  /** Optional label above the input */
+  /** Label above the input. */
   label?: string;
-  /** Optional leading content (e.g. icon) inside the input area */
+  /** Content before the input, e.g. an icon. */
   leading?: ReactNode;
-  /** Optional trailing content (e.g. clear button) inside the input area */
+  /** Content after the input, e.g. a clear button. */
   trailing?: ReactNode;
-  /** Optional suffix text shown after the input value, inside the field */
+  /** Suffix text after the input value, inside the field. */
   trailingText?: string;
-  /** Neutral/helper message below the input (no icon) */
+  /** Neutral helper message below the input, without an icon. */
   message?: ReactNode;
-  /** Error message; shown when `error` is true, with `errorMessageIcon` */
+  /** Error message, shown when `error` is true. Falls back to `message`. */
   errorMessage?: ReactNode;
-  /** Icon before error text (default: exclamation) */
+  /** Icon before the error text. Defaults to the exclamation mark icon. */
   errorMessageIcon?: ReactNode;
-  /** Success message below the input */
+  /** Success message below the input. Hidden while an error shows. */
   successMessage?: ReactNode;
-  /** Icon before success text (default: checkmark) */
+  /** Icon before the success text. Defaults to the checkmark icon. */
   successMessageIcon?: ReactNode;
-  /** When true, error border and error styling */
+  /** Marks the input invalid and applies the error border and styling. */
   error?: boolean;
-  /** `outline` = border always; `ghost` = border on focus */
+  /** `outline` always shows the border, `ghost` only on focus. Defaults to `outline`. */
   variant?: TextInputVariant;
 };
 
@@ -55,7 +55,7 @@ const TextInputIconMessageLine = ({ icon, text }: TextInputIconMessageLineProps)
   </>
 );
 
-/** At most one of error / success / neutral is shown under the field */
+/** At most one of the error, success and neutral messages shows under the field. */
 type TextInputFieldMessageProps =
   | {
       kind: 'error';

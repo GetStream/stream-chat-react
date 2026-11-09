@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 
-import type { GroupStyle, ProcessMessagesParams, RenderedMessage } from '../../utils';
-import { getGroupStyles, insertIntro, processMessages } from '../../utils';
+import type { GetGroupStyles, ProcessMessagesParams } from '../../utils';
+import { getMessageGroupStyles, insertIntro, processMessages } from '../../utils';
 
 import { useChatContext } from '../../../../context/ChatContext';
 import { useComponentContext } from '../../../../context/ComponentContext';
@@ -10,31 +10,25 @@ import type { Channel, LocalMessage, TimestampNS } from 'stream-chat';
 
 export const useEnrichedMessages = (args: {
   channel: Channel;
+  groupByUser: boolean;
   hideDeletedMessages: boolean;
   hideNewMessageSeparator: boolean;
   messages: LocalMessage[];
-  noGroupByUser: boolean;
   withDateSeparator: boolean;
-  groupStyles?: (
-    message: RenderedMessage,
-    previousMessage: RenderedMessage,
-    nextMessage: RenderedMessage,
-    noGroupByUser: boolean,
-    maxTimeBetweenGroupedMessages?: number,
-  ) => GroupStyle;
+  getGroupStyles?: GetGroupStyles;
   headerPosition?: TimestampNS;
   maxTimeBetweenGroupedMessages?: number;
   reviewProcessedMessage?: ProcessMessagesParams['reviewProcessedMessage'];
 }) => {
   const {
     channel,
-    groupStyles,
+    getGroupStyles,
+    groupByUser,
     headerPosition,
     hideDeletedMessages,
     hideNewMessageSeparator,
     maxTimeBetweenGroupedMessages,
     messages,
-    noGroupByUser,
     reviewProcessedMessage,
     withDateSeparator,
   } = args;
@@ -61,22 +55,15 @@ export const useEnrichedMessages = (args: {
     messagesWithDates = insertIntro(messagesWithDates, headerPosition);
   }
 
-  const groupStylesFn = groupStyles || getGroupStyles;
   const messageGroupStyles = useMemo(
     () =>
-      messagesWithDates.reduce<Record<string, GroupStyle>>((acc, message, i) => {
-        const style = groupStylesFn(
-          message,
-          messagesWithDates[i - 1],
-          messagesWithDates[i + 1],
-          noGroupByUser,
-          maxTimeBetweenGroupedMessages,
-        );
-        if (style) acc[message.id] = style;
-        return acc;
-      }, {}),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [maxTimeBetweenGroupedMessages, messagesWithDates, noGroupByUser],
+      getMessageGroupStyles({
+        getGroupStyles,
+        groupByUser,
+        maxTimeBetweenGroupedMessages,
+        messages: messagesWithDates,
+      }),
+    [getGroupStyles, groupByUser, maxTimeBetweenGroupedMessages, messagesWithDates],
   );
 
   return { messageGroupStyles, messages: messagesWithDates };

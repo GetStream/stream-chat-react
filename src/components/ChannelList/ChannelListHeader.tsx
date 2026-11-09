@@ -1,21 +1,26 @@
 import React from 'react';
-import {
-  useComponentContext,
-  useTranslationContext,
-  useWorkspaceNavigation,
-} from '../../context';
+import { useTranslationContext } from '../../context';
 
-export const ChannelListHeader = () => {
+export type ChannelListHeaderProps = {
+  /** Rendered at the end of the header, after the title. No default. */
+  EndContent?: React.ComponentType;
+  /** Rendered at the start of the header, before the title. No default. */
+  StartContent?: React.ComponentType;
+};
+
+/** Header of the channel list: the "Chats" title, with optional start and end content. */
+export const ChannelListHeader = ({
+  EndContent,
+  StartContent,
+}: ChannelListHeaderProps) => {
   const { t } = useTranslationContext();
-  const { HeaderEndContent } = useComponentContext();
-  // A channel is "active" when one is open in the workspace (mirrors ThreadListHeader).
-  const hasActiveChannel = useWorkspaceNavigation().openChannels.length > 0;
   return (
     <div className='str-chat__channel-list__header'>
+      {StartContent && <StartContent />}
       <div className='str-chat__channel-list__header__title'>
         {t('channelList.header.chats.text', 'Chats')}
       </div>
-      {hasActiveChannel && HeaderEndContent && <HeaderEndContent />}
+      {EndContent && <EndContent />}
     </div>
   );
 };

@@ -5,26 +5,23 @@ export type AriaLivePriority = 'assertive' | 'polite';
 export type AriaLiveAnnounceOptions = {
   priority?: AriaLivePriority;
   /**
-   * Delay (ms) before the message is placed in the live region. Use to let a competing
-   * screen-reader utterance settle first — e.g. a dialog-identity announcement made while a
-   * field is being auto-focused is otherwise superseded by the field's focus announcement.
-   * Omitted/0 announces immediately.
+   * Delay (ms) before the message is placed in the live region, to let a competing screen-reader
+   * utterance settle first (e.g. a dialog announcement made while a field is auto-focused is
+   * otherwise superseded by the field's focus announcement). Defaults to `0` (immediately).
    */
   delayMs?: number;
   /**
-   * When set, an identical `message` is announced at most once per this window (ms); a repeat
-   * within the window is suppressed (returns a no-op cancel). The window starts when the message
-   * is actually announced. Guards against duplicate announcements — e.g. an effect double-invoked
-   * by React StrictMode, or rapid re-renders firing the same message.
+   * When set, an identical `message` is announced at most once per this window (ms), and repeats
+   * within it are suppressed. The window starts when the message is actually announced. Guards
+   * against duplicates such as an effect double-invoked by React StrictMode.
    */
   dedupeMs?: number;
 };
 
 /**
- * Announce `message` to assistive technology. Delivery is controlled by an options object
- * (`priority` defaults to `'polite'`). Returns a `cancel` function: for a delayed announcement it
- * prevents a still-pending message from being announced (call it from effect cleanup so a closing
- * surface does not announce after unmount); for an immediate announcement it is a no-op.
+ * Announces `message` to assistive technology; `priority` defaults to `'polite'`. Returns a
+ * `cancel` function that stops a still-pending delayed announcement (call it from effect cleanup
+ * so a closing surface does not announce after unmount) and is a no-op for an immediate one.
  */
 export type AriaLiveAnnounce = (
   message: string,
@@ -42,8 +39,8 @@ export const AriaLiveAnnouncerContext = createContext<
 >(undefined);
 
 /**
- * Announcements are a progressive enhancement: outside an `AriaLiveAnnouncerProvider` this is a
- * no-op rather than an error.
+ * Returns the `announce` function of the nearest `AriaLiveAnnouncerProvider`, or a no-op outside
+ * one: announcements are a progressive enhancement, not a requirement.
  */
 export const useAriaLiveAnnouncer = () =>
   useContext(AriaLiveAnnouncerContext)?.announce ?? noopAnnounce;

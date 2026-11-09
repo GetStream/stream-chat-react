@@ -129,9 +129,8 @@ describe('AttachmentActions', () => {
       );
 
     it('describes the auto-focused action with the preview context, without a live announcement', () => {
-      // The preview is focus-coupled: it auto-focuses the primary action, so the description
-      // rides the focus event via aria-describedby — NOT a live-region announcement (which the
-      // focus change would preempt). See decisions.md / SKILL.md §3.
+      // The preview auto-focuses the primary action, so the description reaches the screen reader
+      // through aria-describedby on the focus event, not a live region (focus would preempt it).
       const { getByRole } = renderGiphy({ defaultFocusedActionValue: 'send' });
 
       expect(announceInteractionMock).not.toHaveBeenCalled();
@@ -193,8 +192,8 @@ describe('AttachmentActions', () => {
 
       fireEvent.click(getByRole('button', { name: 'Send' }));
 
-      // Focus moves immediately; the announcement is deferred (focus-first ordering) so the
-      // screen reader speaks "Message input" then "Giphy sent" deterministically.
+      // Focus moves immediately; the announcement waits a frame so the screen reader speaks
+      // "Message input" before "Giphy sent".
       expect(restoreMock).toHaveBeenCalledTimes(1);
       expect(announceInteractionMock).not.toHaveBeenCalled();
 
@@ -202,7 +201,6 @@ describe('AttachmentActions', () => {
         expect(announceInteractionMock).toHaveBeenCalledWith('giphy.sent'),
       );
       expect(announceInteractionMock).toHaveBeenCalledTimes(1);
-      // focus is invoked before the announcement
       expect(restoreMock.mock.invocationCallOrder[0]).toBeLessThan(
         announceInteractionMock.mock.invocationCallOrder[0],
       );
@@ -248,7 +246,7 @@ describe('AttachmentActions', () => {
       };
       const { rerender } = render(getComponent(props));
 
-      // The preview appearing must NOT fire a shuffle announcement.
+      // Mounting the preview does not announce a shuffle.
       expect(announceInteractionMock).not.toHaveBeenCalledWith(
         'giphy.shuffled',
         expect.anything(),
@@ -283,8 +281,8 @@ describe('AttachmentActions', () => {
     });
 
     it('announces a shuffle when only the giphy versions change (image_url constant)', () => {
-      // Regression: a real shuffle changes thumb_url / giphy[*].url, not necessarily image_url.
-      // A single-field (image_url) identity would announce at most once ("only first shuffle").
+      // Regression: a shuffle changes `thumb_url` and `giphy[*].url`, not necessarily `image_url`,
+      // so an `image_url`-only identity would announce at most once.
       const props = {
         actionHandler: vi.fn(),
         actions: giphyActions,

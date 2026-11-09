@@ -3,7 +3,7 @@ import { act, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { fromPartial } from '@total-typescript/shoehorn';
 import { axe } from '../../../../axe-helper';
 
-import { MessageActions } from '../MessageActions';
+import { MessageActions, type MessageActionSetItem } from '../MessageActions';
 import { defaultMessageActionSet } from '../MessageActions.defaults';
 
 import { DialogManagerProvider, MessageProvider } from '../../../context';
@@ -27,6 +27,7 @@ import { ResizeObserverMock } from '../../../mock-builders/browser';
 import { Message } from '../../Message';
 import { Channel } from '../../Channel';
 import { Chat } from '../../Chat';
+import { ThreadProvider } from '../../Threads';
 import { convertDateToTimestamp } from '../../../mock-builders';
 
 (window as any).ResizeObserver = ResizeObserverMock;
@@ -83,6 +84,7 @@ async function renderMessageActions({
   customChatContext = {},
   customMessageContext = {},
   messageActionsProps = {},
+  threadParentMessage,
 }: any = {}) {
   const client = chatClient || (await getTestClientWithUser(alice));
   if (customChatContext.mutes) {
@@ -99,19 +101,25 @@ async function renderMessageActions({
     },
   });
 
+  const thread = threadParentMessage
+    ? client.threads.ensure({ channel, parentMessage: threadParentMessage })
+    : undefined;
+
   return render(
     <Chat client={client}>
       <Channel channel={channel}>
-        <DialogManagerProvider id='message-actions-dialog-provider'>
-          <MessageProvider
-            value={mockMessageContext({
-              ...defaultMessageContextValue,
-              ...customMessageContext,
-            })}
-          >
-            <MessageActions {...messageActionsProps} />
-          </MessageProvider>
-        </DialogManagerProvider>
+        <ThreadProvider thread={thread}>
+          <DialogManagerProvider id='message-actions-dialog-provider'>
+            <MessageProvider
+              value={mockMessageContext({
+                ...defaultMessageContextValue,
+                ...customMessageContext,
+              })}
+            >
+              <MessageActions {...messageActionsProps} />
+            </MessageProvider>
+          </DialogManagerProvider>
+        </ThreadProvider>
       </Channel>
     </Chat>,
   );
@@ -154,13 +162,25 @@ describe('<MessageActions />', () => {
       expect(queryByTestId(MESSAGE_ACTIONS_HOST_TEST_ID)).not.toBeInTheDocument();
     });
 
-    it('should not render when message is parent message in a thread', async () => {
-      const { queryByTestId } = await renderMessageActions({
-        customMessageContext: {
-          initialMessage: true,
-        },
+    it('should not render for the parent message of the thread it is rendered in', async () => {
+      const message = generateMessage({ user: alice });
+      const { container } = await renderMessageActions({
+        customMessageContext: { message },
+        threadParentMessage: message,
       });
-      expect(queryByTestId(MESSAGE_ACTIONS_HOST_TEST_ID)).not.toBeInTheDocument();
+      expect(
+        container.querySelector('.str-chat__message-options'),
+      ).not.toBeInTheDocument();
+    });
+
+    it('should render for a reply in a thread', async () => {
+      const parentMessage = generateMessage({ user: alice });
+      const message = generateMessage({ parent_id: parentMessage.id, user: alice });
+      const { container } = await renderMessageActions({
+        customMessageContext: { message },
+        threadParentMessage: parentMessage,
+      });
+      expect(container.querySelector('.str-chat__message-options')).toBeInTheDocument();
     });
 
     it('should render correctly when not open', async () => {
@@ -247,12 +267,10 @@ describe('<MessageActions />', () => {
       });
       await toggleOpenMessageActions();
 
-      // Click "Delete message" in the dropdown to open confirmation modal
       await act(async () => {
         await fireEvent.click(screen.getByText('Delete message'));
       });
 
-      // Click "Delete message" in the confirmation modal
       await act(async () => {
         const confirmBtn = screen.getByTestId('delete-message-alert-delete-button');
         await fireEvent.click(confirmBtn);
@@ -345,7 +363,6 @@ describe('<MessageActions />', () => {
         customMessageContext: { message },
       });
 
-      // Verify the actions component renders (Edit action is included in the set)
       expect(container.querySelector('.str-chat__message-options')).toBeInTheDocument();
       expect(screen.getByTestId(TOGGLE_ACTIONS_BUTTON_TEST_ID)).toBeInTheDocument();
     });
@@ -439,6 +456,34 @@ describe('<MessageActions />', () => {
       expect(getByText('Unpin')).toBeInTheDocument();
     });
 
+    it('should not show Pin without the pin-message capability', async () => {
+      const message = generateMessage({ pinned: false });
+      await renderMessageActions({
+        channelStateOpts: {
+          channelCapabilities: { 'flag-message': true },
+        },
+        customMessageContext: { message },
+      });
+      await toggleOpenMessageActions();
+
+      expect(screen.getByText('Flag')).toBeInTheDocument();
+      expect(screen.queryByText('Pin')).not.toBeInTheDocument();
+    });
+
+    it('should not show Unpin without the pin-message capability', async () => {
+      const message = generateMessage({ pinned: true });
+      await renderMessageActions({
+        channelStateOpts: {
+          channelCapabilities: { 'flag-message': true },
+        },
+        customMessageContext: { message },
+      });
+      await toggleOpenMessageActions();
+
+      expect(screen.getByText('Flag')).toBeInTheDocument();
+      expect(screen.queryByText('Unpin')).not.toBeInTheDocument();
+    });
+
     it('should set quoted message when Quote button is clicked', async () => {
       const {
         channels: [channel],
@@ -475,6 +520,92 @@ describe('<MessageActions />', () => {
       });
 
       expect(setQuotedMessageSpy).toHaveBeenCalledWith(message);
+    });
+
+    // Closing the menu returns focus to its toggle, which a hover-only toggle no longer renders, so
+    // the composer was left unfocused and the first keystrokes were lost.
+    it('focuses the composer when Edit Message is clicked', async () => {
+      const {
+        channels: [channel],
+        client,
+      } = await initClientWithChannels({
+        channelsData: [{ channel: { own_capabilities: ['update-own-message'] } }],
+      });
+      const message = generateMessage({ text: 'to edit', user: client.user });
+
+      await act(async () => {
+        await render(
+          <Chat client={client}>
+            <Channel channel={channel}>
+              <DialogManagerProvider id='message-actions-dialog-provider'>
+                <MessageProvider
+                  value={mockMessageContext({
+                    ...defaultMessageContextValue,
+                    message,
+                  })}
+                >
+                  <MessageActions />
+                </MessageProvider>
+              </DialogManagerProvider>
+              <textarea className='str-chat__textarea__textarea' data-testid='composer' />
+            </Channel>
+          </Chat>,
+        );
+      });
+
+      await toggleOpenMessageActions();
+
+      await act(async () => {
+        await fireEvent.click(screen.getByText('Edit Message'));
+      });
+
+      await waitFor(() =>
+        expect(document.activeElement).toBe(screen.getByTestId('composer')),
+      );
+    });
+
+    // Channels side by side: a channel whose composer shows no textarea (recording audio) must not
+    // send focus to the other channel's composer.
+    it('leaves focus alone when the channel of the message shows no composer textarea', async () => {
+      const {
+        channels: [channel],
+        client,
+      } = await initClientWithChannels({
+        channelsData: [{ channel: { own_capabilities: ['update-own-message'] } }],
+      });
+      const message = generateMessage({ text: 'to edit', user: client.user });
+
+      await act(async () => {
+        await render(
+          <Chat client={client}>
+            <Channel channel={channel}>
+              <DialogManagerProvider id='message-actions-dialog-provider'>
+                <MessageProvider
+                  value={mockMessageContext({
+                    ...defaultMessageContextValue,
+                    message,
+                  })}
+                >
+                  <MessageActions />
+                </MessageProvider>
+              </DialogManagerProvider>
+            </Channel>
+            <textarea
+              className='str-chat__textarea__textarea'
+              data-testid='other-composer'
+            />
+          </Chat>,
+        );
+      });
+
+      await toggleOpenMessageActions();
+
+      await act(async () => {
+        await fireEvent.click(screen.getByText('Edit Message'));
+      });
+      await act(() => new Promise((resolve) => requestAnimationFrame(resolve)));
+
+      expect(document.activeElement).not.toBe(screen.getByTestId('other-composer'));
     });
   });
 
@@ -758,7 +889,6 @@ describe('<MessageActions />', () => {
                   <Message
                     lastReceivedId={lastReceivedId}
                     message={message}
-                    threadList={false}
                     {...messageProps}
                   />
                 </DialogManagerProvider>
@@ -863,7 +993,7 @@ describe('<MessageActions />', () => {
       await renderMarkUnreadUI({
         channelProps: { channel },
         chatProps: { client },
-        messageProps: { message: threadMessage, threadList: true },
+        messageProps: { message: threadMessage },
       });
       await toggleOpenMessageActions();
 
@@ -1208,11 +1338,118 @@ describe('<MessageActions />', () => {
     });
   });
 
+  describe('Action visibility rules', () => {
+    const editCapability = { channelCapabilities: { 'update-own-message': true } };
+    const pollMessage = () =>
+      generateMessage({
+        poll: fromPartial({ id: 'poll-1' }),
+        poll_id: 'poll-1',
+        text: 'please vote',
+        user: alice,
+      });
+    const editItem = () =>
+      defaultMessageActionSet.find(
+        (item) => 'type' in item && item.type === 'edit',
+      ) as MessageActionSetItem;
+    // The default set with its edit item made editable for poll messages too.
+    const withPollEditing = () =>
+      defaultMessageActionSet.map((item) =>
+        'type' in item && item.type === 'edit'
+          ? { ...item, isVisible: () => true }
+          : item,
+      );
+    const queryEdit = () => screen.queryByRole('menuitem', { name: 'Edit Message' });
+
+    it('does not offer Edit for a poll message by default', async () => {
+      await renderMessageActions({
+        channelStateOpts: editCapability,
+        customMessageContext: { isMyMessage: () => true, message: pollMessage() },
+      });
+      await toggleOpenMessageActions();
+
+      expect(queryEdit()).not.toBeInTheDocument();
+    });
+
+    it('does not offer Edit for a poll message that failed to send', async () => {
+      // A local poll message, as the poll-only middleware builds it, has `poll_id` but no `poll`.
+      const message = generateMessage({
+        error: { status: 0 },
+        poll_id: 'poll-1',
+        status: 'failed',
+        text: '',
+        user: alice,
+      });
+      await renderMessageActions({
+        channelStateOpts: editCapability,
+        customMessageContext: { isMyMessage: () => true, message },
+      });
+      await toggleOpenMessageActions();
+
+      expect(screen.getByRole('menuitem', { name: /delete/i })).toBeInTheDocument();
+      expect(queryEdit()).not.toBeInTheDocument();
+    });
+
+    it('offers Edit for a poll message once the edit item allows it', async () => {
+      await renderMessageActions({
+        channelStateOpts: editCapability,
+        customMessageContext: { isMyMessage: () => true, message: pollMessage() },
+        messageActionsProps: { messageActionSet: withPollEditing() },
+      });
+      await toggleOpenMessageActions();
+
+      expect(queryEdit()).toBeInTheDocument();
+    });
+
+    it('passes the message, authorship and thread reply flag to isVisible', async () => {
+      const isVisible = vi.fn(() => true);
+      const message = pollMessage();
+      await renderMessageActions({
+        channelStateOpts: editCapability,
+        customMessageContext: { message },
+        messageActionsProps: {
+          messageActionSet: [
+            ...defaultMessageActionSet.filter((item) => item !== editItem()),
+            { ...editItem(), isVisible },
+          ],
+        },
+      });
+
+      expect(isVisible).toHaveBeenCalledWith({
+        isMyMessage: true,
+        isThreadReply: false,
+        message,
+      });
+    });
+
+    it('cannot show an action the user lacks the capability for', async () => {
+      await renderMessageActions({
+        customMessageContext: { isMyMessage: () => true, message: pollMessage() },
+        messageActionsProps: { messageActionSet: withPollEditing() },
+      });
+
+      expect(screen.queryByTestId(TOGGLE_ACTIONS_BUTTON_TEST_ID)).toBeInTheDocument();
+      await toggleOpenMessageActions();
+      expect(queryEdit()).not.toBeInTheDocument();
+    });
+
+    it('still applies the item rules when the base filter is disabled', async () => {
+      await renderMessageActions({
+        customMessageContext: { message: generateMessage({ text: '', user: alice }) },
+        messageActionsProps: { disableBaseMessageActionSetFilter: true },
+      });
+      await toggleOpenMessageActions();
+
+      expect(
+        screen.queryByRole('menuitem', { name: /copy message/i }),
+      ).not.toBeInTheDocument();
+    });
+  });
+
   describe('Custom message action sets', () => {
     it('should render custom dropdown action components', async () => {
       const CustomAction = () => <button data-testid='custom-action'>Custom</button>;
       const customMessageActionSet = [
-        // include default toggle
+        // Keeps the default toggle.
         defaultMessageActionSet.find(
           ({ placement }) => placement === 'quick-dropdown-toggle',
         ),
@@ -1290,7 +1527,6 @@ describe('<MessageActions />', () => {
         },
       });
 
-      // Should render even for failed messages when filter is disabled
       expect(container.querySelector('.str-chat__message-options')).toBeInTheDocument();
     });
   });
@@ -1315,7 +1551,7 @@ describe('<MessageActions />', () => {
 
       expect(button).toHaveAttribute('aria-expanded', 'false');
       expect(button).toHaveAttribute('aria-haspopup', 'true');
-      // translations load asynchronously through the real <Chat> i18n instance
+      // Translations load asynchronously through the real <Chat> i18n instance.
       await waitFor(() =>
         expect(button).toHaveAttribute('aria-label', 'Open Message Actions Menu'),
       );
@@ -1468,6 +1704,9 @@ describe('<MessageActions />', () => {
       });
 
       await renderMessageActions({
+        channelStateOpts: {
+          channelCapabilities: { 'pin-message': true },
+        },
         customMessageContext: { message },
       });
       await toggleOpenMessageActions();
@@ -1831,28 +2070,31 @@ describe('<MessageActions />', () => {
         channelsData: [{ channel: { own_capabilities: ['quote-message'] } }],
       });
       const message = generateMessage({ parent_id: 'parent-1', user: client.user });
-      const textarea = document.createElement('textarea');
-      textarea.className = 'str-chat__textarea__textarea';
-      const threadRoot = document.createElement('div');
-      threadRoot.className = 'str-chat__thread';
-      threadRoot.appendChild(textarea);
-      document.body.appendChild(threadRoot);
-      const focusSpy = vi.spyOn(textarea, 'focus');
 
       await act(async () => {
         await render(
           <Chat client={client}>
             <Channel channel={channel}>
-              <DialogManagerProvider id='message-actions-dialog-provider'>
-                <MessageProvider
-                  value={mockMessageContext({
-                    ...defaultMessageContextValue,
-                    message,
-                  })}
-                >
-                  <MessageActions />
-                </MessageProvider>
-              </DialogManagerProvider>
+              <textarea
+                className='str-chat__textarea__textarea'
+                data-testid='channel-composer'
+              />
+              <div className='str-chat__thread'>
+                <DialogManagerProvider id='message-actions-dialog-provider'>
+                  <MessageProvider
+                    value={mockMessageContext({
+                      ...defaultMessageContextValue,
+                      message,
+                    })}
+                  >
+                    <MessageActions />
+                  </MessageProvider>
+                </DialogManagerProvider>
+                <textarea
+                  className='str-chat__textarea__textarea'
+                  data-testid='thread-composer'
+                />
+              </div>
             </Channel>
           </Chat>,
         );
@@ -1862,8 +2104,10 @@ describe('<MessageActions />', () => {
       await act(async () => {
         await fireEvent.click(screen.getByText('Quote Reply'));
       });
-      expect(focusSpy).toHaveBeenCalled();
-      document.body.removeChild(threadRoot);
+      // Focus moves on the next frame, once the menu has started closing.
+      await waitFor(() =>
+        expect(document.activeElement).toBe(screen.getByTestId('thread-composer')),
+      );
     });
   });
 });

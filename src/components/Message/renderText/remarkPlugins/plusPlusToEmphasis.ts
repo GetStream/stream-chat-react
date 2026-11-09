@@ -1,20 +1,11 @@
-// remark-plusplus-ins.ts
 import type { Plugin } from 'unified';
 import { SKIP, visit } from 'unist-util-visit';
 import type { Visitor } from 'unist-util-visit';
 import type { Parent, PhrasingContent, Text } from 'mdast';
 
 /**
- * \S → first char must be non-whitespace
- * (?:...)?→ optional middle+closing when length > 1
- * [\s\S]*?→ anything (including newlines), lazy
- * final \S→ last char non-whitespace (only required when there’s more than 1)
- *
- * Matches:
- * ++a++
- * Does not match:
- * ++++
- * ++ ++
+ * Matches `++text++` where the text starts and ends with a non-whitespace character and may span
+ * lines, so `++a++` matches but `++++` and `++ ++` do not.
  */
 const INS_REGEX = /\+\+(\S(?:[\s\S]*?\S)?)\+\+/g;
 const IGNORE_NODE_TYPES = new Set([
@@ -28,20 +19,19 @@ const IGNORE_NODE_TYPES = new Set([
 ]);
 
 /**
- * Converts MD "++Some text++" to inserted text element rendered in HTML as <ins>Some text</ins>
- * https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/ins
+ * Converts `++text++` to an `<ins>` element. Code, link, definition and math nodes are skipped.
  */
 export const plusPlusToEmphasis: Plugin<[]> = () => {
   const visitor: Visitor = (node, index, parent) => {
-    // 1) Don’t traverse inside ignored nodes
+    // Do not descend into ignored nodes.
     if (IGNORE_NODE_TYPES.has(node.type)) return SKIP;
 
-    // 2) Only transform text nodes with a valid parent + index
+    // Only text nodes with a parent and an index are transformed.
     if (node.type !== 'text' || parent == null || typeof index !== 'number') return;
 
     const value = (node as Text).value;
 
-    // Reset lastIndex to 0 per node so each node is scanned from the beginning
+    // The regex is global and shared, so each node must start scanning from index 0.
     INS_REGEX.lastIndex = 0;
 
     let match: RegExpExecArray | null;
@@ -54,7 +44,7 @@ export const plusPlusToEmphasis: Plugin<[]> = () => {
 
       if (start > last) out.push({ type: 'text', value: value.slice(last, start) });
 
-      // Render as <ins>…</ins> (remark-rehype respects data.hName)
+      // `data.hName` makes remark-rehype render this node as `<ins>`.
       out.push({
         children: [{ type: 'text', value: inner }],
         data: { hName: 'ins' },
@@ -64,7 +54,7 @@ export const plusPlusToEmphasis: Plugin<[]> = () => {
       last = start + full.length;
     }
 
-    if (out.length === 0) return; // nothing to change
+    if (out.length === 0) return;
     if (last < value.length) out.push({ type: 'text', value: value.slice(last) });
 
     (parent as Parent).children.splice(index, 1, ...out);

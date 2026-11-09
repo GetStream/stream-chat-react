@@ -28,13 +28,9 @@ export const useMuteHandler = (
 
     const { getErrorNotification, getSuccessNotification, notify } = notifications;
 
-    // Perform the mute/unmute unconditionally — mirror useMarkUnreadHandler/useDeleteHandler, which
-    // do the action first and treat `notify` as an optional UI bridge. Gating the action on `notify`
-    // (as this hook previously did) turned mute into a no-op, because Message.tsx wires the handler
-    // as `useMuteHandler(message)` with no notifications, per the canonical `(message)`-only style.
+    // The action runs even without `notify` (`Message` passes none); it only reports the outcome.
     if (!message?.user || !client) {
-      console.warn(missingUseMuteHandlerParamsWarning);
-      return;
+      throw new Error(missingUseMuteHandlerParamsWarning);
     }
     const mutes = client.mutedUsersStore.getLatestValue().mutedUsers ?? [];
 
@@ -52,13 +48,15 @@ export const useMuteHandler = (
 
         if (typeof successMessage === 'string') notify(successMessage, 'success');
       } catch (e) {
-        if (!notify) return;
-        const errorMessage =
-          (getErrorNotification &&
-            validateAndGetMessage(getErrorNotification, [message.user])) ||
-          t('common.errorMutingUser.label', 'Error muting a user ...');
+        if (notify) {
+          const errorMessage =
+            (getErrorNotification &&
+              validateAndGetMessage(getErrorNotification, [message.user])) ||
+            t('common.errorMutingUser.label', 'Error muting a user ...');
 
-        if (typeof errorMessage === 'string') notify(errorMessage, 'error');
+          if (typeof errorMessage === 'string') notify(errorMessage, 'error');
+        }
+        throw e;
       }
     } else {
       try {
@@ -74,13 +72,15 @@ export const useMuteHandler = (
 
         if (typeof successMessage === 'string') notify(successMessage, 'success');
       } catch (e) {
-        if (!notify) return;
-        const errorMessage =
-          (getErrorNotification &&
-            validateAndGetMessage(getErrorNotification, [message.user])) ||
-          t('common.errorUnmutingUser.label', 'Error unmuting a user ...');
+        if (notify) {
+          const errorMessage =
+            (getErrorNotification &&
+              validateAndGetMessage(getErrorNotification, [message.user])) ||
+            t('common.errorUnmutingUser.label', 'Error unmuting a user ...');
 
-        if (typeof errorMessage === 'string') notify(errorMessage, 'error');
+          if (typeof errorMessage === 'string') notify(errorMessage, 'error');
+        }
+        throw e;
       }
     }
   };

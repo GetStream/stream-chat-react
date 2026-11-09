@@ -11,13 +11,13 @@ export type NumericInputProps = Omit<
 > & {
   value: string;
   onChange: (e: ChangeEvent<HTMLInputElement>) => void;
-  /** Optional label above the input */
+  /** Label above the input. */
   label?: string;
-  /** Minimum value (stepper) */
+  /** Lower bound that the steppers and arrow keys clamp to. */
   min?: number;
-  /** Maximum value (stepper) */
+  /** Upper bound that the steppers and arrow keys clamp to. */
   max?: number;
-  /** Step for increment/decrement (default 1) */
+  /** Amount the steppers and arrow keys change the value by. Defaults to 1. */
   step?: number;
   className?: string;
 };
@@ -58,6 +58,8 @@ export const NumericInput = forwardRef<HTMLInputElement, NumericInputProps>(
     const maxDef = max ?? Infinity;
     const atMin = num !== null && num <= minDef;
     const atMax = num !== null && num >= maxDef;
+    // An empty field steps to `min`, or to 0 when there is no lower bound.
+    const emptyValueStep = clamp(min ?? 0, minDef, maxDef);
 
     const handleInputChange = useCallback(
       (e: ChangeEvent<HTMLInputElement>) => {
@@ -80,15 +82,35 @@ export const NumericInput = forwardRef<HTMLInputElement, NumericInputProps>(
 
     const handleDecrement = useCallback(() => {
       if (disabled || atMin) return;
-      const next = num !== null ? clamp(num - step, minDef, maxDef) : minDef;
+      const next = num !== null ? clamp(num - step, minDef, maxDef) : emptyValueStep;
       onChange(createChangeEvent(String(next)));
-    }, [disabled, atMin, num, step, minDef, maxDef, onChange, createChangeEvent]);
+    }, [
+      disabled,
+      atMin,
+      num,
+      step,
+      minDef,
+      maxDef,
+      emptyValueStep,
+      onChange,
+      createChangeEvent,
+    ]);
 
     const handleIncrement = useCallback(() => {
       if (disabled || atMax) return;
-      const next = num !== null ? clamp(num + step, minDef, maxDef) : minDef;
+      const next = num !== null ? clamp(num + step, minDef, maxDef) : emptyValueStep;
       onChange(createChangeEvent(String(next)));
-    }, [disabled, atMax, num, step, minDef, maxDef, onChange, createChangeEvent]);
+    }, [
+      disabled,
+      atMax,
+      num,
+      step,
+      minDef,
+      maxDef,
+      emptyValueStep,
+      onChange,
+      createChangeEvent,
+    ]);
 
     const handleKeyDown = useCallback(
       (e: KeyboardEvent<HTMLInputElement>) => {

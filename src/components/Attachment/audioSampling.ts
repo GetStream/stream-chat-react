@@ -8,10 +8,12 @@ export const resampleWaveformData = (waveformData: number[], amplitudesCount: nu
       : upSample(waveformData, amplitudesCount);
 
 /**
- * The downSample function uses the Largest-Triangle-Three-Buckets (LTTB) algorithm.
- * See the thesis Downsampling Time Series for Visual Representation by Sveinn Steinarsson for more (https://skemman.is/bitstream/1946/15343/3/SS_MSthesis.pdf)
- * @param data
- * @param targetOutputSize
+ * Downsamples a series with the Largest-Triangle-Three-Buckets (LTTB) algorithm, keeping the first
+ * and last point (a target of 1 returns the mean). See the thesis "Downsampling Time Series for
+ * Visual Representation" by Sveinn Steinarsson (https://skemman.is/bitstream/1946/15343/3/SS_MSthesis.pdf).
+ * @param data - Series to downsample. Returned as is when it is not longer than the target.
+ * @param targetOutputSize - Number of points to keep. 0 returns `data` as is.
+ * @returns The downsampled series.
  */
 export function downSample(data: number[], targetOutputSize: number): number[] {
   if (data.length <= targetOutputSize || targetOutputSize === 0) {
@@ -21,10 +23,10 @@ export function downSample(data: number[], targetOutputSize: number): number[] {
   if (targetOutputSize === 1) return [mean(data)];
 
   const result: number[] = [];
-  // bucket size adjusted due to the fact that the first and the last item in the original data array is kept in target output
+  // The first and last points are always kept, so the buckets split the points between them.
   const bucketSize = (data.length - 2) / (targetOutputSize - 2);
   let lastSelectedPointIndex = 0;
-  result.push(data[lastSelectedPointIndex]); // Always add the first point
+  result.push(data[lastSelectedPointIndex]);
   let maxAreaPoint, maxArea, triangleArea;
 
   for (let bucketIndex = 1; bucketIndex < targetOutputSize - 1; bucketIndex++) {
@@ -69,7 +71,7 @@ export function downSample(data: number[], targetOutputSize: number): number[] {
     if (typeof maxAreaPoint !== 'undefined') result.push(maxAreaPoint);
   }
 
-  result.push(data[data.length - 1]); // Always add the last point
+  result.push(data[data.length - 1]);
 
   return result;
 }

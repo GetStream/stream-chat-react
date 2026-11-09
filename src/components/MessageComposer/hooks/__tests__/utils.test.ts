@@ -15,8 +15,8 @@ describe('prettifyFileSize', () => {
   });
 
   it.each([
-    // `toPrecision(3)` renders these as `1.00e+3` — a mantissa of 1000–1023 occurs for every
-    // size just short of the next unit boundary.
+    // `toPrecision(3)` renders these as `1.00e+3`: every size just short of the next unit boundary
+    // has a mantissa of 1000 to 1023.
     [999, '999 B'],
     [1000, '1000 B'],
     [1023, '1023 B'],
@@ -36,9 +36,8 @@ describe('prettifyFileSize', () => {
   });
 
   it('treats precision as significant digits, not fraction digits', () => {
-    // Worth pinning down: `FileSizeIndicator` passes its `maximumFractionDigits` prop straight
-    // into this argument, but one significant digit rounds 1.5 kB to 2 kB rather than keeping
-    // one decimal.
+    // `FileSizeIndicator` passes its `maximumFractionDigits` prop in as the precision, so one
+    // significant digit rounds 1.5 kB to 2 kB instead of keeping one decimal.
     expect(prettifyFileSize(1536, 1)).toBe('2 kB');
     expect(prettifyFileSize(1536, 2)).toBe('1.5 kB');
   });

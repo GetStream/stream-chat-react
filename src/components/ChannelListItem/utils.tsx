@@ -2,52 +2,26 @@ import type { ReactNode } from 'react';
 import React from 'react';
 import ReactMarkdown from 'react-markdown';
 import type { Channel, LocalMessage, PollVoteResponseData } from 'stream-chat';
-import { toString as mdastToString } from 'mdast-util-to-string';
-import remarkParse from 'remark-parse';
-import { unified } from 'unified';
 
 import type { ChatContextValue } from '../../context';
 import { getTranslatedMessageText } from '../../context/MessageTranslationViewContext';
 import type { TranslationContextValue } from '../../context/TranslationContext';
-import type { PluggableList } from 'unified';
-import { htmlToTextPlugin, imageToLink, plusPlusToEmphasis } from '../Message';
 import { isMessageDeleted } from '../Message/utils';
 import { getPollTextTranslation } from '../Poll/utils/translations';
-import remarkGfm from 'remark-gfm';
+import {
+  previewRemarkPlugins,
+  stripMarkdownToText,
+} from '../SummarizedMessagePreview/previewText';
 import {
   deriveChannelDisplayImage,
   deriveGroupChannelDisplayInfo,
 } from './channelDisplayState';
 
-const remarkPlugins: PluggableList = [
-  htmlToTextPlugin,
-  [remarkGfm, { singleTilde: false }],
-  plusPlusToEmphasis,
-  imageToLink,
-];
-
 export const renderPreviewText = (text: string) => (
-  <ReactMarkdown remarkPlugins={remarkPlugins} skipHtml>
+  <ReactMarkdown remarkPlugins={previewRemarkPlugins} skipHtml>
     {text}
   </ReactMarkdown>
 );
-
-// Strips markdown to plain text for screen-reader announcements, using the SAME remark plugins as
-// the visible preview so the announced text matches what is shown (e.g. "**hi**" -> "hi"). The
-// processor is built lazily (not at module load) so importing this file never evaluates
-// `remarkPlugins` — mirroring `renderPreviewText`, and avoiding import-time failures in test files
-// that mock the plugin modules. Falls back to the raw text if processing throws.
-const createPlainTextProcessor = () => unified().use(remarkParse).use(remarkPlugins);
-let plainTextProcessor: ReturnType<typeof createPlainTextProcessor> | undefined;
-
-const stripMarkdownToText = (text: string): string => {
-  try {
-    const processor = (plainTextProcessor ??= createPlainTextProcessor());
-    return mdastToString(processor.runSync(processor.parse(text))) || text;
-  } catch {
-    return text;
-  }
-};
 
 const getLatestPollVote = (
   latestVotesByOption: Record<string, PollVoteResponseData[]>,
@@ -73,26 +47,20 @@ type LatestMessagePreviewKind =
   | 'text';
 
 type LatestMessagePreviewParts = {
-  /**
-   * True only for the plain user-message-text branch — the one the display variant renders as
-   * markdown (unless AI-generated). Every other branch (deleted/poll/attachment/etc.) is a
-   * localized phrase used verbatim.
-   */
+  /** True only for plain user message text, which the display variant renders as markdown. */
   isUserMessageText: boolean;
-  /** What the latest message is, so consumers can phrase it (display vs. announcement) differently. */
+  /** What the latest message is, so the display and the announcement can phrase it differently. */
   kind: LatestMessagePreviewKind;
   latestMessage?: LocalMessage;
   /** Poll question, for the `poll` kind. */
   pollName?: string;
-  /** The localized DISPLAY preview as a plain string. */
+  /** The localized display preview as a plain string. */
   text: string;
 };
 
 /**
- * Resolves the channel's latest-message preview once: the localized DISPLAY string, a `kind`
- * discriminant, and the bits announcements need (poll question, attachment type). Single source of
- * truth for the display variant ({@link getLatestMessagePreview}) and the announcement variant
- * ({@link getLatestMessagePreviewText}), so the translation lookup and branching run once per call.
+ * Resolves the latest-message preview shared by {@link getLatestMessagePreview} and
+ * {@link getLatestMessagePreviewText}: the display string, a `kind`, and the poll question.
  */
 const getLatestMessagePreviewParts = (
   channel: Channel,
@@ -100,11 +68,10 @@ const getLatestMessagePreviewParts = (
   userLanguage: TranslationContextValue['userLanguage'] = 'en',
   latestMessageArg?: LocalMessage,
 ): LatestMessagePreviewParts => {
-  // Prefer an explicitly supplied message so the preview stays consistent with the sender/status/
-  // time a caller derives from the same message; fall back to the channel's latest.
+  // A supplied message keeps the preview consistent with the other parts derived from it.
   const latestMessage =
     latestMessageArg ??
-    channel.messagePaginator.aggregateState.getLatestValue().lastMessage ??
+    channel.messagePaginator.aggregateState.getLatestValue().latestMessage ??
     undefined;
 
   const previewTextToRender =
@@ -228,10 +195,8 @@ const getLatestMessagePreviewParts = (
 };
 
 /**
- * Maps a known attachment `type` to a localized, human-readable word (e.g. "image" → "Image"). The
- * cases are literal `t()` calls so the catalog generator sees them -- `i18next-cli` and the `aria/`
- * prefix are both gone. Unknown/custom types return `undefined`, so the announcement falls back to a
- * generic "Attachment".
+ * Maps a known attachment `type` to a localized word. Unknown or custom types return `undefined`.
+ * The cases are literal `t()` calls so the translation key generator finds them.
  */
 const getAttachmentTypeLabel = (
   type: string | undefined,
@@ -256,11 +221,16 @@ const getAttachmentTypeLabel = (
 };
 
 /**
- * The text announced for the channel's latest message (for an accessible name / live region).
- * Non-text content gets a concise, screen-reader-friendly phrasing that may differ from the visible
- * preview: a poll announces its question, an attachment its type, a shared location and a deleted
- * message a plain phrase. User-message text is stripped of markdown so the words are read, not the
- * syntax (AI-generated text is returned verbatim, matching the display path).
+ * The text announced for the channel's latest message. Non-text content gets a phrase that may
+ * differ from the visible preview: a poll announces its question and an attachment its type.
+ * User message text is stripped of markdown, except AI-generated text, which is returned verbatim.
+ *
+ * @param channel - Channel whose latest message is announced.
+ * @param t - Translation function.
+ * @param userLanguage - Language of the translated message text. Defaults to 'en'.
+ * @param isMessageAIGenerated - Tells whether a message is AI-generated.
+ * @param latestMessage - Message to announce. Defaults to the channel's last message.
+ * @returns The announcement text.
  */
 export const getLatestMessagePreviewText = (
   channel: Channel,
@@ -283,9 +253,8 @@ export const getLatestMessagePreviewText = (
         pollName: pollName ?? '',
       });
     case 'attachment': {
-      // Link previews are announced separately (see the `linkPreview` label part); decide by the
-      // count of real attachments. Multiple → a generic phrase (the count is announced alongside);
-      // a single one → its localized type.
+      // Link previews are announced by the `linkPreview` label part, so only other attachments
+      // count. Several get a generic phrase (the label announces the count), one gets its type.
       const realAttachments =
         resolvedLatestMessage?.attachments?.filter(
           (attachment) => !attachment.og_scrape_url,
@@ -307,21 +276,20 @@ export const getLatestMessagePreviewText = (
     case 'location':
       return t('channelListItem.sharedLocation.ariaLabel', 'Shared location');
     case 'empty':
-      // The visible preview says "Nothing yet..."; spell it out for assistive tech.
+      // The visible text is "Nothing yet..."; the announcement spells it out.
       return t(
         'channelListItem.noMessagesChat.ariaLabel',
         'There are no messages in this chat.',
       );
     case 'text':
-      // `resolvedLatestMessage` guard is redundant at runtime (isUserMessageText implies it) but
-      // narrows the optional type for `isMessageAIGenerated`.
+      // The `resolvedLatestMessage` check is redundant at runtime but narrows the type.
       return isUserMessageText &&
         resolvedLatestMessage &&
         !isMessageAIGenerated?.(resolvedLatestMessage)
         ? stripMarkdownToText(text)
         : text;
     default:
-      // 'deleted' ("Message deleted") and 'command' ("/cmd") read as-is.
+      // 'deleted' and 'command' read as their display text.
       return text;
   }
 };
@@ -339,9 +307,8 @@ export const getLatestMessagePreview = (
     text,
   } = getLatestMessagePreviewParts(channel, t, userLanguage, latestMessage);
 
-  // Only the plain user-message text is rendered as markdown — unless it is AI-generated, which is
-  // returned verbatim. Every other branch is a localized phrase used as-is. (guard is redundant at
-  // runtime but narrows the optional type for `isMessageAIGenerated`.)
+  // Only plain user message text is rendered as markdown, and AI-generated text is not. The
+  // `resolvedLatestMessage` check is redundant at runtime but narrows the type.
   return isUserMessageText &&
     resolvedLatestMessage &&
     !isMessageAIGenerated?.(resolvedLatestMessage)
@@ -356,13 +323,11 @@ export type GroupChannelDisplayInfoMember = {
 
 export type GroupChannelDisplayInfo = {
   members: GroupChannelDisplayInfoMember[];
-  /** When members.length > 4, count for the "+N" badge (members.length - 2). */
+  /** Not set or read by the SDK; the group avatar derives its "+N" count from `members`. */
   overflowCount?: number;
 };
 
-/**
- * Channel display image: channel.data.custom.image, or for DM (2 members) the other member's user.image.
- */
+/** `channel.data.custom.image`, or for a DM (2 members) the other member's `user.image`. */
 export const getChannelDisplayImage = (
   channel: Channel,
   currentUserId?: string,

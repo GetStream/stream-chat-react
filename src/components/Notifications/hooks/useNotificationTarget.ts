@@ -1,18 +1,18 @@
 import { useChannelListContext, useWorkspaceNavigation } from '../../../context';
-// MERGE-RECONCILE: the deleted ChannelStateContext's `channel` is read here only to detect
-// whether a channel is in scope; migrated to useChannelInstanceContext (safe — returns
-// undefined channel outside a Channel subtree, unlike useChannel which throws).
 import { useChannelInstanceContext } from '../../../context/ChannelInstanceContext';
 import { useThreadContext } from '../../Threads/ThreadContext';
 
 import type { NotificationTargetPanel } from '../notificationTarget';
 
 /**
- * Resolves the panel target where notifications emitted by the current component should be displayed.
+ * Resolves the panel where notifications emitted by the current component are displayed.
+ *
+ * @returns The first match of thread, channel, thread list, channel list, or undefined.
  */
 export const useNotificationTarget = (): NotificationTargetPanel | undefined => {
   const { isThreadsView } = useWorkspaceNavigation();
   const { paginator } = useChannelListContext();
+  // Does not throw outside a `Channel` subtree, unlike `useChannel`.
   const { channel } = useChannelInstanceContext();
   const threadInstance = useThreadContext();
 
