@@ -32,8 +32,9 @@ export const makeItemsRenderedHandler = (
   throttle((items: ListItem<UnknownType>[]) => {
     const renderedMessages = items
       .map((item) => {
-        if (!item.originalIndex) return undefined;
-        return processedMessages[calculateItemIndex(item.originalIndex, PREPEND_OFFSET)];
+        // `originalIndex` is the 0-based position in the data, so 0 is the first loaded message.
+        if (item.originalIndex === undefined) return undefined;
+        return processedMessages[item.originalIndex];
       })
       .filter((msg) => !!msg);
     renderedItemsActions.forEach((action) =>
