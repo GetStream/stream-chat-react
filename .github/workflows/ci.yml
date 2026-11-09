@@ -99,6 +99,40 @@ jobs:
           verbose: true
           token: ${{ secrets.CODECOV_TOKEN }}
 
+  browser-test:
+    runs-on: ubuntu-latest
+    name: Browser tests (virtualized lists)
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: ./.github/actions/setup-node
+
+      - name: Cache Playwright browsers
+        uses: actions/cache@v5
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ hashFiles('yarn.lock') }}
+
+      # Install scripts are disabled (`enableScripts: false`), so the browser is installed here.
+      - name: Install Chromium
+        run: yarn playwright install --with-deps chromium
+
+      # Runs the suites on react-virtuoso 2 and 4 and compares their traces
+      # (scripts/compare-virtuoso-traces.mts, src/components/MessageList/__tests__/browser).
+      - name: Real-browser suites and trace comparison
+        run: yarn test:browser
+
+      - name: Upload the trace comparison
+        if: always()
+        uses: actions/upload-artifact@v5
+        with:
+          name: virtuoso-traces
+          path: |
+            .virtuoso-traces/report.md
+            .virtuoso-traces/browser-v2
+            .virtuoso-traces/browser-v4
+          if-no-files-found: ignore
+
   deploy-vite-example:
     concurrency:
       cancel-in-progress: true

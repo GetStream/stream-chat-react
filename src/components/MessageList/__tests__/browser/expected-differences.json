@@ -1,0 +1,68 @@
+{
+  "$comment": "Differences between the react-virtuoso 2 and 4 traces that are understood. Each names what differs and why; scenario, checkpoint and field are anchored regular expressions. Read by scripts/compare-virtuoso-traces.mts; an entry that matches nothing is reported as stale.",
+  "differences": [
+    {
+      "scenario": "[BF]-.*",
+      "field": "framesUntilFirstItem",
+      "reason": "v4 hides a freshly mounted list until it reaches initialTopMostItemIndex: about 25 frames to the first visible item against v2's 1-2, where v2 shows the list at once and moves it into place over its first ~6 frames. Kept as is (decision for the upgrade), documented in ai-docs/ai-migration-v14-v15.md.",
+      "upstream": "react-virtuoso 4.7.4"
+    },
+    {
+      "scenario": "B-20-render-cost",
+      "checkpoint": "scroll up \\d+",
+      "field": "itemsRendered|rendered|firstVisible|remounted",
+      "reason": "Scrolling up into messages not rendered yet, v2 jumps by the difference between their estimated and real heights (5-7 messages further per 400px here); v4 compensates and moves by the scrolled distance. The scroll invariant (content moves by exactly the scrolled distance) holds on v4 and fails on v2 in the fuzz runs.",
+      "upstream": "react-virtuoso 4.3.6, 4.12.7"
+    },
+    {
+      "scenario": "B-26-early-scroll",
+      "field": ".*",
+      "reason": "v2 re-applies its initial scroll target for ~1.2s and undoes a scroll made meanwhile; v4 keeps the reader's scroll, so the next scroll reaches the top and loads an older page."
+    },
+    {
+      "scenario": "B-27-focus-signal-recenter",
+      "field": ".*",
+      "reason": "On v2 the remounted list reports at-bottom before its jump lands and VML pages forward to the latest messages (toHead), after which arrivals re-center the focused message. useAfterInitialLocation holds that page load until the list is positioned, so on v4 the jumped-to window stays and nothing re-centers."
+    },
+    {
+      "scenario": "B-23-visible-zero-height-last-item",
+      "checkpoint": "mounted",
+      "field": "geometry.atBottom|firstVisible",
+      "reason": "With a zero-height last item, v2 opens 8px short of the bottom; v4 opens at the bottom."
+    },
+    {
+      "scenario": "B-16-files-sticky-groups",
+      "field": "dom.firstItem",
+      "reason": "v4 marks GroupedVirtuoso group wrappers with data-index / data-item-index as it does items (v2 left them unmarked), so the first such element is now a month header. No SDK selector relies on it for grouped lists.",
+      "upstream": "react-virtuoso 4.x"
+    },
+    {
+      "scenario": "B-24-message-during-mount",
+      "field": "totals\\.commits",
+      "reason": "This scenario skips the mount measurement, so its one checkpoint spans the mount, where v4 commits a few more times while it positions the hidden list. Message renders fall (19 to 9) at the same time."
+    },
+    {
+      "scenario": "B-28-suppressed-autoscroll",
+      "field": "totals\\.messageRenders",
+      "reason": "While it applies a prepend, v4 renders the items around the reader once more (before and after the same-paint scroll compensation): +7 message renders for the one older page this scenario loads, with the same final position and items. Across all scripted scenarios v4 renders fewer messages than v2.",
+      "upstream": "react-virtuoso 4.12.7, 4.18.13"
+    },
+    {
+      "scenario": "B-12-first-item-at-top",
+      "field": ".*",
+      "reason": "v2 sometimes opens this 30-message channel at its top instead of its end (initialTopMostItemIndex `align: 'end'` loses a race with v2's initial scroll; it varies between runs); v4 opens it at the bottom, so every later step starts from a different place."
+    },
+    {
+      "scenario": "F-1001",
+      "checkpoint": "15 scroll to bottom",
+      "field": "itemsRendered|rendered|firstVisible|requests",
+      "reason": "At the bottom of an older window: v2 reaches the bottom in this step and loads the next newer page at once; v4 ends this step 352px short (the revealed messages measure taller) and loads the same page in the next step. Same request, one step apart."
+    },
+    {
+      "scenario": "F-1002",
+      "checkpoint": "19 append from other",
+      "field": "firstVisible",
+      "reason": "OPEN, shared: in this seed's state both runtimes move the reading position when two messages arrive with suppressAutoscroll on (v2 by 20px, v4 by 80px, one message); not reproduced in isolation (B-29, B-29b keep it within 2px on both). Listed as a follow-up."
+    }
+  ]
+}
