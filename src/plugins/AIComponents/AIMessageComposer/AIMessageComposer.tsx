@@ -6,7 +6,9 @@ import {
   useCallback,
   useContext,
   useEffect,
+  useLayoutEffect,
   useMemo,
+  useRef,
   useState,
 } from 'react';
 import type React from 'react';
@@ -20,6 +22,7 @@ import { useStateStore } from '../../../store';
 import { useStableCallback } from '../../../utils/useStableCallback';
 import { useStableId } from '../../../components/UtilityComponents/useStableId';
 import { AttachmentPreview } from './AttachmentPreview';
+import { ChatOptions as ChatOptionsBase, type ChatOptionsProps } from './ChatOptions';
 import { useSpeechToText, type UseSpeechToTextOptions } from './hooks/useSpeechToText';
 
 const nanoId = customAlphabet('abcdefghijklmnopqrstuvwxyz0123456789', 15);
@@ -268,10 +271,12 @@ interface AIMessageComposer {
   SubmitButton: typeof SubmitButton;
   ModelSelect: typeof ModelSelect;
   AttachmentPreview: typeof AttachmentPreview;
+  ChatOptions: typeof ChatOptions;
 }
 
 export const AIMessageComposer: AIMessageComposer = ({
   children,
+  className,
   disabled,
   nameMapping,
   onChange,
@@ -345,7 +350,7 @@ export const AIMessageComposer: AIMessageComposer = ({
   return (
     <AIMessageComposerContext.Provider value={stateStore}>
       <form
-        className='str-chat__ai-message-composer__form'
+        className={clsx('str-chat__ai-message-composer__form', className)}
         onChange={handleChange}
         onReset={handleReset}
         {...restProps}
@@ -364,13 +369,66 @@ const useHasMounted = () => {
   return hasMounted;
 };
 
-const TextInput = (props: ComponentPropsWithoutRef<'input'>) => {
+// A layout effect in the browser, and nothing on a server, which has no layout to measure.
+const useIsomorphicLayoutEffect =
+  typeof window === 'undefined' ? useEffect : useLayoutEffect;
+
+/** The tallest the text input grows to, in pixels, before it scrolls. */
+const TEXT_INPUT_MAX_HEIGHT = 200;
+
+/** Makes a text input as tall as its lines, measured from one line so it shrinks again too. */
+const fitToLines = (element: HTMLTextAreaElement) => {
+  element.style.height = 'auto';
+  element.style.height = `${Math.min(element.scrollHeight, TEXT_INPUT_MAX_HEIGHT)}px`;
+};
+
+/**
+ * Where the message is written. It takes several lines and grows with them, up to a limit:
+ * Enter sends, Shift+Enter starts a new line, and Enter while an input method is still composing
+ * a character does neither.
+ */
+const TextInput = ({ onKeyDown, ...props }: ComponentPropsWithoutRef<'textarea'>) => {
   const { text } = useText();
   const { disabled } = useIsDisabled();
   const { t } = useTranslationContext();
+  const ref = useRef<HTMLTextAreaElement>(null);
+
+  // Sized to its lines: each time the text changes, and each time its width does, which wraps
+  // them differently (a resized window, or a composer first laid out while hidden).
+  useIsomorphicLayoutEffect(() => {
+    const element = ref.current;
+    if (element) fitToLines(element);
+  }, [text]);
+
+  useEffect(() => {
+    const element = ref.current;
+    if (!element || typeof ResizeObserver === 'undefined') return;
+    let width = element.clientWidth;
+    const observer = new ResizeObserver(() => {
+      if (element.clientWidth === width) return;
+      width = element.clientWidth;
+      fitToLines(element);
+    });
+    observer.observe(element);
+    return () => observer.disconnect();
+  }, []);
+
+  const handleKeyDown = (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    onKeyDown?.(event);
+    if (
+      event.defaultPrevented ||
+      event.key !== 'Enter' ||
+      event.shiftKey ||
+      event.nativeEvent.isComposing
+    ) {
+      return;
+    }
+    event.preventDefault();
+    event.currentTarget.form?.requestSubmit();
+  };
 
   return (
-    <input
+    <textarea
       autoComplete='off'
       className='str-chat__ai-message-composer__text-input'
       name='message'
@@ -379,10 +437,12 @@ const TextInput = (props: ComponentPropsWithoutRef<'input'>) => {
       // actual on-change is handled at the form level
       onChange={noop}
       placeholder={t('Ask a question...')}
-      type='text'
+      ref={ref}
+      rows={1}
       value={text}
       {...props}
       disabled={disabled}
+      onKeyDown={handleKeyDown}
     />
   );
 };
@@ -466,6 +526,12 @@ const SubmitButton = ({
   );
 };
 
+// Follows the composer's disabled state unless told otherwise.
+const ChatOptions = (props: ChatOptionsProps) => {
+  const { disabled } = useIsDisabled();
+  return <ChatOptionsBase {...props} disabled={props.disabled ?? disabled} />;
+};
+
 const availableModels = [
   { label: 'GPT-4o mini', platform: 'openai', value: 'gpt-4o-mini' },
   { label: 'GPT-4o', platform: 'openai', value: 'gpt-4o' },
@@ -510,3 +576,4 @@ AIMessageComposer.SpeechToTextButton = SpeechToTextButton;
 AIMessageComposer.SubmitButton = SubmitButton;
 AIMessageComposer.ModelSelect = ModelSelect;
 AIMessageComposer.AttachmentPreview = AttachmentPreview;
+AIMessageComposer.ChatOptions = ChatOptions;

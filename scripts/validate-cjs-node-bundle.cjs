@@ -3,3 +3,11 @@
 
 require('../dist/cjs/index.js');
 require('../dist/cjs/ai-components.js');
+
+// The A2UI renderer is an ES module only, and requiring it says so.
+try {
+  require('stream-chat-react/a2ui');
+  throw new Error('stream-chat-react/a2ui loaded with require');
+} catch (error) {
+  if (!/an ES module only/.test(error.message)) throw error;
+}
