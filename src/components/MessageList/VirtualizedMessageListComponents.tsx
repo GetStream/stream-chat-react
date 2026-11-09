@@ -46,7 +46,14 @@ type CommonVirtuosoComponentProps = {
   context?: VirtuosoContext;
 };
 // `display: inline-block` traps the items' CSS margins, preventing incorrect item measurements.
-export const Item = ({ context, ...props }: ItemProps & CommonVirtuosoComponentProps) => {
+// `item` is the row's data, which Virtuoso passes since v4; this list has none (it renders by
+// `totalCount`), and spreading it onto the <div> would leak it into the DOM.
+export const Item = ({
+  context,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars -- strip `item` so it is not forwarded to the <div>
+  item: _item,
+  ...props
+}: ItemProps<UnknownType> & CommonVirtuosoComponentProps) => {
   if (!context) return <></>;
 
   const message =

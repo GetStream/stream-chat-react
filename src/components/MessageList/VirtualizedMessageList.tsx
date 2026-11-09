@@ -18,6 +18,7 @@ import {
 } from './hooks/VirtualizedMessageList';
 import { useMarkRead } from './hooks/useMarkRead';
 import { useScrollerViewport } from './hooks/VirtualizedMessageList/useScrollerViewport';
+import { useAfterInitialLocation } from './hooks/VirtualizedMessageList/useAfterInitialLocation';
 import { useMessageFocusSignalViewed } from './hooks/VirtualizedMessageList/useMessageFocusSignalViewed';
 
 import {
@@ -516,6 +517,10 @@ const VirtualizedMessageListWithContext = (
       ),
     [processedMessages, toggleShowUnreadMessagesNotification],
   );
+  // react-virtuoso 4 also scrolls to the bottom on its own when an item grows or the viewport
+  // shrinks, whenever `followOutput` is anything but `false`, without asking the function. So when
+  // the list must not follow (an older window, suppressed autoscroll) it gets a literal `false`.
+  const isFollowingOutput = !messagePaginator.hasMoreHead && !suppressAutoscroll;
   const followOutput = (isAtBottom: boolean) => {
     if (messagePaginator.hasMoreHead || suppressAutoscroll) {
       return false;
@@ -536,6 +541,13 @@ const VirtualizedMessageListWithContext = (
 
   const canPaginateReplies = useCanPaginateReplies();
 
+  // Loading a page from an edge Virtuoso reports while it still positions the list would load the
+  // wrong page: these run once the list is shown (see useAfterInitialLocation), against the edge
+  // state Virtuoso reported last.
+  const atTopRef = useRef(false);
+  const afterInitialLocationAtTop = useAfterInitialLocation(virtualListRef);
+  const afterInitialLocationAtBottom = useAfterInitialLocation(virtualListRef);
+
   const atBottomStateChange = (isAtBottom: boolean) => {
     atBottom.current = isAtBottom;
     setIsMessageListScrolledToBottom(isAtBottom);
@@ -543,21 +555,26 @@ const VirtualizedMessageListWithContext = (
     if (isAtBottom) {
       // An empty thread is at both ends at once, so Virtuoso reports both on mount;
       // `canPaginateReplies` keeps that from becoming a request.
-      if (canPaginateReplies) messagePaginator.toHead();
+      if (canPaginateReplies) {
+        afterInitialLocationAtBottom(() => {
+          if (atBottom.current) messagePaginator.toHead();
+        });
+      }
       setNewMessagesNotification?.(false);
     }
   };
   const atTopStateChange = (isAtTop: boolean) => {
-    if (isAtTop) {
-      if (!canPaginateReplies) return;
-      if (loadingOlderRef.current) return;
+    atTopRef.current = isAtTop;
+    if (!isAtTop || !canPaginateReplies) return;
+    afterInitialLocationAtTop(() => {
+      if (!atTopRef.current || loadingOlderRef.current) return;
       loadingOlderRef.current = true;
       setSuppressAutoscrollWhileLoadingOlder(true);
       void messagePaginator.toTail().finally(() => {
         loadingOlderRef.current = false;
         setSuppressAutoscrollWhileLoadingOlder(false);
       });
-    }
+    });
   };
 
   const focusViewedSignalRef = useMessageFocusSignalViewed({
@@ -653,7 +670,7 @@ const VirtualizedMessageListWithContext = (
                 virtuosoRef: virtuoso,
               }}
               firstItemIndex={calculateFirstItemIndex(numItemsPrepended)}
-              followOutput={followOutput}
+              followOutput={isFollowingOutput ? followOutput : false}
               increaseViewportBy={{ bottom: 200, top: 0 }}
               initialTopMostItemIndex={calculateInitialTopMostItemIndex(
                 processedMessages,

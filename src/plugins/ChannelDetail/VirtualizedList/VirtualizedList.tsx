@@ -4,6 +4,8 @@ import React, { forwardRef, useCallback, useMemo } from 'react';
 import type { ComputeItemKey, VirtuosoProps } from 'react-virtuoso';
 import { Virtuoso } from 'react-virtuoso';
 
+import { asVirtuosoSlot } from '../../../utils/virtuosoSlot';
+
 // Wraps the virtualized item list so views can attach padding to a stable class instead of
 // Virtuoso's internal markup.
 const VirtualizedListContent = forwardRef<HTMLDivElement, ComponentProps<'div'>>(
@@ -58,8 +60,8 @@ export const VirtualizedList = <T,>({
 
   const components = useMemo(
     () => ({
-      EmptyPlaceholder,
-      Footer,
+      EmptyPlaceholder: asVirtuosoSlot(EmptyPlaceholder),
+      Footer: asVirtuosoSlot(Footer),
       List: VirtualizedListContent,
     }),
     [EmptyPlaceholder, Footer],

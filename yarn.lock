@@ -4078,24 +4078,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@virtuoso.dev/react-urx@npm:^0.2.12":
-  version: 0.2.13
-  resolution: "@virtuoso.dev/react-urx@npm:0.2.13"
-  dependencies:
-    "@virtuoso.dev/urx": "npm:^0.2.13"
-  peerDependencies:
-    react: ">=16"
-  checksum: 10c0/40fb3a56980121c332812775e0d22780b3ed90af8bb027726c3a5f69d508f9b8f19cbb4173f6a0bb5f1789d81d9cc9d74f4438c605197160442ece9522892bb2
-  languageName: node
-  linkType: hard
-
-"@virtuoso.dev/urx@npm:^0.2.12, @virtuoso.dev/urx@npm:^0.2.13":
-  version: 0.2.13
-  resolution: "@virtuoso.dev/urx@npm:0.2.13"
-  checksum: 10c0/377d9c2db45b57ae9d5fb039df9709bed1a194eff56d9e8ccb673f4c3856adacf2473019d051bca17ed572b5b7221eb869901973b8e072e6d1246c2e68cd5b54
-  languageName: node
-  linkType: hard
-
 "@vitejs/plugin-react-swc@npm:^4.3.1":
   version: 4.3.1
   resolution: "@vitejs/plugin-react-swc@npm:4.3.1"
@@ -10976,16 +10958,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-virtuoso@npm:^2.19.1":
-  version: 2.19.1
-  resolution: "react-virtuoso@npm:2.19.1"
-  dependencies:
-    "@virtuoso.dev/react-urx": "npm:^0.2.12"
-    "@virtuoso.dev/urx": "npm:^0.2.12"
+"react-virtuoso@npm:^4.18.20":
+  version: 4.18.20
+  resolution: "react-virtuoso@npm:4.18.20"
   peerDependencies:
-    react: ">=16 || >=17 || >= 18"
-    react-dom: ">=16 || >=17 || >= 18"
-  checksum: 10c0/524a3d593c8d4bb379f15a88b46a2adadbdf7e8173a92a4fec59c9d1a8db5c56b053ee0485b9f9b89ee9fffda6ad77182847a65fef5d86fa2977f786095d71e0
+    react: ">=16 || >=17 || >= 18 || >= 19"
+    react-dom: ">=16 || >=17 || >= 18 || >=19"
+  checksum: 10c0/b85199075a158cba77a6a3ad99cc6d76b9e12fa7aadfc2cbffd69aaa519fbc08f0847b156a389a132e934c23fbbb3f3ebb636b464caed36cf5eb53bc27b9edb6
   languageName: node
   linkType: hard
 
@@ -12053,7 +12032,7 @@ __metadata:
     react-player: "npm:2.10.1"
     react-syntax-highlighter: "npm:^16.1.0"
     react-textarea-autosize: "npm:^8.5.9"
-    react-virtuoso: "npm:^2.19.1"
+    react-virtuoso: "npm:^4.18.20"
     remark-gfm: "npm:^4.0.1"
     remark-parse: "npm:^11.0.0"
     sass: "npm:^1.100.0"

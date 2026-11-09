@@ -430,6 +430,33 @@ describe('VirtualizedMessageList', () => {
       );
     });
 
+    // react-virtuoso 4 scrolls to the bottom on its own (an item grew, the viewport shrank) unless
+    // `followOutput` is `false`, without calling the function: a list that must not follow passes
+    // `false` itself.
+    it.each([
+      ['newer pages to load', { hasMoreHead: true }],
+      ['autoscroll suppressed', { listProps: { suppressAutoscroll: true } }],
+    ])('J-05 passes followOutput={false} with %s', async (_label, options) => {
+      const props = await renderList(options);
+      expect(props.followOutput).toBe(false);
+    });
+
+    // A function `followOutput` is followed on any answer but `false` (`undefined` means 'auto'), so
+    // every branch must answer `false`, 'auto' or the configured behavior, never undefined.
+    it.each([
+      ['latest messages, at the bottom', {}, true, 'smooth'],
+      ['latest messages, scrolled up', {}, false, false],
+      [
+        'latest messages, at the bottom, high throughput',
+        { listProps: { stickToBottomScrollBehavior: 'auto' as const } },
+        true,
+        'auto',
+      ],
+    ])('J-05 followOutput answers %s', async (_label, options, isAtBottom, expected) => {
+      const props = await renderList(options);
+      expect(props.followOutput(isAtBottom)).toBe(expected);
+    });
+
     it('anchors the initial scroll to the end of the last item', async () => {
       const props = await renderList();
 
