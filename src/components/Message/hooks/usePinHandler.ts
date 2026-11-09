@@ -8,33 +8,6 @@ import type { LocalMessage, UserResponse } from 'stream-chat';
 import type { ReactEventHandler } from '../types';
 import { nowNs } from 'stream-chat';
 
-// @deprecated in favor of `channelCapabilities` - TODO: remove in next major release
-export type PinEnabledUserRoles<T extends string = string> = Partial<
-  Record<T, boolean>
-> & {
-  admin?: boolean;
-  anonymous?: boolean;
-  channel_member?: boolean;
-  channel_moderator?: boolean;
-  guest?: boolean;
-  member?: boolean;
-  moderator?: boolean;
-  owner?: boolean;
-  user?: boolean;
-};
-
-// @deprecated in favor of `channelCapabilities` - TODO: remove in next major release
-export type PinPermissions<
-  T extends string = string,
-  U extends string = string,
-> = Partial<Record<T, PinEnabledUserRoles<U>>> & {
-  commerce?: PinEnabledUserRoles<U>;
-  gaming?: PinEnabledUserRoles<U>;
-  livestream?: PinEnabledUserRoles<U>;
-  messaging?: PinEnabledUserRoles<U>;
-  team?: PinEnabledUserRoles<U>;
-};
-
 export type PinMessageNotifications = {
   getErrorNotification?: (message: LocalMessage) => string;
   notify?: (notificationText: string, type: 'success' | 'error') => void;

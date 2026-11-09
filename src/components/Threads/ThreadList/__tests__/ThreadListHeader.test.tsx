@@ -1,58 +1,50 @@
 import React from 'react';
 import { cleanup, render, screen } from '@testing-library/react';
 import { fromPartial } from '@total-typescript/shoehorn';
-import { WithComponents, WorkspaceNavigationProvider } from '../../../../context';
+import { WorkspaceNavigationProvider } from '../../../../context';
 import { TranslationProvider } from '../../../../context/TranslationContext';
 import { mockTranslationContextValue } from '../../../../mock-builders';
+import type { ThreadListHeaderProps } from '../ThreadListHeader';
 import { ThreadListHeader } from '../ThreadListHeader';
 import { mockT } from '../../../../mock-builders/translator';
 
 const t = vi.fn(mockT);
-const HeaderEndContent = () => <div data-testid='sidebar-toggle' />;
+const EndContent = () => <div data-testid='header-end' />;
+const StartContent = () => <div data-testid='header-start' />;
 
 afterEach(cleanup);
 
-// The header derives "a thread is active" from the workspace navigation's `openThreads`, so the
-// tests drive it through the real provider.
-const renderHeader = ({
-  openThreads,
-  withHeaderEndContent,
-}: {
-  openThreads: unknown[];
-  withHeaderEndContent: boolean;
-}) => {
-  const inner = (
-    <TranslationProvider value={mockTranslationContextValue({ t })}>
-      <ThreadListHeader />
-    </TranslationProvider>
-  );
-  return render(
-    <WorkspaceNavigationProvider value={fromPartial({ openThreads })}>
-      {withHeaderEndContent ? (
-        <WithComponents overrides={{ HeaderEndContent }}>{inner}</WithComponents>
-      ) : (
-        inner
-      )}
+// Nothing is open in the workspace navigation: the start and end content must not depend on it.
+const renderHeader = (props: ThreadListHeaderProps = {}) =>
+  render(
+    <WorkspaceNavigationProvider
+      value={fromPartial({ openChannels: [], openThreads: [] })}
+    >
+      <TranslationProvider value={mockTranslationContextValue({ t })}>
+        <ThreadListHeader {...props} />
+      </TranslationProvider>
     </WorkspaceNavigationProvider>,
   );
-};
 
 describe('ThreadListHeader', () => {
-  it('should not render HeaderEndContent when not provided via ComponentContext', () => {
-    renderHeader({ openThreads: [{}], withHeaderEndContent: false });
+  it('should render only the title by default', () => {
+    const { container } = renderHeader();
 
-    expect(screen.queryByTestId('sidebar-toggle')).not.toBeInTheDocument();
+    expect(screen.queryByTestId('header-start')).not.toBeInTheDocument();
+    expect(screen.queryByTestId('header-end')).not.toBeInTheDocument();
+    expect(
+      container.querySelector('.str-chat__thread-list__header')?.children,
+    ).toHaveLength(1);
   });
 
-  it('should render HeaderEndContent when a thread is active', () => {
-    renderHeader({ openThreads: [{}], withHeaderEndContent: true });
+  it('should render StartContent before the title and EndContent after it, without an open thread', () => {
+    const { container } = renderHeader({ EndContent, StartContent });
 
-    expect(screen.getByTestId('sidebar-toggle')).toBeInTheDocument();
-  });
-
-  it('should not render HeaderEndContent when no thread is active', () => {
-    renderHeader({ openThreads: [], withHeaderEndContent: true });
-
-    expect(screen.queryByTestId('sidebar-toggle')).not.toBeInTheDocument();
+    const children = Array.from(
+      container.querySelector('.str-chat__thread-list__header')?.children ?? [],
+    );
+    expect(
+      children.map((child) => child.getAttribute('data-testid') ?? child.className),
+    ).toEqual(['header-start', 'str-chat__thread-list__header__title', 'header-end']);
   });
 });

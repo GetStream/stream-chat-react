@@ -22,7 +22,7 @@ type MessageStatusParams = {
   message: LocalMessage;
   ownUserId: string;
   readBy: UserResponse[];
-  threadList: boolean;
+  isInThread: boolean;
 };
 
 const getMessageStatus = ({
@@ -30,19 +30,19 @@ const getMessageStatus = ({
   message,
   ownUserId,
   readBy,
-  threadList,
+  isInThread,
 }: MessageStatusParams): keyof typeof statusIconMap => {
   const [firstReader] = readBy;
   const [firstDeliveredUser] = deliveredTo;
 
   const justReadByMe = readBy.length === 1 && firstReader?.id === ownUserId;
-  const read = readBy.length > 0 && !justReadByMe && !threadList;
+  const read = readBy.length > 0 && !justReadByMe && !isInThread;
 
   const deliveredOnlyToMe =
     deliveredTo.length === 1 && firstDeliveredUser?.id === ownUserId;
-  const delivered = deliveredTo.length > 0 && !deliveredOnlyToMe && !read && !threadList;
+  const delivered = deliveredTo.length > 0 && !deliveredOnlyToMe && !read && !isInThread;
 
-  const sent = message.status === 'received' && !delivered && !read && !threadList;
+  const sent = message.status === 'received' && !delivered && !read && !isInThread;
   const sending = message.status === 'sending';
 
   if (read) return 'read';
@@ -55,7 +55,10 @@ const getMessageStatus = ({
 const CustomMessageUiMetadata = () => {
   const { deliveredTo = [], isMyMessage, message, readBy = [] } = useMessageContext();
   const { client } = useChatContext();
-  const threadList = !!useThreadContext();
+  // Read and delivery cursors sit on channel messages, so a thread list's `readBy` / `deliveredTo`
+  // say nothing about its replies, and the parent gets none. As in the SDK's `MessageStatus`, a
+  // message shown in a thread is never read, delivered or sent here.
+  const isInThread = !!useThreadContext();
 
   const createdAt = convertTimestampToDate(message.created_at);
   const editedAt = convertTimestampToDate(message.message_text_updated_at);
@@ -66,7 +69,7 @@ const CustomMessageUiMetadata = () => {
         message,
         ownUserId: client.user?.id ?? '',
         readBy,
-        threadList,
+        isInThread,
       })
     ];
 

@@ -14,7 +14,6 @@ import {
   useChatContext,
   useComponentContext,
   useComponentContextIcons,
-  useModalContext,
   useTranslationContext,
   useWorkspaceNavigation,
 } from '../../../../context';
@@ -220,8 +219,7 @@ export const useBaseChannelMemberActionSetFilter = (
 const SendDirectMessageAction = () => {
   const { channelManager, client } = useChatContext();
   const { openChannel } = useWorkspaceNavigation();
-  const { close } = useModalContext();
-  const { channel } = useChannelDetailContext();
+  const { channel, close } = useChannelDetailContext();
   const { addNotification } = useNotificationApi();
   const { t } = useTranslationContext();
   const { targetUserId } = useChannelMemberActionContext();
@@ -243,7 +241,7 @@ const SendDirectMessageAction = () => {
       // own it so it appears without a re-query.
       openChannel(dm);
       channelManager.ingestChannel(dm);
-      close();
+      close?.();
     } catch (error) {
       addNotification({
         context: { channel },

@@ -1,7 +1,8 @@
-import type { ReactNode } from 'react';
+import type { PropsWithChildren, ReactNode } from 'react';
 import React, { Fragment } from 'react';
 import type { GroupStyle, RenderedMessage } from './utils';
 import { getIsFirstUnreadMessage, isDateSeparatorMessage, isIntroMessage } from './utils';
+import { omitUndefinedProps } from './omitUndefinedProps';
 import type { MessageProps } from '../Message';
 import { Message } from '../Message';
 import { DateSeparator as DefaultDateSeparator } from '../DateSeparator';
@@ -42,11 +43,24 @@ export type SharedMessageProps = Omit<MessageProps, MessagePropsToOmit>;
 
 export type MessageRenderer = (options: RenderMessagesOptions) => Array<ReactNode>;
 
+/**
+ * What `MessageList` passes to each `MessageListItem`. Spread them onto the rendered element:
+ * jump-to-message and scroll restoration find items by `data-message-id`.
+ */
+export type MessageListItemProps = PropsWithChildren<{
+  className?: string;
+  'data-index'?: number;
+  'data-message-id'?: string;
+  'data-testid'?: string;
+}>;
+
+/** What `MessageList` passes to its `MessageListWrapper`. */
+export type MessageListWrapperProps = PropsWithChildren<{ className?: string }>;
+
 type MessagePropsToOmit =
   | 'channel'
   | 'deliveredTo'
   | 'groupStyles'
-  | 'initialMessage'
   | 'lastReceivedId'
   | 'message'
   | 'readBy';
@@ -99,11 +113,15 @@ export function defaultRenderMessages({
     } else if (message.type === 'system') {
       renderedMessages.push(
         <MessageListItem
+          className='str-chat__li'
           data-index={index}
           data-message-id={message.id}
           key={message.id || String(message.created_at)}
         >
-          <MessageSystem message={message} unsafeHTML={messageProps.unsafeHTML} />
+          <MessageSystem
+            {...omitUndefinedProps({ unsafeHTML: messageProps.unsafeHTML })}
+            message={message}
+          />
         </MessageListItem>,
       );
     } else {

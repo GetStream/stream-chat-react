@@ -175,6 +175,11 @@ $message-bubble-padding: var(--str-chat__spacing-xs);
   color: var(--str-chat__accent-primary);
 }
 
+// Set by `MessageText` when the message has mentions and an `onMentionsClick` handler is set.
+.str-chat__message-text-inner--mentions-clickable .str-chat__message-mention {
+  cursor: pointer;
+}
+
 .str-chat__message {
   --str-chat-message-options-size: calc(3 * var(--str-chat__message-options-button-size));
 

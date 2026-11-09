@@ -25,9 +25,10 @@ import {
   type MediaAttachmentPreviewProps,
 } from './MediaAttachmentPreview';
 import { toBaseImageDescriptors } from '../../BaseImage';
-import { Gallery } from '../../Gallery';
+import { Gallery as DefaultGallery } from '../../Gallery';
 import { GlobalModal, type ModalCloseSource } from '../../Modal';
 import { useComponentContext } from '../../../context';
+import { useRetryAttachmentUpload } from './useRetryAttachmentUpload';
 
 export type AttachmentPreviewListProps = {
   AudioAttachmentPreview?:
@@ -47,7 +48,8 @@ export const AttachmentPreviewList = ({
   VideoAttachmentPreview = MediaAttachmentPreview,
 }: AttachmentPreviewListProps) => {
   const messageComposer = useMessageComposerController();
-  const { Modal = GlobalModal } = useComponentContext();
+  const retryUpload = useRetryAttachmentUpload();
+  const { Gallery = DefaultGallery, Modal = GlobalModal } = useComponentContext();
   const [showPreview, setShowPreview] = useState(false);
   const initialIndexRef = useRef(0);
   const preventOverlayClose = useCallback(
@@ -96,7 +98,7 @@ export const AttachmentPreviewList = ({
           return (
             <AudioAttachmentPreview
               attachment={attachment}
-              handleRetry={messageComposer.attachmentManager.uploadAttachment}
+              handleRetry={retryUpload}
               key={attachment.localMetadata.id || attachment.asset_url}
               removeAttachments={messageComposer.attachmentManager.removeAttachments}
             />
@@ -105,7 +107,7 @@ export const AttachmentPreviewList = ({
           return (
             <VideoAttachmentPreview
               attachment={attachment}
-              handleRetry={messageComposer.attachmentManager.uploadAttachment}
+              handleRetry={retryUpload}
               key={attachment.localMetadata.id || attachment.asset_url}
               openPreview={() =>
                 openPreviewAtIndex(previewIndexById[attachment.localMetadata.id] ?? 0)
@@ -117,7 +119,7 @@ export const AttachmentPreviewList = ({
           return (
             <ImageAttachmentPreview
               attachment={attachment}
-              handleRetry={messageComposer.attachmentManager.uploadAttachment}
+              handleRetry={retryUpload}
               key={attachment.localMetadata.id || attachment.image_url}
               openPreview={() =>
                 openPreviewAtIndex(previewIndexById[attachment.localMetadata.id] ?? 0)
@@ -129,7 +131,7 @@ export const AttachmentPreviewList = ({
           return (
             <FileAttachmentPreview
               attachment={attachment}
-              handleRetry={messageComposer.attachmentManager.uploadAttachment}
+              handleRetry={retryUpload}
               key={attachment.localMetadata.id || attachment.asset_url}
               removeAttachments={messageComposer.attachmentManager.removeAttachments}
             />
@@ -138,7 +140,7 @@ export const AttachmentPreviewList = ({
           return (
             <UnsupportedAttachmentPreview
               attachment={attachment}
-              handleRetry={messageComposer.attachmentManager.uploadAttachment}
+              handleRetry={retryUpload}
               key={attachment.localMetadata.id}
               removeAttachments={messageComposer.attachmentManager.removeAttachments}
             />
@@ -153,7 +155,11 @@ export const AttachmentPreviewList = ({
           onCloseAttempt={preventOverlayClose}
           open={showPreview}
         >
-          <Gallery initialIndex={initialIndexRef.current} items={galleryItems} />
+          <Gallery
+            initialIndex={initialIndexRef.current}
+            items={galleryItems}
+            onRequestClose={() => setShowPreview(false)}
+          />
         </Modal>
       )}
     </div>

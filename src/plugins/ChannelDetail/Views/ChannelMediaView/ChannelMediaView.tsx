@@ -4,7 +4,6 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import {
   useComponentContext,
   useComponentContextIcons,
-  useModalContext,
   useTranslationContext,
 } from '../../../../context';
 import { formatTime } from '../../../../components/AudioPlayback';
@@ -22,6 +21,7 @@ import {
   SectionNavigatorHeader,
   type SectionNavigatorSectionContentProps,
 } from '../../SectionNavigator';
+import { useChannelDetailContext } from '../../ChannelDetailContext';
 import { ChannelDetailListLoadingIndicator } from '../../ChannelDetailListLoadingIndicator';
 import { getUserDisplayName } from '../ChannelMembersView/ChannelMembersView.utils';
 import { ChannelMediaEmptyList } from './ChannelMediaEmptyList';
@@ -166,7 +166,7 @@ export const ChannelMediaView: React.ComponentType<ChannelMediaViewProps> = ({
   itemsPerPage = DEFAULT_CHANNEL_MEDIA_ITEMS_PER_PAGE,
 }) => {
   const { t } = useTranslationContext();
-  const { close } = useModalContext();
+  const { close } = useChannelDetailContext();
   const {
     BaseImage = DefaultBaseImage,
     Gallery = DefaultGallery,

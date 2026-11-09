@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import { fromPartial } from '@total-typescript/shoehorn';
 import React from 'react';
 import type { Channel, ChannelMemberResponse } from 'stream-chat';
@@ -7,9 +7,10 @@ import {
   useChatContext,
   useComponentContext,
   useComponentContextIcons,
-  useModalContext,
   useTranslationContext,
 } from '../../../../../context';
+// The real provider: the context barrel is auto-mocked in this file.
+import { ModalContextProvider } from '../../../../../context/ModalContext';
 import * as DEFAULT_ICONS from '../../../../../components/Icons/icons';
 import { ChannelDetailProvider } from '../../../ChannelDetailContext';
 import { ChannelMemberDetail } from '../ChannelMemberDetail';
@@ -21,7 +22,16 @@ vi.mock('../../../../../context');
 vi.mock('../../../../../components/Dialog', () => ({
   Prompt: {
     Body: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
-    Header: ({ title }: { title: string }) => <h2>{title}</h2>,
+    Header: ({ close, title }: { close?: () => void; title: string }) => (
+      <>
+        <h2>{title}</h2>
+        {close && (
+          <button onClick={close} type='button'>
+            Close
+          </button>
+        )}
+      </>
+    ),
   },
 }));
 
@@ -86,10 +96,6 @@ describe('ChannelMemberDetail', () => {
       client: { user: { id: 'user-me' } },
       mutes: [],
     } as ReturnType<typeof useChatContext>);
-
-    vi.mocked(useModalContext).mockReturnValue({
-      close: vi.fn(),
-    } as ReturnType<typeof useModalContext>);
 
     vi.mocked(useComponentContext).mockReturnValue(
       {} as ReturnType<typeof useComponentContext>,
@@ -181,5 +187,53 @@ describe('ChannelMemberDetail', () => {
     expect(screen.queryByText('Mute')).not.toBeInTheDocument();
     expect(screen.queryByText('Block')).not.toBeInTheDocument();
     expect(screen.queryByText('Remove')).not.toBeInTheDocument();
+  });
+
+  it('closes through a modal context provided inside ChannelDetailProvider', () => {
+    const close = vi.fn();
+    render(
+      <ChannelDetailProvider channel={createChannel()}>
+        <ModalContextProvider value={{ close }}>
+          <ChannelMemberDetail
+            channelMemberActionSet={[]}
+            layout='inline'
+            member={otherMember}
+          />
+        </ModalContextProvider>
+      </ChannelDetailProvider>,
+    );
+
+    fireEvent.click(screen.getByRole('button', { name: 'Close' }));
+
+    expect(close).toHaveBeenCalledTimes(1);
+  });
+
+  it("closes through ChannelDetailProvider's onClose", () => {
+    const onClose = vi.fn();
+    render(
+      <ChannelDetailProvider channel={createChannel()} onClose={onClose}>
+        <ChannelMemberDetail
+          channelMemberActionSet={[]}
+          layout='inline'
+          member={otherMember}
+        />
+      </ChannelDetailProvider>,
+    );
+
+    fireEvent.click(screen.getByRole('button', { name: 'Close' }));
+
+    expect(onClose).toHaveBeenCalledTimes(1);
+  });
+
+  it('renders no close button with neither onClose nor a modal', () => {
+    renderWithChannel(
+      <ChannelMemberDetail
+        channelMemberActionSet={[]}
+        layout='inline'
+        member={otherMember}
+      />,
+    );
+
+    expect(screen.queryByRole('button', { name: 'Close' })).not.toBeInTheDocument();
   });
 });

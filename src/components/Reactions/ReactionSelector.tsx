@@ -25,7 +25,7 @@ export type ReactionSelectorProps = {
 
 interface ReactionSelectorInterface {
   (props: ReactionSelectorProps): ReactNode;
-  getDialogId: (_: { messageId: string; threadList?: boolean }) => string;
+  getDialogId: (_: { messageId: string }) => string;
   displayName: string;
   ExtendedList: React.ComponentType<ReactionSelectorProps & { dialogId?: string }>;
 }
@@ -50,15 +50,10 @@ export const ReactionSelector: ReactionSelectorInterface = (props) => {
     closeReactionSelectorOnClick,
     handleReaction: contextHandleReaction,
     message,
-    threadList,
   } = useMessageContext();
   const { t } = useTranslationContext();
   const dialogId =
-    propDialogId ??
-    ReactionSelector.getDialogId({
-      messageId: message.id,
-      threadList,
-    });
+    propDialogId ?? ReactionSelector.getDialogId({ messageId: message.id });
   const { dialog } = useDialogOnNearestManager({ id: dialogId });
 
   const handleReaction = propHandleReaction ?? contextHandleReaction;
@@ -169,10 +164,7 @@ export const ReactionSelector: ReactionSelectorInterface = (props) => {
   );
 };
 
-ReactionSelector.getDialogId = ({ messageId, threadList }) => {
-  const dialogIdNamespace = threadList ? '-thread' : '';
-  return `reaction-selector${dialogIdNamespace}-${messageId}`;
-};
+ReactionSelector.getDialogId = ({ messageId }) => `reaction-selector-${messageId}`;
 
 ReactionSelector.displayName = 'ReactionSelector';
 

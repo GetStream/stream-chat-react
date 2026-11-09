@@ -3,6 +3,7 @@ import { cleanup, render } from '@testing-library/react';
 import { fromPartial } from '@total-typescript/shoehorn';
 
 import { Message } from '../Message';
+import { MessageUI } from '../MessageUI';
 
 import { Channel } from '../../Channel';
 import { Chat } from '../../Chat';
@@ -150,29 +151,34 @@ async function renderComponent({
 
   lastChannel = channel;
 
-  return renderer(
+  // Built once, so a rerender changes only the message props and exercises the memo bail-out.
+  const overrides = {
+    MessageUI: () => <CustomMessageUIComponent contextCallback={contextCallback} />,
+    reactionOptions: defaultReactionOptions,
+    ...components,
+  };
+  const renderTree = (messageProps: typeof props) => (
     <Chat client={client}>
       <Channel channel={channel}>
-        <WithComponents
-          overrides={{
-            MessageUI: () => (
-              <CustomMessageUIComponent contextCallback={contextCallback} />
-            ),
-            reactionOptions: defaultReactionOptions,
-            ...components,
-          }}
-        >
+        <WithComponents overrides={overrides}>
           <Message
             message={message}
             onMentionsClick={channelActionOpts.onMentionsClick as any}
             onMentionsHover={channelActionOpts.onMentionsHover as any}
             openThread={channelActionOpts.openThread as any}
-            {...props}
+            {...messageProps}
           />
         </WithComponents>
       </Channel>
-    </Chat>,
+    </Chat>
   );
+
+  const result = renderer(renderTree(props));
+  return {
+    ...result,
+    rerenderWithProps: (nextProps: typeof props) =>
+      result.rerender(renderTree(nextProps)),
+  };
 }
 
 function renderComponentWithMessage(
@@ -278,12 +284,27 @@ describe('<Message /> component', () => {
       message,
     });
 
-    const ingestSpy = vi.spyOn(lastChannel.messagePaginator, 'ingestItem');
-    sendReaction.mockImplementationOnce(() => Promise.reject());
+    lastChannel.messagePaginator.ingestItem({ ...message, cid: lastChannel.cid });
+    let rejectRequest: () => void = () => undefined;
+    sendReaction.mockImplementationOnce(
+      () => new Promise((_, reject) => (rejectRequest = reject)),
+    );
 
-    await context.handleReaction(reaction.type);
-    // On failure the optimistic update is reverted by re-ingesting the original message.
-    expect(ingestSpy).toHaveBeenCalledWith(expect.objectContaining({ id: message.id }));
+    const pending = context.handleReaction(reaction.type);
+    expect(
+      lastChannel.getClient().messageStore.get(message.id)?.own_reactions,
+    ).toHaveLength(1);
+    rejectRequest();
+    await pending;
+    expect(sendReaction).toHaveBeenCalledWith(
+      { id: message.id },
+      expect.objectContaining({
+        reaction: expect.objectContaining({ type: reaction.type }),
+      }),
+    );
+    expect(lastChannel.getClient().messageStore.get(message.id)?.own_reactions).toEqual(
+      [],
+    );
   });
 
   it('should update message after an action', async () => {
@@ -360,6 +381,24 @@ describe('<Message /> component', () => {
     });
   });
 
+  it('does not reject when a retry fails again', async () => {
+    const message = generateMessage();
+    let context: MessageContextValue;
+
+    await renderComponent({
+      contextCallback: (ctx) => {
+        context = ctx;
+      },
+      message,
+    });
+
+    vi.spyOn(lastChannel.messageOperations, 'retry').mockRejectedValue(
+      new Error('still failing'),
+    );
+
+    await expect(context.handleRetry(message)).resolves.toBeUndefined();
+  });
+
   it('should trigger channel mentions handler when there is one set and user clicks on a mention', async () => {
     const message = generateMessage({ mentioned_users: [bob] });
     const onMentionsClick = vi.fn(() => {});
@@ -373,12 +412,8 @@ describe('<Message /> component', () => {
       message,
     });
 
-    context.onMentionsClickMessage(mouseEventMock);
-    expect(onMentionsClick).toHaveBeenCalledWith(
-      mouseEventMock,
-      message.mentioned_users,
-      message,
-    );
+    context.onMentionsClickMessage?.(mouseEventMock);
+    expect(onMentionsClick).toHaveBeenCalledWith(mouseEventMock, message);
   });
 
   it('should trigger channel mentions hover on mentions hover', async () => {
@@ -394,12 +429,55 @@ describe('<Message /> component', () => {
       message,
     });
 
-    context.onMentionsHoverMessage(mouseEventMock);
-    expect(onMentionsHover).toHaveBeenCalledWith(
-      mouseEventMock,
-      message.mentioned_users,
+    context.onMentionsHoverMessage?.(mouseEventMock);
+    expect(onMentionsHover).toHaveBeenCalledWith(mouseEventMock, message);
+  });
+
+  it('should leave the mention handlers undefined when none is set', async () => {
+    const message = generateMessage({ mentioned_users: [bob] });
+    let context: MessageContextValue;
+
+    await renderComponent({
+      contextCallback: (ctx) => {
+        context = ctx;
+      },
       message,
-    );
+    });
+
+    expect(context.onMentionsClickMessage).toBeUndefined();
+    expect(context.onMentionsHoverMessage).toBeUndefined();
+  });
+
+  it('should provide showAvatar and its later changes in the message context', async () => {
+    const message = generateMessage({ user: alice });
+    let context: MessageContextValue;
+
+    const { rerenderWithProps } = await renderComponent({
+      contextCallback: (ctx) => {
+        context = ctx;
+      },
+      message,
+      props: { showAvatar: 'incoming' },
+    });
+    expect(context.showAvatar).toBe('incoming');
+
+    rerenderWithProps({ showAvatar: false });
+    expect(context.showAvatar).toBe(false);
+  });
+
+  it('should update the default MessageUI avatar class when showAvatar changes', async () => {
+    const message = generateMessage({ user: bob });
+
+    const { container, rerenderWithProps } = await renderComponent({
+      components: { MessageUI },
+      message,
+      props: { showAvatar: 'incoming' },
+    });
+    const messageElement = () => container.querySelector('.str-chat__message');
+    expect(messageElement()).toHaveClass('str-chat__message--with-avatar');
+
+    rerenderWithProps({ showAvatar: false });
+    expect(messageElement()).not.toHaveClass('str-chat__message--with-avatar');
   });
 
   it('should trigger channel onUserClick handler when a user element is clicked', async () => {
@@ -418,6 +496,39 @@ describe('<Message /> component', () => {
     context.onUserClick(mouseEventMock);
     expect(onUserClickMock).toHaveBeenCalledWith(mouseEventMock, message.user);
   });
+
+  it.each([
+    ['onUserClick', 'onUserClick', 'user'],
+    ['onUserHover', 'onUserHover', 'user'],
+    ['onMentionsClick', 'onMentionsClickMessage', 'message'],
+    ['onMentionsHover', 'onMentionsHoverMessage', 'message'],
+  ] as const)(
+    'should call the latest %s after the handler is swapped',
+    async (propName, contextName, secondArgument) => {
+      const message = generateMessage({ mentioned_users: [bob], user: bob });
+      const firstHandler = vi.fn();
+      const nextHandler = vi.fn();
+      let context: MessageContextValue;
+
+      const { rerenderWithProps } = await renderComponent({
+        contextCallback: (ctx) => {
+          context = ctx;
+        },
+        message,
+        props: { [propName]: firstHandler },
+      });
+      const handlerBeforeSwap = context[contextName];
+
+      rerenderWithProps({ [propName]: nextHandler });
+      handlerBeforeSwap?.(mouseEventMock);
+
+      expect(firstHandler).not.toHaveBeenCalled();
+      expect(nextHandler).toHaveBeenCalledWith(
+        mouseEventMock,
+        secondArgument === 'user' ? message.user : message,
+      );
+    },
+  );
 
   it('should trigger channel onUserHover handler when a user element is hovered', async () => {
     const message = generateMessage({ user: bob });

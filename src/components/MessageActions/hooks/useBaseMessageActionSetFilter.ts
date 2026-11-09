@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 
 import { useChannel, useMessageContext } from '../../../context';
-import { useUserRole } from '../../Message/hooks';
+import { useIsRenderedAsThreadParent, useMessagePermissions } from '../../Message/hooks';
 import {
   ACTIONS_NOT_WORKING_IN_THREAD,
   isMessageBounced,
@@ -29,15 +29,16 @@ const userMessageRemindersStateSelector = ({ userMessageReminders }: ChannelConf
  * @param messageActionSet - Actions to filter.
  * @param disable - Skips the checks above when true, leaving only each action's `isVisible`.
  * Defaults to false.
- * @returns The actions that apply to the message, none for bounced, initial, system, ephemeral,
- * sending or typeless messages.
+ * @returns The actions that apply to the message, none for bounced, system, ephemeral, sending or
+ * typeless messages, or for the parent message of the thread it is rendered in.
  */
 export const useBaseMessageActionSetFilter = (
   messageActionSet: MessageActionSetItem[],
   disable = false,
 ) => {
   const channel = useChannel();
-  const { initialMessage: isInitialMessage, message } = useMessageContext();
+  const { message } = useMessageContext();
+  const isThreadParent = useIsRenderedAsThreadParent();
   const { userMessageRemindersEnabled } = useStateStore(
     channel.configState,
     userMessageRemindersStateSelector,
@@ -50,12 +51,13 @@ export const useBaseMessageActionSetFilter = (
     canFlag,
     canMarkUnread,
     canMute,
+    canPin,
     canQuote,
     canReact,
     canReply,
     canSendMessage,
     isMyMessage,
-  } = useUserRole(message);
+  } = useMessagePermissions(message);
   const isMessageThreadReply = typeof message.parent_id === 'string';
   const isBounced = isMessageBounced(message);
   const allowRetry = isMessageErrorRetryable(message);
@@ -77,7 +79,7 @@ export const useBaseMessageActionSetFilter = (
     // These messages get no actions.
     if (
       isBounced ||
-      isInitialMessage || // the thread parent that `ThreadHead` renders above the replies
+      isThreadParent ||
       !message.type ||
       message.type === 'system' ||
       message.type === 'ephemeral' ||
@@ -113,6 +115,7 @@ export const useBaseMessageActionSetFilter = (
         (type === 'flag' && !canFlag) ||
         (type === 'markUnread' && !canMarkUnread) ||
         (type === 'mute' && !canMute) ||
+        (type === 'pin' && !canPin) ||
         (type === 'quote' && !canQuote) ||
         (type === 'react' && !canReact) ||
         (type === 'reply' && !canReply) ||
@@ -133,13 +136,14 @@ export const useBaseMessageActionSetFilter = (
     canFlag,
     canMarkUnread,
     canMute,
+    canPin,
     canQuote,
     canReact,
     canReply,
     canSendMessage,
     userMessageRemindersEnabled,
     isBounced,
-    isInitialMessage,
+    isThreadParent,
     messageIsDeleted,
     isMessageThreadReply,
     isMyMessage,

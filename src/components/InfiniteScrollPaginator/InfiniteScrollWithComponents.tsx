@@ -12,6 +12,11 @@ type PaginatorLike<TItem> = {
   hasMoreHead: boolean;
   hasMoreTail: boolean;
   state: StateStore<PaginatorState<TItem>>;
+  /**
+   * The item's identity in the paginator, used as the React key. Needed where `id` is not unique: a
+   * channel's `id` is unique only within its type, so a channel paginator keys by `cid`.
+   */
+  getItemId?: (item: TItem) => string;
 };
 
 export type InfiniteScrollWithComponentsProps<TItem extends { id?: string }> =
@@ -71,7 +76,7 @@ export const InfiniteScrollWithComponents = forwardRef(
         <EndReachedIndicator hasEnded={topEndReached} reached='top' />
         <InfiniteScrollPaginator {...componentProps} ref={ref}>
           {items.map((item) => (
-            <ListItem item={item} key={item.id} />
+            <ListItem item={item} key={paginator.getItemId?.(item) ?? item.id} />
           ))}
           <LoadingNextPageIndicator isLoading={isLoading} />
         </InfiniteScrollPaginator>

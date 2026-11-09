@@ -1,6 +1,6 @@
 # React v15 Breaking Changes
 
-Last updated: 2026-10-17
+Last updated: 2026-11-05
 
 ## Scope
 
@@ -16,7 +16,8 @@ This file tracks confirmed v14 to v15 breaking changes in the public API of `str
 - Baseline: `release-v14` @ `a61c0c419` (`fix(Attachment): render giphy attachments in their own group with uni… (#3325)`)
 - Branch point: `0fb5ac306` (`chore(release): 14.12.0`)
 - Audited head: `master` @ `557ffcb3c` (`feat!: pass the stream-chat configuration tree through useCreateChatClient (#3321)`), resolved against `stream-chat@10.0.0-rc.22`
-- Future mining starting point: diff `557ffcb3c..HEAD` first, then re-run the surface diff below against `release-v14` and resolve every new gated change.
+- Staleness pass: `0100d98ce..1c02ba07f` (2026-11-03), checked commit by commit for public API and default-behavior changes; findings are BC-079 to BC-084 under [Later changes](#later-changes-0100d98ce1c02ba07f).
+- Future mining starting point: diff `1c02ba07f..HEAD` first, then re-run the surface diff below against `release-v14` and resolve every new gated change.
 
 Evidence was gathered four ways, and each confirmed entry rests on at least one of them:
 
@@ -63,7 +64,7 @@ yarn api-surface check --doc ai-docs/v15-breaking-changes.md --diff diff.json
 
 ## Index
 
-77 entries.
+106 entries.
 
 | ID                | Title                                                                                                                                                                                                                         | Group                                                |
 | ----------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------- |
@@ -131,7 +132,7 @@ yarn api-surface check --doc ai-docs/v15-breaking-changes.md --diff diff.json
 | [BC-062](#bc-062) | `handleSubmit` was removed from `MessageComposerContext` and `useMessageComposerBindings`; submit with `useMessageComposerSubmitFn()` or `messageComposer.send()` / `update()`                                                | Message composer                                     |
 | [BC-063](#bc-063) | a failed send or edit no longer restores the composer                                                                                                                                                                         | Message composer                                     |
 | [BC-064](#bc-064) | `useAttachmentManagerState().hasCustomDoUploadRequest` was replaced by `customCdn`                                                                                                                                            | Message composer                                     |
-| [BC-065](#bc-065) | `AttachmentSelector` actions follow the composer's resolved configuration, and `customCdn` decides whether upload permission applies                                                                                          | Message composer                                     |
+| [BC-065](#bc-065) | `AttachmentSelector` and `SimpleAttachmentSelector` follow the composer's resolved configuration, and `customCdn` decides whether upload permission applies                                                                   | Message composer                                     |
 | [BC-066](#bc-066) | `getAttachmentPreviewUrl`, `hasPendingUploadState` and `isUploadConfirmationPending` moved to `stream-chat`                                                                                                                   | Message composer                                     |
 | [BC-067](#bc-067) | English-only bundle and namespaced keys. Built-in dictionaries, `isLanguageSupported` and `SupportedTranslations` are removed                                                                                                 | i18n                                                 |
 | [BC-068](#bc-068) | `t` from `useTranslationContext()` is strictly typed. `t('English text')` and `t(someString)` no longer compile                                                                                                               | i18n                                                 |
@@ -144,8 +145,39 @@ yarn api-surface check --doc ai-docs/v15-breaking-changes.md --diff diff.json
 | [BC-075](#bc-075) | CSS, ChatView: `str-chat__chat-view__channels` / `__threads` render only in `views` mode                                                                                                                                      | CSS and markup                                       |
 | [BC-076](#bc-076) | CSS, Thread: `str-chat__thread--virtualized` is no longer applied                                                                                                                                                             | CSS and markup                                       |
 | [BC-077](#bc-077) | quote and edit previews set their text colour from the matching bubble token                                                                                                                                                  | CSS and markup                                       |
+| [BC-078](#bc-078) | `CustomCommandData` augmentation and `DefaultCommandData` are removed; command names are `string`                                                                                                                             | Types that follow stream-chat v10 (umbrella entries) |
+| [BC-079](#bc-079) | `useUserRole(message).canEdit` is the update permission alone                                                                                                                                                                 | Messages and message lists                           |
+| [BC-080](#bc-080) | the message-specific rules of `edit`, `copyMessageText` and `download` moved onto `defaultMessageActionSet` items as `isVisible`                                                                                              | Messages and message lists                           |
+| [BC-081](#bc-081) | the quoted message renders above a poll; poll messages get `str-chat__message--has-poll` and never `--has-single-attachment`                                                                                                  | Messages and message lists                           |
+| [BC-082](#bc-082) | custom `AttachmentPreviewList`, `VoiceRecordingPreviewSlot` and `LinkPreviewList` mount only while their preview item is visible                                                                                              | Message composer                                     |
+| [BC-083](#bc-083) | message action handlers reject when the request fails or when called without the message                                                                                                                                      | Messages and message lists                           |
+| [BC-084](#bc-084) | CSS, the first message of a channel list loses its `4.5rem` top padding                                                                                                                                                       | CSS and markup                                       |
+| [BC-085](#bc-085) | `MessageContext` grouping flags `endOfGroup` / `firstOfGroup` / `groupedByUser` and the `str-chat__virtual-message__wrapper--*` classes are removed                                                                           | Messages and message lists                           |
+| [BC-086](#bc-086) | message grouping: `groupByUser` replaces `noGroupByUser` / `shouldGroupByUser`; `getGroupStyles` replaces `groupStyles` and takes one object                                                                                  | Messages and message lists                           |
+| [BC-087](#bc-087) | `renderText` no longer takes a `mentionedUsers` argument; `RenderTextFunction` is `(text, options)`                                                                                                                           | Messages and message lists                           |
+| [BC-088](#bc-088) | the `mention` node passed to a custom mention renderer no longer carries `mentionedUser`                                                                                                                                      | Messages and message lists                           |
+| [BC-089](#bc-089) | `onMentionsClick` / `onMentionsHover` handlers receive `(event, message)`; the `mentioned_users` argument was removed                                                                                                         | Messages and message lists                           |
+| [BC-090](#bc-090) | `useUserRole` no longer returns `isAdmin`, `isModerator` or `isOwner`                                                                                                                                                         | Messages and message lists                           |
+| [BC-091](#bc-091) | `VirtualizedMessageList` props `defaultItemHeight`, `overscan` and `scrollSeekPlaceHolder` were removed                                                                                                                       | Messages and message lists                           |
+| [BC-092](#bc-092) | `useUserRole` was renamed to `useMessagePermissions`                                                                                                                                                                          | Messages and message lists                           |
+| [BC-093](#bc-093) | `MessageContextValue.onMentionsClickMessage` / `onMentionsHoverMessage` and `useMentionsHandler`'s handlers are `undefined` without a handler                                                                                 | Messages and message lists                           |
+| [BC-094](#bc-094) | `mentionsMarkdownPlugin` and `createMentionPluginAndDisplayTextSet` take mention entities only                                                                                                                                | Messages and message lists                           |
+| [BC-095](#bc-095) | `disableQuotedMessages` is removed from `MessageProps`, `MessageListProps` and `useMessagePermissions`                                                                                                                        | Messages and message lists                           |
+| [BC-097](#bc-097) | channel detail views render no close button outside a modal without `onClose`; `ChannelDetail` calls `onLayoutChange`                                                                                                         | Chat, ChatView and layout                            |
+| [BC-098](#bc-098) | the channel members header action set uses `Component`, `placement: 'dropdown'`, `isVisible` and a `quick-dropdown-toggle` item                                                                                               | Contexts and customization                           |
+| [BC-099](#bc-099) | `ComponentContext.HeaderEndContent` was removed; `ChannelListHeader` and `ThreadListHeader` take `StartContent` / `EndContent` props, rendered whenever set                                                                   | Headers, threads and search                          |
+| [BC-100](#bc-100) | `typing.twoUsers` takes the two names as `firstUser` and `secondUser` instead of one joined `typing` value                                                                                                                    | i18n                                                 |
+| [BC-101](#bc-101) | `Root`, `Header`, `UploadIcon`, `BinIcon`, `PauseIcon`, `PlayIcon` unexported; `@stream-io/transliterate` dropped; `CustomChannelData` typed for apps; `DefaultChannelData` holds only `name` and `image`                     | Package and runtime                                  |
+| [BC-102](#bc-102) | `initialMessage` is removed from `MessageProps` and `MessageContextValue`; `useIsRenderedAsThreadParent()` tells the thread's parent message apart                                                                            | Messages and message lists                           |
+| [BC-105](#bc-105) | `additionalMessageComposerProps` is removed from `MessageProps`, `MessageListProps` and `VirtualizedMessageListProps`                                                                                                         | Messages and message lists                           |
+| [BC-106](#bc-106) | `MessageReactions.reverse`, `MessageReactionsDetail.sort` and `MessageReactionsDetail.dialogId` are removed                                                                                                                   | Messages and message lists                           |
+| [BC-107](#bc-107) | `emojiSearchIndex` and `parent` are removed from `MessageComposer` and its context; `ComponentContext.emojiSearchIndex` is removed                                                                                            | Message composer                                     |
+| [BC-108](#bc-108) | `WithDragAndDropUpload.acceptedFiles` is removed                                                                                                                                                                              | Message composer                                     |
+| [BC-109](#bc-109) | `ComponentContext` slots are typed by the props they receive, and overrides apply where defaults were rendered                                                                                                                | Contexts and customization                           |
 
 ## Package and runtime
+
+<a id="bc-001"></a>
 
 ### BC-001: package: `stream-chat` peer is `^10`; `dayjs` / `i18next` are no longer dependencies; `@stream-io/i18n` and `@stream-io/state-store` are added and must resolve to one copy; new subpath exports
 
@@ -171,6 +203,8 @@ yarn api-surface check --doc ai-docs/v15-breaking-changes.md --diff diff.json
   - `01-basics/02-installation.md` (peer and dependency list), `04-guides/03-translations.md` (dayjs locale imports), `04-guides/07-sdk-state-management.md` (`StateStore` import)
 - Example needed: no
 
+<a id="bc-002"></a>
+
 ### BC-002: server timestamps are `TimestampNS` (branded unix-nanosecond number), not `Date`, in React types that carry response data
 
 - Status: confirmed
@@ -188,7 +222,7 @@ yarn api-surface check --doc ai-docs/v15-breaking-changes.md --diff diff.json
 - Replacement: compare and sort the raw numbers. Convert at the render boundary with `convertTimestampToDate(ts)` (returns `Date | undefined`; handle the `undefined`), or `nsToDate` / `nsToMs` for values known to be present. Mint values with `nowNs()`, `msToNs(ms)`, `dateToNs(date)`, `asTimestampNS(n)`. All are exported from `stream-chat`. Presentational props still take `Date`: `DateSeparator.date: Date`, `formatDate?: (date: Date) => string`, `Timestamp.timestamp?: Date | string`. Outgoing request fields (filter bounds, `remind_at`) stay `Date`.
 - Evidence:
   - `release-v14:src/components/MessageList/utils.ts:34` `lastRead?: Date | null`, `:205` `insertIntro(…, headerPosition?: number)`, `:360` `lastReadDate?: Date`; `release-v14:src/components/MessageList/MessageList.tsx:529` `headerPosition?: number`; `release-v14:src/components/MessageList/VirtualizedMessageList.tsx:134` `lastReadDate?: Date`
-  - `master:src/components/MessageList/utils.ts:47` `lastRead?: TimestampNS | null`, `:223` `headerPosition?: TimestampNS`; `master:src/components/MessageList/MessageList.tsx:474` `headerPosition?: TimestampNS`; `master:src/components/MessageList/VirtualizedMessageList.tsx:135` `lastReadDate: TimestampNS | null`
+  - `master:src/components/MessageList/utils.ts:45` `lastRead?: TimestampNS | null`, `:223` `headerPosition?: TimestampNS`; `master:src/components/MessageList/MessageList.tsx:449` `headerPosition?: TimestampNS`; `master:src/components/MessageList/VirtualizedMessageList.tsx:130` `lastReadDate: TimestampNS | null`
   - `master:src/components/DateSeparator/DateSeparator.tsx:13,17` `date: Date`, `formatDate?: (date: Date) => string`; `master:src/components/Message/Timestamp.tsx:12` `timestamp?: Date | string`
   - `stream-chat@10.0.0-rc.22` `dist/types/utils/time.d.ts:39-85` `asTimestampNS`, `nsToMs`, `msToNs`, `nowNs`, `nsToDate`, `dateToNs`, `convertTimestampToDate`; re-exported at `dist/types/index.d.ts:42`
   - commits: `cb472c35f feat!: move to timestamps in response models` (PR #3278); `aaa7fa31e feat!: adopt stream-chat's branded TimestampNS` (PR #3297)
@@ -222,7 +256,80 @@ export const DayDivider = ({ message }: { message: LocalMessage }) => {
 };
 ```
 
+<a id="bc-101"></a>
+
+### BC-101: `Root`, `Header`, `UploadIcon`, `BinIcon`, `PauseIcon` and `PlayIcon` are no longer exported; `@stream-io/transliterate` is no longer a dependency; `CustomChannelData` is typed for apps and `DefaultChannelData` holds only `name` and `image`
+
+- Status: confirmed
+- Area: package / exports / types
+- User impact:
+  - compile error (`TS2305`) on importing `Root` or `Header` from `stream-chat-react`, and `undefined` in plain JS. They are the parts of `Alert`, exported under generic names; `Alert.Root`, `Alert.Header` and `Alert.Actions` are unchanged.
+  - compile error (`TS2305`) on importing `UploadIcon`, `BinIcon`, `PauseIcon` or `PlayIcon`. No SDK component rendered them in v14 or v15.
+  - install: `@stream-io/transliterate` is no longer installed with this package. No SDK code imported it in v14 or v15; an app that imports it without declaring it gets a module-not-found error.
+  - types: `channel.data.custom.name` and `.image` are typed `string | undefined` in every app that imports `stream-chat-react`. v14 and earlier v15 release candidates declared the merge of `DefaultChannelData` into `CustomChannelData` in a file `tsc` did not emit, so apps saw `CustomChannelData` without those fields. An app that augments `CustomChannelData` with `name` or `image` under another type gets no error with `skipLibCheck: true` (its own type wins), and `TS2430` inside `stream-chat`'s `custom_types.d.ts` without it.
+  - types: `DefaultChannelData` loses `subtitle` and `team`. No SDK code read them; `team` is a top-level channel field in `stream-chat` v10 (`channel.data.team`), not custom data. Code that reads `DefaultChannelData['team']`, or relies on `extends DefaultChannelData` to type `custom.subtitle` / `custom.team`, gets `TS2339`.
+- Old API:
+  - `Root`, `Header` (`src/components/Dialog/components/Alert.tsx`), re-exported from the package root through `Dialog/components/index.ts`
+  - `UploadIcon`, `BinIcon`, `PauseIcon`, `PlayIcon` (`src/components/MessageComposer/icons.tsx`), re-exported through `MessageComposer/index.ts`
+  - `optionalDependencies['@stream-io/transliterate']: ^1.5.5`
+  - `DefaultChannelData`: `image`, `name`, `subtitle`, `team` (all `string | undefined`)
+  - `src/@types/stream-chat-custom-data.d.ts`, a declaration-only file that `tsc` never copies to `dist/types`
+- Replacement:
+  - `Root` / `Header`: `Alert.Root` / `Alert.Header`, the same components.
+  - The icons: copy the SVG into the app, or use the v15 icon set: `IconPlus` or `IconAttachment` for `UploadIcon`, `IconDelete` for `BinIcon`, `IconPauseFill` for `PauseIcon`, `IconPlayFill` for `PlayIcon`. They follow the v15 design, not the v14 shapes, and take `BaseIconProps`.
+  - `@stream-io/transliterate`: add it to the app's own dependencies if the app imports it. Mention search in `stream-chat` takes a `transliterate` function on its mentions middleware.
+  - `CustomChannelData`: delete an app's own `name?: string` / `image?: string` declarations, which are now redundant, and keep the augmentation for the app's other fields. Rename a field the app declares as `name` or `image` with another type. Declare `subtitle?: string` / `team?: string` on `CustomChannelData` if the app stores them under `custom`; read the channel's team from `channel.data.team`.
+- Evidence:
+  - `release-v14:src/components/Dialog/components/Alert.tsx:6`, `:25` `export const Root` / `export const Header`; `master:src/components/Dialog/components/Alert.tsx` declares both without `export` and exports them as `Alert.Root` / `Alert.Header`, like `Prompt` and `Viewer`
+  - `release-v14:src/components/MessageComposer/icons.tsx:3`, `:30`, `:36`, `:47`; `release-v14:src/components/MessageComposer/index.ts:19` `export * from './icons'`; no other reference in `src` or `examples` on either branch
+  - `release-v14:package.json:122` `"@stream-io/transliterate": "^1.5.5"`; no import in `src` on either branch
+  - `release-v14:src/@types/stream-chat-custom-data.d.ts:19` `interface CustomChannelData extends DefaultChannelData {}`; `release-v14:tsconfig.lib.json` emits declarations from `.ts` sources only, so `dist/types/@types` does not exist. `master:src/types/defaultDataInterfaces.ts` declares `DefaultChannelData` with `image` and `name` only, declares the merge and ships as `dist/types/types/defaultDataInterfaces.d.ts`, re-exported from `dist/types/index.d.ts`
+  - commit: REACT-1306
+- Docs impact:
+  - `02-state/01-state-and-entities/06-data-conventions.md` (the `CustomChannelData` augmentation sample), `08-release-guides/01-upgrade-to-v15.md`
+- Example needed: yes
+
+Before (v14):
+
+```tsx
+import { Header, Root } from 'stream-chat-react';
+
+declare module 'stream-chat' {
+  interface CustomChannelData {
+    image?: string;
+    name?: string;
+    priority?: number;
+  }
+}
+
+export const DeleteWarning = () => (
+  <Root>
+    <Header title='Delete channel?' />
+  </Root>
+);
+```
+
+After (v15):
+
+```tsx
+import { Alert } from 'stream-chat-react';
+
+declare module 'stream-chat' {
+  interface CustomChannelData {
+    priority?: number;
+  }
+}
+
+export const DeleteWarning = () => (
+  <Alert.Root>
+    <Alert.Header title='Delete channel?' />
+  </Alert.Root>
+);
+```
+
 ## Contexts and customization
+
+<a id="bc-003"></a>
 
 ### BC-003: `ChannelStateContext` / `ChannelActionContext` and their hooks, providers and types are removed
 
@@ -254,21 +361,21 @@ export const DayDivider = ({ message }: { message: LocalMessage }) => {
   | `notifications`                                                                                                | none. Notifications go through `client.notifications`.                                                                                                                                                                                                                                                  |
   | `suppressAutoscroll`, `threadSuppressAutoscroll`, `highlightedMessageId`, `loadingMoreForJumpToChannelMessage` | none (internal to the message lists)                                                                                                                                                                                                                                                                    |
 
-  | v14 (`useChannelActionContext`)                                              | v15                                                                                                                                             |
-  | ---------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
-  | `loadMore` (older) / `loadMoreNewer`                                         | `channel.messagePaginator.toTail()` / `.toHead()`. `MessageList` uses exactly these: `toTail` on scroll-to-top, `toHead` on scroll-to-bottom.   |
-  | `loadMoreThread`                                                             | `thread.messagePaginator.toTail()`                                                                                                              |
-  | `jumpToMessage(id)` / `jumpToLatestMessage()` / `jumpToFirstUnreadMessage()` | `channel.messagePaginator.jumpToMessage(id)` / `.jumpToTheLatestMessage()` / `.jumpToTheFirstUnreadMessage()`                                   |
-  | `sendMessage`                                                                | `messageComposer.send()` (or `useMessageComposerSubmitFn()`). Lower level: `channel.messageOperations.send({ localMessage, message, options })` |
-  | `retrySendMessage` / `RetrySendMessage`                                      | `channel.messageOperations.retry({ localMessage })`, or `handleRetry` from `useMessageContext()`                                                |
-  | `editMessage`                                                                | `messageComposer.update()` or `channel.messageOperations.update({ localMessage, options })`                                                     |
-  | `deleteMessage`                                                              | `channel.messageOperations.delete({ localMessage, options })`, or `handleDelete` from `useMessageContext()`                                     |
-  | `updateMessage` / `removeMessage` (local-only list writes)                   | `channel.messagePaginator.ingestItem(message)` / `.removeItem({ id })`. Normally unnecessary: the LLC applies WS events itself.                 |
-  | `markRead` / `MarkReadWrapperOptions`                                        | `channel.markRead()`. The unread UI snapshot is separate state on the paginator; there is no `updateChannelUiUnreadState` option.               |
-  | `setChannelUnreadUiState`                                                    | `channel.messagePaginator.setUnreadSnapshot(partial)`                                                                                           |
-  | `openThread` / `closeThread`                                                 | `useWorkspaceNavigation().openThread({ channel, message })` / `.closeThread(threadId)`. Inside a thread, `useCloseThread()`.                    |
-  | `onMentionsClick` / `onMentionsHover`                                        | the `onMentionsClick` / `onMentionsHover` props on `MessageList` / `Message`                                                                    |
-  | `dispatch`                                                                   | none, removed (there is no React reducer)                                                                                                       |
+  | v14 (`useChannelActionContext`)                                              | v15                                                                                                                                                                                                                                                    |
+  | ---------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+  | `loadMore` (older) / `loadMoreNewer`                                         | `channel.messagePaginator.toTail()` / `.toHead()`. `MessageList` uses exactly these: `toTail` on scroll-to-top, `toHead` on scroll-to-bottom.                                                                                                          |
+  | `loadMoreThread`                                                             | `thread.messagePaginator.toTail()`                                                                                                                                                                                                                     |
+  | `jumpToMessage(id)` / `jumpToLatestMessage()` / `jumpToFirstUnreadMessage()` | `channel.messagePaginator.jumpToMessage(id)` / `.jumpToTheLatestMessage()` / `.jumpToTheFirstUnreadMessage()`                                                                                                                                          |
+  | `sendMessage`                                                                | `messageComposer.send()` (or `useMessageComposerSubmitFn()`). Lower level: `channel.messageOperations.send({ localMessage, message, options })`                                                                                                        |
+  | `retrySendMessage` / `RetrySendMessage`                                      | `channel.messageOperations.retry({ localMessage })`, or `handleRetry` from `useMessageContext()`                                                                                                                                                       |
+  | `editMessage`                                                                | `messageComposer.update()` or `channel.messageOperations.update({ localMessage, options })`                                                                                                                                                            |
+  | `deleteMessage`                                                              | `channel.messageOperations.delete({ localMessage, options })`, or `handleDelete` from `useMessageContext()`                                                                                                                                            |
+  | `updateMessage` / `removeMessage` (local-only list writes)                   | `channel.messagePaginator.ingestItem(message)` / `.removeItem({ id })`. Normally unnecessary: the LLC applies WS events itself.                                                                                                                        |
+  | `markRead` / `MarkReadWrapperOptions`                                        | `channel.markReadViaReporter()` (`channel.markRead()` is now the direct request: it skips the reporter and the `markReadRequest` handler). The unread UI snapshot is separate state on the paginator; there is no `updateChannelUiUnreadState` option. |
+  | `setChannelUnreadUiState`                                                    | `channel.messagePaginator.setUnreadSnapshot(partial)`                                                                                                                                                                                                  |
+  | `openThread` / `closeThread`                                                 | `useWorkspaceNavigation().openThread({ channel, message })` / `.closeThread(threadId)`. Inside a thread, `useCloseThread()`.                                                                                                                           |
+  | `onMentionsClick` / `onMentionsHover`                                        | the `onMentionsClick` / `onMentionsHover` props on `MessageList` / `VirtualizedMessageList` / `Message`                                                                                                                                                |
+  | `dispatch`                                                                   | none, removed (there is no React reducer)                                                                                                                                                                                                              |
 
   Custom send/update/delete/markRead request overrides are registered on `client.config` (see "Per-component request-handler props removed" in `ai-migration-v14-v15.md`).
 
@@ -280,7 +387,7 @@ export const DayDivider = ({ message }: { message: LocalMessage }) => {
   - `master:src/context/ChannelInstanceContext.tsx:28` `useChannelInstanceContext(): Partial<ChannelInstanceContextValue>`
   - `master:src/context/AttachmentContext.tsx:19-24,40` `AttachmentContextValue` { `giphyVersion`, `imageAttachmentSizeHandler`, `shouldGenerateVideoThumbnail`, `videoAttachmentSizeHandler` }, `useAttachmentContext`
   - `master:src/components/Channel/hooks/useChannelCapabilities.ts:10` `useChannelCapabilities({ cid })`
-  - `master:src/components/MessageList/MessageList.tsx:243` older page via `messagePaginator.toTail()`; `:388` newer via `messagePaginator.toHead`
+  - `master:src/components/MessageList/MessageList.tsx:238` older page via `messagePaginator.toTail()`; `:372` newer via `messagePaginator.toHead`
   - `master:src/components/Message/hooks/useRetryHandler.ts:16` `(thread ?? channel).messageOperations.retry(params)`; `master:src/components/Message/hooks/useDeleteHandler.ts:36` `entity.messageOperations.delete(...)`
   - `master:src/components/Threads/hooks/useCloseThread.ts:14`; `master:src/context/WorkspaceNavigationContext.tsx:102,136` `closeThread`, `openThread`
   - `stream-chat@10.0.0-rc.22` `dist/types/pagination/paginators/BasePaginator.d.ts:505-516` `hasMoreTail` / `hasMoreHead` (the `hasNext` / `hasPrev` aliases are `@deprecated`), `:1154-1163` `toTail` / `toHead` (`next` / `prev` are `@deprecated`); `MessageIntervalPaginator.d.ts:279-280`, `MessagePaginator.d.ts:144,148,199,200`
@@ -342,6 +449,8 @@ export const LoadOlder = () => {
 };
 ```
 
+<a id="bc-004"></a>
+
 ### BC-004: `TypingContext`, `TypingProvider` and `useTypingContext` are removed
 
 - Status: confirmed
@@ -391,6 +500,8 @@ export const TypingCount = () => {
 };
 ```
 
+<a id="bc-005"></a>
+
 ### BC-005: `ComponentContext` slots `Message`, `ThreadHeader`, `HeaderStartContent` and `ChannelListUI` are removed
 
 - Status: confirmed
@@ -404,11 +515,11 @@ export const TypingCount = () => {
 - Replacement:
   - `Message` -> the `MessageUI` slot. `VirtualMessage` still overrides inside `VirtualizedMessageList` only. The `Message` _props_ on the lists and `Thread` belong to the message area's entry.
   - `ThreadHeader` -> render `<ThreadHeader />` (or your own header) as a child of `<Thread thread={thread}>`. `Thread` renders children and no header of its own.
-  - `HeaderStartContent` -> the `StartContent` prop on `ChannelHeader` / `ThreadHeader`, which defaults to `WorkspaceNavigationBackButton`. `EndContent` defaults to `WorkspaceNavigationCloseButton`. `HeaderEndContent` stays on `ComponentContext` for the list headers.
-  - `ChannelListUI` -> no wrapper slot. `ChannelList` renders an `InfiniteScrollPaginator` and reads the new slots `EmptyListIndicator`, `EndReachedIndicator`, `FirstPageLoadingIndicator`, `ListItem` and `LoadingNextPageIndicator` from `ComponentContext`. Only `ChannelList` reads them today.
+  - `HeaderStartContent` -> the `StartContent` prop on `ChannelHeader` / `ThreadHeader`, which defaults to `WorkspaceNavigationBackButton`. `EndContent` defaults to `WorkspaceNavigationCloseButton`. `HeaderEndContent` -> the `EndContent` prop on `ChannelListHeader` / `ThreadListHeader` (BC-099).
+  - `ChannelListUI` -> no wrapper slot. `ChannelList` renders an `InfiniteScrollPaginator` and reads the new slots `EmptyListIndicator`, `EndReachedIndicator`, `FirstPageLoadingIndicator`, `ListItem` and `LoadingNextPageIndicator` from `ComponentContext`. `ThreadList` reads `FirstPageLoadingIndicator` too, and both read the new `ListLoadErrorIndicator`; only `ChannelList` reads the others today.
 - Evidence:
   - `release-v14:src/context/ComponentContext.tsx:129` `ChannelListUI?`, `:179` `Message?` (`@deprecated use MessageUI`), `:288` `ThreadHeader?`, `:305` `HeaderStartContent?`
-  - `master:src/context/ComponentContext.tsx` none of the four; `:187` `MessageUI?`, `:294` `ThreadHead?`, `:309` `HeaderEndContent?`, `:317` `VirtualMessage?`, `:88-102` the new list slots
+  - `master:src/context/ComponentContext.tsx` none of the four; `:187` `MessageUI?`, `:294` `ThreadHead?`, `:317` `VirtualMessage?`, `:88-102` the new list slots
   - `master:src/components/ChannelHeader/ChannelHeader.tsx:58,64,77,79` and `master:src/components/Thread/ThreadHeader.tsx:85,91,97,99` `StartContent` / `EndContent` props with the workspace-navigation defaults
   - `master:src/components/Thread/Thread.tsx:41-56` JSDoc: `<Thread thread={thread}><ThreadHeader />…</Thread>`
   - `master:src/components/ChannelList/ChannelList.tsx:48-54` reads `EmptyListIndicator`, `EndReachedIndicator`, `FirstPageLoadingIndicator`, `ListItem`, `LoadingNextPageIndicator` from `useComponentContext()`
@@ -487,6 +598,8 @@ export const Layout = ({
 );
 ```
 
+<a id="bc-006"></a>
+
 ### BC-006: context hooks no longer accept a `componentName` argument
 
 - Status: confirmed
@@ -529,6 +642,8 @@ export const CustomEmojiPicker = () => {
 };
 ```
 
+<a id="bc-007"></a>
+
 ### BC-007: required context hooks throw outside their provider
 
 - Status: confirmed
@@ -549,6 +664,8 @@ export const CustomEmojiPicker = () => {
   - `02-ui-components/03-chat/02-chat_context.md`, `02-ui-components/08-message/02-message_context.md`, `02-ui-components/09-message-composer/02-message_composer_context.md`
   - any cookbook page whose custom component is shown mounted outside its provider (not enumerable by grep)
 - Example needed: no
+
+<a id="bc-008"></a>
 
 ### BC-008: `useMessageComposerContext` takes no argument and throws outside its provider
 
@@ -573,6 +690,8 @@ export const CustomEmojiPicker = () => {
   - `03-ui-cookbook/07-emoji_picker.md` (line 76, `useMessageComposerContext("CustomEmojiPicker")`)
 - Example needed: no (one-line change; the guide's "Context hooks" section already shows it)
 
+<a id="bc-009"></a>
+
 ### BC-009: `ChannelUnreadUiState` type is removed
 
 - Status: confirmed
@@ -585,13 +704,169 @@ export const CustomEmojiPicker = () => {
   - `release-v14:src/types/types.ts:54` `export type ChannelUnreadUiState = Omit<ValuesType<StreamChannelState['read']>, 'user'>`; `release-v14:src/types/index.ts:1`
   - `master:src/types/index.ts:1` and `master:src/types/types.ts:34`: both commented out
   - `stream-chat@10.0.0-rc.22` `dist/types/pagination/paginators/MessagePaginator.d.ts:49-55` `UnreadSnapshotState`, `:87` `unreadStateSnapshot: StateStore<UnreadSnapshotState>`, `:200` `setUnreadSnapshot`
-  - `master:src/components/MessageList/MessageList.tsx:136` reads `messagePaginator.unreadStateSnapshot`
+  - `master:src/components/MessageList/MessageList.tsx:146` reads `messagePaginator.unreadStateSnapshot`
   - commit: `99cbe6704` (PR #3237)
 - Docs impact:
   - `02-ui-components/04-channel/01-channel.md`, `02-ui-components/04-channel/04-channel_state_context.md`, `04-guides/05-channel_read_state.md`
 - Example needed: no
 
+<a id="bc-098"></a>
+
+### BC-098: the channel members header action set uses `Component`, `placement: 'dropdown'`, `isVisible` and a `quick-dropdown-toggle` item
+
+- Status: confirmed
+- Area: channel detail (`stream-chat-react/channel-detail`)
+- User impact: compile error on a custom `headerActionSet` item with `component`, `filter` or `placement: 'menu'`, on `HeaderActionsMenuTrigger`, and on imports of `DefaultHeaderActionsMenuTrigger` or `ChannelMembersHeaderActionsMenuTriggerProps`. `ChannelMembersHeaderActionItem` is a union whose `quick-dropdown-toggle` member has no `type` or `isVisible`, so reading `item.type` or `item.isVisible` on an unnarrowed item fails to compile, and a `switch` over `ChannelMembersHeaderActionPlacement` gets a new `'quick-dropdown-toggle'` case. In untyped code a `menu` item is skipped (`DefaultHeaderActions` renders only the `quick` and `dropdown` placements), an item's `filter` is ignored, so an app-defined action it hid shows to every user, a `quick` item that still sets `component` instead of `Component` crashes the members view (`Element type is invalid … got: undefined`), and a `HeaderActionsMenuTrigger` prop is ignored. A dropdown item that calls the `closeMenu` prop throws `TypeError: closeMenu is not a function` (or leaves the menu open with `closeMenu?.()`). A set without a `quick-dropdown-toggle` item renders no menu at all, whatever its `dropdown` items. Dropdown items must render inside a `ContextMenu` (`useContextMenuContext()` throws outside one), so a custom `HeaderActions` renders the set's `quick-dropdown-toggle` item (passing it the ref the menu anchors to, `aria-expanded` and an `onClick` that toggles the menu) and its `dropdown` items in a `ContextMenu` opened with `useDialogOnNearestManager({ id })`, with an `id` unique to the component instance and stable while it is mounted (`useId()` on React 18 and 19; on React 17, a value created once, e.g. `const [id] = useState(() => Math.random().toString(36).slice(2))`), as `DefaultHeaderActions` does. Like `DefaultHeaderActions`, it filters the set with `useBaseChannelMembersHeaderActionSetFilter` first (otherwise `isVisible` and the `addMembers` capability check don't apply) and gives the `ContextMenu` `id={dialog.id}`, `dialogManagerId={dialogManager?.id}`, the toggle's button as `referenceElement` and `onClose={() => dialog.close()}` (without the `id` the menu renders inline instead of anchored to the toggle, and an item's `closeMenu()` calls that `onClose`). A toggle that ignores the props it receives renders but never opens the menu.
+- Old API:
+  - `ChannelMembersHeaderActionItem.component`; `ChannelMembersHeaderActionPlacement = 'quick' | 'menu'`; `ChannelMembersHeaderActionItem.filter?: (ctx: { channel: Channel }) => boolean`
+  - `ChannelMembersHeaderActionComponentProps.closeMenu?: () => void`, passed to menu items by `DefaultHeaderActions`
+  - `ChannelMembersViewProps.HeaderActionsMenuTrigger` and `ChannelMembersHeaderActionsProps.HeaderActionsMenuTrigger`, typed by `ChannelMembersHeaderActionsMenuTriggerProps` (`aria-expanded`, `onClick`, `referenceRef`); default `DefaultHeaderActionsMenuTrigger`
+- Replacement: the names the message actions and the channel-list row actions use.
+  - Items have a `Component` field. `ChannelMembersHeaderActionItem` is a union of `QuickChannelMembersHeaderActionItem` (`placement: 'quick'`), `DropdownChannelMembersHeaderActionItem` (`placement: 'dropdown'`) and `QuickDropdownToggleChannelMembersHeaderActionItem` (`placement: 'quick-dropdown-toggle'`, no `type` or `isVisible`).
+  - The menu trigger is the set's `quick-dropdown-toggle` item: a `forwardRef` button. `DefaultHeaderActions` passes it the ref the menu anchors to, `aria-expanded` and an `onClick` that toggles the menu; the button spreads the props, so it never looks up the menu's dialog. A v14 trigger forwards the ref instead of reading `referenceRef`. Unlike the message and channel-list toggles, which look up their dialog through `getDialogId`, this toggle must spread the props it receives: one that ignores them never opens the menu.
+  - `DefaultHeaderActions` creates its menu's dialog id once per instance, so two members views under one dialog manager (e.g. side-by-side panels of the same channel) never open each other's menu. While the members list is shown and the `HeaderActions` component keeps its identity, `ChannelMembersView` keeps it mounted across re-renders (e.g. with an inline `headerActionSet`), so an open menu stays open; a `HeaderActions` defined inline mounts anew on every render. `defaultChannelMembersHeaderActionSet` starts with `DefaultChannelMembersHeaderActions.QuickDropdownToggle`, so a set built from it keeps the trigger; a set written from scratch adds that item. The toggle renders only while the set has a `dropdown` item that passes the filter.
+  - Dropdown items read `closeMenu` from `useContextMenuContext()`.
+  - `filter` → `isVisible`, as on message actions and composer previews: `isVisible?: (state: ChannelMembersHeaderActionVisibilityFilterParams) => boolean`, called with `{ channel }`. It hides an action; it cannot show `addMembers` without the `update-channel-members` capability. A shared rule is typed with `ChannelMembersHeaderActionVisibilityFilterParams`.
+- Evidence:
+  - `release-v14:src/plugins/ChannelDetail/Views/ChannelMembersView/ChannelMembersHeaderActions.defaults.tsx:26`, `:31`, `:34`, `:93-107`, `:128-160`, `:176-207`; `release-v14:src/plugins/ChannelDetail/Views/ChannelMembersView/ChannelMembersView.tsx` (`HeaderActionsMenuTrigger`)
+  - `master:src/plugins/ChannelDetail/Views/ChannelMembersView/ChannelMembersHeaderActions.defaults.tsx` (`DefaultHeaderActions`, `DefaultChannelMembersHeaderActions`, `defaultChannelMembersHeaderActionSet`)
+  - shared shape: `master:src/components/MessageActions/MessageActions.tsx` (`MessageActionSetItem`), `master:src/components/ChannelListItem/ChannelListItemActionButtons.defaults.tsx` (`defaultChannelActionSet`), `master:src/components/Chat/hooks/useSplitActionSet.ts`
+  - commit: REACT-1477
+- Docs impact:
+  - UI › Customizing › Actions; the channel details reference for `ChannelMembersView` (`headerActionSet`, `HeaderActionsMenuTrigger`)
+- Example needed: yes
+
+Before (v14):
+
+```tsx
+import {
+  ChannelMembersView,
+  type ChannelMembersHeaderActionComponentProps,
+  type ChannelMembersHeaderActionItem,
+  type ChannelMembersHeaderActionsMenuTriggerProps,
+  defaultChannelMembersHeaderActionSet,
+  type SectionNavigatorSectionContentProps,
+} from 'stream-chat-react/channel-detail';
+import { ContextMenuButton } from 'stream-chat-react';
+
+const MyTrigger = ({
+  referenceRef,
+  ...props
+}: ChannelMembersHeaderActionsMenuTriggerProps) => (
+  <button ref={referenceRef} {...props}>
+    Actions
+  </button>
+);
+
+const ExportMembers = ({ closeMenu }: ChannelMembersHeaderActionComponentProps) => (
+  <ContextMenuButton onClick={() => closeMenu?.()}>Export</ContextMenuButton>
+);
+
+const headerActionSet: ChannelMembersHeaderActionItem[] = [
+  ...defaultChannelMembersHeaderActionSet,
+  { component: ExportMembers, placement: 'menu', type: 'exportMembers' },
+];
+
+// `SectionContent` of the `channel-members` section in `defaultChannelDetailSections`
+const MembersSection = (props: SectionNavigatorSectionContentProps) => (
+  <ChannelMembersView
+    {...props}
+    headerActionSet={headerActionSet}
+    HeaderActionsMenuTrigger={MyTrigger}
+  />
+);
+```
+
+After (v15):
+
+```tsx
+import { type ComponentPropsWithoutRef, forwardRef } from 'react';
+import {
+  ChannelMembersView,
+  type ChannelMembersHeaderActionItem,
+  defaultChannelMembersHeaderActionSet,
+  type SectionNavigatorSectionContentProps,
+} from 'stream-chat-react/channel-detail';
+import { ContextMenuButton, useContextMenuContext } from 'stream-chat-react';
+
+// receives `aria-expanded` and `onClick` from `DefaultHeaderActions`
+const MyTrigger = forwardRef<HTMLButtonElement, ComponentPropsWithoutRef<'button'>>(
+  function MyTrigger(props, ref) {
+    return (
+      <button ref={ref} {...props}>
+        Actions
+      </button>
+    );
+  },
+);
+
+const ExportMembers = () => {
+  const { closeMenu } = useContextMenuContext();
+  return <ContextMenuButton onClick={() => closeMenu()}>Export</ContextMenuButton>;
+};
+
+const headerActionSet: ChannelMembersHeaderActionItem[] = [
+  // the default set already holds the `quick-dropdown-toggle` item
+  ...defaultChannelMembersHeaderActionSet.map((item) =>
+    item.placement === 'quick-dropdown-toggle' ? { ...item, Component: MyTrigger } : item,
+  ),
+  { Component: ExportMembers, placement: 'dropdown', type: 'exportMembers' },
+];
+
+// `SectionContent` of the `channel-members` section in `defaultChannelDetailSections`
+const MembersSection = (props: SectionNavigatorSectionContentProps) => (
+  <ChannelMembersView {...props} headerActionSet={headerActionSet} />
+);
+```
+
+<a id="bc-109"></a>
+
+### BC-109: `ComponentContext` slots are typed by the props they receive, and overrides apply where defaults were rendered
+
+- Status: confirmed
+- Area: component context
+- User impact: compile error where your own component renders one of these slots from `useComponentContext()` with props (`<MessageStatus messageType='simple' />`), and on an override whose props are required. Overrides that take optional props or none still type-check, and the typing changes nothing at runtime: the SDK rendered these slots without props in v14 too, so an override never received the props its type promised. Silent behavior change: overrides of several slots also render in places where v14 rendered the default (listed below).
+- Old API (slot: props type in v14):
+  - `AttachmentPreviewList`: `AttachmentPreviewListProps`
+  - `MessageComposerUI`: `MessageComposerProps`
+  - `MessageEditedIndicator`: `MessageEditedIndicatorProps`
+  - `MessageStatus`: `MessageStatusProps`
+  - `NotificationAnnouncer`: `NotificationAnnouncerProps`
+  - `QuotedMessagePreview`: `QuotedMessagePreviewProps`
+  - `SearchSourceResultList`: `SearchSourceResultListProps`
+  - `TextareaComposer`: `TextareaComposerProps`
+  - `VoiceRecordingPreviewSlot`: `VoiceRecordingPreviewSlotProps`
+- Replacement: each slot is `React.ComponentType` with no props. To customize the default, render the exported component with its props inside your override, for example `MessageStatus: () => <MessageStatus MessageReadStatus={ReadIcon} />`. `MessageComposerUI` and `TextareaComposer` read the `MessageComposer` props from `useMessageComposerContext()`. The props types are still exported.
+- Evidence:
+  - `release-v14:src/context/ComponentContext.tsx:98`, `:102`, `:165`, `:196`, `:206`, `:232`, `:250`, `:262`, `:284`
+  - render sites without props: `master:src/components/MessageComposer/MessageComposerPreviews.defaults.tsx` (`AttachmentPreviewList`, `QuotedMessagePreview`, `VoiceRecordingPreviewSlot`), `master:src/components/MessageComposer/MessageComposer.tsx` (`MessageComposerUI`), `master:src/components/MessageComposer/MessageComposerUI.tsx` (`TextareaComposer`), `master:src/components/Message/MessageUI.tsx` (`MessageEditedIndicator`, `MessageStatus`), `master:src/components/Chat/Chat.tsx` (`NotificationAnnouncer`), `master:src/components/Search/SearchResults/SearchSourceResults.tsx` (`SearchSourceResultList`)
+  - REACT-1275
+- Docs impact:
+  - `02-ui-components/04-channel/05-component_context.md`
+- Example needed: no (the guide section has one)
+
+Related, and not breaking: `ReactionSelector` is typed `React.ComponentType<ReactionSelectorProps>` instead of `React.ForwardRefExoticComponent<ReactionSelectorProps>`, so a plain function override type-checks (the SDK never passed a ref). `SearchSourceResults` is typed with the `{ searchSource }` it receives. A new `MessageText` slot renders the message text, also of an AI-generated message while `StreamedMessageText` streams it. `ScrollToLatestMessageButton` overrides apply, as in v14.
+
+Silent behavior change: overrides apply in places where v14 rendered the default directly, so an override registered for v14 starts rendering there too:
+
+- `FileDragAndDropContent`: the drop-zone overlay of `WithDragAndDropUpload` (`release-v14:src/components/MessageComposer/WithDragAndDropUpload.tsx:150`)
+- `BaseImage`: link preview cards in messages (`release-v14:src/components/Attachment/LinkPreview/Card.tsx`) and in the composer (`MessageComposer/LinkPreviewList.tsx`), video thumbnails (`VideoPlayer/VideoThumbnail.tsx`), the images of `Gallery` (`Gallery/GalleryUI.tsx:250`), and the thumbnails of quoted messages in the message list and the composer and of the edited-message preview (`MessageComposer/QuotedMessagePreview.tsx`)
+- `LoadingIndicator`: `LoadMoreButton` (`LoadMore/LoadMoreButton.tsx:34`), the thumbnail loading overlay of `ModalGallery` (`Attachment/ModalGallery.tsx:218`), the new-threads banner of the thread list (`Threads/ThreadList/ThreadListUnseenThreadsBanner.tsx:48`), the poll answer and vote lists (`Poll/PollActions/PollAnswerList.tsx:76`, `PollResults/PollOptionWithVotesList.tsx:38`), and the channel detail lists (`plugins/ChannelDetail/ChannelDetailListLoadingIndicator.tsx:26`)
+- `Timestamp`: thread list items and user search results (`Search/SearchResults/SearchResultItem.tsx:136`)
+- `Avatar`: the latest-reply avatar of thread list items (`Threads/ThreadList/ThreadListItemUI.tsx:186`)
+- `DateSeparator`: the date above the thread's parent message (`Thread/ThreadHead.tsx:14`), which now also gets the list's `formatDate`
+- `Gallery`: the gallery that composer attachment previews open (`MessageComposer/AttachmentPreviewList/AttachmentPreviewList.tsx:156`), which now also gets `onRequestClose`
+- `FileSizeIndicator`: the channel detail files view (`plugins/ChannelDetail/Views/ChannelFilesView/ChannelFilesView.tsx:92`)
+
+Paths are under `release-v14:src/components/`, except those that start with `plugins/`, which are under `release-v14:src/`. Thread list items also render the `SummarizedMessagePreview` slot (new in v15), so an override written for the channel list shows there too. `GroupAvatar` keeps rendering the default `Avatar` for its tiles: the `Avatar` slot can hold `ChannelAvatar`, which renders `GroupAvatar`.
+
+To keep the default in one of those places, wrap that part of the tree in `WithComponents` with the exported default, for example `<WithComponents overrides={{ LoadingIndicator }}>` around a poll.
+
+Not breaking: `MessageListItem` is typed with `MessageListItemProps` (`className`, `data-index`, `data-message-id`, `data-testid`) and `MessageListWrapper` with `MessageListWrapperProps` (`className`), the props `MessageList` passes them. An override must spread them onto the element it renders: jump-to-message and scroll restoration find items by `data-message-id`.
+
 ## Chat, ChatView and layout
+
+<a id="bc-010"></a>
 
 ### BC-010: `Window` and `WindowProps` were removed
 
@@ -676,6 +951,8 @@ const ChannelPanel = ({
 
 ---
 
+<a id="bc-011"></a>
+
 ### BC-011: `ChatView` and its selector helpers moved to the `stream-chat-react/slot-layout` entry point
 
 - Status: confirmed
@@ -699,6 +976,8 @@ const ChannelPanel = ({
 
 ---
 
+<a id="bc-012"></a>
+
 ### BC-012: `ChatView` was rebuilt around layout slots: `ChatView.Channels` / `ChatView.Threads` / `ChatView.ThreadAdapter`, `useThreadsViewContext` and `ThreadsViewContextValue` were removed, and `ChatViewContext` renamed its fields
 
 - Status: confirmed
@@ -706,7 +985,7 @@ const ChannelPanel = ({
 - User impact:
   - `ChatView.Channels`, `ChatView.Threads`, `ChatView.ThreadAdapter` are `undefined` at runtime (JSX on them throws "Element type is invalid"); TS reports a missing property.
   - `useThreadsViewContext` / `ThreadsViewContextValue` imports fail (TS2724).
-  - `useChatViewContext()` returns `{ activeView, setActiveView, layoutController, entityInferers, registerViewActionSlotResolvers, resolveActionTargetSlot }`; reading `activeChatView` / `setActiveChatView` is a compile error, and `undefined` in JS.
+  - `useChatViewContext()` returns `{ activeView, setActiveView, layoutController, registerViewActionSlotResolvers, resolveActionTargetSlot }`; reading `activeChatView` / `setActiveChatView` is a compile error, and `undefined` in JS.
   - `useChatViewContext()` now throws outside `ChatView` (v14 warned and returned `{}`).
 - Old API:
   - `ChatView.Channels`, `ChatView.Threads`, `ChatView.ThreadAdapter`
@@ -824,13 +1103,15 @@ A threads view is declared the same way (a `{ id: 'threads', slots: [...] }` lay
 
 ---
 
+<a id="bc-013"></a>
+
 ### BC-013: `ChatContext.setActiveChannel` / `ChatContext.channel` were removed; selecting a channel or thread now goes through workspace navigation, which does nothing outside `ChatView`
 
 - Status: confirmed
 - Area: navigation
 - User impact:
   - compile error reading `setActiveChannel` / `channel` from `useChatContext()` (and from the return of `useChat()`); `undefined` in JS.
-  - silent behavior change: without `ChatView` (or your own `WorkspaceNavigationProvider`), clicking a `ChannelList` row, a channel/message/user search result, a `ThreadList` row, a message's reply-count button, "also sent in channel", or the channel-detail "send direct message" / pinned-message entry does nothing, and no list row renders as active (`ChannelListItem` derives `active` from `isChannelActive(cid)`, `ChannelListHeader` only shows `HeaderEndContent` while `openChannels` is non-empty).
+  - silent behavior change: without `ChatView` (or your own `WorkspaceNavigationProvider`), clicking a `ChannelList` row, a channel/message/user search result, a `ThreadList` row, a message's reply-count button, "also sent in channel", or the channel-detail "send direct message" / pinned-message entry does nothing, and no list row renders as active (`ChannelListItem` derives `active` from `isChannelActive(cid)`).
   - with no navigation provided at all, each operation (`openChannel`, `openThread`, `closeChannel`, `closeThread`, `goBack`) logs a one-time console warning that nothing happened; `defaultWorkspaceNavigation` itself stays silent, so a provider built by spreading it does not warn.
   - `ChannelListItem` / `ChannelListItemUI` no longer accept `setActiveChannel` / `watchers` (BC-033).
 - Old API:
@@ -952,6 +1233,8 @@ To open threads without `ChatView`, also override `openThread` (a target is a `T
 
 ---
 
+<a id="bc-014"></a>
+
 ### BC-014: `ChatContext.channelsQueryState` was removed
 
 - Status: confirmed
@@ -959,16 +1242,18 @@ To open threads without `ChatView`, also override `openThread` (a target is a `T
 - User impact: compile error reading `channelsQueryState` from `useChatContext()`; `undefined` in JS. `Channel` no longer renders a loading or error state for the channel-list query.
 - Old API:
   - `ChatContextValue.channelsQueryState` (`{ queryInProgress, error, setQueryInProgress, setError }`)
-- Replacement: the query state of a channel list is the `ChannelPaginator`'s own state: `useChannelPaginatorState(paginator)` returns `{ channels, hasMoreHead, hasMoreTail, isLoading, lastQueryError }` (main entry); `hasMoreTail` says whether `paginator.toTail()` has another page to load. `ChannelList` reports `lastQueryError` through `client.notifications.addError(...)` itself.
+- Replacement: the query state of a channel list is the `ChannelPaginator`'s own state: `useChannelPaginatorState(paginator)` returns `{ channels, hasMoreHead, hasMoreTail, isLoading, lastQueryError }` (main entry); `hasMoreTail` says whether `paginator.toTail()` has another page to load. `ChannelList` reports `lastQueryError` as an error notification in the `channel-list` panel, and renders `ListLoadErrorIndicator` (`{ error, isRetrying, retry }`) in place of a list whose first page failed.
 - Evidence:
   - `release-v14:src/context/ChatContext.tsx:30-33`; `release-v14:src/components/Channel/Channel.tsx:181-207` (`Channel` rendered `LoadingIndicator` / `LoadingErrorIndicator` from it)
-  - `master:src/context/ChatContext.tsx:27-46`; `master:src/components/ChannelList/hooks/useChannelPaginatorState.ts:5-29`; `master:src/components/ChannelList/ChannelList.tsx:77-83`
+  - `master:src/context/ChatContext.tsx:27-46`; `master:src/components/ChannelList/hooks/useChannelPaginatorState.ts:5-29`; `master:src/components/ChannelList/ChannelList.tsx:89-94`
   - commit: `99cbe6704` (PR #3237)
 - Docs impact:
   - `02-ui-components/03-chat/02-chat_context.md`
 - Example needed: no
 
 ---
+
+<a id="bc-015"></a>
 
 ### BC-015: `ChatContext.latestMessageDatesByChannels` was removed
 
@@ -991,6 +1276,8 @@ To open threads without `ChatView`, also override `openThread` (a target is a `T
 - Example needed: no
 
 ---
+
+<a id="bc-016"></a>
 
 ### BC-016: `useChatContext` lost its `componentName` argument, throws outside `<Chat>`, and `ChatContextValue` gained a required `channelManager`
 
@@ -1016,6 +1303,8 @@ To open threads without `ChatView`, also override `openThread` (a target is a `T
 
 ---
 
+<a id="bc-017"></a>
+
 ### BC-017: `useChat` lost its i18n params and return fields; `Chat.defaultLanguage` was removed
 
 - Status: confirmed
@@ -1040,6 +1329,8 @@ To open threads without `ChatView`, also override `openThread` (a target is a `T
 - Note: `Chat.defaultLanguage` likely also appears in the i18n area's draft; keep one entry.
 
 ---
+
+<a id="bc-018"></a>
 
 ### BC-018: `useCreateChatClient`'s `options` was renamed to `config` and takes the stream-chat configuration tree
 
@@ -1091,6 +1382,8 @@ const client = useCreateChatClient({
 ---
 
 ## Channel
+
+<a id="bc-019"></a>
 
 ### BC-019: `ChannelProps.channel` is required and `EmptyPlaceholder` was removed; `Channel` renders no loading, error or empty state
 
@@ -1148,6 +1441,8 @@ import {
 ```
 
 ---
+
+<a id="bc-020"></a>
 
 ### BC-020: `Channel` no longer watches the channel: `initializeOnMount` and `channelQueryOptions` were removed, and so was `getChannel`
 
@@ -1209,6 +1504,8 @@ After (v15):
 const channel = await client.channel('messaging', 'general').watch();
 ```
 
+<a id="bc-021"></a>
+
 ### BC-021: `Channel` no longer writes `document.title`; `activeUnreadHandler` was removed
 
 - Status: confirmed
@@ -1227,6 +1524,8 @@ const channel = await client.channel('messaging', 'general').watch();
 - Example needed: no
 
 ---
+
+<a id="bc-022"></a>
 
 ### BC-022: `markReadOnMount` was removed; `Channel` no longer marks the channel read when it mounts
 
@@ -1247,6 +1546,8 @@ const channel = await client.channel('messaging', 'general').watch();
 - Note: "suppress mark-read via a `markReadRequest` handler returning `null`" is inferred from the handler type, not tested; mark `likely` if that sentence is kept.
 
 ---
+
+<a id="bc-023"></a>
 
 ### BC-023: `doSendMessageRequest`, `doUpdateMessageRequest`, `doDeleteMessageRequest`, `doMarkReadRequest` and `useChannelEditMessageHandler` were removed
 
@@ -1301,6 +1602,8 @@ client.config.set({
 
 ---
 
+<a id="bc-024"></a>
+
 ### BC-024: `giphyVersion`, `imageAttachmentSizeHandler`, `videoAttachmentSizeHandler` and `shouldGenerateVideoThumbnail` moved from `Channel` to `Attachment`
 
 - Status: confirmed
@@ -1349,6 +1652,8 @@ Note: a bare `AttachmentContextProvider` above the list does not reach message a
 
 ---
 
+<a id="bc-025"></a>
+
 ### BC-025: `Channel.onMentionsClick` / `onMentionsHover` and `useChannelMentionsHandler` were removed
 
 - Status: confirmed
@@ -1357,10 +1662,10 @@ Note: a bare `AttachmentContextProvider` above the list does not reach message a
 - Old API:
   - `ChannelProps.onMentionsClick?: OnMentionAction`, `ChannelProps.onMentionsHover?: OnMentionAction`
   - `useChannelMentionsHandler(onMentionsHover?, onMentionsClick?)`
-- Replacement: `onMentionsClick` / `onMentionsHover` on `MessageList` (drilled to each message) or on `Message`; handler type `CustomMentionHandler` `(event, mentioned_users: UserResponse[], message: LocalMessage)` (the second argument is `@deprecated`; read mention metadata from `message`). `VirtualizedMessageList` has no such prop in v15 (v14 virtualized lists got the handlers only from `Channel`), so a virtualized list needs a custom message UI to handle mention clicks.
+- Replacement: `onMentionsClick` / `onMentionsHover` on `MessageList` or `VirtualizedMessageList` (drilled to each message, the thread's parent message and the separate giphy preview) or on `Message`; handler type `CustomMentionHandler` `(event, message: LocalMessage)`; read mention metadata from `message` (BC-089).
 - Evidence:
   - `release-v14:src/components/Channel/Channel.tsx:145-147`; `release-v14:src/components/Channel/index.ts:3`; `release-v14:src/components/Message/hooks/useMentionsHandler.ts:51-59` (fell back to the `Channel` handlers)
-  - `master:src/components/MessageList/MessageList.tsx:215-216,440-441,458` (`onMentionsClick`/`onMentionsHover` in `PropsDrilledToMessage`); `master:src/components/MessageList/VirtualizedMessageList.tsx:85-91` (not drilled); `master:src/components/Message/types.ts:44-47`
+  - `master:src/components/MessageList/MessageList.tsx:108-109,421-422` (`onMentionsClick`/`onMentionsHover` in `PropsDrilledToMessage`); `master:src/components/MessageList/VirtualizedMessageList.tsx:87-88,246-247` (same); `master:src/components/Message/types.ts:54-56`
   - commit: `99cbe6704` (PR #3237)
 - Docs impact:
   - `02-ui-components/04-channel/01-channel.md`, `02-ui-components/04-channel/03-channel_action_context.md`, `03-ui-cookbook/04-message/03-mentions_actions.md`
@@ -1384,6 +1689,8 @@ After (v15):
 
 ---
 
+<a id="bc-026"></a>
+
 ### BC-026: `Channel.skipMessageDataMemoization` was removed
 
 - Status: confirmed
@@ -1401,6 +1708,8 @@ After (v15):
 - Example needed: no
 
 ---
+
+<a id="bc-027"></a>
 
 ### BC-027: `Channel` behavior changes with the same signature: no remount per channel, activation, no reload on reconnect, no search jump
 
@@ -1422,11 +1731,13 @@ After (v15):
 - Docs impact:
   - `02-ui-components/04-channel/01-channel.md`
 - Example needed: no
-- Guide check: `ai-migration-v14-v15.md` "`<Channel>` declares the channel active, and owns its message window" still says `Channel` "calls `channel.reload()` on `connection.recovered`" and tells custom surfaces to do it. That was removed by `3098a90a6`; the reload half of that section is outdated.
+- Guide check: fixed. The guide (section 5, "Channel lifecycle") says the client reloads active channels after a reconnect (`client.connectionRecovery`, stream-chat-js `ConnectionRecoveryManager`) and that a manual `connection.recovered` reload would reload twice. Earlier drafts told custom surfaces to reload there (removed by `3098a90a6`).
 
 ---
 
 ## Channel list
+
+<a id="bc-028"></a>
 
 ### BC-028: `ChannelList` is driven by a `ChannelPaginator`: `paginator` is required and every query, event and render prop was removed
 
@@ -1509,15 +1820,17 @@ A single list can still be rendered on its own with `<ChannelList paginator={pag
 
 ---
 
+<a id="bc-029"></a>
+
 ### BC-029: `ChannelListUI`, `ChannelListUIProps` and `ComponentContext.ChannelListUI` were removed
 
 - Status: confirmed
 - Area: channel list
-- User impact: compile errors on the import and on a `ChannelListUI` key in `WithComponents` overrides; in JS the override is ignored. `ComponentContext.LoadingIndicator` no longer affects the channel list (v14 `ChannelListUI` read it and `LoadingErrorIndicator`, whose slot is now removed; see BC-019).
+- User impact: compile errors on the import and on a `ChannelListUI` key in `WithComponents` overrides; in JS the override is ignored. `ComponentContext.LoadingIndicator` no longer affects the channel list (v14 `ChannelListUI` read it and `LoadingErrorIndicator`, whose slot is now removed; see BC-019). `ComponentContext.EmptyStateIndicator` does not affect it either: v14 took the empty channel list from the `ChannelList` `EmptyStateIndicator` prop (removed, BC-028). Both slots still apply to the message lists; the channel list reads `FirstPageLoadingIndicator` and `EmptyListIndicator` instead.
 - Old API:
   - `ChannelListUI` (`{ error, loadedChannels?, loading?, setChannels? }`), `ChannelListUIProps`
   - `ComponentContextValue.ChannelListUI`
-- Replacement: per-part slots on `ComponentContext` that `ChannelList` reads: `EmptyListIndicator`, `EndReachedIndicator` (`{ hasEnded, reached }`), `FirstPageLoadingIndicator` (default `LoadingChannels`), `ListItem` (`{ item }`, default renders `ChannelListItem`), `LoadingNextPageIndicator` (`{ isLoading? }`). Query errors are reported as a notification. For a fully custom list, read `useChannelPaginatorState(paginator)` and render your own.
+- Replacement: per-part slots on `ComponentContext` that `ChannelList` reads: `EmptyListIndicator`, `EndReachedIndicator` (`{ hasEnded, reached }`), `FirstPageLoadingIndicator` (default `LoadingChannels`), `ListItem` (`{ item }`, default renders `ChannelListItem`), `ListLoadErrorIndicator` (`{ error, isRetrying, retry }`, rendered in place of a list whose first page failed), `LoadingNextPageIndicator` (`{ isLoading? }`). `ThreadList` reads `FirstPageLoadingIndicator` and `ListLoadErrorIndicator` too. Query errors are also reported as a notification. For a fully custom list, read `useChannelPaginatorState(paginator)` and render your own.
 - Evidence:
   - `release-v14:src/components/ChannelList/ChannelListUI.tsx:10,24`; `release-v14:src/context/ComponentContext.tsx:129`
   - `master:src/context/ComponentContext.tsx:90-102`; `master:src/components/ChannelList/ChannelList.tsx:48-54,78-83`
@@ -1557,9 +1870,11 @@ import type { Channel } from 'stream-chat';
 </WithComponents>;
 ```
 
-Note: these slots are generic "paginated list" slots; in v15 only `ChannelList` reads them.
+Note: these slots are generic "paginated list" slots. In v15 `ThreadList` also reads `FirstPageLoadingIndicator` and `ListLoadErrorIndicator`; only `ChannelList` reads the others.
 
 ---
+
+<a id="bc-030"></a>
 
 ### BC-030: `usePaginatedChannels`, `useConnectionRecoveredListener` and the `CustomQueryChannelParams` / `CustomQueryChannelsFn` / `EffectiveQueryParams` types were removed
 
@@ -1582,6 +1897,8 @@ Note: these slots are generic "paginated list" slots; in v15 only `ChannelList` 
 
 ---
 
+<a id="bc-031"></a>
+
 ### BC-031: the channel-list utilities were removed: `moveChannelUpwards`, `findLastPinnedChannelIndex`, `extractSortValue`, `isChannelPinned`, `isChannelArchived`, `shouldConsiderPinnedChannels`, `shouldConsiderArchivedChannels`
 
 - Status: confirmed
@@ -1599,6 +1916,8 @@ Note: these slots are generic "paginated list" slots; in v15 only `ChannelList` 
 - Example needed: no
 
 ---
+
+<a id="bc-032"></a>
 
 ### BC-032: `ChannelListContext` lost `channels`, `hasNextPage`, `loadNextPage` and `setChannels`
 
@@ -1640,13 +1959,15 @@ const { paginator } = useChannelListContext();
 
 ---
 
+<a id="bc-033"></a>
+
 ### BC-033: `ChannelListItem` / `ChannelListItemUI` / `ChannelListItemTimestamp` props changed: `lastMessage` -> `previewedMessage`, `latestMessagePreview` and `getLatestMessagePreview` removed, selection props removed
 
 - Status: confirmed
 - Area: channel list item
-- User impact: compile errors in custom `ChannelListItemUI` overrides and direct `ChannelListItem` usage; in JS, reading `props.lastMessage` / `props.latestMessagePreview` yields `undefined`, and passing `getLatestMessagePreview` / `setActiveChannel` does nothing.
+- User impact: compile errors in custom `ChannelListItemUI` overrides and direct `ChannelListItem` usage; in JS, reading `props.lastMessage` / `props.latestMessagePreview` yields `undefined`, and passing `getLatestMessagePreview` / `setActiveChannel` does nothing. A custom `ChannelListItemUI` that read `props.activeChannel` gets `undefined`.
 - Old API:
-  - `ChannelListItemProps`: `channelUpdateCount`, `getLatestMessagePreview`, `key`, `setActiveChannel`, `watchers`
+  - `ChannelListItemProps`: `activeChannel`, `channelUpdateCount`, `getLatestMessagePreview`, `key`, `setActiveChannel`, `watchers`
   - `ChannelListItemUIProps`: the above, plus `lastMessage`, `latestMessagePreview`
   - `ChannelListItemTimestampProps.lastMessage`
   - `ChannelList.getLatestMessagePreview` (BC-028)
@@ -1656,8 +1977,9 @@ const { paginator } = useChannelListContext();
   - `setActiveChannel` / `watchers` -> `useWorkspaceNavigation().openChannel(channel, { event })` or the `onSelect` prop (BC-013).
   - `channelUpdateCount` / `key`: none needed; the item subscribes to the channel's stores.
   - `active` now defaults to `useWorkspaceNavigation().isChannelActive(cid)`.
+  - `activeChannel`: v14's `ChannelListItem` did not use it for `active` (it compared `useChatContext().channel`, BC-013); it only forwarded it to `ChannelListItemUI`. A custom `ChannelListItemUI` that compared it with its `channel` reads `active` instead, which defaults to whether the channel is open in the workspace. An app that tracks its own selection, which can differ from that, keeps the selected channel in its own context and compares it with the row's `channel`, or passes that comparison to `ChannelListItem` as `active`. A row that needs the open channels reads `useWorkspaceNavigation().openChannels`. `active` is true while the channel is shown: a panel stacked over it makes it false. `openChannels` lists the channels bound to the workspace slots, so it includes a covered channel and leaves out one opened in a stacked panel; neither is a full list of what the user sees.
 - Evidence:
-  - `release-v14:src/components/ChannelListItem/ChannelListItem.tsx:37,39,58,62,68,72,74`; `release-v14:src/components/ChannelListItem/ChannelListItemTimestamp.tsx:9,12`
+  - `release-v14:src/components/ChannelListItem/ChannelListItem.tsx:37,39,56,58,62,68,72,74`, `:92` (`channel: activeChannel` from `useChatContext`); `release-v14:src/components/ChannelListItem/ChannelListItemTimestamp.tsx:9,12`
   - `master:src/components/ChannelListItem/ChannelListItem.tsx:22-65,88-109`; `master:src/components/ChannelListItem/ChannelListItemTimestamp.tsx:10,14`; `master:src/components/ChannelListItem/ChannelListItemUI.tsx:95-102,152,160-161`; `master:src/components/ChannelListItem/utils.tsx:260,324`; `master:src/context/ComponentContext.tsx:143`
   - commit: `99cbe6704` (PR #3237)
   - corpus: `docs/03-ui-cookbook__02-channel-list__01-channel_list_preview__2.tsx:34` TS2322 (`lastMessage` on `ChannelListItemTimestampProps`); `examples/tutorial/src/6-custom-ui-components/App.tsx:42` TS2339 (`latestMessagePreview`), `:44` (`setActiveChannel`)
@@ -1719,6 +2041,8 @@ Guide check: `ai-migration-v14-v15.md` "`ChannelListItem` `getLatestMessagePrevi
 
 ## Headers, threads and search
 
+<a id="bc-034"></a>
+
 ### BC-034: `ComponentContext.HeaderStartContent` was removed; `ChannelHeader` and `ThreadHeader` take `StartContent` / `EndContent` and render navigation buttons by default
 
 - Status: confirmed
@@ -1726,10 +2050,10 @@ Guide check: `ai-migration-v14-v15.md` "`ChannelListItem` `getLatestMessagePrevi
 - User impact: compile error on a `HeaderStartContent` override (`TS2561`); in JS it is ignored and the custom content (often a sidebar toggle) disappears. Visible change: by default `ChannelHeader` / `ThreadHeader` render `WorkspaceNavigationBackButton` at the start and `WorkspaceNavigationCloseButton` at the end; both render nothing outside a workspace navigation that reports the panel as stacked / dismissable.
 - Old API:
   - `ComponentContextValue.HeaderStartContent`
-- Replacement: `<ChannelHeader StartContent={...} EndContent={...} />` and the same on `ThreadHeader`. Passing a component replaces the default button; render `WorkspaceNavigationBackButton` / `WorkspaceNavigationCloseButton` (new exports) inside yours to keep it. `ComponentContext.HeaderEndContent` is unchanged and still feeds `ChannelListHeader` / `ThreadListHeader` (but `ChannelListHeader` shows it only while a channel is open in the workspace).
+- Replacement: `<ChannelHeader StartContent={...} EndContent={...} />` and the same on `ThreadHeader`. Passing a component replaces the default button; render `WorkspaceNavigationBackButton` / `WorkspaceNavigationCloseButton` (new exports) inside yours to keep it. `ComponentContext.HeaderEndContent` was removed too; the list headers take `StartContent` / `EndContent` props (BC-099).
 - Evidence:
   - `release-v14:src/context/ComponentContext.tsx:305`; `release-v14:src/components/ChannelHeader/ChannelHeader.tsx:52,61-63`
-  - `master:src/components/ChannelHeader/ChannelHeader.tsx:50-69,74-110`; `master:src/components/Thread/ThreadHeader.tsx:79-100`; `master:src/components/ChannelList/ChannelListHeader.tsx` (`hasActiveChannel = useWorkspaceNavigation().openChannels.length > 0`)
+  - `master:src/components/ChannelHeader/ChannelHeader.tsx:50-69,74-110`; `master:src/components/Thread/ThreadHeader.tsx:79-100`
   - commit: `66557d63b feat!: port the tutorial alignment (#3251) to v15, with panel-aware workspace navigation` (PR #3301)
 - Docs impact:
   - `02-ui-components/04-channel/02-channel_header.md`, `02-ui-components/04-channel/05-component_context.md`, `02-ui-components/03-chat/01-chat.md`, `03-ui-cookbook/12-collapsible-sidebar.md`, `06-release-guides/01-upgrade-to-v14.md`
@@ -1764,6 +2088,8 @@ const HeaderStart = () => (
 
 ---
 
+<a id="bc-035"></a>
+
 ### BC-035: `Thread` takes a required `thread` prop and renders its children; its composition props and `useLegacyThreadContext` were removed
 
 - Status: confirmed
@@ -1778,7 +2104,7 @@ const HeaderStart = () => (
   - `<Thread />` reading the thread from `ChannelStateContext` / `ThreadContext`
   - `ThreadProps`: `additionalMessageComposerProps`, `additionalMessageListProps`, `additionalParentMessageProps`, `additionalVirtualizedMessageListProps`, `autoFocus`, `enableDateSeparator`, `Message`, `messageActions`, `virtualized`
   - `useLegacyThreadContext`
-- Replacement: `<Thread thread={thread}>` + children (`ThreadHeader`, `MessageList` or `VirtualizedMessageList`, `MessageComposer focus`). Get the instance from `client.threads.ensure({ channel, parentMessage })` / `client.threads.get(...)`, from a `ThreadSlot`, or from workspace navigation. Per prop: list/composer props go on the children; `additionalParentMessageProps` -> a `ThreadHead` override on `ComponentContext`; `Message` -> a `MessageUI` override scoped with `WithComponents`; `messageActions` -> removed (message-actions area); `enableDateSeparator` -> `withDateSeparator` on the list.
+- Replacement: `<Thread thread={thread}>` + children (`ThreadHeader`, `MessageList` or `VirtualizedMessageList`, `MessageComposer focus`). Get the instance from `client.threads.ensure({ channel, parentMessage })` / `client.threads.get(...)`, from a `ThreadSlot`, or from workspace navigation. Per prop: list/composer props go on the children; `additionalParentMessageProps` -> the list's own message props, which `MessageList` and `VirtualizedMessageList` also pass to the parent message (`master:src/components/MessageList/hooks/useThreadHead.tsx`), or a `ThreadHead` override on `ComponentContext`; `Message` -> a `MessageUI` override scoped with `WithComponents`; `messageActions` -> removed (message-actions area); `enableDateSeparator` -> `withDateSeparator` on the list.
 - Evidence:
   - `release-v14:src/components/Thread/Thread.tsx:26-45` (`ThreadProps`), `:51-66` (reads `ChannelStateContext`, keys on thread id), `:184-207` (renders header, list, composer); `release-v14:src/components/Thread/LegacyThreadContext.ts:8`; `release-v14:src/components/Thread/index.ts:4`
   - `master:src/components/Thread/Thread.tsx:17-25` (`ThreadProps = PropsWithChildren<{ thread: StreamThread }>`), `:66-113`; `master:src/components/Thread/index.ts:1-3`
@@ -1812,6 +2138,8 @@ import { MessageComposer, MessageList, Thread, ThreadHeader } from 'stream-chat-
 Guide check: `ai-migration-v14-v15.md` "`Thread` renders children" says `Thread` owns "registering it with the `ThreadManager`". It does not: `master:src/components/Thread/Thread.tsx:41-45` ("It does not register the thread with the `ThreadManager`; `client.threads.ensure()` or `thread.activate()` does"), confirmed by PR #3310.
 
 ---
+
+<a id="bc-036"></a>
 
 ### BC-036: `ThreadHeader` lost its `closeThread` and `thread` props; `ComponentContext.ThreadHeader` was removed
 
@@ -1884,6 +2212,8 @@ const CustomThreadHeader = () => {
 
 ---
 
+<a id="bc-037"></a>
+
 ### BC-037: `ThreadProvider` no longer wraps its children in a `Channel`
 
 - Status: confirmed
@@ -1901,6 +2231,8 @@ const CustomThreadHeader = () => {
 - Example needed: no
 
 ---
+
+<a id="bc-038"></a>
 
 ### BC-038: `ThreadList` reloads the thread list on every mount and selects through workspace navigation
 
@@ -1923,6 +2255,8 @@ const CustomThreadHeader = () => {
 
 ---
 
+<a id="bc-039"></a>
+
 ### BC-039: search results are no longer watched, and selecting one opens it through workspace navigation
 
 - Status: confirmed
@@ -1944,6 +2278,8 @@ const CustomThreadHeader = () => {
 
 ---
 
+<a id="bc-040"></a>
+
 ### BC-040: the lost-connection notification reads connection stores and changes copy for socket drops
 
 - Status: confirmed
@@ -1963,9 +2299,37 @@ const CustomThreadHeader = () => {
   - `03-ui-cookbook/07-notifications/01-system-notifications.md`, `04-guides/13-notifications.md`
 - Example needed: no
 
+<a id="bc-099"></a>
+
+### BC-099: `ComponentContext.HeaderEndContent` was removed; `ChannelListHeader` and `ThreadListHeader` take `StartContent` / `EndContent` props, rendered whenever set
+
+- Status: confirmed
+- Area: channel list header / thread list header / ComponentContext
+- User impact:
+  - compile error on a `HeaderEndContent` key written inline in `overrides` (`TS2353` / `TS2561`). In JS, or in an `overrides` object declared as a variable that also holds a valid key, the key is ignored without an error and the content disappears from both list headers.
+  - behavior change: v14 rendered `HeaderEndContent` in `ChannelListHeader` only while a channel was active, and in `ThreadListHeader` only while a thread was active. The `EndContent` prop renders whenever it is set, so content that only makes sense next to an open channel or thread (a sidebar toggle) has to return `null` itself.
+  - one component no longer fills both headers: pass it to each header that should show it.
+- Old API:
+  - `ComponentContextValue.HeaderEndContent`, rendered by `ChannelListHeader` (gated on the active channel) and `ThreadListHeader` (gated on the active thread)
+- Replacement:
+  - `ChannelListHeader` and `ThreadListHeader` take `StartContent` (before the title) and `EndContent` (after the title), as `ChannelHeader` / `ThreadHeader` do. Neither has a default. Types: `ChannelListHeaderProps`, `ThreadListHeaderProps`.
+  - where the SDK renders the header, the props go through the header's override key: register a component that renders the default header with them. `ChannelListHeader` is read by `ChannelNavigation`; `ThreadListHeader` is a new key, read by `ThreadList`. `ThreadListHeader` is now exported.
+  - where the app renders the header itself (for example `ChannelListHeader` above a standalone `ChannelList`), it passes the props directly; the override key does not reach that header.
+  - to keep the v14 gate, read `useWorkspaceNavigation().openChannels` / `.openThreads` in the content component and return `null` while it is empty. `ChatView` or an app's own `WorkspaceNavigationProvider` fills these lists; without one they stay empty, so an app without either gates on its own selection state.
+- Evidence:
+  - `release-v14:src/components/ChannelList/ChannelListHeader.tsx:15` `{channel && HeaderEndContent && <HeaderEndContent />}`; `release-v14:src/components/Threads/ThreadList/ThreadListHeader.tsx:12` `{activeThread && HeaderEndContent && <HeaderEndContent />}`; `release-v14:src/context/ComponentContext.tsx:303`
+  - `master:src/components/ChannelList/ChannelListHeader.tsx` and `master:src/components/Threads/ThreadList/ThreadListHeader.tsx` (`StartContent` / `EndContent` props); `master:src/components/Threads/ThreadList/ThreadList.tsx` reads `ThreadListHeader` from `useComponentContext()`; `master:src/context/ComponentContext.tsx` `ThreadListHeader?`
+  - ticket: REACT-1449
+  - examples: `examples/vite/src/ChatLayout/SwitchableChannelNavigation.tsx` passes `EndContent={SidebarToggleWhileChannelOpen}` to `ChannelListHeader`; `examples/vite/src/App.tsx` registers `ThreadListHeaderWithSidebarToggle` (`examples/vite/src/Sidebar/HeaderContent.tsx`) as `ThreadListHeader`
+- Docs impact:
+  - `03-ui/03-components/01-channel-list-ui.md`, `03-ui/03-components/08-thread-list-ui.md`, `03-ui/03-components/12-overriding-components.md`, `06-component-reference/02-channel/04-componentcontext.md`, `06-component-reference/07-thread-list/01-threadlist.md`, `05-ui-cookbooks/10-layout/04-collapsible-sidebar.md`, `05-ui-cookbooks/03-search/03-mentions-inbox.md`, `08-release-guides/01-upgrade-to-v15.md`
+- Example needed: yes (the guide section has one)
+
 ---
 
 ## Messages and message lists
+
+<a id="bc-041"></a>
 
 ### BC-041: `messageActions` prop, `MESSAGE_ACTIONS`, `OPTIONAL_MESSAGE_ACTIONS`, `getMessageActions`, `MessageActionsArray`, `Capabilities` and `MessageContext.getMessageActions` / `actionsEnabled` removed
 
@@ -2030,6 +2394,8 @@ export const List = () => (
 ```
 
 Note: `MessageActionSetItem` is a union, and its `QuickDropdownToggleActionSetItem` member has no `type` field (`master:src/components/MessageActions/MessageActions.tsx:55`–`:63`). So `filter(({ type }) => …)`, as written in the existing `ai-migration-v14-v15.md` section, should not type-check (`TS2339`). Hence the `'type' in item` guard above. This was reasoned from the type, not compiled.
+
+<a id="bc-042"></a>
 
 ### BC-042: message UI component overrides consolidate on the `MessageUI` slot (`ComponentContext.Message` and the `Message` prop removed)
 
@@ -2099,6 +2465,8 @@ export const Lists = () => (
 );
 ```
 
+<a id="bc-043"></a>
+
 ### BC-043: `MessageContext.mutes` and `MessageContext.messageIsUnread` removed
 
 - Status: confirmed
@@ -2119,6 +2487,8 @@ export const Lists = () => (
 - Docs impact:
   - `02-ui-components/08-message/02-message_context.md` (`messageIsUnread`, `mutes`)
 - Example needed: no
+
+<a id="bc-044"></a>
 
 ### BC-044: `retrySendMessage` prop removed; `useRetryHandler` takes no argument and returns a params-object handler
 
@@ -2172,6 +2542,8 @@ export const RetryButton = () => {
 };
 ```
 
+<a id="bc-045"></a>
+
 ### BC-045: opening a thread from a message goes through workspace navigation; `openThread` is gone from the lists and does nothing without a navigation provider
 
 - Status: confirmed
@@ -2190,7 +2562,7 @@ export const RetryButton = () => {
 - Evidence:
   - `release-v14:src/components/Message/types.ts:60` `openThread?: ChannelActionContextValue['openThread']`; `release-v14:src/components/MessageList/MessageList.tsx:505` and `release-v14:src/components/MessageList/VirtualizedMessageList.tsx:88` drill `openThread`
   - `release-v14:src/components/Message/hooks/useOpenThreadHandler.ts:10` falls back to `useChannelActionContext().openThread`
-  - `master:src/components/Message/types.ts:53` `openThread?: (message: LocalMessage, event: BaseSyntheticEvent) => void`
+  - `master:src/components/Message/types.ts:64` `openThread?: (message: LocalMessage, event: BaseSyntheticEvent) => void`
   - `master:src/components/Message/hooks/useOpenThreadHandler.ts:17` `useWorkspaceNavigation()`, `:32` `void openThread({ channel, message })`
   - `master:src/components/Message/MessageRepliesCountButton.tsx` falls back to `MessageContext.handleOpenThread` when it has no `onClick` (restored in `fix/v15-dead-surface-cleanup`; before that it called `useWorkspaceNavigation().openThread` directly and ignored `Message.openThread`)
   - `master:src/context/WorkspaceNavigationContext.tsx:145` `defaultWorkspaceNavigation`, `:157` `openThread: () => undefined`, `:165` `WorkspaceNavigationProvider`
@@ -2276,6 +2648,8 @@ export const ChannelWithThread = ({ channel }: { channel: StreamChannel }) => {
 
 (Types and exports were checked against V15 source. The snippet has not been run in an app.)
 
+<a id="bc-046"></a>
+
 ### BC-046: list pagination and state props removed; the lists read the message paginator
 
 - Status: confirmed
@@ -2299,14 +2673,16 @@ export const ChannelWithThread = ({ channel }: { channel: StreamChannel }) => {
   - `release-v14:src/components/MessageList/MessageList.tsx:541` `loadingMoreForJumpToChannelMessage`, `:545` `loadMore`, `:547` `loadMoreNewer`, `:551` `messageLimit`; `:265`–`:275` forward `messageLimit` to `loadMore`
   - `release-v14:src/components/MessageList/VirtualizedMessageList.tsx:678` `channelUnreadUiState`, `:701` `hasMore`, `:703` `hasMoreNewer`, `:714` `highlightedMessageId`, `:716` `loadingMore`, `:718` `loadingMoreNewer`, `:720` `loadMore`, `:722` `loadMoreNewer`, `:728` `messageLimit`
   - `master:src/components/MessageList/MessageList.tsx` `MessageListProps` keeps only `loadingMore` of these; `loadOlderMessages` raises `isLoadingOlder` only when a tailward page can load (`!isLoading && hasMoreTail`), and the loading row renders `(props.loadingMore ?? isLoadingOlder) && <LoadingIndicator />`. Before `fix/v15-dead-surface-cleanup` the type kept `hasMore`, `jumpToLatestMessage`, `loadingMoreNewer`, `messageLimit` unread, and the indicator required the prop.
-  - `master:src/components/MessageList/MessageList.tsx:452` `InternalPaginatorProps`; `master:src/components/InfiniteScrollPaginator/InfiniteScrollPaginator.tsx:18` own props
-  - `master:src/components/MessageList/VirtualizedMessageList.tsx:288` reads `messages`, `hasMoreNewer`, `isLoading` from `messagePaginator.state`
+  - `master:src/components/MessageList/MessageList.tsx:435` `InternalPaginatorProps`; `master:src/components/InfiniteScrollPaginator/InfiniteScrollPaginator.tsx:18` own props
+  - `master:src/components/MessageList/VirtualizedMessageList.tsx:275` reads `messages`, `hasMoreNewer`, `isLoading` from `messagePaginator.state`
   - `node_modules/stream-chat/dist/types/pagination/paginators/MessageIntervalPaginator.d.ts:153` `messageFocusSignal`, `:279` `jumpToMessage`, `:280` `jumpToTheLatestMessage`; `MessagePaginator.d.ts:87` `unreadStateSnapshot`
   - commits: `99cbe6704` (PR #3237); `088c795c1 feat(Channel)!: …` (PR #3286, search jump through `messagePaginator.jumpToMessage`)
 - Docs impact:
   - `02-ui-components/07-message-list/01-message_list.md` (`loadMore`, `loadMoreNewer`, `loadingMore`, `messageLimit`, `jumpToLatestMessage`, `internalInfiniteScrollProps`)
   - `02-ui-components/07-message-list/02-virtualized_list.md` (`hasMore`, `hasMoreNewer`, `loadMoreNewer`, `messageLimit`, `highlightedMessageId`, `channelUnreadUiState`)
 - Example needed: no
+
+<a id="bc-047"></a>
 
 ### BC-047: `MessageList.messages` / `VirtualizedMessageList.messages` are removed
 
@@ -2326,35 +2702,42 @@ export const ChannelWithThread = ({ channel }: { channel: StreamChannel }) => {
   - `02-ui-components/07-message-list/01-message_list.md:52` and `02-ui-components/07-message-list/02-virtualized_list.md:38` (`messages={customMessages}`)
 - Example needed: no
 
+<a id="bc-048"></a>
+
 ### BC-048: thread-specific list props `threadList` and `head` removed; lists detect the thread from context
 
 - Status: confirmed
 - Area: MessageList / VirtualizedMessageList / TypingIndicator / ScrollToLatestMessageButton
 - User impact:
   - compile errors on `threadList` / `head` props, and in custom `TypingIndicator` / `ScrollToLatestMessageButton` overrides that destructure `threadList`, which the SDK no longer passes
+  - compile errors in custom `MessageUI` or message children that read `threadList` from `useMessageContext()`, and on `ReactionSelector.getDialogId({ messageId, threadList })`
   - in untyped overrides, `threadList` is `undefined`, so a thread-aware custom component behaves as if it were in the channel list
 - Old API:
   - `MessageList.threadList`, `VirtualizedMessageList.threadList`, `VirtuosoContext.threadList`
   - `TypingIndicatorProps.threadList`, `ScrollToLatestMessageButtonProps.threadList`
+  - `MessageProps.threadList`, `MessageContextValue.threadList`; `ReactionSelector.getDialogId`'s `threadList` argument and the `-thread` part of the reaction selector dialog id
   - `MessageList.head`, `VirtualizedMessageList.head` (the thread's parent message element)
 - Replacement:
-  - thread detection: `const thread = useThreadContext(); const isThreadList = !!thread;` (the SDK's own components do this)
-  - parent message: both lists render it from `ThreadContext` via `useThreadHead()`. Override it with the `ThreadHead` slot: `<WithComponents overrides={{ ThreadHead: Custom }}>`, typed `React.ComponentType<MessageProps>`.
+  - thread detection: `const thread = useThreadContext(); const isThreadList = !!thread;` (the SDK's own components do this), also in place of `useMessageContext().threadList`
+  - reaction selector dialog id: `ReactionSelector.getDialogId({ messageId })`. Each message list has its own dialog manager, which keeps the channel's and the thread's dialogs for one message apart.
+  - parent message: both lists render it from `ThreadContext` via `useThreadHead`, with the list-wide message props their replies get, except the read state: `returnAllReadData`, `readBy` and `deliveredTo` do not reach it (`MessageStatus` shows no read state inside a thread anyway), so a `ThreadHead` override that needs them sets them itself. Override it with the `ThreadHead` slot: `<WithComponents overrides={{ ThreadHead: Custom }}>`, typed `React.ComponentType<MessageProps>`.
   - `VirtuosoContext.head` is now `ReactElement | null` and always present
 - Evidence:
   - `release-v14:src/components/MessageList/MessageList.tsx:527` `head?`, `:578` `threadList?`
   - `release-v14:src/components/MessageList/VirtualizedMessageList.tsx:708` `head?`, `:776` `threadList?`
   - `release-v14:src/components/TypingIndicator/TypingIndicator.tsx:23` `threadList?`; `release-v14:src/components/MessageList/ScrollToLatestMessageButton.tsx:19` `threadList?`
   - `master:src/components/TypingIndicator/TypingIndicator.tsx:36`–`:40` props are `isMessageListScrolledToBottom?`, `scrollToBottom?`
-  - `master:src/components/MessageList/hooks/useThreadHead.tsx:19` `useThreadHead` reads `ThreadHead` from `ComponentContext`; `master:src/context/ComponentContext.tsx:294` `ThreadHead?`
-  - `master:src/components/MessageList/VirtualizedMessageList.tsx:256` `useThreadHead()`, `:631` `head: threadHead`
+  - `master:src/components/MessageList/hooks/useThreadHead.tsx:34` `useThreadHead` reads `ThreadHead` from `ComponentContext`; `master:src/context/ComponentContext.tsx:334` `ThreadHead?`
+  - `master:src/components/MessageList/VirtualizedMessageList.tsx:241` `useThreadHead(messageProps)`, `:602` `head: threadHead`
   - commits: `c2136f307 refactor!: align Thread with Channel - instance prop, provider, children` (PR #3289, "the `head` prop is removed"); `99cbe6704` (PR #3237)
   - corpus: `docs/03-ui-cookbook__05-message-composer__07-typing_indicator__1.tsx:14` TS2339 (`threadList` not on `TypingIndicatorProps`)
 - Docs impact:
   - `02-ui-components/07-message-list/01-message_list.md`, `02-ui-components/07-message-list/02-virtualized_list.md` (`threadList`, `head`)
   - `02-ui-components/12-indicators.md`, `03-ui-cookbook/05-message-composer/07-typing_indicator.md` (`threadList`)
-  - `02-ui-components/08-message/01-message.md`, `02-ui-components/08-message/02-message_context.md`, `03-ui-cookbook/04-message/01-message_ui.md` mention `threadList`, which is still a `Message` / `MessageContext` field; only the list-level prop is gone, so check each mention
+  - `02-ui-components/08-message/01-message.md`, `02-ui-components/08-message/02-message_context.md`, `03-ui-cookbook/04-message/01-message_ui.md` mention `threadList` as a `Message` / `MessageContext` field, which is removed too; replace each mention with `useThreadContext()`
 - Example needed: no (see BC-004 for a custom `TypingIndicator`)
+
+<a id="bc-049"></a>
 
 ### BC-049: `disableDateSeparator` renamed to `withDateSeparator` (inverted)
 
@@ -2369,9 +2752,9 @@ export const ChannelWithThread = ({ channel }: { channel: StreamChannel }) => {
   - `release-v14:src/components/MessageList/MessageList.tsx:87` `disableDateSeparator = false`, `:515` prop
   - `release-v14:src/components/MessageList/VirtualizedMessageList.tsx:209` `disableDateSeparator = true`, `:304` `enableDateSeparator: !disableDateSeparator`
   - `release-v14:src/components/MessageList/utils.ts:28` `enableDateSeparator?`
-  - `master:src/components/MessageList/MessageList.tsx:526` `withDateSeparator?`, default `true` in `MessageListWithContext`
-  - `master:src/components/MessageList/VirtualizedMessageList.tsx:803` `withDateSeparator?`, default `false` (`:252`)
-  - `master:src/components/MessageList/utils.ts:49` `withDateSeparator?` in `ProcessMessagesContext`
+  - `master:src/components/MessageList/MessageList.tsx:490` `withDateSeparator?`, default `true` in `MessageListWithContext`
+  - `master:src/components/MessageList/VirtualizedMessageList.tsx:724` `withDateSeparator?`, default `false` (`:224`)
+  - `master:src/components/MessageList/utils.ts:47` `withDateSeparator?` in `ProcessMessagesContext`
   - commit: `c2136f307` (PR #3289)
 - Docs impact:
   - `02-ui-components/07-message-list/01-message_list.md`, `02-ui-components/07-message-list/02-virtualized_list.md`, `02-ui-components/08-message/13-date_separator.md`
@@ -2402,6 +2785,8 @@ export const Lists = () => (
   </>
 );
 ```
+
+<a id="bc-050"></a>
 
 ### BC-050: `AIStates` is exported by `stream-chat`, not `stream-chat-react`
 
@@ -2450,6 +2835,8 @@ export const Stop = ({ channel }: { channel: Channel }) => {
 };
 ```
 
+<a id="bc-051"></a>
+
 ### BC-051: `WithAudioPlayback.allowConcurrentPlayback` removed; one voice message plays at a time, app-wide
 
 - Status: confirmed
@@ -2470,6 +2857,8 @@ export const Stop = ({ channel }: { channel: Channel }) => {
   - `02-ui-components/04-channel/01-channel.md` (`allowConcurrentAudioPlayback`)
 - Example needed: no (delete the prop)
 
+<a id="bc-052"></a>
+
 ### BC-052: `usePinHandler` no longer returns `canPin`
 
 - Status: confirmed
@@ -2477,14 +2866,16 @@ export const Stop = ({ channel }: { channel: Channel }) => {
 - User impact: compile error on destructuring `canPin`. In untyped code it is `undefined`, so a pin button gated on it never shows.
 - Old API:
   - `usePinHandler(message): { canPin: boolean; handlePin }`
-- Replacement: `useUserRole(message).canPin` (newly returned). `usePinHandler(message, notifications?)` now returns `{ handlePin }`.
+- Replacement: `useMessagePermissions(message).canPin` (newly returned; the hook was `useUserRole`, see BC-092). `usePinHandler(message, notifications?)` now returns `{ handlePin }`.
 - Evidence:
   - `release-v14:src/components/Message/hooks/usePinHandler.ts:8`, `:54` `return { canPin, handlePin }`
-  - `master:src/components/Message/hooks/usePinHandler.ts:43`, `:110` `return { handlePin }`; `master:src/components/Message/hooks/useUserRole.ts:45` `canPin = channelCapabilities.has('pin-message')`, `:62`
+  - `master:src/components/Message/hooks/usePinHandler.ts:16`, `:115` `return { handlePin }`; `master:src/components/Message/hooks/useMessagePermissions.ts:21` `canPin = channelCapabilities.has('pin-message')`, `:31-44`
   - commit: `99cbe6704` (PR #3237)
 - Docs impact:
-  - `02-ui-components/08-message/04-message_hooks.md` (`usePinHandler`, `useUserRole`)
+  - `02-ui-components/08-message/04-message_hooks.md` (`usePinHandler`, `useMessagePermissions`)
 - Example needed: no
+
+<a id="bc-053"></a>
 
 ### BC-053: `VirtuosoContext` (context of `additionalVirtuosoProps.components`) reshaped
 
@@ -2497,11 +2888,13 @@ export const Stop = ({ channel }: { channel: Channel }) => {
 - Replacement: `VirtuosoContext` now carries a required `channel: Channel`. `head`, `firstUnreadMessageId`, `lastReadMessageId` are `… | null`; `lastReadDate` is `TimestampNS | null`; `loadingMore: boolean`; `unreadMessageCount: number`; `focusedMessageId?` is new. For thread detection use `useThreadContext()` (BC-048); for the message UI use the slots (BC-042).
 - Evidence:
   - `release-v14:src/components/MessageList/VirtualizedMessageList.tsx:94`–`:103` (`'head' | 'loadingMore' | 'Message' | 'threadList'` picked into the context), `:108` `VirtuosoContext`
-  - `master:src/components/MessageList/VirtualizedMessageList.tsx:93`–`:146`
+  - `master:src/components/MessageList/VirtualizedMessageList.tsx:100`–`:140`
   - commits: `07664893e` (PR #3268), `b541c45f9` (PR #3288), `c2136f307` (PR #3289), `aaa7fa31e feat!: adopt stream-chat's branded TimestampNS` (PR #3297)
 - Docs impact:
   - none found (`VirtuosoContext` is not documented in v14 docs)
 - Example needed: no
+
+<a id="bc-054"></a>
 
 ### BC-054: custom `renderMessages` receives a different `RenderMessagesOptions`; `ChannelUnreadUiState` removed
 
@@ -2522,6 +2915,8 @@ export const Stop = ({ channel }: { channel: Channel }) => {
   - `02-ui-components/07-message-list/01-message_list.md` (`renderMessages`)
   - `04-guides/05-channel_read_state.md`, `02-ui-components/07-message-list/02-virtualized_list.md` (`channelUnreadUiState`)
 - Example needed: no
+
+<a id="bc-055"></a>
 
 ### BC-055: exported low-level MessageList hooks and utils changed signature
 
@@ -2544,6 +2939,8 @@ export const Stop = ({ channel }: { channel: Channel }) => {
   - none found
 - Example needed: no
 
+<a id="bc-056"></a>
+
 ### BC-056: `MessageList.headerPosition` / `insertIntro` take unix nanoseconds (`TimestampNS`)
 
 - Status: confirmed
@@ -2554,12 +2951,14 @@ export const Stop = ({ channel }: { channel: Channel }) => {
 - Replacement: pass `TimestampNS`, e.g. `message.created_at` or `msToNs(ms)` from `stream-chat`. Related: `ProcessMessagesParams.lastRead` is `TimestampNS | null` (was `Date | null`), and `VirtuosoContext.lastReadDate` is covered by BC-053.
 - Evidence:
   - `release-v14:src/components/MessageList/MessageList.tsx:529` `headerPosition?: number`; `release-v14:src/components/MessageList/utils.ts:205` `insertIntro(…, headerPosition?: number)`
-  - `master:src/components/MessageList/MessageList.tsx:474` `headerPosition?: TimestampNS`; `master:src/components/MessageList/utils.ts:221`–`:223`
+  - `master:src/components/MessageList/MessageList.tsx:449` `headerPosition?: TimestampNS`; `master:src/components/MessageList/utils.ts:221`–`:223`
   - `node_modules/stream-chat/dist/types/index.d.ts` exports `msToNs`, `asTimestampNS`, `nowNs`
   - commits: `cb472c35f feat!: move to timestamps in response models` (PR #3278); `aaa7fa31e` (PR #3297)
 - Docs impact:
   - `02-ui-components/07-message-list/01-message_list.md` (`headerPosition`)
 - Example needed: no
+
+<a id="bc-057"></a>
 
 ### BC-057: `DateSeparatorMessage` (in the `RenderedMessage` union) lost `type`; `unread` is optional
 
@@ -2577,6 +2976,8 @@ export const Stop = ({ channel }: { channel: Channel }) => {
   - none found
 - Example needed: no
 
+<a id="bc-058"></a>
+
 ### BC-058: a standalone `<Message>` needs a channel in context; `highlighted` is no longer derived from channel state
 
 - Status: confirmed
@@ -2589,13 +2990,15 @@ export const Stop = ({ channel }: { channel: Channel }) => {
 - Evidence:
   - `master:src/context/useChannel.ts` throws when neither a thread nor `ChannelInstanceContext` supplies a channel
   - `master:src/components/Message/hooks/useOpenThreadHandler.ts:16` and `master:src/components/Message/hooks/useRetryHandler.ts:11` call `useChannel()` during every `Message` render
-  - `release-v14:src/components/Message/Message.tsx` `const highlighted = highlightedMessageId === message.id` from `useChannelStateContext('Message')`; `master:src/components/Message/Message.tsx` `highlighted={props.highlighted}`; `master:src/components/Message/types.ts:33`
+  - `release-v14:src/components/Message/Message.tsx` `const highlighted = highlightedMessageId === message.id` from `useChannelStateContext('Message')`; `master:src/components/Message/Message.tsx` `highlighted={props.highlighted}`; `master:src/components/Message/types.ts:44`
   - examples: `examples.diff:9258`–`:9322` (`ReactionsTab.tsx` swaps the two providers for `ChannelInstanceProvider` with `client.channelManager.ensure(...)`)
   - corpus: `examples/examples/vite/src/AppSettings/tabs/Reactions/ReactionsTab.tsx:3`, `:4` TS2724
   - commits: `99cbe6704` (PR #3237), `9194215f0` (PR #3267)
 - Docs impact:
   - none found for a standalone `Message`
 - Example needed: no (the examples hunk is the reference)
+
+<a id="bc-059"></a>
 
 ### BC-059: the gallery header renders the `MessageTimestamp` override only for items that carry their message
 
@@ -2616,7 +3019,431 @@ export const Stop = ({ channel }: { channel: Channel }) => {
   - none found
 - Example needed: no
 
+<a id="bc-087"></a>
+
+### BC-087: `renderText` no longer takes a `mentionedUsers` argument; `RenderTextFunction` is `(text, options)`
+
+- Status: confirmed
+- Area: message text
+- User impact:
+  - Compile error on a three-argument call `renderText(text, mentionedUsers, options)` and on a custom `renderText` prop typed with the old `RenderTextFunction`.
+  - In untyped code, the options object lands in the second position: a call that still passes `mentionedUsers` second has its options ignored, and its mentions are no longer highlighted.
+  - A custom `renderText` prop on `MessageList`, `VirtualizedMessageList`, `Message`, `MessageText`, `QuotedMessage` or `QuotedMessagePreview` is now called as `renderText(text, options)`, so one written for the old order reads the options object as `mentionedUsers` and gets `undefined` as `options`.
+- Old API:
+  - `renderText(text?, mentionedUsers?: UserResponse[], options?: RenderTextOptions)` (`mentionedUsers` was `@deprecated`)
+  - `RenderTextFunction = (text?, mentionedUsers?, options?) => ReactNode`
+- Replacement: `renderText(text?, options?)` and `RenderTextFunction = (text?, options?) => ReactNode`. Pass mentions as `options.messageMentionEntities`; it also covers `@channel`, `@here`, roles and user groups. Build the entities from a message with `getRenderTextMentionEntities(message)`. Without `messageMentionEntities` nothing is highlighted as a mention.
+- Evidence:
+  - `release-v14:src/components/Message/renderText/renderText.tsx:118-134` (`mentionedUsers` `@deprecated` on the type and the function); `release-v14:src/components/Message/MessageText.tsx:73` `renderText(messageTextToRender, message.mentioned_users, { … })`
+  - `master:src/components/Message/renderText/renderText.tsx:111` `RenderTextFunction = (text?: string, options?: RenderTextOptions) => ReactNode`, `:123` `messageMentionEntities = []`
+  - commit: REACT-1467 (PR #3387)
+- Docs impact:
+  - `02-ui-components/08-message/06-render-text.md`
+- Example needed: yes
+
+Before (v14):
+
+```tsx
+const customRenderText: RenderTextFunction = (text, mentionedUsers, options) =>
+  renderText(text, mentionedUsers, { ...options, customMarkDownRenderers });
+```
+
+After (v15):
+
+```tsx
+const customRenderText: RenderTextFunction = (text, options) =>
+  renderText(text, { ...options, customMarkDownRenderers });
+```
+
+---
+
+<a id="bc-088"></a>
+
+### BC-088: the `mention` node passed to a custom mention renderer no longer carries `mentionedUser`
+
+- Status: confirmed
+- Area: message text
+- User impact: compile error on `node.mentionedUser` in a custom `customMarkDownRenderers.mention` component. In untyped code it is `undefined`, so a renderer that reads the user from it renders without one.
+- Old API:
+  - `MentionProps['node'].mentionedUser: UserResponse` for user mentions, `undefined` otherwise (`@deprecated`)
+- Replacement: `node.mentionedEntity` (`RenderTextMentionEntity`). For a user mention, `mentionedEntity.mentionType === 'user'` and the entity carries the user's fields (`id`, `name`, …). `MentionProps['node']` is now `{ mentionedEntity: RenderTextMentionEntity }`.
+- Evidence:
+  - `release-v14:src/components/Message/renderText/componentRenderers/Mention.tsx:7-25`
+  - `master:src/components/Message/renderText/componentRenderers/Mention.tsx:6-8`; `master:src/components/Message/renderText/rehypePlugins/mentionsMarkdownPlugin.ts` (`mentionsMarkdownPluginFromLookup` sets only `mentionedEntity`)
+  - commit: REACT-1467 (PR #3387)
+- Docs impact:
+  - `02-ui-components/08-message/06-render-text.md`, `03-ui-cookbook/04-message/03-mentions_actions.md`
+- Example needed: yes
+
+Before (v14):
+
+```tsx
+const CustomMention = ({ children, node }: MentionProps) => (
+  <span data-user-id={node.mentionedUser?.id}>{children}</span>
+);
+```
+
+After (v15):
+
+```tsx
+const CustomMention = ({ children, node: { mentionedEntity } }: MentionProps) => (
+  <span
+    data-user-id={mentionedEntity.mentionType === 'user' ? mentionedEntity.id : undefined}
+  >
+    {children}
+  </span>
+);
+```
+
+---
+
+<a id="bc-089"></a>
+
+### BC-089: `onMentionsClick` / `onMentionsHover` handlers receive `(event, message)`; the `mentioned_users` argument was removed
+
+- Status: confirmed
+- Area: message / mentions
+- User impact: compile error in a handler typed with three parameters. In untyped code the message lands in the second parameter, so a handler that reads `mentionedUsers[0]` gets `undefined` and one that reads the third parameter gets nothing.
+- Old API:
+  - `CustomMentionHandler = (event, mentioned_users: UserResponse[], message: LocalMessage) => void` (`mentioned_users` was `@deprecated`)
+  - `MentionedUserEventHandler = (event, mentionedUsers: UserResponse[]) => void`, exported and unused by the SDK
+- Replacement: `CustomMentionHandler = (event, message: LocalMessage) => void`; `MentionedUserEventHandler` is removed, type such handlers as `CustomMentionHandler`. Read `message.mentioned_users`, `mentioned_channel`, `mentioned_here`, `mentioned_roles` and `mentioned_groups`. To know which mention was clicked, read the target element's `data-mention-id`, `data-mention-type` or `data-user-id`. Enter or Space on the focused message text also calls the handler; its target is the text element, not a mention.
+- Evidence:
+  - `release-v14:src/components/Message/hooks/useMentionsHandler.ts:8-14`, `:18-21` (`MentionedUserEventHandler`), `:39` `fn(event, message?.mentioned_users ?? [], message)`
+  - `master:src/components/Message/hooks/useMentionsHandler.ts:8-11`, `:20` `handler(event, message)`
+  - commit: REACT-1467 (PR #3387)
+- Docs impact:
+  - `03-ui-cookbook/04-message/03-mentions_actions.md`, `02-ui-components/07-message-list/01-message_list.md` (`onMentionsClick`, `onMentionsHover`)
+- Example needed: yes
+
+Before (v14):
+
+```tsx
+<MessageList
+  onMentionsClick={(event, mentionedUsers) => openProfile(mentionedUsers[0]?.id)}
+/>
+```
+
+After (v15), reading the clicked mention:
+
+```tsx
+const getMentionedUserId = (event: React.BaseSyntheticEvent, message: LocalMessage) => {
+  // Enter or Space targets the message text, not a mention, so it identifies a user only when
+  // the message's one mention is a user (no second user, @channel, @here, role or group).
+  if (event.type === 'keydown') {
+    const [mention, ...otherMentions] = getRenderTextMentionEntities(message);
+    if (otherMentions.length || mention?.mentionType !== 'user') return undefined;
+    return mention.id;
+  }
+  return (event.target as HTMLElement).closest<HTMLElement>('[data-user-id]')?.dataset
+    .userId;
+};
+
+<MessageList
+  onMentionsClick={(event, message) => {
+    const userId = getMentionedUserId(event, message);
+    if (userId) openProfile(userId);
+  }}
+/>;
+```
+
+---
+
+<a id="bc-090"></a>
+
+### BC-090: `useUserRole` no longer returns `isAdmin`, `isModerator` or `isOwner`
+
+- Status: confirmed
+- Area: message hooks
+- User impact: compile error on destructuring the three flags. In untyped code they are `undefined`, so UI gated on them never shows.
+- Old API:
+  - `useUserRole(message).isAdmin`, `.isModerator`, `.isOwner` (all `@deprecated`; derived from `client.user.role` and the deprecated `channel.state.membership.role` / `is_moderator` / `channel_role`)
+- Replacement: gate on what the user may do, not on their role. `useMessagePermissions(message)` (renamed from `useUserRole`, see BC-092) returns permission flags built from the channel's capabilities (`canDelete`, `canEdit`, `canFlag`, `canMarkUnread`, `canMute`, `canPin`, `canQuote`, `canReact`, `canReply`, `canSendMessage`, `canBlockUser`, `isMyMessage`); for any other capability read `useChannelCapabilities({ cid: channel.cid })` (a `Set` of capability names). Where a role really is needed, read `client.user?.role` or `channel.state.membership` directly.
+- Evidence:
+  - `release-v14:src/components/Message/hooks/useUserRole.ts:9-31`, `:65-68`
+  - `master:src/components/Message/hooks/useMessagePermissions.ts:31-44` (returns `can*` flags and `isMyMessage` only)
+  - commit: REACT-1467 (PR #3387); tracked as REACT-83
+- Docs impact:
+  - `02-ui-components/08-message/04-message_hooks.md` (`useMessagePermissions`)
+- Example needed: no
+
+<a id="bc-091"></a>
+
+### BC-091: `VirtualizedMessageList` props `defaultItemHeight`, `overscan` and `scrollSeekPlaceHolder` were removed
+
+- Status: confirmed
+- Area: VirtualizedMessageList
+- User impact: compile error on the props. In untyped code they are ignored: a list that set `overscan` or `defaultItemHeight` falls back to the `react-virtuoso` defaults.
+- Old API:
+  - `defaultItemHeight?: number`, `overscan?: number` (default `0`), `scrollSeekPlaceHolder?: ScrollSeekConfiguration & { placeholder }`, all `@deprecated`. `defaultItemHeight` and `scrollSeekPlaceHolder` were spread after `additionalVirtuosoProps`, so they won over it; `overscan` came before it, so `additionalVirtuosoProps.overscan` already won. `scrollSeekPlaceHolder` was forwarded to `react-virtuoso`'s deprecated `scrollSeek` prop, which applied it and logged a deprecation warning.
+- Replacement: pass them through `additionalVirtuosoProps`: `additionalVirtuosoProps.defaultItemHeight`, `additionalVirtuosoProps.overscan` (the `react-virtuoso` default is also `0`), and `additionalVirtuosoProps.scrollSeekConfiguration` with the placeholder in `additionalVirtuosoProps.components.ScrollSeekPlaceholder`; this keeps the scroll-seek behavior without the warning.
+- Evidence:
+  - `release-v14:src/components/MessageList/VirtualizedMessageList.tsx:686-689`, `:732-735`, `:744-756`, `:643`, `:650-651`
+  - `master:src/components/MessageList/VirtualizedMessageList.tsx:633` (`{...overridingVirtuosoProps}`), `:676` `additionalVirtuosoProps`
+  - commit: REACT-1467 (PR #3387)
+- Docs impact:
+  - `02-ui-components/07-message-list/02-virtualized_list.md`
+- Example needed: yes
+
+Before (v14):
+
+```tsx
+<VirtualizedMessageList defaultItemHeight={80} overscan={200} />
+```
+
+After (v15):
+
+```tsx
+<VirtualizedMessageList
+  additionalVirtuosoProps={{ defaultItemHeight: 80, overscan: 200 }}
+/>
+```
+
+<a id="bc-092"></a>
+
+### BC-092: `useUserRole` was renamed to `useMessagePermissions`
+
+- Status: confirmed
+- Area: message hooks
+- User impact: compile error on importing `useUserRole`. In untyped code the import is `undefined`, so calling it throws `TypeError: useUserRole is not a function`.
+- Old API:
+  - `useUserRole(message: LocalMessage, disableQuotedMessages?: boolean)`
+- Replacement: `useMessagePermissions(message: LocalMessage)`; the `disableQuotedMessages` argument is removed (BC-095). It returns what the current user may do with that message, built from the channel's capabilities and the message's author: `canBlockUser`, `canDelete`, `canEdit`, `canFlag`, `canMarkUnread`, `canMute`, `canPin`, `canQuote`, `canReact`, `canReply`, `canSendMessage` and `isMyMessage`. It returns no role flags (BC-090).
+- Evidence:
+  - `release-v14:src/components/Message/hooks/useUserRole.ts:5`; `release-v14:src/components/Message/hooks/index.ts:12` `export * from './useUserRole'`
+  - `master:src/components/Message/hooks/useMessagePermissions.ts:5`, `:31-44`; `master:src/components/Message/hooks/index.ts:13` `export * from './useMessagePermissions'`
+  - commit: REACT-1467 (PR #3387)
+- Docs impact:
+  - `02-ui-components/08-message/04-message_hooks.md` (the `useUserRole` section, renamed to `useMessagePermissions`)
+  - `03-ui-cookbook` recipes that gate buttons on the hook (custom message actions, pin indicator)
+- Example needed: yes
+
+Before (v14):
+
+```tsx
+import { useUserRole } from 'stream-chat-react';
+
+const { canReply } = useUserRole(message);
+```
+
+After (v15):
+
+```tsx
+import { useMessagePermissions } from 'stream-chat-react';
+
+const { canReply } = useMessagePermissions(message);
+```
+
+<a id="bc-093"></a>
+
+### BC-093: `MessageContextValue.onMentionsClickMessage` / `onMentionsHoverMessage` and `useMentionsHandler`'s handlers are `undefined` without a handler
+
+- Status: confirmed
+- Area: message context
+- User impact:
+  - compile error (`TS2722`) on calling `onMentionsClickMessage(event)` or `onMentionsHoverMessage(event)` from `useMessageContext()`, or the `onMentionsClick` / `onMentionsHover` that `useMentionsHandler()` returns, without a check. In untyped code the call throws `TypeError: onMentionsClickMessage is not a function` (or the same for the other handler) on a message rendered without `onMentionsClick` / `onMentionsHover`.
+  - Without `onMentionsClick`, mentions in `MessageText` are no longer interactive: the text is not a separate focus stop, Enter and Space do nothing, and mentions keep the default cursor.
+- Old API:
+  - `onMentionsClickMessage: ReactEventHandler` and `onMentionsHoverMessage: ReactEventHandler`, always set; a no-op when no handler was passed
+  - `useMentionsHandler(message, handlers)` returned `{ onMentionsClick, onMentionsHover }`, both always functions
+- Replacement: the context fields are optional and set only when `onMentionsClick` / `onMentionsHover` was passed to `MessageList`, `VirtualizedMessageList` or `Message`. `useMentionsHandler` returns each handler only when the matching one is passed to it, and `undefined` otherwise. Pass them as event props (`onClick={onMentionsClickMessage}`), or call them with `?.`. With `onMentionsClick` set, `MessageText` adds `str-chat__message-text-inner--mentions-clickable`, which gives mentions a pointer cursor.
+- Evidence:
+  - `release-v14:src/context/MessageContext.tsx:63-66`; `release-v14:src/components/Message/Message.tsx:263` `onMentionsClickMessage={onMentionsClick}`; `release-v14:src/components/Message/hooks/useMentionsHandler.ts:55-59` (`|| (() => null)`)
+  - `master:src/context/MessageContext.tsx:44-47`; `master:src/components/Message/hooks/useMentionsHandler.ts:13-21`, `:28-49`; `master:src/components/Message/Message.tsx:191-192`; `master:src/components/Message/MessageText.tsx:82-83`, `:121-122`, `:125` (`onClick` only when mentions are interactive)
+  - commit: REACT-1467 (PR #3387)
+- Docs impact:
+  - `02-ui-components/08-message/02-message_context.md` (`onMentionsClickMessage`, `onMentionsHoverMessage`), `02-ui-components/08-message/04-message_hooks.md` (`useMentionsHandler`)
+- Example needed: yes
+
+Before (v14):
+
+```tsx
+const { onMentionsClickMessage } = useMessageContext();
+const onKeyDown = (event) => onMentionsClickMessage(event);
+```
+
+After (v15):
+
+```tsx
+const { onMentionsClickMessage } = useMessageContext();
+const onKeyDown = (event) => onMentionsClickMessage?.(event);
+```
+
+<a id="bc-094"></a>
+
+### BC-094: `mentionsMarkdownPlugin` and `createMentionPluginAndDisplayTextSet` take mention entities only
+
+- Status: confirmed
+- Area: message text
+- User impact: compile error on passing a users array (`message.mentioned_users`, `UserResponse[]`). In untyped code a user without `mentionType` matches by name and by ID, and renders with `data-mention-id` but without `data-mention-type="user"` or `data-user-id`, so a click handler that reads `data-user-id` finds nothing and a custom mention renderer's `mentionType === 'user'` check is false.
+- Old API:
+  - `mentionsMarkdownPlugin(mentionedUsers: UserResponse[])` and `mentionsMarkdownPlugin(mentionEntities: RenderTextMentionEntity[])` (overloads)
+  - `createMentionPluginAndDisplayTextSet(mentionEntitiesOrUsers: RenderTextMentionEntity[] | UserResponse[])`
+- Replacement: pass `RenderTextMentionEntity[]`. Build it from a message with `getRenderTextMentionEntities(message)`, which also covers `@channel`, `@here`, roles and user groups; a bare user becomes `{ ...user, mentionType: 'user' }`.
+- Evidence:
+  - `release-v14:src/components/Message/renderText/rehypePlugins/mentionsMarkdownPlugin.ts:143`, `:270-271`, `:281-291`
+  - `master:src/components/Message/renderText/rehypePlugins/mentionsMarkdownPlugin.ts:160`, `:260-262`, `:271-275`
+  - commit: REACT-1467 (PR #3387)
+- Docs impact:
+  - `02-ui-components/08-message/06-render-text.md`
+- Example needed: yes
+
+Before (v14):
+
+```tsx
+renderText(message.text, {
+  getRehypePlugins: (plugins) => [
+    mentionsMarkdownPlugin(message.mentioned_users ?? []),
+    ...plugins,
+  ],
+});
+```
+
+After (v15):
+
+```tsx
+renderText(message.text, {
+  getRehypePlugins: (plugins) => [
+    mentionsMarkdownPlugin(getRenderTextMentionEntities(message)),
+    ...plugins,
+  ],
+});
+```
+
+<a id="bc-095"></a>
+
+### BC-095: `disableQuotedMessages` is removed from `MessageProps`, `MessageListProps` and `useMessagePermissions`
+
+- Status: confirmed
+- Area: message / message list
+- User impact: compile error on passing `disableQuotedMessages` to `MessageList` or `Message`, or a second argument to `useMessagePermissions`. In untyped code both are ignored. Nothing changes on screen: v14's default `MessageActions` already ignored the flag, because `useBaseMessageActionSetFilter` called `useUserRole(message)` without it, so the Quote action showed whether or not the flag was set. Only `MessageContext.getMessageActions()` honoured it, and no SDK component called that.
+- Old API:
+  - `MessageProps.disableQuotedMessages?: boolean`, also picked into `MessageListProps`
+  - `useUserRole(message, disableQuotedMessages?)`: `canQuote` was `false` when the flag was set
+- Replacement: hide the Quote action with a `messageActionSet` that leaves out the `quote` item (or gives it an `isVisible` rule), installed through the `MessageActions` slot (BC-041). `useMessagePermissions(message).canQuote` is the `quote-message` capability alone.
+- Evidence:
+  - `release-v14:src/components/Message/types.ts:27`; `release-v14:src/components/MessageList/MessageList.tsx:231`, `:497`; `release-v14:src/components/Message/Message.tsx:213`; `release-v14:src/components/Message/hooks/useUserRole.ts:5`, `:49`; `release-v14:src/components/MessageActions/hooks/useBaseMessageActionSetFilter.ts:46` `useUserRole(message)`
+  - `master:src/components/Message/hooks/useMessagePermissions.ts:5`, `:26`
+  - commit: REACT-1467 (PR #3387)
+- Docs impact:
+  - `02-ui-components/07-message-list/01-message_list.md`, `02-ui-components/08-message/01-message.md` (`disableQuotedMessages`), `02-ui-components/08-message/04-message_hooks.md` (`useMessagePermissions`)
+- Example needed: yes
+
+Before (v14):
+
+```tsx
+<MessageList disableQuotedMessages />
+```
+
+After (v15):
+
+```tsx
+import {
+  defaultMessageActionSet,
+  MessageActions,
+  MessageList,
+  WithComponents,
+} from 'stream-chat-react';
+
+const messageActionSet = defaultMessageActionSet.filter(
+  // the dropdown-toggle item has no `type`; keep it
+  (item) => !('type' in item) || item.type !== 'quote',
+);
+
+const MessageActionsWithoutQuote = () => (
+  <MessageActions messageActionSet={messageActionSet} />
+);
+
+export const List = () => (
+  <WithComponents overrides={{ MessageActions: MessageActionsWithoutQuote }}>
+    <MessageList />
+  </WithComponents>
+);
+```
+
+<a id="bc-102"></a>
+
+### BC-102: `initialMessage` is removed from `MessageProps` and `MessageContextValue`; `useIsRenderedAsThreadParent()` tells the thread's parent message apart
+
+- Status: confirmed
+- Area: message / thread
+- User impact:
+  - compile error on passing `initialMessage` to `Message` or reading `useMessageContext().initialMessage`.
+  - silent behavior change in untyped code: the prop is ignored and the context field is `undefined`, so code that read it to tell the thread's parent message from its replies takes the parent for a reply. For example, `!!useThreadContext() && !initialMessage` is `true` for the parent.
+  - The default message actions still give the thread's parent message no actions, and now detect it themselves. A `ThreadHead` override that renders `<Message {...props} />` without `initialMessage` no longer gives the parent the full action menu, as it did in v14.
+- Old API:
+  - `MessageProps.initialMessage?: boolean`, passed on as `MessageContextValue.initialMessage`. The default `ThreadHead` rendered `<Message initialMessage threadList {...props} />`.
+  - `useBaseMessageActionSetFilter` returned no actions while `initialMessage` was set.
+- Replacement: `useIsRenderedAsThreadParent()`, exported from `stream-chat-react`. It returns whether the message in `MessageContext` is the parent message of the thread in `ThreadContext`: a `stream-chat` `Thread`'s `id` is its parent message's id. It returns `false` for the thread's replies and outside a thread. Call it in a component that `<Message>` renders: it reads `useMessageContext()`, which throws outside a `MessageProvider`. A `ThreadHead` override renders `<Message {...props} />`.
+- Evidence:
+  - `release-v14:src/components/Message/types.ts:36`, `release-v14:src/context/MessageContext.tsx:90`, `release-v14:src/components/Message/Message.tsx:255`, `release-v14:src/components/Thread/ThreadHead.tsx:15`, `release-v14:src/components/MessageActions/hooks/useBaseMessageActionSetFilter.ts:32`
+  - `master:src/components/Message/hooks/useIsRenderedAsThreadParent.ts`, `master:src/components/MessageActions/hooks/useBaseMessageActionSetFilter.ts` (`isThreadParent`), `master:src/components/Thread/ThreadHead.tsx`
+  - commit: REACT-1521
+- Docs impact:
+  - `06-component-reference/04-message/01-message.md` (`initialMessage` prop), `06-component-reference/04-message/02-messagecontext.md` (`initialMessage` field), `07-reference/02-hooks/10-message-hooks.md` (the new hook; `useBaseMessageActionSetFilter`), `05-ui-cookbooks/04-message-list/06-read-receipt-avatars.md`, `08-release-guides/01-upgrade-to-v15.md`
+- Example needed: yes
+
+Before (v14):
+
+```tsx
+const { initialMessage } = useMessageContext();
+const isThreadReply = !!useThreadContext() && !initialMessage;
+```
+
+After (v15):
+
+```tsx
+import { useIsRenderedAsThreadParent, useThreadContext } from 'stream-chat-react';
+
+const isThreadParent = useIsRenderedAsThreadParent();
+const isThreadReply = !!useThreadContext() && !isThreadParent;
+```
+
+<a id="bc-105"></a>
+
+### BC-105: `additionalMessageComposerProps` is removed from `MessageProps`, `MessageListProps` and `VirtualizedMessageListProps`
+
+- Status: confirmed
+- Area: message / message list
+- User impact: compile error on passing `additionalMessageComposerProps` to `Message`, `MessageList` or `VirtualizedMessageList`, and on reading it in a custom `ThreadHead`. In untyped code it is ignored. Nothing changes on screen: no message component read it in v14 either. The lists passed it to every `Message`, which passed it on to the memoized message, and nothing rendered a composer with it.
+- Old API:
+  - `MessageProps.additionalMessageComposerProps?: MessageComposerProps`, picked into `MessageListProps` and `VirtualizedMessageListProps`
+- Replacement: delete it. A custom component in `additionalVirtuosoProps.components` that read it from `VirtuosoContext` gets `undefined`; give it the value through your own context. If the props were meant for the composer, pass them to the `MessageComposer` you render (a thread's composer is a `MessageComposer` child of `Thread`); that turns them on, because v14 never applied them. Edits happen in that composer, so there is no separate edit composer to configure.
+- Also removed from `VirtuosoContext` (the context of `additionalVirtuosoProps.components`).
+- Evidence:
+  - `release-v14:src/components/Message/types.ts:19`; `release-v14:src/components/MessageList/MessageList.tsx:229`, `:495`; `release-v14:src/components/MessageList/VirtualizedMessageList.tsx:85`, `:202`, `:599`
+  - `master:src/components/Message/types.ts` (no `additionalMessageComposerProps`)
+  - REACT-1277
+- Docs impact:
+  - `02-ui-components/07-message-list/01-message_list.md`, `02-ui-components/07-message-list/02-virtualized_list.md`, `02-ui-components/08-message/01-message.md`
+- Example needed: no
+
+<a id="bc-106"></a>
+
+### BC-106: `MessageReactions.reverse`, `MessageReactionsDetail.sort` and `MessageReactionsDetail.dialogId` are removed
+
+- Status: confirmed
+- Area: reactions
+- User impact: compile error on passing these props, and in a custom `MessageReactions` or `MessageReactionsDetail` override that reads them. In untyped code they are ignored. Nothing changes on screen: the default components ignored all three in v14 too. A custom `MessageReactions` override no longer gets `reverse={true}` from the default `MessageUI`.
+- Old API:
+  - `MessageReactionsProps.reverse?: boolean`; the default `MessageUI` rendered `<MessageReactions reverse />`
+  - `MessageReactionsDetailProps.sort?: ReactionSort`
+  - `MessageReactionsDetailProps.dialogId?: string`, inherited from `ReactionSelectorProps`
+- Replacement:
+  - order of the reaction types: `sortReactions` (on `Message`, the message lists or `MessageReactions`)
+  - order of the reacting users in the detail: `reactionDetailsSort` (same places, and on `MessageReactionsDetail`), a `SortParamRequest[]` (BC-071)
+  - the detail's dialog id is `MessageReactionsDetail.getDialogId({ messageId })`
+- Evidence:
+  - `release-v14:src/components/Reactions/MessageReactions.tsx:35`; `release-v14:src/components/Message/MessageUI.tsx:261`; `release-v14:src/components/Reactions/MessageReactionsDetail.tsx:27`, `:30`
+  - `master:src/components/Reactions/MessageReactions.tsx` (`MessageReactionsProps`), `master:src/components/Reactions/MessageReactionsDetail.tsx` (`Omit<ReactionSelectorProps, 'dialogId'>`)
+  - REACT-1277
+- Docs impact:
+  - `02-ui-components/08-message/12-reactions.md`, `03-ui-cookbook/04-message/02-reactions.md`
+- Example needed: no
+
 ## Message composer
+
+<a id="bc-060"></a>
 
 ### BC-060: `MessageComposer.overrideSubmitHandler` was removed
 
@@ -2688,6 +3515,8 @@ client.config.set({
 export const Composer = () => <MessageComposer />;
 ```
 
+<a id="bc-061"></a>
+
 ### BC-061: `MessageComposer.preventClearingOnUnmount` was removed; a supplied composer is never cleared on unmount
 
 - Status: confirmed
@@ -2736,6 +3565,8 @@ export const InlineEditor = ({ composer }: { composer: Composer }) => (
 );
 // When the edit is abandoned, discard it yourself: composer.clear();
 ```
+
+<a id="bc-062"></a>
 
 ### BC-062: `handleSubmit` was removed from `MessageComposerContext` and `useMessageComposerBindings`; submit with `useMessageComposerSubmitFn()` or `messageComposer.send()` / `update()`
 
@@ -2810,6 +3641,8 @@ export const CompactInput = () => {
 };
 ```
 
+<a id="bc-063"></a>
+
 ### BC-063: a failed send or edit no longer restores the composer
 
 - Status: confirmed
@@ -2831,6 +3664,8 @@ export const CompactInput = () => {
 - Docs impact:
   - none found in v14 docs (the restore-on-failure behavior was undocumented)
 - Example needed: no
+
+<a id="bc-064"></a>
 
 ### BC-064: `useAttachmentManagerState().hasCustomDoUploadRequest` was replaced by `customCdn`
 
@@ -2856,34 +3691,40 @@ export const CompactInput = () => {
   - `02-ui-components/09-message-composer/10-message_composer.md` (lines 319-331, `useAttachmentManagerState` section)
 - Example needed: no (the guide's two-line snippet is accurate)
 
-### BC-065: `AttachmentSelector` actions follow the composer's resolved configuration, and `customCdn` decides whether upload permission applies
+<a id="bc-065"></a>
+
+### BC-065: `AttachmentSelector` and `SimpleAttachmentSelector` follow the composer's resolved configuration, and `customCdn` decides whether upload permission applies
 
 - Status: confirmed
 - Area: attachment selector (behavior)
 - User impact: silent behavior change in which attachment-menu actions are offered, and in which uploads are allowed.
-  - **File:** v14 required `channelCapabilities['upload-file'] && channelConfig.uploads && isUploadEnabled`. v15 requires only `attachmentManager.isUploadEnabled`, which is `config.attachments.enabled && hasAvailableUploadSlots && (customCdn || hasUploadPermission)`.
+  - **File:** v14 required `channelCapabilities['upload-file'] && channelConfig.uploads && isUploadEnabled`. v15 offers File while `config.attachments.enabled && (customCdn || hasUploadPermission)`: `attachmentManager.isUploadEnabled` without its free-slot condition. Once the message holds `maxNumberOfFilesPerMessage` files, File stays in the menu, disabled; v14 hid it.
     - With `customCdn: true`, the File action now appears for users without `upload-file`; v14 always hid it from them.
     - With a custom `doUploadRequest` and `customCdn` unset, uploads that the v14 LLC let through without `upload-file` are now blocked, for example paste, which skipped the capability check when `doUploadRequest` was set. The File action was already hidden in v14.
+  - **`SimpleAttachmentSelector`** (the default while editing a message) applies the same File rule, and so does the identical button `AttachmentSelector` renders when File is its only action (`FileUploadButton`). v14 checked only `upload-file`. So it now appears without `upload-file` when `customCdn: true`, and it is hidden when `attachments.enabled` is `false` (the channel type's `uploads` flag is off and `customCdn` is unset, or the client disables attachments). Once the message holds `maxNumberOfFilesPerMessage` files it is disabled; v14 left it enabled.
   - **Poll:** reads the resolved `polls.enabled` instead of the raw `channelConfig.polls`.
   - **Location:** reads the resolved `location.enabled` instead of `channelConfig.shared_locations`.
   - **Commands:** read `channel.configState` `availableCommands` instead of `channel.getConfig().commands`.
   - Consequently `client.config.set({ messageComposer: { attachments | polls | location: { enabled: false } } })` now hides the matching action.
 - Old API:
   - default `AttachmentSelector` action filtering (`useAttachmentSelectorActionsFiltered`, internal)
+  - `SimpleAttachmentSelector` gated on `upload-file` alone
   - custom `doUploadRequest` used as an implicit "uploads do not go to Stream" signal
-- Replacement: if your `doUploadRequest` stores files outside Stream, declare it with `client.config.set({ messageComposer: { attachments: { customCdn: true } } })`. If your upload function still posts to Stream, leave `customCdn` unset. `SimpleAttachmentSelector` still requires `upload-file` regardless (`master:src/components/MessageComposer/AttachmentSelector/AttachmentSelector.tsx:136`).
+- Replacement: if your `doUploadRequest` stores files outside Stream, declare it with `client.config.set({ messageComposer: { attachments: { customCdn: true } } })`. If your upload function still posts to Stream, leave `customCdn` unset. The filter applies only to the four built-in action types; to offer an action it would hide, give the action a `type` of its own (always offered, as in v14). That does not grant the permission behind it: `uploadFiles()` still drops files while `isUploadEnabled` is `false` (attachments disabled, the file limit reached, or neither `customCdn` nor `upload-file`), and the server still refuses a poll without `send-poll`. A custom type also gives up what is tied to the built-in types: the default `ModalContent` of `createPoll` / `addLocation`, the poll form reset on open, and the modal classes. Its `ActionButton` must call `openModalForAction('<its type>')`, since the default Poll and Location buttons open the built-in types' modals; `DefaultAttachmentSelectorComponents.File` and `.Command` (with the action's `Submenu` / `Header`) can be reused as they are. When an action is the only one offered, the selector renders its `StandaloneButton` (new) in place of the menu, inside the selector's root element and disabled during the send cooldown. Only `uploadFile` gets one by default (`FileUploadButton`, new export), so a custom upload type sets `StandaloneButton: FileUploadButton` to keep the plain button; an action without one is the only item of the menu.
 - Evidence:
-  - `release-v14:src/components/MessageComposer/AttachmentSelector/AttachmentSelector.tsx:285-313`
+  - `release-v14:src/components/MessageComposer/AttachmentSelector/AttachmentSelector.tsx:130` (`SimpleAttachmentSelector`: `upload-file` only), `:285-313` (action filter)
   - `release-v14 node_modules/stream-chat@9.54.0 src/messageComposer/attachmentManager.ts:181-183` (`isUploadEnabled = hasUploadPermission && hasAvailableUploadSlots`), `:785-786` (`uploadFiles` skips the capability check when `hasCustomDoUploadRequest`)
-  - `master:src/components/MessageComposer/AttachmentSelector/AttachmentSelector.tsx:293-322`
-  - `master:node_modules/stream-chat/src/messageComposer/attachmentManager.ts:203-225` (`usesStreamStorage = !customCdn`; `isUploadEnabled`)
+  - `master:src/components/MessageComposer/AttachmentSelector/attachmentSelectorActionAvailability.ts:30-77` (one named rule per built-in action type; other types are always offered)
+  - `master:src/components/MessageComposer/AttachmentSelector/AttachmentSelector.tsx:65-99` (the values the rules read, subscribed), `:150-192` (`FileUploadButton`, disabled at the file limit), `:194-220` (the root element and cooldown around a lone button), `:222-236` (`SimpleAttachmentSelector` uses the File rule), `:248-253` (`StandaloneButton`), `:292-312` (the menu's File, disabled at the file limit), `:377-404` (action filter; `uploadFile` defaults to `FileUploadButton`), `:504-512` (a lone action renders its `StandaloneButton` without gating it again)
+  - `master:node_modules/stream-chat/src/messageComposer/attachmentManager.ts:194-209` (`usesStreamStorage = !customCdn`; `isUploadEnabled`)
   - commit: `f66597a13 feat: use configuration service API as a single source of truth` (PR #3273)
   - examples.diff: `examples/vite/src/App.tsx` sets `chatClient.config.setConfig('messageComposer', { attachments: { customCdn: uploadDestination !== 'stream', pendingUploadsEnabled } })`
 - Docs impact:
   - `02-ui-components/09-message-composer/11-message_composer_api.md` (line ~471, "Custom Upload Destination": add `customCdn: true`)
-  - `02-ui-components/09-message-composer/08-attachment-selector.md` (when actions are offered)
+  - `02-ui-components/09-message-composer/08-attachment-selector.md` (when actions are offered, custom action types, `StandaloneButton` and `FileUploadButton`, when `SimpleAttachmentSelector` renders)
 - Example needed: no
-- Note for the guide: `ai-migration-v14-v15.md` § "Attachment/poll availability" says that without `customCdn` "the File action disappears for users without the `upload-file` capability". It already did in v14, since the v14 selector checked `channelCapabilities['upload-file']` directly. The v14→v15 differences are the two bullets under the **File** action above.
+
+<a id="bc-066"></a>
 
 ### BC-066: `getAttachmentPreviewUrl`, `hasPendingUploadState` and `isUploadConfirmationPending` moved to `stream-chat`
 
@@ -2928,7 +3769,81 @@ import {
 } from 'stream-chat';
 ```
 
+<a id="bc-107"></a>
+
+### BC-107: `emojiSearchIndex` and `parent` are removed from `MessageComposer` and its context; `ComponentContext.emojiSearchIndex` is removed
+
+- Status: confirmed
+- Area: message composer
+- User impact: compile error on `<MessageComposer emojiSearchIndex parent>`, on an `emojiSearchIndex` key in `WithComponents` overrides, and on reading `emojiSearchIndex`, `parent` or `audioRecordingConfig` from `useMessageComposerContext()`. In untyped code they are ignored. Nothing changes on screen: in v14 they only reached the composer context, and nothing read them there. Emoji autocomplete already needed the middleware below.
+- Old API:
+  - `MessageComposerProps.emojiSearchIndex`, `MessageComposerProps.parent`
+  - `ComponentContextValue.emojiSearchIndex`
+  - `MessageComposerContextValue.emojiSearchIndex`, `.parent`, `.audioRecordingConfig` (the last was typed but never set)
+- Replacement:
+  - drop the props: they turned on nothing in v14. A custom component that read `emojiSearchIndex` or `parent` from `useMessageComposerContext()` gets `undefined`; give it the value through its own props or context.
+  - emoji autocomplete, only if the app wants `:shortcode` suggestions (v14 showed none from these props): initialize emoji-mart (`init({ data })`), then register `createTextComposerEmojiMiddleware(SearchIndex)` from `stream-chat-react/emojis` on every composer with `client.config.setSetupFunction('messageComposer', ...)`. That call replaces a previously registered setup function for the key, so an app that already has one adds the `insert` call to it. The `EmojiSearchIndex` type is still exported.
+  - `parent`: the composer belongs to the thread already. Where you need the parent message, subscribe with `useStateStore(useThreadContext()?.state, selector)` and read `parentMessage`.
+  - `audioRecordingConfig` stays a `MessageComposer` prop; the recorder reads it, the context does not carry it.
+- Evidence:
+  - `release-v14:src/components/MessageComposer/MessageComposer.tsx:76`, `:94`; `release-v14:src/context/ComponentContext.tsx:153`; `release-v14:src/context/MessageComposerContext.tsx:8` (`Omit<MessageComposerProps, 'Input'>`)
+  - `master:src/components/MessageComposer/MessageComposer.tsx` (`MessageComposerProps`); `master:src/context/MessageComposerContext.tsx` (`Omit<MessageComposerProps, 'audioRecordingConfig' | 'generateRecordingTitle'>`); `master:src/plugins/Emojis/middleware/textComposerEmojiMiddleware.ts`
+  - REACT-1277
+- Docs impact:
+  - `02-ui-components/09-message-composer/01-message_composer.md`, `02-ui-components/09-message-composer/02-message_composer_context.md`, `02-ui-components/04-channel/05-component_context.md`
+- Example needed: yes
+
+Before (v14):
+
+```tsx
+<MessageComposer emojiSearchIndex={SearchIndex} />
+```
+
+After (v15):
+
+```tsx
+import type { TextComposerMiddleware } from 'stream-chat';
+import { createTextComposerEmojiMiddleware } from 'stream-chat-react/emojis';
+import data from '@emoji-mart/data';
+import { init, SearchIndex } from 'emoji-mart';
+
+// `SearchIndex.search()` returns nothing until emoji-mart has its data.
+init({ data });
+
+client.config.setSetupFunction('messageComposer', ({ composer }) => {
+  composer.textComposer.middlewareExecutor.insert({
+    middleware: [
+      createTextComposerEmojiMiddleware(SearchIndex) as TextComposerMiddleware,
+    ],
+    position: { before: 'stream-io/text-composer/mentions-middleware' },
+    unique: true,
+  });
+});
+
+<MessageComposer />;
+```
+
+<a id="bc-108"></a>
+
+### BC-108: `WithDragAndDropUpload.acceptedFiles` is removed
+
+- Status: confirmed
+- Area: message composer (drag and drop)
+- User impact: compile error on `<WithDragAndDropUpload acceptedFiles>`. In untyped code it is ignored. Nothing changes: v14 ignored it too, and the drop zone accepted the file types of the composer config.
+- Old API:
+  - `WithDragAndDropUpload` prop `acceptedFiles?: string[]`
+- Replacement: set the accepted types on the composer config, `attachments.acceptedFiles` (for example in `client.config.setSetupFunction('messageComposer', ...)` or with `MessageComposer.updateConfig()`). The drop zone and the file picker (`UploadButton`) read it.
+- Evidence:
+  - `release-v14:src/components/MessageComposer/WithDragAndDropUpload.tsx:69` (declared), `:83-99` (`accept` from `configState.attachments.acceptedFiles`)
+  - `master:src/components/MessageComposer/WithDragAndDropUpload.tsx` (`WithDragAndDropUpload` props)
+  - REACT-1277
+- Docs impact:
+  - `02-ui-components/09-message-composer/05-ui_components.md`
+- Example needed: no
+
 ## i18n
+
+<a id="bc-067"></a>
 
 ### BC-067: English-only bundle and namespaced keys. Built-in dictionaries, `isLanguageSupported` and `SupportedTranslations` are removed
 
@@ -2954,6 +3869,8 @@ import {
 - Docs impact:
   - `04-guides/03-translations.md`, `04-guides/08-date-time-formatting.md`, `04-guides/13-notifications.md`, `04-guides/18-accessibility.md`, `02-ui-components/03-chat/01-chat.md` (`SupportedTranslations`), `03-ui-cookbook/13-accessibility/02-custom-announcements.md`
 - Example needed: no (`i18n-v15-migration.md` already carries the examples; do not list keys here)
+
+<a id="bc-068"></a>
 
 ### BC-068: `t` from `useTranslationContext()` is strictly typed. `t('English text')` and `t(someString)` no longer compile
 
@@ -3005,6 +3922,8 @@ export const RemoveButton = ({ label }: { label: string }) => {
   );
 };
 ```
+
+<a id="bc-069"></a>
 
 ### BC-069: `Streami18n` public API reshaped: members removed, `setLanguage` returns `void`, `t` is read-only, formatter and date-parser types changed
 
@@ -3067,7 +3986,27 @@ const { t: frT } = i18n.state.getLatestValue();
 const hasFr = i18n.registeredLanguages.has('fr');
 ```
 
+<a id="bc-100"></a>
+
+### BC-100: `typing.twoUsers` takes the two names as `firstUser` and `secondUser` instead of one joined `typing` value
+
+- Status: confirmed
+- Area: i18n (typing indicator)
+- User impact: **silent**. A translation of the two-person typing text that still uses `{{ typing }}` renders the literal `{{ typing }}`, because the SDK no longer passes that value. App code that calls `t('typing.twoUsers', …)` itself with `{ typing }` still compiles (`t` checks values only on plural keys) and renders English correctly, but once a translation written with the new values is registered it shows `{{ firstUser }}` and `{{ secondUser }}` literally. Apps that do not override the key see no change in English: the default is `'{{ firstUser }} and {{ secondUser }} are typing'`. The text shows in `<TypingIndicator/>` (its screen-reader announcement) and `<TypingIndicatorHeader/>` (the channel and thread header subtitle).
+- Old API:
+  - v14 key `'{{ typing }} are typing'` with one value, `typing`, set to both names joined by an English "and" (`'Anna and Ben'`), so a translation could not change that word. A dictionary written against a v15 release candidate that uses `{{ typing }}` in `typing.twoUsers` needs the same change.
+- Replacement: write the whole sentence around `{{ firstUser }}` and `{{ secondUser }}`, e.g. `'typing.twoUsers': '{{ firstUser }} und {{ secondUser }} schreiben'`. The key map entry for `'{{ typing }} are typing'` lists both sets of names under `values`. `typing.singleUser` (`{{ typing }}`, one name) and `typing.manyUsers` (`{{ count }}`) are unchanged.
+- Evidence:
+  - `release-v14:src/components/TypingIndicator/utils/getTypingStatusMessage.ts:25-27`
+  - `master:src/components/TypingIndicator/utils/getTypingStatusMessage.ts:20-23`
+  - ticket: REACT-1495
+- Docs impact:
+  - v15 docs: `04-features/01-messaging/12-typing-indicators.md` ("The texts" table gives the old default), `08-release-guides/01-upgrade-to-v15.md` ("Localization" section: the changed values)
+- Example needed: no (`i18n-v15-migration.md` "Keys whose values changed" carries it)
+
 ## Types that follow stream-chat v10 (umbrella entries)
+
+<a id="bc-070"></a>
 
 ### BC-070: values typed with stream-chat types changed shape in channel/navigation hooks and contexts (umbrella)
 
@@ -3091,13 +4030,15 @@ const hasFr = i18n.registeredLanguages.has('fr');
 
 ---
 
+<a id="bc-071"></a>
+
 ### BC-071: message-area props typed with `stream-chat` types change shape with `stream-chat` v10 (umbrella)
 
 - Status: confirmed
 - Area: message rendering (LLC-typed props)
 - User impact: compile errors and runtime differences in custom components and handlers that build or read these values. The React APIs are unchanged; the `stream-chat` v10 types they reference changed.
 - Old API -> v15 (representative):
-  - Reaction sort: `reactionDetailsSort` (on `Message`, `MessageList`, `VirtualizedMessageList`, `MessageContext`, `MessageReactions`, `MessageReactionsDetail`, `VirtuosoContext`), `MessageReactionsDetail.sort`, and the `sort` argument of `handleFetchReactions` / `useReactionsFetcher`: `ReactionSort` -> `SortParamRequest[]` (`[{ field: 'created_at', direction: -1 }]`). `ReactionSort` no longer exists in `stream-chat`.
+  - Reaction sort: `reactionDetailsSort` (on `Message`, `MessageList`, `VirtualizedMessageList`, `MessageContext`, `MessageReactions`, `MessageReactionsDetail`, `VirtuosoContext`), and the `sort` argument of `handleFetchReactions` / `useReactionsFetcher`: `ReactionSort` -> `SortParamRequest[]` (`[{ field: 'created_at', direction: -1 }]`). `ReactionSort` no longer exists in `stream-chat`.
   - Delete options: `MessageContext.handleDelete` / `useDeleteHandler` options: `{ deleteForMe?, hardDelete? }` -> `{ delete_for_me?, hard? }`
   - Mutes: `isUserMuted(message, mutes)`: `Mute[]` -> `UserMuteResponse[]` (`target` is optional)
   - Moderation: `isMessageBounced` / `isMessageBlocked` read only `message.moderation`, because `moderation_details` is gone from `LocalMessage`
@@ -3113,7 +4054,7 @@ const hasFr = i18n.registeredLanguages.has('fr');
 - Evidence:
   - diff `components/Attachment`, `components/Message`, `components/MessageList`, `components/Poll`, `components/Reactions`, `components/EventComponent`, `context` (`MessageContext.handleDelete` / `handleFetchReactions` / `reactionDetailsSort`)
   - `master:src/context/MessageContext.tsx` imports `DeleteMessageOptions`, `SortParamRequest` from `stream-chat`; `node_modules/stream-chat/dist/types/types.d.ts:284` `DeleteMessageOptions = NonNullable<Parameters<ChatApi['deleteMessage']>[1]>`; `gen/models/index.d.ts:8432` `SortParamRequest { direction?, field?, type? }`
-  - `master:src/components/Message/utils.tsx:42` `isUserMuted(message, mutes?: UserMuteResponse[])`
+  - `master:src/components/Message/utils.tsx:48` `isUserMuted(message, mutes?: UserMuteResponse[])`
   - examples: `examples.diff:12306`–`:12307` `onDelete({ deleteForMe, hardDelete })` -> `onDelete({ delete_for_me: deleteForMe, hard: hardDelete })`
   - commits: `99cbe6704` (PR #3237, "attachment `duration`/`file_size`/`mime_type`/`waveform_data` from `attachment.custom` … `moderation_details` is gone"), `ccccce5e4 fix: adapt to removed stream-chat-js hand-written types` (PR #3274), `cb472c35f` (PR #3278)
   - corpus: `examples/examples/vite/src/CustomMessageActions/ConfigurableMessageActions.tsx:119` TS2561 (`deleteForMe`); `docs/03-ui-cookbook__06-attachment__03-geolocation_attachment__1.tsx:13`, `:14` TS2339 (location union)
@@ -3149,6 +4090,8 @@ export const DeleteForMe = () => {
 };
 ```
 
+<a id="bc-072"></a>
+
 ### BC-072: composer prop and type changes that follow stream-chat v10 types (umbrella)
 
 - Status: confirmed
@@ -3179,7 +4122,32 @@ export const DeleteForMe = () => {
   - `02-ui-components/09-message-composer/05-ui_components.md` (`CommandChip`)
 - Example needed: no (belongs under the guide's "Dates on response types" and v10 data-shape umbrella, which other areas will also feed)
 
+<a id="bc-078"></a>
+
+### BC-078: `CustomCommandData` augmentation and `DefaultCommandData` are removed; command names are `string`
+
+- Status: confirmed
+- Area: custom data types, commands
+- User impact: compile error `TS2305` on `import type { DefaultCommandData } from 'stream-chat-react'`, and, with a `stream-chat` release after `10.0.0-rc.32`, on `import type { CustomCommandData } from 'stream-chat'` once no augmentation of it is left in the program. Command names lose their type: v14 typed `command.name` / `command.set` as `CommandVariants` (the built-in names plus the keys of `CustomCommandData`), so a typo such as `command.name === 'gihpy'` failed to compile; v15 types them as `string`, and it compiles. A leftover `interface CustomCommandData { … }` in `declare module 'stream-chat'` still compiles and has no effect, because nothing reads it.
+- Old API:
+  - `DefaultCommandData` (exported from `stream-chat-react`)
+  - `declare module 'stream-chat' { interface CustomCommandData extends DefaultCommandData {} }`
+- Replacement: delete the `CustomCommandData` augmentation and the `DefaultCommandData` import. `Command['name']` and `Command['set']` are `string`; an app that wants a checked set of names declares its own union and narrows `command.name` against it.
+- Evidence:
+  - `release-v14:src/types/defaultDataInterfaces.ts:11` `export interface DefaultCommandData {}`; `release-v14:src/@types/stream-chat-custom-data.d.ts:23` augments `CustomCommandData` with it
+  - `stream-chat` `v9.54.4:src/types.ts:2772-2781` `CommandVariants = 'all' | 'ban' | 'fun_set' | 'giphy' | 'moderation_set' | 'mute' | 'unban' | 'unmute' | keyof CustomCommandData`, used by `CommandResponse.name` / `set` (`:470-475`)
+  - `master:node_modules/stream-chat/src/gen/models/index.ts:2551-2568` `Command.name: string`, `Command.set: string`
+  - `stream-chat` `release-v10` removes `CustomCommandData` from `src/custom_types.ts` and the root exports after `10.0.0-rc.32` (GetStream/stream-chat-js#1989, REACT-1363); `10.0.0-rc.32` and earlier still export it, including `10.0.0-rc.31`, which `master` pins
+  - `master:src/types/defaultDataInterfaces.ts` has no `DefaultCommandData`
+  - examples: `release-v14:examples/ai-chatbot/src/components/stream-chat.d.ts:4,25` imported and augmented it
+- Docs impact:
+  - `02-state/01-state-and-entities/06-data-conventions.md` ("Custom data types": drop the `CustomCommandData` line)
+  - `08-release-guides/01-upgrade-to-v15.md` (add a row: delete `CustomCommandData` augmentations and the `DefaultCommandData` import)
+- Example needed: no
+
 ## CSS and markup
+
+<a id="bc-073"></a>
 
 ### BC-073: CSS, channel layout wrappers: `Window` and the `str-chat__main-panel` / `str-chat__container` wrappers are removed
 
@@ -3203,6 +4171,8 @@ export const DeleteForMe = () => {
 - Docs impact:
   - `02-ui-components/13-window.md` (whole page obsolete), `02-ui-components/01-getting_started.md` (CSS `#root .str-chat__main-panel` and `Window` usage), `02-ui-components/03-chat/01-chat.md` (`chatContainer -> str-chat__container`), and every page whose snippet wraps the list in `<Window>` (`02-ui-components/04-channel/01-channel.md`, `02-ui-components/08-message/13-date_separator.md`, …)
 - Example needed: no
+
+<a id="bc-074"></a>
 
 ### BC-074: CSS, channel list: `ChannelListUI` wrappers removed; the theme scope moves to `ChatView`, with the channel list carrying its own only outside it
 
@@ -3229,6 +4199,8 @@ export const DeleteForMe = () => {
   - `02-ui-components/05-channel-list/06-channel-list-infinite-scroll.md`, `06-release-guides/01-upgrade-to-v14.md` (`str-chat__channel-list-inner`), `02-ui-components/02-theming/01-themingv2.md:172-173` (`customClasses.channelList`)
 - Example needed: no
 
+<a id="bc-075"></a>
+
 ### BC-075: CSS, ChatView: `str-chat__chat-view__channels` / `__threads` render only in `views` mode
 
 - Status: confirmed
@@ -3244,6 +4216,8 @@ export const DeleteForMe = () => {
 - Docs impact:
   - `02-ui-components/11-chat-view.md` (if it shows CSS on these wrappers; not found by grep)
 - Example needed: no
+
+<a id="bc-076"></a>
 
 ### BC-076: CSS, Thread: `str-chat__thread--virtualized` is no longer applied
 
@@ -3261,6 +4235,8 @@ export const DeleteForMe = () => {
   - none found
 - Example needed: no
 
+<a id="bc-077"></a>
+
 ### BC-077: quote and edit previews set their text colour from the matching bubble token
 
 - Status: confirmed
@@ -3274,6 +4250,187 @@ export const DeleteForMe = () => {
 - Docs impact:
   - `02-ui-components/02-theming/01-themingv2.md` (line 152 text-colour note)
 - Example needed: no (the guide section is accurate)
+
+## Later changes (`0100d98ce..1c02ba07f`)
+
+Found by the staleness pass of 2026-11-03: commits that landed on `master` after this file was last updated and change public behavior relative to `release-v14`. Additive exports from the same range (`ChannelHeader` `Title` / `Subtitle` with `ChannelHeaderTitle`, `ChannelHeaderSubtitle`, `useChannelHeaderOnlineStatus`; `MessageComposerPreviews`, `defaultMessageComposerPreviewSet`, `useMessageComposerPreviewSetFilter`, `useMessageComposerPreviewState`, `EditedMessagePreview`, `GeolocationPreview`; `MessageBubbleContent`, `defaultMessageBubbleContentSet`; `PollCreationDialogControls`) are not breaks and are listed only in the guide.
+
+<a id="bc-079"></a>
+
+### BC-079: `useUserRole(message).canEdit` is the update permission alone
+
+- Status: confirmed
+- Area: message hooks
+- User impact: silent behavior change. v14 `canEdit` was false for a poll message and a giphy. v15 returns the permission only (`update-any-message`, or `update-own-message` on the user's own message), so a custom edit button gated on it now shows on poll messages and giphies.
+- Old API:
+  - `useUserRole(message).canEdit` = `!message.poll && message.command !== 'giphy' && (update-any-message || own && update-own-message)`
+- Replacement: add `!message.poll_id && message.command !== 'giphy'` where the old rule is wanted.
+- Evidence:
+  - `release-v14:src/components/Message/hooks/useUserRole.ts:35-38`
+  - `master:src/components/Message/hooks/useMessagePermissions.ts:14-16` (`useUserRole` is renamed, see BC-092)
+  - commit: `1c02ba07f` (PR #3365, `BREAKING CHANGE` footer)
+- Docs impact:
+  - `02-ui-components/08-message/04-message_hooks.md` (`useMessagePermissions`)
+- Example needed: no
+
+<a id="bc-080"></a>
+
+### BC-080: the message-specific rules of `edit`, `copyMessageText` and `download` moved onto `defaultMessageActionSet` items as `isVisible`
+
+- Status: confirmed
+- Area: message actions
+- User impact: silent behavior change for apps that pass their own `messageActionSet`. `useBaseMessageActionSetFilter` no longer hides `edit` on poll messages and giphies, `copyMessageText` on messages without text or `download` on messages without a downloadable attachment; the default items carry those rules as `isVisible`. A hand-written item without `isVisible` shows wherever the base filter allows it. Item rules now also apply with `disableBaseMessageActionSetFilter` (which returned the set unfiltered) and to messages that failed to send for a network reason, so a network-failed poll message or giphy no longer offers Edit.
+- Old API:
+  - `useBaseMessageActionSetFilter` rules for `edit`, `copyMessageText`, `download` (`release-v14:src/components/MessageActions/hooks/useBaseMessageActionSetFilter.ts:79-100`)
+- Replacement: `MessageActionSetItem.isVisible({ isMyMessage, isThreadReply, message })`; copy the default item's `isVisible` into a hand-written item to keep the rule.
+- Evidence:
+  - `master:src/components/MessageActions/MessageActions.defaults.tsx:830,841,853`
+  - `master:src/components/MessageActions/hooks/useBaseMessageActionSetFilter.ts`
+  - commit: `1c02ba07f` (PR #3365, `BREAKING CHANGE` footer)
+- Docs impact:
+  - `02-ui-components/08-message/09-message-actions.md`
+- Example needed: no (the guide has one)
+
+<a id="bc-081"></a>
+
+### BC-081: the quoted message renders above a poll; poll messages get `str-chat__message--has-poll` and never `--has-single-attachment`
+
+- Status: confirmed
+- Area: message rendering, CSS
+- User impact: visual change. v14 rendered the poll above the quoted message inside the bubble; v15 renders the quote first (`defaultMessageBubbleContentSet`: `quotedMessage`, `poll`, `attachments`, `text`). The message root gains `str-chat__message--has-poll` while the message carries a poll and no longer gets `str-chat__message--has-single-attachment` then. App CSS keyed on `--has-single-attachment` stops matching poll messages.
+- Old API:
+  - `release-v14:src/components/Message/MessageUI.tsx:134` (`hasSingleAttachment`), `:246-247` (poll, then quote)
+- Replacement: reorder with a custom `messageBubbleContentSet` installed through the `MessageBubbleContent` slot; target `.str-chat__message--has-poll`.
+- Evidence:
+  - `master:src/components/Message/MessageUI.tsx:105-106,126-128`
+  - `master:src/components/Message/MessageBubbleContent.defaults.tsx`
+  - commit: `1c02ba07f` (PR #3365, `BREAKING CHANGE` footer)
+- Docs impact:
+  - `02-ui-components/08-message/01-message_ui.md`
+- Example needed: no (the guide has one)
+
+<a id="bc-082"></a>
+
+### BC-082: custom `AttachmentPreviewList`, `VoiceRecordingPreviewSlot` and `LinkPreviewList` mount only while their preview item is visible
+
+- Status: confirmed
+- Area: message composer
+- User impact: silent behavior change. v14's `MessageComposerUI` mounted all three slots whenever `.str-chat__message-composer-previews` rendered. v15 renders `defaultMessageComposerPreviewSet` through `MessageComposerPreviews`: `attachments` shows while the composer holds an attachment other than a voice recording, `voiceRecording` while it holds a voice recording, `linkPreviews` while a link preview is loading or loaded. A custom slot that also rendered something else (the location, a poll, an empty or upload state) stops mounting when its item is hidden.
+- Old API:
+  - `release-v14:src/components/MessageComposer/MessageComposerUI.tsx:68-72,108`
+- Replacement: replace the item in a custom `messageComposerPreviewSet` with one whose `isVisible` covers what the component renders, installed through the `MessageComposerPreviews` slot.
+- Evidence:
+  - `master:src/components/MessageComposer/MessageComposerPreviews.defaults.tsx:92-121`
+  - `master:src/components/MessageComposer/MessageComposerUI.tsx:42,63`
+  - commit: `1c02ba07f` (PR #3365, `BREAKING CHANGE` footer)
+- Docs impact:
+  - `02-ui-components/09-message-composer/` (attachment previews)
+- Example needed: no (the guide has one)
+
+<a id="bc-083"></a>
+
+### BC-083: message action handlers reject when the request fails or when called without the message
+
+- Status: confirmed
+- Area: message hooks
+- User impact: runtime change for custom message UIs. `handlePin` / `usePinHandler` caught a failed request in v14.13 (rolling back silently) and now rolls back and rejects with the request's error. `handleDelete`, `handlePin`, `handleMute`, `handleFlag` and `handleMarkUnread` (and their `use*Handler` hooks) called without the message or client now throw instead of logging `console.warn` / returning. A custom button that calls one of them without `catch` gets an unhandled rejection; the default `MessageActions` show the error notification instead of the success one.
+- Old API:
+  - `v14.13.2:src/components/Message/hooks/usePinHandler.ts:32,48` (`catch` without rethrow)
+  - `release-v14:src/components/Message/hooks/useMuteHandler.ts:22-24`, `useFlagHandler.ts:18-19`, `useMarkUnreadHandler.ts:12-13`, `useDeleteHandler.ts:17-27`
+- Replacement: catch the rejection in custom UI (`handlePin(event).catch(...)`). `missingUseMuteHandlerParamsWarning` / `missingUseFlagHandlerParameterWarning` are kept and are now the error messages.
+- Evidence:
+  - `master:src/components/Message/hooks/usePinHandler.ts:54,82,110`, `useMuteHandler.ts:33,59,83`, `useDeleteHandler.ts:30-32`, `useFlagHandler.ts:18`, `useMarkUnreadHandler.ts:24`
+  - commits: `d88dbf02a` (PR #3360), `290d2dbaf` (PR #3362); v14 counterpart for pin only: `cf6c8f9ab` (PR #3359, unreleased on `release-v14` at the time of writing)
+- Docs impact:
+  - `02-ui-components/08-message/04-message_hooks.md`
+- Example needed: no
+
+<a id="bc-084"></a>
+
+### BC-084: CSS, the first message of a channel list loses its `4.5rem` top padding
+
+- Status: confirmed
+- Area: message list styling
+- User impact: visual change. v14 gave the first `.str-chat__li` of the channel's message list (`.str-chat__main-panel .str-chat__ul`) `padding-top: 4.5rem`, reset when a date separator came first, to leave room for the floating date separator. v15 has no such rule (the master branch moved it to `.str-chat__channel` and then removed it); the floating separator shows only while scrolling. App CSS that compensated for the padding now over-corrects.
+- Old API:
+  - `release-v14:src/components/MessageList/styling/MessageList.scss:61-71` (`.str-chat__main-panel .str-chat__ul .str-chat__li:first-of-type`)
+- Replacement: none; remove compensating rules.
+- Evidence:
+  - commit: `ec1413d20` (PR #3370), which deletes the rule; `master:src/components/MessageList/styling/MessageList.scss` has no `first-of-type` padding
+- Docs impact:
+  - none
+- Example needed: no
+
+<a id="bc-085"></a>
+
+### BC-085: `MessageContext` grouping flags and the `str-chat__virtual-message__wrapper--*` classes are removed
+
+- Status: confirmed
+- Area: Message / MessageUI / CSS
+- User impact:
+  - compile errors in custom `MessageUI` or message children that read `endOfGroup`, `firstOfGroup` or `groupedByUser` from `useMessageContext()`. The lists never set them, so at runtime they were already `undefined`.
+  - app CSS keyed on `str-chat__virtual-message__wrapper--end`, `--first` or `--group` stops matching. The SDK stylesheet never styled them.
+- Old API:
+  - `MessageContextValue.endOfGroup`, `.firstOfGroup`, `.groupedByUser`
+  - `str-chat__virtual-message__wrapper--end`, `--first`, `--group` on `.str-chat__message`
+- Replacement:
+  - `useMessageContext().groupStyles?.[0]`: `top`, `middle`, `bottom` or `single`; `undefined` for a message no list groups (a standalone `<Message>`, or the thread's parent message)
+  - CSS: the list item's `.str-chat__li--top`, `--middle`, `--bottom`, `--single`. The default `MessageUI` renders the metadata on every message, and the default CSS hides it on `top` and `middle` items.
+- Evidence:
+  - `release-v14:src/components/Message/MessageUI.tsx:144` `showMetadata = !groupedByUser || endOfGroup`, with no list setting either flag
+  - `master:src/components/Message/styling/Message.scss` `.str-chat__li--middle, .str-chat__li--top` hide `.str-chat__message-metadata`
+- Docs impact:
+  - `02-ui-components/08-message/02-message_context.md` and `03-ui-cookbook/04-message/01-message_ui.md`, if they mention the three flags
+- Example needed: no
+
+<a id="bc-086"></a>
+
+### BC-086: message grouping: `noGroupByUser` / `shouldGroupByUser` → `groupByUser`, `groupStyles` → `getGroupStyles` with one object argument
+
+- Status: confirmed
+- Area: MessageList / VirtualizedMessageList / getGroupStyles / useEnrichedMessages
+- User impact:
+  - compile errors on `noGroupByUser`, `shouldGroupByUser` and `groupStyles`, on positional calls of `getGroupStyles`, and on the old `useEnrichedMessages` options
+  - in untyped code the old props are ignored and the defaults apply: `MessageList noGroupByUser` groups again, `VirtualizedMessageList shouldGroupByUser` stops grouping, and a `groupStyles` function is never called. A positional function passed as `getGroupStyles` receives the object as `message` and `undefined` for the other arguments, so it computes wrong styles or throws (for example on `previousMessage.created_at`).
+- Old API:
+  - `MessageList.noGroupByUser` (default `false`), `VirtualizedMessageList.shouldGroupByUser` (default `false`), `VirtuosoContext.shouldGroupByUser`
+  - `MessageList.groupStyles`, `VirtualizedMessageList.groupStyles`: `(message, previousMessage, nextMessage, noGroupByUser, maxTimeBetweenGroupedMessages?) => GroupStyle`
+  - `getGroupStyles(message, previousMessage, nextMessage, noGroupByUser, maxTimeBetweenGroupedMessages?)`
+  - `useEnrichedMessages({ groupStyles, noGroupByUser })`
+- Replacement:
+  - `groupByUser` on both lists. `MessageList` defaults to `true`, `VirtualizedMessageList` to `false`. `VirtuosoContext.groupByUser`.
+  - `getGroupStyles?: GetGroupStyles` on both lists, called with `GetGroupStylesParams`: `{ groupByUser, maxTimeBetweenGroupedMessages?, message, nextMessage?, previousMessage? }`. The exported `getGroupStyles` takes the same object.
+  - `useEnrichedMessages({ getGroupStyles, groupByUser })`
+- Evidence:
+  - `release-v14:src/components/MessageList/MessageList.tsx:105` `noGroupByUser = false`, `:517` positional `groupStyles`, `:555` `noGroupByUser?`
+  - `release-v14:src/components/MessageList/VirtualizedMessageList.tsx:236` `shouldGroupByUser = false`, `:102` picked into the context, `:693` positional `groupStyles`
+- Docs impact:
+  - `02-ui-components/07-message-list/01-message_list.md`, `02-ui-components/07-message-list/02-virtualized_list.md`
+- Example needed: no (the guide section has one)
+
+<a id="bc-097"></a>
+
+### BC-097: channel detail views render no close button outside a modal without `onClose`; `ChannelDetail` calls `onLayoutChange`
+
+- Status: confirmed
+- Area: ChannelDetail / ChannelDetailProvider / useChannelDetailContext (`stream-chat-react/channel-detail`)
+- User impact:
+  - silent behavior change: a `ChannelDetail` rendered outside a modal, for example in a side panel, shows no close button in its sections. In v14 the views read `useModalContext().close`, which outside a modal was a no-op that logged a warning, so the button rendered and did nothing. The actions that close the channel detail when they finish (opening a pinned message, leaving or deleting the channel, sending a direct message) close nothing there, as before.
+  - silent behavior change: `ChannelDetail.onLayoutChange` is called on every layout change. In v14 `ChannelDetail` passed its own setter after spreading the props, so the caller's handler was never called.
+  - An app that wrapped `ChannelDetail` in `ModalContextProvider` to make the close buttons work keeps working.
+- Old API:
+  - the views' close buttons and closing actions read `useModalContext().close`
+  - `ChannelDetail.onLayoutChange` (accepted, ignored)
+- Replacement:
+  - `ChannelDetail.onClose` and `ChannelDetailProvider.onClose`. The provider passes it down as the modal context's `close`, so it is called instead of a surrounding modal's `close`; a modal opened inside the channel detail still closes itself.
+  - `useChannelDetailContext()` returns `close` next to `channel`, read from the nearest modal context. It is `undefined` outside a modal without `onClose`. Custom sections pass it to `SectionNavigatorHeader`.
+- Evidence:
+  - `release-v14:src/plugins/ChannelDetail/ChannelDetail.tsx:143-145` (`{...props}` then `onLayoutChange={setLayout}`)
+  - `release-v14:src/context/ModalContext.tsx:22-26` (warning and `{ close: () => null }` outside a modal), `release-v14:src/components/Dialog/components/Prompt.tsx:87` (`Prompt.Header` renders the button whenever it gets `close`)
+  - `master:src/plugins/ChannelDetail/ChannelDetailContext.tsx` (`ChannelDetailProvider.onClose`, `useChannelDetailContext().close`), `master:src/plugins/ChannelDetail/ChannelDetail.tsx` (`handleLayoutChange`)
+- Docs impact:
+  - `06-component-reference/08-channel-detail/01-channel-detail.md`, `06-component-reference/08-channel-detail/03-section-navigator.md`, `05-ui-cookbooks/08-panels/02-channel-details.md`
+- Example needed: no (the guide section has one)
 
 ## Pending (open PRs)
 
@@ -3329,49 +4486,50 @@ Every item the surface diff, the corpus, `ai-migration-v14-v15.md` and the `!` c
 
 #### diff.md "Changed", gated items
 
-| Item                                                                                                                                                                                                                                        | Mapping                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
-| ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | --------------------------------- |
-| `Channel.channel` / `ChannelProps.channel` now required                                                                                                                                                                                     | BC-019                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
-| `Channel.EmptyPlaceholder`                                                                                                                                                                                                                  | BC-019                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
-| `Channel.initializeOnMount`, `Channel.channelQueryOptions`                                                                                                                                                                                  | BC-020                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
-| `Channel.activeUnreadHandler`                                                                                                                                                                                                               | BC-021                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
-| `Channel.markReadOnMount`                                                                                                                                                                                                                   | BC-022                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
-| `Channel.doDeleteMessageRequest`, `doMarkReadRequest`, `doSendMessageRequest`, `doUpdateMessageRequest`                                                                                                                                     | BC-023                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
-| `Channel.giphyVersion`, `imageAttachmentSizeHandler`, `videoAttachmentSizeHandler`, `shouldGenerateVideoThumbnail`                                                                                                                          | BC-024                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
-| `Channel.onMentionsClick`, `Channel.onMentionsHover`                                                                                                                                                                                        | BC-025                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
-| `Channel.skipMessageDataMemoization`                                                                                                                                                                                                        | BC-026                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
-| `Channel.allowConcurrentAudioPlayback`                                                                                                                                                                                                      | BC-051                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
-| (all of the above as `ChannelProps.*` member-removed)                                                                                                                                                                                       | same mappings                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
-| `ChannelList.*` / `ChannelListProps.*` 26 removed props, `paginator` added required                                                                                                                                                         | BC-028 (`EmptyStateIndicator`, `Paginator`, `renderChannels` also BC-029; `getLatestMessagePreview` also BC-033; `customActiveChannel`, `setActiveChannelOnMount` also BC-013)                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
-| `useChannelMembershipState.*` now-required / added-required `custom`                                                                                                                                                                        | BC-070 (LLC-typed umbrella)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
-| `ChannelListItem.*` / `ChannelListItemProps.*` `channelUpdateCount`, `getLatestMessagePreview`, `key`, `setActiveChannel`, `watchers`                                                                                                       | BC-033                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
-| `ChannelListItemTimestamp.lastMessage` / `ChannelListItemTimestampProps.lastMessage`                                                                                                                                                        | BC-033                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
-| `ChannelListItemUI.*` / `ChannelListItemUIProps.*` incl. `lastMessage`, `latestMessagePreview`                                                                                                                                              | BC-033                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
-| `defaultChannelListItemLabelParts` value-changed                                                                                                                                                                                            | ruled-out: i18n keys only -> BC-067                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
-| `getLatestMessagePreview`, `getLatestMessagePreviewText` signature-changed                                                                                                                                                                  | ruled-out: only `t: StreamTFunction` / `userLanguage: string` (i18n) -> BC-067                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
-| `Chat.defaultLanguage`, `ChatProps.defaultLanguage`, `UseChatParams.defaultLanguage`, `UseChatParams.i18nInstance`                                                                                                                          | BC-017                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
-| `useChat.channel`, `useChat.setActiveChannel`                                                                                                                                                                                               | BC-013, BC-017                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
-| `useChat.latestMessageDatesByChannels`                                                                                                                                                                                                      | BC-015, BC-017                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
-| `useChat.translators`                                                                                                                                                                                                                       | BC-017                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
-| `useCreateChatClient` signature-changed                                                                                                                                                                                                     | BC-018                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
-| `ChatViewContext.activeChatView`/`setActiveChatView` removed; `activeView`, `entityInferers`, `layoutController`, `registerViewActionSlotResolvers`, `resolveActionTargetSlot`, `setActiveView` added required (and `useChatViewContext.*`) | BC-012                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
-| `InfiniteScrollPaginator` props-mass-removed, `InfiniteScrollPaginatorProps` members-mass-removed + type-params-changed                                                                                                                     | ruled-out: diff artifact. The component became polymorphic (`element?: C`, `C extends ElementType = 'div'`) and forwards `ref`; its props are `PropsWithChildren<OwnProps & { element?: C } & Omit<ComponentPropsWithRef<C>, ...>>`, so every `div` prop is still accepted and `InfiniteScrollPaginatorProps` without a type argument still means the `div` form. Own props (`contentProps`, `listenToScroll`, `loadNextDebounceMs`, `loadNextOnScrollToBottom`, `loadNextOnScrollToTop`, `threshold`, `useCapture`) are unchanged (`release-v14:src/components/InfiniteScrollPaginator/InfiniteScrollPaginator.tsx:17-36` vs `master:...:18-56`). Additive. |
-| `NotificationApi.ensureNotificationTimeout` / `useNotificationApi.ensureNotificationTimeout` added required                                                                                                                                 | ruled-out: new member on the object `useNotificationApi()` returns; only breaks code that implements `NotificationApi` by hand (mocks)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
-| `Thread.*` / `ThreadProps.*` removed props, `thread` added required                                                                                                                                                                         | BC-035                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
-| `ThreadHeader.closeThread`, `ThreadHeader.thread` (and `ThreadHeaderProps.*`)                                                                                                                                                               | BC-036                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
-| `defaultThreadListItemLabelParts` value-changed                                                                                                                                                                                             | ruled-out: i18n keys only -> BC-067                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
-| `ThreadContext.*` / `ThreadContextValue.*` removed / added-required (`deactivate`, `loadNextPage`, `loadPrevPage`, `queryReplies`, `config`, `messagePaginator`, `handle*`, ...)                                                            | ruled-out: LLC (stream-chat v10). `ThreadContextValue` is `Thread                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            | undefined`, the stream-chat class |
-| `ChannelListContext.*` / `ChannelListContextValue.*` / `useChannelListContext.*` `channels`, `hasNextPage`, `loadNextPage`, `setChannels`                                                                                                   | BC-032                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
-| `ChatContext.channel` / `ChatContextValue.channel` / `useChatContext.channel`                                                                                                                                                               | BC-013                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
-| `ChatContext.channelsQueryState` (+ value, hook)                                                                                                                                                                                            | BC-014                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
-| `ChatContext.latestMessageDatesByChannels` (+ value, hook)                                                                                                                                                                                  | BC-015                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
-| `ChatContext.setActiveChannel` (+ value, hook)                                                                                                                                                                                              | BC-013                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
-| `ChatContext.channelManager` (+ value, hook) added required                                                                                                                                                                                 | BC-016                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
-| `useChatContext` signature-changed                                                                                                                                                                                                          | BC-016                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
-| `ComponentContext.ChannelListUI` (+ value, hook)                                                                                                                                                                                            | BC-029                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
-| `ComponentContext.HeaderStartContent` (+ value, hook)                                                                                                                                                                                       | BC-034                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
-| `ComponentContext.ThreadHeader` (+ value, hook)                                                                                                                                                                                             | BC-036                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
-| `ComponentContext.Message`, `useComponentContext` signature, `MessageContext.*`, `MessageComposerContext.*`, `MessageListContext.*`, `TranslationContext.*`, `MessageBounceContext`                                                         | ruled-out: other areas (message, composer, message list, i18n, contexts)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
+| Item                                                                                                                                                                                                                      | Mapping                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
+| ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | --------------------------------- |
+| `Channel.channel` / `ChannelProps.channel` now required                                                                                                                                                                   | BC-019                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
+| `Channel.EmptyPlaceholder`                                                                                                                                                                                                | BC-019                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
+| `Channel.initializeOnMount`, `Channel.channelQueryOptions`                                                                                                                                                                | BC-020                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
+| `Channel.activeUnreadHandler`                                                                                                                                                                                             | BC-021                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
+| `Channel.markReadOnMount`                                                                                                                                                                                                 | BC-022                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
+| `Channel.doDeleteMessageRequest`, `doMarkReadRequest`, `doSendMessageRequest`, `doUpdateMessageRequest`                                                                                                                   | BC-023                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
+| `Channel.giphyVersion`, `imageAttachmentSizeHandler`, `videoAttachmentSizeHandler`, `shouldGenerateVideoThumbnail`                                                                                                        | BC-024                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
+| `Channel.onMentionsClick`, `Channel.onMentionsHover`                                                                                                                                                                      | BC-025                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
+| `Channel.skipMessageDataMemoization`                                                                                                                                                                                      | BC-026                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
+| `Channel.allowConcurrentAudioPlayback`                                                                                                                                                                                    | BC-051                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
+| (all of the above as `ChannelProps.*` member-removed)                                                                                                                                                                     | same mappings                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
+| `ChannelList.*` / `ChannelListProps.*` 26 removed props, `paginator` added required                                                                                                                                       | BC-028 (`EmptyStateIndicator`, `Paginator`, `renderChannels` also BC-029; `getLatestMessagePreview` also BC-033; `customActiveChannel`, `setActiveChannelOnMount` also BC-013)                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
+| `useChannelMembershipState.*` now-required / added-required `custom`                                                                                                                                                      | BC-070 (LLC-typed umbrella)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
+| `ChannelListItem.*` / `ChannelListItemProps.*` `channelUpdateCount`, `getLatestMessagePreview`, `key`, `setActiveChannel`, `watchers`                                                                                     | BC-033                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
+| `ChannelListItem.activeChannel` (+ Props)                                                                                                                                                                                 | BC-033                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
+| `ChannelListItemTimestamp.lastMessage` / `ChannelListItemTimestampProps.lastMessage`                                                                                                                                      | BC-033                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
+| `ChannelListItemUI.*` / `ChannelListItemUIProps.*` incl. `lastMessage`, `latestMessagePreview`                                                                                                                            | BC-033                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
+| `defaultChannelListItemLabelParts` value-changed                                                                                                                                                                          | ruled-out: i18n keys only -> BC-067                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
+| `getLatestMessagePreview`, `getLatestMessagePreviewText` signature-changed                                                                                                                                                | ruled-out: only `t: StreamTFunction` / `userLanguage: string` (i18n) -> BC-067                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
+| `Chat.defaultLanguage`, `ChatProps.defaultLanguage`, `UseChatParams.defaultLanguage`, `UseChatParams.i18nInstance`                                                                                                        | BC-017                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
+| `useChat.channel`, `useChat.setActiveChannel`                                                                                                                                                                             | BC-013, BC-017                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
+| `useChat.latestMessageDatesByChannels`                                                                                                                                                                                    | BC-015, BC-017                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
+| `useChat.translators`                                                                                                                                                                                                     | BC-017                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
+| `useCreateChatClient` signature-changed                                                                                                                                                                                   | BC-018                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
+| `ChatViewContext.activeChatView`/`setActiveChatView` removed; `activeView`, `layoutController`, `registerViewActionSlotResolvers`, `resolveActionTargetSlot`, `setActiveView` added required (and `useChatViewContext.*`) | BC-012                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
+| `InfiniteScrollPaginator` props-mass-removed, `InfiniteScrollPaginatorProps` members-mass-removed + type-params-changed                                                                                                   | ruled-out: diff artifact. The component became polymorphic (`element?: C`, `C extends ElementType = 'div'`) and forwards `ref`; its props are `PropsWithChildren<OwnProps & { element?: C } & Omit<ComponentPropsWithRef<C>, ...>>`, so every `div` prop is still accepted and `InfiniteScrollPaginatorProps` without a type argument still means the `div` form. Own props (`contentProps`, `listenToScroll`, `loadNextDebounceMs`, `loadNextOnScrollToBottom`, `loadNextOnScrollToTop`, `threshold`, `useCapture`) are unchanged (`release-v14:src/components/InfiniteScrollPaginator/InfiniteScrollPaginator.tsx:17-36` vs `master:...:18-56`). Additive. |
+| `NotificationApi.ensureNotificationTimeout` / `useNotificationApi.ensureNotificationTimeout` added required                                                                                                               | ruled-out: new member on the object `useNotificationApi()` returns; only breaks code that implements `NotificationApi` by hand (mocks)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
+| `Thread.*` / `ThreadProps.*` removed props, `thread` added required                                                                                                                                                       | BC-035                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
+| `ThreadHeader.closeThread`, `ThreadHeader.thread` (and `ThreadHeaderProps.*`)                                                                                                                                             | BC-036                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
+| `defaultThreadListItemLabelParts` value-changed                                                                                                                                                                           | ruled-out: i18n keys only -> BC-067                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
+| `ThreadContext.*` / `ThreadContextValue.*` removed / added-required (`deactivate`, `loadNextPage`, `loadPrevPage`, `queryReplies`, `config`, `messagePaginator`, `handle*`, ...)                                          | ruled-out: LLC (stream-chat v10). `ThreadContextValue` is `Thread                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            | undefined`, the stream-chat class |
+| `ChannelListContext.*` / `ChannelListContextValue.*` / `useChannelListContext.*` `channels`, `hasNextPage`, `loadNextPage`, `setChannels`                                                                                 | BC-032                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
+| `ChatContext.channel` / `ChatContextValue.channel` / `useChatContext.channel`                                                                                                                                             | BC-013                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
+| `ChatContext.channelsQueryState` (+ value, hook)                                                                                                                                                                          | BC-014                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
+| `ChatContext.latestMessageDatesByChannels` (+ value, hook)                                                                                                                                                                | BC-015                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
+| `ChatContext.setActiveChannel` (+ value, hook)                                                                                                                                                                            | BC-013                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
+| `ChatContext.channelManager` (+ value, hook) added required                                                                                                                                                               | BC-016                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
+| `useChatContext` signature-changed                                                                                                                                                                                        | BC-016                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
+| `ComponentContext.ChannelListUI` (+ value, hook)                                                                                                                                                                          | BC-029                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
+| `ComponentContext.HeaderStartContent` (+ value, hook)                                                                                                                                                                     | BC-034                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
+| `ComponentContext.ThreadHeader` (+ value, hook)                                                                                                                                                                           | BC-036                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
+| `ComponentContext.Message`, `useComponentContext` signature, `MessageContext.*`, `MessageComposerContext.*`, `MessageListContext.*`, `TranslationContext.*`, `MessageBounceContext`                                       | ruled-out: other areas (message, composer, message list, i18n, contexts)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
 
 Non-gated items checked and ruled out: `Chat.isMessageAIGenerated`, `SummarizedMessagePreview.latestMessage`, `UseLatestMessagePreviewParams.latestMessage`, `ChannelListItemLabelData.*`, `ThreadListItemLabelData.*`, `ChannelFileItem`/`ChannelMediaItem`/`ChannelMemberDetail`/`ChannelMembersBrowseView`/`useChannelMemberActionContext`/`useChannelMembersSearch`/`usePinnedMessagesSearch` (channel-detail plugin, LLC underlying types only), `DialogManager.state` (`StateStore` now from `@stream-io/state-store`, same shape), `EmptyStateIndicator.listType` and `LoadingIndicator.textAnchor` (union member order only), `DEFAULT_CHANNEL_LIST_ITEM_LABEL_ORDER` (union order only), `InfiniteScroll.LoadingIndicator` / `LoadMorePaginator.LoadingIndicator` (`BaseIconProps`, icons area), `Search` item types (BC-070), `AttachmentUploadedSizeIndicator` (attachments area). Modal: no API change (one line in `CloseButtonOnModalOverlay.tsx`, CSS only).
 
@@ -3444,7 +4602,7 @@ Non-gated items checked and ruled out: `Chat.isMessageAIGenerated`, `SummarizedM
 | Context hooks: no `componentName` argument / Required contexts throw                            | BC-016, BC-007 (rows for `useChatContext`, `useChatViewContext`, `useChannelListItemContext`, `useSearchContext`, `useSearchSourceResultsContext`, `useDialogManager`, `useContextMenuContext`)                                                                 |
 | Related type changes (`ChatViewContext` has no default)                                         | BC-012                                                                                                                                                                                                                                                          |
 | Per-component request-handler props removed                                                     | BC-023. Inaccurate: says removed "from both `<Channel>` and `<Thread>`"; v14 `Thread` never had them (`release-v14:src/components/Thread/Thread.tsx:26-45`); they were v15-only on `Thread`                                                                     |
-| `<Channel>` declares the channel active, and owns its message window                            | BC-027. Outdated: the `connection.recovered` -> `channel.reload()` part was removed by `3098a90a6`                                                                                                                                                              |
+| `<Channel>` declares the channel active, and owns its message window                            | BC-027. Was outdated (the `connection.recovered` -> `channel.reload()` part was removed by `3098a90a6`); fixed in the guide                                                                                                                                     |
 | The core v15 shift / Removed `ChannelStateContext` / `ChannelActionContext`                     | ruled-out: contexts area                                                                                                                                                                                                                                        |
 
 #### `!` commits (and BREAKING CHANGE bodies) touching this area
@@ -3484,9 +4642,11 @@ Non-gated items checked and ruled out: `Chat.isMessageAIGenerated`, `SummarizedM
 
 #### diff.md: Changed (gated / bold items in this area)
 
-- `DefaultAttachmentSelectorComponents` (value-changed) → ruled-out: same keys (`Command`, `File`, `Location`, `Poll`, `release-v14 AttachmentSelector.tsx:165` vs `master:174`); only the translation keys inside changed (BC-067)
+- `DefaultAttachmentSelectorComponents` (value-changed) → ruled-out: same keys (`Command`, `File`, `Location`, `Poll`, `release-v14 AttachmentSelector.tsx:165` vs `master:263`); only the translation keys inside changed (BC-067)
 - `MessageComposer.overrideSubmitHandler`, `MessageComposerProps.overrideSubmitHandler` → BC-060
 - `MessageComposer.preventClearingOnUnmount`, `MessageComposerProps.preventClearingOnUnmount` → BC-061
+- `MessageComposer.emojiSearchIndex` / `.parent`, `MessageComposerProps.emojiSearchIndex` / `.parent`, `MessageComposerContextValue.emojiSearchIndex` / `.parent` / `.audioRecordingConfig` (+ `useMessageComposerContext`), `ComponentContextValue.emojiSearchIndex` → BC-107
+- `WithDragAndDropUpload.acceptedFiles` → BC-108
 - `useAttachmentManagerState.hasCustomDoUploadRequest` (removed) → BC-064
 - `useAttachmentManagerState.attachmentsEnabled` / `customCdn` / `locationEnabled` / `maxNumberOfFilesPerMessage` / `pollsEnabled` (added-required) → BC-064 (additive for consumers; affects only mocks of the return type)
 - `useMessageComposerBindings.handleSubmit`, `UseMessageComposerBindingsParams.handleSubmit` → BC-062
@@ -3599,10 +4759,17 @@ Non-gated items checked and ruled out: `Chat.isMessageAIGenerated`, `SummarizedM
   - `usePinHandler.canPin` member-removed, `usePinHandler` return -> BC-052
   - `useRetryHandler` -> BC-044
   - `useUserRole.canPin` member-added-required -> ruled-out: additive return field
+  - `useUserRole` removed, `useMessagePermissions` added -> BC-092
+  - `Message.disableQuotedMessages`, `MessageProps.disableQuotedMessages`, the `useMessagePermissions` second argument -> BC-095
+  - `Message.initialMessage`, `MessageProps.initialMessage`, `MessageContextValue.initialMessage` removed, `useIsRenderedAsThreadParent` added -> BC-102
+  - `Message.additionalMessageComposerProps`, `MessageProps.additionalMessageComposerProps` -> BC-105
 - components/MessageList
+  - `MessageList.disableQuotedMessages`, `MessageListProps.disableQuotedMessages`, `SharedMessageProps.disableQuotedMessages` -> BC-095
+  - `MessageList.additionalMessageComposerProps`, `MessageListProps.additionalMessageComposerProps`, `SharedMessageProps.additionalMessageComposerProps`, `VirtualizedMessageList.additionalMessageComposerProps` (+ Props), `VirtuosoContext.additionalMessageComposerProps` -> BC-105
   - `getIsFirstUnreadMessage` -> BC-054
   - `insertIntro` -> BC-056
   - `MessageList.disableDateSeparator`, `MessageListProps.disableDateSeparator`, `ProcessMessagesParams.enableDateSeparator` -> BC-049
+  - `MessageList.noGroupByUser`, `MessageList.groupStyles` (+ `MessageListProps`), `getGroupStyles` signature, `useEnrichedMessages` options -> BC-086
   - `MessageList.head`, `MessageListProps.head`, `MessageList.threadList`, `MessageListProps.threadList` -> BC-048
   - `MessageList.loadingMoreForJumpToChannelMessage`, `.loadMore`, `.loadMoreNewer` (+ `MessageListProps`) -> BC-046
   - `MessageList.Message`, `MessageListProps.Message`, `SharedMessageProps.Message` -> BC-042
@@ -3616,6 +4783,7 @@ Non-gated items checked and ruled out: `Chat.isMessageAIGenerated`, `SummarizedM
   - `useEnrichedMessages`, `useNewMessageNotification`, `UseScrollLocationLogicParams.disableAutoScrollToBottom` / `.disableScrollManagement` -> BC-055
   - `VirtualizedMessageList.channelUnreadUiState` / `hasMore` / `hasMoreNewer` / `highlightedMessageId` / `loadingMore` / `loadingMoreNewer` / `loadMore` / `loadMoreNewer` / `messageLimit` (+ `VirtualizedMessageListProps`) -> BC-046
   - `VirtualizedMessageList.disableDateSeparator` (+ Props) -> BC-049
+  - `VirtualizedMessageList.shouldGroupByUser`, `VirtualizedMessageList.groupStyles` (+ Props), `VirtuosoContext.shouldGroupByUser` -> BC-086
   - `VirtualizedMessageList.head`, `.threadList` (+ Props) -> BC-048
   - `VirtualizedMessageList.Message` (+ Props) -> BC-042
   - `VirtualizedMessageList.messageActions` (+ Props) -> BC-041
@@ -3624,6 +4792,8 @@ Non-gated items checked and ruled out: `Chat.isMessageAIGenerated`, `SummarizedM
   - `VirtuosoContext.Message` -> BC-042 / BC-053; `.messageActions` -> BC-041 / BC-053; `.openThread` -> BC-045 / BC-053; `.threadList` -> BC-048 / BC-053
 - components/TypingIndicator
   - `TypingIndicator.threadList`, `TypingIndicatorProps.threadList` -> BC-048 (and BC-004)
+- components/Reactions
+  - `MessageReactions.reverse`, `MessageReactionsProps.reverse`, `MessageReactionsDetail.sort` / `.dialogId`, `MessageReactionsDetailProps.sort` / `.dialogId` -> BC-106
 - context (message items only)
   - `ComponentContext.Message`, `ComponentContextValue.Message`, `useComponentContext.Message` -> BC-042
   - `MessageContext.actionsEnabled` / `getMessageActions` (+ `MessageContextValue`, `useMessageContext`) -> BC-041
@@ -3726,6 +4896,7 @@ Non-gated items checked and ruled out: `Chat.isMessageAIGenerated`, `SummarizedM
 - `…HeaderStartContent` (×3) -> BC-005
 - `…Message` (×3) -> BC-005
 - `…ThreadHeader` (×3) -> BC-005
+- `ComponentContextValue.AttachmentPreviewList` / `MessageComposerUI` / `MessageEditedIndicator` / `MessageStatus` / `NotificationAnnouncer` / `QuotedMessagePreview` / `SearchSourceResultList` / `TextareaComposer` / `VoiceRecordingPreviewSlot` props type removed -> BC-109; `ReactionSelector` (`ForwardRefExoticComponent` -> `ComponentType`) and `SearchSourceResults` (now typed with `{ searchSource }`) -> ruled-out: widened, existing overrides type-check
 - `useComponentContext` signature-changed -> BC-006
 - `useChatContext` signature-changed -> BC-006
 - `useMessageBounceContext` signature-changed -> BC-006
@@ -3742,6 +4913,7 @@ Non-gated items checked and ruled out: `Chat.isMessageAIGenerated`, `SummarizedM
 - `TDateTimeParserOutput` members-mass-removed -> BC-069
 - `InfiniteScrollPaginator` / `InfiniteScrollPaginatorProps` props-mass-removed, members-mass-removed, type-params-changed -> ruled-out: tool artifact. `InfiniteScrollPaginatorProps<C extends ElementType = 'div'>` defaults to `'div'` and still includes `ComponentPropsWithRef<'div'>` (`master:src/components/InfiniteScrollPaginator/InfiniteScrollPaginator.tsx:44-53`), so a bare `InfiniteScrollPaginatorProps` keeps every div prop; the component is now polymorphic (`element`) and forwards `ref`
 - `NotificationApi.ensureNotificationTimeout`, `useNotificationApi.ensureNotificationTimeout` (member-added-required) -> ruled-out: a member added to the hook's returned API; `startNotificationTimeout` still exists
+- `AddNotification`, `NotificationApi.addNotification`, `useNotificationApi.addNotification` (signature-changed: returns the notification ID instead of `void`) -> ruled-out: callers are unaffected and can pass the ID to `removeNotification`, `startNotificationTimeout` or `ensureNotificationTimeout`; only breaks hand-written implementations that return nothing: an `AddNotification` function, or a `NotificationApi` object such as a test mock
 - Non-gated but checked: `ComponentContext.LoadingIndicator` / `InfiniteScroll.LoadingIndicator` / `LoadMorePaginator.LoadingIndicator` (`SVGProps & { decorative? }` -> `BaseIconProps`) -> ruled-out: `BaseIconProps = ComponentProps<'svg'> & { decorative?: boolean }`, an equivalent type; `ComponentContext.icons` / `IconComponent` (`ComponentPropsWithoutRef<'svg'>` -> `BaseIconProps`) -> ruled-out: the new props are assignable to the old, so v14 icon overrides still type-check; all `Icon*.textAnchor` -> ruled-out: union member reorder; `IconComponent.defaultProps` etc. -> ruled-out: follows `BaseIconProps`; `DialogManager.state` -> ruled-out: `StateStore` now from `@stream-io/state-store` (single-copy requirement covered in BC-001); `TranslationContext.t` / `userLanguage` -> BC-068; `FormatterFactory`, `Translator` -> BC-069 / ruled-out (`Translator.t` widened to `LooseTranslateFunction`)
 - Gated items in `ChatContext`, `ChannelListContext`, `MessageComposerContext`, `MessageContext`, `ThreadContext`, `VirtuosoContext` members -> not XC (owned by the Chat / ChannelList / composer / message / thread areas per the area split)
 
@@ -3752,7 +4924,7 @@ Non-gated items checked and ruled out: `Chat.isMessageAIGenerated`, `SummarizedM
 
 #### diff.md "CSS"
 
-- Classes removed from markup: `str-chat__main-panel`, `str-chat__main-panel---with-thread-opn`, `str-chat__main-panel--thread-open` -> BC-073; `str-chat__channel-list-inner`, `str-chat__channel-list-inner__main` -> BC-074; `str-chat__chat-view__channels`, `str-chat__chat-view__threads` -> BC-075 (partially a false positive); `str-chat__thread--virtualized` -> BC-076
+- Classes removed from markup: `str-chat__main-panel`, `str-chat__main-panel---with-thread-opn`, `str-chat__main-panel--thread-open` -> BC-073; `str-chat__channel-list-inner`, `str-chat__channel-list-inner__main` -> BC-074; `str-chat__chat-view__channels`, `str-chat__chat-view__threads` -> BC-075 (partially a false positive); `str-chat__thread--virtualized` -> BC-076; `str-chat__virtual-message__wrapper--end`, `--first`, `--group` -> BC-085
 - Classes removed from stylesheets (diff reports 0): actually `str-chat__container`, `str-chat__main-panel` -> BC-073
 - Custom properties removed: 0 (confirmed by own diff of `--str-chat*` declarations)
 
@@ -3813,8 +4985,20 @@ Non-gated items checked and ruled out: `Chat.isMessageAIGenerated`, `SummarizedM
 
 ### Diff items ruled out by the coordinator
 
-- `ThreadContext` / `ThreadContextValue` members reported as `member-added-required`: `configState`, `handleMessageDeleted`, `handleMessageUpdated`, `handleNewReply`, `handleReactionChanged`, `handleRepliesRead`, `handleRepliesUnread`, `handleThreadUpdated`, `handleUserMessagesDeleted`, `initializeConfig`, `markRead`, `messageOperations`, `updateConfig`. Ruled out as LLC (stream-chat v10): `ThreadContextValue` is `Thread | undefined` on both branches, and these are methods and stores added to the `stream-chat` `Thread` class. Only a hand-built `Thread` mock is affected; build it from a real `client.threads` instance instead.
+- `PinEnabledUserRoles` and `PinPermissions` (exported from `usePinHandler.ts` in v15 release candidates, `@deprecated`) were removed by REACT-1467 (PR #3387). Ruled out as a v14 -> v15 change: v14 removed them before v14 stable (`8317b73a2`, PR #3086) and `99cbe6704` (PR #3237) brought them back on `master` by accident, so `release-v14` never exports them. Gate on `useMessagePermissions(message).canPin` instead.
+- `ThreadContext` / `ThreadContextValue` members reported as `member-added-required`: `configState`, `handleMessageDeleted`, `handleMessageUpdated`, `handleNewReply`, `handleReactionChanged`, `handleRepliesRead`, `handleRepliesUnread`, `handleThreadUpdated`, `handleUserMessagesDeleted`, `initializeConfig`, `markRead`, `messageOperations`, `updateConfig`. Ruled out as LLC (stream-chat v10): `ThreadContextValue` is `Thread \| undefined` on both branches, and these are methods and stores added to the `stream-chat` `Thread` class. Only a hand-built `Thread` mock is affected; build it from a real `client.threads` instance instead.
 - Corpus errors caused only by `stream-chat` v10 types, ruled out as LLC: the attachment `Action` type now requires `text` and `type` (`03-ui-cookbook/06-attachment/01-attachment_actions.md`); `StreamChat.unBlockUser` -> `unblockUser` and `queryUsers`-style id arguments (`04-guides/11-blocking-users.md`, `04-guides/04-typescript_and_custom_data_types.md`); custom fields on `MessageWithChannelResponse` (same page); `ReminderResponse` -> `ReminderResponseData` (`04-guides/12-message-reminders.md`); `MessageResponseBase`, and the narrowed `Event` / `EventPayload` unions (`examples/vite` WebSocket event tooling). Also: the `User` type no longer accepts `name` / `image` (type `userData` as `ClientUser`, as `useCreateChatClient` does; v14 tutorial steps 3-7); `ChannelResponse.name` on `Partial<ChannelResponse>`; channel `members` as `ChannelMemberRequest` objects instead of id strings (tutorial steps 3 and 6); `StreamChat.partialUpdateMessage` and other message methods taking `{ message_id }` objects; `delete_for_me` instead of `deleteForMe` in delete options; `ChannelState.messages` (use `channel.messagePaginator`); `ReactionResponse.custom` now required in hand-built fixtures; `LinkPreview.custom`.
+
+### Channel members header actions (REACT-1477, after the audit)
+
+| Item                                                                                                                                                                 | Mapping |
+| -------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------- |
+| `DefaultHeaderActionsMenuTrigger`, `ChannelMembersHeaderActionsMenuTriggerProps` (removed exports)                                                                   | BC-098  |
+| `ChannelMembersViewProps.HeaderActionsMenuTrigger`, `ChannelMembersHeaderActionsProps.HeaderActionsMenuTrigger` (removed props)                                      | BC-098  |
+| `ChannelMembersHeaderActionItem.component` → `Component`, `ChannelMembersHeaderActionPlacement` `'menu'` → `'dropdown'`                                              | BC-098  |
+| `ChannelMembersHeaderActionComponentProps.closeMenu` (removed member)                                                                                                | BC-098  |
+| `ChannelMembersHeaderActionItem.filter` → `isVisible`, typed with `ChannelMembersHeaderActionVisibilityFilterParams` (added)                                         | BC-098  |
+| `ChannelMembersHeaderActionItem` (union with a toggle member without `type` or `isVisible`), `ChannelMembersHeaderActionPlacement` `'quick-dropdown-toggle'` (added) | BC-098  |
 
 ## Notes For Migration Guide Drafting
 
@@ -3830,7 +5014,7 @@ Inaccuracies found in the existing guides while auditing. Fix them when the guid
   - "`ChatContext.latestMessageDatesByChannels` -> removed" names `useIsCooldownActive`, which was not exported; `fix/v15-dead-surface-cleanup` exports it, so the guide is now right.
   - "`ChannelListItem` `getLatestMessagePreview` prop -> removed" says the util was removed (it is still exported) and suggests overriding through `<Chat>` / `<Channel>` props that do not exist. Drop that mention; `ComponentProvider` (which it also names) works but replaces the parent context, so prefer `WithComponents`, which merges over it.
   - "`Thread` renders children" says `Thread` registers the thread with the `ThreadManager`; it does not. `ThreadHeaderProps` also keeps `StartContent` / `EndContent`, not only `overrideTitle`.
-  - "`<Channel>` declares the channel active" still tells readers to reload on `connection.recovered`; the client reloads active channels itself since `3098a90a6`.
+  - Fixed: "`<Channel>` declares the channel active" told readers to reload on `connection.recovered`; the client reloads active channels itself since `3098a90a6`.
   - "`ChatContext.setActiveChannel` -> removed" says `ChannelListItemUI` selects through `open(...)`; it uses `useWorkspaceNavigation().openChannel`.
   - "Peer-dependency gate before release" describes a `portal:` pin that no longer exists.
   - The `messageActions` snippet filters `defaultMessageActionSet` by `type`, but the dropdown-toggle item has no `type`; guard with `'type' in item`. The same section says passing `messageActions={['delete']}` "in v15 changed nothing"; it means v14.
@@ -3839,3 +5023,5 @@ Inaccuracies found in the existing guides while auditing. Fix them when the guid
 - `AGENTS.md` (as contributor guidance) and the `GetStream/stream-chat-react#3237` description point to `useMessagePaginator()`. It was not exported from `stream-chat-react`; `fix/v15-dead-surface-cleanup` exports it from `src/index.ts`, so both are now right.
 - Group the guide by user task, as in the v14 guide: imports to change, props to remove, override keys to rename, behavior to re-wire (workspace navigation, channel initialization, request handlers).
 - The silent breaks deserve top billing because nothing fails to compile: selection and thread opening outside `ChatView` (BC-045 / BC-013 above), `Channel` no longer watching the channel, failed sends no longer restoring the composer, and required context hooks throwing.
+- At the stable v15 release, re-pin the guide's links to this repository (`blob/master`, `raw.githubusercontent.com/.../master`) to the release tag, and the stream-chat-js links (`release-v10`) to the matching `stream-chat` tag.
+- `AGENTS.md` points to a guide heading "Per-component request-handler props removed"; the guide calls that section "14. Request handlers" (`#14-request-handlers`).

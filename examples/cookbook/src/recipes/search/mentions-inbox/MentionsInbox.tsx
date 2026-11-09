@@ -113,7 +113,7 @@ const Mention = ({ autoFocus, message }: MentionProps) => {
           />
         </span>
         <span className='cookbook-mention__text'>
-          {renderText(localMessage.text, undefined, {
+          {renderText(localMessage.text, {
             allowedTagNames,
             messageMentionEntities: getRenderTextMentionEntities(localMessage),
           })}

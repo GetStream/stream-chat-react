@@ -36,12 +36,12 @@ import { useAttachmentContext } from '../../context/AttachmentContext';
 import type { MessageContextValue } from '../../context';
 import { RemoveAttachmentPreviewButton } from './RemoveAttachmentPreviewButton';
 import clsx from 'clsx';
-import { BaseImage } from '../BaseImage';
+import { type BaseImageProps, BaseImage as DefaultBaseImage } from '../BaseImage';
 import { FileIcon } from '../FileIcon';
 import { QuotedMessageIndicator } from './QuotedMessageIndicator';
 import { getRenderTextMentionEntities } from '../Message/renderText/rehypePlugins';
 import { isDeletedMessage } from '../MessageList';
-import { useComponentContextIcons } from '../../context';
+import { useComponentContext, useComponentContextIcons } from '../../context';
 import type { IconSlots } from '../Icons/slots';
 
 const messageComposerStateStoreSelector = (state: MessageComposerState) => ({
@@ -165,9 +165,10 @@ type PreviewType =
 const getAttachmentIconWithType = (
   quotedMessage: LocalMessage | MessageResponse | null,
   giphyVersionName: GiphyVersions,
-  // Passed in rather than read from the hook: this plain helper runs inside a `useMemo`, where
+  // Passed in rather than read from the hooks: this plain helper runs inside a `useMemo`, where
   // hooks cannot be called.
   icons: Required<IconSlots>,
+  BaseImage: ComponentType<BaseImageProps>,
 ): {
   groupedAttachments: GroupedAttachments;
   Icon: ComponentType;
@@ -345,6 +346,7 @@ export const QuotedMessagePreviewUI = ({
   const { t, userLanguage } = useTranslationContext();
   const { giphyVersion: giphyVersionName = 'fixed_height' } = useAttachmentContext();
   const icons = useComponentContextIcons();
+  const { BaseImage = DefaultBaseImage } = useComponentContext();
 
   const quotedMessageText = useMemo(
     () =>
@@ -378,7 +380,7 @@ export const QuotedMessagePreviewUI = ({
       Icon: AttachmentIcon,
       PreviewImage,
       previewType,
-    } = getAttachmentIconWithType(quotedMessage, giphyVersionName, icons);
+    } = getAttachmentIconWithType(quotedMessage, giphyVersionName, icons, BaseImage);
 
     let renderedText: ReactNode | undefined;
 
@@ -434,7 +436,7 @@ export const QuotedMessagePreviewUI = ({
               });
       }
     } else if (renderText) {
-      renderedText = renderText(quotedMessageText, quotedMessage?.mentioned_users, {
+      renderedText = renderText(quotedMessageText, {
         messageMentionEntities: quotedMessageMentionEntities,
       });
     } else {
@@ -447,6 +449,7 @@ export const QuotedMessagePreviewUI = ({
       renderedText,
     };
   }, [
+    BaseImage,
     giphyVersionName,
     icons,
     quotedMessage,

@@ -5,8 +5,10 @@ import {
   MessageUI,
   useChannel,
   useChatContext,
+  useIsRenderedAsThreadParent,
   useMessageContext,
   useStateStore,
+  useThreadContext,
   WithComponents,
 } from 'stream-chat-react';
 import './ReadReceiptAvatars.css';
@@ -20,14 +22,17 @@ const readersSelector = ({ readersByMessageId }: MessageReceiptsSnapshot) => ({
 const ReadReceiptAvatars = () => {
   const channel = useChannel();
   const { client } = useChatContext();
-  const { message, threadList } = useMessageContext();
+  const { message } = useMessageContext();
+  const isThreadParent = useIsRenderedAsThreadParent();
+  const isThreadReply = !!useThreadContext() && !isThreadParent;
   const { readersByMessageId } = useStateStore(
     channel.messageReceiptsTracker.snapshotStore,
     readersSelector,
   );
 
-  // Read positions belong to the channel's main list, so a thread shows none.
-  if (threadList) return null;
+  // Read positions belong to the channel's main list, so thread replies show none. The thread
+  // parent is a channel message and keeps its readers.
+  if (isThreadReply) return null;
 
   const readers = (readersByMessageId[message.id] ?? []).filter(
     (user) => user.id !== client.userId,

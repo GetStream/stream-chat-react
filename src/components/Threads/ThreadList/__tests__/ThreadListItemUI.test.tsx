@@ -4,6 +4,7 @@ import { axe } from '../../../../../axe-helper';
 
 import { ThreadListItemUI } from '../ThreadListItemUI';
 import { mockT } from '../../../../mock-builders/translator';
+import { convertDateToTimestamp } from '../../../../mock-builders/generator/time';
 
 const { announceInteraction } = vi.hoisted(() => ({ announceInteraction: vi.fn() }));
 
@@ -21,11 +22,12 @@ const mockOpenThread = vi.fn();
 const mockIsThreadActive = vi.fn();
 const mockUseThreadListItemContext = vi.fn();
 const mockUseChannelPreviewInfo = vi.fn();
+const mockUseComponentContext = vi.fn();
 
 // `isThreadActive(id)` drives the selected state; a click opens the thread via `openThread`.
 vi.mock('../../../../context', () => ({
   useChatContext: () => mockUseChatContext(),
-  useComponentContext: () => ({}),
+  useComponentContext: () => mockUseComponentContext(),
   useTranslationContext: () => mockUseTranslationContext(),
   useWorkspaceNavigation: () => ({
     isThreadActive: mockIsThreadActive,
@@ -83,6 +85,7 @@ describe('ThreadListItemUI', () => {
     });
     mockUseThreadListItemContext.mockReturnValue(thread);
     mockUseChannelPreviewInfo.mockReturnValue({ displayTitle: 'General' });
+    mockUseComponentContext.mockReturnValue({});
     mockUseStateStore.mockReturnValue({
       channel: {},
       deletedAt: undefined,
@@ -138,6 +141,64 @@ describe('ThreadListItemUI', () => {
     expect(label).toContain('Active');
   });
 
+  it('announces the parent message without markdown syntax', () => {
+    mockUseStateStore.mockReturnValue({
+      channel: {},
+      deletedAt: undefined,
+      latestReply: undefined,
+      ownUnreadMessageCount: 0,
+      parentMessage: { text: '**hello** [world](https://example.test)' },
+      participants: [],
+      replyCount: 1,
+    });
+
+    render(<ThreadListItemUI />);
+
+    expect(screen.getByRole('option').getAttribute('aria-label')).toContain(
+      'Thread: hello world',
+    );
+  });
+
+  it('announces a parent message list as words, without its markers', () => {
+    mockUseStateStore.mockReturnValue({
+      channel: {},
+      deletedAt: undefined,
+      latestReply: undefined,
+      ownUnreadMessageCount: 0,
+      parentMessage: { text: '- [x] ship\n- [ ] docs' },
+      participants: [],
+      replyCount: 1,
+    });
+
+    render(<ThreadListItemUI />);
+
+    expect(screen.getByRole('option').getAttribute('aria-label')).toContain(
+      'Thread: ship docs',
+    );
+  });
+
+  it('announces AI-generated parent message text verbatim', () => {
+    mockUseChatContext.mockReturnValue({
+      client: { userID: 'martin' },
+      isMessageAIGenerated: () => true,
+    });
+    mockUseStateStore.mockReturnValue({
+      channel: {},
+      deletedAt: undefined,
+      latestReply: undefined,
+      ownUnreadMessageCount: 0,
+      parentMessage: { text: '**AI** reply' },
+      participants: [],
+      replyCount: 1,
+    });
+
+    render(<ThreadListItemUI />);
+
+    expect(screen.getByRole('option').getAttribute('aria-label')).toContain(
+      'Thread: **AI** reply',
+    );
+  });
+
   it('lets accessibleLabelConfig override the composed aria-label', () => {
     mockIsThreadActive.mockReturnValue(false);
 
@@ -172,6 +233,58 @@ describe('ThreadListItemUI', () => {
     // Re-selecting still calls openThread (idempotent) but must not re-announce.
     expect(mockOpenThread).toHaveBeenCalledWith(thread, { additive: false });
     expect(announceInteraction).not.toHaveBeenCalled();
+  });
+
+  it('renders the Avatar, SummarizedMessagePreview and Timestamp from ComponentContext', () => {
+    const parentMessage = { text: 'hello world' };
+    const replyDate = new Date('2026-01-02T03:04:05.000Z');
+    const latestReply = {
+      created_at: convertDateToTimestamp(replyDate),
+      user: { id: 'bob', image: 'bob.png', name: 'Bob' },
+    };
+    mockUseStateStore.mockReturnValue({
+      channel: {},
+      deletedAt: undefined,
+      latestReply,
+      ownUnreadMessageCount: 0,
+      parentMessage,
+      participants: [{ id: 'bob' }, { id: 'carol' }],
+      replyCount: 1,
+    });
+    const CustomAvatar = vi.fn(() => <span data-testid='custom-avatar' />);
+    const CustomSummarizedMessagePreview = vi.fn(() => (
+      <span data-testid='custom-summary' />
+    ));
+    const CustomTimestamp = vi.fn(() => <span data-testid='custom-timestamp' />);
+    mockUseComponentContext.mockReturnValue({
+      Avatar: CustomAvatar,
+      SummarizedMessagePreview: CustomSummarizedMessagePreview,
+      Timestamp: CustomTimestamp,
+    });
+
+    render(<ThreadListItemUI />);
+
+    expect(screen.getByTestId('custom-avatar')).toBeInTheDocument();
+    expect(screen.getByTestId('custom-summary')).toBeInTheDocument();
+    expect(screen.getByTestId('custom-timestamp')).toBeInTheDocument();
+    expect(screen.queryByTestId('avatar')).not.toBeInTheDocument();
+    expect(screen.queryByTestId('summary')).not.toBeInTheDocument();
+    expect(screen.queryByTestId('timestamp')).not.toBeInTheDocument();
+    expect(CustomAvatar).toHaveBeenCalledWith(
+      expect.objectContaining({ imageUrl: 'bob.png', size: 'xl', userName: 'Bob' }),
+      undefined,
+    );
+    expect(CustomSummarizedMessagePreview).toHaveBeenCalledWith(
+      expect.objectContaining({ latestMessage: parentMessage, participantCount: 2 }),
+      undefined,
+    );
+    expect(CustomTimestamp).toHaveBeenCalledWith(
+      expect.objectContaining({
+        customClass: 'str-chat__thread-list-item__timestamp',
+        timestamp: replyDate,
+      }),
+      undefined,
+    );
   });
 
   it('passes axe checks in listbox context', async () => {

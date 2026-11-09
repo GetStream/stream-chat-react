@@ -780,7 +780,6 @@ exports[`renderText > renders custom mention 1`] = `
     <span
       class="my-mention"
       data-node-mentioned-entity-id="id-username@email.com"
-      data-node-mentioned-user-id="id-username@email.com"
     >
       @username@email.com
     </span>
@@ -788,7 +787,6 @@ exports[`renderText > renders custom mention 1`] = `
     <span
       class="my-mention"
       data-node-mentioned-entity-id="id-username@email.com"
-      data-node-mentioned-user-id="id-username@email.com"
     >
       @username@email.com
     </span>
@@ -805,7 +803,6 @@ exports[`renderText > renders custom mention 1`] = `
     <span
       class="my-mention"
       data-node-mentioned-entity-id="id-username@email.com"
-      data-node-mentioned-user-id="id-username@email.com"
     >
       @username@email.com
     </span>

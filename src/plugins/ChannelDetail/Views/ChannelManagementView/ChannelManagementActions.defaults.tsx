@@ -6,7 +6,6 @@ import {
   useChatContext,
   useComponentContext,
   useComponentContextIcons,
-  useModalContext,
   useTranslationContext,
 } from '../../../../context';
 import { isDmChannel, useStableCallback } from '../../../../utils';
@@ -618,9 +617,8 @@ const BlockUserAction = () => {
 
 const LeaveChannelAction = () => {
   const { client } = useChatContext();
-  const { channel } = useChannelDetailContext();
+  const { channel, close } = useChannelDetailContext();
   const { Modal = GlobalModal } = useComponentContext();
-  const { close } = useModalContext();
   const { addNotification } = useNotificationApi();
   const { t } = useTranslationContext();
   const [alertOpen, setAlertOpen] = useState(false);
@@ -648,7 +646,7 @@ const LeaveChannelAction = () => {
         type: 'api:channel:leave:success',
       });
       setAlertOpen(false);
-      close();
+      close?.();
     } catch (error) {
       addNotification({
         context: { channel },
@@ -708,9 +706,8 @@ const LeaveChannelAction = () => {
 };
 
 const DeleteChatAction = () => {
-  const { channel } = useChannelDetailContext();
+  const { channel, close: closeChannelDetail } = useChannelDetailContext();
   const { Modal = GlobalModal } = useComponentContext();
-  const { close: closeChannelDetail } = useModalContext();
   const { addNotification } = useNotificationApi();
   const { t } = useTranslationContext();
   const otherMember = useOtherMember();
@@ -741,7 +738,7 @@ const DeleteChatAction = () => {
         type: 'api:channel:delete:success',
       });
       setAlertOpen(false);
-      closeChannelDetail();
+      closeChannelDetail?.();
     } catch (error) {
       addNotification({
         context: { channel },

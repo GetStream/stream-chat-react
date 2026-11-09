@@ -27,6 +27,7 @@ import { ResizeObserverMock } from '../../../mock-builders/browser';
 import { Message } from '../../Message';
 import { Channel } from '../../Channel';
 import { Chat } from '../../Chat';
+import { ThreadProvider } from '../../Threads';
 import { convertDateToTimestamp } from '../../../mock-builders';
 
 (window as any).ResizeObserver = ResizeObserverMock;
@@ -83,6 +84,7 @@ async function renderMessageActions({
   customChatContext = {},
   customMessageContext = {},
   messageActionsProps = {},
+  threadParentMessage,
 }: any = {}) {
   const client = chatClient || (await getTestClientWithUser(alice));
   if (customChatContext.mutes) {
@@ -99,19 +101,25 @@ async function renderMessageActions({
     },
   });
 
+  const thread = threadParentMessage
+    ? client.threads.ensure({ channel, parentMessage: threadParentMessage })
+    : undefined;
+
   return render(
     <Chat client={client}>
       <Channel channel={channel}>
-        <DialogManagerProvider id='message-actions-dialog-provider'>
-          <MessageProvider
-            value={mockMessageContext({
-              ...defaultMessageContextValue,
-              ...customMessageContext,
-            })}
-          >
-            <MessageActions {...messageActionsProps} />
-          </MessageProvider>
-        </DialogManagerProvider>
+        <ThreadProvider thread={thread}>
+          <DialogManagerProvider id='message-actions-dialog-provider'>
+            <MessageProvider
+              value={mockMessageContext({
+                ...defaultMessageContextValue,
+                ...customMessageContext,
+              })}
+            >
+              <MessageActions {...messageActionsProps} />
+            </MessageProvider>
+          </DialogManagerProvider>
+        </ThreadProvider>
       </Channel>
     </Chat>,
   );
@@ -154,13 +162,25 @@ describe('<MessageActions />', () => {
       expect(queryByTestId(MESSAGE_ACTIONS_HOST_TEST_ID)).not.toBeInTheDocument();
     });
 
-    it('should not render when message is parent message in a thread', async () => {
-      const { queryByTestId } = await renderMessageActions({
-        customMessageContext: {
-          initialMessage: true,
-        },
+    it('should not render for the parent message of the thread it is rendered in', async () => {
+      const message = generateMessage({ user: alice });
+      const { container } = await renderMessageActions({
+        customMessageContext: { message },
+        threadParentMessage: message,
       });
-      expect(queryByTestId(MESSAGE_ACTIONS_HOST_TEST_ID)).not.toBeInTheDocument();
+      expect(
+        container.querySelector('.str-chat__message-options'),
+      ).not.toBeInTheDocument();
+    });
+
+    it('should render for a reply in a thread', async () => {
+      const parentMessage = generateMessage({ user: alice });
+      const message = generateMessage({ parent_id: parentMessage.id, user: alice });
+      const { container } = await renderMessageActions({
+        customMessageContext: { message },
+        threadParentMessage: parentMessage,
+      });
+      expect(container.querySelector('.str-chat__message-options')).toBeInTheDocument();
     });
 
     it('should render correctly when not open', async () => {
@@ -436,6 +456,34 @@ describe('<MessageActions />', () => {
       expect(getByText('Unpin')).toBeInTheDocument();
     });
 
+    it('should not show Pin without the pin-message capability', async () => {
+      const message = generateMessage({ pinned: false });
+      await renderMessageActions({
+        channelStateOpts: {
+          channelCapabilities: { 'flag-message': true },
+        },
+        customMessageContext: { message },
+      });
+      await toggleOpenMessageActions();
+
+      expect(screen.getByText('Flag')).toBeInTheDocument();
+      expect(screen.queryByText('Pin')).not.toBeInTheDocument();
+    });
+
+    it('should not show Unpin without the pin-message capability', async () => {
+      const message = generateMessage({ pinned: true });
+      await renderMessageActions({
+        channelStateOpts: {
+          channelCapabilities: { 'flag-message': true },
+        },
+        customMessageContext: { message },
+      });
+      await toggleOpenMessageActions();
+
+      expect(screen.getByText('Flag')).toBeInTheDocument();
+      expect(screen.queryByText('Unpin')).not.toBeInTheDocument();
+    });
+
     it('should set quoted message when Quote button is clicked', async () => {
       const {
         channels: [channel],
@@ -472,6 +520,92 @@ describe('<MessageActions />', () => {
       });
 
       expect(setQuotedMessageSpy).toHaveBeenCalledWith(message);
+    });
+
+    // Closing the menu returns focus to its toggle, which a hover-only toggle no longer renders, so
+    // the composer was left unfocused and the first keystrokes were lost.
+    it('focuses the composer when Edit Message is clicked', async () => {
+      const {
+        channels: [channel],
+        client,
+      } = await initClientWithChannels({
+        channelsData: [{ channel: { own_capabilities: ['update-own-message'] } }],
+      });
+      const message = generateMessage({ text: 'to edit', user: client.user });
+
+      await act(async () => {
+        await render(
+          <Chat client={client}>
+            <Channel channel={channel}>
+              <DialogManagerProvider id='message-actions-dialog-provider'>
+                <MessageProvider
+                  value={mockMessageContext({
+                    ...defaultMessageContextValue,
+                    message,
+                  })}
+                >
+                  <MessageActions />
+                </MessageProvider>
+              </DialogManagerProvider>
+              <textarea className='str-chat__textarea__textarea' data-testid='composer' />
+            </Channel>
+          </Chat>,
+        );
+      });
+
+      await toggleOpenMessageActions();
+
+      await act(async () => {
+        await fireEvent.click(screen.getByText('Edit Message'));
+      });
+
+      await waitFor(() =>
+        expect(document.activeElement).toBe(screen.getByTestId('composer')),
+      );
+    });
+
+    // Channels side by side: a channel whose composer shows no textarea (recording audio) must not
+    // send focus to the other channel's composer.
+    it('leaves focus alone when the channel of the message shows no composer textarea', async () => {
+      const {
+        channels: [channel],
+        client,
+      } = await initClientWithChannels({
+        channelsData: [{ channel: { own_capabilities: ['update-own-message'] } }],
+      });
+      const message = generateMessage({ text: 'to edit', user: client.user });
+
+      await act(async () => {
+        await render(
+          <Chat client={client}>
+            <Channel channel={channel}>
+              <DialogManagerProvider id='message-actions-dialog-provider'>
+                <MessageProvider
+                  value={mockMessageContext({
+                    ...defaultMessageContextValue,
+                    message,
+                  })}
+                >
+                  <MessageActions />
+                </MessageProvider>
+              </DialogManagerProvider>
+            </Channel>
+            <textarea
+              className='str-chat__textarea__textarea'
+              data-testid='other-composer'
+            />
+          </Chat>,
+        );
+      });
+
+      await toggleOpenMessageActions();
+
+      await act(async () => {
+        await fireEvent.click(screen.getByText('Edit Message'));
+      });
+      await act(() => new Promise((resolve) => requestAnimationFrame(resolve)));
+
+      expect(document.activeElement).not.toBe(screen.getByTestId('other-composer'));
     });
   });
 
@@ -755,7 +889,6 @@ describe('<MessageActions />', () => {
                   <Message
                     lastReceivedId={lastReceivedId}
                     message={message}
-                    threadList={false}
                     {...messageProps}
                   />
                 </DialogManagerProvider>
@@ -860,7 +993,7 @@ describe('<MessageActions />', () => {
       await renderMarkUnreadUI({
         channelProps: { channel },
         chatProps: { client },
-        messageProps: { message: threadMessage, threadList: true },
+        messageProps: { message: threadMessage },
       });
       await toggleOpenMessageActions();
 
@@ -1571,6 +1704,9 @@ describe('<MessageActions />', () => {
       });
 
       await renderMessageActions({
+        channelStateOpts: {
+          channelCapabilities: { 'pin-message': true },
+        },
         customMessageContext: { message },
       });
       await toggleOpenMessageActions();
@@ -1934,28 +2070,31 @@ describe('<MessageActions />', () => {
         channelsData: [{ channel: { own_capabilities: ['quote-message'] } }],
       });
       const message = generateMessage({ parent_id: 'parent-1', user: client.user });
-      const textarea = document.createElement('textarea');
-      textarea.className = 'str-chat__textarea__textarea';
-      const threadRoot = document.createElement('div');
-      threadRoot.className = 'str-chat__thread';
-      threadRoot.appendChild(textarea);
-      document.body.appendChild(threadRoot);
-      const focusSpy = vi.spyOn(textarea, 'focus');
 
       await act(async () => {
         await render(
           <Chat client={client}>
             <Channel channel={channel}>
-              <DialogManagerProvider id='message-actions-dialog-provider'>
-                <MessageProvider
-                  value={mockMessageContext({
-                    ...defaultMessageContextValue,
-                    message,
-                  })}
-                >
-                  <MessageActions />
-                </MessageProvider>
-              </DialogManagerProvider>
+              <textarea
+                className='str-chat__textarea__textarea'
+                data-testid='channel-composer'
+              />
+              <div className='str-chat__thread'>
+                <DialogManagerProvider id='message-actions-dialog-provider'>
+                  <MessageProvider
+                    value={mockMessageContext({
+                      ...defaultMessageContextValue,
+                      message,
+                    })}
+                  >
+                    <MessageActions />
+                  </MessageProvider>
+                </DialogManagerProvider>
+                <textarea
+                  className='str-chat__textarea__textarea'
+                  data-testid='thread-composer'
+                />
+              </div>
             </Channel>
           </Chat>,
         );
@@ -1965,8 +2104,10 @@ describe('<MessageActions />', () => {
       await act(async () => {
         await fireEvent.click(screen.getByText('Quote Reply'));
       });
-      expect(focusSpy).toHaveBeenCalled();
-      document.body.removeChild(threadRoot);
+      // Focus moves on the next frame, once the menu has started closing.
+      await waitFor(() =>
+        expect(document.activeElement).toBe(screen.getByTestId('thread-composer')),
+      );
     });
   });
 });

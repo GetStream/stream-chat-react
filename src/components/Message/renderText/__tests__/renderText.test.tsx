@@ -2,7 +2,11 @@ import React from 'react';
 import { findAndReplace } from 'hast-util-find-and-replace';
 import { u } from 'unist-builder';
 import { render, screen } from '@testing-library/react';
-import { mentionsMarkdownPlugin } from '../rehypePlugins';
+import {
+  getRenderTextMentionEntities,
+  mentionsMarkdownPlugin,
+  messageHasMentions,
+} from '../rehypePlugins';
 import {
   htmlToTextPlugin,
   imageToLink,
@@ -11,8 +15,15 @@ import {
   remarkIgnoreMarkdown,
 } from '../remarkPlugins';
 import { defaultAllowedTagNames, renderText } from '../renderText';
+import { fromPartial } from '@total-typescript/shoehorn';
+import type { UserGroupResponse } from 'stream-chat';
+import { generateUser } from '../../../../mock-builders';
 
 const strikeThroughText = '~~xxx~~';
+
+const userMentions = (users) => ({
+  messageMentionEntities: getRenderTextMentionEntities({ mentioned_users: users }),
+});
 
 describe(`renderText`, () => {
   it('wraps every link entirely even though the link roots are the same', () => {
@@ -39,7 +50,7 @@ describe(`renderText`, () => {
   it('handles the special case where user name matches to an e-mail pattern - 1', () => {
     const Markdown = renderText(
       'Hello @username@email.com, is username@email.com your @primary e-mail?',
-      [{ id: 'id-username@email.com', name: 'username@email.com' }],
+      userMentions([{ id: 'id-username@email.com', name: 'username@email.com' }]),
     );
     const { container } = render(Markdown);
     expect(container).toMatchSnapshot();
@@ -48,7 +59,7 @@ describe(`renderText`, () => {
   it('handles the special case where user name matches to an e-mail pattern - 2', () => {
     const Markdown = renderText(
       'username@email.com @username@email.com is this the right address?',
-      [{ id: 'id-username@email.com', name: 'username@email.com' }],
+      userMentions([{ id: 'id-username@email.com', name: 'username@email.com' }]),
     );
     const { container } = render(Markdown);
     expect(container).toMatchSnapshot();
@@ -57,7 +68,7 @@ describe(`renderText`, () => {
   it('handles the special case where user name matches to an e-mail pattern - 3', () => {
     const Markdown = renderText(
       '@username@email.com @username@email.com @username@email.com @username@email.com',
-      [{ id: 'id-username@email.com', name: 'username@email.com' }],
+      userMentions([{ id: 'id-username@email.com', name: 'username@email.com' }]),
     );
     const { container } = render(Markdown);
     expect(container).toMatchSnapshot();
@@ -66,14 +77,14 @@ describe(`renderText`, () => {
   it('handles the special case where user name matches to an e-mail pattern - 4', () => {
     const Markdown = renderText(
       '@username@email.com @username@email.com username@email.com @username@email.com',
-      [{ id: 'id-username@email.com', name: 'username@email.com' }],
+      userMentions([{ id: 'id-username@email.com', name: 'username@email.com' }]),
     );
     const { container } = render(Markdown);
     expect(container).toMatchSnapshot();
   });
 
   it('handles the special case where role name matches an e-mail pattern', () => {
-    const Markdown = renderText('Hello @support@example.com', undefined, {
+    const Markdown = renderText('Hello @support@example.com', {
       messageMentionEntities: [
         {
           id: 'support@example.com',
@@ -100,7 +111,7 @@ describe(`renderText`, () => {
   });
 
   it('handles the special case where user-group name matches an e-mail pattern', () => {
-    const Markdown = renderText('Hello @backend@stream.io', undefined, {
+    const Markdown = renderText('Hello @backend@stream.io', {
       messageMentionEntities: [
         {
           id: 'backend-team',
@@ -127,7 +138,7 @@ describe(`renderText`, () => {
   });
 
   it('wraps user-group mentions by id even when the entity also has a name', () => {
-    const Markdown = renderText('Hello @backend-team', undefined, {
+    const Markdown = renderText('Hello @backend-team', {
       messageMentionEntities: [
         {
           id: 'backend-team',
@@ -154,7 +165,7 @@ describe(`renderText`, () => {
   });
 
   it('wraps multi-word mention names without consuming following text', () => {
-    const Markdown = renderText('Hello @React support hey', undefined, {
+    const Markdown = renderText('Hello @React support hey', {
       messageMentionEntities: [
         {
           id: 'react-support',
@@ -182,7 +193,7 @@ describe(`renderText`, () => {
   });
 
   it('does not match a multi-word mention name as a prefix of a longer token', () => {
-    const Markdown = renderText('Hello @React supportive hey', undefined, {
+    const Markdown = renderText('Hello @React supportive hey', {
       messageMentionEntities: [
         {
           id: 'react-support',
@@ -202,19 +213,22 @@ describe(`renderText`, () => {
   });
 
   it('renders custom mention', () => {
-    const CustomMention = (props) => (
-      <span
-        className='my-mention'
-        data-node-mentioned-entity-id={props.node.mentionedEntity.id}
-        data-node-mentioned-user-id={props.node.mentionedUser?.id}
-      >
-        {props.children}
-      </span>
-    );
+    const mentionNodes = [];
+    const CustomMention = (props) => {
+      mentionNodes.push(props.node);
+      return (
+        <span
+          className='my-mention'
+          data-node-mentioned-entity-id={props.node.mentionedEntity.id}
+        >
+          {props.children}
+        </span>
+      );
+    };
     const Markdown = renderText(
       '@username@email.com @username@email.com username@email.com @username@email.com',
-      [{ id: 'id-username@email.com', name: 'username@email.com' }],
       {
+        ...userMentions([{ id: 'id-username@email.com', name: 'username@email.com' }]),
         customMarkDownRenderers: {
           mention: CustomMention,
         },
@@ -222,12 +236,24 @@ describe(`renderText`, () => {
     );
     const { container } = render(Markdown);
     expect(container).toMatchSnapshot();
+    expect(mentionNodes).not.toHaveLength(0);
+    mentionNodes.forEach((node) => expect(node).not.toHaveProperty('mentionedUser'));
   });
 
-  it('keeps the exported mentionsMarkdownPlugin backward compatible for UserResponse arrays', () => {
-    const Markdown = renderText('Hello @alice', undefined, {
+  it('renders mentions as plain text without messageMentionEntities', () => {
+    const { container } = render(renderText('Hello @alice'));
+    expect(container.querySelector('.str-chat__message-mention')).toBeNull();
+    expect(container).toHaveTextContent('Hello @alice');
+  });
+
+  it('highlights the mention entities passed to the exported mentionsMarkdownPlugin', () => {
+    const Markdown = renderText('Hello @alice', {
       getRehypePlugins: (defaultPlugins) => [
-        mentionsMarkdownPlugin([{ id: 'alice-id', name: 'alice' }]),
+        mentionsMarkdownPlugin(
+          getRenderTextMentionEntities({
+            mentioned_users: [generateUser({ id: 'alice-id', name: 'alice' })],
+          }),
+        ),
         ...defaultPlugins,
       ],
     });
@@ -278,7 +304,7 @@ describe(`renderText`, () => {
   ])(
     'renders a mention tag for %s mentions regardless of channel capabilities',
     (_, text, mentionEntity) => {
-      const Markdown = renderText(text, undefined, {
+      const Markdown = renderText(text, {
         messageMentionEntities: [mentionEntity],
       });
       const { container } = render(Markdown);
@@ -293,12 +319,11 @@ describe(`renderText`, () => {
       <span
         data-node-mentioned-entity-id={props.node.mentionedEntity.id}
         data-node-mentioned-entity-type={props.node.mentionedEntity.mentionType}
-        data-node-mentioned-user-id={props.node.mentionedUser?.id}
       >
         {props.children}
       </span>
     );
-    const Markdown = renderText('Hello @channel and @admin', undefined, {
+    const Markdown = renderText('Hello @channel and @admin', {
       customMarkDownRenderers: {
         mention: CustomMention,
       },
@@ -331,7 +356,7 @@ describe(`renderText`, () => {
   });
 
   it('renders standard markdown text', () => {
-    const Markdown = renderText('Hi, shall we meet on **Tuesday**?', []);
+    const Markdown = renderText('Hi, shall we meet on **Tuesday**?');
     const { container } = render(Markdown);
     expect(container).toMatchSnapshot();
   });
@@ -339,48 +364,52 @@ describe(`renderText`, () => {
   it('renders remark-gfm list and strikethrough correctly', () => {
     const Markdown = renderText(
       'Pick a time to meet:\n- Wednesday\n- Thursday\n- ~~Sunday~~\n- ~Monday~\n',
-      [],
     );
     const { container } = render(Markdown);
     expect(container).toMatchSnapshot();
   });
 
   it("handles the special case where there's at least one mention and @ symbol at the end", () => {
-    const Markdown = renderText('@username@email.com @', [
-      { id: 'id-username@email.com', name: 'username@email.com' },
-    ]);
+    const Markdown = renderText(
+      '@username@email.com @',
+      userMentions([{ id: 'id-username@email.com', name: 'username@email.com' }]),
+    );
     const { container } = render(Markdown);
     expect(container).toMatchSnapshot();
   });
 
   it('handles the special case where there are pronouns in the name', () => {
-    const Markdown = renderText('hey, @John (they/them), how are you?', [
-      { id: 'john', name: 'John (they/them)' },
-    ]);
+    const Markdown = renderText(
+      'hey, @John (they/them), how are you?',
+      userMentions([{ id: 'john', name: 'John (they/them)' }]),
+    );
     const { container } = render(Markdown);
     expect(container).toMatchSnapshot();
   });
 
   it('handles the special case where there is a forward slash in the name', () => {
-    const Markdown = renderText('hey, @John/Cena, how are you?', [
-      { id: 'john', name: 'John/Cena' },
-    ]);
+    const Markdown = renderText(
+      'hey, @John/Cena, how are you?',
+      userMentions([{ id: 'john', name: 'John/Cena' }]),
+    );
     const { container } = render(Markdown);
     expect(container).toMatchSnapshot();
   });
 
   it('handles the special case where there is a backslash in the name', () => {
-    const Markdown = renderText('hey, @John\\Cena, how are you?', [
-      { id: 'john', name: 'John\\Cena' },
-    ]);
+    const Markdown = renderText(
+      'hey, @John\\Cena, how are you?',
+      userMentions([{ id: 'john', name: 'John\\Cena' }]),
+    );
     const { container } = render(Markdown);
     expect(container).toMatchSnapshot();
   });
 
   it('parses user mention to default format', () => {
-    const Markdown = renderText('@username@email.com', [
-      { id: 'id-username@email.com', name: 'username@email.com' },
-    ]);
+    const Markdown = renderText(
+      '@username@email.com',
+      userMentions([{ id: 'id-username@email.com', name: 'username@email.com' }]),
+    );
     const { container } = render(Markdown);
     expect(container).toMatchInlineSnapshot(`
       <div>
@@ -401,11 +430,10 @@ describe(`renderText`, () => {
   it('allows to override rehype plugins', () => {
     const customPlugin = () => (tree) => tree;
     const getRehypePlugins = () => [customPlugin];
-    const Markdown = renderText(
-      '@username@email.com',
-      [{ id: 'id-username@email.com', name: 'username@email.com' }],
-      { getRehypePlugins },
-    );
+    const Markdown = renderText('@username@email.com', {
+      ...userMentions([{ id: 'id-username@email.com', name: 'username@email.com' }]),
+      getRehypePlugins,
+    });
     const { container } = render(Markdown);
     expect(container).toMatchInlineSnapshot(`
       <div>
@@ -428,11 +456,10 @@ describe(`renderText`, () => {
     const customPlugin = () => (tree) =>
       findAndReplace(tree, [/.*@.*/, () => u('text', '#')]);
     const getRehypePlugins = (defaultPlugins) => [customPlugin, ...defaultPlugins];
-    const Markdown = renderText(
-      '@username@email.com',
-      [{ id: 'id-username@email.com', name: 'username@email.com' }],
-      { getRehypePlugins },
-    );
+    const Markdown = renderText('@username@email.com', {
+      ...userMentions([{ id: 'id-username@email.com', name: 'username@email.com' }]),
+      getRehypePlugins,
+    });
     const { container } = render(Markdown);
     expect(container).toMatchInlineSnapshot(`
       <div>
@@ -455,11 +482,10 @@ describe(`renderText`, () => {
     const customPlugin = () => (tree) =>
       findAndReplace(tree, [/.*@.*/, () => u('text', '#')]);
     const getRehypePlugins = (defaultPlugins) => [...defaultPlugins, customPlugin];
-    const Markdown = renderText(
-      '@username@email.com',
-      [{ id: 'id-username@email.com', name: 'username@email.com' }],
-      { getRehypePlugins },
-    );
+    const Markdown = renderText('@username@email.com', {
+      ...userMentions([{ id: 'id-username@email.com', name: 'username@email.com' }]),
+      getRehypePlugins,
+    });
     const { container } = render(Markdown);
     expect(container).toMatchInlineSnapshot(`
       <div>
@@ -494,7 +520,7 @@ describe(`renderText`, () => {
   it('allows to override remark plugins', () => {
     const customPlugin = () => (tree) => tree;
     const getRemarkPlugins = () => [customPlugin];
-    const Markdown = renderText(strikeThroughText, [], { getRemarkPlugins });
+    const Markdown = renderText(strikeThroughText, { getRemarkPlugins });
     const { container } = render(Markdown);
     expect(container).toMatchInlineSnapshot(`
       <div>
@@ -520,7 +546,7 @@ describe(`renderText`, () => {
     ];
     [getRemarkPluginsFirstCustom, getRemarkPluginsFirstDefault].forEach(
       (getRemarkPlugins) => {
-        const Markdown = renderText(strikeThroughText, [], {
+        const Markdown = renderText(strikeThroughText, {
           getRemarkPlugins,
         });
         const { container } = render(Markdown);
@@ -536,7 +562,7 @@ describe(`renderText`, () => {
       u('element', { properties: {}, tagName: customTagName }, [u('text', match)]);
     const customPlugin = () => (tree) => findAndReplace(tree, [/b/, replace]);
     const getRehypePlugins = (defaultPlugins) => [customPlugin, ...defaultPlugins];
-    const Markdown = renderText(text, [], {
+    const Markdown = renderText(text, {
       allowedTagNames: [...defaultAllowedTagNames, customTagName],
       getRehypePlugins,
     });
@@ -567,9 +593,34 @@ const withStrikeThroughText = `a${lineBreaks}${strikeThroughText}${lineBreaks}b`
 const tableText = `a${lineBreaks}| a | b  |  c |  d  |\n| - | :- | -: | :-: |\n| a | b  |  c |  d  |${lineBreaks}c`;
 const multilineWithStrongText = 'This is **the first** line\n\nThis is the second line';
 
+describe('messageHasMentions', () => {
+  it.each([
+    ['a user', { mentioned_users: [generateUser()] }],
+    ['@channel', { mentioned_channel: true }],
+    ['@here', { mentioned_here: true }],
+    ['a role', { mentioned_roles: ['admin'] }],
+    ['a user group', { mentioned_groups: [fromPartial<UserGroupResponse>({ id: 'g' })] }],
+  ])('is true for a message that mentions %s', (_, metadata) => {
+    expect(messageHasMentions(metadata)).toBe(true);
+  });
+
+  it('is false for a message without mentions', () => {
+    expect(messageHasMentions(undefined)).toBe(false);
+    expect(
+      messageHasMentions({
+        mentioned_channel: false,
+        mentioned_groups: [],
+        mentioned_here: false,
+        mentioned_roles: [],
+        mentioned_users: [],
+      }),
+    ).toBe(false);
+  });
+});
+
 describe('keepLineBreaksPlugin', () => {
   const doRenderText = (text, present) => {
-    const Markdown = renderText(text, [], {
+    const Markdown = renderText(text, {
       getRemarkPlugins: () => (present ? [keepLineBreaksPlugin] : []),
     });
     return render(Markdown).container;
@@ -658,6 +709,44 @@ describe('keepLineBreaksPlugin', () => {
       expect(container).toMatchSnapshot();
     });
   });
+
+  describe('with the default plugins (remark-gfm tables)', () => {
+    const gfmTableText = '| h1 | h2 |\n| --- | --- |\n| a1 | a2 |\n| b1 | b2 |';
+
+    const renderDefault = (text: string) => render(renderText(text)).container;
+
+    it.each([
+      ['a basic table', gfmTableText],
+      [
+        'a table with an alignment row',
+        '| a | b |\n| :- | -: |\n| a1 | b1 |\n| a2 | b2 |',
+      ],
+      ['a table without outer pipes', 'h1 | h2\n-- | --\na1 | a2\nb1 | b2'],
+      ['a table in a blockquote', '> | h |\n> | - |\n> | a |\n> | b |'],
+    ])(
+      'does not insert a break between the header row and the first data row in %s',
+      (_, text) => {
+        const container = renderDefault(text);
+        const table = container.querySelector('table');
+
+        expect(table).toBeInTheDocument();
+        expect(table?.querySelector('br')).toBeNull();
+        expect(table?.querySelector('tbody')?.firstElementChild?.tagName).toBe('TR');
+        expect(table?.querySelectorAll('tbody > tr')).toHaveLength(2);
+      },
+    );
+
+    it('keeps the breaks between paragraphs around a table', () => {
+      const container = renderDefault(`a${lineBreaks}${gfmTableText}${lineBreaks}c`);
+      const table = container.querySelector('table');
+
+      expect(table?.querySelector('br')).toBeNull();
+      expect(table?.querySelectorAll('tbody > tr')).toHaveLength(2);
+      expect(
+        Array.from(container.children).map((element) => element.tagName.toLowerCase()),
+      ).toEqual(['p', 'br', 'br', 'table', 'br', 'br', 'p']);
+    });
+  });
 });
 
 describe('htmlToTextPlugin', () => {
@@ -667,7 +756,7 @@ describe('htmlToTextPlugin', () => {
   <script>console.error('This error should not be logged from renderText.test.js!')</script>
 </div>
 `;
-    const Markdown = renderText(textWithHtml, [], {
+    const Markdown = renderText(textWithHtml, {
       getRemarkPlugins: () => (withPlugin ? [htmlToTextPlugin] : []),
     });
     return render(Markdown).container;
@@ -686,7 +775,7 @@ describe('htmlToTextPlugin', () => {
 
 describe('plusPlusToEmphasis', () => {
   const renderTextPlusPlus = (text, withPlugin = true) => {
-    const Markdown = renderText(text, [], {
+    const Markdown = renderText(text, {
       getRemarkPlugins: () => (withPlugin ? [plusPlusToEmphasis] : []),
     });
     return render(Markdown).container;
@@ -716,7 +805,7 @@ describe('plusPlusToEmphasis', () => {
 
 describe('imageToLink', () => {
   const renderImageToLink = (text, withPlugin = true) => {
-    const Markdown = renderText(text, [], {
+    const Markdown = renderText(text, {
       getRemarkPlugins: () => (withPlugin ? [imageToLink] : []),
     });
     return render(Markdown).container;
@@ -757,7 +846,7 @@ describe('remarkIgnoreMarkdown', () => {
   ].join('\n');
 
   const renderWithPlugin = (plugins = []) => {
-    const Markdown = renderText(text, [], {
+    const Markdown = renderText(text, {
       getRemarkPlugins: () => [...plugins, remarkIgnoreMarkdown],
     });
     return render(Markdown).container;

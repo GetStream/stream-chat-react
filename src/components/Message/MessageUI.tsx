@@ -49,9 +49,6 @@ import { extractDisplayInfo as defaultExtractDisplayInfo } from '../Avatar/utils
 type MessageUIWithContextProps = MessageContextValue;
 
 const MessageUIWithContext = ({
-  endOfGroup,
-  firstOfGroup,
-  groupedByUser,
   highlighted,
   isMessageAIGenerated,
   isMyMessage,
@@ -116,7 +113,6 @@ const MessageUIWithContext = ({
   const isBounced = isMessageBounced(message);
   const isEdited = isMessageEdited(message) && !isAIGenerated;
 
-  const showMetadata = !groupedByUser || endOfGroup;
   const showReplyCountButton = !threadInstance && !!message.reply_count;
 
   const rootClassName = clsx(
@@ -148,9 +144,6 @@ const MessageUIWithContext = ({
       'str-chat__message-send-can-be-retried':
         message?.status === 'failed' && message?.error?.status !== 403,
       'str-chat__message-with-thread-link': showReplyCountButton,
-      'str-chat__virtual-message__wrapper--end': endOfGroup,
-      'str-chat__virtual-message__wrapper--first': firstOfGroup,
-      'str-chat__virtual-message__wrapper--group': groupedByUser,
     },
   );
 
@@ -221,7 +214,7 @@ const MessageUIWithContext = ({
                 <MessageBubbleContent />
               </MessageBubble>
               <div className='str-chat__message-reactions-host'>
-                {hasReactions && <MessageReactions reverse />}
+                {hasReactions && <MessageReactions />}
               </div>
               <div className='str-chat__message-error-indicator'>
                 <ErrorBadge />
@@ -229,18 +222,16 @@ const MessageUIWithContext = ({
             </>
           )}
         </div>
-        {showMetadata && (
-          <div className='str-chat__message-metadata'>
-            <MessageStatus />
-            {!isMyMessage() && !!message.user && memberCount > 2 && (
-              <span className='str-chat__message-metadata__name'>
-                {message.user.name || message.user.id}
-              </span>
-            )}
-            <MessageTimestamp customClass='str-chat__message-metadata__timestamp' />
-            {!isDeleted && isEdited && <MessageEditedIndicator />}
-          </div>
-        )}
+        <div className='str-chat__message-metadata'>
+          <MessageStatus />
+          {!isMyMessage() && !!message.user && memberCount > 2 && (
+            <span className='str-chat__message-metadata__name'>
+              {message.user.name || message.user.id}
+            </span>
+          )}
+          <MessageTimestamp customClass='str-chat__message-metadata__timestamp' />
+          {!isDeleted && isEdited && <MessageEditedIndicator />}
+        </div>
       </div>
     </>
   );

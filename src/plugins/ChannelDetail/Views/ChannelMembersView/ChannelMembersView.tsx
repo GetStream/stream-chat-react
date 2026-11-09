@@ -1,12 +1,18 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react';
 import type { ChannelMemberResponse } from 'stream-chat';
 
-import { useModalContext, useTranslationContext } from '../../../../context';
+import { useTranslationContext } from '../../../../context';
 import { useChannelDetailContext } from '../../ChannelDetailContext';
 import { ChannelMemberDetail } from '../ChannelMemberDetailView';
 import {
   type ChannelMembersHeaderActionItem,
-  type ChannelMembersHeaderActionsMenuTriggerProps,
   defaultChannelMembersHeaderActionSet,
   DefaultHeaderActions,
 } from './ChannelMembersHeaderActions.defaults';
@@ -20,7 +26,6 @@ import {
 
 export type ChannelMembersHeaderActionsProps = {
   modeController: ChannelMembersModeController;
-  HeaderActionsMenuTrigger?: React.ComponentType<ChannelMembersHeaderActionsMenuTriggerProps>;
   headerActionSet: ChannelMembersHeaderActionItem[];
 };
 
@@ -56,6 +61,24 @@ const RESERVED_MODES: ChannelMembersViewMode[] = ['browse', 'memberDetail'];
 
 const isReservedMode = (mode: ChannelMembersViewMode) => RESERVED_MODES.includes(mode);
 
+type ChannelMembersHeaderActionsContextValue = ChannelMembersHeaderActionsProps & {
+  HeaderActions: React.ComponentType<ChannelMembersHeaderActionsProps>;
+};
+
+// Carries the header actions past `SectionNavigatorHeader`, whose `TrailingContent` takes no props,
+// so the trailing component keeps one identity and a new `headerActionSet` or mode re-renders the
+// mounted header actions (keeping their state, e.g. an open menu) instead of mounting new ones.
+const ChannelMembersHeaderActionsContext = createContext<
+  ChannelMembersHeaderActionsContextValue | undefined
+>(undefined);
+
+const HeaderTrailingActions = () => {
+  const context = useContext(ChannelMembersHeaderActionsContext);
+  if (!context || context.modeController.mode !== 'browse') return null;
+  const { HeaderActions, ...props } = context;
+  return <HeaderActions {...props} />;
+};
+
 const AddMembersModeTitle = () => {
   const { t } = useTranslationContext();
   return <>{t('channelDetail.channelMembersView.addMembers.label', 'Add members')}</>;
@@ -71,7 +94,10 @@ export const defaultChannelMembersModeViews: ChannelMembersViewModes = {
 
 export type ChannelMembersViewProps = SectionNavigatorSectionContentProps & {
   HeaderActions?: React.ComponentType<ChannelMembersHeaderActionsProps>;
-  HeaderActionsMenuTrigger?: React.ComponentType<ChannelMembersHeaderActionsMenuTriggerProps>;
+  /**
+   * Header actions: `quick` items render inline, `dropdown` items in a menu opened by the
+   * `quick-dropdown-toggle` item. Defaults to `defaultChannelMembersHeaderActionSet`.
+   */
   headerActionSet?: ChannelMembersHeaderActionItem[];
   /** App-provided modes (e.g. bulk removal) rendered alongside the built-in ones. */
   modeViews?: ChannelMembersViewModes;
@@ -80,13 +106,11 @@ export type ChannelMembersViewProps = SectionNavigatorSectionContentProps & {
 export const ChannelMembersView = ({
   HeaderActions = DefaultHeaderActions,
   headerActionSet = defaultChannelMembersHeaderActionSet,
-  HeaderActionsMenuTrigger,
   layout,
   modeViews: customModeViews,
 }: ChannelMembersViewProps) => {
   const { t } = useTranslationContext();
-  const { channel } = useChannelDetailContext();
-  const { close } = useModalContext();
+  const { channel, close } = useChannelDetailContext();
   const [mode, setMode] = useState<ChannelMembersViewMode>('browse');
   const [selectedMember, setSelectedMember] = useState<ChannelMemberResponse>();
   const memberCount = useChannelMemberCount(channel);
@@ -124,19 +148,9 @@ export const ChannelMembersView = ({
     [mode, setViewMode],
   );
 
-  const HeaderTrailingActions = useMemo(
-    () =>
-      function HeaderTrailingActions() {
-        if (mode !== 'browse') return null;
-        return (
-          <HeaderActions
-            headerActionSet={headerActionSet}
-            HeaderActionsMenuTrigger={HeaderActionsMenuTrigger}
-            modeController={modeController}
-          />
-        );
-      },
-    [HeaderActions, HeaderActionsMenuTrigger, modeController, headerActionSet, mode],
+  const headerActionsContextValue = useMemo<ChannelMembersHeaderActionsContextValue>(
+    () => ({ HeaderActions, headerActionSet, modeController }),
+    [HeaderActions, headerActionSet, modeController],
   );
 
   if (isViewingMemberDetail && selectedMember) {
@@ -150,30 +164,32 @@ export const ChannelMembersView = ({
 
   return (
     <div className='str-chat__channel-detail__channel-members-view'>
-      <SectionNavigatorHeader
-        close={close}
-        description={
-          activeModeDescriptor
-            ? undefined
-            : t(
-                'channelDetail.channelMembersView.browseChannelMembers.description',
-                'Browse channel members',
-              )
-        }
-        goBack={activeModeDescriptor ? goBack : undefined}
-        title={
-          ActiveModeTitle ? (
-            <ActiveModeTitle />
-          ) : (
-            t('channelDetail.channelMembersView.members.title', {
-              count: memberCount,
-              defaultValue_one: '{{ count }} member',
-              defaultValue_other: '{{ count }} members',
-            })
-          )
-        }
-        TrailingContent={HeaderTrailingActions}
-      />
+      <ChannelMembersHeaderActionsContext.Provider value={headerActionsContextValue}>
+        <SectionNavigatorHeader
+          close={close}
+          description={
+            activeModeDescriptor
+              ? undefined
+              : t(
+                  'channelDetail.channelMembersView.browseChannelMembers.description',
+                  'Browse channel members',
+                )
+          }
+          goBack={activeModeDescriptor ? goBack : undefined}
+          title={
+            ActiveModeTitle ? (
+              <ActiveModeTitle />
+            ) : (
+              t('channelDetail.channelMembersView.members.title', {
+                count: memberCount,
+                defaultValue_one: '{{ count }} member',
+                defaultValue_other: '{{ count }} members',
+              })
+            )
+          }
+          TrailingContent={HeaderTrailingActions}
+        />
+      </ChannelMembersHeaderActionsContext.Provider>
       {ActiveModeBody ? (
         <ActiveModeBody modeController={modeController} />
       ) : (

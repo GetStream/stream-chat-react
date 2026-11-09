@@ -11,7 +11,6 @@ import {
   useChatContext,
   useComponentContext,
   useComponentContextIcons,
-  useModalContext,
   useTranslationContext,
 } from '../../../../context';
 import { isDmChannel } from '../../../../utils';
@@ -430,8 +429,7 @@ export const ChannelManagementView = ({
 }: ChannelManagementViewProps) => {
   const { t } = useTranslationContext();
   const { client } = useChatContext();
-  const { channel } = useChannelDetailContext();
-  const { close } = useModalContext();
+  const { channel, close } = useChannelDetailContext();
   const resolvedIsDmChannel = isDmChannel({
     channel,
     ownUserId: client.user?.id,

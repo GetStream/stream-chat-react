@@ -5,7 +5,6 @@ import { MessageComposerUI as DefaultMessageComposerUI } from './MessageComposer
 import { useMessageComposerController } from './hooks';
 import { useCreateMessageComposerContext } from './hooks/useCreateMessageComposerContext';
 import { useMessageComposerBindings } from './hooks/useMessageComposerBindings';
-import type { ComponentContextValue } from '../../context/ComponentContext';
 import { useComponentContext } from '../../context/ComponentContext';
 import { MessageComposerContextProvider } from '../../context/MessageComposerContext';
 import {
@@ -13,8 +12,6 @@ import {
   useMessageComposerControllerContext,
 } from '../../context';
 import { useStableId } from '../UtilityComponents/useStableId';
-
-import type { LocalMessage } from 'stream-chat';
 
 import type { CustomAudioRecordingConfig } from '../MediaRecorder';
 import { useRegisterDropHandlers } from './WithDragAndDropUpload';
@@ -36,7 +33,10 @@ export interface EmojiSearchIndex {
 export type MessageComposerProps = {
   /**
    * Additional props for the underlying textarea. `defaultValue`, `value`, `style` and `disabled`
-   * are excluded because the composer controls them.
+   * are excluded because the composer controls them. `className` is added to the textarea's
+   * classes, next to a `TextareaComposer` `className`. `onPaste` runs before the composer's paste
+   * handling; calling `event.preventDefault()` in it skips that handling. A `TextareaComposer`
+   * `onPaste` prop replaces this one.
    * [Available props](https://www.npmjs.com/package/react-textarea-autosize)
    */
   additionalTextareaProps?: Omit<
@@ -48,17 +48,21 @@ export type MessageComposerProps = {
    * in the composer, so the user can send several attachments in the same message.
    */
   asyncMessagesMultiSendEnabled?: boolean;
-  /** Audio recording parameters for voice messages. */
+  /**
+   * Audio recording parameters for voice messages. A new object with the same values keeps the
+   * recorder; changed values replace it, which cancels a recording in progress. Functions in it,
+   * such as `transcoderConfig.encoder`, compare by identity, so pass a stable one.
+   */
   audioRecordingConfig?: CustomAudioRecordingConfig;
   /** Whether the UI to record voice messages is shown. */
   audioRecordingEnabled?: boolean;
-  /**
-   * Search mechanism for the autocomplete and text replace features.
-   * See [emoji-mart `SearchIndex`](https://github.com/missive/emoji-mart#%EF%B8%8F%EF%B8%8F-headless-search).
-   */
-  emojiSearchIndex?: ComponentContextValue['emojiSearchIndex'];
   /** If true, focuses the text input on mount. */
   focus?: boolean;
+  /**
+   * Names the file of a voice recording from its MIME type. Defaults to
+   * `audio_recording_<ISO date>.<extension>`.
+   */
+  generateRecordingTitle?: (mimeType: string) => string;
   // todo: what sense does hideSendButton prop make, when we have message composer actions (recording, send msg). Can we remove it?
   // /** Allows to hide MessageComposer's send button. */
   hideSendButton?: boolean;
@@ -66,8 +70,6 @@ export type MessageComposerProps = {
   maxRows?: number;
   /** Min number of rows of the textarea. While empty, it has a single row unless this is set. */
   minRows?: number;
-  /** Parent message when composing a thread reply. */
-  parent?: LocalMessage;
   /**
    * Decides whether a keydown submits the message. By default `Enter` submits unless an IME
    * composition is active, and `Shift`+`Enter` inserts a new line.
@@ -82,12 +84,10 @@ export type MessageComposerProps = {
 
 const MessageComposerProvider = (props: PropsWithChildren<MessageComposerProps>) => {
   const messageComposerBindings = useMessageComposerBindings(props);
-  const { emojiSearchIndex } = useComponentContext();
 
   const messageComposerContextValue = useCreateMessageComposerContext({
     ...messageComposerBindings,
     ...props,
-    emojiSearchIndex: props.emojiSearchIndex ?? emojiSearchIndex,
   });
 
   const messageComposer = useMessageComposerController();

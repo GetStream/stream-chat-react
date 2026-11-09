@@ -10,6 +10,7 @@ import { Message } from '../Message';
 import { useComponentContext } from '../../context';
 import type { GroupStyle, RenderedMessage } from './utils';
 import { getIsFirstUnreadMessage, isDateSeparatorMessage, isIntroMessage } from './utils';
+import { omitUndefinedProps } from './omitUndefinedProps';
 import type { VirtuosoContext } from './VirtualizedMessageList';
 import type { UnknownType } from '../../types/types';
 import { useThreadContext } from '../Threads';
@@ -106,7 +107,6 @@ export const messageRenderer = (
   virtuosoContext: VirtuosoContext,
 ) => {
   const {
-    additionalMessageComposerProps,
     channel,
     closeReactionSelectorOnClick,
     customMessageRenderer,
@@ -121,6 +121,10 @@ export const messageRenderer = (
     messageGroupStyles,
     MessageSystem,
     numItemsPrepended,
+    onMentionsClick,
+    onMentionsHover,
+    onUserClick,
+    onUserHover,
     ownMessagesDeliveredToOthers,
     ownMessagesReadByOthers,
     processedMessages: messageList,
@@ -131,6 +135,7 @@ export const messageRenderer = (
     sortReactions,
     unreadMessageCount = 0,
     UnreadMessagesSeparator,
+    unsafeHTML,
     virtuosoRef,
   } = virtuosoContext;
 
@@ -152,7 +157,9 @@ export const messageRenderer = (
   }
 
   if (message.type === 'system') {
-    return MessageSystem ? <MessageSystem message={message} /> : null;
+    return MessageSystem ? (
+      <MessageSystem {...omitUndefinedProps({ unsafeHTML })} message={message} />
+    ) : null;
   }
 
   const isFirstUnreadMessage = getIsFirstUnreadMessage({
@@ -174,7 +181,6 @@ export const messageRenderer = (
         </div>
       )}
       <Message
-        additionalMessageComposerProps={additionalMessageComposerProps}
         autoscrollToBottom={virtuosoRef.current?.autoscrollToBottom}
         closeReactionSelectorOnClick={closeReactionSelectorOnClick}
         deliveredTo={ownMessagesDeliveredToOthers[message.id] || []}
@@ -184,12 +190,17 @@ export const messageRenderer = (
         lastOwnMessage={lastOwnMessage}
         lastReceivedId={lastReceivedMessageId}
         message={message}
+        onMentionsClick={onMentionsClick}
+        onMentionsHover={onMentionsHover}
+        onUserClick={onUserClick}
+        onUserHover={onUserHover}
         reactionDetailsSort={reactionDetailsSort}
         readBy={ownMessagesReadByOthers[message.id] || []}
         renderText={renderText}
         returnAllReadData={returnAllReadData}
         showAvatar={showAvatar}
         sortReactions={sortReactions}
+        unsafeHTML={unsafeHTML}
       />
     </>
   );

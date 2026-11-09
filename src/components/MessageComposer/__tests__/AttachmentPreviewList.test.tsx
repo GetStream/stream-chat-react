@@ -9,7 +9,7 @@ import { Channel } from '../../Channel';
 import { Chat } from '../../Chat';
 
 import { fromPartial } from '@total-typescript/shoehorn';
-import type { Attachment } from 'stream-chat';
+import type { Attachment, LocalUploadAttachment } from 'stream-chat';
 
 import {
   generateAudioAttachment,
@@ -188,6 +188,42 @@ describe('AttachmentPreviewList', () => {
     expect(screen.getByTestId('custom-voice-recording-preview')).toBeInTheDocument();
   });
 
+  it('retries a failed voice recording upload from the voice recording slot', async () => {
+    const {
+      channels: [channel],
+      client,
+    } = await initClientWithChannels();
+    vi.spyOn(
+      channel.messageComposer.attachmentManager,
+      'isUploadEnabled',
+      'get',
+    ).mockReturnValue(true);
+    const uploadFileSpy = vi
+      .spyOn(channel.messageComposer.attachmentManager, 'uploadFile')
+      .mockImplementation((attachment) =>
+        Promise.resolve(attachment as LocalUploadAttachment),
+      );
+    const voiceRecording = {
+      ...generateVoiceRecordingAttachment({ title: 'voice-recording-failed' }),
+      localMetadata: { id: 'voice-recording-attachment-id', uploadState: 'failed' },
+    };
+
+    await renderComponent({
+      attachments: [voiceRecording],
+      channel,
+      client,
+      component: VoiceRecordingPreviewSlot,
+    });
+
+    fireEvent.click(screen.getByTestId('file-preview-item-retry-button'));
+
+    expect(uploadFileSpy).toHaveBeenCalledWith(
+      expect.objectContaining({
+        localMetadata: expect.objectContaining({ id: 'voice-recording-attachment-id' }),
+      }),
+    );
+  });
+
   // Voice recordings render in `VoiceRecordingPreviewSlot`, not in `AttachmentPreviewList`.
   describe.each(['audio', 'file', 'image', 'unsupported', 'video'])(
     '%s attachments rendering',
@@ -226,10 +262,16 @@ describe('AttachmentPreviewList', () => {
           channels: [channel],
           client,
         } = await initClientWithChannels();
-        const uploadAttachmentSpy = vi.spyOn(
+        vi.spyOn(
           channel.messageComposer.attachmentManager,
-          'uploadAttachment',
-        );
+          'isUploadEnabled',
+          'get',
+        ).mockReturnValue(true);
+        const uploadFileSpy = vi
+          .spyOn(channel.messageComposer.attachmentManager, 'uploadFile')
+          .mockImplementation((attachment) =>
+            Promise.resolve(attachment as LocalUploadAttachment),
+          );
 
         await renderComponent({
           attachments: [localAttachment],
@@ -241,9 +283,41 @@ describe('AttachmentPreviewList', () => {
 
         fireEvent.click(retryButton);
 
-        expect(uploadAttachmentSpy).toHaveBeenCalledWith(
+        expect(uploadFileSpy).toHaveBeenCalledWith(
           expect.objectContaining(uploadedAttachmentData),
         );
+      });
+
+      it('does not retry the upload while the composer accepts no uploads', async () => {
+        if (!ATTACHMENT_TYPES_WITH_ACTION_CONTROLS.includes(type)) return;
+
+        const uploadedAttachmentData = generate[type]({
+          title: `${type}-attachment-failed`,
+        });
+        const localAttachment = {
+          ...uploadedAttachmentData,
+          localMetadata: { id: new Date().toISOString(), uploadState: 'failed' },
+        };
+
+        const {
+          channels: [channel],
+          client,
+        } = await initClientWithChannels();
+        channel.messageComposer.updateConfig({ attachments: { enabled: false } });
+        const uploadFileSpy = vi.spyOn(
+          channel.messageComposer.attachmentManager,
+          'uploadFile',
+        );
+
+        await renderComponent({
+          attachments: [localAttachment],
+          channel,
+          client,
+        });
+
+        fireEvent.click(screen.getByTestId(ATTACHMENT_PREVIEW_TEST_IDS[type].retry));
+
+        expect(uploadFileSpy).not.toHaveBeenCalled();
       });
 
       it('renders loading indicator in preview', async () => {
@@ -440,6 +514,53 @@ describe('AttachmentPreviewList', () => {
 
     expect(screen.getByRole('button', { name: 'Close' })).toBeInTheDocument();
     expect(screen.getByRole('img', { name: 'image-upload-1' })).toBeInTheDocument();
+  });
+
+  it('renders the Gallery from ComponentContext in the preview modal', async () => {
+    const Gallery = vi.fn<(props: { onRequestClose?: () => void }) => React.ReactElement>(
+      () => <div data-testid='custom-gallery' />,
+    );
+
+    await renderComponent({
+      attachments: [
+        generateLocalImageUploadAttachmentData(
+          { id: 'image-upload-1', uploadState: 'finished' },
+          {
+            fallback: 'image-upload-1',
+            image_url: 'https://example.com/image-upload-1.jpg',
+          },
+        ),
+        generateLocalImageUploadAttachmentData(
+          { id: 'image-upload-2', uploadState: 'finished' },
+          {
+            fallback: 'image-upload-2',
+            image_url: 'https://example.com/image-upload-2.jpg',
+          },
+        ),
+      ],
+      components: { Gallery },
+    });
+
+    fireEvent.click(screen.getAllByTestId('attachment-preview-media')[1]);
+
+    expect(screen.getByTestId('custom-gallery')).toBeInTheDocument();
+    expect(Gallery).toHaveBeenLastCalledWith(
+      expect.objectContaining({
+        initialIndex: 1,
+        items: [
+          expect.objectContaining({ imageUrl: 'https://example.com/image-upload-1.jpg' }),
+          expect.objectContaining({ imageUrl: 'https://example.com/image-upload-2.jpg' }),
+        ],
+        onRequestClose: expect.any(Function),
+      }),
+      undefined,
+    );
+
+    // A custom Gallery closes the preview through `onRequestClose`.
+    act(() => {
+      Gallery.mock.lastCall?.[0].onRequestClose?.();
+    });
+    expect(screen.queryByTestId('custom-gallery')).not.toBeInTheDocument();
   });
 
   it('passes onCloseAttempt to prevent overlay-close handling for gallery preview modal', async () => {

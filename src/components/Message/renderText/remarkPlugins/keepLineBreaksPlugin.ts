@@ -10,20 +10,31 @@ function isParentWithChildren(
   return Array.isArray(maybe.children);
 }
 
+/**
+ * A table holds only rows, and the line gap between its rows is not a blank line: the delimiter
+ * row between the header and the first data row is syntax. A `<br>` there would render as an
+ * empty row and is invalid inside `<tbody>`.
+ */
+function holdsOnlyTableRows(node: Node): boolean {
+  return node.type === 'table';
+}
+
 /** A `thematicBreak` that `mdast-util-to-hast` renders as `<br>` through `data.hName`. */
 function brNode(): ThematicBreak {
   return { data: { hName: 'br' }, type: 'thematicBreak' };
 }
 
 /**
- * Preserves the number of blank source lines between sibling block nodes by inserting a `<br>`
- * for each blank line beyond the single gap Markdown already renders.
+ * Preserves the blank source lines between sibling block nodes by inserting a `<br>` for each
+ * blank line. The rows of a table are left as they are.
  */
 export const keepLineBreaksPlugin: Plugin<[], Root> = () => (tree) => {
   visit(
     tree as unknown as UnistParent, // visit needs a Unist parent-like root
     isParentWithChildren, // limit to parents with children
     (parent) => {
+      if (holdsOnlyTableRows(parent)) return;
+
       const children = parent.children as RootContent[];
       if (children.length < 2) return;
 
@@ -46,7 +57,7 @@ export const keepLineBreaksPlugin: Plugin<[], Root> = () => (tree) => {
           continue;
         }
 
-        // Markdown already renders one gap between blocks; only the extra blank lines are added.
+        // Each blank source line between the two nodes becomes one `<br>`.
         const extraBlankLines = Math.max(0, nextStartLine - currEndLine - 1);
         if (extraBlankLines > 0) {
           for (let k = 0; k < extraBlankLines; k++) {

@@ -1,8 +1,39 @@
+@use 'sass:list';
+@use 'sass:map';
+@use './tokens' as *;
 @use './attachment-preview.scss';
 @use './streaming-message.scss';
 @use './ai-message-composer.scss';
 @use './ai-state-indicator.scss';
 @use './voice-visualization.scss';
 @use './voice-glow-css.scss';
+@use './ai-message-parts.scss';
+@use './ai-conversation.scss';
+@use './ai-ui.scss';
+@use './a2ui.scss';
+@use './openui.scss';
 
 // Intentionally declares no `--str-chat__ai-*` custom properties; see _tokens.scss.
+
+// The SDK fallbacks shaded in its dark theme, so what is written on them reaches 4.5:1 (see
+// `$ai-dark-shades`). Private: an app sets `--str-chat__ai-*` instead. Without `color-mix()`,
+// the AI components take the SDK's colour as it is.
+@supports (color: color-mix(in srgb, red, blue)) {
+  .str-chat__theme-dark {
+    @each $name, $keep in $ai-dark-shades {
+      $entry: map.get($ai-tokens, $name);
+      --_str-chat-ai-dark-#{$name}: color-mix(
+        in srgb,
+        var(#{list.nth($entry, 1)}, #{list.nth($entry, 2)}) #{$keep},
+        #000
+      );
+    }
+  }
+
+  // A light subtree in a dark one keeps the SDK's colour.
+  .str-chat__theme-light {
+    @each $name, $keep in $ai-dark-shades {
+      --_str-chat-ai-dark-#{$name}: initial;
+    }
+  }
+}

@@ -4,9 +4,15 @@
   );
 
   .str-chat__message {
+    // Inside a message the quote sits on the bubble, so it takes the bubble's side tokens
+    // whoever the quoted author is. The author-based --own modifier applies only in the composer.
     .str-chat__quoted-message-preview {
       cursor: pointer;
-      background-color: var(--chat-bg-attachment-incoming);
+      background-color: var(
+        --chat-bg-attachment,
+        var(--str-chat__chat-bg-attachment-incoming)
+      );
+      color: var(--chat-text, var(--str-chat__chat-text-incoming));
       width: calc(
         var(--str-chat__message-with-attachment-max-width) - calc(
             2 * var(--str-chat__spacing-xs)
@@ -15,8 +21,12 @@
       max-width: 100%;
       min-width: 0;
     }
-    .str-chat__quoted-message-preview--own {
-      background-color: var(--chat-bg-attachment-outgoing);
+
+    .str-chat__quoted-message-indicator {
+      background-color: var(
+        --chat-reply-indicator,
+        var(--str-chat__chat-reply-indicator-incoming)
+      );
     }
   }
 }

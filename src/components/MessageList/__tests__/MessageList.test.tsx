@@ -1,5 +1,13 @@
 import React, { useEffect } from 'react';
-import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import {
+  act,
+  cleanup,
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+  within,
+} from '@testing-library/react';
 import { fromPartial } from '@total-typescript/shoehorn';
 import { axe } from '../../../../axe-helper';
 import {
@@ -19,11 +27,14 @@ import {
 import { Chat } from '../../Chat';
 import { MessageList } from '../MessageList';
 import { Channel } from '../../Channel';
+import { Message } from '../../Message';
 import { CHANNEL_CONTAINER_ID } from '../../Channel/constants';
 import { MESSAGE_LIST_MAIN_PANEL_CLASS } from '../MessageListMainPanel';
 import { ThreadProvider } from '../../Threads';
 import { useChannel, useMessageContext, WithComponents } from '../../../context';
 import { EmptyStateIndicator as EmptyStateIndicatorMock } from '../../EmptyStateIndicator';
+import { EventComponent } from '../../EventComponent';
+import type { EventComponentProps } from '../../EventComponent';
 import { mockedApiResponse } from '../../../mock-builders/api/utils';
 import { nanoid } from 'nanoid';
 import { StateStore } from '@stream-io/state-store';
@@ -39,7 +50,9 @@ import type { ComponentContextValue } from '../../../context';
 import type { MockInstance } from 'vitest';
 import type { ChannelProps } from '../../Channel';
 import type { MessageListProps } from '../MessageList';
+import type { MessageProps } from '../../Message';
 import { convertDateToTimestamp } from '../../../mock-builders';
+import { ResizeObserverMock } from '../../../mock-builders/browser';
 
 const seedPaginator = (
   channel: ChannelType,
@@ -220,6 +233,7 @@ describe('MessageList', () => {
   afterEach(() => {
     cleanup();
     vi.clearAllMocks();
+    vi.unstubAllGlobals();
     markReadMock.mockRestore();
     Object.defineProperty(window, 'matchMedia', {
       configurable: true,
@@ -383,6 +397,66 @@ describe('MessageList', () => {
     });
   });
 
+  it('should give no actions to the parent message that a ThreadHead override renders', async () => {
+    const thread = chatClient.threads.ensure({ channel, parentMessage: message1 });
+    const CustomThreadHead = (props: MessageProps) => (
+      <div data-testid='custom-thread-head'>
+        <Message {...props} />
+      </div>
+    );
+
+    await act(() => {
+      renderComponent({
+        channelProps: { channel },
+        chatClient,
+        components: { ThreadHead: CustomThreadHead },
+        msgListProps: { messages: [] },
+        thread,
+      });
+    });
+
+    const threadHead = await screen.findByTestId('custom-thread-head');
+    expect(within(threadHead).getByText(message1.text)).toBeInTheDocument();
+    expect(
+      threadHead.querySelector('.str-chat__message-options'),
+    ).not.toBeInTheDocument();
+  });
+
+  it('should give the thread parent message the message props of its replies', async () => {
+    const CustomThreadHead = vi.fn<(props: MessageProps) => React.ReactElement>(() => (
+      <div />
+    ));
+    const onMentionsClick = vi.fn();
+    const onUserClick = vi.fn();
+    const renderText = vi.fn();
+
+    await act(() => {
+      renderComponent({
+        channelProps: { channel },
+        chatClient,
+        components: { ThreadHead: CustomThreadHead },
+        msgListProps: {
+          messages: [reply1, reply2],
+          onMentionsClick,
+          onUserClick,
+          renderText,
+        },
+        thread: makeThreadStub(channel, message1),
+      });
+    });
+
+    await waitFor(() => {
+      expect(CustomThreadHead.mock.lastCall?.[0]).toEqual(
+        expect.objectContaining({
+          message: expect.objectContaining({ id: message1.id }),
+          onMentionsClick,
+          onUserClick,
+          renderText,
+        }),
+      );
+    });
+  });
+
   it('should render the thread parent message when no head is provided', async () => {
     // The list resolves the head from thread context and renders it inside its scroll container,
     // so `Thread` cannot place it as a sibling.
@@ -415,6 +489,27 @@ describe('MessageList', () => {
       expect(screen.queryByText(reply1.text)).toBeInTheDocument();
       expect(screen.queryByText(reply2.text)).toBeInTheDocument();
     });
+  });
+
+  it('should render the ScrollToLatestMessageButton override with the list state', async () => {
+    const ScrollToLatestMessageButton = vi.fn(() => (
+      <div data-testid='custom-scroll-to-latest' />
+    ));
+    renderComponent({
+      channelProps: { channel },
+      chatClient,
+      components: { ScrollToLatestMessageButton },
+      msgListProps: { messages: [message1] },
+    });
+
+    expect(await screen.findByTestId('custom-scroll-to-latest')).toBeInTheDocument();
+    expect(ScrollToLatestMessageButton).toHaveBeenCalledWith(
+      expect.objectContaining({
+        isNotAtLatestMessageSet: false,
+        onClick: expect.any(Function),
+      }),
+      undefined,
+    );
   });
 
   it('should render EmptyStateIndicator with corresponding list type in main message list', async () => {
@@ -473,7 +568,9 @@ describe('MessageList', () => {
         channel,
       },
       chatClient,
-      msgListProps: fromPartial<MessageListProps>({ groupStyles: () => classNameSuffix }),
+      msgListProps: fromPartial<MessageListProps>({
+        getGroupStyles: () => classNameSuffix,
+      }),
     });
 
     await waitFor(() => {
@@ -567,6 +664,45 @@ describe('MessageList', () => {
 
     await waitFor(() => {
       expect(screen.queryByText(system.text)).toBeInTheDocument();
+    });
+  });
+
+  it("should keep a MessageSystem override's own unsafeHTML when the list doesn't set it", async () => {
+    const MessageSystem = (props: EventComponentProps) => (
+      <EventComponent unsafeHTML {...props} />
+    );
+    const system = generateMessage({
+      html: '<span data-testid="custom-html" />',
+      text: 'system text',
+      type: 'system',
+    });
+
+    renderComponent({
+      channelProps: { channel },
+      chatClient,
+      components: { MessageSystem },
+      msgListProps: { messages: [system] },
+    });
+
+    expect(await screen.findByTestId('custom-html')).toBeInTheDocument();
+  });
+
+  it('should give the system message list item the str-chat__li class', async () => {
+    const system = generateMessage({
+      text: 'system message in a list item',
+      type: 'system',
+    });
+
+    renderComponent({
+      channelProps: { channel },
+      chatClient,
+      msgListProps: {
+        messages: [system],
+      },
+    });
+
+    await waitFor(() => {
+      expect(screen.getByText(system.text).closest('li')).toHaveClass('str-chat__li');
     });
   });
 
@@ -893,9 +1029,9 @@ describe('MessageList', () => {
           chatClient: client,
           msgListProps: {
             messages: replies,
-            threadList: true,
             withDateSeparator: false,
           },
+          thread: makeThreadStub(channel),
         });
       });
 
@@ -1014,8 +1150,8 @@ describe('MessageList', () => {
         components = {},
         dispatchMarkUnreadPayload = {},
         entries,
+        inThread = false,
         msgListProps = {},
-        threadList = false,
       }) => {
         const {
           channels: [channel],
@@ -1028,7 +1164,7 @@ describe('MessageList', () => {
             chatClient: client,
             components,
             msgListProps: { messages, ...msgListProps },
-            thread: threadList ? makeThreadStub(channel) : undefined,
+            thread: inThread ? makeThreadStub(channel) : undefined,
           });
         });
 
@@ -1152,7 +1288,7 @@ describe('MessageList', () => {
       it('should not display unread messages notification in thread', async () => {
         await setupTest({
           entries: observerEntriesScrolledBelowSeparator,
-          threadList: true,
+          inThread: true,
         });
         expect(
           screen.queryByTestId(UNREAD_MESSAGES_NOTIFICATION_TEST_ID),
@@ -1203,7 +1339,8 @@ describe('MessageList', () => {
               channel,
             },
             chatClient: client,
-            msgListProps: { messages, threadList: true },
+            msgListProps: { messages },
+            thread: makeThreadStub(channel),
           });
         });
 
@@ -1821,6 +1958,122 @@ describe('MessageList', () => {
           delete HTMLElement.prototype.scrollTo;
         }
       });
+    });
+  });
+
+  // The reaction selector's dialog ID is the same in both lists. Each list keeps its dialogs in its
+  // own dialog manager, which is what keeps the two dialogs for one message apart.
+  it.each([
+    ['channel-list', 'thread-list'],
+    ['thread-list', 'channel-list'],
+  ])(
+    'opens the reaction selector only in the list it was opened from (%s)',
+    async (openedList, otherList) => {
+      const reactionChannelData = generateChannel({
+        channel: { own_capabilities: ['send-reaction'] },
+        members: [generateMember({ user: user1 }), generateMember({ user: user2 })],
+        messages: [message1],
+      });
+      const client = await getTestClientWithUser({ id: user2.id });
+      useMockedApis(client, [getOrCreateChannelApi(reactionChannelData)]);
+      const reactionChannel = client.channel('messaging', reactionChannelData.channel.id);
+      await reactionChannel.watch();
+      seedPaginator(reactionChannel, [message1]);
+      // The open selector observes its own size to stay positioned.
+      vi.stubGlobal('ResizeObserver', ResizeObserverMock);
+
+      await act(() => {
+        render(
+          <Chat client={client}>
+            <Channel channel={reactionChannel}>
+              <div data-testid='channel-list'>
+                <MessageList />
+              </div>
+              {/* The thread stub reads the channel's paginator, so both lists render message1. */}
+              <ThreadProvider thread={makeThreadStub(reactionChannel)}>
+                <div data-testid='thread-list'>
+                  <MessageList />
+                </div>
+              </ThreadProvider>
+            </Channel>
+          </Chat>,
+        );
+      });
+
+      const reactionButtonIn = (listTestId: string) =>
+        within(screen.getByTestId(listTestId)).getByTestId('message-reaction-action');
+
+      await act(() => {
+        fireEvent.click(reactionButtonIn(openedList));
+      });
+
+      expect(reactionButtonIn(openedList)).toHaveAttribute('aria-expanded', 'true');
+      expect(reactionButtonIn(otherList)).toHaveAttribute('aria-expanded', 'false');
+      expect(screen.getAllByTestId('reaction-selector')).toHaveLength(1);
+      expect(
+        within(screen.getByTestId(openedList)).getByTestId('reaction-selector'),
+      ).toBeInTheDocument();
+    },
+  );
+
+  describe('groupByUser', () => {
+    // Three consecutive messages from one user, one second apart so their order is fixed.
+    const renderGroupStyles = async (msgListProps = {}) => {
+      const at = (second: number) => new Date(Date.UTC(2026, 0, 1, 12, 0, second));
+      const messages = [1, 2, 3].map((second) =>
+        generateMessage({ timestamp: at(second), user: user1 }),
+      );
+      let container: HTMLElement;
+      await act(() => {
+        ({ container } = renderComponent({
+          channelProps: { channel },
+          chatClient,
+          msgListProps: { messages, ...msgListProps },
+        }));
+      });
+      return messages.map(({ id }) =>
+        Array.from(container.querySelector(`[data-message-id="${id}"]`)!.classList).find(
+          (className) => className.startsWith('str-chat__li--'),
+        ),
+      );
+    };
+
+    it('groups consecutive messages from one user by default', async () => {
+      expect(await renderGroupStyles()).toEqual([
+        'str-chat__li--top',
+        'str-chat__li--middle',
+        'str-chat__li--bottom',
+      ]);
+    });
+
+    it.each([
+      [{}, true],
+      [{ groupByUser: false }, false],
+    ])(
+      'passes groupByUser and maxTimeBetweenGroupedMessages to a custom getGroupStyles (props: %j)',
+      async (props, expectedGroupByUser) => {
+        const getGroupStyles = vi.fn(() => 'single' as const);
+        await renderGroupStyles({
+          ...props,
+          getGroupStyles,
+          maxTimeBetweenGroupedMessages: 60_000,
+        });
+
+        expect(getGroupStyles).toHaveBeenCalledWith(
+          expect.objectContaining({
+            groupByUser: expectedGroupByUser,
+            maxTimeBetweenGroupedMessages: 60_000,
+          }),
+        );
+      },
+    );
+
+    it('does not group messages by user when set to false', async () => {
+      expect(await renderGroupStyles({ groupByUser: false })).toEqual([
+        'str-chat__li--single',
+        'str-chat__li--single',
+        'str-chat__li--single',
+      ]);
     });
   });
 

@@ -4,6 +4,8 @@ import { afterEach, beforeEach, vi } from 'vitest';
 import type { Channel } from 'stream-chat';
 
 import { ChannelDetailProvider } from '../ChannelDetailContext';
+// The real provider: the context barrel is mocked in this file.
+import { ModalContextProvider } from '../../../context/ModalContext';
 import {
   type ChannelManagementActionItem,
   DefaultChannelManagementActions,
@@ -131,7 +133,6 @@ vi.mock('../../../context', async (importOriginal) => {
     }),
     // The real hook: with no provider it returns the SDK icons.
     useComponentContextIcons: actual.useComponentContextIcons,
-    useModalContext: () => ({ close: mocks.close }),
     useTranslationContext: () => ({
       // The unstable variant must still forward the inline defaultValue, or every call would
       // resolve to the raw key.
@@ -160,9 +161,11 @@ const advanceDebounce = async () => {
 
 const renderAction = (action: React.ReactElement) =>
   render(
-    <ChannelDetailProvider channel={mocks.channel as unknown as Channel}>
-      {action}
-    </ChannelDetailProvider>,
+    <ModalContextProvider value={{ close: mocks.close }}>
+      <ChannelDetailProvider channel={mocks.channel as unknown as Channel}>
+        {action}
+      </ChannelDetailProvider>
+    </ModalContextProvider>,
   );
 
 const PermissionProbe = ({

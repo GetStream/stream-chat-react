@@ -1,15 +1,17 @@
 import Dayjs from 'dayjs';
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import React from 'react';
 import type { Channel, MessageResponse } from 'stream-chat';
 import { fromPartial } from '@total-typescript/shoehorn';
 
 import {
   useChatContext,
+  useComponentContext,
   useComponentContextIcons,
-  useModalContext,
   useTranslationContext,
 } from '../../../../../context';
+// The real provider: the context barrel is auto-mocked in this file.
+import { ModalContextProvider } from '../../../../../context/ModalContext';
 import * as DEFAULT_ICONS from '../../../../../components/Icons/icons';
 import { useStateStore } from '../../../../../store';
 import { ChannelDetailProvider } from '../../../ChannelDetailContext';
@@ -103,9 +105,14 @@ vi.mock('react-virtuoso', () => ({
 vi.mock('../../../../../components/Dialog', () => ({
   Prompt: {
     Body: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
-    Header: ({ title }: { title?: React.ReactNode }) => (
+    Header: ({ close, title }: { close?: () => void; title?: React.ReactNode }) => (
       <header>
         <h2>{title}</h2>
+        {close && (
+          <button onClick={close} type='button'>
+            Close
+          </button>
+        )}
       </header>
     ),
   },
@@ -205,9 +212,8 @@ describe('ChannelFilesView', () => {
       client: { userID: 'user-1' },
     } as ReturnType<typeof useChatContext>);
 
-    vi.mocked(useModalContext).mockReturnValue({
-      close: vi.fn(),
-    } as ReturnType<typeof useModalContext>);
+    // Auto-mocked module: no component overrides unless a test sets them.
+    vi.mocked(useComponentContext).mockReturnValue({});
 
     vi.mocked(useStateStore).mockReturnValue({
       isLoading: false,
@@ -249,6 +255,26 @@ describe('ChannelFilesView', () => {
     expect(screen.queryByText('scraped-link-preview')).not.toBeInTheDocument();
   });
 
+  it('renders the FileSizeIndicator from ComponentContext with the attachment file size', () => {
+    const CustomFileSizeIndicator = ({ fileSize }: { fileSize?: number | string }) => (
+      <span data-testid='custom-file-size-indicator'>{fileSize}</span>
+    );
+    vi.mocked(useComponentContext).mockReturnValue({
+      FileSizeIndicator: CustomFileSizeIndicator,
+    });
+
+    renderView();
+
+    expect(
+      screen.getAllByTestId('custom-file-size-indicator').map((node) => node.textContent),
+    ).toEqual([
+      String(4 * 1024 * 1024),
+      String(7 * 1024 * 1024),
+      String(6 * 1024 * 1024),
+    ]);
+    expect(screen.queryByTestId('file-size-indicator')).not.toBeInTheDocument();
+  });
+
   it('groups attachments into descending month sections', () => {
     renderView();
 
@@ -266,5 +292,28 @@ describe('ChannelFilesView', () => {
 
     expect(screen.getByText('No files')).toBeInTheDocument();
     expect(screen.getByText('Share a file to see it here')).toBeInTheDocument();
+  });
+
+  describe('close button', () => {
+    it('is hidden outside a modal when no onClose is given', () => {
+      renderView();
+
+      expect(screen.queryByRole('button', { name: 'Close' })).not.toBeInTheDocument();
+    });
+
+    it('calls the surrounding modal close', () => {
+      const close = vi.fn();
+      render(
+        <ModalContextProvider value={{ close }}>
+          <ChannelDetailProvider channel={channel}>
+            <ChannelFilesView layout='tabs' />
+          </ChannelDetailProvider>
+        </ModalContextProvider>,
+      );
+
+      fireEvent.click(screen.getByRole('button', { name: 'Close' }));
+
+      expect(close).toHaveBeenCalledTimes(1);
+    });
   });
 });

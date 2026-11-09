@@ -33,7 +33,13 @@
       gap: var(--str-chat__spacing-xs);
     }
 
+    // The actions sit on the message bubble, so they take the bubble's text color instead of the
+    // app-wide secondary button color.
     .str-chat__button.str-chat__poll-action {
+      --str-chat__button-secondary-text: var(
+        --chat-text,
+        var(--str-chat__chat-text-incoming)
+      );
       width: 100%;
       border: 1px solid var(--chat-border-on-chat);
       padding: var(--str-chat__button-padding-y-sm)

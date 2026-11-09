@@ -95,24 +95,26 @@ export const MessageComposerActions = () => {
     </DefaultSendButton>
   );
 
-  let content =
-    canScheduleMessage && ScheduleMessageButton ? (
+  // One control fills the slot, first match wins. While the AI is answering, stopping it is the
+  // only useful action, so the stop button outranks everything else, `hideSendButton` included.
+  let content: React.ReactNode;
+  if (shouldDisplayStopAIGeneration) {
+    content = <StopAIGenerationButton onClick={stopGenerating} />;
+  } else if (hideSendButton) {
+    return null;
+  } else if (isCooldownActive) {
+    content = <CooldownTimer />;
+  } else if (contentIsEmpty && !isEditing && !command && recordingEnabled) {
+    content = <AudioRecordingButtonWithNotification />;
+  } else if (canScheduleMessage && ScheduleMessageButton) {
+    content = (
       <div className='str-chat__split-send-button'>
         {sendButton}
         <ScheduleMessageButton />
       </div>
-    ) : (
-      sendButton
     );
-
-  if (shouldDisplayStopAIGeneration) {
-    content = <StopAIGenerationButton onClick={stopGenerating} />;
-  } else if (hideSendButton) return null;
-
-  if (isCooldownActive) {
-    content = <CooldownTimer />;
-  } else if (contentIsEmpty && !isEditing && !command && recordingEnabled) {
-    content = <AudioRecordingButtonWithNotification />;
+  } else {
+    content = sendButton;
   }
 
   return <div className='str-chat__message-composer__actions'>{content}</div>;

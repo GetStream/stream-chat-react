@@ -3,9 +3,9 @@ import type { ComponentProps } from 'react';
 import React, { forwardRef, useCallback, useMemo } from 'react';
 import { GroupedVirtuoso } from 'react-virtuoso';
 
-import { useModalContext, useTranslationContext } from '../../../../context';
+import { useComponentContext, useTranslationContext } from '../../../../context';
 import { getDateString } from '../../../../i18n/utils';
-import { FileSizeIndicator } from '../../../../components/Attachment/components/FileSizeIndicator';
+import { FileSizeIndicator as DefaultFileSizeIndicator } from '../../../../components/Attachment/components/FileSizeIndicator';
 import { Prompt } from '../../../../components/Dialog';
 import { FileIcon } from '../../../../components/FileIcon';
 import { ListItemLayout } from '../../../../components/ListItemLayout';
@@ -13,6 +13,7 @@ import {
   SectionNavigatorHeader,
   type SectionNavigatorSectionContentProps,
 } from '../../SectionNavigator';
+import { useChannelDetailContext } from '../../ChannelDetailContext';
 import { ChannelDetailListLoadingIndicator } from '../../ChannelDetailListLoadingIndicator';
 import { ChannelFilesEmptyList } from './ChannelFilesEmptyList';
 import type { ChannelFileItem } from './ChannelFilesView.utils';
@@ -66,6 +67,7 @@ const getAttachmentFileName = (attachment: ChannelFileItem['attachment']) =>
   attachment.title || attachment.fallback || '';
 
 const ChannelFileListItem = ({ item }: { item: ChannelFileItem }) => {
+  const { FileSizeIndicator = DefaultFileSizeIndicator } = useComponentContext();
   const { attachment } = item;
   const fileName = getAttachmentFileName(attachment);
   const assetUrl = attachment.asset_url;
@@ -94,7 +96,7 @@ const ChannelFileListItem = ({ item }: { item: ChannelFileItem }) => {
       title: fileName,
       titleClassName: 'str-chat__channel-detail__files-view__list-item__name',
     }),
-    [fileSize, fileName, LeadingSlot],
+    [FileSizeIndicator, fileSize, fileName, LeadingSlot],
   );
 
   const linkRootProps = useMemo(
@@ -124,7 +126,7 @@ export type ChannelFilesViewProps = SectionNavigatorSectionContentProps;
 
 export const ChannelFilesView: React.ComponentType<ChannelFilesViewProps> = () => {
   const { t } = useTranslationContext();
-  const { close } = useModalContext();
+  const { close } = useChannelDetailContext();
   const { channelFilesSearchSource, fileItems, groupCounts, hasResultsLoaded, sections } =
     useChannelFilesSearch();
 
