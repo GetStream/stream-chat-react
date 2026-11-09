@@ -49,6 +49,14 @@ export const useVirtualizedListboxKeyboardNavigation = <T>({
   // Bumped on every roving key press. A deferred post-scroll focus chain bails once a newer press
   // supersedes it, so a slow older scroll cannot steal focus back to an outdated row.
   const latestFocusRequestRef = useRef(0);
+  // The index a pending off-window focus chain is heading to. A virtual list may report the scroll
+  // done only once it settled (react-virtuoso 4 waits for the list to stop changing), so a held
+  // arrow key presses again before that row has focus; navigation moves on from this target, not
+  // from the row that still has focus.
+  const pendingIndexRef = useRef<number | null>(null);
+  // The item focused when that chain started: focus moved elsewhere since (a click, Tab) makes the
+  // pending target stale.
+  const pendingFromIdRef = useRef<string | undefined>(undefined);
 
   // Focuses the option for `items[index]` if it is in the DOM; returns whether it was.
   const focusOptionAt = useCallback(
@@ -73,7 +81,10 @@ export const useVirtualizedListboxKeyboardNavigation = <T>({
     ) => {
       // A newer key press superseded this chain.
       if (requestId !== latestFocusRequestRef.current) return;
-      if (focusOptionAt(index) || attemptsLeft <= 0) return;
+      if (focusOptionAt(index) || attemptsLeft <= 0) {
+        pendingIndexRef.current = null;
+        return;
+      }
       requestAnimationFrame(() =>
         focusOptionAfterRender(index, requestId, attemptsLeft - 1),
       );
@@ -90,8 +101,12 @@ export const useVirtualizedListboxKeyboardNavigation = <T>({
               .closest<HTMLElement>(`[${itemIdAttribute}]`)
               ?.getAttribute(itemIdAttribute) ?? undefined)
           : undefined;
-      const activeIndex =
+      const focusedIndex =
         activeId != null ? items.findIndex((item) => getItemId(item) === activeId) : -1;
+      const activeIndex =
+        pendingIndexRef.current !== null && pendingFromIdRef.current === activeId
+          ? pendingIndexRef.current
+          : focusedIndex;
       const nextIndex = getNextRovingFocusIndex({
         activeIndex,
         itemCount: items.length,
@@ -105,7 +120,12 @@ export const useVirtualizedListboxKeyboardNavigation = <T>({
       const requestId = ++latestFocusRequestRef.current;
       // A rendered row is focused right away (native focus scrolls it fully into view); otherwise
       // scroll it into existence and focus it once the list has painted it.
-      if (focusOptionAt(nextIndex)) return;
+      if (focusOptionAt(nextIndex)) {
+        pendingIndexRef.current = null;
+        return;
+      }
+      pendingIndexRef.current = nextIndex;
+      pendingFromIdRef.current = activeId;
       scrollIndexIntoView(nextIndex, () => focusOptionAfterRender(nextIndex, requestId));
     },
     [

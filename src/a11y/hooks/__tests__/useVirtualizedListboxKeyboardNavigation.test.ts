@@ -1,12 +1,15 @@
+import type { KeyboardEvent } from 'react';
 import { renderHook } from '@testing-library/react';
 
 import { useVirtualizedListboxKeyboardNavigation } from '../useVirtualizedListboxKeyboardNavigation';
 
-const makeEvent = (key: string) => ({
-  key,
-  preventDefault: vi.fn(),
-  stopPropagation: vi.fn(),
-});
+// Only what the hook reads of a keyboard event.
+const makeEvent = (key: string) =>
+  ({
+    key,
+    preventDefault: vi.fn(),
+    stopPropagation: vi.fn(),
+  }) as unknown as KeyboardEvent<HTMLElement>;
 
 describe('useVirtualizedListboxKeyboardNavigation', () => {
   // The full list; the DOM only ever holds a subset of it (the rendered window).
@@ -73,6 +76,43 @@ describe('useVirtualizedListboxKeyboardNavigation', () => {
 
     expect(scroll).toHaveBeenLastCalledWith(3, expect.any(Function));
     expect(document.activeElement).toBe(optionFor('d'));
+  });
+
+  it('moves on from the pending target while an off-window scroll is still settling', () => {
+    // react-virtuoso 4 reports a scroll done only once it settled, so a held arrow key presses
+    // again before the next row is focused: each press must still advance one row.
+    renderOption('a');
+    const pending: (() => void)[] = [];
+    const deferredScroll = vi.fn((index: number, onRendered: () => void) => {
+      pending.push(() => {
+        renderOption(ITEMS[index].id);
+        onRendered();
+      });
+    });
+    const { result } = setup(deferredScroll);
+    optionFor('a')!.focus();
+
+    result.current.onKeyDown(makeEvent('ArrowDown'));
+    result.current.onKeyDown(makeEvent('ArrowDown'));
+    expect(deferredScroll).toHaveBeenNthCalledWith(1, 1, expect.any(Function));
+    expect(deferredScroll).toHaveBeenNthCalledWith(2, 2, expect.any(Function));
+
+    pending.forEach((settle) => settle());
+    expect(document.activeElement).toBe(optionFor('c'));
+  });
+
+  it('starts from the focused row again once focus moved away from a pending chain', () => {
+    ['a', 'b'].forEach(renderOption);
+    const neverSettles = vi.fn();
+    const { result } = setup(neverSettles);
+    optionFor('a')!.focus();
+    result.current.onKeyDown(makeEvent('End'));
+    expect(neverSettles).toHaveBeenLastCalledWith(4, expect.any(Function));
+
+    // The user clicks row b while the scroll to the end is still pending.
+    optionFor('b')!.focus();
+    result.current.onKeyDown(makeEvent('ArrowDown'));
+    expect(neverSettles).toHaveBeenLastCalledWith(2, expect.any(Function));
   });
 
   it('End scrolls to the last item; Home returns to the first', () => {
