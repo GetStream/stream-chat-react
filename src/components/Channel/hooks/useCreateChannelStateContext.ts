@@ -67,6 +67,8 @@ export const useCreateChannelStateContext = (
     channelCapabilities[capability] = true;
   });
 
+  const channelCapabilitiesKey = [...channelCapabilitiesArray].sort().join();
+
   // FIXME: this is crazy - I could not find out why the messages were not getting updated when only message properties that are not part
   // of this serialization has been changed. A great example of memoization gone wrong.
   const memoizedMessageData = skipMessageDataMemoization
@@ -141,6 +143,7 @@ export const useCreateChannelStateContext = (
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [
       channel.data?.name, // otherwise ChannelHeader will not be updated
+      channelCapabilitiesKey,
       channelId,
       channelUnreadUiState,
       error,
