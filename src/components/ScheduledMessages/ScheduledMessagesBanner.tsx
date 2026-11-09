@@ -47,8 +47,9 @@ export const ScheduledMessagesBanner = () => {
   );
 
   const hasCapability = channelCapabilities.has(SCHEDULE_MESSAGE_CAPABILITY);
-  const isBannerVisible = hasCapability && scheduledMessageCount > 0;
   const hasFailedScheduledMessages = failedScheduledMessageCount > 0;
+  const isBannerVisible =
+    (hasCapability && scheduledMessageCount > 0) || hasFailedScheduledMessages;
   const scheduledLabel = parentId
     ? t('scheduledMessages.banner.scheduledReplies', {
         count: scheduledMessageCount,

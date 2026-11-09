@@ -182,6 +182,16 @@ describe('ScheduledMessagesBanner', () => {
     expect(queryBanner()).not.toBeInTheDocument();
   });
 
+  it('shows failed scheduled messages without the schedule-message capability', async () => {
+    await renderComposer({
+      canSchedule: false,
+      scheduledMessages: [generateScheduledMessage({ cid, status: 'failed' })],
+    });
+
+    expect(queryBanner()).toHaveTextContent('1 failed to send');
+    expect(queryBanner()).toHaveTextContent('View all');
+  });
+
   it('updates when scheduled message events arrive', async () => {
     const { client } = await renderComposer();
     const scheduledMessage = generateScheduledMessage({ cid });
