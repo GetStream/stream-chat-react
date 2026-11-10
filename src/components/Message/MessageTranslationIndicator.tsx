@@ -49,16 +49,15 @@ export const MessageTranslationIndicator = ({
     [userLanguage, message],
   );
 
-  // A poll message is translated when its poll is (question or options), whether or not the message
-  // has text of its own.
-  const hasTranslationForUserLanguage = useMemo(
-    () =>
-      (translatedTextForUser != null &&
-        message?.text !== undefined &&
-        translatedTextForUser !== message.text) ||
-      pollHasTranslation(pollTexts, userLanguage),
-    [translatedTextForUser, message?.text, pollTexts, userLanguage],
+  const messageTextIsTranslated =
+    !!message?.text && !!translatedTextForUser && translatedTextForUser !== message.text;
+
+  const pollIsTranslated = useMemo(
+    () => pollHasTranslation(pollTexts, userLanguage),
+    [pollTexts, userLanguage],
   );
+
+  const hasTranslationForUserLanguage = messageTextIsTranslated || pollIsTranslated;
 
   const viewingOriginal = useMemo(
     () =>
