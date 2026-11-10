@@ -200,6 +200,14 @@ describe('ChannelPreview utils', () => {
       expect(getLatestMessagePreviewText(channel, tAria, 'de')).toBe('Poll: Lunch spot?');
     });
 
+    // The vote copy writes its placeholders without spaces (`{{votedBy}}`), which `tAria` doesn't fill.
+    const tInterpolate = ((key: string, opts?: Record<string, unknown>) =>
+      Object.entries(opts ?? {}).reduce(
+        (value, [name, arg]) =>
+          value.replace(new RegExp(`{{\\s*${name}\\s*}}`), String(arg)),
+        key,
+      )) as TranslationContextValue['t'];
+
     it('announces a vote by the option text in the user language', async () => {
       const voter = generateUser({ id: 'voter', name: 'Ana' });
       const vote = {
@@ -229,15 +237,41 @@ describe('ChannelPreview utils', () => {
           ],
         }),
       );
-      // The vote copy writes its placeholders without spaces (`{{votedBy}}`), which `tAria` doesn't fill.
-      const tInterpolate = ((key: string, opts?: Record<string, unknown>) =>
-        Object.entries(opts ?? {}).reduce(
-          (value, [name, arg]) =>
-            value.replace(new RegExp(`{{\\s*${name}\\s*}}`), String(arg)),
-          key,
-        )) as TranslationContextValue['t'];
       const preview = getLatestMessagePreview(channel, tInterpolate, 'es');
       expect(preview).toBe('📊 Ana voted: Manzanas');
+    });
+
+    it('announces a vote by the original option text when the user language has no translation', async () => {
+      const voter = generateUser({ id: 'voter', name: 'Ana' });
+      const vote = {
+        created_at: new Date().toISOString(),
+        id: 'vote-1',
+        option_id: 'apples',
+        poll_id: 'poll-voted-untranslated',
+        updated_at: new Date().toISOString(),
+        user: voter,
+        user_id: voter.id,
+      };
+      const channel = await getQueriedChannelInstance(
+        generateChannel({
+          messages: [
+            generateMessage({
+              poll: {
+                id: 'poll-voted-untranslated',
+                latest_votes_by_option: { apples: [vote] },
+                name: 'Fruit?',
+                options: [
+                  { id: 'apples', text: 'Apples', text_i18n: { es_text: 'Manzanas' } },
+                ],
+                vote_count: 1,
+              },
+              text: '',
+            }),
+          ],
+        }),
+      );
+      const preview = getLatestMessagePreview(channel, tInterpolate, 'de');
+      expect(preview).toBe('📊 Ana voted: Apples');
     });
 
     it('announces an attachment-only message with a localized type label', async () => {
