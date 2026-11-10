@@ -92,7 +92,7 @@ describe('poll translations', () => {
   }) => {
     const poll = makePoll();
     const content = (
-      <PollProvider poll={poll}>
+      <PollProvider poll={poll} translationView={translationView}>
         {children ?? (
           <>
             <PollHeader />
@@ -110,7 +110,6 @@ describe('poll translations', () => {
                 <MessageProvider
                   value={mockMessageContext({
                     message: generateMessage({ poll: pollData }),
-                    translationView,
                   })}
                 >
                   {content}
@@ -141,7 +140,7 @@ describe('poll translations', () => {
     expect(await axe(container)).toHaveNoViolations();
   });
 
-  it("renders the originals when the message's view is 'original'", () => {
+  it("renders the originals when the poll's translation view is 'original'", () => {
     const { container } = renderPoll({ translationView: 'original', userLanguage: 'es' });
     expect(container.querySelector(TITLE_SELECTOR)).toHaveTextContent('Favourite fruit?');
     expect(optionTexts(container)).toEqual(['Apples', 'Bananas', 'Cherries']);
@@ -156,7 +155,7 @@ describe('poll translations', () => {
     expect(optionTexts(container)).toEqual(['Apples', 'Bananas', 'Cherries']);
   });
 
-  it('adds no MessageContext requirement to the poll header', () => {
+  it('translates by default and without a MessageContext', () => {
     renderPoll({ userLanguage: 'es', withMessage: false });
     expect(screen.getByText('¿Fruta favorita?')).toBeInTheDocument();
   });
@@ -179,7 +178,7 @@ describe('poll translations', () => {
       expect(await axe(container)).toHaveNoViolations();
     });
 
-    it("shows the originals in the results when the message's view is 'original'", () => {
+    it("shows the originals in the results when the poll's translation view is 'original'", () => {
       const { container } = renderPoll({
         children: <PollResults />,
         translationView: 'original',
@@ -220,7 +219,7 @@ describe('poll translations', () => {
       expect(await axe(container)).toHaveNoViolations();
     });
 
-    it("shows the original comments when the message's view is 'original'", async () => {
+    it("shows the original comments when the poll's translation view is 'original'", async () => {
       const { container } = renderPoll({
         children: <PollAnswerList onUpdateOwnAnswerClick={vi.fn()} />,
         translationView: 'original',

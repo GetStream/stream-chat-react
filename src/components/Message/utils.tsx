@@ -265,6 +265,7 @@ export const areMessageUIPropsEqual = (
   if (prevProps.readBy?.length !== nextProps.readBy?.length) return false;
   if (prevProps.deliveredTo?.length !== nextProps.deliveredTo?.length) return false;
   if (prevProps.groupStyles !== nextProps.groupStyles) return false;
+  if (prevProps.translationView !== nextProps.translationView) return false;
 
   if (prevProps.showDetailedReactions !== nextProps.showDetailedReactions) {
     return false;

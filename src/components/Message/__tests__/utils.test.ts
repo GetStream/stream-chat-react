@@ -14,8 +14,10 @@ import {
   groupReactions,
   mockTranslatorFunction,
 } from '../../../mock-builders';
+import type { MessageContextValue } from '../../../context';
 import {
   areMessagePropsEqual,
+  areMessageUIPropsEqual,
   getImages,
   getMessageActions,
   getNonImageAttachments,
@@ -574,6 +576,30 @@ describe('Message utils', () => {
         type: 'regular',
       });
       expect(isMessageBlocked(message)).toBe(false);
+    });
+  });
+
+  describe('areMessageUIPropsEqual', () => {
+    const message = generateMessage();
+    const props = (overrides: Partial<MessageContextValue> = {}) =>
+      fromPartial<MessageContextValue>({ message, ...overrides });
+
+    it('treats unchanged props as equal', () => {
+      expect(
+        areMessageUIPropsEqual(
+          props({ translationView: 'translated' }),
+          props({ translationView: 'translated' }),
+        ),
+      ).toBe(true);
+    });
+
+    it('re-renders when the translation view changes', () => {
+      expect(
+        areMessageUIPropsEqual(
+          props({ translationView: 'translated' }),
+          props({ translationView: 'original' }),
+        ),
+      ).toBe(false);
     });
   });
 });

@@ -1,24 +1,24 @@
-import React, { useContext } from 'react';
+import React, { useContext, useMemo } from 'react';
 import type { PropsWithChildren } from 'react';
 import type { Poll } from 'stream-chat';
+import type { TranslationView } from './MessageTranslationViewContext';
 
 export type PollContextValue = {
   poll: Poll;
+  translationView?: TranslationView;
 };
+
+export type PollProviderProps = PropsWithChildren<PollContextValue>;
 
 export const PollContext = React.createContext<PollContextValue | undefined>(undefined);
 
-export const PollProvider = ({
-  children,
-  poll,
-}: PropsWithChildren<{
-  poll: Poll;
-}>) =>
-  poll ? (
-    <PollContext.Provider value={{ poll } as unknown as PollContextValue}>
-      {children}
-    </PollContext.Provider>
+export const PollProvider = ({ children, poll, translationView }: PollProviderProps) => {
+  const value = useMemo(() => ({ poll, translationView }), [poll, translationView]);
+
+  return poll ? (
+    <PollContext.Provider value={value}>{children}</PollContext.Provider>
   ) : null;
+};
 
 export const usePollContext = () => {
   const contextValue = useContext(PollContext);
