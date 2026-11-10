@@ -17,6 +17,7 @@ import { MessageTranslationIndicator } from '../MessageTranslationIndicator';
 // does with a `language.*` key it has no entry for, and a mock echoing the default would pass
 // either way.
 const renderIndicator = async (sourceLanguage: string) => {
+  const client = await getTestClientWithUser();
   const i18n = new Streami18n({ logger: () => {} });
   const { t, tDateTimeParser } = await i18n.init();
 
@@ -27,19 +28,21 @@ const renderIndicator = async (sourceLanguage: string) => {
   };
 
   render(
-    <TranslationProvider
-      value={{ t: t as StreamTFunction, tDateTimeParser, userLanguage: 'en' }}
-    >
-      <MessageProvider
-        value={mockMessageContext({
-          message,
-          setTranslationView: () => {},
-          translationView: 'translated',
-        })}
+    <ChatProvider value={mockChatContext({ client })}>
+      <TranslationProvider
+        value={{ t: t as StreamTFunction, tDateTimeParser, userLanguage: 'en' }}
       >
-        <MessageTranslationIndicator />
-      </MessageProvider>
-    </TranslationProvider>,
+        <MessageProvider
+          value={mockMessageContext({
+            message,
+            setTranslationView: () => {},
+            translationView: 'translated',
+          })}
+        >
+          <MessageTranslationIndicator />
+        </MessageProvider>
+      </TranslationProvider>
+    </ChatProvider>,
   );
 };
 
@@ -76,22 +79,25 @@ describe('MessageTranslationIndicator', () => {
       userLanguage: string,
       setTranslationView = vi.fn(),
     ) => {
+      const client = await getTestClientWithUser();
       const i18n = new Streami18n({ logger: () => {} });
       const { t, tDateTimeParser } = await i18n.init();
       render(
-        <TranslationProvider
-          value={{ t: t as StreamTFunction, tDateTimeParser, userLanguage }}
-        >
-          <MessageProvider
-            value={mockMessageContext({
-              message: pollMessage,
-              setTranslationView,
-              translationView: 'translated',
-            })}
+        <ChatProvider value={mockChatContext({ client })}>
+          <TranslationProvider
+            value={{ t: t as StreamTFunction, tDateTimeParser, userLanguage }}
           >
-            <MessageTranslationIndicator />
-          </MessageProvider>
-        </TranslationProvider>,
+            <MessageProvider
+              value={mockMessageContext({
+                message: pollMessage,
+                setTranslationView,
+                translationView: 'translated',
+              })}
+            >
+              <MessageTranslationIndicator />
+            </MessageProvider>
+          </TranslationProvider>
+        </ChatProvider>,
       );
       return setTranslationView;
     };

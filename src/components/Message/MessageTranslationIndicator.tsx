@@ -1,8 +1,8 @@
 import type { LocalMessage, PollState } from 'stream-chat';
-import React, { useCallback, useContext, useMemo } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import {
-  ChatContext,
   getTranslatedMessageText,
+  useChatContext,
   useComponentContextIcons,
   useMessageContext,
   useTranslationContext,
@@ -38,8 +38,8 @@ export const MessageTranslationIndicator = ({
   const message = propMessage ?? contextMessage;
 
   // The poll renders from its live state, which poll events update; `message.poll` is the snapshot
-  // the message was loaded with. Read without `useChatContext()`, which throws outside <Chat>.
-  const { client } = useContext(ChatContext) ?? {};
+  // the message was loaded with.
+  const { client } = useChatContext();
   const livePoll = message?.poll_id
     ? client?.polls.fromState(message.poll_id)
     : undefined;
