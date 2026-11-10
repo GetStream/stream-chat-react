@@ -6,6 +6,7 @@ export type ProfileUser = {
   custom: Record<string, unknown>;
   id: string;
   image?: string;
+  language?: string;
   name?: string;
   role?: string;
 };
@@ -15,6 +16,7 @@ type UserFields = {
   custom?: CustomUserData;
   id: string;
   image?: string;
+  language?: string;
   name?: string;
   role?: string;
 };
@@ -23,6 +25,7 @@ export const toProfileUser = (user: UserFields): ProfileUser => ({
   custom: Object.fromEntries(Object.entries(user.custom ?? {})),
   id: user.id,
   image: user.image,
+  language: user.language,
   name: user.name,
   role: user.role,
 });
