@@ -1,5 +1,7 @@
 import type { PollResponseData } from 'stream-chat';
 
+import type { PollTextTranslations } from '../types';
+
 /**
  * The translation of one poll text into `language`, or undefined if there is none.
  *
@@ -8,7 +10,7 @@ import type { PollResponseData } from 'stream-chat';
  * `message.i18n`: one `<language>_text` entry per language, plus `language`, the source language.
  */
 export const getPollTextTranslation = (
-  i18n: PollResponseData['name_i18n'],
+  i18n: PollTextTranslations | undefined,
   language: string,
 ): string | undefined => i18n?.[`${language}_text`];
 
@@ -25,7 +27,7 @@ export const pollHasTranslation = (
   language: string,
 ): boolean => {
   if (!poll) return false;
-  const differs = (i18n: PollResponseData['name_i18n'], original: string) => {
+  const differs = (i18n: PollTextTranslations | undefined, original: string) => {
     const translation = getPollTextTranslation(i18n, language);
     return !!translation && translation !== original;
   };

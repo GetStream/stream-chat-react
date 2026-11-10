@@ -1,7 +1,7 @@
 import { useCallback, useContext } from 'react';
-import type { PollResponseData } from 'stream-chat';
 
 import { MessageContext, useTranslationContext } from '../../../context';
+import type { PollTextTranslations } from '../types';
 import { getPollTextTranslation } from '../utils/translations';
 
 /**
@@ -17,7 +17,7 @@ export const usePollTextTranslation = () => {
   const { translationView = 'translated' } = useContext(MessageContext) ?? {};
 
   return useCallback(
-    (original: string, i18n: PollResponseData['name_i18n']): string =>
+    (original: string, i18n: PollTextTranslations | undefined): string =>
       translationView === 'original'
         ? original
         : (getPollTextTranslation(i18n, userLanguage) ?? original),
