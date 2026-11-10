@@ -25,7 +25,7 @@ export const PREVIEW_SECTION_INFO: Record<PreviewSectionType, PreviewSectionInfo
   attachments: {
     label: 'Files',
     removes:
-      'The File option in the attachment selector; dropped and pasted files are rejected.',
+      'The File option in the attachment selector, and the Event option while Event invites is on; dropped and pasted files are rejected.',
   },
   editedMessage: {
     label: 'Edited message',
