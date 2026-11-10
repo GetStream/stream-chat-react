@@ -9,6 +9,7 @@ export * from './scheduledMessageErrors';
 export * from './scheduledMessageFailureReason';
 export * from './scheduledMessageGroups';
 export * from './scheduledMessagePreview';
+export * from './scheduledMessageScope';
 export * from './scheduledMessageSearch';
 export * from './scheduleTimeBounds';
 export * from './timeZone';

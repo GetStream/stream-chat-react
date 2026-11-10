@@ -26,9 +26,16 @@ describe('getScheduleTimeBounds', () => {
     const { earliest, latest } = getScheduleTimeBounds(DEFAULT_LIMITS, now);
 
     expect(earliest.getTime() - now.getTime()).toBe(2 * MINUTE_MS);
-    expect(latest.getTime() - now.getTime()).toBe(
+    expect(latest!.getTime() - now.getTime()).toBe(
       DEFAULT_LIMITS.maxLeadTimeSeconds * 1000,
     );
+  });
+
+  it('only requires the one-minute buffer and sets no latest time without limits', () => {
+    const { earliest, latest } = getScheduleTimeBounds(undefined, now);
+
+    expect(earliest.getTime() - now.getTime()).toBe(MINUTE_MS);
+    expect(latest).toBeUndefined();
   });
 });
 
@@ -37,6 +44,8 @@ describe('getChannelScheduleTimeBounds', () => {
     const channel = fromPartial<Channel>({
       serverConfig: fromPartial({
         scheduled_messages_max_lead_time_seconds: 3600,
+        scheduled_messages_max_per_channel: 10,
+        scheduled_messages_max_per_user: 100,
         scheduled_messages_min_lead_time_seconds: 300,
       }),
     });
@@ -44,14 +53,14 @@ describe('getChannelScheduleTimeBounds', () => {
     const { earliest, latest } = getChannelScheduleTimeBounds(channel, now);
 
     expect(earliest.getTime() - now.getTime()).toBe(6 * MINUTE_MS);
-    expect(latest.getTime() - now.getTime()).toBe(60 * MINUTE_MS);
+    expect(latest!.getTime() - now.getTime()).toBe(60 * MINUTE_MS);
   });
 
-  it('falls back to the default limits', () => {
+  it('leaves the latest time open when the channel config has no limits', () => {
     const channel = fromPartial<Channel>({ serverConfig: undefined });
 
     expect(getChannelScheduleTimeBounds(channel, now)).toEqual(
-      getScheduleTimeBounds(DEFAULT_LIMITS, now),
+      getScheduleTimeBounds(undefined, now),
     );
   });
 });
@@ -61,7 +70,7 @@ describe('getScheduleTimeError', () => {
 
   it('accepts both bounds', () => {
     expect(getScheduleTimeError(bounds.earliest, bounds)).toBeUndefined();
-    expect(getScheduleTimeError(bounds.latest, bounds)).toBeUndefined();
+    expect(getScheduleTimeError(bounds.latest!, bounds)).toBeUndefined();
     expect(isWithinScheduleTimeBounds(bounds.earliest, bounds)).toBe(true);
   });
 
@@ -73,9 +82,16 @@ describe('getScheduleTimeError', () => {
   });
 
   it('rejects a time after the latest time', () => {
-    const tooFar = new Date(bounds.latest.getTime() + 1);
+    const tooFar = new Date(bounds.latest!.getTime() + 1);
 
     expect(getScheduleTimeError(tooFar, bounds)).toBe(ScheduleTimeError.TooFar);
+  });
+
+  it('accepts any later time when there is no latest time', () => {
+    const openBounds = getScheduleTimeBounds(undefined, now);
+    const farFuture = new Date(2036, 0, 1);
+
+    expect(getScheduleTimeError(farFuture, openBounds)).toBeUndefined();
   });
 });
 

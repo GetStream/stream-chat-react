@@ -20,6 +20,7 @@ import {
   convertDateToTimestamp,
   generateScheduledMessage,
   getTestClientWithUser,
+  hydrateScheduledMessages,
   mockChatContext,
 } from '../../../mock-builders';
 import { ScheduledMessageNotificationType } from '../constants';
@@ -55,7 +56,7 @@ const renderActions = async ({
   }),
 }: RenderActionsOptions = {}) => {
   const client = await getTestClientWithUser({ id: 'user-id' });
-  client.scheduledMessages.upsertToState(scheduledMessage);
+  hydrateScheduledMessages(client, cid, [scheduledMessage]);
 
   const { t, tDateTimeParser } = await new Streami18n({ language: 'en' }).init();
 

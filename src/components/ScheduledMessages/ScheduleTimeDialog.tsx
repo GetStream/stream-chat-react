@@ -64,6 +64,7 @@ export const ScheduleTimeDialog = ({
   const canSchedule = !!scheduledAt && !timeError && isOnline && !isScheduling;
   const timeErrorMessage = translateScheduleTimeError(t, timeError);
   const timeZone = formatTimeZoneOffset(scheduledAt ?? bounds.earliest);
+  const latestDateValue = bounds.latest ? toDateInputValue(bounds.latest) : undefined;
   const selectedDate = fromDateInputValue(dateValue);
   const dateLabel = selectedDate
     ? t('timestamp.ScheduleDate', { timestamp: selectedDate })
@@ -119,7 +120,7 @@ export const ScheduleTimeDialog = ({
                 </span>
               </>
             }
-            max={toDateInputValue(bounds.latest)}
+            max={latestDateValue}
             min={toDateInputValue(bounds.earliest)}
             onChange={onDateChange}
             onClick={openNativePicker}

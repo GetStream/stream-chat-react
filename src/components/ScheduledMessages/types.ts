@@ -20,6 +20,8 @@ export type UseScheduledMessagesParams = {
   parentId?: string;
 };
 
+export type UseScheduledMessagePaginatorParams = Pick<UseScheduledMessagesParams, 'cid'>;
+
 export type ScheduledMessagesSnapshot = {
   isDisabled: boolean;
   isLoaded: boolean;
@@ -34,7 +36,7 @@ export type UseScheduledMessageCountParams = {
 
 export type ScheduleTimeBounds = {
   earliest: Date;
-  latest: Date;
+  latest?: Date;
 };
 
 export type ScheduledMessagePreviewSource = {

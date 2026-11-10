@@ -12,5 +12,5 @@ export const reloadOnScheduledMessageConflict = (
 ) => {
   if (!isScheduledMessageError(error, ScheduledMessageErrorReason.Conflict)) return;
 
-  manager.load().catch(() => undefined);
+  manager.reload().catch(() => undefined);
 };

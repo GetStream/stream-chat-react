@@ -1,7 +1,7 @@
 import React from 'react';
 import { act, cleanup, fireEvent, render, screen, within } from '@testing-library/react';
 import { SCHEDULED_MESSAGE_FAILURE_REASON, SCHEDULED_MESSAGE_STATUS } from 'stream-chat';
-import type { ScheduledMessageResponse, StreamChat } from 'stream-chat';
+import type { PaginatorState, ScheduledMessageResponse, StreamChat } from 'stream-chat';
 
 import { axe } from '../../../../axe-helper';
 import {
@@ -15,6 +15,7 @@ import {
   convertDateToTimestamp,
   generateScheduledMessage,
   getTestClientWithUser,
+  hydrateScheduledMessages,
   mockChatContext,
 } from '../../../mock-builders';
 import { ScheduledMessageList } from '../ScheduledMessageList';
@@ -41,7 +42,7 @@ const renderList = async ({
   searchQuery,
 }: RenderListOptions = {}) => {
   const client = await getTestClientWithUser({ id: 'user-id' });
-  scheduledMessages.forEach(client.scheduledMessages.upsertToState);
+  hydrateScheduledMessages(client, cid, scheduledMessages);
 
   const { t, tDateTimeParser } = await new Streami18n({ language: 'en' }).init();
 
@@ -63,8 +64,16 @@ const renderList = async ({
 const getGroupHeaders = () =>
   screen.getAllByRole('heading', { level: 3 }).map(({ textContent }) => textContent);
 
+const getPaginator = (client: StreamChat) =>
+  client.scheduledMessages.getChannelPaginator(cid);
+
+const setPaginatorState = (
+  client: StreamChat,
+  state: Partial<PaginatorState<ScheduledMessageResponse>>,
+) => act(() => getPaginator(client).state.partialNext(state));
+
 const setNextCursor = (client: StreamChat) =>
-  act(() => client.scheduledMessages.state.partialNext({ next: 'cursor' }));
+  setPaginatorState(client, { hasMoreTail: true });
 
 describe('ScheduledMessageList', () => {
   beforeEach(() => {
@@ -92,7 +101,7 @@ describe('ScheduledMessageList', () => {
   it('shows skeleton rows while the first page loads', async () => {
     const { client } = await renderList();
 
-    act(() => client.scheduledMessages.state.partialNext({ isLoading: true }));
+    setPaginatorState(client, { isLoading: true, items: undefined });
 
     expect(screen.queryByText('No scheduled messages')).not.toBeInTheDocument();
     expect(
@@ -103,9 +112,7 @@ describe('ScheduledMessageList', () => {
   it('shows the empty state while a later reload runs', async () => {
     const { client } = await renderList();
 
-    act(() =>
-      client.scheduledMessages.state.partialNext({ isLoaded: true, isLoading: true }),
-    );
+    setPaginatorState(client, { isLoading: true });
 
     expect(screen.getByText('No scheduled messages')).toBeInTheDocument();
     expect(
@@ -115,17 +122,17 @@ describe('ScheduledMessageList', () => {
 
   it('shows the load error and reloads on retry', async () => {
     const { client } = await renderList();
-    const load = vi.spyOn(client.scheduledMessages, 'load').mockResolvedValue(undefined);
+    const reload = vi.spyOn(getPaginator(client), 'reload').mockResolvedValue(undefined);
 
-    act(() =>
-      client.scheduledMessages.state.partialNext({
-        lastQueryError: new Error('offline'),
-      }),
-    );
+    setPaginatorState(client, {
+      isLoading: false,
+      items: undefined,
+      lastQueryError: new Error('offline'),
+    });
     fireEvent.click(screen.getByRole('button', { name: 'Try again' }));
 
     expect(screen.getByText("Couldn't load scheduled messages")).toBeInTheDocument();
-    expect(load).toHaveBeenCalledTimes(1);
+    expect(reload).toHaveBeenCalledTimes(1);
   });
 
   it('keeps showing stored messages when a reload fails', async () => {
@@ -138,11 +145,7 @@ describe('ScheduledMessageList', () => {
       ],
     });
 
-    act(() =>
-      client.scheduledMessages.state.partialNext({
-        lastQueryError: new Error('offline'),
-      }),
-    );
+    setPaginatorState(client, { lastQueryError: new Error('offline') });
 
     expect(screen.getByText('Launch moved to Monday')).toBeInTheDocument();
     expect(
@@ -266,7 +269,7 @@ describe('ScheduledMessageList', () => {
       scheduledMessages: [generateScheduledMessage({ cid })],
     });
     const loadMore = vi
-      .spyOn(client.scheduledMessages, 'loadMore')
+      .spyOn(getPaginator(client), 'toTail')
       .mockResolvedValue(undefined);
 
     expect(screen.queryByRole('button', { name: 'Load more' })).not.toBeInTheDocument();
@@ -282,8 +285,7 @@ describe('ScheduledMessageList', () => {
       scheduledMessages: [generateScheduledMessage({ cid })],
     });
 
-    setNextCursor(client);
-    act(() => client.scheduledMessages.state.partialNext({ isLoading: true }));
+    setPaginatorState(client, { hasMoreTail: true, isLoading: true });
 
     expect(screen.getByRole('button', { name: 'Load more' })).toBeDisabled();
   });
@@ -313,12 +315,15 @@ describe('ScheduledMessageList', () => {
   });
 
   it.each([
-    ['loading', { isLoading: true }],
-    ['load error', { lastQueryError: new Error('offline') }],
+    ['loading', { isLoading: true, items: undefined }],
+    [
+      'load error',
+      { isLoading: false, items: undefined, lastQueryError: new Error('offline') },
+    ],
   ])('has no accessibility violations in the %s state', async (_, state) => {
     const { client, container } = await renderList();
 
-    act(() => client.scheduledMessages.state.partialNext(state));
+    setPaginatorState(client, state);
 
     expect(await axe(container)).toHaveNoViolations();
   });

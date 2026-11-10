@@ -1,38 +1,32 @@
 import { useMemo } from 'react';
-import type { ScheduledMessageManager } from 'stream-chat';
+import type { PaginatorState, ScheduledMessageResponse } from 'stream-chat';
 
-import { useChatContext } from '../../../context';
 import { useStateStore } from '../../../store';
+import { NO_SCHEDULED_MESSAGES } from '../constants';
 import type { UseScheduledMessageCountParams } from '../types';
-import { isFailedScheduledMessage } from '../utils';
+import { getScopedScheduledMessages, isFailedScheduledMessage } from '../utils';
+import { useScheduledMessagePaginator } from './useScheduledMessagePaginator';
 
-const createFailedScheduledMessageCountSelector = (
-  manager: ScheduledMessageManager,
-  { cid, parentId }: UseScheduledMessageCountParams,
-) => {
-  const getScopedScheduledMessages = () =>
-    parentId ? manager.getForThread(parentId) : manager.getForChannel(cid);
-
-  return () => ({
-    failedScheduledMessageCount: getScopedScheduledMessages().filter(
+const createFailedScheduledMessageCountSelector =
+  (params: UseScheduledMessageCountParams) =>
+  ({ items = NO_SCHEDULED_MESSAGES }: PaginatorState<ScheduledMessageResponse>) => ({
+    failedScheduledMessageCount: getScopedScheduledMessages(items, params).filter(
       isFailedScheduledMessage,
     ).length,
   });
-};
 
 export const useFailedScheduledMessageCount = ({
   cid,
   parentId,
 }: UseScheduledMessageCountParams) => {
-  const { client } = useChatContext();
-  const { scheduledMessages: manager } = client;
+  const paginator = useScheduledMessagePaginator({ cid });
 
   const selector = useMemo(
-    () => createFailedScheduledMessageCountSelector(manager, { cid, parentId }),
-    [cid, manager, parentId],
+    () => createFailedScheduledMessageCountSelector({ cid, parentId }),
+    [cid, parentId],
   );
 
-  const { failedScheduledMessageCount } = useStateStore(manager.state, selector);
+  const { failedScheduledMessageCount } = useStateStore(paginator.state, selector);
 
   return failedScheduledMessageCount;
 };

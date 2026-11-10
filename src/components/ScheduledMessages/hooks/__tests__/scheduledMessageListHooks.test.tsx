@@ -12,6 +12,7 @@ import {
   dispatchScheduledMessageEvent,
   generateScheduledMessage,
   getTestClientWithUser,
+  hydrateScheduledMessages,
   mockChatContext,
 } from '../../../../mock-builders';
 
@@ -29,6 +30,13 @@ const createWrapper = (client: StreamChat) => {
 const atLocalTime = (day: number, hour: number) =>
   convertDateToTimestamp(new Date(2026, 9, day, hour, 0));
 
+const mockScheduledMessagePage = (client: StreamChat, next?: string) =>
+  vi.mocked(client.queryScheduledMessages).mockResolvedValueOnce({
+    duration: '',
+    next,
+    scheduled_messages: [generateScheduledMessage({ cid })],
+  });
+
 describe('useScheduledMessageGroups', () => {
   it('groups the channel messages with failed ones first', async () => {
     const client = await getTestClientWithUser({ id: 'user-id' });
@@ -42,7 +50,7 @@ describe('useScheduledMessageGroups', () => {
       cid,
       message: { custom: {}, parent_id: parentId, text: 'reply' },
     });
-    [failed, upcoming, threadReply].forEach(client.scheduledMessages.upsertToState);
+    hydrateScheduledMessages(client, cid, [failed, upcoming, threadReply]);
 
     const { result } = renderHook(() => useScheduledMessageGroups({ cid }), {
       wrapper: createWrapper(client),
@@ -59,9 +67,10 @@ describe('useScheduledMessageGroups', () => {
       cid,
       message: { custom: {}, parent_id: parentId, text: 'reply' },
     });
-    [generateScheduledMessage({ cid }), threadReply].forEach(
-      client.scheduledMessages.upsertToState,
-    );
+    hydrateScheduledMessages(client, cid, [
+      generateScheduledMessage({ cid }),
+      threadReply,
+    ]);
 
     const { result } = renderHook(() => useScheduledMessageGroups({ cid, parentId }), {
       wrapper: createWrapper(client),
@@ -74,6 +83,7 @@ describe('useScheduledMessageGroups', () => {
   it('regroups when a scheduled message event arrives', async () => {
     const client = await getTestClientWithUser({ id: 'user-id' });
     client.scheduledMessages.registerSubscriptions();
+    hydrateScheduledMessages(client, cid);
     const scheduledMessage = generateScheduledMessage({ cid });
 
     const { result } = renderHook(() => useScheduledMessageGroups({ cid }), {
@@ -97,7 +107,7 @@ describe('useScheduledMessageGroups', () => {
 
   it('keeps the same groups when another channel changes', async () => {
     const client = await getTestClientWithUser({ id: 'user-id' });
-    client.scheduledMessages.upsertToState(generateScheduledMessage({ cid }));
+    hydrateScheduledMessages(client, cid, [generateScheduledMessage({ cid })]);
 
     const { result } = renderHook(() => useScheduledMessageGroups({ cid }), {
       wrapper: createWrapper(client),
@@ -119,49 +129,61 @@ describe('useScheduledMessagesPagination', () => {
     vi.restoreAllMocks();
   });
 
-  it('can load more only while the store has a next cursor', async () => {
+  it('cannot load more once the channel list is complete', async () => {
     const client = await getTestClientWithUser({ id: 'user-id' });
+    hydrateScheduledMessages(client, cid, [generateScheduledMessage({ cid })]);
 
-    const { result } = renderHook(() => useScheduledMessagesPagination(), {
+    const { result } = renderHook(() => useScheduledMessagesPagination({ cid }), {
       wrapper: createWrapper(client),
     });
 
     expect(result.current.canLoadMore).toBe(false);
-
-    act(() => client.scheduledMessages.state.partialNext({ next: 'cursor' }));
-
-    expect(result.current.canLoadMore).toBe(true);
   });
 
-  it('loads the next page through the manager', async () => {
+  it('can load more while the first page has a next cursor', async () => {
     const client = await getTestClientWithUser({ id: 'user-id' });
-    const loadMore = vi
-      .spyOn(client.scheduledMessages, 'loadMore')
+    mockScheduledMessagePage(client, 'cursor');
+
+    const { result } = renderHook(() => useScheduledMessagesPagination({ cid }), {
+      wrapper: createWrapper(client),
+    });
+
+    expect(result.current.canLoadMore).toBe(false);
+    await waitFor(() => expect(result.current.canLoadMore).toBe(true));
+  });
+
+  it('loads the next page through the channel paginator', async () => {
+    const client = await getTestClientWithUser({ id: 'user-id' });
+    hydrateScheduledMessages(client, cid);
+    const toTail = vi
+      .spyOn(client.scheduledMessages.getChannelPaginator(cid), 'toTail')
       .mockResolvedValue(undefined);
 
-    const { result } = renderHook(() => useScheduledMessagesPagination(), {
+    const { result } = renderHook(() => useScheduledMessagesPagination({ cid }), {
       wrapper: createWrapper(client),
     });
 
     act(() => result.current.loadMore());
 
-    expect(loadMore).toHaveBeenCalledTimes(1);
+    expect(toTail).toHaveBeenCalledTimes(1);
   });
 
-  it('keeps a failed page load in the manager state instead of throwing', async () => {
+  it('keeps a failed page load in the paginator state instead of throwing', async () => {
     const client = await getTestClientWithUser({ id: 'user-id' });
     const error = new Error('Network Error');
-    vi.spyOn(client, 'queryScheduledMessages').mockRejectedValue(error);
-    client.scheduledMessages.state.partialNext({ next: 'cursor' });
+    mockScheduledMessagePage(client, 'cursor');
+    vi.mocked(client.queryScheduledMessages).mockRejectedValueOnce(error);
+    const paginator = client.scheduledMessages.getChannelPaginator(cid);
 
-    const { result } = renderHook(() => useScheduledMessagesPagination(), {
+    const { result } = renderHook(() => useScheduledMessagesPagination({ cid }), {
       wrapper: createWrapper(client),
     });
+    await waitFor(() => expect(result.current.canLoadMore).toBe(true));
 
     act(() => result.current.loadMore());
 
     await waitFor(() =>
-      expect(client.scheduledMessages.state.getLatestValue()).toEqual(
+      expect(paginator.state.getLatestValue()).toEqual(
         expect.objectContaining({ isLoading: false, lastQueryError: error }),
       ),
     );

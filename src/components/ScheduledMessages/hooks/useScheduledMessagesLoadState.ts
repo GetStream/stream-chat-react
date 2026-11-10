@@ -1,30 +1,34 @@
 import { useCallback } from 'react';
-import type { ScheduledMessageManagerState } from 'stream-chat';
+import type { PaginatorState, ScheduledMessageResponse } from 'stream-chat';
 
-import { useChatContext } from '../../../context';
 import { useStateStore } from '../../../store';
-import type { ScheduledMessagesLoadState } from '../types';
+import { getFirstPageLoadError } from '../../Loading/getFirstPageLoadError';
+import type {
+  ScheduledMessagesLoadState,
+  UseScheduledMessagePaginatorParams,
+} from '../types';
+import { useScheduledMessagePaginator } from './useScheduledMessagePaginator';
 
-const loadStateSelector = ({
-  isLoaded,
-  isLoading,
-  lastQueryError,
-}: ScheduledMessageManagerState) => ({
-  hasLoadFailed: !isLoaded && !isLoading && !!lastQueryError,
-  isFirstLoad: !isLoaded && isLoading,
+const loadStateSelector = (state: PaginatorState<ScheduledMessageResponse>) => ({
+  hasLoadFailed: !!getFirstPageLoadError(state),
+  isFirstLoad: state.items === undefined && !state.lastQueryError,
 });
 
 const ignoreErrorKeptInState = () => undefined;
 
-export const useScheduledMessagesLoadState = () => {
-  const { client } = useChatContext();
-  const { scheduledMessages: manager } = client;
+export const useScheduledMessagesLoadState = ({
+  cid,
+}: UseScheduledMessagePaginatorParams = {}) => {
+  const paginator = useScheduledMessagePaginator({ cid });
 
-  const { hasLoadFailed, isFirstLoad } = useStateStore(manager.state, loadStateSelector);
+  const { hasLoadFailed, isFirstLoad } = useStateStore(
+    paginator.state,
+    loadStateSelector,
+  );
 
   const reload = useCallback(() => {
-    manager.load().catch(ignoreErrorKeptInState);
-  }, [manager]);
+    paginator.reload().catch(ignoreErrorKeptInState);
+  }, [paginator]);
 
   const scheduledMessagesLoadState: ScheduledMessagesLoadState = {
     hasLoadFailed,

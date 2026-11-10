@@ -65,6 +65,10 @@ const setup = async ({ hasCapability = true }: { hasCapability?: boolean } = {})
   client.channelServerConfigs = {
     [channel.cid]: fromPartial({
       commands: [{ args: '[text]', description: 'Post a random gif', name: 'giphy' }],
+      scheduled_messages_max_lead_time_seconds: 120 * 24 * 60 * 60,
+      scheduled_messages_max_per_channel: 10,
+      scheduled_messages_max_per_user: 100,
+      scheduled_messages_min_lead_time_seconds: 60,
     }),
   };
   channel.data = {

@@ -3,6 +3,7 @@ export * from './useFailedScheduledMessageCount';
 export * from './useScheduledMessageActionHandlers';
 export * from './useScheduledMessageCount';
 export * from './useScheduledMessageGroups';
+export * from './useScheduledMessagePaginator';
 export * from './useScheduledMessagePreview';
 export * from './useScheduledMessages';
 export * from './useScheduledMessagesLoadState';

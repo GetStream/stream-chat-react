@@ -1,4 +1,8 @@
+import type { ScheduledMessageResponse } from 'stream-chat';
+
 export const SCHEDULE_MESSAGE_CAPABILITY = 'schedule-message';
+
+export const NO_SCHEDULED_MESSAGES: ScheduledMessageResponse[] = [];
 
 export const SCHEDULE_MESSAGE_MENU_ID = 'schedule-message-menu';
 

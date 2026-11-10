@@ -9,6 +9,7 @@ import { ChatProvider } from '../../../../context';
 import {
   generateScheduledMessage,
   getTestClientWithUser,
+  hydrateScheduledMessages,
   mockChatContext,
 } from '../../../../mock-builders';
 
@@ -38,15 +39,17 @@ const renderUseScheduledMessageCount = (
 describe('useScheduledMessageCount', () => {
   it('counts the channel-level scheduled messages of a channel', async () => {
     const client = await getTestClientWithUser({ id: 'user-id' });
-    [
+    hydrateScheduledMessages(client, cid, [
       generateScheduledMessage({ cid }),
       generateScheduledMessage({ cid }),
       generateScheduledMessage({
         cid,
         message: { parent_id: 'parent-1', text: 'reply' },
       }),
+    ]);
+    hydrateScheduledMessages(client, otherCid, [
       generateScheduledMessage({ cid: otherCid }),
-    ].forEach(client.scheduledMessages.upsertToState);
+    ]);
 
     const { result } = renderUseScheduledMessageCount(client, { cid });
 
@@ -55,13 +58,13 @@ describe('useScheduledMessageCount', () => {
 
   it('counts the scheduled replies of a thread', async () => {
     const client = await getTestClientWithUser({ id: 'user-id' });
-    [
+    hydrateScheduledMessages(client, cid, [
       generateScheduledMessage({ cid }),
       generateScheduledMessage({
         cid,
         message: { parent_id: 'parent-1', text: 'reply' },
       }),
-    ].forEach(client.scheduledMessages.upsertToState);
+    ]);
 
     const { result } = renderUseScheduledMessageCount(client, {
       cid,
@@ -73,16 +76,18 @@ describe('useScheduledMessageCount', () => {
 
   it('counts only the thread replies of the given channel', async () => {
     const client = await getTestClientWithUser({ id: 'user-id' });
-    [
+    hydrateScheduledMessages(client, cid, [
       generateScheduledMessage({
         cid,
         message: { parent_id: 'parent-1', text: 'reply' },
       }),
+    ]);
+    hydrateScheduledMessages(client, otherCid, [
       generateScheduledMessage({
         cid: otherCid,
         message: { parent_id: 'parent-1', text: 'reply elsewhere' },
       }),
-    ].forEach(client.scheduledMessages.upsertToState);
+    ]);
 
     const { result } = renderUseScheduledMessageCount(client, {
       cid,
@@ -111,7 +116,7 @@ describe('useScheduledMessageCount', () => {
   it('does not re-render when the count stays the same', async () => {
     const client = await getTestClientWithUser({ id: 'user-id' });
     const scheduledMessage = generateScheduledMessage({ cid });
-    client.scheduledMessages.upsertToState(scheduledMessage);
+    hydrateScheduledMessages(client, cid, [scheduledMessage]);
     const { renders } = renderUseScheduledMessageCount(client, { cid });
     const rendersBefore = renders.count;
 

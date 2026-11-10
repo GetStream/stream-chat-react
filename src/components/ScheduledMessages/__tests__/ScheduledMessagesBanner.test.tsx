@@ -40,6 +40,7 @@ const threadReply = () =>
   });
 
 type RenderComposerOptions = {
+  awaitsScheduledMessages?: boolean;
   canSchedule?: boolean;
   components?: Parameters<typeof WithComponents>[0]['overrides'];
   inThread?: boolean;
@@ -47,6 +48,7 @@ type RenderComposerOptions = {
 };
 
 const renderComposer = async ({
+  awaitsScheduledMessages = true,
   canSchedule = true,
   components = {},
   inThread = false,
@@ -95,9 +97,11 @@ const renderComposer = async ({
     );
   });
 
-  await waitFor(() =>
-    expect(client.scheduledMessages.state.getLatestValue().isLoaded).toBe(true),
-  );
+  if (awaitsScheduledMessages) {
+    await waitFor(() =>
+      expect(client.scheduledMessages.getChannelPaginator(cid).hasLoadedPage).toBe(true),
+    );
+  }
 
   return { channel, client };
 };
@@ -162,6 +166,22 @@ describe('ScheduledMessagesBanner', () => {
     act(() => client.scheduledMessages.resetState());
 
     expect(queryBanner()).not.toBeInTheDocument();
+  });
+
+  it('follows the scheduled messages of the next user after a reset', async () => {
+    const { client } = await renderComposer({
+      scheduledMessages: [generateScheduledMessage({ cid })],
+    });
+
+    act(() => client.scheduledMessages.resetState());
+    act(() =>
+      client.scheduledMessages.hydrateChannelState(cid, [
+        generateScheduledMessage({ cid }),
+        generateScheduledMessage({ cid }),
+      ]),
+    );
+
+    expect(queryBanner()).toHaveTextContent('2 scheduled messages');
   });
 
   it('counts only the replies of the thread in a thread composer', async () => {
@@ -267,12 +287,14 @@ describe('ScheduledMessagesBanner', () => {
   });
 
   it('can be hidden through the ScheduledMessagesBanner slot', async () => {
-    await renderComposer({
+    const { client } = await renderComposer({
+      awaitsScheduledMessages: false,
       components: { ScheduledMessagesBanner: null },
       scheduledMessages: [generateScheduledMessage({ cid })],
     });
 
     expect(queryBanner()).not.toBeInTheDocument();
+    expect(client.queryScheduledMessages).not.toHaveBeenCalled();
   });
 
   it('has no accessibility violations', async () => {

@@ -1,6 +1,6 @@
 import React from 'react';
 import type { PropsWithChildren } from 'react';
-import { act, renderHook } from '@testing-library/react';
+import { act, renderHook, waitFor } from '@testing-library/react';
 import type { StreamChat } from 'stream-chat';
 
 import { useScheduledMessages } from '../useScheduledMessages';
@@ -10,6 +10,7 @@ import {
   convertDateToTimestamp,
   generateScheduledMessage,
   getTestClientWithUser,
+  hydrateScheduledMessages,
   mockChatContext,
 } from '../../../../mock-builders';
 
@@ -52,7 +53,8 @@ describe('useScheduledMessages', () => {
       message: { custom: {}, parent_id: 'parent-1', text: 'reply' },
     });
     const elsewhere = generateScheduledMessage({ cid: otherCid });
-    [later, reply, elsewhere, sooner].forEach(client.scheduledMessages.upsertToState);
+    hydrateScheduledMessages(client, cid, [later, reply, sooner]);
+    hydrateScheduledMessages(client, otherCid, [elsewhere]);
 
     const { result } = renderUseScheduledMessages(client, { cid });
 
@@ -66,7 +68,7 @@ describe('useScheduledMessages', () => {
       message: { custom: {}, parent_id: 'parent-1', text: 'reply' },
     });
     const channelLevel = generateScheduledMessage({ cid });
-    [reply, channelLevel].forEach(client.scheduledMessages.upsertToState);
+    hydrateScheduledMessages(client, cid, [reply, channelLevel]);
 
     const { result } = renderUseScheduledMessages(client, { cid, parentId: 'parent-1' });
 
@@ -83,28 +85,62 @@ describe('useScheduledMessages', () => {
       cid: otherCid,
       scheduled_at: convertDateToTimestamp('2030-01-01T00:00:00Z'),
     });
-    [later, sooner].forEach(client.scheduledMessages.upsertToState);
+    vi.mocked(client.queryScheduledMessages).mockResolvedValue({
+      duration: '',
+      scheduled_messages: [later, sooner],
+    });
 
     const { result } = renderUseScheduledMessages(client);
 
-    expect(result.current.scheduledMessages).toEqual([sooner, later]);
+    await waitFor(() =>
+      expect(result.current.scheduledMessages).toEqual([sooner, later]),
+    );
+    expect(client.queryScheduledMessages).toHaveBeenCalledTimes(1);
   });
 
-  it('exposes the loading flags of the store', async () => {
+  it('queries the first page of its channel when the channel was not hydrated', async () => {
+    const client = await getTestClientWithUser({ id: 'user-id' });
+    const scheduledMessage = generateScheduledMessage({ cid });
+    vi.mocked(client.queryScheduledMessages).mockResolvedValue({
+      duration: '',
+      scheduled_messages: [scheduledMessage],
+    });
+
+    const { result } = renderUseScheduledMessages(client, { cid });
+
+    await waitFor(() =>
+      expect(result.current.scheduledMessages).toEqual([scheduledMessage]),
+    );
+    expect(client.queryScheduledMessages).toHaveBeenCalledWith(
+      expect.objectContaining({ filter: expect.objectContaining({ cid }) }),
+    );
+  });
+
+  it('does not query a channel hydrated by its channel query', async () => {
+    const client = await getTestClientWithUser({ id: 'user-id' });
+    hydrateScheduledMessages(client, cid);
+
+    const { result } = renderUseScheduledMessages(client, { cid });
+
+    expect(result.current).toEqual(
+      expect.objectContaining({
+        isLoaded: true,
+        isLoading: false,
+        scheduledMessages: [],
+      }),
+    );
+    expect(client.queryScheduledMessages).not.toHaveBeenCalled();
+  });
+
+  it('exposes whether scheduled messages are disabled', async () => {
     const client = await getTestClientWithUser({ id: 'user-id' });
     const { result } = renderUseScheduledMessages(client, { cid });
 
     act(() => {
-      client.scheduledMessages.state.partialNext({
-        isDisabled: true,
-        isLoaded: true,
-        isLoading: false,
-      });
+      client.scheduledMessages.state.partialNext({ isDisabled: true });
     });
 
-    expect(result.current).toEqual(
-      expect.objectContaining({ isDisabled: true, isLoaded: true, isLoading: false }),
-    );
+    expect(result.current.isDisabled).toBe(true);
   });
 
   it('updates when a scheduled message of its scope changes', async () => {
@@ -121,7 +157,7 @@ describe('useScheduledMessages', () => {
 
   it('does not re-render when a scheduled message outside its scope changes', async () => {
     const client = await getTestClientWithUser({ id: 'user-id' });
-    client.scheduledMessages.upsertToState(generateScheduledMessage({ cid }));
+    hydrateScheduledMessages(client, cid, [generateScheduledMessage({ cid })]);
     const { renders, result } = renderUseScheduledMessages(client, { cid });
     const rendersBefore = renders.count;
     const listBefore = result.current.scheduledMessages;

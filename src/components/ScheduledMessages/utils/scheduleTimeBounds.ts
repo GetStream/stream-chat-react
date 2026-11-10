@@ -6,16 +6,23 @@ import type { ScheduleTimeBounds } from '../types';
 
 const MS_IN_SECOND = 1000;
 
+const NO_SCHEDULE_TIME_LIMITS: Partial<ScheduledMessageLimits> = {};
+
 export const getScheduleTimeBounds = (
-  { maxLeadTimeSeconds, minLeadTimeSeconds }: ScheduledMessageLimits,
+  limits: ScheduledMessageLimits | undefined,
   now: Date,
 ): ScheduleTimeBounds => {
+  const { maxLeadTimeSeconds, minLeadTimeSeconds = 0 } =
+    limits ?? NO_SCHEDULE_TIME_LIMITS;
   const nowMs = now.getTime();
 
   const earliest = new Date(
     nowMs + minLeadTimeSeconds * MS_IN_SECOND + CLOCK_SKEW_BUFFER_MS,
   );
-  const latest = new Date(nowMs + maxLeadTimeSeconds * MS_IN_SECOND);
+  const latest =
+    maxLeadTimeSeconds === undefined
+      ? undefined
+      : new Date(nowMs + maxLeadTimeSeconds * MS_IN_SECOND);
 
   const bounds = { earliest, latest };
 
@@ -31,7 +38,7 @@ export const getScheduleTimeError = (
 ): ScheduleTimeError | undefined => {
   if (scheduledAt < earliest) return ScheduleTimeError.TooSoon;
 
-  if (scheduledAt > latest) return ScheduleTimeError.TooFar;
+  if (latest && scheduledAt > latest) return ScheduleTimeError.TooFar;
 
   return undefined;
 };

@@ -15,6 +15,7 @@ import {
   generateChannel,
   generateScheduledMessage,
   generateUser,
+  hydrateScheduledMessages,
   initClientWithChannels,
   mockChatContext,
 } from '../../../../../mock-builders';
@@ -23,6 +24,11 @@ import { ChannelDetailProvider } from '../../../ChannelDetailContext';
 import { ScheduledMessagesView } from '../ScheduledMessagesView';
 
 const cid = 'messaging:general';
+
+const isInChannel =
+  (channelCid: string) =>
+  ({ cid: scheduledMessageCid }: ScheduledMessageResponse) =>
+    scheduledMessageCid === channelCid;
 
 const renderView = async (
   scheduledMessages: ScheduledMessageResponse[] = [],
@@ -35,7 +41,14 @@ const renderView = async (
     channelsData: [generateChannel({ channel: { id: 'general', type: 'messaging' } })],
     customUser: generateUser({ id: 'user-id' }),
   });
-  scheduledMessages.forEach(client.scheduledMessages.upsertToState);
+  const scheduledMessageCids = new Set([cid, ...scheduledMessages.map(({ cid }) => cid)]);
+  scheduledMessageCids.forEach((scheduledMessageCid) =>
+    hydrateScheduledMessages(
+      client,
+      scheduledMessageCid,
+      scheduledMessages.filter(isInChannel(scheduledMessageCid)),
+    ),
+  );
 
   const close = vi.fn();
   const translators = await new Streami18n({ language: 'en' }).init();

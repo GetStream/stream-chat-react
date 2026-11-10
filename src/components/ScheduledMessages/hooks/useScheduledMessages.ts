@@ -1,76 +1,53 @@
 import { useMemo } from 'react';
 import type {
-  ScheduledMessageManager,
+  PaginatorState,
   ScheduledMessageManagerState,
   ScheduledMessageResponse,
 } from 'stream-chat';
 
 import { useChatContext } from '../../../context';
 import { useStateStore } from '../../../store';
+import { NO_SCHEDULED_MESSAGES } from '../constants';
 import type { ScheduledMessagesSnapshot, UseScheduledMessagesParams } from '../types';
+import { getScopedScheduledMessages } from '../utils';
+import { useScheduledMessagePaginator } from './useScheduledMessagePaginator';
 
-const byScheduledAt = (a: ScheduledMessageResponse, b: ScheduledMessageResponse) =>
-  a.scheduled_at - b.scheduled_at || a.id.localeCompare(b.id);
+const managerStateSelector = ({ isDisabled }: ScheduledMessageManagerState) => ({
+  isDisabled,
+});
 
-const isSameList = (
-  current: ScheduledMessageResponse[],
-  previous: ScheduledMessageResponse[],
-) =>
-  current.length === previous.length &&
-  current.every((scheduledMessage, index) => scheduledMessage === previous[index]);
-
-const getScopedScheduledMessages = (
-  manager: ScheduledMessageManager,
-  { cid, parentId }: UseScheduledMessagesParams,
-) => {
-  if (parentId) return manager.getForThread(parentId);
-
-  if (cid) return manager.getForChannel(cid);
-
-  const allScheduledMessages = Array.from(manager.scheduledMessages.values());
-
-  return allScheduledMessages.sort(byScheduledAt);
-};
-
-const createScheduledMessagesSelector = (
-  manager: ScheduledMessageManager,
-  params: UseScheduledMessagesParams,
-) => {
-  let cachedScheduledMessages: ScheduledMessageResponse[] = [];
-
-  return ({
-    isDisabled,
-    isLoaded,
-    isLoading,
-  }: ScheduledMessageManagerState): ScheduledMessagesSnapshot => {
-    const scheduledMessages = getScopedScheduledMessages(manager, params);
-
-    if (!isSameList(scheduledMessages, cachedScheduledMessages)) {
-      cachedScheduledMessages = scheduledMessages;
-    }
-
-    return {
-      isDisabled,
-      isLoaded,
-      isLoading,
-      scheduledMessages: cachedScheduledMessages,
-    };
-  };
-};
+const paginatorStateSelector = ({
+  isLoading,
+  items,
+}: PaginatorState<ScheduledMessageResponse>) => ({ isLoading, items });
 
 export const useScheduledMessages = ({
   cid,
   parentId,
 }: UseScheduledMessagesParams = {}) => {
   const { client } = useChatContext();
-  const { scheduledMessages: manager } = client;
 
-  const selector = useMemo(
-    () => createScheduledMessagesSelector(manager, { cid, parentId }),
-    [cid, manager, parentId],
+  const paginator = useScheduledMessagePaginator({ cid });
+  const { isDisabled } = useStateStore(
+    client.scheduledMessages.state,
+    managerStateSelector,
+  );
+  const { isLoading, items } = useStateStore(paginator.state, paginatorStateSelector);
+
+  const scheduledMessages = useMemo(
+    () =>
+      items
+        ? getScopedScheduledMessages(items, { cid, parentId })
+        : NO_SCHEDULED_MESSAGES,
+    [cid, items, parentId],
   );
 
-  const scheduledMessagesSnapshot = useStateStore(manager.state, selector);
+  const scheduledMessagesSnapshot: ScheduledMessagesSnapshot = {
+    isDisabled,
+    isLoaded: !!items,
+    isLoading,
+    scheduledMessages,
+  };
 
   return scheduledMessagesSnapshot;
 };

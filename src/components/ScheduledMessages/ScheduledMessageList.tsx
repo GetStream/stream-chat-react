@@ -29,8 +29,8 @@ export const ScheduledMessageList = ({
     parentId,
     searchQuery,
   });
-  const { canLoadMore, isLoading, loadMore } = useScheduledMessagesPagination();
-  const { hasLoadFailed, isFirstLoad, reload } = useScheduledMessagesLoadState();
+  const { canLoadMore, isLoading, loadMore } = useScheduledMessagesPagination({ cid });
+  const { hasLoadFailed, isFirstLoad, reload } = useScheduledMessagesLoadState({ cid });
 
   if (!groups.length) {
     if (hasScheduledMessages) return <ScheduledMessagesNoResults />;
