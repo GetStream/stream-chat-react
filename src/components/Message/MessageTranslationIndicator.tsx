@@ -40,9 +40,7 @@ export const MessageTranslationIndicator = ({
   // The poll renders from its live state, which poll events update; `message.poll` is the snapshot
   // the message was loaded with.
   const { client } = useChatContext();
-  const livePoll = message?.poll_id
-    ? client?.polls.fromState(message.poll_id)
-    : undefined;
+  const livePoll = message?.poll_id ? client.polls.fromState(message.poll_id) : undefined;
   const livePollTexts = useStateStore(livePoll?.state, pollTextsSelector);
   const pollTexts = livePollTexts ?? message?.poll;
 
