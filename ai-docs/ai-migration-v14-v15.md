@@ -2848,32 +2848,6 @@ export const App = ({ children }: { children: React.ReactNode }) => (
 
 The props passed to `MessageUI` still override `MessageContext` for the bubble's content.
 
-### New: polls render the reader's translation
-
-Not a break. With automatic translation enabled, the API translates a poll's question, options and answers, and returns them in `name_i18n`, `text_i18n` and `answer_text_i18n`. These have the same shape as `message.i18n`: one `<language>_text` entry per language, plus `language`, the source language. The default poll components now render the entry for `client.user.language` and fall back to the original. That covers the poll in the message, the results, the full option list and the answers dialog. The channel list preview and a quoted poll show the translated question too.
-
-- A poll message starts in the translated view (`MessageContext.translationView`). `MessageTranslationIndicator` shows on it when the poll's question or an option is translated, and its "View original" toggle switches the whole poll back along with any message text.
-- Translations that arrive later through `poll.updated` show without a reload, because the poll renders from `client.polls`, not from `message.poll`.
-- A custom poll component (`PollHeader`, `PollOptionSelector`, ... through `WithComponents`) resolves its texts with `usePollTextTranslation()`, so it follows the same toggle:
-
-```tsx
-import type { PollState } from 'stream-chat';
-import { usePollContext, usePollTextTranslation, useStateStore } from 'stream-chat-react';
-
-const selector = ({ name, name_i18n }: PollState) => ({ name, name_i18n });
-
-export const CustomPollHeader = () => {
-  const { poll } = usePollContext();
-  const { name, name_i18n } = useStateStore(poll.state, selector);
-  const translate = usePollTextTranslation();
-  return <div className='str-chat__poll-title'>{translate(name, name_i18n)}</div>;
-};
-```
-
-This translates poll data only. The SDK's own copy ("View results", "Add a comment", ...) still comes from `Streami18n` and the dictionaries you register ([section 18](#18-i18n)).
-
----
-
 ## 13. Message composer
 
 ### `overrideSubmitHandler` is removed
