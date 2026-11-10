@@ -560,8 +560,10 @@ const VirtualizedMessageListWithContext = (
     }
   };
 
-  const focusViewedTokenRef = useMessageFocusSignalViewed({
+  const focusViewedSignalRef = useMessageFocusSignalViewed({
     containerRef: virtualListRef,
+    isMessageInList:
+      !!focusedMessageId && findMessageIndex(processedMessages, focusedMessageId) !== -1,
     messageFocusSignal,
     messagePaginator,
     scrollElement: floatingDateScrollElement,
@@ -572,7 +574,7 @@ const VirtualizedMessageListWithContext = (
   // may scroll away, and later changes of the list must not pull them back.
   useEffect(() => {
     let scrollTimeout: ReturnType<typeof setTimeout>;
-    if (messageFocusSignal && focusViewedTokenRef.current !== messageFocusSignal.token) {
+    if (messageFocusSignal && focusViewedSignalRef.current !== messageFocusSignal) {
       const index = findMessageIndex(processedMessages, messageFocusSignal.messageId);
       if (index !== -1) {
         scrollTimeout = setTimeout(() => {
@@ -583,7 +585,7 @@ const VirtualizedMessageListWithContext = (
     return () => {
       clearTimeout(scrollTimeout);
     };
-  }, [focusViewedTokenRef, messageFocusSignal, processedMessages]);
+  }, [focusViewedSignalRef, messageFocusSignal, processedMessages]);
 
   const id = useStableId();
 

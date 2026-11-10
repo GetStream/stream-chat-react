@@ -743,7 +743,7 @@ describe('VirtualizedMessageList', () => {
         await act(() => new Promise((resolve) => setTimeout(resolve, 0)));
       };
 
-      return { receiveMessage, scheduleClear, token };
+      return { channel, receiveMessage, scheduleClear, token };
     };
 
     beforeEach(() => {
@@ -775,6 +775,24 @@ describe('VirtualizedMessageList', () => {
 
       // The signal still lives during the countdown, but a reader who scrolled away stays there.
       await receiveMessage('arrived-after-viewed');
+      expect(scrollToIndexSpy).not.toHaveBeenCalledWith(
+        expect.objectContaining({ align: 'center' }),
+      );
+    });
+
+    it('starts the dismissal countdown at once for a message that is not in the list', async () => {
+      const { channel, scheduleClear } = await renderList();
+      scrollToIndexSpy.mockClear();
+
+      let token = 0;
+      act(() => {
+        ({ token } = channel.messagePaginator.emitMessageFocusSignal({
+          messageId: 'not-in-list',
+          reason: 'jump-to-message',
+        }));
+      });
+      await act(() => new Promise((resolve) => setTimeout(resolve, 0)));
+      expect(scheduleClear).toHaveBeenCalledWith({ token });
       expect(scrollToIndexSpy).not.toHaveBeenCalledWith(
         expect.objectContaining({ align: 'center' }),
       );

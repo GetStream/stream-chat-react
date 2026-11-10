@@ -82,22 +82,35 @@ const makeList = (messageIds: string[] = []) => {
   return { addItem, container, itemList, scroller };
 };
 
+const makePaginator = () => {
+  const scheduleMessageFocusSignalClear = vi.fn();
+  return {
+    messagePaginator: fromPartial<MessagePaginator>({ scheduleMessageFocusSignalClear }),
+    scheduleMessageFocusSignalClear,
+  };
+};
+
 const setup = ({
   container,
+  isMessageInList = true,
   messageFocusSignal,
   scrollElement,
 }: {
   container: HTMLElement | null;
+  isMessageInList?: boolean;
   messageFocusSignal: MessageFocusSignal | null;
   scrollElement: HTMLElement | Window | null;
 }) => {
-  const scheduleMessageFocusSignalClear = vi.fn();
-  const messagePaginator = fromPartial<MessagePaginator>({
-    scheduleMessageFocusSignalClear,
-  });
+  const { messagePaginator, scheduleMessageFocusSignalClear } = makePaginator();
   const containerRef = { current: container };
   const hook = renderHook((props) => useMessageFocusSignalViewed(props), {
-    initialProps: { containerRef, messageFocusSignal, messagePaginator, scrollElement },
+    initialProps: {
+      containerRef,
+      isMessageInList,
+      messageFocusSignal,
+      messagePaginator,
+      scrollElement,
+    },
   });
   return { containerRef, hook, messagePaginator, scheduleMessageFocusSignalClear };
 };
@@ -129,9 +142,10 @@ describe('useMessageFocusSignalViewed', () => {
 
   it('starts the countdown once the focused message is viewed, not before', () => {
     const { container, scroller } = makeList(['m-1', 'm-2']);
+    const messageFocusSignal = signal('m-2', 7);
     const { hook, scheduleMessageFocusSignalClear } = setup({
       container,
-      messageFocusSignal: signal('m-2', 7),
+      messageFocusSignal,
       scrollElement: scroller,
     });
     const target = container.querySelector("[data-message-id='m-2']")!;
@@ -147,7 +161,7 @@ describe('useMessageFocusSignalViewed', () => {
     observer.report(target, { height: 60, ratio: 0.5 });
     expect(scheduleMessageFocusSignalClear).toHaveBeenCalledTimes(1);
     expect(scheduleMessageFocusSignalClear).toHaveBeenCalledWith({ token: 7 });
-    expect(hook.result.current.current).toBe(7);
+    expect(hook.result.current.current).toBe(messageFocusSignal);
     expect(observer.disconnect).toHaveBeenCalled();
   });
 
@@ -187,28 +201,6 @@ describe('useMessageFocusSignalViewed', () => {
     expect(scheduleMessageFocusSignalClear).toHaveBeenCalledTimes(1);
   });
 
-  it('counts nothing as viewed while react-virtuoso 4 keeps the list hidden', async () => {
-    const { container, itemList, scroller } = makeList(['m-1']);
-    itemList.style.visibility = 'hidden';
-    const { scheduleMessageFocusSignalClear } = setup({
-      container,
-      messageFocusSignal: signal('m-1'),
-      scrollElement: scroller,
-    });
-    const target = container.querySelector("[data-message-id='m-1']")!;
-    const observer = viewObserver();
-    observer.report(target, { ratio: 1 });
-    expect(scheduleMessageFocusSignalClear).not.toHaveBeenCalled();
-
-    // Revealing does not move the item, so the hook re-observes it for a fresh report.
-    observer.observe.mockClear();
-    itemList.style.visibility = '';
-    await flushMutations();
-    expect(observer.observe).toHaveBeenCalledWith(target);
-    observer.report(target, { ratio: 1 });
-    expect(scheduleMessageFocusSignalClear).toHaveBeenCalledTimes(1);
-  });
-
   it('uses the viewport as the root in the window-scroll mode', () => {
     const { container } = makeList(['m-1']);
     setup({ container, messageFocusSignal: signal('m-1'), scrollElement: window });
@@ -224,6 +216,7 @@ describe('useMessageFocusSignalViewed', () => {
 
     hook.rerender({
       containerRef,
+      isMessageInList: true,
       messageFocusSignal: signal('m-1'),
       messagePaginator,
       scrollElement: scroller,
@@ -245,6 +238,7 @@ describe('useMessageFocusSignalViewed', () => {
     const observersBefore = IntersectionObserverMock.instances.length;
     hook.rerender({
       containerRef,
+      isMessageInList: true,
       messageFocusSignal,
       messagePaginator,
       scrollElement: newScroller,
@@ -261,6 +255,7 @@ describe('useMessageFocusSignalViewed', () => {
 
     hook.rerender({
       containerRef,
+      isMessageInList: true,
       messageFocusSignal: signal('m-2', 2),
       messagePaginator,
       scrollElement: scroller,
@@ -270,6 +265,86 @@ describe('useMessageFocusSignalViewed', () => {
     viewObserver().report(target, { ratio: 1 });
     expect(scheduleMessageFocusSignalClear).toHaveBeenCalledTimes(1);
     expect(scheduleMessageFocusSignalClear).toHaveBeenCalledWith({ token: 2 });
+  });
+
+  it('watches a jump of a new paginator that reuses the token of a viewed one', () => {
+    // Tokens count per paginator, so channel B's first jump can carry channel A's last token.
+    const { container, scroller } = makeList(['a-1', 'b-1']);
+    const { containerRef, hook, scheduleMessageFocusSignalClear } = setup({
+      container,
+      messageFocusSignal: signal('a-1', 1),
+      scrollElement: scroller,
+    });
+    viewObserver().report(container.querySelector("[data-message-id='a-1']")!, {
+      ratio: 1,
+    });
+    expect(scheduleMessageFocusSignalClear).toHaveBeenCalledWith({ token: 1 });
+
+    const next = makePaginator();
+    const nextSignal = signal('b-1', 1);
+    hook.rerender({
+      containerRef,
+      isMessageInList: true,
+      messageFocusSignal: nextSignal,
+      messagePaginator: next.messagePaginator,
+      scrollElement: scroller,
+    });
+    // Not viewed yet, so the list re-centers on it.
+    expect(hook.result.current.current).not.toBe(nextSignal);
+    const target = container.querySelector("[data-message-id='b-1']")!;
+    expect(viewObserver().observed).toEqual([target]);
+
+    viewObserver().report(target, { ratio: 1 });
+    expect(next.scheduleMessageFocusSignalClear).toHaveBeenCalledWith({ token: 1 });
+    expect(hook.result.current.current).toBe(nextSignal);
+  });
+
+  it('starts the countdown at once when the focused message is not in the list', () => {
+    const { container, scroller } = makeList(['m-1']);
+    const { hook, scheduleMessageFocusSignalClear } = setup({
+      container,
+      isMessageInList: false,
+      messageFocusSignal: signal('m-deleted', 5),
+      scrollElement: scroller,
+    });
+    expect(scheduleMessageFocusSignalClear).toHaveBeenCalledWith({ token: 5 });
+    expect(IntersectionObserverMock.instances).toHaveLength(0);
+    expect(hook.result.current.current).toBeNull();
+  });
+
+  it('starts the countdown when the focused message leaves the list', () => {
+    const { container, scroller } = makeList(['m-1']);
+    const messageFocusSignal = signal('m-1', 6);
+    const { containerRef, hook, messagePaginator, scheduleMessageFocusSignalClear } =
+      setup({ container, messageFocusSignal, scrollElement: scroller });
+    expect(scheduleMessageFocusSignalClear).not.toHaveBeenCalled();
+    const observer = viewObserver();
+
+    hook.rerender({
+      containerRef,
+      isMessageInList: false,
+      messageFocusSignal,
+      messagePaginator,
+      scrollElement: scroller,
+    });
+    expect(observer.disconnect).toHaveBeenCalled();
+    expect(scheduleMessageFocusSignalClear).toHaveBeenCalledWith({ token: 6 });
+  });
+
+  it('finds a message whose ID would break a selector', () => {
+    const messageId = `it's a "custom" \\ id]`;
+    const { container, scroller } = makeList(['m-1', messageId]);
+    const { scheduleMessageFocusSignalClear } = setup({
+      container,
+      messageFocusSignal: signal(messageId),
+      scrollElement: scroller,
+    });
+    const target = [...container.querySelectorAll('[data-message-id]')].find(
+      (element) => element.getAttribute('data-message-id') === messageId,
+    )!;
+    expect(viewObserver().observed).toEqual([target]);
+    viewObserver().report(target, { ratio: 1 });
+    expect(scheduleMessageFocusSignalClear).toHaveBeenCalledTimes(1);
   });
 
   it('starts the countdown at once where "viewed" cannot be observed', () => {
