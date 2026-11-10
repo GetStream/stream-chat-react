@@ -23,12 +23,16 @@ export const getTranslatedMessageText = ({
 export type TranslationView = 'original' | 'translated';
 
 export type MessageTranslationViewContextValue = {
-  getTranslationView: (messageId: string, hasI18n: boolean) => TranslationView;
+  getTranslationView: (
+    messageId: string,
+    defaultToTranslated: boolean,
+  ) => TranslationView;
   setTranslationView: (messageId: string, view: TranslationView) => void;
 };
 
 const defaultContextValue: MessageTranslationViewContextValue = {
-  getTranslationView: (_messageId, hasI18n) => (hasI18n ? 'translated' : 'original'),
+  getTranslationView: (_messageId, defaultToTranslated) =>
+    defaultToTranslated ? 'translated' : 'original',
   // eslint-disable-next-line @typescript-eslint/no-empty-function
   setTranslationView: () => {},
 };
@@ -50,8 +54,8 @@ export const MessageTranslationViewProvider = ({
   }, []);
 
   const getTranslationView = useCallback(
-    (messageId: string, hasI18n: boolean): TranslationView =>
-      viewByMessageId[messageId] ?? (hasI18n ? 'translated' : 'original'),
+    (messageId: string, defaultToTranslated: boolean): TranslationView =>
+      viewByMessageId[messageId] ?? (defaultToTranslated ? 'translated' : 'original'),
     [viewByMessageId],
   );
 
