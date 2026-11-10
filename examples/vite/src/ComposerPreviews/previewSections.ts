@@ -31,6 +31,15 @@ export const PREVIEW_SECTION_INFO: Record<PreviewSectionType, PreviewSectionInfo
     label: 'Edited message',
     removes: 'The Edit and Edit inline message actions.',
   },
+  editedScheduledMessage: {
+    label: 'Edited scheduled message',
+    removes: 'Nothing else; only the banner shown while editing a scheduled message.',
+  },
+  failedScheduledMessage: {
+    label: 'Failed scheduled message',
+    removes:
+      'Nothing else; only the banner shown while retrying a failed scheduled message.',
+  },
   linkPreviews: {
     label: 'Link previews',
     removes: 'Link scraping while typing.',
