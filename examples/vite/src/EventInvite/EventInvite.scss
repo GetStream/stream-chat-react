@@ -1,0 +1,199 @@
+// The event invite: its picker (EventInviteDialog.tsx), composer preview and message card
+// (EventInviteAttachment.tsx), styled with the SDK's tokens so both themes follow.
+
+// A percentage width is ignored while the modal sizes the dialog to its content, which would
+// widen the dialog to its description's line and push the panel off-centre.
+.app__event-invite-dialog {
+  width: min(420px, 100vw);
+
+  // The SDK's buttons capitalize every word ("15 Min", "Add Event"); this dialog's labels are
+  // sentence case.
+  .str-chat__button {
+    text-transform: none;
+  }
+}
+
+// The date and time inputs draw their picker icons and popups from `color-scheme`, which the
+// SDK's dark theme leaves at `normal`: dark icons on the dark field, and a light popup.
+.str-chat__theme-dark .app__event-invite-dialog {
+  color-scheme: dark;
+}
+
+// The form wraps the prompt's body and footer without adding a box of its own.
+.app__event-invite-dialog__form {
+  display: contents;
+}
+
+.app__event-invite-dialog__body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--str-chat__spacing-md);
+}
+
+.app__event-invite-dialog__row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--str-chat__spacing-sm);
+}
+
+.app__event-invite-dialog__field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--str-chat__spacing-xs);
+}
+
+.app__event-invite-dialog__field-label {
+  // As the SDK's TextInput labels above and below it.
+  font: var(--str-chat__font-heading-xs);
+  color: var(--str-chat__text-primary);
+}
+
+.app__event-invite-dialog__durations {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--str-chat__spacing-xs);
+}
+
+// The SDK's button draws the pressed state; a text colour on top of it would fail contrast.
+.app__event-invite-dialog__duration[aria-pressed='true'] {
+  font-weight: 600;
+}
+
+// Shared by the message card and the composer preview. Colours come from the surface each one
+// sits on, set below.
+
+// A 40px tile like the SDK's link preview image and location preview placeholder.
+.app__event-invite__date-tile {
+  display: flex;
+  flex-shrink: 0;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  overflow: hidden;
+  border-radius: var(--str-chat__message-bubble-radius-attachment-inline, 8px);
+  background-color: var(--str-chat__background-core-overlay-light);
+  line-height: 1;
+}
+
+.app__event-invite__date-tile-month {
+  font: var(--str-chat__font-metadata-emphasis);
+  text-transform: uppercase;
+}
+
+.app__event-invite__date-tile-day {
+  font: var(--str-chat__font-heading-xs);
+}
+
+.app__event-invite__details {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  justify-content: center;
+  gap: var(--str-chat__spacing-xxs);
+  min-width: 0;
+}
+
+.app__event-invite__title,
+.app__event-invite__schedule,
+.app__event-invite__location {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.app__event-invite__schedule,
+.app__event-invite__location {
+  font: var(--str-chat__font-metadata-default);
+}
+
+// In a message: the summary above an "Add to calendar" button. Like the SDK's link preview and
+// location attachments, it sits on the attachment background `.str-chat__message-attachment` sets
+// (`--chat-bg-attachment`) and takes the bubble's own variables, which `.str-chat__message`
+// switches between incoming and outgoing.
+.app__event-invite {
+  display: flex;
+  flex-direction: column;
+  gap: var(--str-chat__spacing-xs);
+  padding: var(--str-chat__spacing-xs) var(--str-chat__spacing-sm)
+    var(--str-chat__spacing-sm) var(--str-chat__spacing-xs);
+  color: var(--chat-text);
+
+  .app__event-invite__title {
+    font: var(--str-chat__font-caption-emphasis);
+  }
+
+  // As the link preview attachment's source link: the bubble's text colour. The link colour of
+  // the message text does not reach AA contrast on the incoming attachment background. The
+  // underline tells the link apart from the text around it.
+  .app__event-invite__location a {
+    color: inherit;
+    text-decoration: underline;
+  }
+}
+
+.app__event-invite__summary {
+  display: flex;
+  align-items: center;
+  gap: var(--str-chat__spacing-xs);
+  min-width: 0;
+}
+
+// The button sits on the bubble, so it takes the bubble's colours instead of the app-wide
+// secondary button colours, as the location attachment's "Stop sharing" button does.
+.app__event-invite__add-to-calendar {
+  --str-chat__button-secondary-text: var(
+    --chat-text,
+    var(--str-chat__chat-text-incoming)
+  );
+  --str-chat__button-secondary-border: var(
+    --chat-border-on-chat,
+    var(--str-chat__chat-border-on-chat-incoming)
+  );
+  align-self: stretch;
+  // Sentence case, against the SDK button's capitalized words ("Add To Calendar").
+  text-transform: none;
+  gap: var(--str-chat__spacing-xs);
+
+  .str-chat__icon {
+    width: 16px;
+    height: 16px;
+  }
+}
+
+// In the composer: in the attachment preview list, so sized and coloured like the SDK's file
+// previews beside it.
+.app__event-invite-preview {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--str-chat__spacing-sm);
+  width: 290px;
+  max-width: 100%;
+  padding: var(--str-chat__spacing-sm);
+  padding-inline-end: var(--str-chat__spacing-md);
+  border: 1px solid var(--str-chat__border-core-default);
+  border-radius: var(--str-chat__radius-lg);
+  background: transparent;
+  color: var(--str-chat__text-primary);
+
+  .app__event-invite__title {
+    font: var(--str-chat__font-caption-emphasis);
+  }
+
+  // Off the bubble, the overlay would vanish against the composer: the card surface the SDK's
+  // poll dialogs use for their content boxes.
+  .app__event-invite__date-tile {
+    background-color: var(--str-chat__background-core-surface-card);
+  }
+
+  .app__event-invite__schedule,
+  .app__event-invite__location {
+    color: var(--str-chat__text-secondary);
+  }
+
+  .app__event-invite__location a {
+    color: var(--str-chat__text-link);
+  }
+}

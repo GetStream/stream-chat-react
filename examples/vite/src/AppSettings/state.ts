@@ -121,6 +121,11 @@ export type ComposerSettingsState = {
    */
   disabledPreviewSections: string[];
   /**
+   * Adds an Event action to the attachment selector, which attaches an event invite: a custom
+   * attachment type (`event`) the SDK does not ship. See `EventInvite/`.
+   */
+  eventInvites: boolean;
+  /**
    * The composer's preview sections in render order. A default preview missing from it is
    * appended (see `resolvePreviewSectionOrder`).
    */
@@ -210,6 +215,7 @@ const defaultAppSettingsState: AppSettingsState = {
   composer: {
     customCdnUrl: '',
     disabledPreviewSections: [],
+    eventInvites: false,
     failUploads: 'off',
     previewSectionOrder: defaultMessageComposerPreviewSet.map(({ type }) => type),
     sendMessagesWithPendingUploads: false,

@@ -10,4 +10,21 @@ declare module 'stream-chat' {
     /** Used by this demo's simulated users and member lists as a fallback display name. */
     username?: string;
   }
+
+  interface CustomAttachmentData {
+    /**
+     * The schedule and place of this demo's `event` attachments (see `EventInvite/`). The
+     * invite's name is the attachment's `title`.
+     */
+    event?: {
+      /** End, as an ISO 8601 timestamp in UTC. */
+      ends_at: string;
+      /** Where it happens: a place, or an http(s) meeting link that renders as a link. */
+      location?: string;
+      /** Start, as an ISO 8601 timestamp in UTC. */
+      starts_at: string;
+      /** The invite's id, the UID of its calendar entry. */
+      uid?: string;
+    };
+  }
 }

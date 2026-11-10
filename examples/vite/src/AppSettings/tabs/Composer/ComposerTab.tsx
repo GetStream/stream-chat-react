@@ -26,6 +26,7 @@ export const ComposerTab = ({ close }: ComposerTabProps) => {
     composer,
     composer: {
       customCdnUrl,
+      eventInvites,
       failUploads,
       sendMessagesWithPendingUploads,
       slowUploadMs,
@@ -59,6 +60,26 @@ export const ComposerTab = ({ close }: ComposerTabProps) => {
             cannot show. Applies to open composers at once.
           </div>
           <PreviewSectionsField />
+        </div>
+
+        <div className='app__settings-modal__field'>
+          <div className='app__settings-modal__field-label'>Custom attachment type</div>
+          <SwitchField
+            checked={eventInvites}
+            id='event-invites-switch'
+            onChange={(event) =>
+              appSettingsStore.partialNext({
+                composer: { ...composer, eventInvites: event.target.checked },
+              })
+            }
+            title='Event invites'
+          />
+          <div className='app__settings-modal__field-comment'>
+            Adds an <strong>Event</strong> action to the attachment menu. It attaches an
+            invite of a custom type (<code>event</code>), which the message list renders
+            with an <strong>Add to calendar</strong> button. Built from public extension
+            points only; see <code>EventInvite/</code>. Needs the Files preview section.
+          </div>
         </div>
 
         <div className='app__settings-modal__field'>
