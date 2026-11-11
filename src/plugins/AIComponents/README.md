@@ -74,6 +74,8 @@ The data types are named `AIMessagePartData`, `AIToolApprovalData` and `AIToolAu
 
 The conversation laid out by turn, the counterpart of `AIConversationView`. Each of the person's questions starts a turn, with the agent's reply under it.
 
+It scrolls inside itself, so it fills its parent: the space left in a flex container, such as a page-high column with the composer under it, or else the parent's height. Without a bounded ancestor it grows with its turns and the page scrolls instead, so it no longer follows the latest reply.
+
 ```tsx
 import {
   AIClientIdentity,
