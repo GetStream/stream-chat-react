@@ -94,6 +94,14 @@
       font: var(--str-chat__font-caption-emphasis);
     }
 
+    // full width, through the menu's padding
+    .str-chat__context-menu__separator {
+      height: 1px;
+      margin-block: var(--str-chat__spacing-xxs);
+      margin-inline: calc(-1 * var(--str-chat__spacing-xxs));
+      background-color: var(--str-chat__border-core-subtle);
+    }
+
     .str-chat__context-menu__back-button {
       @include utils.button-reset;
       display: flex;
@@ -194,11 +202,11 @@
         }
       }
 
-      &:hover:not(:disabled) {
+      &:hover:not(:disabled, [aria-disabled='true']) {
         background-color: var(--str-chat__dialog-menu-button-hover-background-color);
       }
 
-      &:active:not(:disabled) {
+      &:active:not(:disabled, [aria-disabled='true']) {
         background-color: var(--str-chat__background-utility-pressed);
       }
 
@@ -206,7 +214,9 @@
         background-color: transparent;
       }
 
-      &:disabled {
+      // `aria-disabled` keeps the item focusable, so its reason can be read
+      &:disabled,
+      &[aria-disabled='true'] {
         background-color: transparent;
         color: var(--str-chat__text-disabled);
         cursor: default;

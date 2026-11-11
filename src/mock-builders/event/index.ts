@@ -1,3 +1,4 @@
+export * from './scheduledMessage';
 export { default as dispatchChannelDeletedEvent } from './channelDeleted';
 export { default as dispatchChannelHiddenEvent } from './channelHidden';
 export { default as dispatchChannelTruncatedEvent } from './channelTruncated';

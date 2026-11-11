@@ -14,10 +14,12 @@ import { useMessageComposerController } from './useMessageComposerController';
 
 const messageComposerStateSelector = ({
   editedMessage,
+  editedScheduledMessage,
   pollId,
   quotedMessage,
 }: MessageComposerState) => ({
   editedMessage,
+  editedScheduledMessage,
   pollId,
   quotedMessage,
 });
@@ -47,6 +49,11 @@ export type MessageComposerPreviewVisibilityFilterParams = {
   /** The composer's custom data (`messageComposer.customDataManager`). */
   customData: CustomDataManagerState['custom'];
   editedMessage: MessageComposerState['editedMessage'];
+  /**
+   * The scheduled message open in the composer: a pending one is edited, a failed one is sent or
+   * scheduled again.
+   */
+  editedScheduledMessage: MessageComposerState['editedScheduledMessage'];
   /** Link previews that are loading or loaded. */
   linkPreviews: LinkPreview[];
   location: LocationComposerState['location'];
@@ -65,10 +72,8 @@ export type MessageComposerPreviewVisibilityFilterParams = {
 export const useMessageComposerPreviewState =
   (): MessageComposerPreviewVisibilityFilterParams => {
     const messageComposer = useMessageComposerController();
-    const { editedMessage, pollId, quotedMessage } = useStateStore(
-      messageComposer.state,
-      messageComposerStateSelector,
-    );
+    const { editedMessage, editedScheduledMessage, pollId, quotedMessage } =
+      useStateStore(messageComposer.state, messageComposerStateSelector);
     const { attachments } = useStateStore(
       messageComposer.attachmentManager.state,
       attachmentManagerStateSelector,
@@ -101,6 +106,7 @@ export const useMessageComposerPreviewState =
         attachments,
         customData,
         editedMessage,
+        editedScheduledMessage,
         linkPreviews,
         location,
         pollId,
@@ -110,6 +116,7 @@ export const useMessageComposerPreviewState =
         attachments,
         customData,
         editedMessage,
+        editedScheduledMessage,
         linkPreviews,
         location,
         pollId,

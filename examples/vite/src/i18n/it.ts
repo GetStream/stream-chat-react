@@ -263,6 +263,12 @@ export const itTranslations = {
     'Sfoglia i membri del canale',
   'channelDetail.channelMembersView.members.title_one': '{{ count }} membro',
   'channelDetail.channelMembersView.members.title_other': '{{ count }} membri',
+  'channelDetail.navButton.channelInfo.title': 'Info canale',
+  'channelDetail.navButton.files.title': 'File',
+  'channelDetail.navButton.media.title': 'Foto e video',
+  'channelDetail.navButton.members.title': 'Membri',
+  'channelDetail.navButton.pinnedMessages.title': 'Messaggi fissati',
+  'channelDetail.navButton.scheduledMessages.title': 'Programmati',
   'channelDetail.pinnedMessagesEmpty.noPinnedMessages.text': 'Nessun messaggio fissato',
   'channelDetail.pinnedMessagesEmpty.pinMessageSee.text':
     'Fissa un messaggio per vederlo qui',

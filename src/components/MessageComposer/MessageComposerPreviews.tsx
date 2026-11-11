@@ -14,6 +14,7 @@ export type DefaultMessageComposerPreviewType =
   | 'linkPreviews'
   | 'location'
   | 'quotedMessage'
+  | 'scheduledMessage'
   | 'voiceRecording';
 
 export type MessageComposerPreviewSetItem = {

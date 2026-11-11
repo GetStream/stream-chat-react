@@ -1,0 +1,29 @@
+.str-chat {
+  // tinted with its accent: the primary one, or the error one
+  .str-chat__scheduled-messages-notice {
+    --str-chat__scheduled-messages-notice-accent: var(--str-chat__accent-primary);
+    display: flex;
+    align-items: center;
+    gap: var(--str-chat__spacing-xs);
+    padding: var(--str-chat__spacing-sm);
+    border-radius: var(--str-chat__radius-md);
+    background-color: color-mix(
+      in srgb,
+      var(--str-chat__scheduled-messages-notice-accent) 5%,
+      transparent
+    );
+    color: var(--str-chat__text-primary);
+    font: var(--str-chat__font-metadata-emphasis);
+
+    .str-chat__scheduled-messages-notice__icon {
+      flex-shrink: 0;
+      height: var(--str-chat__icon-size-sm);
+      width: var(--str-chat__icon-size-sm);
+      color: var(--str-chat__scheduled-messages-notice-accent);
+    }
+  }
+
+  .str-chat__scheduled-messages-notice--error {
+    --str-chat__scheduled-messages-notice-accent: var(--str-chat__accent-error);
+  }
+}

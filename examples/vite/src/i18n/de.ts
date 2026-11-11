@@ -274,6 +274,12 @@ export const deTranslations = {
     'Kanalmitglieder durchsuchen',
   'channelDetail.channelMembersView.members.title_one': '{{ count }} Mitglied',
   'channelDetail.channelMembersView.members.title_other': '{{ count }} Mitglieder',
+  'channelDetail.navButton.channelInfo.title': 'Kanalinfo',
+  'channelDetail.navButton.files.title': 'Dateien',
+  'channelDetail.navButton.media.title': 'Fotos & Videos',
+  'channelDetail.navButton.members.title': 'Mitglieder',
+  'channelDetail.navButton.pinnedMessages.title': 'Angeheftete Nachrichten',
+  'channelDetail.navButton.scheduledMessages.title': 'Geplant',
   'channelDetail.pinnedMessagesEmpty.noPinnedMessages.text':
     'Keine angepinnten Nachrichten',
   'channelDetail.pinnedMessagesEmpty.pinMessageSee.text':

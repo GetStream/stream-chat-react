@@ -1692,12 +1692,7 @@ Where you pass the props depends on who renders the header:
 
 Both headers are exported.
 
-To keep showing the content only while something is open beside the list (a sidebar toggle, for example), make it return `null` otherwise. Read the workspace from `useWorkspaceNavigation()`:
-
-- `openChannels` / `openThreads` list the channels and threads that the workspace's panels were opened with. Something opened over another item in the same panel (stacked) is not in them. In a workspace whose panels open with channels and threads only, a stacked item always sits over one that is in the lists, so "something is open" is either list being non-empty; `openThreads` alone misses a thread stacked over a channel.
-- A panel opened with another kind, such as a `userProfile` panel, is in neither list, even with a channel stacked over it. If your layout opens such panels, check the layout instead: `useLayoutViewState()` from `stream-chat-react/slot-layout` returns each slot's binding (`slotBindings`) and stacked layers (`slotLayers`).
-- To ask whether a given channel or thread is on screen, use `isChannelActive(cid)` / `isThreadActive(threadId)`, which follow what each panel shows.
-- `ChatView` (or your own `WorkspaceNavigationProvider`, [section 4](#4-selecting-channels-and-opening-threads-workspace-navigation)) fills all of these. Without one the lists stay empty, so gate on your own selection state instead.
+To keep the v14 behavior of showing the content only next to an open channel or thread (a sidebar toggle, for example), make the content return `null` otherwise: read `openChannels` / `openThreads` from `useWorkspaceNavigation()`. `ChatView` (or your own `WorkspaceNavigationProvider`, [section 4](#4-selecting-channels-and-opening-threads-workspace-navigation)) fills these lists; without one they stay empty, so gate on your own selection state instead.
 
 ```tsx
 // v14
@@ -1715,18 +1710,24 @@ import {
 // `SidebarToggle` stands for a control of your own.
 const SidebarToggle = () => <button>Menu</button>;
 
-// Shown only while a channel or thread is open beside the list.
-const SidebarToggleWhileContentOpen = () => {
-  const { openChannels, openThreads } = useWorkspaceNavigation();
-  return openChannels.length > 0 || openThreads.length > 0 ? <SidebarToggle /> : null;
+// Shown only while a channel is open, as in v14.
+const SidebarToggleWhileChannelOpen = () => {
+  const { openChannels } = useWorkspaceNavigation();
+  return openChannels.length > 0 ? <SidebarToggle /> : null;
+};
+
+// Shown only while a thread is open, as in v14.
+const SidebarToggleWhileThreadOpen = () => {
+  const { openThreads } = useWorkspaceNavigation();
+  return openThreads.length > 0 ? <SidebarToggle /> : null;
 };
 
 const ChannelListHeaderWithToggle = () => (
-  <ChannelListHeader EndContent={SidebarToggleWhileContentOpen} />
+  <ChannelListHeader EndContent={SidebarToggleWhileChannelOpen} />
 );
 
 const ThreadListHeaderWithToggle = () => (
-  <ThreadListHeader EndContent={SidebarToggleWhileContentOpen} />
+  <ThreadListHeader EndContent={SidebarToggleWhileThreadOpen} />
 );
 
 // Declared once, so WithComponents gets the same object on every render.
@@ -3601,7 +3602,7 @@ export const RemoveButton = ({ label }: { label: string }) => {
 };
 ```
 
-Four formatter keys carry English day words inside their `calendarFormats` (`timestamp.DateSeparator`, `timestamp.ReminderNotification`, `timestamp.ChannelPreviewTimestamp`, `timestamp.ChannelDetailPinnedMessageTimestamp`) and must be overridden to translate Today / Tomorrow / Yesterday / Last; `dayjsLocaleConfigForLanguage` does not reach them.
+Eight formatter keys carry English words inside their formats (`timestamp.DateSeparator`, `timestamp.ReminderNotification`, `timestamp.ChannelPreviewTimestamp`, `timestamp.ChannelDetailPinnedMessageTimestamp`, `timestamp.ScheduledMessageConfirmation`, `timestamp.ScheduledMessageGroup`, `timestamp.ScheduledMessageSendTime`, `timestamp.SchedulePreset`) and must be overridden to translate Today / Tomorrow / Yesterday / Last / at; `dayjsLocaleConfigForLanguage` does not reach them.
 
 ---
 

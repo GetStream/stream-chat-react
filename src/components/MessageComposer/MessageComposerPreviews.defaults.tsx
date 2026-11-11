@@ -20,9 +20,14 @@ import { LinkPreviewList as DefaultLinkPreviewList } from './LinkPreviewList';
 import type { MessageComposerPreviewSetItem } from './MessageComposerPreviews';
 import { restorePreEditSnapshot } from './preEditSnapshot';
 import { QuotedMessagePreview as DefaultQuotedMessagePreview } from './QuotedMessagePreview';
+import { ScheduledMessagePreview as DefaultScheduledMessagePreview } from '../ScheduledMessages/ScheduledMessagePreview';
 
 const editedMessageSelector = ({ editedMessage }: MessageComposerState) => ({
   editedMessage,
+});
+
+const scheduledMessageSelector = ({ editedScheduledMessage }: MessageComposerState) => ({
+  editedScheduledMessage,
 });
 
 const locationSelector = ({ location }: LocationComposerState) => ({ location });
@@ -41,6 +46,24 @@ const DefaultMessageComposerPreviewComponents = {
         onCancel={() => {
           restorePreEditSnapshot(messageComposer);
         }}
+      />
+    );
+  },
+  ScheduledMessage() {
+    const { ScheduledMessagePreview = DefaultScheduledMessagePreview } =
+      useComponentContext();
+    const messageComposer = useMessageComposerController();
+    const { editedScheduledMessage } = useStateStore(
+      messageComposer.state,
+      scheduledMessageSelector,
+    );
+
+    if (!editedScheduledMessage) return null;
+
+    return (
+      <ScheduledMessagePreview
+        onCancel={messageComposer.cancelEditScheduledMessage}
+        scheduledMessage={editedScheduledMessage}
       />
     );
   },
@@ -93,9 +116,15 @@ export const defaultMessageComposerPreviewSet: MessageComposerPreviewSetItem[] =
     type: 'editedMessage',
   },
   {
+    Component: DefaultMessageComposerPreviewComponents.ScheduledMessage,
+    isVisible: ({ editedScheduledMessage }) => !!editedScheduledMessage,
+    type: 'scheduledMessage',
+  },
+  {
     Component: DefaultMessageComposerPreviewComponents.QuotedMessage,
     // The edited message preview takes the quoted message's place while editing.
-    isVisible: ({ editedMessage, quotedMessage }) => !editedMessage && !!quotedMessage,
+    isVisible: ({ editedMessage, editedScheduledMessage, quotedMessage }) =>
+      !editedMessage && !editedScheduledMessage && !!quotedMessage,
     type: 'quotedMessage',
   },
   {
