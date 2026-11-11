@@ -31,11 +31,11 @@ Load `ai-components.css` in addition to `stream-chat-react/css/index.css`.
 
 From `stream-chat-react/ai-components`:
 
-- Components: `AIMarkdown`, `AIMessageComposer` (with the static sub-components `FileInput`, `TextInput`, `SpeechToTextButton`, `SubmitButton`, `ModelSelect`, `ChatOptions`, `AttachmentPreview`, `AttachmentPreview.Item`), `StreamingMessage`, `AIStateIndicator`, `VoiceWave`, `VoiceGlow`
+- Components: `AIMarkdown`, `AIMessageComposer` (with the static sub-components `FileInput`, `TextInput`, `SpeechToTextButton`, `SubmitButton`, `StopButton`, `Actions`, `ModelSelect`, `ChatOptions`, `AttachmentPreview`, `AttachmentPreview.Item`), `StreamingMessage`, `AIStateIndicator`, `VoiceWave`, `VoiceGlow`
 - Agent conversations (see [Agent conversations](#agent-conversations)): `AIConversation`, `AIUserMessage`, `AIAssistantMessage`, `AIMessageAttachment`, `AIReplyActions`, `AITypingIndicator`, `AISuggestions`, `AIMessageParts`, `AIMessagePart`, `AIToolCall`, `AIToolApproval`, `AIToolApprovalCard`, `AIToolArguments`, `AIToolAuthorization`, `AIToolAuthorizationCard`, `AIReasoning`, `AIThinking`, `AIToolApproverProvider`, `ChatOptionsList`, `SelectedChatOptionChip`
 - Functions: `parseMessageParts`, `parseMessagePart`, `isAwaitingApproval`, `isAwaitingAuthorization`, `isAwaitingClient`, `isDeclined`, `isToolCallFinished`, `isSupportedPart`, `isAuthorizationExpired`, `fromStreamMessage`, `createPopupAuthorizer`, `completeConnectorSignIn`, `readConnectorSignInResult`, `AIClientIdentity.installId()`
 - Hooks: `useAttachments`, `useText`, `useIsDisabled`, `useAIMessageComposerContext`, `useSpeechToText`, `useAudioLevel`, `useHeardText`, `useAIToolApprover`
-- Types: `AIMessageComposerStore`, `StreamingMessageRef`, `UseMessageTextStreamingProps`, `ToolComponentProps`, `UseSpeechToTextOptions`, `VoiceAgentState`, `VoiceGlowRendering`, `VoiceVisualizationProps`, `VoiceWaveProps`, `VoiceGlowProps`, `HeardTextProgress`, `HeardTextFunction`, `HeardTextSubscribe`, `UseHeardTextParams`, `UseHeardTextResult`, `AIMessage`, `AIMessageRole`, `AIPendingMessage`, `AIMessagePartData`, `AIReasoningPart`, `AIToolCallPart`, `AIToolApprovalData`, `AIToolAuthorizationData`, `AIToolApprover`, `AIToolAuthorizer`, `AIToolApprovalState`, `AIToolAuthorizationState`, `AIMessageAttachmentData`, `AIMessageRating`, `AIChatOption`, `PopupAuthorizerOptions`, `ConnectorSignInResult`
+- Types: `AIMessageComposerStore`, `AIMessageComposerLayout`, `StreamingMessageRef`, `UseMessageTextStreamingProps`, `ToolComponentProps`, `UseSpeechToTextOptions`, `VoiceAgentState`, `VoiceGlowRendering`, `VoiceVisualizationProps`, `VoiceWaveProps`, `VoiceGlowProps`, `HeardTextProgress`, `HeardTextFunction`, `HeardTextSubscribe`, `UseHeardTextParams`, `UseHeardTextResult`, `AIMessage`, `AIMessageRole`, `AIPendingMessage`, `AIMessagePartData`, `AIReasoningPart`, `AIToolCallPart`, `AIToolApprovalData`, `AIToolAuthorizationData`, `AIToolApprover`, `AIToolAuthorizer`, `AIToolApprovalState`, `AIToolAuthorizationState`, `AIMessageAttachmentData`, `AIMessageRating`, `AIChatOption`, `PopupAuthorizerOptions`, `ConnectorSignInResult`
 
 `useMessageTextStreaming` is not exported from here; import it from the main entry point (`stream-chat-react`).
 
@@ -602,19 +602,36 @@ function ChatComposer({ attachments }: ChatComposerProps) {
 
   return (
     <AIMessageComposer onSubmit={handleSubmit}>
-      <AIMessageComposer.FileInput name='attachments' />
-      <AIMessageComposer.TextInput name='message' />
-      <AIMessageComposer.SpeechToTextButton />
-      <AIMessageComposer.ModelSelect name='model' />
-      <AIMessageComposer.SubmitButton />
       <AIMessageComposer.AttachmentPreview>
         {attachments.map((attachment) => (
           <AIMessageComposer.AttachmentPreview.Item key={attachment.id} {...attachment} />
         ))}
       </AIMessageComposer.AttachmentPreview>
+      <AIMessageComposer.TextInput name='message' />
+      <AIMessageComposer.Actions>
+        <AIMessageComposer.FileInput name='attachments' />
+        <AIMessageComposer.ModelSelect name='model' />
+        <AIMessageComposer.SpeechToTextButton />
+        <AIMessageComposer.SubmitButton />
+      </AIMessageComposer.Actions>
     </AIMessageComposer>
   );
 }
+```
+
+#### Layout
+
+By default (`layout='stacked'`) the parts are stacked, one under another: put the controls in `AIMessageComposer.Actions`, a row that lines them up at its end, under the text. With `layout='inline'` the text and the controls share one line, the controls staying at its end as the text grows, which suits a composer whose only control is the send button. Attachment previews keep a full-width row above the line.
+
+```tsx
+<AIMessageComposer layout='inline' onSubmit={handleSubmit}>
+  <AIMessageComposer.TextInput />
+  {isAnswering ? (
+    <AIMessageComposer.StopButton onClick={stop} />
+  ) : (
+    <AIMessageComposer.SubmitButton />
+  )}
+</AIMessageComposer>
 ```
 
 #### Sub-components
@@ -623,6 +640,8 @@ function ChatComposer({ attachments }: ChatComposerProps) {
 - **`AIMessageComposer.TextInput`** - Where the message is written: a `textarea` that grows with its lines, up to 200 px, then scrolls. Enter sends, Shift+Enter starts a new line, and Enter while an input method is composing does neither. Automatically syncs with composer state.
 - **`AIMessageComposer.SpeechToTextButton`** - Button to toggle speech-to-text input using the Web Speech API.
 - **`AIMessageComposer.SubmitButton`** - Submit button for sending the message.
+- **`AIMessageComposer.StopButton`** - A round button that stops a reply still being written, to show in place of `SubmitButton` meanwhile. It is `type="button"`, so it never submits, and it is named by the `messageComposer.stopAiGeneration.stopAiGeneration.ariaLabel` string ("Stop AI Generation"). Unlike the other parts it does not follow the composer's `disabled`, since the composer is often disabled exactly while a reply runs; pass `disabled` to it to disable it. Children replace its stop icon.
+- **`AIMessageComposer.Actions`** - A row for the controls, lined up at its end (`str-chat__ai-message-composer__actions`). Takes any `div` prop.
 - **`AIMessageComposer.ModelSelect`** - Dropdown for selecting AI models. Customizable via `options` prop.
 - **`AIMessageComposer.AttachmentPreview`** - Preview container for attached files.
 - **`AIMessageComposer.AttachmentPreview.Item`** - Preview item component, renders a different look for file types that begin with `image/`.
@@ -631,6 +650,7 @@ function ChatComposer({ attachments }: ChatComposerProps) {
 
 | Name                       | Type                                         | Required | Description                                                                                                                                                                                               |
 | -------------------------- | -------------------------------------------- | -------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `layout`                   | `'stacked' \| 'inline'`                      | no       | How the parts are arranged: one under another (`stacked`, the default), or the text and the controls on one line (`inline`). See [Layout](#layout).                                                       |
 | `resetAttachmentsOnSelect` | `boolean`                                    | no       | Resets file input after selection. Defaults to `true`.                                                                                                                                                    |
 | `nameMapping`              | `{ message?: string; attachments?: string }` | no       | Maps custom input names to internal state. By default, the composer expects inputs named `message` (for text) and `attachments` (for files). Use this prop to map different names to these internal keys. |
 | `onSubmit`                 | `(e: FormEvent<HTMLFormElement>) => void`    | no       | Form submission handler.                                                                                                                                                                                  |

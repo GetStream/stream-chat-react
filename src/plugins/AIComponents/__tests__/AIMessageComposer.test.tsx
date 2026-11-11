@@ -89,4 +89,95 @@ describe('AIMessageComposer', () => {
     });
     expect(onSubmit).not.toHaveBeenCalled();
   });
+
+  describe('layout', () => {
+    it('stacks its parts by default', () => {
+      const { container } = render(<AIMessageComposer />);
+      expect(container.querySelector('form')).not.toHaveClass(
+        'str-chat__ai-message-composer__form--inline',
+      );
+    });
+
+    it('puts the text and the controls on one line with layout="inline"', () => {
+      const { container } = render(
+        <AIMessageComposer className='floating' layout='inline'>
+          <AIMessageComposer.TextInput />
+          <AIMessageComposer.SubmitButton />
+        </AIMessageComposer>,
+      );
+      expect(container.querySelector('form')).toHaveClass(
+        'str-chat__ai-message-composer__form',
+        'str-chat__ai-message-composer__form--inline',
+        'floating',
+      );
+    });
+  });
+
+  describe('Actions', () => {
+    it('renders a row for the controls, with its own class next to a given one', () => {
+      render(
+        <AIMessageComposer>
+          <AIMessageComposer.Actions className='mine' data-testid='actions'>
+            <AIMessageComposer.SubmitButton />
+          </AIMessageComposer.Actions>
+        </AIMessageComposer>,
+      );
+      const actions = screen.getByTestId('actions');
+      expect(actions).toHaveClass('str-chat__ai-message-composer__actions', 'mine');
+      expect(actions).toContainElement(screen.getByRole('button', { name: 'Send' }));
+    });
+  });
+
+  describe('StopButton', () => {
+    it('calls onClick without submitting the form', () => {
+      const onSubmit = vi.fn((e: React.FormEvent) => e.preventDefault());
+      const onClick = vi.fn();
+      render(
+        <AIMessageComposer onSubmit={onSubmit}>
+          <AIMessageComposer.StopButton onClick={onClick} />
+        </AIMessageComposer>,
+      );
+      const stop = screen.getByRole('button', { name: 'Stop AI Generation' });
+      expect(stop).toHaveAttribute('type', 'button');
+      expect(stop).toHaveClass(
+        'str-chat__ai-message-composer__round-button',
+        'str-chat__ai-message-composer__round-button--stop',
+      );
+
+      fireEvent.click(stop);
+      expect(onClick).toHaveBeenCalledTimes(1);
+      expect(onSubmit).not.toHaveBeenCalled();
+    });
+
+    it('stays enabled in a disabled composer, since that is when a reply runs', () => {
+      render(
+        <AIMessageComposer disabled>
+          <AIMessageComposer.SubmitButton />
+          <AIMessageComposer.StopButton />
+        </AIMessageComposer>,
+      );
+      expect(screen.getByRole('button', { name: 'Send' })).toBeDisabled();
+      expect(screen.getByRole('button', { name: 'Stop AI Generation' })).toBeEnabled();
+    });
+
+    it('can still be disabled on its own', () => {
+      render(
+        <AIMessageComposer>
+          <AIMessageComposer.StopButton disabled />
+        </AIMessageComposer>,
+      );
+      expect(screen.getByRole('button', { name: 'Stop AI Generation' })).toBeDisabled();
+    });
+
+    it('shows its children in place of the stop icon', () => {
+      render(
+        <AIMessageComposer>
+          <AIMessageComposer.StopButton>Stop</AIMessageComposer.StopButton>
+        </AIMessageComposer>,
+      );
+      expect(
+        screen.getByRole('button', { name: 'Stop AI Generation' }),
+      ).toHaveTextContent('Stop');
+    });
+  });
 });
