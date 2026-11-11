@@ -1,3 +1,14 @@
+## [14.17.0](https://github.com/GetStream/stream-chat-react/compare/v14.16.1...v14.17.0) (2026-11-11)
+
+### Bug Fixes
+
+* **AIComponents:** add AIConversationController for agent conversations (v14) ([#3429](https://github.com/GetStream/stream-chat-react/issues/3429)) ([1b67c7b](https://github.com/GetStream/stream-chat-react/commit/1b67c7b998e6d0bf1813e72dffa99c828f8aeaa7)), closes [#3428](https://github.com/GetStream/stream-chat-react/issues/3428) [GetStream/stream-chat-react-native#3974](https://github.com/GetStream/stream-chat-react-native/issues/3974)
+* **styling:** drop [@charset](https://github.com/charset) from the published CSS (v14) ([#3431](https://github.com/GetStream/stream-chat-react/issues/3431)) ([6d0cf05](https://github.com/GetStream/stream-chat-react/commit/6d0cf05e99460469e3390a1d4d84b127b9acbb63)), closes [#3423](https://github.com/GetStream/stream-chat-react/issues/3423)
+
+### Features
+
+* **AIMessageComposer:** add Actions, StopButton and an inline layout (v14) ([#3425](https://github.com/GetStream/stream-chat-react/issues/3425)) ([cbc9f80](https://github.com/GetStream/stream-chat-react/commit/cbc9f808da5ed7793ecf6dccb7fe920e8ba4ab5c)), closes [#3424](https://github.com/GetStream/stream-chat-react/issues/3424) [#3424](https://github.com/GetStream/stream-chat-react/issues/3424) [#3424](https://github.com/GetStream/stream-chat-react/issues/3424) [GetStream/getstream.io#1034](https://github.com/GetStream/getstream.io/issues/1034)
+
 ## [14.16.1](https://github.com/GetStream/stream-chat-react/compare/v14.16.0...v14.16.1) (2026-11-05)
 
 ### Bug Fixes
