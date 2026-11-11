@@ -123,6 +123,7 @@ exports[`VirtualizedMessageComponents > Item > should render wrapper with custom
     data-index="10000000"
     data-item-index="10000000"
     data-known-size="0"
+    data-message-id="item-message"
   />
 </div>
 `;
@@ -134,6 +135,7 @@ exports[`VirtualizedMessageComponents > Item > should render wrapper with custom
     data-index="10000000"
     data-item-index="10000000"
     data-known-size="0"
+    data-message-id="item-message"
   />
 </div>
 `;
@@ -145,6 +147,7 @@ exports[`VirtualizedMessageComponents > Item > should render wrapper without cus
     data-index="10000000"
     data-item-index="10000000"
     data-known-size="0"
+    data-message-id="item-message"
   />
 </div>
 `;
@@ -156,6 +159,7 @@ exports[`VirtualizedMessageComponents > Item > should render wrapper without cus
     data-index="10000000"
     data-item-index="10000000"
     data-known-size="0"
+    data-message-id="item-message"
   />
 </div>
 `;

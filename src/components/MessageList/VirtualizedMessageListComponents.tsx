@@ -63,6 +63,8 @@ export const Item = ({ context, ...props }: ItemProps & CommonVirtuosoComponentP
           [`str-chat__li--${groupStyles}`]: groupStyles,
         })
       }
+      // Lets the list find a message's item (e.g. to tell when a jumped-to message was viewed).
+      data-message-id={message.id}
     />
   );
 };

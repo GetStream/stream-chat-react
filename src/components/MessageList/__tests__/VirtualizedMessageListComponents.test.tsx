@@ -101,7 +101,8 @@ describe('VirtualizedMessageComponents', () => {
   });
 
   describe('Item', function () {
-    const processedMessages = [generateMessage()];
+    // A fixed ID: the wrapper carries it as `data-message-id`, which the snapshots record.
+    const processedMessages = [generateMessage({ id: 'item-message' })];
     const withVirtualMessageClasses = { virtualMessage: 'XXX' };
     const withMessageGroupStyles = { [processedMessages[0].id]: 'single' };
     const withoutVirtualMessageClasses = undefined;

@@ -18,6 +18,7 @@ import {
 } from './hooks/VirtualizedMessageList';
 import { useMarkRead } from './hooks/useMarkRead';
 import { useScrollerViewport } from './hooks/VirtualizedMessageList/useScrollerViewport';
+import { useMessageFocusSignalViewed } from './hooks/VirtualizedMessageList/useMessageFocusSignalViewed';
 
 import {
   NotificationList as DefaultNotificationList,
@@ -302,6 +303,7 @@ const VirtualizedMessageListWithContext = (
   const focusedMessageId = messageFocusSignal?.messageId;
 
   const virtuoso = useRef<VirtuosoHandle>(null);
+  const virtualListRef = useRef<HTMLDivElement>(null);
 
   const lastRead = useMemo(() => channel.lastRead?.(), [channel]);
 
@@ -558,10 +560,22 @@ const VirtualizedMessageListWithContext = (
     }
   };
 
+  const focusViewedSignalRef = useMessageFocusSignalViewed({
+    containerRef: virtualListRef,
+    isMessageInList:
+      !!focusedMessageId && findMessageIndex(processedMessages, focusedMessageId) !== -1,
+    messageFocusSignal,
+    messagePaginator,
+    scrollElement: floatingDateScrollElement,
+  });
+
+  // Brings the focused message into view, again whenever the list changes (its page loads, the
+  // list remounts for the new message set), until the reader has viewed it. After that the reader
+  // may scroll away, and later changes of the list must not pull them back.
   useEffect(() => {
     let scrollTimeout: ReturnType<typeof setTimeout>;
-    if (focusedMessageId) {
-      const index = findMessageIndex(processedMessages, focusedMessageId);
+    if (messageFocusSignal && focusViewedSignalRef.current !== messageFocusSignal) {
+      const index = findMessageIndex(processedMessages, messageFocusSignal.messageId);
       if (index !== -1) {
         scrollTimeout = setTimeout(() => {
           virtuoso.current?.scrollToIndex({ align: 'center', index });
@@ -571,7 +585,7 @@ const VirtualizedMessageListWithContext = (
     return () => {
       clearTimeout(scrollTimeout);
     };
-  }, [focusedMessageId, processedMessages]);
+  }, [focusViewedSignalRef, messageFocusSignal, processedMessages]);
 
   const id = useStableId();
 
@@ -591,6 +605,7 @@ const VirtualizedMessageListWithContext = (
           )}
           <div
             className={customClasses?.virtualizedMessageList || 'str-chat__virtual-list'}
+            ref={virtualListRef}
           >
             <FloatingDateSeparator
               itemsRenderedRef={floatingDateItemsRenderedRef}
