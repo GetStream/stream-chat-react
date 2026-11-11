@@ -50,6 +50,9 @@ jobs:
       - name: Validate main entry does not pull in ai-components
         run: yarn validate-entry-isolation
 
+      - name: Validate A2UI and OpenUI read no colour the AI tokens leave unset
+        run: yarn validate-ai-ui-tokens
+
       - name: Validate translations
         run: yarn validate-translations
 

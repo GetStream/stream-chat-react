@@ -1,3 +1,41 @@
+## [14.16.1](https://github.com/GetStream/stream-chat-react/compare/v14.16.0...v14.16.1) (2026-11-05)
+
+### Bug Fixes
+
+* **ai-components:** generated UI parity with iOS and Android ([#3394](https://github.com/GetStream/stream-chat-react/issues/3394)) ([47c17da](https://github.com/GetStream/stream-chat-react/commit/47c17da11ab73c2f8edee56b853c7bc15a62d8db))
+* **ai-components:** keep generated UI's tool taps and secrets on the reply ([#3395](https://github.com/GetStream/stream-chat-react/issues/3395)) ([db372a5](https://github.com/GetStream/stream-chat-react/commit/db372a55edf6e1a40eb22f8b2b9ba941ae75d375)), closes [GetStream/stream-chat-react#3394](https://github.com/GetStream/stream-chat-react/issues/3394) [GetStream/stream-chat-react#3393](https://github.com/GetStream/stream-chat-react/issues/3393) [#3394](https://github.com/GetStream/stream-chat-react/issues/3394) [#3393](https://github.com/GetStream/stream-chat-react/issues/3393)
+* **ai-components:** theme generated UI from AI tokens alone, add showsUI and approval arguments ([#3399](https://github.com/GetStream/stream-chat-react/issues/3399)) ([fe78a5d](https://github.com/GetStream/stream-chat-react/commit/fe78a5d7de36d76457da9fd8ef49b34130128336))
+
+## [14.16.0](https://github.com/GetStream/stream-chat-react/compare/v14.15.0...v14.16.0) (2026-11-04)
+
+### Features
+
+* **ai-components:** generated UI, with A2UI and OpenUI renderers ([#3388](https://github.com/GetStream/stream-chat-react/issues/3388)) ([d0a17b3](https://github.com/GetStream/stream-chat-react/commit/d0a17b3e1061427047b5d6233799c8bb6e420486)), closes [GetStream/Vision-Agents#1516](https://github.com/GetStream/Vision-Agents/issues/1516) [GetStream/stream-chat-swift#4370](https://github.com/GetStream/stream-chat-swift/issues/4370) [GetStream/stream-chat-swift#4373](https://github.com/GetStream/stream-chat-swift/issues/4373) [GetStream/stream-chat-swift#4374](https://github.com/GetStream/stream-chat-swift/issues/4374) [GetStream/Vision-Agents#1712](https://github.com/GetStream/Vision-Agents/issues/1712)
+
+## [14.15.0](https://github.com/GetStream/stream-chat-react/compare/v14.14.1...v14.15.0) (2026-11-04)
+
+### Bug Fixes
+
+* **ai-components:** restart useHeardText for a new text and treat Infinity as fully heard ([#3349](https://github.com/GetStream/stream-chat-react/issues/3349)) ([1ad45b9](https://github.com/GetStream/stream-chat-react/commit/1ad45b97b7bb73cdceda6d6638eef54de05b35f0))
+* **Message:** show error notification when pinning or unpinning fails ([#3359](https://github.com/GetStream/stream-chat-react/issues/3359)) ([cf6c8f9](https://github.com/GetStream/stream-chat-react/commit/cf6c8f9abd03c9e93b98c3e38c771fd43f065c5a))
+
+### Features
+
+* **ai-components:** agent conversations, reply steps, approvals and sign-in ([#3376](https://github.com/GetStream/stream-chat-react/issues/3376)) ([23e1dad](https://github.com/GetStream/stream-chat-react/commit/23e1dad7cf6156a43d28caeb84066775c40f61a4))
+
+## [14.14.1](https://github.com/GetStream/stream-chat-react/compare/v14.14.0...v14.14.1) (2026-10-22)
+
+### Bug Fixes
+
+* **ai-components:** replace SpokenMessageText with a standalone useHeardText hook ([#3344](https://github.com/GetStream/stream-chat-react/issues/3344)) ([ad16506](https://github.com/GetStream/stream-chat-react/commit/ad16506e2bd363d580553637c030bf2b4f30534c)), closes [#3343](https://github.com/GetStream/stream-chat-react/issues/3343) [GetStream/getstream.io#761](https://github.com/GetStream/getstream.io/issues/761) [#3343](https://github.com/GetStream/stream-chat-react/issues/3343) [#3339](https://github.com/GetStream/stream-chat-react/issues/3339)
+
+## [14.14.0](https://github.com/GetStream/stream-chat-react/compare/v14.13.3...v14.14.0) (2026-10-22)
+
+### Features
+
+* **ai-components:** add VoiceWave and VoiceGlow voice-agent visualizations ([#3339](https://github.com/GetStream/stream-chat-react/issues/3339)) ([da6f72f](https://github.com/GetStream/stream-chat-react/commit/da6f72ffbab4d9a9049a3f64cfa16cdc22123fa6)), closes [GetStream/stream-chat-android#6848](https://github.com/GetStream/stream-chat-android/issues/6848) [GetStream/stream-chat-android#6849](https://github.com/GetStream/stream-chat-android/issues/6849) [GetStream/stream-chat-android#6851](https://github.com/GetStream/stream-chat-android/issues/6851) [GetStream/stream-chat-swift#4338](https://github.com/GetStream/stream-chat-swift/issues/4338)
+* **Message:** add SpokenMessageText for voice-paced AI message text ([#3343](https://github.com/GetStream/stream-chat-react/issues/3343)) ([22abe90](https://github.com/GetStream/stream-chat-react/commit/22abe90c69624a388cb5fe85bc93d3d4339dcaf1)), closes [GetStream/Vision-Agents#1128](https://github.com/GetStream/Vision-Agents/issues/1128)
+
 ## [14.13.3](https://github.com/GetStream/stream-chat-react/compare/v14.13.2...v14.13.3) (2026-10-21)
 
 ### Bug Fixes

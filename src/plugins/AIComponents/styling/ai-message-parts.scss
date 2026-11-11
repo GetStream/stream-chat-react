@@ -1,0 +1,421 @@
+@use './tokens' as *;
+
+// The steps of a reply: reasoning, tool calls, and the questions and sign-ins they wait for.
+
+@mixin ai-icon($size: 1rem) {
+  svg {
+    flex-shrink: 0;
+    width: $size;
+    height: $size;
+  }
+}
+
+.str-chat__ai-message-parts {
+  display: flex;
+  flex-direction: column;
+  gap: ai-scale(space-xs);
+  width: 100%;
+}
+
+.str-chat__ai-message-part__tool {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.str-chat__ai-message-part--unsupported {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: ai-token(text-secondary);
+  font-size: 0.875rem;
+
+  @include ai-icon;
+}
+
+// A text that sweeps a highlight across while it waits or thinks.
+.str-chat__ai-shimmer {
+  animation: str-chat__ai-shimmer 1.6s ease-in-out infinite;
+}
+
+@keyframes str-chat__ai-shimmer {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.45;
+  }
+}
+
+@keyframes str-chat__ai-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.str-chat__ai-spinner {
+  display: inline-flex;
+  color: ai-token(text-secondary);
+
+  @include ai-icon(1.125rem);
+
+  svg {
+    animation: str-chat__ai-spin 0.9s linear infinite;
+  }
+}
+
+// Tool call
+
+.str-chat__ai-tool-call {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  font-size: ai-scale(font-sm);
+  line-height: ai-scale(line-normal);
+
+  &__icon {
+    display: inline-flex;
+    margin-top: 0.125rem;
+    color: ai-token(accent);
+
+    @include ai-icon;
+
+    &--spinning svg {
+      animation: str-chat__ai-spin 0.9s linear infinite;
+    }
+  }
+
+  &--completed &__icon {
+    color: ai-token(success);
+  }
+
+  &--failed &__icon {
+    color: ai-token(error);
+  }
+
+  &--cancelled &__icon {
+    color: ai-token(text-secondary);
+  }
+
+  &__text {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    gap: 0.125rem;
+    min-width: 0;
+  }
+
+  &__title {
+    color: ai-token(text-primary);
+  }
+
+  &__detail {
+    display: -webkit-box;
+    overflow: hidden;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    color: ai-token(text-secondary);
+    font-size: ai-scale(font-xs);
+  }
+
+  &__duration {
+    color: ai-token(text-secondary);
+    font-size: ai-scale(font-xs);
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+}
+
+// Approval and sign-in cards
+
+.str-chat__ai-tool-approval-card,
+.str-chat__ai-tool-authorization-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 0.75rem;
+  border: 1px solid ai-token(card-border);
+  border-radius: 1rem;
+  background-color: ai-token(card-bg);
+  color: ai-token(text-primary);
+  font-size: ai-scale(font-sm);
+}
+
+.str-chat__ai-tool-approval-card {
+  &__text {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+
+  &__title {
+    font-weight: 600;
+  }
+
+  &__message {
+    color: ai-token(text-secondary);
+    font-size: 0.875rem;
+  }
+
+  &__actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  &__failure {
+    color: ai-token(error);
+    font-size: ai-scale(font-xs);
+  }
+}
+
+// What a tool call will send: its arguments as JSON, on a quiet panel, collapsed when long.
+.str-chat__ai-tool-arguments {
+  min-width: 0;
+
+  &__label {
+    color: ai-token(text-secondary);
+    cursor: pointer;
+    font-size: ai-scale(font-xs);
+    font-weight: 600;
+
+    &:focus-visible {
+      @include ai-focus-ring;
+    }
+  }
+
+  &[open] &__label {
+    margin-bottom: ai-scale(space-xxs);
+  }
+
+  &__code {
+    max-height: 12rem;
+    margin: 0;
+    padding: ai-scale(space-xs);
+    overflow: auto;
+    border-radius: ai-scale(radius-sm);
+    // A tint of the words, so the panel stands out on any card, light or dark.
+    background-color: color-mix(in srgb, #{ai-token(text-primary)} 7%, transparent);
+    color: ai-token(text-primary);
+    // The SDK's mono font names no generic family, for when it isn't loaded.
+    font-family: ai-scale(font-mono), monospace;
+    font-size: ai-scale(font-xs);
+    line-height: 1.5;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+  }
+}
+
+.str-chat__ai-tool-authorization-card {
+  &__outcome {
+    color: ai-token(text-secondary);
+    font-size: 0.875rem;
+  }
+
+  &--connected &__outcome {
+    color: ai-token(success);
+  }
+
+  &--failed &__outcome,
+  &--expired &__outcome {
+    color: ai-token(error);
+  }
+}
+
+.str-chat__ai-button {
+  all: unset;
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 2rem;
+  padding: 0.375rem 0.875rem;
+  border-radius: 9999px;
+  cursor: pointer;
+  font-size: 0.875rem;
+  font-weight: 600;
+  transition: opacity 0.1s ease-in-out;
+
+  &--primary {
+    background-color: ai-token(button-primary-bg);
+    color: ai-token(button-primary-text);
+  }
+
+  &--secondary {
+    border: 1px solid ai-token(button-secondary-border);
+    background-color: ai-token(button-secondary-bg);
+    color: ai-token(button-secondary-text);
+  }
+
+  &:hover:not(:disabled) {
+    opacity: 0.88;
+  }
+
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+  }
+
+  &:focus-visible {
+    @include ai-focus-ring;
+  }
+}
+
+// Reasoning
+
+.str-chat__ai-reasoning {
+  position: relative;
+  padding-inline-start: 0.75rem;
+  color: ai-token(text-secondary);
+  font-size: ai-scale(font-sm);
+  line-height: ai-scale(line-normal);
+
+  // the rule along the reasoning
+  &::before {
+    position: absolute;
+    inset-block: 0;
+    inset-inline-start: 0;
+    width: 2px;
+    border-radius: 1px;
+    background-color: ai-token(border-subtle);
+    content: '';
+  }
+
+  &--thinking::before {
+    background-color: ai-token(accent);
+    opacity: 0.6;
+  }
+
+  &__header {
+    all: unset;
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+    max-width: 100%;
+    color: ai-token(text-primary);
+    cursor: pointer;
+    font-weight: 500;
+
+    &:focus-visible {
+      @include ai-focus-ring;
+    }
+  }
+
+  &__icon {
+    display: inline-flex;
+
+    @include ai-icon;
+  }
+
+  &--thinking &__icon svg {
+    animation: str-chat__ai-shimmer 1.6s ease-in-out infinite;
+  }
+
+  &__title {
+    flex-shrink: 0;
+    font-variant-numeric: tabular-nums;
+  }
+
+  &__summary {
+    overflow: hidden;
+    min-width: 0;
+    color: ai-token(text-secondary);
+    font-weight: 400;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  &__disclosure {
+    display: inline-flex;
+    transition: transform 0.2s ease-in-out;
+
+    @include ai-icon(0.75rem);
+  }
+
+  &--expanded &__disclosure {
+    transform: rotate(90deg);
+  }
+
+  [dir='rtl'] &--expanded &__disclosure {
+    transform: rotate(-90deg);
+  }
+
+  // Folding shrinks the panel in place rather than removing it, so what sits below glides with it.
+  &__fold {
+    display: grid;
+    grid-template-rows: 0fr;
+    opacity: 0;
+    transition:
+      grid-template-rows 0.45s cubic-bezier(0.2, 0.9, 0.3, 1),
+      opacity 0.3s ease-in-out;
+
+    &[data-open='true'] {
+      grid-template-rows: 1fr;
+      opacity: 1;
+    }
+  }
+
+  &__fold-inner {
+    overflow: hidden;
+    min-height: 0;
+    // out of the tab order and the accessibility tree once folded
+    visibility: hidden;
+    transition: visibility 0s linear 0.45s;
+  }
+
+  &__fold[data-open='true'] &__fold-inner {
+    visibility: visible;
+    transition-delay: 0s;
+  }
+
+  &__scroller {
+    overflow-y: auto;
+    padding-top: 0.5rem;
+    overscroll-behavior: contain;
+
+    &--overflowing {
+      mask-image: linear-gradient(to bottom, transparent 0, currentColor 14%);
+    }
+
+    &:focus-visible {
+      @include ai-focus-ring;
+    }
+  }
+
+  &__paragraph {
+    & + & {
+      margin-top: ai-scale(space-xs);
+    }
+
+    p {
+      margin: 0;
+    }
+  }
+
+  &__footnote {
+    padding-top: 0.5rem;
+    color: ai-token(text-tertiary);
+    font-size: ai-scale(font-xs);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .str-chat__ai-shimmer,
+  .str-chat__ai-reasoning--thinking .str-chat__ai-reasoning__icon svg {
+    animation: none;
+  }
+
+  .str-chat__ai-reasoning__fold,
+  .str-chat__ai-reasoning__fold-inner,
+  .str-chat__ai-reasoning__disclosure {
+    transition: none;
+  }
+
+  .str-chat__ai-tool-call__icon--spinning svg,
+  .str-chat__ai-spinner svg {
+    animation-duration: 2.7s;
+  }
+}

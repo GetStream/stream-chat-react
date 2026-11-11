@@ -1,4 +1,11 @@
-import { type ComponentPropsWithoutRef, type MouseEvent } from 'react';
+import {
+  type ComponentPropsWithoutRef,
+  type MouseEvent,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from 'react';
 import { useAttachments } from './AIMessageComposer';
 import clsx from 'clsx';
 import { useComponentContextIcons } from '../../../context/useComponentContextIcons';
@@ -87,23 +94,86 @@ export const Item = ({
   );
 };
 
+type Attachments = ReturnType<typeof useAttachments>;
+
+// The layout effect warns under server rendering, where nothing is picked anyway.
+const useIsomorphicLayoutEffect =
+  typeof window === 'undefined' ? useEffect : useLayoutEffect;
+
+// An object URL per picked image, made once per attachment, before the first paint, and revoked
+// once it is removed or the preview unmounts.
+const useImagePreviewSources = (attachments: Attachments['attachments']) => {
+  const urls = useRef(new Map<string, string>());
+  const [sources, setSources] = useState<Record<string, string>>({});
+  useIsomorphicLayoutEffect(() => {
+    if (typeof URL.createObjectURL !== 'function') return;
+    const made = urls.current;
+    const images = new Set<string>();
+    for (const { file, id } of attachments) {
+      if (!file.type.startsWith('image/')) continue;
+      images.add(id);
+      if (!made.has(id)) made.set(id, URL.createObjectURL(file));
+    }
+    for (const [id, url] of made) {
+      if (images.has(id)) continue;
+      URL.revokeObjectURL(url);
+      made.delete(id);
+    }
+    setSources(Object.fromEntries(made));
+  }, [attachments]);
+  useEffect(() => {
+    const made = urls.current;
+    return () => {
+      made.forEach((url) => URL.revokeObjectURL(url));
+      made.clear();
+    };
+  }, []);
+  return sources;
+};
+
+const DefaultItems = ({ attachments, removeAttachment }: Attachments) => {
+  const sources = useImagePreviewSources(attachments);
+  return (
+    <>
+      {attachments.map(({ file, id, meta }) => (
+        <Item
+          file={file}
+          imagePreviewSource={
+            typeof meta?.previewUri === 'string' ? meta.previewUri : sources[id]
+          }
+          key={id}
+          onDelete={() => removeAttachment(id)}
+          state={typeof meta?.state === 'string' ? meta.state : undefined}
+        />
+      ))}
+    </>
+  );
+};
+
+/**
+ * The attachments picked in the composer. Its children render them: elements, or a function of
+ * `useAttachments()`. Without children it shows an `Item` per picked attachment, each with a
+ * delete button (an attachment's `meta.state` and `meta.previewUri` are used when set), and
+ * nothing while none are picked.
+ */
 export const AttachmentPreview = ({
   children,
+  className,
   ...restProps
-}: ComponentPropsWithoutRef<'div'> & {
-  children?:
-    | React.ReactNode
-    | ((_: ReturnType<typeof useAttachments>) => React.ReactNode);
+}: Omit<ComponentPropsWithoutRef<'div'>, 'children'> & {
+  children?: React.ReactNode | ((_: Attachments) => React.ReactNode);
 }) => {
-  const _ = useAttachments();
+  const attachments = useAttachments();
 
-  if (!children) {
+  if (!children && attachments.attachments.length === 0) {
     return null;
   }
 
   return (
-    <div className='str-chat__ai-attachment-preview' {...restProps}>
-      {typeof children === 'function' ? children(_) : children}
+    <div className={clsx('str-chat__ai-attachment-preview', className)} {...restProps}>
+      {typeof children === 'function'
+        ? children(attachments)
+        : (children ?? <DefaultItems {...attachments} />)}
     </div>
   );
 };

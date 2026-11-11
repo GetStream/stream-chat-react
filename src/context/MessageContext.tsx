@@ -45,7 +45,7 @@ export type MessageContextValue = {
   handleMute: ReactEventHandler;
   /** Function to open a Thread on a Message */
   handleOpenThread: ReactEventHandler;
-  /** Function to pin a Message in a Channel */
+  /** Function to pin or unpin a Message in a Channel. Rejects with the request's error when it fails, after rolling back. */
   handlePin: ReactEventHandler;
   /** Function to post a reaction on a Message */
   handleReaction: (
