@@ -1,9 +1,11 @@
 import React, { useEffect, useMemo } from 'react';
+import type { ComponentType } from 'react';
 import type {
   ChannelDataState,
   OwnCapabilitiesState,
   PaginatorState,
   ScheduledMessageResponse,
+  ScheduledMessagesView,
 } from 'stream-chat';
 
 import {
@@ -26,14 +28,25 @@ import { SCHEDULE_MESSAGE_CAPABILITY, useScheduledMessages } from './hooks';
 import type { ScheduledMessageItemProps } from './ScheduledMessageItem';
 import { ScheduledMessageItem as DefaultScheduledMessageItem } from './ScheduledMessageItem';
 import { ScheduledMessagesNotice } from './ScheduledMessagesNotice';
-import { getChannelByCid, searchScheduledMessages } from './utils';
+import { getChannelByCid } from './utils';
 
 export type ScheduledMessageListProps = Pick<ScheduledMessageItemProps, 'onEdit'> & {
-  /** The channel whose scheduled messages to list; all of them without it. */
-  cid?: string;
-  parentId?: string;
-  /** Lists only the messages whose text contains it. */
-  searchQuery?: string;
+  /**
+   * What to list: `channel.scheduledMessages`, `thread.scheduledMessages`, or a view of a list
+   * registered with `client.scheduledMessagePaginators`. Further pages load on scroll. When its
+   * paginator is a channel's, the list also says why the channel takes no scheduled messages, if
+   * it doesn't.
+   */
+  scheduledMessages: ScheduledMessagesView;
+  /** Lists only the messages it accepts, e.g. the search from `useScheduledMessagesSearch`. */
+  filter?: (scheduledMessage: ScheduledMessageResponse) => boolean;
+  /** Nothing is scheduled. */
+  EmptyListIndicator?: ComponentType;
+  /** Messages are scheduled, but none match the search. */
+  EmptySearchResultsIndicator?: ComponentType;
+  FirstPageLoadingIndicator?: ComponentType;
+  ListLoadErrorIndicator?: ComponentType<ListLoadErrorIndicatorProps>;
+  LoadingNextPageIndicator?: ComponentType<{ isLoading?: boolean }>;
 };
 
 const selectLoadState = (state: PaginatorState<ScheduledMessageResponse>) => ({
@@ -71,7 +84,7 @@ const DefaultFirstPageLoadingIndicator = () => {
 const DefaultLoadingNextPageIndicator = ({ isLoading }: { isLoading?: boolean }) =>
   isLoading ? <LoadingIndicator /> : null;
 
-const NoSearchResults = () => {
+const DefaultEmptySearchResultsIndicator = () => {
   const { t } = useTranslationContext();
   const { IconSearch } = useComponentContextIcons();
   return (
@@ -117,21 +130,31 @@ const SchedulingUnavailableNotice = ({ cid }: { cid: string }) => {
   );
 };
 
-const ScheduledMessageListBody = ({
-  cid,
+/**
+ * A scheduled-message view's messages, earliest first, loading further pages on scroll, with their
+ * list states. A view of a thread and a `filter` (searching) narrow its paginator's loaded
+ * messages, so while none of
+ * them are shown and more pages exist, the list loads the next one: with nothing shown there is
+ * nothing to scroll, and the messages to show may be on a page not loaded yet.
+ */
+export const ScheduledMessageList = ({
+  EmptyListIndicator = DefaultEmptyListIndicator,
+  EmptySearchResultsIndicator = DefaultEmptySearchResultsIndicator,
+  filter,
+  FirstPageLoadingIndicator = DefaultFirstPageLoadingIndicator,
+  ListLoadErrorIndicator = DefaultListLoadErrorIndicator,
+  LoadingNextPageIndicator = DefaultLoadingNextPageIndicator,
   onEdit,
-  parentId,
-  searchQuery,
+  scheduledMessages: view,
 }: ScheduledMessageListProps) => {
+  const { ScheduledMessageItem = DefaultScheduledMessageItem } = useComponentContext();
+  const { paginator } = view;
+  const { scheduledMessages } = useScheduledMessages(view);
+  const shownMessages = useMemo(
+    () => (filter ? scheduledMessages.filter(filter) : scheduledMessages),
+    [filter, scheduledMessages],
+  );
   const { t } = useTranslationContext();
-  const {
-    EmptyListIndicator = DefaultEmptyListIndicator,
-    FirstPageLoadingIndicator = DefaultFirstPageLoadingIndicator,
-    ListLoadErrorIndicator = DefaultListLoadErrorIndicator,
-    LoadingNextPageIndicator = DefaultLoadingNextPageIndicator,
-    ScheduledMessageItem = DefaultScheduledMessageItem,
-  } = useComponentContext();
-  const { paginator, scheduledMessages } = useScheduledMessages({ cid, parentId });
   const {
     firstPageLoadError,
     hasMoreTail,
@@ -145,64 +168,59 @@ const ScheduledMessageListBody = ({
     paginator,
     reload: paginator.reload,
   });
-  // in the paginator's order: earliest first, so failed messages, sent in the past, come first
-  const shownMessages = useMemo(
-    () => searchScheduledMessages(scheduledMessages, searchQuery),
-    [scheduledMessages, searchQuery],
-  );
   const showsNothing = !isFirstPageLoading && !shownMessages.length;
   // stops at a failed page instead of retrying it
   const loadsFurther = showsNothing && hasMoreTail && !lastQueryFailed;
 
-  // the matches may be on a page not loaded yet
   useEffect(() => {
-    if (loadsFurther && !isLoading) paginator.toTail();
-  }, [isLoading, loadsFurther, paginator]);
+    if (loadsFurther && !isLoading) view.toTail();
+  }, [isLoading, loadsFurther, view]);
 
-  if (firstPageLoadRetry.error) {
-    return (
-      <ListLoadErrorIndicator
-        error={firstPageLoadRetry.error}
-        isRetrying={firstPageLoadRetry.isRetrying}
-        retry={firstPageLoadRetry.retry}
-      />
-    );
-  }
-  if (isFirstPageLoading) return <FirstPageLoadingIndicator />;
-  if (showsNothing) {
+  const renderContent = () => {
+    if (firstPageLoadRetry.error) {
+      return (
+        <ListLoadErrorIndicator
+          error={firstPageLoadRetry.error}
+          isRetrying={firstPageLoadRetry.isRetrying}
+          retry={firstPageLoadRetry.retry}
+        />
+      );
+    }
+    if (isFirstPageLoading) return <FirstPageLoadingIndicator />;
     if (loadsFurther) return <LoadingNextPageIndicator isLoading />;
-    return scheduledMessages.length ? <NoSearchResults /> : <EmptyListIndicator />;
-  }
+    if (showsNothing) {
+      // some are scheduled, but the filter accepts none of them
+      return scheduledMessages.length ? (
+        <EmptySearchResultsIndicator />
+      ) : (
+        <EmptyListIndicator />
+      );
+    }
+    return (
+      <InfiniteScrollPaginator
+        className='str-chat__scheduled-message-list'
+        data-testid='scheduled-message-list'
+        loadNextOnScrollToBottom={view.toTail}
+      >
+        <ul className='str-chat__scheduled-message-list__items'>
+          {shownMessages.map((scheduledMessage) => (
+            <li
+              className='str-chat__scheduled-message-list__item'
+              key={scheduledMessage.id}
+            >
+              <ScheduledMessageItem onEdit={onEdit} scheduledMessage={scheduledMessage} />
+            </li>
+          ))}
+        </ul>
+        <LoadingNextPageIndicator isLoading={isLoading} />
+      </InfiniteScrollPaginator>
+    );
+  };
 
   return (
-    <InfiniteScrollPaginator
-      className='str-chat__scheduled-message-list'
-      data-testid='scheduled-message-list'
-      loadNextOnScrollToBottom={paginator.toTail}
-    >
-      <ul className='str-chat__scheduled-message-list__items'>
-        {shownMessages.map((scheduledMessage) => (
-          <li
-            className='str-chat__scheduled-message-list__item'
-            key={scheduledMessage.id}
-          >
-            <ScheduledMessageItem onEdit={onEdit} scheduledMessage={scheduledMessage} />
-          </li>
-        ))}
-      </ul>
-      <LoadingNextPageIndicator isLoading={isLoading} />
-    </InfiniteScrollPaginator>
+    <>
+      {paginator.cid && <SchedulingUnavailableNotice cid={paginator.cid} />}
+      {renderContent()}
+    </>
   );
 };
-
-/**
- * Scheduled messages, earliest first, paginated on scroll.
- * Loading, failing and empty states use the list-state components `ChannelList` uses. Scoping to a
- * thread and searching filter the loaded messages, so further pages load while none of them match.
- */
-export const ScheduledMessageList = (props: ScheduledMessageListProps) => (
-  <>
-    {props.cid && <SchedulingUnavailableNotice cid={props.cid} />}
-    <ScheduledMessageListBody {...props} />
-  </>
-);

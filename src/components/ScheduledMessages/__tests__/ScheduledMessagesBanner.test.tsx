@@ -386,7 +386,10 @@ describe('ScheduledMessagesBanner', () => {
 
     expect(screen.getByTestId('custom-list')).toBeInTheDocument();
     expect(ScheduledMessageListDialog).toHaveBeenLastCalledWith(
-      expect.objectContaining({ cid, open: true, parentId: undefined }),
+      expect.objectContaining({
+        open: true,
+        scheduledMessages: channel.scheduledMessages,
+      }),
       undefined,
     );
 

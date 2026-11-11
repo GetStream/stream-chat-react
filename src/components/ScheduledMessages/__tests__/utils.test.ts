@@ -10,7 +10,7 @@ import {
   getSchedulePresets,
   getScheduleTimeBounds,
   getScheduleTimeError,
-  searchScheduledMessages,
+  matchesScheduledMessageText,
   translateScheduledMessageFailureReason,
 } from '../utils';
 
@@ -32,8 +32,9 @@ describe('scheduled message utils', () => {
     });
     const launch = generateScheduledMessage({ message: { custom: {}, text: 'Launch' } });
 
-    expect(searchScheduledMessages([lunch, launch], ' LUNCH ')).toEqual([lunch]);
-    expect(searchScheduledMessages([lunch, launch], '  ')).toEqual([lunch, launch]);
+    expect(matchesScheduledMessageText(lunch, ' LUNCH ')).toBe(true);
+    expect(matchesScheduledMessageText(launch, ' LUNCH ')).toBe(false);
+    expect(matchesScheduledMessageText(launch, '  ')).toBe(true);
   });
 
   describe('time bounds', () => {

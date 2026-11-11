@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import {
   act,
   cleanup,
@@ -16,6 +16,7 @@ import {
   ChatProvider,
   DialogManagerProvider,
   TranslationProvider,
+  useChatContext,
 } from '../../../context';
 import { WithComponents } from '../../../context/WithComponents';
 import { Streami18n } from '../../../i18n';
@@ -28,6 +29,10 @@ import {
   hydrateScheduledMessages,
   mockChatContext,
 } from '../../../mock-builders';
+import type { ScheduledMessageSearchFilter } from '../hooks';
+import { useScheduledMessagesSearch } from '../hooks';
+import { getChannelByCid } from '../utils';
+import type { ScheduledMessageListProps } from '../ScheduledMessageList';
 import { ScheduledMessageList } from '../ScheduledMessageList';
 import type { EditScheduledMessage, ScheduledMessageItemProps } from '../types';
 
@@ -42,13 +47,37 @@ type RenderListOptions = {
   client?: StreamChat;
   components?: Parameters<typeof WithComponents>[0]['overrides'];
   onEdit?: EditScheduledMessage;
+  filter?: ScheduledMessageSearchFilter;
+  listProps?: Partial<ScheduledMessageListProps>;
   scheduledMessages?: ScheduledMessageResponse[];
   searchQuery?: string;
+};
+
+/** The list as the dialog renders it: searched with `useScheduledMessagesSearch`. */
+const SearchedList = ({
+  filter,
+  listProps,
+  onEdit,
+  searchQuery = '',
+}: Pick<RenderListOptions, 'filter' | 'listProps' | 'onEdit' | 'searchQuery'>) => {
+  const { client } = useChatContext();
+  const { filter: searchFilter, setSearchQuery } = useScheduledMessagesSearch({ filter });
+  useEffect(() => setSearchQuery(searchQuery), [searchQuery, setSearchQuery]);
+  return (
+    <ScheduledMessageList
+      filter={searchFilter}
+      onEdit={onEdit}
+      scheduledMessages={getChannelByCid(client, cid).scheduledMessages}
+      {...listProps}
+    />
+  );
 };
 
 const renderList = async ({
   client: clientArg,
   components = {},
+  filter,
+  listProps,
   onEdit,
   scheduledMessages = [],
   searchQuery,
@@ -63,7 +92,12 @@ const renderList = async ({
       <ChatProvider value={mockChatContext({ client })}>
         <TranslationProvider value={{ t, tDateTimeParser, userLanguage: 'en' }}>
           <DialogManagerProvider id='scheduled-message-list-test-dialog-manager'>
-            <ScheduledMessageList cid={cid} onEdit={onEdit} searchQuery={searchQuery} />
+            <SearchedList
+              filter={filter}
+              listProps={listProps}
+              onEdit={onEdit}
+              searchQuery={searchQuery}
+            />
           </DialogManagerProvider>
         </TranslationProvider>
       </ChatProvider>
@@ -280,19 +314,61 @@ describe('ScheduledMessageList', () => {
     expect(query).toHaveBeenCalledTimes(1);
   });
 
-  it('renders the list states through the list-state slots', async () => {
+  // a list-state key overridden for the channel list (`EmptyListIndicator` takes no props) must not
+  // turn up here
+  it('renders the list states passed as props, not the shared list-state keys', async () => {
     const { client } = await renderList({
       components: {
-        EmptyListIndicator: () => <div>Nothing here</div>,
-        FirstPageLoadingIndicator: () => <div>Loading here</div>,
+        EmptyListIndicator: () => <div>No channels</div>,
+        FirstPageLoadingIndicator: () => <div>Loading channels</div>,
+      },
+      listProps: {
+        EmptyListIndicator: () => <div>Nothing scheduled</div>,
+        FirstPageLoadingIndicator: () => <div>Loading scheduled</div>,
       },
     });
 
-    expect(screen.getByText('Nothing here')).toBeInTheDocument();
+    expect(screen.getByText('Nothing scheduled')).toBeInTheDocument();
+    expect(screen.queryByText('No channels')).not.toBeInTheDocument();
 
     setPaginatorState(client, { isLoading: true, items: undefined });
 
-    expect(screen.getByText('Loading here')).toBeInTheDocument();
+    expect(screen.getByText('Loading scheduled')).toBeInTheDocument();
+  });
+
+  it('renders a custom empty search results indicator', async () => {
+    await renderList({
+      listProps: { EmptySearchResultsIndicator: () => <div>No match</div> },
+      scheduledMessages: [
+        generateScheduledMessage({ cid, message: { custom: {}, text: 'Lunch at noon' } }),
+      ],
+      searchQuery: 'friday',
+    });
+
+    expect(screen.getByText('No match')).toBeInTheDocument();
+  });
+
+  it('searches with a custom filter, such as by date', async () => {
+    const onFriday: ScheduledMessageSearchFilter = ({ scheduled_at }) =>
+      scheduled_at >= atLocalTime(30, 0) && scheduled_at < atLocalTime(31, 0);
+    await renderList({
+      filter: onFriday,
+      scheduledMessages: [
+        generateScheduledMessage({
+          cid,
+          message: { custom: {}, text: 'Thursday standup' },
+          scheduled_at: atLocalTime(29, 9),
+        }),
+        generateScheduledMessage({
+          cid,
+          message: { custom: {}, text: 'Friday demo' },
+          scheduled_at: atLocalTime(30, 9),
+        }),
+      ],
+    });
+
+    expect(screen.getByText('Friday demo')).toBeInTheDocument();
+    expect(screen.queryByText('Thursday standup')).not.toBeInTheDocument();
   });
 
   // a failed message failed at its send time, so ordering by time alone lists it first

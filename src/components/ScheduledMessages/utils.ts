@@ -1,8 +1,6 @@
 import {
-  getChannelLevelScheduledMessages,
   getScheduledMessageErrorReason,
   getScheduledMessageLimits,
-  getThreadScheduledMessages,
   isScheduledMessageNotFoundError,
   SCHEDULED_MESSAGE_FAILURE_REASON,
   SCHEDULED_MESSAGE_STATUS,
@@ -52,23 +50,13 @@ export const isFailedScheduledMessage = ({ status }: ScheduledMessageResponse) =
   status === SCHEDULED_MESSAGE_STATUS.Failed;
 
 /** A channel's list holds its replies too: a thread keeps its own, a channel its top-level ones. */
-export const scopeScheduledMessages = (
-  scheduledMessages: ScheduledMessageResponse[],
-  { cid, parentId }: { cid?: string; parentId?: string },
-) => {
-  if (parentId) return getThreadScheduledMessages(scheduledMessages, parentId);
-  return cid ? getChannelLevelScheduledMessages(scheduledMessages) : scheduledMessages;
-};
-
-export const searchScheduledMessages = (
-  scheduledMessages: ScheduledMessageResponse[],
-  searchQuery = '',
+/** The default search: the text contains the query, ignoring case; a blank query matches all. */
+export const matchesScheduledMessageText = (
+  { message }: ScheduledMessageResponse,
+  searchQuery: string,
 ) => {
   const query = searchQuery.trim().toLocaleLowerCase();
-  if (!query) return scheduledMessages;
-  return scheduledMessages.filter(({ message }) =>
-    message.text?.toLocaleLowerCase().includes(query),
-  );
+  return !query || !!message.text?.toLocaleLowerCase().includes(query);
 };
 
 export const toDateInputValue = (date: Date) =>

@@ -21,6 +21,7 @@ import {
   ChatProvider,
   DialogManagerProvider,
   TranslationProvider,
+  useChatContext,
 } from '../../../context';
 import { WithComponents } from '../../../context/WithComponents';
 import { Streami18n } from '../../../i18n';
@@ -31,11 +32,21 @@ import {
   hydrateScheduledMessages,
   mockChatContext,
 } from '../../../mock-builders';
-import { SCHEDULED_MESSAGE_NOTIFICATION_TYPE } from '../utils';
+import { getChannelByCid, SCHEDULED_MESSAGE_NOTIFICATION_TYPE } from '../utils';
 import { ScheduledMessageList } from '../ScheduledMessageList';
 import type { EditScheduledMessage } from '../types';
 
 const cid = 'messaging:general';
+
+const ChannelScheduledMessageList = ({ onEdit }: { onEdit?: EditScheduledMessage }) => {
+  const { client } = useChatContext();
+  return (
+    <ScheduledMessageList
+      onEdit={onEdit}
+      scheduledMessages={getChannelByCid(client, cid).scheduledMessages}
+    />
+  );
+};
 
 const getChannel = (client: StreamChat) => client.channel('messaging', 'general');
 
@@ -78,7 +89,7 @@ const renderActions = async ({
       <ChatProvider value={mockChatContext({ client })}>
         <TranslationProvider value={{ t, tDateTimeParser, userLanguage: 'en' }}>
           <DialogManagerProvider id='scheduled-message-actions-test-dialog-manager'>
-            <ScheduledMessageList cid={cid} onEdit={onEdit} />
+            <ChannelScheduledMessageList onEdit={onEdit} />
           </DialogManagerProvider>
         </TranslationProvider>
       </ChatProvider>

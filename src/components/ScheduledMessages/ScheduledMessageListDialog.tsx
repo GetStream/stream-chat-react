@@ -1,5 +1,5 @@
 import clsx from 'clsx';
-import React, { useRef, useState } from 'react';
+import React, { useRef } from 'react';
 
 import {
   useComponentContext,
@@ -12,7 +12,8 @@ import { Prompt } from '../Dialog';
 import { TextInput } from '../Form';
 import { GlobalModal } from '../Modal';
 import { Portal } from '../Portal/Portal';
-import { useScheduledMessages } from './hooks';
+import { useScheduledMessages, useScheduledMessagesSearch } from './hooks';
+import type { ScheduledMessagesView } from 'stream-chat';
 import type { ScheduledMessageItemProps } from './ScheduledMessageItem';
 import { ScheduledMessageList as DefaultScheduledMessageList } from './ScheduledMessageList';
 
@@ -22,43 +23,83 @@ export type ScheduledMessageListDialogProps = Pick<
   ScheduledMessageItemProps,
   'onEdit'
 > & {
-  /** The channel whose scheduled messages to list. */
-  cid: string;
   close: () => void;
   open: boolean;
-  /** The thread whose scheduled replies to list. */
-  parentId?: string;
+  /** What to list: `channel.scheduledMessages` or `thread.scheduledMessages`. */
+  scheduledMessages: ScheduledMessagesView;
+};
+
+/** The dialog's content, mounted only while it is open: the search starts empty each time. */
+const ScheduledMessageListDialogBody = ({
+  onEdit,
+  scheduledMessages: view,
+}: Pick<ScheduledMessageListDialogProps, 'onEdit' | 'scheduledMessages'>) => {
+  const { t } = useTranslationContext();
+  const { IconSearch, IconXCircle } = useComponentContextIcons();
+  const { ScheduledMessageList = DefaultScheduledMessageList } = useComponentContext();
+  const { scheduledMessages } = useScheduledMessages(view);
+  const { filter, searchQuery, setSearchQuery } = useScheduledMessagesSearch();
+  const searchInputRef = useRef<HTMLInputElement>(null);
+
+  return (
+    <Prompt.Body className='str-chat__scheduled-message-list-dialog__body'>
+      {scheduledMessages.length > 0 && (
+        <TextInput
+          aria-label={t('scheduledMessages.search', 'Search')}
+          autoComplete='off'
+          className='str-chat__scheduled-message-list-dialog__search'
+          leading={<IconSearch />}
+          onChange={({ target }) => setSearchQuery(target.value)}
+          placeholder={t('scheduledMessages.search', 'Search')}
+          ref={searchInputRef}
+          trailing={
+            <Button
+              appearance='ghost'
+              aria-label={t('search.bar.clearSearch.ariaLabel', 'Clear search')}
+              circular
+              className={clsx(
+                'str-chat__scheduled-message-list-dialog__clear-search',
+                'str-chat__form-text-input__clear-button',
+                !searchQuery && 'str-chat__form-text-input__clear-button--hidden',
+              )}
+              onClick={() => {
+                setSearchQuery('');
+                searchInputRef.current?.focus();
+              }}
+              size='xs'
+              variant='secondary'
+            >
+              <IconXCircle />
+            </Button>
+          }
+          type='search'
+          value={searchQuery}
+        />
+      )}
+      <ScheduledMessageList filter={filter} onEdit={onEdit} scheduledMessages={view} />
+    </Prompt.Body>
+  );
 };
 
 /**
  * The scheduled messages of a channel or thread in a modal, with a search field. The banner's
- * "View all" opens it; an override can show the list elsewhere, such as in a channel detail view.
+ * "View all" opens it; an override can show the list elsewhere, such as in a channel detail view,
+ * or search differently with `useScheduledMessagesSearch`'s `filter`.
  */
 export const ScheduledMessageListDialog = ({
-  cid,
   close,
   onEdit,
   open,
-  parentId,
+  scheduledMessages,
 }: ScheduledMessageListDialogProps) => {
   const { t } = useTranslationContext();
-  const { IconSearch, IconXCircle } = useComponentContextIcons();
-  const { Modal = GlobalModal, ScheduledMessageList = DefaultScheduledMessageList } =
-    useComponentContext();
-  const { scheduledMessages } = useScheduledMessages({ cid, parentId });
-  const searchInputRef = useRef<HTMLInputElement>(null);
-  const [searchQuery, setSearchQuery] = useState('');
-
-  const closeDialog = () => {
-    setSearchQuery('');
-    close();
-  };
+  const { Modal = GlobalModal } = useComponentContext();
 
   return (
     <Portal getPortalDestination={getChannelContainer} isOpen={open}>
       <Modal
         className='str-chat__scheduled-message-list-modal'
-        onClose={closeDialog}
+        onClose={close}
         open={open}
       >
         {open && (
@@ -67,54 +108,17 @@ export const ScheduledMessageListDialog = ({
             data-testid='scheduled-message-list-dialog'
           >
             <Prompt.Header
-              close={closeDialog}
+              close={close}
               title={
-                parentId
+                scheduledMessages.parentId
                   ? t('scheduledMessages.scheduledReplies', 'Scheduled replies')
                   : t('scheduledMessages.scheduledMessages', 'Scheduled messages')
               }
             />
-            <Prompt.Body className='str-chat__scheduled-message-list-dialog__body'>
-              {scheduledMessages.length > 0 && (
-                <TextInput
-                  aria-label={t('scheduledMessages.search', 'Search')}
-                  autoComplete='off'
-                  className='str-chat__scheduled-message-list-dialog__search'
-                  leading={<IconSearch />}
-                  onChange={({ target }) => setSearchQuery(target.value)}
-                  placeholder={t('scheduledMessages.search', 'Search')}
-                  ref={searchInputRef}
-                  trailing={
-                    <Button
-                      appearance='ghost'
-                      aria-label={t('search.bar.clearSearch.ariaLabel', 'Clear search')}
-                      circular
-                      className={clsx(
-                        'str-chat__scheduled-message-list-dialog__clear-search',
-                        'str-chat__form-text-input__clear-button',
-                        !searchQuery && 'str-chat__form-text-input__clear-button--hidden',
-                      )}
-                      onClick={() => {
-                        setSearchQuery('');
-                        searchInputRef.current?.focus();
-                      }}
-                      size='xs'
-                      variant='secondary'
-                    >
-                      <IconXCircle />
-                    </Button>
-                  }
-                  type='search'
-                  value={searchQuery}
-                />
-              )}
-              <ScheduledMessageList
-                cid={cid}
-                onEdit={onEdit}
-                parentId={parentId}
-                searchQuery={searchQuery}
-              />
-            </Prompt.Body>
+            <ScheduledMessageListDialogBody
+              onEdit={onEdit}
+              scheduledMessages={scheduledMessages}
+            />
           </Prompt.Root>
         )}
       </Modal>

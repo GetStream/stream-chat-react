@@ -22,6 +22,7 @@ import {
 import { defaultChannelDetailSections } from '../../../ChannelDetail';
 import { ChannelDetailProvider } from '../../../ChannelDetailContext';
 import { ScheduledMessagesView } from '../ScheduledMessagesView';
+import type { ScheduledMessageListProps } from '../../../../../components/ScheduledMessages';
 
 const cid = 'messaging:general';
 
@@ -138,13 +139,17 @@ describe('ScheduledMessagesView', () => {
   });
 
   it('renders the list through the ScheduledMessageList slot', async () => {
-    const CustomList = ({ cid: listCid }: { cid: string }) => (
-      <div data-testid='custom-scheduled-message-list'>{listCid}</div>
+    const CustomList = ({ scheduledMessages }: ScheduledMessageListProps) => (
+      <div data-testid='custom-scheduled-message-list'>
+        {scheduledMessages.scope.type}:{scheduledMessages.paginator.cid}
+      </div>
     );
 
     await renderView([], { ScheduledMessageList: CustomList });
 
-    expect(screen.getByTestId('custom-scheduled-message-list')).toHaveTextContent(cid);
+    expect(screen.getByTestId('custom-scheduled-message-list')).toHaveTextContent(
+      `channel:${cid}`,
+    );
   });
 
   it('closes the channel detail modal from the header', async () => {

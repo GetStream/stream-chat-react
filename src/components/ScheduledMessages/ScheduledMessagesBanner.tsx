@@ -1,6 +1,6 @@
 import clsx from 'clsx';
 import React, { useEffect, useRef, useState } from 'react';
-import { nsToDate } from 'stream-chat';
+import { nsToDate, Thread } from 'stream-chat';
 import type {
   MessageComposerState,
   PaginatorState,
@@ -43,11 +43,18 @@ export const ScheduledMessagesBanner = () => {
   const { ScheduledMessageListDialog = DefaultScheduledMessageListDialog } =
     useComponentContext();
   const messageComposer = useMessageComposerController();
-  const { cid } = messageComposer.channel;
-  const parentId = messageComposer.threadId ?? undefined;
-  const canSchedule = useChannelCapabilities({ cid }).has(SCHEDULE_MESSAGE_CAPABILITY);
-  const { paginator, scheduledMessages } = useScheduledMessages({ cid, parentId });
-  const { isLoaded } = useStateStore(paginator.state, selectIsLoaded);
+  const { channel, compositionContext } = messageComposer;
+  // a thread's composer lists the thread's scheduled replies
+  const view =
+    compositionContext instanceof Thread
+      ? compositionContext.scheduledMessages
+      : channel.scheduledMessages;
+  const { parentId } = view;
+  const canSchedule = useChannelCapabilities({ cid: channel.cid }).has(
+    SCHEDULE_MESSAGE_CAPABILITY,
+  );
+  const { scheduledMessages } = useScheduledMessages(view);
+  const { isLoaded } = useStateStore(view.paginator.state, selectIsLoaded);
   const { isEditing } = useStateStore(messageComposer.state, selectIsEditing);
   const announce = useAriaLiveAnnouncer();
   const announcedLabelRef = useRef<string>(undefined);
@@ -133,11 +140,10 @@ export const ScheduledMessagesBanner = () => {
         </div>
       )}
       <ScheduledMessageListDialog
-        cid={cid}
         close={closeDialog}
         onEdit={editScheduledMessage}
         open={isDialogOpen}
-        parentId={parentId}
+        scheduledMessages={view}
       />
     </>
   );
