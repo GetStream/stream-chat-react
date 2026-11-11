@@ -7,6 +7,7 @@ import { IconAIDevice, IconAIHandRaised, IconAIKey } from '../icons';
 import { formatCallDuration } from '../utils';
 import { isDeclined, isToolCallFinished } from './parseMessageParts';
 import type { AIToolCallPart } from './types';
+import { ThemeScopeProvider, useAIThemeScopeClassName } from '../themeScope';
 
 export type AIToolCallProps = {
   part: AIToolCallPart;
@@ -18,6 +19,7 @@ export type AIToolCallProps = {
  * going, and how long it took once it is done. The counterpart of `AIToolCallView`.
  */
 export const AIToolCall = ({ className, part }: AIToolCallProps) => {
+  const themeScopeClassName = useAIThemeScopeClassName();
   const { t, userLanguage } = useTranslationContext();
   const { IconCheckmark, IconExclamationCircleFill, IconLoading, IconMinusCircle } =
     useComponentContextIcons();
@@ -65,32 +67,35 @@ export const AIToolCall = ({ className, part }: AIToolCallProps) => {
   const waiting = part.status.startsWith('awaiting_');
 
   return (
-    <div
-      className={clsx(
-        'str-chat__ai-tool-call',
-        `str-chat__ai-tool-call--${finished || waiting ? part.status : 'running'}`,
-        className,
-      )}
-      data-status={part.status}
-    >
-      <span
+    <ThemeScopeProvider>
+      <div
         className={clsx(
-          'str-chat__ai-tool-call__icon',
-          waiting && 'str-chat__ai-shimmer',
-          !finished && !waiting && 'str-chat__ai-tool-call__icon--spinning',
+          themeScopeClassName,
+          'str-chat__ai-tool-call',
+          `str-chat__ai-tool-call--${finished || waiting ? part.status : 'running'}`,
+          className,
         )}
+        data-status={part.status}
       >
-        {icon}
-      </span>
-      <span className='str-chat__ai-tool-call__text'>
-        <span className={clsx('str-chat__ai-tool-call__title')}>{title}</span>
-        {detail && <span className='str-chat__ai-tool-call__detail'>{detail}</span>}
-      </span>
-      {finished && part.durationMs !== undefined && (
-        <span className='str-chat__ai-tool-call__duration'>
-          {formatCallDuration(part.durationMs / 1000, userLanguage)}
+        <span
+          className={clsx(
+            'str-chat__ai-tool-call__icon',
+            waiting && 'str-chat__ai-shimmer',
+            !finished && !waiting && 'str-chat__ai-tool-call__icon--spinning',
+          )}
+        >
+          {icon}
         </span>
-      )}
-    </div>
+        <span className='str-chat__ai-tool-call__text'>
+          <span className={clsx('str-chat__ai-tool-call__title')}>{title}</span>
+          {detail && <span className='str-chat__ai-tool-call__detail'>{detail}</span>}
+        </span>
+        {finished && part.durationMs !== undefined && (
+          <span className='str-chat__ai-tool-call__duration'>
+            {formatCallDuration(part.durationMs / 1000, userLanguage)}
+          </span>
+        )}
+      </div>
+    </ThemeScopeProvider>
   );
 };

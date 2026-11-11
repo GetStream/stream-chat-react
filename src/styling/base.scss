@@ -33,3 +33,9 @@
     color: var(--str-chat__input-text-placeholder);
   }
 }
+
+// The wrapper a standalone component adds to get the `.str-chat` scope (tokens, font) when nothing
+// above it provides one. It must not take part in layout.
+.str-chat__theme-scope {
+  display: contents;
+}

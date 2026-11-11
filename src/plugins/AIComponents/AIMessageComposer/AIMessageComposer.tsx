@@ -24,6 +24,7 @@ import { useStableId } from '../../../components/UtilityComponents/useStableId';
 import { AttachmentPreview } from './AttachmentPreview';
 import { ChatOptions as ChatOptionsBase, type ChatOptionsProps } from './ChatOptions';
 import { useSpeechToText, type UseSpeechToTextOptions } from './hooks/useSpeechToText';
+import { ThemeScopeProvider, useAIThemeScopeClassName } from '../themeScope';
 
 const nanoId = customAlphabet('abcdefghijklmnopqrstuvwxyz0123456789', 15);
 
@@ -244,7 +245,23 @@ export const useIsDisabled = () => {
   return { disabled, setDisabled };
 };
 
+/**
+ * How the composer arranges its parts.
+ *
+ * - `stacked`: one part under another, such as the text above a row of `Actions`.
+ * - `inline`: the text and the controls side by side on one line, the controls at the end of
+ *   it as the text grows. The attachment previews keep a full-width row above them.
+ */
+export type AIMessageComposerLayout = 'stacked' | 'inline';
+
 type AIMessageComposerProps = ComponentPropsWithoutRef<'form'> & {
+  /**
+   * How the composer arranges its parts: one under another, or the text and the controls on
+   * one line, which suits a composer whose only control is the send button.
+   *
+   * @default 'stacked'
+   */
+  layout?: AIMessageComposerLayout;
   /**
    * Resets a value of an input with name `attachments` and of type `file` when user selects files so that
    * they can select the same file again if needed.
@@ -269,6 +286,8 @@ interface AIMessageComposer {
   TextInput: typeof TextInput;
   SpeechToTextButton: typeof SpeechToTextButton;
   SubmitButton: typeof SubmitButton;
+  StopButton: typeof StopButton;
+  Actions: typeof Actions;
   ModelSelect: typeof ModelSelect;
   AttachmentPreview: typeof AttachmentPreview;
   ChatOptions: typeof ChatOptions;
@@ -278,12 +297,14 @@ export const AIMessageComposer: AIMessageComposer = ({
   children,
   className,
   disabled,
+  layout = 'stacked',
   nameMapping,
   onChange,
   onReset,
   resetAttachmentsOnSelect = true,
   ...restProps
 }) => {
+  const themeScopeClassName = useAIThemeScopeClassName();
   const [stateStore] = useState(
     () => new StateStore<AIMessageComposerStore>(initialStoreState),
   );
@@ -348,16 +369,23 @@ export const AIMessageComposer: AIMessageComposer = ({
   });
 
   return (
-    <AIMessageComposerContext.Provider value={stateStore}>
-      <form
-        className={clsx('str-chat__ai-message-composer__form', className)}
-        onChange={handleChange}
-        onReset={handleReset}
-        {...restProps}
-      >
-        {children}
-      </form>
-    </AIMessageComposerContext.Provider>
+    <ThemeScopeProvider>
+      <AIMessageComposerContext.Provider value={stateStore}>
+        <form
+          className={clsx(
+            themeScopeClassName,
+            'str-chat__ai-message-composer__form',
+            layout === 'inline' && 'str-chat__ai-message-composer__form--inline',
+            className,
+          )}
+          onChange={handleChange}
+          onReset={handleReset}
+          {...restProps}
+        >
+          {children}
+        </form>
+      </AIMessageComposerContext.Provider>
+    </ThemeScopeProvider>
   );
 };
 
@@ -526,6 +554,37 @@ const SubmitButton = ({
   );
 };
 
+/**
+ * Stops a reply the agent is still writing: shown in place of the `SubmitButton` while one is.
+ * Unlike the composer's other controls it does not follow the composer's `disabled`, since a
+ * composer is often disabled exactly while a reply is being written, which is when it is needed.
+ */
+const StopButton = ({ children, ...restProps }: ComponentPropsWithoutRef<'button'>) => {
+  const { t } = useTranslationContext();
+  const { IconStopFill } = useComponentContextIcons();
+  return (
+    <button
+      aria-label={t('aria/Stop AI Generation')}
+      className='str-chat__ai-message-composer__round-button str-chat__ai-message-composer__round-button--stop'
+      type='button'
+      {...restProps}
+    >
+      {children ?? <IconStopFill />}
+    </button>
+  );
+};
+
+/**
+ * A row for the composer's controls, such as the file picker, dictation and the send button,
+ * lined up at its end. In the `stacked` layout it goes under the text.
+ */
+const Actions = ({ className, ...restProps }: ComponentPropsWithoutRef<'div'>) => (
+  <div
+    className={clsx('str-chat__ai-message-composer__actions', className)}
+    {...restProps}
+  />
+);
+
 // Follows the composer's disabled state unless told otherwise.
 const ChatOptions = (props: ChatOptionsProps) => {
   const { disabled } = useIsDisabled();
@@ -574,6 +633,8 @@ AIMessageComposer.FileInput = FileInput;
 AIMessageComposer.TextInput = TextInput;
 AIMessageComposer.SpeechToTextButton = SpeechToTextButton;
 AIMessageComposer.SubmitButton = SubmitButton;
+AIMessageComposer.StopButton = StopButton;
+AIMessageComposer.Actions = Actions;
 AIMessageComposer.ModelSelect = ModelSelect;
 AIMessageComposer.AttachmentPreview = AttachmentPreview;
 AIMessageComposer.ChatOptions = ChatOptions;

@@ -37,10 +37,11 @@ it('server-renders without touching browser globals', () => {
   expect(html).toContain('Thinking');
   expect(html).toContain('<textarea');
   expect(html).toContain(
-    'class="str-chat__ai-voice-visualization str-chat__ai-voice-wave"',
+    // Rendered on its own, each component is its own `str-chat` theme scope.
+    'class="str-chat str-chat__ai-voice-visualization str-chat__ai-voice-wave"',
   );
   expect(html).toContain(
-    'class="str-chat__ai-voice-visualization str-chat__ai-voice-glow"',
+    'class="str-chat str-chat__ai-voice-visualization str-chat__ai-voice-glow"',
   );
   expect(html).toContain('str-chat__ai-voice-glow--css');
   expect(html.match(/role="img"/g)).toHaveLength(3);

@@ -79,6 +79,7 @@ export type IconSlots = Partial<
     | 'IconSearch'
     | 'IconSend'
     | 'IconShield'
+    | 'IconStopFill'
     | 'IconThread'
     | 'IconThreadFill'
     | 'IconTranslate'

@@ -1,7 +1,10 @@
+import clsx from 'clsx';
 import { useMemo } from 'react';
 import { useTranslationContext } from '../../../context/TranslationContext';
+import { ThemeScopeProvider, useAIThemeScopeClassName } from '../themeScope';
 
 export const AIStateIndicator = ({ text }: { text?: string }) => {
+  const themeScopeClassName = useAIThemeScopeClassName();
   const { t } = useTranslationContext();
   const messages = useMemo(
     () => [
@@ -26,17 +29,23 @@ export const AIStateIndicator = ({ text }: { text?: string }) => {
   );
 
   return (
-    <div aria-live='polite' className='str-chat__ai-state-indicator' role='status'>
-      <div className='str-chat__ai-state-indicator__content'>
-        <div className='str-chat__ai-state-indicator__dots'>
-          <span className='str-chat__ai-state-indicator__dot' />
-          <span className='str-chat__ai-state-indicator__dot' />
-          <span className='str-chat__ai-state-indicator__dot' />
+    <ThemeScopeProvider>
+      <div
+        aria-live='polite'
+        className={clsx(themeScopeClassName, 'str-chat__ai-state-indicator')}
+        role='status'
+      >
+        <div className='str-chat__ai-state-indicator__content'>
+          <div className='str-chat__ai-state-indicator__dots'>
+            <span className='str-chat__ai-state-indicator__dot' />
+            <span className='str-chat__ai-state-indicator__dot' />
+            <span className='str-chat__ai-state-indicator__dot' />
+          </div>
+          <span className='str-chat__ai-state-indicator__text'>
+            {typeof text === 'string' ? text : messages[messageIndex]}
+          </span>
         </div>
-        <span className='str-chat__ai-state-indicator__text'>
-          {typeof text === 'string' ? text : messages[messageIndex]}
-        </span>
       </div>
-    </div>
+    </ThemeScopeProvider>
   );
 };

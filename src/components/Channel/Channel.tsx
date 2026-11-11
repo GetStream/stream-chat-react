@@ -57,6 +57,7 @@ import {
 } from '../../context';
 
 import { CHANNEL_CONTAINER_ID } from './constants';
+import { ThemeScopeProvider } from '../../context/ThemeScopeContext';
 import {
   DEFAULT_HIGHLIGHT_DURATION,
   DEFAULT_JUMP_TO_PAGE_SIZE,
@@ -165,7 +166,8 @@ const ChannelContainer = ({
   const className = clsx(chatClass, theme, channelClass, additionalClassName);
   return (
     <div id={CHANNEL_CONTAINER_ID} {...props} className={className}>
-      {children}
+      {/* The root carries the `str-chat <theme>` scope, so components inside add none of their own. */}
+      <ThemeScopeProvider>{children}</ThemeScopeProvider>
     </div>
   );
 };
