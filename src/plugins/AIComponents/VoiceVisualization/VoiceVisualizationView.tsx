@@ -10,6 +10,7 @@ import { FALLBACK_COLOR, readVoiceTheme, toHsvPalette } from './palette';
 import type { VoiceRenderer } from './renderers/types';
 import type { Hsv, VoiceVisualizationProps } from './types';
 import { useVoiceStateLabel } from './useVoiceStateLabel';
+import { ThemeScopeProvider, useAIThemeScopeClassName } from '../themeScope';
 
 /** How many frames pass between two reads of the theme, about once a second at 60 Hz. */
 const THEME_FRAMES = 60;
@@ -50,6 +51,7 @@ export const VoiceVisualizationView = ({
   state,
   ...restProps
 }: ViewProps) => {
+  const themeScopeClassName = useAIThemeScopeClassName();
   const label = useVoiceStateLabel(state);
   const reduceMotion = useReducedMotionPreference();
   const rootRef = useRef<HTMLDivElement>(null);
@@ -241,25 +243,31 @@ export const VoiceVisualizationView = ({
   };
 
   return (
-    <div
-      aria-label={label}
-      className={clsx('str-chat__ai-voice-visualization', className)}
-      data-state={state}
-      role='img'
-      {...restProps}
-      onPointerLeave={handlePointerLeave}
-      onPointerMove={handlePointerMove}
-      onPointerUp={handlePointerUp}
-      ref={rootRef}
-    >
-      <canvas
-        aria-hidden='true'
-        className='str-chat__ai-voice-visualization__canvas'
-        key={rendererKey}
-        ref={canvasRef}
-      />
-      {/* Only the shape takes the pointer; around it, events reach what is behind. */}
-      <div aria-hidden='true' className='str-chat__ai-voice-visualization__hit' />
-    </div>
+    <ThemeScopeProvider>
+      <div
+        aria-label={label}
+        className={clsx(
+          themeScopeClassName,
+          'str-chat__ai-voice-visualization',
+          className,
+        )}
+        data-state={state}
+        role='img'
+        {...restProps}
+        onPointerLeave={handlePointerLeave}
+        onPointerMove={handlePointerMove}
+        onPointerUp={handlePointerUp}
+        ref={rootRef}
+      >
+        <canvas
+          aria-hidden='true'
+          className='str-chat__ai-voice-visualization__canvas'
+          key={rendererKey}
+          ref={canvasRef}
+        />
+        {/* Only the shape takes the pointer; around it, events reach what is behind. */}
+        <div aria-hidden='true' className='str-chat__ai-voice-visualization__hit' />
+      </div>
+    </ThemeScopeProvider>
   );
 };

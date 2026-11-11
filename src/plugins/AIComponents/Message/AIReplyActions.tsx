@@ -10,6 +10,7 @@ import {
   IconAIThumbsUp,
   IconAIThumbsUpFill,
 } from '../icons';
+import { ThemeScopeProvider, useAIThemeScopeClassName } from '../themeScope';
 
 /** How the person rated a reply. */
 export type AIMessageRating = 'positive' | 'negative';
@@ -55,6 +56,7 @@ export const AIReplyActions = ({
   rating,
   text,
 }: AIReplyActionsProps) => {
+  const themeScopeClassName = useAIThemeScopeClassName();
   const { t } = useTranslationContext();
   const { IconCheckmark, IconCopy, IconRefresh } = useComponentContextIcons();
   const [isCopied, setIsCopied] = useState(false);
@@ -88,78 +90,86 @@ export const AIReplyActions = ({
   const negative = rating === 'negative';
 
   return (
-    <div
-      aria-label={t('aiComponents.replyActions.replyActions.ariaLabel', 'Reply actions')}
-      className={clsx('str-chat__ai-reply-actions', className)}
-      role='toolbar'
-    >
-      <button
-        aria-label={
-          isCopied
-            ? t('aiComponents.replyActions.copied.ariaLabel', 'Copied')
-            : t('aiComponents.replyActions.copy.ariaLabel', 'Copy')
-        }
-        className='str-chat__ai-reply-actions__button'
-        onClick={copy}
-        title={
-          isCopied
-            ? t('aiComponents.replyActions.copied.ariaLabel', 'Copied')
-            : t('aiComponents.replyActions.copy.ariaLabel', 'Copy')
-        }
-        type='button'
+    <ThemeScopeProvider>
+      <div
+        aria-label={t(
+          'aiComponents.replyActions.replyActions.ariaLabel',
+          'Reply actions',
+        )}
+        className={clsx(themeScopeClassName, 'str-chat__ai-reply-actions', className)}
+        role='toolbar'
       >
-        {isCopied ? <IconCheckmark /> : <IconCopy />}
-      </button>
-      <button
-        aria-label={t('aiComponents.replyActions.share.ariaLabel', 'Share')}
-        className='str-chat__ai-reply-actions__button'
-        onClick={share}
-        title={t('aiComponents.replyActions.share.ariaLabel', 'Share')}
-        type='button'
-      >
-        <IconAIShare />
-      </button>
-      {onRegenerate && (
         <button
-          aria-label={t('aiComponents.replyActions.regenerate.ariaLabel', 'Regenerate')}
+          aria-label={
+            isCopied
+              ? t('aiComponents.replyActions.copied.ariaLabel', 'Copied')
+              : t('aiComponents.replyActions.copy.ariaLabel', 'Copy')
+          }
           className='str-chat__ai-reply-actions__button'
-          onClick={onRegenerate}
-          title={t('aiComponents.replyActions.regenerate.ariaLabel', 'Regenerate')}
+          onClick={copy}
+          title={
+            isCopied
+              ? t('aiComponents.replyActions.copied.ariaLabel', 'Copied')
+              : t('aiComponents.replyActions.copy.ariaLabel', 'Copy')
+          }
           type='button'
         >
-          <IconRefresh />
+          {isCopied ? <IconCheckmark /> : <IconCopy />}
         </button>
-      )}
-      {onRate && (
-        <>
+        <button
+          aria-label={t('aiComponents.replyActions.share.ariaLabel', 'Share')}
+          className='str-chat__ai-reply-actions__button'
+          onClick={share}
+          title={t('aiComponents.replyActions.share.ariaLabel', 'Share')}
+          type='button'
+        >
+          <IconAIShare />
+        </button>
+        {onRegenerate && (
           <button
-            aria-label={t(
-              'aiComponents.replyActions.goodResponse.ariaLabel',
-              'Good response',
-            )}
-            aria-pressed={positive}
+            aria-label={t('aiComponents.replyActions.regenerate.ariaLabel', 'Regenerate')}
             className='str-chat__ai-reply-actions__button'
-            onClick={() => onRate(positive ? null : 'positive')}
-            title={t('aiComponents.replyActions.goodResponse.ariaLabel', 'Good response')}
+            onClick={onRegenerate}
+            title={t('aiComponents.replyActions.regenerate.ariaLabel', 'Regenerate')}
             type='button'
           >
-            {positive ? <IconAIThumbsUpFill /> : <IconAIThumbsUp />}
+            <IconRefresh />
           </button>
-          <button
-            aria-label={t(
-              'aiComponents.replyActions.badResponse.ariaLabel',
-              'Bad response',
-            )}
-            aria-pressed={negative}
-            className='str-chat__ai-reply-actions__button'
-            onClick={() => onRate(negative ? null : 'negative')}
-            title={t('aiComponents.replyActions.badResponse.ariaLabel', 'Bad response')}
-            type='button'
-          >
-            {negative ? <IconAIThumbsDownFill /> : <IconAIThumbsDown />}
-          </button>
-        </>
-      )}
-    </div>
+        )}
+        {onRate && (
+          <>
+            <button
+              aria-label={t(
+                'aiComponents.replyActions.goodResponse.ariaLabel',
+                'Good response',
+              )}
+              aria-pressed={positive}
+              className='str-chat__ai-reply-actions__button'
+              onClick={() => onRate(positive ? null : 'positive')}
+              title={t(
+                'aiComponents.replyActions.goodResponse.ariaLabel',
+                'Good response',
+              )}
+              type='button'
+            >
+              {positive ? <IconAIThumbsUpFill /> : <IconAIThumbsUp />}
+            </button>
+            <button
+              aria-label={t(
+                'aiComponents.replyActions.badResponse.ariaLabel',
+                'Bad response',
+              )}
+              aria-pressed={negative}
+              className='str-chat__ai-reply-actions__button'
+              onClick={() => onRate(negative ? null : 'negative')}
+              title={t('aiComponents.replyActions.badResponse.ariaLabel', 'Bad response')}
+              type='button'
+            >
+              {negative ? <IconAIThumbsDownFill /> : <IconAIThumbsDown />}
+            </button>
+          </>
+        )}
+      </div>
+    </ThemeScopeProvider>
   );
 };
