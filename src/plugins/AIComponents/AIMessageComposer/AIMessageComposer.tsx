@@ -25,6 +25,17 @@ import { AttachmentPreview } from './AttachmentPreview';
 import { ChatOptions as ChatOptionsBase, type ChatOptionsProps } from './ChatOptions';
 import { useSpeechToText, type UseSpeechToTextOptions } from './hooks/useSpeechToText';
 import { ThemeScopeProvider, useAIThemeScopeClassName } from '../themeScope';
+import type {
+  AIConversationController,
+  AIConversationControllerState,
+} from '../Conversation/controller/AIConversationController';
+import { isAIConversationAnswering } from '../Conversation/controller/types';
+import {
+  type AIMessageComposerStore,
+  initialAIMessageComposerState as initialStoreState,
+} from './store';
+
+export type { AIMessageComposerStore } from './store';
 
 const nanoId = customAlphabet('abcdefghijklmnopqrstuvwxyz0123456789', 15);
 
@@ -94,28 +105,28 @@ const WithStableId = ({
 
 FileInput.WithStableId = WithStableId;
 
-export type AIMessageComposerStore = {
-  attachments: {
-    file: File;
-    id: string;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- public type kept identical to @stream-io/chat-react-ai@0.2.0 for drop-in migration
-    meta?: Record<string, any>;
-  }[];
-  text: string;
-  disabled?: boolean;
-};
-
-const initialStoreState: AIMessageComposerStore = {
-  attachments: [],
-  disabled: false,
-  text: '',
-};
-
 const AIMessageComposerContext = createContext<StateStore<AIMessageComposerStore>>(
   new StateStore<AIMessageComposerStore>(initialStoreState),
 );
 
 export const useAIMessageComposerContext = () => useContext(AIMessageComposerContext);
+
+// The conversation the composer writes in, if it was given one.
+const AIMessageComposerConversationContext = createContext<
+  AIConversationController | undefined
+>(undefined);
+
+const statusSelector = ({ status }: AIConversationControllerState) => ({ status });
+
+// Whether the agent of the composer's conversation is answering. `false` without a conversation.
+const useIsAnswering = (conversation: AIConversationController | undefined) => {
+  const { status } = useStateStore(conversation?.state, statusSelector) ?? {};
+  return !!status && isAIConversationAnswering(status);
+};
+
+const isEditingSelector = (currentState: AIMessageComposerStore) => ({
+  isEditing: !!currentState.isEditing,
+});
 
 export const useAttachments = () => {
   const store = useAIMessageComposerContext();
@@ -256,6 +267,13 @@ export type AIMessageComposerLayout = 'stacked' | 'inline';
 
 type AIMessageComposerProps = ComponentPropsWithoutRef<'form'> & {
   /**
+   * The conversation the person writes in. The composer shows its `composer` store, and
+   * submitting sends what the person wrote through it (`conversation.send`), unless `onSubmit`
+   * calls `event.preventDefault()`. Meanwhile `SubmitButton` turns into a `StopButton`, and
+   * while the person edits a message the composer says so, with a button that cancels it.
+   */
+  conversation?: AIConversationController;
+  /**
    * How the composer arranges its parts: one under another, or the text and the controls on
    * one line, which suits a composer whose only control is the send button.
    *
@@ -296,18 +314,21 @@ interface AIMessageComposer {
 export const AIMessageComposer: AIMessageComposer = ({
   children,
   className,
+  conversation,
   disabled,
   layout = 'stacked',
   nameMapping,
   onChange,
   onReset,
+  onSubmit,
   resetAttachmentsOnSelect = true,
   ...restProps
 }) => {
   const themeScopeClassName = useAIThemeScopeClassName();
-  const [stateStore] = useState(
+  const [ownStore] = useState(
     () => new StateStore<AIMessageComposerStore>(initialStoreState),
   );
+  const stateStore = conversation?.composer ?? ownStore;
 
   useEffect(() => {
     stateStore.partialNext({ disabled });
@@ -364,32 +385,98 @@ export const AIMessageComposer: AIMessageComposer = ({
 
   const handleReset = useStableCallback((e: React.FormEvent<HTMLFormElement>) => {
     onReset?.(e);
-    // a reset clears the draft but must not re-enable a composer disabled via props
-    stateStore.next({ ...initialStoreState, disabled });
+    // a reset clears the draft but must not re-enable a composer disabled via props, and the
+    // chat option stays picked
+    stateStore.next((currentState) => ({
+      ...initialStoreState,
+      chatOption: currentState.chatOption,
+      disabled,
+    }));
+  });
+
+  const handleSubmit = useStableCallback((e: FormSubmitEvent) => {
+    onSubmit?.(e);
+    if (!conversation || e.defaultPrevented) return;
+    e.preventDefault();
+    // Enter while the agent answers doesn't send: the send button is a stop button meanwhile.
+    if (isAIConversationAnswering(conversation.state.getLatestValue().status)) return;
+    const { attachments, chatOption, custom, text } = stateStore.getLatestValue();
+    if (text.trim() === '' && attachments.length === 0) return;
+    conversation.send({
+      attachments: attachments.map(({ file }) => file),
+      chatOption: chatOption ?? undefined,
+      custom,
+      text,
+    });
+    stateStore.partialNext({ attachments: [], text: '' });
   });
 
   return (
     <ThemeScopeProvider>
       <AIMessageComposerContext.Provider value={stateStore}>
-        <form
-          className={clsx(
-            themeScopeClassName,
-            'str-chat__ai-message-composer__form',
-            layout === 'inline' && 'str-chat__ai-message-composer__form--inline',
-            className,
-          )}
-          onChange={handleChange}
-          onReset={handleReset}
-          {...restProps}
-        >
-          {children}
-        </form>
+        <AIMessageComposerConversationContext.Provider value={conversation}>
+          <form
+            className={clsx(
+              themeScopeClassName,
+              'str-chat__ai-message-composer__form',
+              layout === 'inline' && 'str-chat__ai-message-composer__form--inline',
+              className,
+            )}
+            onChange={handleChange}
+            onReset={handleReset}
+            onSubmit={handleSubmit}
+            {...restProps}
+          >
+            <EditingIndicator />
+            {children}
+          </form>
+        </AIMessageComposerConversationContext.Provider>
       </AIMessageComposerContext.Provider>
     </ThemeScopeProvider>
   );
 };
 
+type FormSubmitEvent = Parameters<
+  NonNullable<ComponentPropsWithoutRef<'form'>['onSubmit']>
+>[0];
+
 const noop = () => undefined;
+
+/**
+ * Says the person is editing a message they sent, with a button that cancels it, while the
+ * composer's store says they are (`isEditing`).
+ */
+const EditingIndicator = () => {
+  const store = useAIMessageComposerContext();
+  const conversation = useContext(AIMessageComposerConversationContext);
+  const { isEditing } = useStateStore(store, isEditingSelector);
+  const { t } = useTranslationContext();
+  const { IconEdit, IconXmarkSmall } = useComponentContextIcons();
+  if (!isEditing) return null;
+  const cancel = () => {
+    conversation?.cancelEditing();
+    if (store.getLatestValue().isEditing)
+      store.partialNext({ isEditing: false, text: '' });
+  };
+  return (
+    <div className='str-chat__ai-message-composer__editing'>
+      <span className='str-chat__ai-chat-options__chip'>
+        <span className='str-chat__ai-chat-options__chip-icon'>
+          <IconEdit />
+        </span>
+        <span className='str-chat__ai-chat-options__chip-title'>{t('Editing')}</span>
+        <button
+          aria-label={t('aria/Cancel editing')}
+          className='str-chat__ai-chat-options__chip-remove'
+          onClick={cancel}
+          type='button'
+        >
+          <IconXmarkSmall />
+        </button>
+      </span>
+    </div>
+  );
+};
 
 const useHasMounted = () => {
   const [hasMounted, setHasMounted] = useState(false);
@@ -420,6 +507,15 @@ const TextInput = ({ onKeyDown, ...props }: ComponentPropsWithoutRef<'textarea'>
   const { disabled } = useIsDisabled();
   const { t } = useTranslationContext();
   const ref = useRef<HTMLTextAreaElement>(null);
+  const { isEditing } = useStateStore(useAIMessageComposerContext(), isEditingSelector);
+
+  // Editing a message puts its text here: the person goes on writing at its end.
+  useEffect(() => {
+    const element = ref.current;
+    if (!isEditing || !element) return;
+    element.focus();
+    element.setSelectionRange(element.value.length, element.value.length);
+  }, [isEditing]);
 
   // Sized to its lines: each time the text changes, and each time its width does, which wraps
   // them differently (a resized window, or a composer first laid out while hidden).
@@ -531,6 +627,10 @@ const SpeechToTextButton = ({
   );
 };
 
+/**
+ * Sends the message. In a composer with a `conversation`, a `StopButton` takes its place while
+ * the agent answers.
+ */
 const SubmitButton = ({
   active,
   ...restProps
@@ -538,6 +638,9 @@ const SubmitButton = ({
   const { disabled } = useIsDisabled();
   const { t } = useTranslationContext();
   const { IconSend } = useComponentContextIcons();
+  const conversation = useContext(AIMessageComposerConversationContext);
+  const isAnswering = useIsAnswering(conversation);
+  if (isAnswering) return <StopButton />;
   return (
     <button
       aria-label={t('aria/Send')}
@@ -558,16 +661,28 @@ const SubmitButton = ({
  * Stops a reply the agent is still writing: shown in place of the `SubmitButton` while one is.
  * Unlike the composer's other controls it does not follow the composer's `disabled`, since a
  * composer is often disabled exactly while a reply is being written, which is when it is needed.
+ * In a composer with a `conversation` it stops the conversation's reply, unless `onClick` calls
+ * `event.preventDefault()`.
  */
-const StopButton = ({ children, ...restProps }: ComponentPropsWithoutRef<'button'>) => {
+const StopButton = ({
+  children,
+  onClick,
+  ...restProps
+}: ComponentPropsWithoutRef<'button'>) => {
   const { t } = useTranslationContext();
   const { IconStopFill } = useComponentContextIcons();
+  const conversation = useContext(AIMessageComposerConversationContext);
+  const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+    onClick?.(event);
+    if (!event.defaultPrevented) conversation?.stop();
+  };
   return (
     <button
       aria-label={t('aria/Stop AI Generation')}
       className='str-chat__ai-message-composer__round-button str-chat__ai-message-composer__round-button--stop'
       type='button'
       {...restProps}
+      onClick={handleClick}
     >
       {children ?? <IconStopFill />}
     </button>
@@ -585,10 +700,49 @@ const Actions = ({ className, ...restProps }: ComponentPropsWithoutRef<'div'>) =
   />
 );
 
-// Follows the composer's disabled state unless told otherwise.
-const ChatOptions = (props: ChatOptionsProps) => {
+const chatOptionSelector = (currentState: AIMessageComposerStore) => ({
+  chatOption: currentState.chatOption,
+});
+
+// Follows the composer's disabled state unless told otherwise, and keeps the picked option in
+// the composer's store (`chatOption`), where a conversation finds it when the message is sent.
+const ChatOptions = ({
+  defaultSelectedId,
+  onSelectedChange,
+  options,
+  selectedId,
+  ...props
+}: ChatOptionsProps) => {
+  const store = useAIMessageComposerContext();
   const { disabled } = useIsDisabled();
-  return <ChatOptionsBase {...props} disabled={props.disabled ?? disabled} />;
+  const { chatOption } = useStateStore(store, chatOptionSelector);
+  // Picked before anything is: the default, or the controlled option, which the store takes.
+  const isControlled = selectedId !== undefined;
+  const seededId = isControlled ? selectedId : (defaultSelectedId ?? null);
+  const shownId =
+    isControlled || chatOption === undefined ? seededId : (chatOption?.id ?? null);
+  useIsomorphicLayoutEffect(() => {
+    const current = store.getLatestValue().chatOption;
+    if (!isControlled && current !== undefined) return;
+    const option = options.find((item) => item.id === seededId) ?? null;
+    // By id: an app's options can be new objects on every render.
+    if (current === undefined || (current?.id ?? null) !== (option?.id ?? null)) {
+      store.partialNext({ chatOption: option });
+    }
+  }, [isControlled, options, seededId, store]);
+
+  return (
+    <ChatOptionsBase
+      {...props}
+      disabled={props.disabled ?? disabled}
+      onSelectedChange={(option) => {
+        if (!isControlled) store.partialNext({ chatOption: option });
+        onSelectedChange?.(option);
+      }}
+      options={options}
+      selectedId={isControlled ? selectedId : shownId}
+    />
+  );
 };
 
 const availableModels = [

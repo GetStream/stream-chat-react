@@ -118,6 +118,11 @@
     }
   }
 
+  // Says the person is editing a message they sent, above the text, with a button that cancels it
+  .str-chat__ai-message-composer__editing {
+    display: flex;
+  }
+
   // `layout='inline'`: the text and the controls on one line, the controls level with its last
   // line as it grows. Attachment previews keep a full-width row of their own, above.
   // Last in the block: the text input's `all: unset` above would reset these at equal specificity.
@@ -130,6 +135,11 @@
     > .str-chat__ai-attachment-preview {
       flex-basis: 100%;
       order: -1;
+    }
+
+    > .str-chat__ai-message-composer__editing {
+      flex-basis: 100%;
+      order: -2;
     }
 
     .str-chat__ai-message-composer__text-input {
