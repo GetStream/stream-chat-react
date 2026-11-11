@@ -20,16 +20,18 @@ export const layouts: LayoutDescriptor[] = [
   { id: 'channels', slots: ['channel', 'thread'] },
 ];
 
-// The toggle, only while a channel is open beside the list. With nothing open, collapsing the
-// sidebar would leave an empty screen.
-const SidebarToggleWhileChannelOpen = () => {
-  const { openChannels } = useWorkspaceNavigation();
-  return openChannels.length > 0 ? <SidebarToggle /> : null;
+// The toggle, only while a channel or thread is open beside the list. With nothing open,
+// collapsing the sidebar would leave an empty screen. `openChannels` / `openThreads` hold the
+// channels and threads the panels were opened with, so checking both covers a thread stacked over
+// a channel.
+const SidebarToggleWhileContentOpen = () => {
+  const { openChannels, openThreads } = useWorkspaceNavigation();
+  return openChannels.length > 0 || openThreads.length > 0 ? <SidebarToggle /> : null;
 };
 
 // The default channel list header, with the toggle at its end.
 const ChannelListHeaderWithToggle = () => (
-  <ChannelListHeader EndContent={SidebarToggleWhileChannelOpen} />
+  <ChannelListHeader EndContent={SidebarToggleWhileContentOpen} />
 );
 
 // Declared once, so WithComponents gets the same object on every render.
