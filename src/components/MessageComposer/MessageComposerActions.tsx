@@ -15,9 +15,14 @@ import { useIsCooldownActive } from './hooks/useIsCooldownActive';
 import type { MessageComposerState, TextComposerState } from 'stream-chat';
 import { useStateStore } from '../../store';
 import { useInertWhenHidden } from '../Accessibility';
+import { useCanScheduleMessage } from '../ScheduledMessages/hooks/useCanScheduleMessage';
+import { ScheduleMessageButton as DefaultScheduleMessageButton } from '../ScheduledMessages/ScheduleMessageButton';
 
-const messageComposerStateSelector = ({ editedMessage }: MessageComposerState) => ({
+const messageComposerStateSelector = ({
   editedMessage,
+  editedScheduledMessage,
+}: MessageComposerState) => ({
+  isEditing: !!editedMessage || !!editedScheduledMessage,
 });
 
 const textComposerStateSelector = ({ command, text }: TextComposerState) => ({
@@ -33,11 +38,13 @@ export const MessageComposerActions = () => {
   const messageComposer = useMessageComposerController();
   const {
     CooldownTimer = DefaultCooldownTimer,
+    ScheduleMessageButton: ScheduleMessageButtonOverride,
     SendButton,
     StopAIGenerationButton: StopAIGenerationButtonOverride,
   } = useComponentContext();
+  const canScheduleMessage = useCanScheduleMessage();
 
-  const { editedMessage } = useStateStore(
+  const { isEditing } = useStateStore(
     messageComposer.state,
     messageComposerStateSelector,
   );
@@ -70,13 +77,28 @@ export const MessageComposerActions = () => {
 
   const recordingEnabled = !!(recordingController.recorder && navigator.mediaDevices); // account for requirement on iOS as per this bug report: https://bugs.webkit.org/show_bug.cgi?id=252303
 
-  let content = SendButton ? (
+  const ScheduleMessageButton =
+    ScheduleMessageButtonOverride === undefined
+      ? DefaultScheduleMessageButton
+      : ScheduleMessageButtonOverride;
+
+  const sendButton = SendButton ? (
     <SendButton sendMessage={handleSubmit} />
   ) : (
     <DefaultSendButton sendMessage={handleSubmit}>
-      {editedMessage || command ? <IconCheckmark /> : <IconSend />}
+      {isEditing || command ? <IconCheckmark /> : <IconSend />}
     </DefaultSendButton>
   );
+
+  let content =
+    canScheduleMessage && ScheduleMessageButton ? (
+      <div className='str-chat__split-send-button'>
+        {sendButton}
+        <ScheduleMessageButton />
+      </div>
+    ) : (
+      sendButton
+    );
 
   if (shouldDisplayStopAIGeneration) {
     content = <StopAIGenerationButton onClick={stopGenerating} />;
@@ -84,7 +106,7 @@ export const MessageComposerActions = () => {
 
   if (isCooldownActive) {
     content = <CooldownTimer />;
-  } else if (contentIsEmpty && !editedMessage && !command && recordingEnabled) {
+  } else if (contentIsEmpty && !isEditing && !command && recordingEnabled) {
     content = <AudioRecordingButtonWithNotification />;
   }
 

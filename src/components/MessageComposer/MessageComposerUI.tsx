@@ -36,12 +36,19 @@ import {
 } from 'stream-chat';
 import { CommandChip as DefaultCommandChip } from './CommandChip';
 import { GeolocationPreview } from './AttachmentPreviewList/GeolocationPreview';
+import { EditedScheduledMessagePreview as DefaultEditedScheduledMessagePreview } from '../ScheduledMessages/EditedScheduledMessagePreview';
+import { FailedScheduledMessagePreview as DefaultFailedScheduledMessagePreview } from '../ScheduledMessages/FailedScheduledMessagePreview';
+import { ScheduledMessagesBanner as DefaultScheduledMessagesBanner } from '../ScheduledMessages/ScheduledMessagesBanner';
 
 const messageComposerStateSelector = ({
   editedMessage,
+  editedScheduledMessage,
+  failedScheduledMessage,
   quotedMessage,
 }: MessageComposerState) => ({
   editedMessage,
+  editedScheduledMessage,
+  failedScheduledMessage,
   quotedMessage,
 });
 
@@ -67,16 +74,16 @@ const MessageComposerPreviews = () => {
   const {
     AttachmentPreviewList = DefaultAttachmentPreviewList,
     EditedMessagePreview = DefaultEditedMessagePreview,
+    EditedScheduledMessagePreview = DefaultEditedScheduledMessagePreview,
+    FailedScheduledMessagePreview = DefaultFailedScheduledMessagePreview,
     LinkPreviewList = DefaultLinkPreviewList,
     QuotedMessagePreview = DefaultQuotedMessagePreview,
     VoiceRecordingPreviewSlot = DefaultVoiceRecordingPreviewSlot,
   } = useComponentContext();
 
   const messageComposer = useMessageComposerController();
-  const { editedMessage, quotedMessage } = useStateStore(
-    messageComposer.state,
-    messageComposerStateSelector,
-  );
+  const { editedMessage, editedScheduledMessage, failedScheduledMessage, quotedMessage } =
+    useStateStore(messageComposer.state, messageComposerStateSelector);
 
   const { attachments } = useStateStore(
     messageComposer.attachmentManager.state,
@@ -99,25 +106,49 @@ const MessageComposerPreviews = () => {
     attachments.length === 0 &&
     linkPreviews.length === 0 &&
     !location &&
-    !editedMessage
+    !editedMessage &&
+    !editedScheduledMessage &&
+    !failedScheduledMessage
   )
     return null;
+
+  let leadingPreview = <QuotedMessagePreview />;
+
+  if (editedMessage) {
+    leadingPreview = (
+      <div className='str-chat__message-composer-previews'>
+        <EditedMessagePreview
+          message={editedMessage}
+          onCancel={() => {
+            restorePreEditSnapshot(messageComposer);
+          }}
+        />
+      </div>
+    );
+  } else if (editedScheduledMessage) {
+    leadingPreview = (
+      <div className='str-chat__message-composer-previews'>
+        <EditedScheduledMessagePreview
+          onCancel={messageComposer.cancelEditScheduledMessage}
+          scheduledMessage={editedScheduledMessage}
+        />
+      </div>
+    );
+  } else if (failedScheduledMessage) {
+    leadingPreview = (
+      <div className='str-chat__message-composer-previews'>
+        <FailedScheduledMessagePreview
+          onCancel={messageComposer.cancelRescheduleFailedMessage}
+          scheduledMessage={failedScheduledMessage}
+        />
+      </div>
+    );
+  }
 
   // todo: pass the entity arrays from here so that the preview lists do not have to subscribe to the composer state changes too?
   return (
     <div className='str-chat__message-composer-previews'>
-      {editedMessage ? (
-        <div className='str-chat__message-composer-previews'>
-          <EditedMessagePreview
-            message={editedMessage}
-            onCancel={() => {
-              restorePreEditSnapshot(messageComposer);
-            }}
-          />
-        </div>
-      ) : (
-        <QuotedMessagePreview />
-      )}
+      {leadingPreview}
       <VoiceRecordingPreviewSlot />
       <AttachmentPreviewList />
       <LinkPreviewList />
@@ -151,6 +182,7 @@ export const MessageComposerUI = () => {
     AttachmentSelector = message ? SimpleAttachmentSelector : DefaultAttachmentSelector,
     AudioRecorder = DefaultAudioRecorder,
     CommandChip = DefaultCommandChip,
+    ScheduledMessagesBanner = DefaultScheduledMessagesBanner,
     SendToChannelCheckbox = DefaultSendToChannelCheckbox,
     TextareaComposer = DefaultTextareaComposer,
   } = useComponentContext();
@@ -160,6 +192,7 @@ export const MessageComposerUI = () => {
       className='str-chat__message-composer-container'
       component='div'
     >
+      {!message && ScheduledMessagesBanner && <ScheduledMessagesBanner />}
       <div
         className={clsx('str-chat__message-composer', {
           'str-chat__message-composer--command-active': !!command,

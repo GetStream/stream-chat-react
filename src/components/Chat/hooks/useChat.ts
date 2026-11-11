@@ -8,6 +8,8 @@ import {
   isLanguageSupported,
   Streami18n,
 } from '../../../i18n';
+import { useLoadScheduledMessages } from './useLoadScheduledMessages';
+import { useScheduledMessageFailureNotifications } from './useScheduledMessageFailureNotifications';
 
 import type {
   AppSettingsAPIResponse,
@@ -67,14 +69,19 @@ export const useChat = ({
     client.polls.registerSubscriptions();
     client.reminders.registerSubscriptions();
     client.reminders.initTimers();
+    client.scheduledMessages.registerSubscriptions();
 
     return () => {
       client.threads.unregisterSubscriptions();
       client.polls.unregisterSubscriptions();
       client.reminders.unregisterSubscriptions();
       client.reminders.clearTimers();
+      client.scheduledMessages.unregisterSubscriptions();
     };
   }, [client]);
+
+  useLoadScheduledMessages(client);
+  useScheduledMessageFailureNotifications(client);
 
   useEffect(() => {
     setMutes(clientMutes);

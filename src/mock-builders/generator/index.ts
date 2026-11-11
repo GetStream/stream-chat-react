@@ -6,5 +6,6 @@ export * from './messageDraft';
 export * from './poll';
 export * from './reaction';
 export * from './reminder';
+export * from './scheduledMessage';
 export * from './sharedLocation';
 export * from './user';

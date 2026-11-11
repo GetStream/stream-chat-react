@@ -38,6 +38,7 @@ export * from './Notifications';
 export * from './Poll';
 export * from './Reactions';
 export * from './SafeAnchor';
+export * from './ScheduledMessages';
 export * from './SummarizedMessagePreview';
 export * from './TextareaComposer';
 export * from './Thread';

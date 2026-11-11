@@ -14,9 +14,12 @@ import {
   type ContextMenuContentProps,
   type ContextMenuProps,
   type DateSeparatorProps,
+  type DeleteScheduledMessageAlertProps,
+  type EditedScheduledMessagePreviewProps,
   type EmojiSearchIndex,
   type EmptyStateIndicatorProps,
   type EventComponentProps,
+  type FailedScheduledMessagePreviewProps,
   type FileDragAndDropContentProps,
   type GalleryProps,
   type GiphyPreviewMessageProps,
@@ -48,6 +51,11 @@ import {
   type ReactionSelectorProps,
   type RecordingPermissionDeniedNotificationProps,
   type ReminderNotificationProps,
+  type RescheduleMessageDialogProps,
+  type ScheduledMessageActionsProps,
+  type ScheduledMessageItemProps,
+  type ScheduledMessageListProps,
+  type ScheduleMessageDialogProps,
   type ScrollToLatestMessageButtonProps,
   type SearchResultsPresearchProps,
   type SearchSourceResultListProps,
@@ -147,6 +155,10 @@ export type ComponentContextValue = {
   FileSizeIndicator?: React.ComponentType<FileSizeIndicatorProps>;
   /** Custom UI component to override default preview of edited message, defaults to and accepts same props as: [EditedMessagePreview](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageComposer/EditedMessagePreview.tsx) */
   EditedMessagePreview?: React.ComponentType<EditedMessagePreviewProps>;
+  /** Custom UI component to override the composer preview shown while a scheduled message is edited, defaults to and accepts same props as: [EditedScheduledMessagePreview](https://github.com/GetStream/stream-chat-react/blob/master/src/components/ScheduledMessages/EditedScheduledMessagePreview.tsx) */
+  EditedScheduledMessagePreview?: React.ComponentType<EditedScheduledMessagePreviewProps>;
+  /** Custom UI component to override the composer preview shown while a failed scheduled message is scheduled again, defaults to and accepts same props as: [FailedScheduledMessagePreview](https://github.com/GetStream/stream-chat-react/blob/master/src/components/ScheduledMessages/FailedScheduledMessagePreview.tsx) */
+  FailedScheduledMessagePreview?: React.ComponentType<FailedScheduledMessagePreviewProps>;
   /** Custom UI component for rendering button with emoji picker in MessageComposer */
   EmojiPicker?: React.ComponentType;
   /** Mechanism to be used with autocomplete and text replace features of the `MessageComposer` component, see [emoji-mart `SearchIndex`](https://github.com/missive/emoji-mart#%EF%B8%8F%EF%B8%8F-headless-search) */
@@ -270,6 +282,20 @@ export type ComponentContextValue = {
   SearchSourceResultsHeader?: React.ComponentType;
   /** Custom component to display the search source results UI during the search query execution, defaults to and accepts same props as: [SearchSourceResultsLoadingIndicator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Search/SearchResults/SearchSourceResultsLoadingIndicator.tsx) */
   SearchSourceResultsLoadingIndicator?: React.ComponentType;
+  /** Custom UI component rendered on each scheduled message list item to open its actions, defaults to and accepts same props as: [ScheduledMessageActions](https://github.com/GetStream/stream-chat-react/blob/master/src/components/ScheduledMessages/ScheduledMessageActions.tsx). Pass `null` to hide it. */
+  ScheduledMessageActions?: React.ComponentType<ScheduledMessageActionsProps> | null;
+  ScheduledMessageItem?: React.ComponentType<ScheduledMessageItemProps>;
+  /** Custom UI component to render the scheduled message list in the banner dialog and the Channel Detail section, defaults to and accepts same props as: [ScheduledMessageList](https://github.com/GetStream/stream-chat-react/blob/master/src/components/ScheduledMessages/ScheduledMessageList.tsx) */
+  ScheduledMessageList?: React.ComponentType<ScheduledMessageListProps>;
+  ScheduledMessagesBanner?: React.ComponentType | null;
+  /** Custom UI component rendered next to the send button that opens the schedule menu, defaults to: [ScheduleMessageButton](https://github.com/GetStream/stream-chat-react/blob/master/src/components/ScheduledMessages/ScheduleMessageButton.tsx). Pass `null` to hide it. */
+  ScheduleMessageButton?: React.ComponentType | null;
+  /** Custom UI component to render the custom-time dialog for scheduling a message, defaults to and accepts same props as: [ScheduleMessageDialog](https://github.com/GetStream/stream-chat-react/blob/master/src/components/ScheduledMessages/ScheduleMessageDialog.tsx) */
+  ScheduleMessageDialog?: React.ComponentType<ScheduleMessageDialogProps>;
+  /** Custom UI component to confirm deleting a scheduled message, defaults to and accepts same props as: [DeleteScheduledMessageAlert](https://github.com/GetStream/stream-chat-react/blob/master/src/components/ScheduledMessages/DeleteScheduledMessageAlert.tsx) */
+  DeleteScheduledMessageAlert?: React.ComponentType<DeleteScheduledMessageAlertProps>;
+  /** Custom UI component to pick a new time for a scheduled message, defaults to and accepts same props as: [RescheduleMessageDialog](https://github.com/GetStream/stream-chat-react/blob/master/src/components/ScheduledMessages/RescheduleMessageDialog.tsx) */
+  RescheduleMessageDialog?: React.ComponentType<RescheduleMessageDialogProps>;
   /** Custom UI component for send button, defaults to and accepts same props as: [SendButton](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageComposer/icons.tsx) */
   SendButton?: React.ComponentType<SendButtonProps>;
   /** Custom UI component checkbox that indicates message to be sent to main channel, defaults to and accepts same props as: [SendToChannelCheckbox](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageComposer/SendToChannelCheckbox.tsx) */

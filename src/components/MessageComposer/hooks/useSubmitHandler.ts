@@ -2,9 +2,11 @@ import { useCallback } from 'react';
 import { type LocalMessage, type Message, MessageComposer } from 'stream-chat';
 import { useMessageComposerController } from './useMessageComposerController';
 import { useChannelActionContext } from '../../../context/ChannelActionContext';
+import { useChatContext } from '../../../context/ChatContext';
 import { useTranslationContext } from '../../../context/TranslationContext';
 import { useNotificationApi } from '../../Notifications';
 import { discardPreEditSnapshot } from '../preEditSnapshot';
+import { reloadOnScheduledMessageConflict } from '../../ScheduledMessages/utils/scheduledMessageErrors';
 
 import type { MessageComposerProps } from '../MessageComposer';
 
@@ -61,6 +63,7 @@ const asNewMessage = <T extends { localMessage: LocalMessage; message: Message }
 export const useSubmitHandler = (props: MessageComposerProps) => {
   const { overrideSubmitHandler } = props;
 
+  const { client } = useChatContext('useSubmitHandler');
   const { addNotification } = useNotificationApi();
   const { editMessage, sendMessage } = useChannelActionContext('useSubmitHandler');
   const { t } = useTranslationContext('useSubmitHandler');
@@ -69,11 +72,21 @@ export const useSubmitHandler = (props: MessageComposerProps) => {
   const handleSubmit = useCallback(
     async (event?: React.BaseSyntheticEvent) => {
       event?.preventDefault();
+
+      if (messageComposer.editedScheduledMessage) {
+        await messageComposer
+          .updateScheduledMessage()
+          .catch((error: Error) =>
+            reloadOnScheduledMessageConflict(client.scheduledMessages, error),
+          );
+        return;
+      }
+
       const composition = await messageComposer.compose();
       if (!composition || !composition.message) return;
 
       // Read from the composer: the composed message never carries the `error` type.
-      const { editedMessage } = messageComposer;
+      const { editedMessage, failedScheduledMessage } = messageComposer;
       const rejectedMessage =
         editedMessage && isRejectedByServer(editedMessage) ? editedMessage : undefined;
       const { localMessage, message, sendOptions } = rejectedMessage
@@ -133,6 +146,11 @@ export const useSubmitHandler = (props: MessageComposerProps) => {
           } else {
             await sendMessage({ localMessage, message, options: sendOptions });
           }
+          if (failedScheduledMessage) {
+            client.scheduledMessages
+              .deleteScheduledMessage(failedScheduledMessage.id)
+              .catch(() => undefined);
+          }
         } catch (err) {
           restoreComposerStateSnapshot();
           addNotification({
@@ -150,6 +168,7 @@ export const useSubmitHandler = (props: MessageComposerProps) => {
     },
     [
       addNotification,
+      client,
       editMessage,
       messageComposer,
       overrideSubmitHandler,

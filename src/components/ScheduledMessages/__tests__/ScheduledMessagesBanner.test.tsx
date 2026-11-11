@@ -1,0 +1,294 @@
+import React from 'react';
+import type { PropsWithChildren } from 'react';
+import {
+  act,
+  cleanup,
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+  within,
+} from '@testing-library/react';
+import { fromPartial } from '@total-typescript/shoehorn';
+import { formatMessage, ScheduledMessageEventType, SearchController } from 'stream-chat';
+import type { LocalMessage, ScheduledMessageResponse } from 'stream-chat';
+
+import { axe } from '../../../../axe-helper';
+import { Channel } from '../../Channel';
+import { DialogManagerProvider, TranslationProvider } from '../../../context';
+import { type ChatContextValue, ChatProvider } from '../../../context/ChatContext';
+import { WithComponents } from '../../../context/WithComponents';
+import { Streami18n } from '../../../i18n';
+import { MessageComposer } from '../../MessageComposer';
+import { LegacyThreadContext } from '../../Thread/LegacyThreadContext';
+import {
+  dispatchScheduledMessageEvent,
+  generateChannel,
+  generateMessage,
+  generateScheduledMessage,
+  generateUser,
+  initClientWithChannels,
+} from '../../../mock-builders';
+
+const user = generateUser({ id: 'user-id' });
+
+const cid = 'messaging:general';
+const parentId = 'parent-1';
+
+const channelDataWith = (ownCapabilities: string[]) =>
+  generateChannel({
+    channel: { id: 'general', own_capabilities: ownCapabilities, type: 'messaging' },
+  });
+
+const threadReply = () =>
+  generateScheduledMessage({ cid, message: { parent_id: parentId, text: 'reply' } });
+
+type RenderComposerOptions = {
+  canSchedule?: boolean;
+  components?: Parameters<typeof WithComponents>[0]['overrides'];
+  inThread?: boolean;
+  scheduledMessages?: ScheduledMessageResponse[];
+};
+
+const renderComposer = async ({
+  canSchedule = true,
+  components = {},
+  inThread = false,
+  scheduledMessages = [],
+}: RenderComposerOptions = {}) => {
+  const ownCapabilities = canSchedule
+    ? ['send-message', 'schedule-message']
+    : ['send-message'];
+  const {
+    channels: [channel],
+    client,
+  } = await initClientWithChannels({
+    channelsData: [channelDataWith(ownCapabilities)],
+    customUser: user,
+  });
+  scheduledMessages.forEach(client.scheduledMessages.upsertToState);
+  client.scheduledMessages.registerSubscriptions();
+
+  const translators = await new Streami18n({ language: 'en' }).getTranslators();
+  const legacyThread: LocalMessage | undefined = inThread
+    ? formatMessage(generateMessage({ cid, id: parentId }))
+    : undefined;
+
+  const ThreadScope = ({ children }: PropsWithChildren) => (
+    <LegacyThreadContext.Provider value={{ legacyThread }}>
+      {children}
+    </LegacyThreadContext.Provider>
+  );
+
+  await act(() => {
+    render(
+      <WithComponents overrides={components}>
+        <ChatProvider
+          value={fromPartial<ChatContextValue>({
+            channel,
+            channelsQueryState: { queryInProgress: 'uninitialized' },
+            client,
+            getAppSettings: vi.fn(),
+            latestMessageDatesByChannels: {},
+            mutes: [],
+            searchController: new SearchController(),
+          })}
+        >
+          <TranslationProvider value={{ ...translators, userLanguage: 'en' }}>
+            <DialogManagerProvider id='scheduled-messages-banner-test-dialog-manager'>
+              <Channel channel={channel}>
+                <ThreadScope>
+                  <MessageComposer />
+                </ThreadScope>
+              </Channel>
+            </DialogManagerProvider>
+          </TranslationProvider>
+        </ChatProvider>
+      </WithComponents>,
+    );
+  });
+
+  return { channel, client };
+};
+
+const queryBanner = () => screen.queryByTestId('scheduled-messages-banner');
+
+describe('ScheduledMessagesBanner', () => {
+  afterEach(() => {
+    cleanup();
+    vi.restoreAllMocks();
+  });
+
+  it('stays hidden without scheduled messages', async () => {
+    await renderComposer();
+
+    expect(queryBanner()).not.toBeInTheDocument();
+  });
+
+  it('counts the scheduled messages of the channel', async () => {
+    await renderComposer({
+      scheduledMessages: [
+        generateScheduledMessage({ cid }),
+        generateScheduledMessage({ cid }),
+        threadReply(),
+      ],
+    });
+
+    expect(queryBanner()).toHaveTextContent('2 scheduled messages');
+  });
+
+  it('uses the singular for one scheduled message', async () => {
+    await renderComposer({ scheduledMessages: [generateScheduledMessage({ cid })] });
+
+    expect(queryBanner()).toHaveTextContent('1 scheduled message');
+    expect(queryBanner()).not.toHaveTextContent('1 scheduled messages');
+  });
+
+  it('switches to the failed count when a scheduled message failed', async () => {
+    await renderComposer({
+      scheduledMessages: [
+        generateScheduledMessage({ cid }),
+        generateScheduledMessage({ cid, status: 'failed' }),
+      ],
+    });
+
+    expect(queryBanner()).toHaveTextContent('1 failed to send');
+    expect(queryBanner()).not.toHaveTextContent('scheduled messages');
+    expect(queryBanner()).toHaveClass('str-chat__scheduled-messages-banner--failed');
+  });
+
+  it('leaves out the failed count when nothing failed', async () => {
+    await renderComposer({ scheduledMessages: [generateScheduledMessage({ cid })] });
+
+    expect(queryBanner()).not.toHaveTextContent('failed');
+  });
+
+  it('disappears when the store is reset for another user', async () => {
+    const { client } = await renderComposer({
+      scheduledMessages: [generateScheduledMessage({ cid })],
+    });
+
+    act(() => client.scheduledMessages.resetState());
+
+    expect(queryBanner()).not.toBeInTheDocument();
+  });
+
+  it('counts only the replies of the thread in a thread composer', async () => {
+    await renderComposer({
+      inThread: true,
+      scheduledMessages: [generateScheduledMessage({ cid }), threadReply()],
+    });
+
+    expect(queryBanner()).toHaveTextContent('1 scheduled reply');
+  });
+
+  it('stays hidden without the schedule-message capability', async () => {
+    await renderComposer({
+      canSchedule: false,
+      scheduledMessages: [generateScheduledMessage({ cid })],
+    });
+
+    expect(queryBanner()).not.toBeInTheDocument();
+  });
+
+  it('shows failed scheduled messages without the schedule-message capability', async () => {
+    await renderComposer({
+      canSchedule: false,
+      scheduledMessages: [generateScheduledMessage({ cid, status: 'failed' })],
+    });
+
+    expect(queryBanner()).toHaveTextContent('1 failed to send');
+    expect(queryBanner()).toHaveTextContent('View all');
+  });
+
+  it('updates when scheduled message events arrive', async () => {
+    const { client } = await renderComposer();
+    const scheduledMessage = generateScheduledMessage({ cid });
+
+    act(() =>
+      dispatchScheduledMessageEvent({
+        client,
+        scheduledMessage,
+        type: ScheduledMessageEventType.Created,
+      }),
+    );
+
+    await waitFor(() => expect(queryBanner()).toHaveTextContent('1 scheduled message'));
+
+    act(() =>
+      dispatchScheduledMessageEvent({
+        client,
+        scheduledMessage: { ...scheduledMessage, status: 'sent' },
+        type: ScheduledMessageEventType.Sent,
+      }),
+    );
+
+    await waitFor(() => expect(queryBanner()).not.toBeInTheDocument());
+  });
+
+  it('opens the scheduled message list from View all', async () => {
+    await renderComposer({
+      scheduledMessages: [
+        generateScheduledMessage({ cid, message: { text: 'Launch moved to Monday' } }),
+      ],
+    });
+
+    await act(() => fireEvent.click(screen.getByRole('button', { name: 'View all' })));
+
+    const dialog = await screen.findByTestId('scheduled-message-list-dialog');
+
+    expect(dialog).toHaveTextContent('Scheduled messages');
+    expect(dialog).toHaveTextContent('Launch moved to Monday');
+  });
+
+  it('filters the scheduled message list with the search field', async () => {
+    await renderComposer({
+      scheduledMessages: [
+        generateScheduledMessage({ cid, message: { text: 'Launch moved to Monday' } }),
+        generateScheduledMessage({ cid, message: { text: 'Lunch at noon' } }),
+      ],
+    });
+
+    await act(() => fireEvent.click(screen.getByRole('button', { name: 'View all' })));
+    const dialog = await screen.findByTestId('scheduled-message-list-dialog');
+    fireEvent.change(within(dialog).getByRole('searchbox', { name: 'Search' }), {
+      target: { value: 'launch' },
+    });
+
+    expect(dialog).toHaveTextContent('Launch moved to Monday');
+    expect(dialog).not.toHaveTextContent('Lunch at noon');
+  });
+
+  it('titles the list as replies in a thread', async () => {
+    await renderComposer({ inThread: true, scheduledMessages: [threadReply()] });
+
+    await act(() => fireEvent.click(screen.getByRole('button', { name: 'View all' })));
+
+    expect(await screen.findByTestId('scheduled-message-list-dialog')).toHaveTextContent(
+      'Scheduled replies',
+    );
+  });
+
+  it('can be hidden through the ScheduledMessagesBanner slot', async () => {
+    await renderComposer({
+      components: { ScheduledMessagesBanner: null },
+      scheduledMessages: [generateScheduledMessage({ cid })],
+    });
+
+    expect(queryBanner()).not.toBeInTheDocument();
+  });
+
+  it('has no accessibility violations', async () => {
+    await renderComposer({ scheduledMessages: [generateScheduledMessage({ cid })] });
+
+    expect(await axe(queryBanner() as HTMLElement)).toHaveNoViolations();
+  });
+
+  it('has no accessibility violations with failed messages', async () => {
+    await renderComposer({
+      scheduledMessages: [generateScheduledMessage({ cid, status: 'failed' })],
+    });
+
+    expect(await axe(queryBanner() as HTMLElement)).toHaveNoViolations();
+  });
+});

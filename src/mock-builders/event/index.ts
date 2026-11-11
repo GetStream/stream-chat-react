@@ -17,3 +17,4 @@ export { default as dispatchNotificationMutesUpdated } from './notificationMutes
 export { default as dispatchNotificationRemovedFromChannel } from './notificationRemovedFromChannel';
 export { default as dispatchUserMessagesDeletedEvent } from './userMessagesDeleted';
 export { default as dispatchUserUpdatedEvent } from './userUpdated';
+export * from './scheduledMessage';

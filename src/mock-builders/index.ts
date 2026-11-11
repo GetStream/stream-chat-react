@@ -20,6 +20,7 @@ const connectUser = (client: StreamChat, user: Partial<UserResponse>) =>
 interface MockClientOverrides {
   getAppSettings?: StreamChat['getAppSettings'];
   queryReactions?: StreamChat['queryReactions'];
+  queryScheduledMessages?: StreamChat['queryScheduledMessages'];
 }
 
 function mockClient(client: StreamChat, mocks: MockClientOverrides = {}) {
@@ -31,6 +32,10 @@ function mockClient(client: StreamChat, mocks: MockClientOverrides = {}) {
   vi.spyOn(client, 'queryReactions').mockImplementation(
     mocks.queryReactions ??
       ((() => Promise.resolve({})) as unknown as StreamChat['queryReactions']),
+  );
+  vi.spyOn(client, 'queryScheduledMessages').mockImplementation(
+    mocks.queryScheduledMessages ??
+      (() => Promise.resolve({ duration: '', scheduled_messages: [] })),
   );
   client.tokenManager = fromPartial<TokenManager>({
     getToken: vi.fn(() => token),
