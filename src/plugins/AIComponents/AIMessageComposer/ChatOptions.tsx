@@ -4,6 +4,11 @@ import clsx from 'clsx';
 import { useTranslationContext } from '../../../context/TranslationContext';
 import { useComponentContextIcons } from '../../../context/useComponentContextIcons';
 import { Dropdown, type DropdownTriggerProps } from '../../../components/Form/Dropdown';
+import {
+  AIThemeScope,
+  ThemeScopeProvider,
+  useAIThemeScopeClassName,
+} from '../themeScope';
 
 /**
  * A way to ask, which the person picks for their next message, such as "Think harder". The
@@ -39,7 +44,8 @@ export const ChatOptionsList = ({
   options,
   selectedId,
 }: ChatOptionsListProps) => (
-  <>
+  // The items have no root of their own, so the scope wraps them when rendered on their own.
+  <AIThemeScope>
     {options.map((option) => (
       <button
         aria-checked={option.id === selectedId}
@@ -62,7 +68,7 @@ export const ChatOptionsList = ({
         </span>
       </button>
     ))}
-  </>
+  </AIThemeScope>
 );
 
 export type SelectedChatOptionChipProps = {
@@ -79,25 +85,34 @@ export const SelectedChatOptionChip = ({
   onRemove,
   option,
 }: SelectedChatOptionChipProps) => {
+  const themeScopeClassName = useAIThemeScopeClassName();
   const { t } = useTranslationContext();
   const { IconXmarkSmall } = useComponentContextIcons();
   const title = option.shortTitle ?? option.title;
   return (
-    <span className={clsx('str-chat__ai-chat-options__chip', className)}>
-      {option.icon && (
-        <span className='str-chat__ai-chat-options__chip-icon'>{option.icon}</span>
-      )}
-      <span className='str-chat__ai-chat-options__chip-title'>{title}</span>
-      <button
-        aria-label={t('aria/Remove option: {{ option }}', { option: title })}
-        className='str-chat__ai-chat-options__chip-remove'
-        disabled={disabled}
-        onClick={onRemove}
-        type='button'
+    <ThemeScopeProvider>
+      <span
+        className={clsx(
+          themeScopeClassName,
+          'str-chat__ai-chat-options__chip',
+          className,
+        )}
       >
-        <IconXmarkSmall />
-      </button>
-    </span>
+        {option.icon && (
+          <span className='str-chat__ai-chat-options__chip-icon'>{option.icon}</span>
+        )}
+        <span className='str-chat__ai-chat-options__chip-title'>{title}</span>
+        <button
+          aria-label={t('aria/Remove option: {{ option }}', { option: title })}
+          className='str-chat__ai-chat-options__chip-remove'
+          disabled={disabled}
+          onClick={onRemove}
+          type='button'
+        >
+          <IconXmarkSmall />
+        </button>
+      </span>
+    </ThemeScopeProvider>
   );
 };
 
@@ -162,6 +177,7 @@ export const ChatOptions = ({
   options,
   selectedId: selectedIdProp,
 }: ChatOptionsProps) => {
+  const themeScopeClassName = useAIThemeScopeClassName();
   const { t } = useTranslationContext();
   const [uncontrolledId, setUncontrolledId] = useState(defaultSelectedId);
   const selectedId = selectedIdProp === undefined ? uncontrolledId : selectedIdProp;
@@ -173,30 +189,32 @@ export const ChatOptions = ({
   };
 
   return (
-    <div className={clsx('str-chat__ai-chat-options', className)}>
-      <ChatOptionsTriggerContext.Provider value={{ disabled, icon }}>
-        <Dropdown
-          className='str-chat__ai-chat-options__list'
-          placement='top-start'
-          TriggerComponent={ChatOptionsTrigger}
-        >
-          <div aria-label={t('aria/Chat options')} role='group'>
-            <ChatOptionsList
-              onSelect={(option) => select(option.id === selectedId ? null : option)}
-              options={options}
-              selectedId={selectedId}
-            />
-          </div>
-        </Dropdown>
-      </ChatOptionsTriggerContext.Provider>
-      {selected && (
-        <SelectedChatOptionChip
-          disabled={disabled}
-          onRemove={() => select(null)}
-          option={selected}
-        />
-      )}
-      {name && <input name={name} type='hidden' value={selected?.id ?? ''} />}
-    </div>
+    <ThemeScopeProvider>
+      <div className={clsx(themeScopeClassName, 'str-chat__ai-chat-options', className)}>
+        <ChatOptionsTriggerContext.Provider value={{ disabled, icon }}>
+          <Dropdown
+            className='str-chat__ai-chat-options__list'
+            placement='top-start'
+            TriggerComponent={ChatOptionsTrigger}
+          >
+            <div aria-label={t('aria/Chat options')} role='group'>
+              <ChatOptionsList
+                onSelect={(option) => select(option.id === selectedId ? null : option)}
+                options={options}
+                selectedId={selectedId}
+              />
+            </div>
+          </Dropdown>
+        </ChatOptionsTriggerContext.Provider>
+        {selected && (
+          <SelectedChatOptionChip
+            disabled={disabled}
+            onRemove={() => select(null)}
+            option={selected}
+          />
+        )}
+        {name && <input name={name} type='hidden' value={selected?.id ?? ''} />}
+      </div>
+    </ThemeScopeProvider>
   );
 };

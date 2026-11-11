@@ -7,6 +7,7 @@ import { type AIToolApprover, useAIToolApprover } from '../ToolCalls/AIToolAppro
 import { isAwaitingApproval } from './parseMessageParts';
 import { formatToolArguments } from './toolArguments';
 import type { AIToolApprovalData, AIToolCallPart } from './types';
+import { ThemeScopeProvider, useAIThemeScopeClassName } from '../themeScope';
 
 /** Where the person's answer to a tool call's question is. */
 export type AIToolApprovalState = {
@@ -35,14 +36,18 @@ const LONG_ARGUMENTS_CHARACTERS = 280;
 const LONG_ARGUMENTS_LINES = 6;
 
 // Formatted arguments, in full when short, else collapsed under "What it sends".
+// Scoped on its own root, since `AIToolArguments` also renders it outside an approval card.
 const ToolArgumentsText = ({ className, text }: { text: string; className?: string }) => {
+  const themeScopeClassName = useAIThemeScopeClassName();
   const { t } = useTranslationContext();
   const isLong =
     text.length > LONG_ARGUMENTS_CHARACTERS ||
     text.split('\n').length > LONG_ARGUMENTS_LINES;
   const code = <pre className='str-chat__ai-tool-arguments__code'>{text}</pre>;
   return isLong ? (
-    <details className={clsx('str-chat__ai-tool-arguments', className)}>
+    <details
+      className={clsx(themeScopeClassName, 'str-chat__ai-tool-arguments', className)}
+    >
       <summary className='str-chat__ai-tool-arguments__label'>
         {t('What it sends')}
       </summary>
@@ -51,7 +56,7 @@ const ToolArgumentsText = ({ className, text }: { text: string; className?: stri
   ) : (
     <div
       aria-label={t('What it sends')}
-      className={clsx('str-chat__ai-tool-arguments', className)}
+      className={clsx(themeScopeClassName, 'str-chat__ai-tool-arguments', className)}
       role='group'
     >
       {code}
@@ -115,56 +120,63 @@ export const AIToolApprovalCard = ({
   onDecide,
   state = idle,
 }: AIToolApprovalCardProps) => {
+  const themeScopeClassName = useAIThemeScopeClassName();
   const { t } = useTranslationContext();
   const { IconLoading } = useComponentContextIcons();
   return (
-    <div
-      aria-busy={state.isSending}
-      className={clsx('str-chat__ai-tool-approval-card', className)}
-      role='group'
-    >
-      <div className='str-chat__ai-tool-approval-card__text'>
-        <div className='str-chat__ai-tool-approval-card__title'>{approval.title}</div>
-        {approvalLines(approval).map((line) => (
-          <div className='str-chat__ai-tool-approval-card__message' key={line}>
-            {line}
-          </div>
-        ))}
-      </div>
-      {argumentsPreview !== undefined && argumentsPreview !== null && (
-        <div className='str-chat__ai-tool-approval-card__arguments'>
-          {argumentsPreview}
+    <ThemeScopeProvider>
+      <div
+        aria-busy={state.isSending}
+        className={clsx(
+          themeScopeClassName,
+          'str-chat__ai-tool-approval-card',
+          className,
+        )}
+        role='group'
+      >
+        <div className='str-chat__ai-tool-approval-card__text'>
+          <div className='str-chat__ai-tool-approval-card__title'>{approval.title}</div>
+          {approvalLines(approval).map((line) => (
+            <div className='str-chat__ai-tool-approval-card__message' key={line}>
+              {line}
+            </div>
+          ))}
         </div>
-      )}
-      <div className='str-chat__ai-tool-approval-card__actions'>
-        <button
-          className='str-chat__ai-button str-chat__ai-button--primary'
-          disabled={state.isSending}
-          onClick={() => onDecide(true)}
-          type='button'
-        >
-          {approval.allowTitle ?? t('Allow')}
-        </button>
-        <button
-          className='str-chat__ai-button str-chat__ai-button--secondary'
-          disabled={state.isSending}
-          onClick={() => onDecide(false)}
-          type='button'
-        >
-          {approval.declineTitle ?? t("Don't Allow")}
-        </button>
-        {state.isSending && (
-          <span className='str-chat__ai-spinner'>
-            <IconLoading />
-          </span>
+        {argumentsPreview !== undefined && argumentsPreview !== null && (
+          <div className='str-chat__ai-tool-approval-card__arguments'>
+            {argumentsPreview}
+          </div>
+        )}
+        <div className='str-chat__ai-tool-approval-card__actions'>
+          <button
+            className='str-chat__ai-button str-chat__ai-button--primary'
+            disabled={state.isSending}
+            onClick={() => onDecide(true)}
+            type='button'
+          >
+            {approval.allowTitle ?? t('Allow')}
+          </button>
+          <button
+            className='str-chat__ai-button str-chat__ai-button--secondary'
+            disabled={state.isSending}
+            onClick={() => onDecide(false)}
+            type='button'
+          >
+            {approval.declineTitle ?? t("Don't Allow")}
+          </button>
+          {state.isSending && (
+            <span className='str-chat__ai-spinner'>
+              <IconLoading />
+            </span>
+          )}
+        </div>
+        {state.failed && (
+          <div className='str-chat__ai-tool-approval-card__failure' role='alert'>
+            {t("Your answer couldn't be sent. Try again.")}
+          </div>
         )}
       </div>
-      {state.failed && (
-        <div className='str-chat__ai-tool-approval-card__failure' role='alert'>
-          {t("Your answer couldn't be sent. Try again.")}
-        </div>
-      )}
-    </div>
+    </ThemeScopeProvider>
   );
 };
 

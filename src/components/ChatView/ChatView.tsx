@@ -28,6 +28,7 @@ import {
 
 import type { PropsWithChildren } from 'react';
 import type { Thread, ThreadManagerState } from 'stream-chat';
+import { ThemeScopeProvider } from '../../context/ThemeScopeContext';
 
 export type ChatView = 'channels' | 'threads';
 
@@ -80,7 +81,9 @@ export const ChatView = ({ children }: PropsWithChildren) => {
   return (
     <ChatViewA11yContext.Provider value={a11yValue}>
       <ChatViewContext.Provider value={value}>
-        <div className={clsx('str-chat', theme, 'str-chat__chat-view')}>{children}</div>
+        <div className={clsx('str-chat', theme, 'str-chat__chat-view')}>
+          <ThemeScopeProvider>{children}</ThemeScopeProvider>
+        </div>
       </ChatViewContext.Provider>
     </ChatViewA11yContext.Provider>
   );

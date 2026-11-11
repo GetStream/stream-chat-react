@@ -14,6 +14,7 @@ import clsx from 'clsx';
 
 import { JsonChart } from './tools/charts/JsonChart';
 import { SuspendedChart } from './tools/charts/SuspendedChart';
+import { AIThemeScope } from '../themeScope';
 
 type CodeElementProps = {
   children?: React.ReactNode;
@@ -206,11 +207,15 @@ export const AIMarkdown: AIMarkdown = (props) => {
   );
 
   return (
-    <AIMarkdownContext.Provider value={{ toolComponents: mergedToolComponents }}>
-      <ReactMarkdown components={mergedMarkdownComponents} remarkPlugins={[remarkGfm]}>
-        {props.children}
-      </ReactMarkdown>
-    </AIMarkdownContext.Provider>
+    // No single root element of its own, so the scope is a layout-neutral wrapper, added only
+    // when nothing above provides one.
+    <AIThemeScope>
+      <AIMarkdownContext.Provider value={{ toolComponents: mergedToolComponents }}>
+        <ReactMarkdown components={mergedMarkdownComponents} remarkPlugins={[remarkGfm]}>
+          {props.children}
+        </ReactMarkdown>
+      </AIMarkdownContext.Provider>
+    </AIThemeScope>
   );
 };
 

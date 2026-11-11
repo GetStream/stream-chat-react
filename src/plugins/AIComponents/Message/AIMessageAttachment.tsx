@@ -5,6 +5,7 @@ import { sanitizeUrl } from '@braintree/sanitize-url';
 import { useTranslationContext } from '../../../context/TranslationContext';
 import { useComponentContextIcons } from '../../../context/useComponentContextIcons';
 import { prettifyFileSize } from '../../../components/MessageComposer/hooks/utils';
+import { useAIThemeScopeClassName } from '../themeScope';
 
 /**
  * What a message carries besides its text, such as an image or a file. The counterpart of
@@ -70,6 +71,7 @@ export const AIMessageAttachment = ({
   className,
   role = 'assistant',
 }: AIMessageAttachmentProps) => {
+  const themeScopeClassName = useAIThemeScopeClassName();
   const { t } = useTranslationContext();
   const { IconFile } = useComponentContextIcons();
   const url = attachment.url ? safeUrl(attachment.url, attachment.kind) : undefined;
@@ -81,6 +83,7 @@ export const AIMessageAttachment = ({
     (attachment.kind === 'image' ? t('Image') : t('File'));
 
   const classes = clsx(
+    themeScopeClassName,
     'str-chat__ai-message-attachment',
     `str-chat__ai-message-attachment--${attachment.kind}`,
     `str-chat__ai-message-attachment--${role}`,
