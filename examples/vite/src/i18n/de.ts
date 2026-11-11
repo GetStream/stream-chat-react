@@ -67,6 +67,8 @@ export const deTranslations = {
   'aiComponents.conversation.scrollToLatest.ariaLabel': 'Zur neuesten Nachricht scrollen',
   'aiComponents.messageAttachment.file.text': 'Datei',
   'aiComponents.messageAttachment.image.text': 'Bild',
+  'aiComponents.messageComposer.cancelEditing.ariaLabel': 'Bearbeiten abbrechen',
+  'aiComponents.messageComposer.editing.text': 'Wird bearbeitet',
   'aiComponents.messageComposer.speechToText.ariaLabel': 'Spracheingabe starten',
   'aiComponents.messageComposer.textInput.placeholder': 'Stelle eine Frage...',
   'aiComponents.messageParts.unsupportedStep.text':

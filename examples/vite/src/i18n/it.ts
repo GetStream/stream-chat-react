@@ -58,6 +58,8 @@ export const itTranslations = {
   'aiComponents.conversation.scrollToLatest.ariaLabel': "Vai all'ultimo messaggio",
   'aiComponents.messageAttachment.file.text': 'File',
   'aiComponents.messageAttachment.image.text': 'Immagine',
+  'aiComponents.messageComposer.cancelEditing.ariaLabel': 'Annulla modifica',
+  'aiComponents.messageComposer.editing.text': 'In modifica',
   'aiComponents.messageComposer.speechToText.ariaLabel': 'Avvia input vocale',
   'aiComponents.messageComposer.textInput.placeholder': 'Fai una domanda...',
   'aiComponents.messageParts.unsupportedStep.text':
