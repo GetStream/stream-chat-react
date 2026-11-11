@@ -1,13 +1,25 @@
 @use '../../../styling/utils';
 
+// The modal's dialog wrapper is a flex item sized to its content, so without a limit of its own the
+// dialog's `max-width: 100%` measures against its own 520px and overflows a narrow screen. Top-level,
+// as in `Modal.scss`: the modal is portaled and is itself the `.str-chat` element, with no such
+// ancestor.
+.str-chat__scheduled-message-list-modal > .str-chat__modal__dialog {
+  max-width: calc(100% - 2 * var(--str-chat__spacing-md));
+}
+
 .str-chat {
   .str-chat__scheduled-message-list-dialog {
     width: 520px;
     max-width: 100%;
+    // A fixed height, as ChannelDetail's: sized to its content, the dialog would grow and shrink
+    // with every search keystroke and page loaded.
+    height: min(640px, calc(100dvh - 2 * var(--str-chat__spacing-md)));
 
     // the list scrolls, so reaching its end loads the next page
     .str-chat__scheduled-message-list-dialog__body {
       display: flex;
+      flex: 1;
       flex-direction: column;
       min-height: 0;
       overflow: hidden;
