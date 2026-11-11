@@ -2,6 +2,7 @@ import React, { type ReactNode, useEffect, useState } from 'react';
 
 import type { AIUIDocument } from './AIUIDocument';
 import type { AIUIHost } from './AIUIHost';
+import { AIThemeScope } from '../themeScope';
 
 /**
  * Loads the runtime of a renderer, its format's packages, once and in the browser only, when a
@@ -90,5 +91,7 @@ export const AIUIRuntimeView = <Runtime,>({
       live = false;
     };
   }, [loader, runtime]);
-  return <>{runtime ? render(runtime) : placeholder}</>;
+  // What the renderer draws has no root element of the SDK's, so the scope is a layout-neutral
+  // wrapper, added only when nothing above provides one.
+  return <AIThemeScope>{runtime ? render(runtime) : placeholder}</AIThemeScope>;
 };

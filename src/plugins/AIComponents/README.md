@@ -499,6 +499,10 @@ v15 bundles English only. If your app runs in another language and relied on the
 
 ## Theming
 
+Each AI component carries the `str-chat` theme scope itself, as `ChannelList` does. Rendered outside `ChatView`, `Channel`, `ChannelList` or another AI component, its root element gets the `str-chat` class with `Chat`'s `theme` (and `customClasses.chat` in place of `str-chat`), so its fonts and colors follow the SDK theme without a wrapper element of your own. Inside a scope it adds none, since a nested `.str-chat` would reset the tokens you override on the outer one. Without `Chat` it gets the plain `str-chat` scope. `AIMarkdown`, `AIUIRuntimeView` and `ChatOptionsList`, which have no root element of their own, get a layout-neutral (`display: contents`) wrapper instead.
+
+Set a dark theme with `<Chat theme='str-chat__theme-dark'>`, not with a class on an element of your own: an AI component can't see that element, so it would scope itself with `Chat`'s theme, light by default.
+
 The library never declares the `--str-chat__ai-*` custom properties. Each rule reads them with fallbacks:
 
 ```css

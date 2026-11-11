@@ -4,6 +4,7 @@ import clsx from 'clsx';
 import type { Channel as StreamChannel } from 'stream-chat';
 
 import { ChannelInstanceProvider, useChatContext } from '../../context';
+import { ThemeScopeProvider } from '../../context/ThemeScopeContext';
 
 import { CHANNEL_CONTAINER_ID } from './constants';
 import { DEFAULT_NEXT_CHANNEL_PAGE_SIZE } from '../../constants/limits';
@@ -38,7 +39,8 @@ export const ChannelPlaceholder = ({
   const className = clsx(chatClass, theme, channelClass, additionalClassName);
   return (
     <div id={CHANNEL_CONTAINER_ID} {...props} className={className}>
-      {children}
+      {/* The root carries the `str-chat <theme>` scope, so components inside add none of their own. */}
+      <ThemeScopeProvider>{children}</ThemeScopeProvider>
     </div>
   );
 };

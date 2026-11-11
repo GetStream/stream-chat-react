@@ -12,6 +12,7 @@ import { AIConnectorSignInError } from '../ToolCalls/popupAuthorizer';
 import { useNow } from '../utils';
 import { isAuthorizationExpired, isAwaitingAuthorization } from './parseMessageParts';
 import type { AIToolAuthorizationData, AIToolCallPart } from './types';
+import { ThemeScopeProvider, useAIThemeScopeClassName } from '../themeScope';
 
 /** Where the person's answer to a sign-in is. */
 export type AIToolAuthorizationState = {
@@ -55,6 +56,7 @@ export const AIToolAuthorizationCard = ({
   onDecline,
   state = idle,
 }: AIToolAuthorizationCardProps) => {
+  const themeScopeClassName = useAIThemeScopeClassName();
   const { t } = useTranslationContext();
   const { IconLoading } = useComponentContextIcons();
   const open = authorization.status === undefined;
@@ -109,68 +111,71 @@ export const AIToolAuthorizationCard = ({
   })();
 
   return (
-    <div
-      aria-busy={busy}
-      className={clsx(
-        'str-chat__ai-tool-authorization-card',
-        authorization.status &&
-          `str-chat__ai-tool-authorization-card--${authorization.status}`,
-        expired && 'str-chat__ai-tool-authorization-card--expired',
-        className,
-      )}
-      role='group'
-    >
-      <div className='str-chat__ai-tool-approval-card__text'>
-        <div className='str-chat__ai-tool-approval-card__title'>
-          {authorization.title}
+    <ThemeScopeProvider>
+      <div
+        aria-busy={busy}
+        className={clsx(
+          themeScopeClassName,
+          'str-chat__ai-tool-authorization-card',
+          authorization.status &&
+            `str-chat__ai-tool-authorization-card--${authorization.status}`,
+          expired && 'str-chat__ai-tool-authorization-card--expired',
+          className,
+        )}
+        role='group'
+      >
+        <div className='str-chat__ai-tool-approval-card__text'>
+          <div className='str-chat__ai-tool-approval-card__title'>
+            {authorization.title}
+          </div>
+          {authorization.message && (
+            <div className='str-chat__ai-tool-approval-card__message'>
+              {authorization.message}
+            </div>
+          )}
         </div>
-        {authorization.message && (
-          <div className='str-chat__ai-tool-approval-card__message'>
-            {authorization.message}
+        {outcome && (
+          <div className='str-chat__ai-tool-authorization-card__outcome' role='status'>
+            {outcome}
+          </div>
+        )}
+        {open && (
+          <div className='str-chat__ai-tool-approval-card__actions'>
+            {!expired && (
+              <button
+                className='str-chat__ai-button str-chat__ai-button--primary'
+                disabled={busy}
+                onClick={onConnect}
+                type='button'
+              >
+                {state.isConnecting
+                  ? t('aiComponents.toolAuthorization.connecting.label', 'Connecting…')
+                  : t('aiComponents.toolAuthorization.connect.label', 'Connect')}
+              </button>
+            )}
+            {/* Left enabled while the sign-in is open, so one that never comes back leaves a way out. */}
+            <button
+              className='str-chat__ai-button str-chat__ai-button--secondary'
+              disabled={state.isDeclining}
+              onClick={onDecline}
+              type='button'
+            >
+              {t('aiComponents.toolAuthorization.notNow.label', 'Not now')}
+            </button>
+            {busy && (
+              <span className='str-chat__ai-spinner'>
+                <IconLoading />
+              </span>
+            )}
+          </div>
+        )}
+        {failure && (
+          <div className='str-chat__ai-tool-approval-card__failure' role='alert'>
+            {failure}
           </div>
         )}
       </div>
-      {outcome && (
-        <div className='str-chat__ai-tool-authorization-card__outcome' role='status'>
-          {outcome}
-        </div>
-      )}
-      {open && (
-        <div className='str-chat__ai-tool-approval-card__actions'>
-          {!expired && (
-            <button
-              className='str-chat__ai-button str-chat__ai-button--primary'
-              disabled={busy}
-              onClick={onConnect}
-              type='button'
-            >
-              {state.isConnecting
-                ? t('aiComponents.toolAuthorization.connecting.label', 'Connecting…')
-                : t('aiComponents.toolAuthorization.connect.label', 'Connect')}
-            </button>
-          )}
-          {/* Left enabled while the sign-in is open, so one that never comes back leaves a way out. */}
-          <button
-            className='str-chat__ai-button str-chat__ai-button--secondary'
-            disabled={state.isDeclining}
-            onClick={onDecline}
-            type='button'
-          >
-            {t('aiComponents.toolAuthorization.notNow.label', 'Not now')}
-          </button>
-          {busy && (
-            <span className='str-chat__ai-spinner'>
-              <IconLoading />
-            </span>
-          )}
-        </div>
-      )}
-      {failure && (
-        <div className='str-chat__ai-tool-approval-card__failure' role='alert'>
-          {failure}
-        </div>
-      )}
-    </div>
+    </ThemeScopeProvider>
   );
 };
 

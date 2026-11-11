@@ -29,6 +29,7 @@ import {
   turnsOf,
 } from './entries';
 import type { AIMessage, AIPendingMessage } from './types';
+import { ThemeScopeProvider, useAIThemeScopeClassName } from '../themeScope';
 
 // How far from the end still counts as at the end, in pixels.
 const END_SLACK = 32;
@@ -286,6 +287,7 @@ export const AIConversation = ({
   ui,
   UserMessage = DefaultUserMessage,
 }: AIConversationProps) => {
+  const themeScopeClassName = useAIThemeScopeClassName();
   const { t } = useTranslationContext();
   const { IconArrowDown, IconLoading } = useComponentContextIcons();
 
@@ -564,63 +566,67 @@ export const AIConversation = ({
   };
 
   return (
-    <AIToolApproverProvider approver={approver}>
-      <div className={clsx('str-chat__ai-conversation', className)}>
+    <ThemeScopeProvider>
+      <AIToolApproverProvider approver={approver}>
         <div
-          className='str-chat__ai-conversation__scroller'
-          onScroll={onScroll}
-          ref={scrollerRef}
+          className={clsx(themeScopeClassName, 'str-chat__ai-conversation', className)}
         >
-          {turns.length === 0 ? (
-            <div
-              className='str-chat__ai-conversation__empty'
-              ref={contentRef}
-              style={{ paddingBottom: bottomInset }}
-            >
-              {emptyContent}
-            </div>
-          ) : (
-            <div
-              className='str-chat__ai-conversation__turns'
-              ref={contentRef}
-              style={{ paddingBottom: bottomInset }}
-            >
-              {loadsOlder && (
-                <div
-                  aria-label={t(
-                    'aiComponents.conversation.loadingOlderMessages.ariaLabel',
-                    'Loading older messages',
-                  )}
-                  className='str-chat__ai-conversation__loading-older'
-                  ref={spinnerRef}
-                  role='progressbar'
-                >
-                  <IconLoading />
-                </div>
+          <div
+            className='str-chat__ai-conversation__scroller'
+            onScroll={onScroll}
+            ref={scrollerRef}
+          >
+            {turns.length === 0 ? (
+              <div
+                className='str-chat__ai-conversation__empty'
+                ref={contentRef}
+                style={{ paddingBottom: bottomInset }}
+              >
+                {emptyContent}
+              </div>
+            ) : (
+              <div
+                className='str-chat__ai-conversation__turns'
+                ref={contentRef}
+                style={{ paddingBottom: bottomInset }}
+              >
+                {loadsOlder && (
+                  <div
+                    aria-label={t(
+                      'aiComponents.conversation.loadingOlderMessages.ariaLabel',
+                      'Loading older messages',
+                    )}
+                    className='str-chat__ai-conversation__loading-older'
+                    ref={spinnerRef}
+                    role='progressbar'
+                  >
+                    <IconLoading />
+                  </div>
+                )}
+                {turns.map(renderTurn)}
+              </div>
+            )}
+          </div>
+          {!isEndInView && turns.length > 0 && (
+            <button
+              aria-label={t(
+                'aiComponents.conversation.scrollToLatest.ariaLabel',
+                'Scroll to latest',
               )}
-              {turns.map(renderTurn)}
-            </div>
+              className='str-chat__ai-conversation__scroll-to-latest'
+              onClick={() => scrollToEnd(true)}
+              style={{ bottom: bottomInset }}
+              title={t(
+                'aiComponents.conversation.scrollToLatest.ariaLabel',
+                'Scroll to latest',
+              )}
+              type='button'
+            >
+              <IconArrowDown />
+            </button>
           )}
         </div>
-        {!isEndInView && turns.length > 0 && (
-          <button
-            aria-label={t(
-              'aiComponents.conversation.scrollToLatest.ariaLabel',
-              'Scroll to latest',
-            )}
-            className='str-chat__ai-conversation__scroll-to-latest'
-            onClick={() => scrollToEnd(true)}
-            style={{ bottom: bottomInset }}
-            title={t(
-              'aiComponents.conversation.scrollToLatest.ariaLabel',
-              'Scroll to latest',
-            )}
-            type='button'
-          >
-            <IconArrowDown />
-          </button>
-        )}
-      </div>
-    </AIToolApproverProvider>
+      </AIToolApproverProvider>
+    </ThemeScopeProvider>
   );
 };

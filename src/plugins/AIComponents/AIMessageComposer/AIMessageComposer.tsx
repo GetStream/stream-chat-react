@@ -24,6 +24,7 @@ import { AttachmentPreview } from './AttachmentPreview';
 import { ChatOptions as ChatOptionsBase, type ChatOptionsProps } from './ChatOptions';
 import { useSpeechToText, type UseSpeechToTextOptions } from './hooks/useSpeechToText';
 import { useIsomorphicLayoutEffect } from '../utils';
+import { ThemeScopeProvider, useAIThemeScopeClassName } from '../themeScope';
 
 const nanoId = customAlphabet('abcdefghijklmnopqrstuvwxyz0123456789', 15);
 
@@ -300,6 +301,7 @@ export const AIMessageComposer: AIMessageComposer = ({
   resetAttachmentsOnSelect = true,
   ...restProps
 }) => {
+  const themeScopeClassName = useAIThemeScopeClassName();
   const [stateStore] = useState(
     () => new StateStore<AIMessageComposerStore>(initialStoreState),
   );
@@ -364,20 +366,23 @@ export const AIMessageComposer: AIMessageComposer = ({
   });
 
   return (
-    <AIMessageComposerContext.Provider value={stateStore}>
-      <form
-        className={clsx(
-          'str-chat__ai-message-composer__form',
-          layout === 'inline' && 'str-chat__ai-message-composer__form--inline',
-          className,
-        )}
-        onChange={handleChange}
-        onReset={handleReset}
-        {...restProps}
-      >
-        {children}
-      </form>
-    </AIMessageComposerContext.Provider>
+    <ThemeScopeProvider>
+      <AIMessageComposerContext.Provider value={stateStore}>
+        <form
+          className={clsx(
+            themeScopeClassName,
+            'str-chat__ai-message-composer__form',
+            layout === 'inline' && 'str-chat__ai-message-composer__form--inline',
+            className,
+          )}
+          onChange={handleChange}
+          onReset={handleReset}
+          {...restProps}
+        >
+          {children}
+        </form>
+      </AIMessageComposerContext.Provider>
+    </ThemeScopeProvider>
   );
 };
 
