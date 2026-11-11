@@ -4,7 +4,6 @@ import { afterEach, describe, expect, it } from 'vitest';
 
 import { Channel } from '../../../components/Channel';
 import { Chat } from '../../../components/Chat';
-import { ThemeScopeProvider } from '../../../context/ThemeScopeContext';
 import { getTestClientWithUser, initClientWithChannels } from '../../../mock-builders';
 import { ChatView } from '../../SlotLayout';
 import {
@@ -16,6 +15,7 @@ import {
   AITypingIndicator,
   ChatOptionsList,
   StreamingMessage,
+  ThemeScopeProvider,
   VoiceWave,
 } from '..';
 
@@ -66,9 +66,9 @@ describe('AI components theme scope', () => {
     expect(root).not.toHaveClass('str-chat');
   });
 
-  it('adds no scope inside one an ancestor provides', () => {
+  it('adds no scope inside an element of your own marked with ThemeScopeProvider', () => {
     const { container } = render(
-      <div className='str-chat'>
+      <div className='str-chat str-chat__theme-dark'>
         <ThemeScopeProvider>
           {conversation}
           <StreamingMessage text='Hi' />

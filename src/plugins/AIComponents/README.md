@@ -501,7 +501,17 @@ v15 bundles English only. If your app runs in another language and relied on the
 
 Each AI component carries the `str-chat` theme scope itself, as `ChannelList` does. Rendered outside `ChatView`, `Channel`, `ChannelList` or another AI component, its root element gets the `str-chat` class with `Chat`'s `theme` (and `customClasses.chat` in place of `str-chat`), so its fonts and colors follow the SDK theme without a wrapper element of your own. Inside a scope it adds none, since a nested `.str-chat` would reset the tokens you override on the outer one. Without `Chat` it gets the plain `str-chat` scope. `AIMarkdown`, `AIUIRuntimeView` and `ChatOptionsList`, which have no root element of their own, get a layout-neutral (`display: contents`) wrapper instead.
 
-Set a dark theme with `<Chat theme='str-chat__theme-dark'>`, not with a class on an element of your own: an AI component can't see that element, so it would scope itself with `Chat`'s theme, light by default.
+Set a dark theme with `<Chat theme='str-chat__theme-dark'>`. To keep a `str-chat` element of your own instead, such as a dark container rendered without `Chat`, render `ThemeScopeProvider` inside it: an AI component can't see a class on your element, and without the provider it would scope itself again, with `Chat`'s theme or none, and reset the tokens your element sets.
+
+```tsx
+import { ThemeScopeProvider } from 'stream-chat-react/ai-components';
+
+<div className='str-chat str-chat__theme-dark'>
+  <ThemeScopeProvider>
+    <AIMessageComposer onSubmit={ask} />
+  </ThemeScopeProvider>
+</div>;
+```
 
 The library never declares the `--str-chat__ai-*` custom properties. Each rule reads them with fallbacks:
 
