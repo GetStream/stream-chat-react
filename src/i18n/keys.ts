@@ -52,6 +52,8 @@ export type TranslationCatalog = {
   'aiComponents.conversation.scrollToLatest.ariaLabel': 'Scroll to latest';
   'aiComponents.messageAttachment.file.text': 'File';
   'aiComponents.messageAttachment.image.text': 'Image';
+  'aiComponents.messageComposer.cancelEditing.ariaLabel': 'Cancel editing';
+  'aiComponents.messageComposer.editing.text': 'Editing';
   'aiComponents.messageComposer.speechToText.ariaLabel': 'Start voice input';
   'aiComponents.messageComposer.textInput.placeholder': 'Ask a question...';
   'aiComponents.messageParts.unsupportedStep.text': "A step this app version can't show";
