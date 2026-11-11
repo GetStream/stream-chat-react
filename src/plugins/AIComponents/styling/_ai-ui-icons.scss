@@ -1,3 +1,4 @@
+@use 'sass:string';
 @use './tokens' as *;
 
 // The marks a reply's generated UI draws, the same in A2UI and OpenUI: glyphs and shapes in CSS,
@@ -21,7 +22,9 @@
   content: $glyph;
 }
 
+// Non-ASCII glyphs stay CSS escapes in the output: Sass would otherwise write the characters
+// themselves, so the stylesheet would decode right only as UTF-8 (it carries no `@charset`).
 $ai-ui-glyph-info: 'i';
-$ai-ui-glyph-success: '\2713';
+$ai-ui-glyph-success: string.unquote('"\\2713"');
 $ai-ui-glyph-warning: '!';
-$ai-ui-glyph-danger: '\00d7';
+$ai-ui-glyph-danger: string.unquote('"\\00d7"');

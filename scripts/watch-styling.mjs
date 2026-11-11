@@ -108,6 +108,8 @@ const flushQueuedBuild = () => {
 
 const buildStyleEntry = async ({ entryFile, outputFile }) => {
   const { css, sourceMap } = await compileAsync(entryFile, {
+    // Same as `--no-charset` in `build-styling`: `@charset` is invalid once imported into a layer.
+    charset: false,
     sourceMap: true,
     style: 'expanded',
   });
