@@ -26,11 +26,7 @@ import { SCHEDULE_MESSAGE_CAPABILITY, useScheduledMessages } from './hooks';
 import type { ScheduledMessageItemProps } from './ScheduledMessageItem';
 import { ScheduledMessageItem as DefaultScheduledMessageItem } from './ScheduledMessageItem';
 import { ScheduledMessagesNotice } from './ScheduledMessagesNotice';
-import {
-  getChannelByCid,
-  groupScheduledMessages,
-  searchScheduledMessages,
-} from './utils';
+import { getChannelByCid, searchScheduledMessages } from './utils';
 
 export type ScheduledMessageListProps = Pick<ScheduledMessageItemProps, 'onEdit'> & {
   /** The channel whose scheduled messages to list; all of them without it. */
@@ -149,11 +145,12 @@ const ScheduledMessageListBody = ({
     paginator,
     reload: paginator.reload,
   });
-  const groups = useMemo(
-    () => groupScheduledMessages(searchScheduledMessages(scheduledMessages, searchQuery)),
+  // in the paginator's order: earliest first, so failed messages, sent in the past, come first
+  const shownMessages = useMemo(
+    () => searchScheduledMessages(scheduledMessages, searchQuery),
     [scheduledMessages, searchQuery],
   );
-  const showsNothing = !isFirstPageLoading && !groups.length;
+  const showsNothing = !isFirstPageLoading && !shownMessages.length;
   // stops at a failed page instead of retrying it
   const loadsFurther = showsNothing && hasMoreTail && !lastQueryFailed;
 
@@ -183,35 +180,23 @@ const ScheduledMessageListBody = ({
       data-testid='scheduled-message-list'
       loadNextOnScrollToBottom={paginator.toTail}
     >
-      {groups.map(({ day, key, scheduledMessages: groupMessages }) => (
-        <section className='str-chat__scheduled-message-group' key={key}>
-          <h3 className='str-chat__scheduled-message-group__header'>
-            {day
-              ? t('timestamp.ScheduledMessageGroup', { timestamp: day })
-              : t('scheduledMessages.failed', 'Failed')}
-          </h3>
-          <ul className='str-chat__scheduled-message-group__items'>
-            {groupMessages.map((scheduledMessage) => (
-              <li
-                className='str-chat__scheduled-message-group__item'
-                key={scheduledMessage.id}
-              >
-                <ScheduledMessageItem
-                  onEdit={onEdit}
-                  scheduledMessage={scheduledMessage}
-                />
-              </li>
-            ))}
-          </ul>
-        </section>
-      ))}
+      <ul className='str-chat__scheduled-message-list__items'>
+        {shownMessages.map((scheduledMessage) => (
+          <li
+            className='str-chat__scheduled-message-list__item'
+            key={scheduledMessage.id}
+          >
+            <ScheduledMessageItem onEdit={onEdit} scheduledMessage={scheduledMessage} />
+          </li>
+        ))}
+      </ul>
       <LoadingNextPageIndicator isLoading={isLoading} />
     </InfiniteScrollPaginator>
   );
 };
 
 /**
- * Scheduled messages grouped by the day they are sent on, failed ones first, paginated on scroll.
+ * Scheduled messages, earliest first, paginated on scroll.
  * Loading, failing and empty states use the list-state components `ChannelList` uses. Scoping to a
  * thread and searching filter the loaded messages, so further pages load while none of them match.
  */

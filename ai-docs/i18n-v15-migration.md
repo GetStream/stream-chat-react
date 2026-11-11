@@ -174,11 +174,11 @@ These v14 keys (from `src/i18n/en.json` at `v14.10.0`, plural suffixes folded) h
   yarn i18n:export
   ```
 
-  That writes `en.json` in the repo root with the 716 translatable keys. The 20 `timestamp.*`,
+  That writes `en.json` in the repo root with the 718 translatable keys. The 19 `timestamp.*`,
   `duration.*` and `translationBuilderTopic.*` entries are left out on purpose — they are dayjs and
   i18next expressions, and a TMS that "translates" `{{value, notification}}` breaks notifications
-  outright. Eight of them do carry English words; those are handled by overriding the key, see
-  [Date and time](#date-and-time). Pass `--all` for the complete 736-key catalog.
+  outright. Seven of them do carry English words; those are handled by overriding the key, see
+  [Date and time](#date-and-time). Pass `--all` for the complete 737-key catalog.
 
   [`ai-docs/i18n-v15-key-map.json`](https://github.com/GetStream/stream-chat-react/blob/master/ai-docs/i18n-v15-key-map.json) also lists every key, alongside the v14 string it replaced.
 
@@ -243,7 +243,7 @@ formatter expressions, not text:
 "timestamp.MessageTimestamp": "{{ timestamp | timestampFormatter(calendar: false; format: HH:mm) }}"
 ```
 
-Most of them only need overriding to change _how_ a date is formatted. **Eight of them also carry
+Most of them only need overriding to change _how_ a date is formatted. **Seven of them also carry
 English words**, because dayjs takes the calendar wording as part of the format string:
 
 | Key                                             | English baked into `calendarFormats`           |
@@ -253,11 +253,10 @@ English words**, because dayjs takes the calendar wording as part of the format 
 | `timestamp.ChannelPreviewTimestamp`             | `Yesterday`                                    |
 | `timestamp.ChannelDetailPinnedMessageTimestamp` | `Yesterday`                                    |
 | `timestamp.ScheduledMessageConfirmation`        | `at`                                           |
-| `timestamp.ScheduledMessageGroup`               | `Today`, `Tomorrow`, `Yesterday`, `Last`       |
 | `timestamp.ScheduledMessageSendTime`            | `at`                                           |
 | `timestamp.SchedulePreset`                      | `Today`, `Tomorrow`, `Yesterday`, `Last`, `at` |
 
-Translating those eight means overriding the key itself — `dayjsLocaleConfigForLanguage` does not
+Translating those seven means overriding the key itself — `dayjsLocaleConfigForLanguage` does not
 reach them. See [Date and time](#date-and-time) for the how and why.
 
 `relativeTime.*` ("Today", "{{ count }}d ago") is ordinary copy and translates normally, as does

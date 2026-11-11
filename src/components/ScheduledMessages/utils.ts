@@ -4,7 +4,6 @@ import {
   getScheduledMessageLimits,
   getThreadScheduledMessages,
   isScheduledMessageNotFoundError,
-  nsToDate,
   SCHEDULED_MESSAGE_FAILURE_REASON,
   SCHEDULED_MESSAGE_STATUS,
   ScheduledMessageErrorReason,
@@ -36,13 +35,6 @@ export const SCHEDULED_MESSAGE_NOTIFICATION_TYPE = {
 export const SCHEDULED_MESSAGES_EMITTER = 'ScheduledMessages';
 
 export type ScheduleTimeBounds = { earliest: Date; latest?: Date };
-
-export type ScheduledMessageGroup = {
-  /** The local day the group's messages are sent on; absent for the failed group. */
-  day?: Date;
-  key: string;
-  scheduledMessages: ScheduledMessageResponse[];
-};
 
 export type ScheduledMessageAction =
   | 'copy'
@@ -94,35 +86,6 @@ export const fromInputValues = (dateValue: string, timeValue = '00:00') => {
   if (!dateValue || !timeValue) return undefined;
   const date = new Date(`${dateValue}T${timeValue}`);
   return Number.isNaN(date.getTime()) ? undefined : date;
-};
-
-/**
- * Groups the list (pending by `scheduled_at`, then failed) by the local day pending messages are
- * sent on, with the failed ones in one group shown first.
- */
-export const groupScheduledMessages = (scheduledMessages: ScheduledMessageResponse[]) => {
-  const groups = scheduledMessages.reduce<ScheduledMessageGroup[]>(
-    (groups, scheduledMessage) => {
-      const isFailed = isFailedScheduledMessage(scheduledMessage);
-      const day = nsToDate(scheduledMessage.scheduled_at);
-      const key = isFailed ? 'failed' : toDateInputValue(day);
-      const lastGroup = groups[groups.length - 1];
-
-      if (lastGroup?.key === key) lastGroup.scheduledMessages.push(scheduledMessage);
-      else
-        groups.push({
-          day: isFailed ? undefined : day,
-          key,
-          scheduledMessages: [scheduledMessage],
-        });
-
-      return groups;
-    },
-    [],
-  );
-  const failedGroup =
-    groups[groups.length - 1]?.key === 'failed' ? groups.pop() : undefined;
-  return failedGroup ? [failedGroup, ...groups] : groups;
 };
 
 /** The times the channel accepts; no `latest` when it reports no limits. */

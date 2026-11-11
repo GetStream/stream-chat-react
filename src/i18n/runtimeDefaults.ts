@@ -4,10 +4,10 @@
  * `translationBuilderTopic.*` (an i18next postProcessor directive). The `language.*` names come
  * from `stream-chat`.
  *
- * Eight `timestamp.*` entries (`DateSeparator`, `ReminderNotification`, `ChannelPreviewTimestamp`,
- * `ChannelDetailPinnedMessageTimestamp`, `ScheduledMessageConfirmation`, `ScheduledMessageGroup`,
+ * Seven `timestamp.*` entries (`DateSeparator`, `ReminderNotification`, `ChannelPreviewTimestamp`,
+ * `ChannelDetailPinnedMessageTimestamp`, `ScheduledMessageConfirmation`,
  * `ScheduledMessageSendTime`, `SchedulePreset`) hold English words in their formats, which
- * `dayjsLocaleConfigForLanguage` does not reach, so integrators override the key. Adding a ninth
+ * `dayjsLocaleConfigForLanguage` does not reach, so integrators override the key. Adding an eighth
  * fails a guard in `__tests__/Streami18n.test.ts` that keeps the migration guide's list in sync.
  */
 export const runtimeDefaults = {
@@ -37,8 +37,6 @@ export const runtimeDefaults = {
     '{{ timestamp | timestampFormatter(format: ddd, MMM D, YYYY) }}',
   'timestamp.ScheduledMessageConfirmation':
     '{{ timestamp | timestampFormatter(calendar: true; calendarFormats: { "sameDay": "HH:mm", "nextDay": "ddd, MMM D [at] HH:mm", "lastDay": "ddd, MMM D [at] HH:mm", "nextWeek": "ddd, MMM D [at] HH:mm", "lastWeek": "ddd, MMM D [at] HH:mm", "sameElse": "ddd, MMM D [at] HH:mm" }) }}',
-  'timestamp.ScheduledMessageGroup':
-    '{{ timestamp | timestampFormatter(calendar: true; calendarFormats: { "sameDay": "[Today]", "nextDay": "[Tomorrow]", "lastDay": "[Yesterday]", "nextWeek": "dddd", "lastWeek": "[Last] dddd", "sameElse": "ddd, D MMM" }) }}',
   'timestamp.ScheduledMessageSendTime':
     '{{ timestamp | timestampFormatter(format: ddd, MMM D [at] HH:mm) }}',
   'timestamp.SchedulePreset':

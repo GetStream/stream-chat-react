@@ -38,39 +38,21 @@
     margin-block-end: var(--str-chat__spacing-xs);
   }
 
-  .str-chat__scheduled-message-group {
+  .str-chat__scheduled-message-list__items {
     display: flex;
     flex-direction: column;
-
-    .str-chat__scheduled-message-group__header {
-      position: absolute;
-      width: 1px;
-      height: 1px;
-      margin: -1px;
-      padding: 0;
-      overflow: hidden;
-      clip: rect(0, 0, 0, 0);
-      white-space: nowrap;
-      border: 0;
-    }
-
-    .str-chat__scheduled-message-group__items {
-      display: flex;
-      flex-direction: column;
-      margin: 0;
-      padding: 0;
-      list-style: none;
-    }
-
-    .str-chat__scheduled-message-group__item {
-      padding: var(--str-chat__spacing-md) var(--str-chat__spacing-xl);
-      border-block-end: 1px solid var(--str-chat__border-core-subtle);
-    }
+    margin: 0;
+    padding: 0;
+    list-style: none;
   }
 
-  .str-chat__scheduled-message-group:last-of-type
-    .str-chat__scheduled-message-group__item:last-child {
-    border-block-end: none;
+  .str-chat__scheduled-message-list__item {
+    padding: var(--str-chat__spacing-md) var(--str-chat__spacing-xl);
+    border-block-end: 1px solid var(--str-chat__border-core-subtle);
+
+    &:last-child {
+      border-block-end: none;
+    }
   }
 
   .str-chat__scheduled-message-item {

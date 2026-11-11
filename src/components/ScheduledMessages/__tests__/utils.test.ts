@@ -1,7 +1,7 @@
 import { SCHEDULED_MESSAGE_FAILURE_REASON } from 'stream-chat';
 import type { Channel } from 'stream-chat';
 
-import { convertDateToTimestamp, generateScheduledMessage } from '../../../mock-builders';
+import { generateScheduledMessage } from '../../../mock-builders';
 import {
   formatTimeZoneOffset,
   fromInputValues,
@@ -10,15 +10,11 @@ import {
   getSchedulePresets,
   getScheduleTimeBounds,
   getScheduleTimeError,
-  groupScheduledMessages,
   searchScheduledMessages,
   translateScheduledMessageFailureReason,
 } from '../utils';
 
 const at = (day: number, hour: number) => new Date(2026, 9, day, hour, 0);
-const scheduledAt = (day: number, hour: number) => ({
-  scheduled_at: convertDateToTimestamp(at(day, hour)),
-});
 const withLimits = (minLeadTimeSeconds: number, maxLeadTimeSeconds: number) =>
   ({
     serverConfig: {
@@ -30,19 +26,6 @@ const withLimits = (minLeadTimeSeconds: number, maxLeadTimeSeconds: number) =>
   }) as unknown as Channel;
 
 describe('scheduled message utils', () => {
-  it('groups pending messages by day and puts the failed ones first', () => {
-    const morning = generateScheduledMessage(scheduledAt(29, 9));
-    const evening = generateScheduledMessage(scheduledAt(29, 18));
-    const nextDay = generateScheduledMessage(scheduledAt(30, 9));
-    const failed = generateScheduledMessage({ ...scheduledAt(28, 9), status: 'failed' });
-
-    const groups = groupScheduledMessages([morning, evening, nextDay, failed]);
-
-    expect(groups.map(({ key }) => key)).toEqual(['failed', '2026-10-29', '2026-10-30']);
-    expect(groups[0].day).toBeUndefined();
-    expect(groups[1].scheduledMessages).toEqual([morning, evening]);
-  });
-
   it('searches the text case-insensitively and ignores a blank query', () => {
     const lunch = generateScheduledMessage({
       message: { custom: {}, text: 'Lunch at noon' },

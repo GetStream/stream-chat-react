@@ -274,7 +274,6 @@ describe('Streami18n - the calendar keys that carry English words', () => {
     'timestamp.ReminderNotification',
     'timestamp.SchedulePreset',
     'timestamp.ScheduledMessageConfirmation',
-    'timestamp.ScheduledMessageGroup',
     'timestamp.ScheduledMessageSendTime',
   ];
 

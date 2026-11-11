@@ -73,8 +73,12 @@ const renderList = async ({
   return { ...view, client };
 };
 
-const getGroupHeaders = () =>
-  screen.getAllByRole('heading', { level: 3 }).map(({ textContent }) => textContent);
+const getListedTexts = () =>
+  screen
+    .getAllByTestId('scheduled-message-item')
+    .map(
+      (item) => item.querySelector('.str-chat__summarized-message-preview')?.textContent,
+    );
 
 const getPaginator = (client: StreamChat) => getScheduledMessagesPaginator(client, cid);
 
@@ -291,20 +295,35 @@ describe('ScheduledMessageList', () => {
     expect(screen.getByText('Loading here')).toBeInTheDocument();
   });
 
-  it('lists failed messages first, then one group per day', async () => {
+  // a failed message failed at its send time, so ordering by time alone lists it first
+  it('lists the messages earliest first, failed ones included, without grouping', async () => {
     await renderList({
       scheduledMessages: [
-        generateScheduledMessage({ cid, scheduled_at: atLocalTime(29, 9) }),
-        generateScheduledMessage({ cid, scheduled_at: atLocalTime(30, 13) }),
         generateScheduledMessage({
           cid,
-          scheduled_at: atLocalTime(29, 13),
+          message: { custom: {}, text: 'Friday plans' },
+          scheduled_at: atLocalTime(30, 13),
+        }),
+        generateScheduledMessage({
+          cid,
+          message: { custom: {}, text: 'Tomorrow plans' },
+          scheduled_at: atLocalTime(29, 9),
+        }),
+        generateScheduledMessage({
+          cid,
+          message: { custom: {}, text: 'Failed earlier' },
+          scheduled_at: atLocalTime(28, 9),
           status: SCHEDULED_MESSAGE_STATUS.Failed,
         }),
       ],
     });
 
-    expect(getGroupHeaders()).toEqual(['Failed', 'Tomorrow', 'Friday']);
+    expect(getListedTexts()).toEqual([
+      expect.stringContaining('Failed earlier'),
+      expect.stringContaining('Tomorrow plans'),
+      expect.stringContaining('Friday plans'),
+    ]);
+    expect(screen.queryByRole('heading')).not.toBeInTheDocument();
   });
 
   it('shows the send time and preview of each message', async () => {

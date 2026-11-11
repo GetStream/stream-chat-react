@@ -634,7 +634,6 @@ export type TranslationCatalog = {
   'scheduledMessages.edit': 'Edit';
   'scheduledMessages.editReschedule': 'Edit & reschedule';
   'scheduledMessages.editScheduledMessage': 'Edit scheduled message';
-  'scheduledMessages.failed': 'Failed';
   'scheduledMessages.loaded': 'Scheduled messages loaded';
   'scheduledMessages.loadingScheduledMessages': 'Loading scheduled messages';
   'scheduledMessages.messageToName': 'Message to {{ name }}';
@@ -740,7 +739,6 @@ export type TranslationCatalog = {
   'timestamp.ScheduleDate': '{{ timestamp | timestampFormatter(format: ddd, MMM D, YYYY) }}';
   'timestamp.SchedulePreset': '{{ timestamp | timestampFormatter(calendar: true; calendarFormats: { "sameDay": "[Today] [at] HH:mm", "nextDay": "[Tomorrow] [at] HH:mm", "lastDay": "[Yesterday] [at] HH:mm", "nextWeek": "dddd [at] HH:mm", "lastWeek": "[Last] dddd [at] HH:mm", "sameElse": "dddd [at] HH:mm" }) }}';
   'timestamp.ScheduledMessageConfirmation': '{{ timestamp | timestampFormatter(calendar: true; calendarFormats: { "sameDay": "HH:mm", "nextDay": "ddd, MMM D [at] HH:mm", "lastDay": "ddd, MMM D [at] HH:mm", "nextWeek": "ddd, MMM D [at] HH:mm", "lastWeek": "ddd, MMM D [at] HH:mm", "sameElse": "ddd, MMM D [at] HH:mm" }) }}';
-  'timestamp.ScheduledMessageGroup': '{{ timestamp | timestampFormatter(calendar: true; calendarFormats: { "sameDay": "[Today]", "nextDay": "[Tomorrow]", "lastDay": "[Yesterday]", "nextWeek": "dddd", "lastWeek": "[Last] dddd", "sameElse": "ddd, D MMM" }) }}';
   'timestamp.ScheduledMessageSendTime': '{{ timestamp | timestampFormatter(format: ddd, MMM D [at] HH:mm) }}';
   'timestamp.SystemMessage': '{{ timestamp | timestampFormatter(format: dddd L) }}';
   'translationBuilderTopic.notification': '{{value, notification}}';
