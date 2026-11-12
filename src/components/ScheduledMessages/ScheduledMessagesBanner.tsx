@@ -16,7 +16,7 @@ import { useStateStore } from '../../store';
 import { useAriaLiveAnnouncer } from '../Accessibility';
 import { useChannelCapabilities } from '../Channel/hooks/useChannelCapabilities';
 import { useMessageComposerController } from '../MessageComposer/hooks/useMessageComposerController';
-import { SCHEDULE_MESSAGE_CAPABILITY, useScheduledMessages } from './hooks';
+import { SCHEDULE_MESSAGE_CAPABILITY, useChannelScheduledMessages } from './hooks';
 import { ScheduledMessageListDialog as DefaultScheduledMessageListDialog } from './ScheduledMessageListDialog';
 import { isFailedScheduledMessage } from './utils';
 
@@ -53,7 +53,7 @@ export const ScheduledMessagesBanner = () => {
   const canSchedule = useChannelCapabilities({ cid: channel.cid }).has(
     SCHEDULE_MESSAGE_CAPABILITY,
   );
-  const { scheduledMessages } = useScheduledMessages(view);
+  const { scheduledMessages } = useChannelScheduledMessages(view);
   const { isLoaded } = useStateStore(view.paginator.state, selectIsLoaded);
   const { isEditing } = useStateStore(messageComposer.state, selectIsEditing);
   const announce = useAriaLiveAnnouncer();

@@ -257,23 +257,35 @@ describe('ScheduledMessagesBanner', () => {
     expect(queryBanner()).toHaveTextContent('2 scheduled replies');
   });
 
-  it('stays hidden without the schedule-message capability', async () => {
-    await renderComposer({
+  /** Without the capability nothing is queried: the messages come with the channel query. */
+  const renderWithoutCapability = async (
+    scheduledMessages: ScheduledMessageResponse[],
+  ) => {
+    const { channel, client } = await renderComposer({
+      awaitsScheduledMessages: false,
       canSchedule: false,
-      scheduledMessages: [generateScheduledMessage({ cid })],
     });
+    act(() => channel.scheduledMessagesPaginator.hydrate(scheduledMessages));
+    return { channel, client };
+  };
+
+  it('stays hidden without the schedule-message capability', async () => {
+    await renderWithoutCapability([generateScheduledMessage({ cid })]);
 
     expect(queryBanner()).not.toBeInTheDocument();
   });
 
   it('shows failed scheduled messages without the schedule-message capability', async () => {
-    await renderComposer({
-      canSchedule: false,
-      scheduledMessages: [generateScheduledMessage({ cid, status: 'failed' })],
-    });
+    await renderWithoutCapability([generateScheduledMessage({ cid, status: 'failed' })]);
 
     expect(queryBanner()).toHaveTextContent('1 failed to send');
     expect(queryBanner()).toHaveTextContent('View all');
+  });
+
+  it('does not query scheduled messages without the schedule-message capability', async () => {
+    const { client } = await renderWithoutCapability([]);
+
+    expect(client.queryScheduledMessages).not.toHaveBeenCalled();
   });
 
   it('updates when scheduled message events arrive', async () => {

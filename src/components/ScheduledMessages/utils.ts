@@ -158,24 +158,6 @@ export const isComposerEditing = ({
   !!editedMessage ||
   (!!editedScheduledMessage && !isFailedScheduledMessage(editedScheduledMessage));
 
-/**
- * After a conflict (the message changed elsewhere), reloads the lists that may hold the stale copy:
- * the channel's own and the ones registered with the client.
- */
-export const reloadOnScheduledMessageConflict = (
-  client: StreamChat,
-  cid: string,
-  error: unknown,
-) => {
-  if (getScheduledMessageErrorReason(error) !== ScheduledMessageErrorReason.Conflict)
-    return;
-  const { scheduledMessagesPaginator } = getChannelByCid(client, cid);
-  if (scheduledMessagesPaginator.hasLoadedPage) {
-    scheduledMessagesPaginator.reload().catch(() => undefined);
-  }
-  void client.scheduledMessagePaginators.recover();
-};
-
 /** Why a scheduled message failed; `undefined` when the reason needs no explanation. */
 export const translateScheduledMessageFailureReason = (
   t: StreamTFunction,

@@ -12,7 +12,7 @@ import { Prompt } from '../Dialog';
 import { TextInput } from '../Form';
 import { GlobalModal } from '../Modal';
 import { Portal } from '../Portal/Portal';
-import { useScheduledMessages, useScheduledMessagesSearch } from './hooks';
+import { useChannelScheduledMessages, useScheduledMessagesSearch } from './hooks';
 import type { ScheduledMessagesView } from 'stream-chat';
 import type { ScheduledMessageItemProps } from './ScheduledMessageItem';
 import { ScheduledMessageList as DefaultScheduledMessageList } from './ScheduledMessageList';
@@ -37,7 +37,7 @@ const ScheduledMessageListDialogBody = ({
   const { t } = useTranslationContext();
   const { IconSearch, IconXCircle } = useComponentContextIcons();
   const { ScheduledMessageList = DefaultScheduledMessageList } = useComponentContext();
-  const { scheduledMessages } = useScheduledMessages(view);
+  const { scheduledMessages } = useChannelScheduledMessages(view);
   const { filter, searchQuery, setSearchQuery } = useScheduledMessagesSearch();
   const searchInputRef = useRef<HTMLInputElement>(null);
 

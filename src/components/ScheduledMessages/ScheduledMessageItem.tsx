@@ -28,12 +28,11 @@ import { useStableId } from '../UtilityComponents/useStableId';
 import { VisuallyHidden } from '../VisuallyHidden';
 import { SCHEDULE_MESSAGE_CAPABILITY } from './hooks';
 import { useScheduledMessagePreview } from './hooks/useScheduledMessagePreview';
-import { ScheduleTimeDialog } from './ScheduleTimeDialog';
+import { ScheduleTimeDialog as DefaultScheduleTimeDialog } from './ScheduleTimeDialog';
 import {
   getChannelByCid,
   getScheduledMessageActions,
   isFailedScheduledMessage,
-  reloadOnScheduledMessageConflict,
   SCHEDULED_MESSAGE_NOTIFICATION_TYPE,
   SCHEDULED_MESSAGES_EMITTER,
   translateScheduledMessageError,
@@ -71,8 +70,11 @@ export const ScheduledMessageItem = ({
     IconMore,
     IconSend,
   } = useComponentContextIcons();
-  const { ContextMenu: ContextMenuComponent = ContextMenu, Modal = GlobalModal } =
-    useComponentContext();
+  const {
+    ContextMenu: ContextMenuComponent = ContextMenu,
+    Modal = GlobalModal,
+    ScheduleTimeDialog = DefaultScheduleTimeDialog,
+  } = useComponentContext();
   const { addNotification } = useNotificationApi();
   const isMounted = useIsMounted();
 
@@ -136,7 +138,6 @@ export const ScheduledMessageItem = ({
         });
       }
     } catch (error) {
-      reloadOnScheduledMessageConflict(client, cid, error);
       addNotification({
         emitter: SCHEDULED_MESSAGES_EMITTER,
         error: error as Error,
@@ -202,14 +203,9 @@ export const ScheduledMessageItem = ({
     'scheduledMessages.couldntRescheduleTheMessageTryAgain',
     "Couldn't reschedule the message. Try again",
   );
+  // a failure keeps the dialog open, showing it
   const reschedule = async (scheduledAt: Date) => {
-    try {
-      await getChannel().updateScheduledMessage(id, { scheduled_at: scheduledAt });
-    } catch (error) {
-      reloadOnScheduledMessageConflict(client, cid, error);
-      // the dialog stays open and shows the failure
-      throw error;
-    }
+    await getChannel().updateScheduledMessage(id, { scheduled_at: scheduledAt });
   };
 
   const deleteScheduledMessage = () => {

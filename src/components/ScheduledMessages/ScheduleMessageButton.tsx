@@ -26,7 +26,7 @@ import { useMessageComposerHasSendableData } from '../MessageComposer/hooks';
 import { useMessageComposerController } from '../MessageComposer/hooks/useMessageComposerController';
 import { GlobalModal } from '../Modal';
 import { Portal } from '../Portal/Portal';
-import { ScheduleTimeDialog } from './ScheduleTimeDialog';
+import { ScheduleTimeDialog as DefaultScheduleTimeDialog } from './ScheduleTimeDialog';
 import { getSchedulePresets, getScheduleTimeBounds } from './utils';
 
 const getChannelContainer = () => document.getElementById(CHANNEL_CONTAINER_ID);
@@ -48,8 +48,11 @@ export const ScheduleMessageButton = () => {
   const { t } = useTranslationContext();
   const { client } = useChatContext();
   const { IconChevronUp, IconClock } = useComponentContextIcons();
-  const { ContextMenu: ContextMenuComponent = ContextMenu, Modal = GlobalModal } =
-    useComponentContext();
+  const {
+    ContextMenu: ContextMenuComponent = ContextMenu,
+    Modal = GlobalModal,
+    ScheduleTimeDialog = DefaultScheduleTimeDialog,
+  } = useComponentContext();
   const messageComposer = useMessageComposerController();
   const hasSendableData = useMessageComposerHasSendableData();
 

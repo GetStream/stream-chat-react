@@ -9,7 +9,7 @@ import {
 import { Prompt } from '../../../../components/Dialog';
 import {
   ScheduledMessageList as DefaultScheduledMessageList,
-  useScheduledMessages,
+  useChannelScheduledMessages,
   useScheduledMessagesSearch,
 } from '../../../../components/ScheduledMessages';
 import { ChannelDetailSearchInput } from '../../ChannelDetailSearchInput';
@@ -22,7 +22,7 @@ export const ScheduledMessagesView = () => {
   const { close } = useModalContext();
   const { channel } = useChannelDetailContext();
 
-  const { scheduledMessages } = useScheduledMessages(channel.scheduledMessages);
+  const { scheduledMessages } = useChannelScheduledMessages(channel.scheduledMessages);
   const { filter, setSearchQuery } = useScheduledMessagesSearch();
 
   const editScheduledMessage = useCallback(

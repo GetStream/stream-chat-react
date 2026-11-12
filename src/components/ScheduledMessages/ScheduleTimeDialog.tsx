@@ -1,4 +1,4 @@
-import React, { type MouseEvent, useState } from 'react';
+import React, { type ComponentType, type MouseEvent, useEffect, useState } from 'react';
 import type { Channel, LocalMessage } from 'stream-chat';
 
 import { useComponentContextIcons, useTranslationContext } from '../../context';
@@ -20,6 +20,24 @@ import {
   translateScheduledMessageError,
 } from './utils';
 
+/** The date field of `ScheduleTimeDialog`; values are `YYYY-MM-DD`, as `<input type="date">` takes. */
+export type ScheduleDateInputProps = {
+  label: string;
+  /** The earliest date allowed. */
+  min: string;
+  onChange: (value: string) => void;
+  value: string;
+  /** The latest date allowed, when there is a limit. */
+  max?: string;
+};
+
+/** The time field of `ScheduleTimeDialog`; values are `HH:mm`, as `<input type="time">` takes. */
+export type ScheduleTimeInputProps = {
+  label: string;
+  onChange: (value: string) => void;
+  value: string;
+};
+
 export type ScheduleTimeDialogProps = {
   channel: Channel;
   close: () => void;
@@ -29,12 +47,77 @@ export type ScheduleTimeDialogProps = {
   /** Closes the dialog once it resolves. */
   submit: (scheduledAt: Date) => Promise<unknown>;
   title: string;
+  /** Replaces the date field. */
+  DateInput?: ComponentType<ScheduleDateInputProps>;
   initialScheduledAt?: Date;
   /** Above the preview; "Message to {{ name }}" by default. */
   previewLabel?: string;
   submitLabel?: string;
+  /** Replaces the time field. */
+  TimeInput?: ComponentType<ScheduleTimeInputProps>;
   /** Why an earlier time is refused; "Choose a later time" by default. */
   tooSoonMessage?: string;
+};
+
+const BOUNDS_REFRESH_INTERVAL_MS = 60 * 1000;
+
+/** The current time, updated every minute, so time limits computed from it do not go stale. */
+const useMinuteClock = () => {
+  const [now, setNow] = useState(() => new Date());
+  useEffect(() => {
+    const interval = setInterval(() => setNow(new Date()), BOUNDS_REFRESH_INTERVAL_MS);
+    return () => clearInterval(interval);
+  }, []);
+  return [now, setNow] as const;
+};
+
+const DefaultScheduleDateInput = ({
+  label,
+  max,
+  min,
+  onChange,
+  value,
+}: ScheduleDateInputProps) => {
+  const { t } = useTranslationContext();
+  const { IconCalendar, IconCaretDown } = useComponentContextIcons();
+  const selectedDate = fromInputValues(value);
+  return (
+    <TextInput
+      className='str-chat__schedule-message-dialog__date'
+      label={label}
+      leading={
+        <>
+          <IconCalendar />
+          <span aria-hidden className='str-chat__schedule-message-dialog__date-value'>
+            {selectedDate && t('timestamp.ScheduleDate', { timestamp: selectedDate })}
+          </span>
+        </>
+      }
+      max={max}
+      min={min}
+      onChange={({ target }) => onChange(target.value)}
+      required
+      trailing={<IconCaretDown />}
+      type='date'
+      value={value}
+    />
+  );
+};
+
+const DefaultScheduleTimeInput = ({ label, onChange, value }: ScheduleTimeInputProps) => {
+  const { IconCaretDown, IconClock } = useComponentContextIcons();
+  return (
+    <TextInput
+      className='str-chat__schedule-message-dialog__time'
+      label={label}
+      leading={<IconClock />}
+      onChange={({ target }) => onChange(target.value)}
+      required
+      trailing={<IconCaretDown />}
+      type='time'
+      value={value}
+    />
+  );
 };
 
 /** A click anywhere in a field, its icons included, opens the field's picker. */
@@ -53,38 +136,45 @@ const openNativePicker = ({ target }: MouseEvent<HTMLElement>) => {
 export const ScheduleTimeDialog = ({
   channel,
   close,
+  DateInput = DefaultScheduleDateInput,
   errorMessage,
   initialScheduledAt,
   previewLabel,
   previewMessage,
   submit,
   submitLabel,
+  TimeInput = DefaultScheduleTimeInput,
   title,
   tooSoonMessage,
 }: ScheduleTimeDialogProps) => {
   const { t } = useTranslationContext();
-  const { IconCalendar, IconCaretDown, IconClock } = useComponentContextIcons();
   const channelDisplayName = useChannelDisplayName(channel);
   const isOnline = useWSConnectionState()?.isHealthy ?? false;
   const isMounted = useIsMounted();
 
-  const [bounds] = useState(() => getScheduleTimeBounds(channel));
-  const [dateValue, setDateValue] = useState(() =>
-    toDateInputValue(initialScheduledAt ?? getDefaultScheduledAt(bounds)),
+  // the limits move with the clock: a time allowed when the dialog opened may be too soon later
+  const [now, setNow] = useMinuteClock();
+  const bounds = getScheduleTimeBounds(channel, now);
+  const [initialValue] = useState(
+    () => initialScheduledAt ?? getDefaultScheduledAt(bounds),
   );
-  const [timeValue, setTimeValue] = useState(() =>
-    toTimeInputValue(initialScheduledAt ?? getDefaultScheduledAt(bounds)),
-  );
+  const [dateValue, setDateValue] = useState(() => toDateInputValue(initialValue));
+  const [timeValue, setTimeValue] = useState(() => toTimeInputValue(initialValue));
   const [status, setStatus] = useState<'failed' | 'idle' | 'submitting'>('idle');
   const [submitError, setSubmitError] = useState<unknown>();
 
   const scheduledAt = fromInputValues(dateValue, timeValue);
   const timeError = scheduledAt && getScheduleTimeError(scheduledAt, bounds);
-  const selectedDate = fromInputValues(dateValue);
   const canSubmit = !!scheduledAt && !timeError && isOnline && status !== 'submitting';
 
   const submitScheduledAt = async () => {
     if (!scheduledAt) return;
+    // checked again against the limits as of now; a time already passed would be sent at once
+    const submittedAt = new Date();
+    if (getScheduleTimeError(scheduledAt, getScheduleTimeBounds(channel, submittedAt))) {
+      setNow(submittedAt);
+      return;
+    }
     setStatus('submitting');
     try {
       await submit(scheduledAt);
@@ -132,37 +222,16 @@ export const ScheduleTimeDialog = ({
           className='str-chat__schedule-message-dialog__fields'
           onClick={openNativePicker}
         >
-          <TextInput
-            className='str-chat__schedule-message-dialog__date'
+          <DateInput
             label={t('scheduledMessages.date', 'Date')}
-            leading={
-              <>
-                <IconCalendar />
-                <span
-                  aria-hidden
-                  className='str-chat__schedule-message-dialog__date-value'
-                >
-                  {selectedDate &&
-                    t('timestamp.ScheduleDate', { timestamp: selectedDate })}
-                </span>
-              </>
-            }
             max={bounds.latest && toDateInputValue(bounds.latest)}
             min={toDateInputValue(bounds.earliest)}
-            onChange={({ target }) => setDateValue(target.value)}
-            required
-            trailing={<IconCaretDown />}
-            type='date'
+            onChange={setDateValue}
             value={dateValue}
           />
-          <TextInput
-            className='str-chat__schedule-message-dialog__time'
+          <TimeInput
             label={t('scheduledMessages.time', 'Time')}
-            leading={<IconClock />}
-            onChange={({ target }) => setTimeValue(target.value)}
-            required
-            trailing={<IconCaretDown />}
-            type='time'
+            onChange={setTimeValue}
             value={timeValue}
           />
         </div>

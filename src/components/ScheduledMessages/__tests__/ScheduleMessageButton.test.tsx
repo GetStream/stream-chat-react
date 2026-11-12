@@ -23,6 +23,11 @@ import { Channel } from '../../Channel';
 import { Chat } from '../../Chat';
 import { WithComponents } from '../../../context/WithComponents';
 import { MessageComposer } from '../../MessageComposer';
+import { ScheduleTimeDialog } from '../ScheduleTimeDialog';
+import type {
+  ScheduleDateInputProps,
+  ScheduleTimeInputProps,
+} from '../ScheduleTimeDialog';
 import {
   convertDateToTimestamp,
   erroredScheduledMessageApi,
@@ -147,6 +152,21 @@ describe('ScheduleMessageButton', () => {
       await renderComposer({ text: '/giphy hello' });
 
       expect(screen.queryByTestId('schedule-message-button')).not.toBeInTheDocument();
+    });
+
+    it('comes back when the location that blocked scheduling is removed', async () => {
+      const { channel } = await renderComposer();
+      const { locationComposer } = channel.messageComposer;
+
+      await act(() => locationComposer.setData({ latitude: 50, longitude: 14 }));
+      expect(screen.queryByTestId('schedule-message-button')).not.toBeInTheDocument();
+      // a change in another store the rule reads, while the location still blocks
+      await act(() =>
+        channel.messageComposer.state.partialNext({ showReplyInChannel: true }),
+      );
+      await act(() => locationComposer.initState());
+
+      expect(screen.getByTestId('schedule-message-button')).toBeInTheDocument();
     });
 
     it('can be removed through ComponentContext', async () => {
@@ -427,6 +447,61 @@ describe('ScheduleMessageButton', () => {
         screen.queryByText("You're offline. Reconnect to schedule this message."),
       ).not.toBeInTheDocument();
       expect(screen.getByRole('button', { name: 'Schedule' })).toBeEnabled();
+    });
+
+    it('checks the time again on submit, against the limits as of then', async () => {
+      const { channel } = await renderComposer();
+      const schedule = mockSchedule(channel);
+
+      await openDialog();
+      fireEvent.change(screen.getByLabelText('Time'), { target: { value: '10:35' } });
+      expect(screen.getByRole('button', { name: 'Schedule' })).toBeEnabled();
+      // the dialog stayed open: 10:35 is now in the past and would be sent at once
+      vi.setSystemTime(new Date(2026, 9, 28, 10, 40));
+      await act(() => fireEvent.click(screen.getByRole('button', { name: 'Schedule' })));
+
+      expect(schedule).not.toHaveBeenCalled();
+      expect(screen.getByText('Choose a later time')).toBeInTheDocument();
+      expect(screen.getByTestId('schedule-message-dialog')).toBeInTheDocument();
+    });
+
+    it('takes custom date and time fields', async () => {
+      const DateInput = ({ onChange, value }: ScheduleDateInputProps) => (
+        <input
+          aria-label='Custom date'
+          onChange={({ target }) => onChange(target.value)}
+          value={value}
+        />
+      );
+      const TimeInput = ({ onChange, value }: ScheduleTimeInputProps) => (
+        <input
+          aria-label='Custom time'
+          onChange={({ target }) => onChange(target.value)}
+          value={value}
+        />
+      );
+      const { channel } = await renderComposer({
+        components: {
+          ScheduleTimeDialog: (props) => (
+            <ScheduleTimeDialog {...props} DateInput={DateInput} TimeInput={TimeInput} />
+          ),
+        },
+      });
+      const schedule = mockSchedule(channel).mockResolvedValue(
+        scheduledResult(generateScheduledMessage({ cid: channel.cid })),
+      );
+
+      await openDialog();
+      expect(screen.queryByLabelText('Date')).not.toBeInTheDocument();
+      fireEvent.change(screen.getByLabelText('Custom date'), {
+        target: { value: '2026-11-03' },
+      });
+      fireEvent.change(screen.getByLabelText('Custom time'), {
+        target: { value: '16:45' },
+      });
+      await act(() => fireEvent.click(screen.getByRole('button', { name: 'Schedule' })));
+
+      expect(schedule).toHaveBeenCalledWith(new Date(2026, 10, 3, 16, 45));
     });
 
     it('closes without scheduling on Cancel', async () => {

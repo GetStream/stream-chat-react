@@ -83,6 +83,7 @@ import type {
   ScheduledMessageListDialogProps,
   ScheduledMessageListProps,
   ScheduledMessagePreviewProps,
+  ScheduleTimeDialogProps,
 } from '../components/ScheduledMessages';
 
 export type ComponentContextValue = {
@@ -328,6 +329,11 @@ export type ComponentContextValue = {
   ScheduledMessagesBanner?: React.ComponentType | null;
   /** Schedule button next to the send button; `null` hides it. */
   ScheduleMessageButton?: React.ComponentType | null;
+  /**
+   * The dialog for picking a custom time, opened by the schedule button and by rescheduling. To
+   * replace only its date or time field, render the default with `DateInput` or `TimeInput`.
+   */
+  ScheduleTimeDialog?: React.ComponentType<ScheduleTimeDialogProps>;
   /** Translation indicator, shown when the message has `i18n`. */
   MessageTranslationIndicator?: React.ComponentType<TranslationIndicatorProps>;
   /**
