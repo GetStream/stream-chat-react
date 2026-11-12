@@ -7,6 +7,7 @@ import {
 import type { AIChatOption } from '../../AIMessageComposer/ChatOptions';
 import type { AIMessageRating, AIReplyActionsProps } from '../../Message/AIReplyActions';
 import type { AIToolApprover } from '../../ToolCalls/AIToolApprover';
+import type { AIUserMessageActions } from '../AIConversation';
 import type { AIMessage, AIPendingMessage } from '../types';
 import { AIAgentError } from './AIAgentError';
 import {
@@ -14,7 +15,12 @@ import {
   generateId,
   hasEmptyContent,
 } from './AIConversationExchange';
-import { editActionOf, latestUserMessageIdOf, replyActionsOf } from './offers';
+import {
+  editActionOf,
+  latestUserMessageIdOf,
+  replyActionsOf,
+  userMessageActionsOf,
+} from './offers';
 import {
   type AIAgentActivity,
   AIAgentActivityStates,
@@ -126,6 +132,8 @@ type RatingChange = {
  * failed, and it sends what the person asks through its `AIConversationTransport`. Give it to
  * `AIConversation` and `AIMessageComposer` as `conversation`, which show it and act on it:
  * sending, stopping, regenerating and rating replies, and editing the person's latest message.
+ * With the transport's `switchBranch`, any finished reply can be regenerated and any of the
+ * person's messages edited, and a ‹ i/n › switcher shows the other versions of each.
  *
  * Create it in an effect and dispose of it in that effect's cleanup, so React's StrictMode,
  * which runs effects twice, ends with a controller that is connected:
@@ -145,7 +153,7 @@ type RatingChange = {
  *
  * What the person sends shows straight away, and the agent thinks until its reply starts. While
  * a reply is written again, or a message the person edited is answered again, the messages it
- * replaces are left out of `messages` until the new reply starts.
+ * replaces, from that message to the end, are left out of `messages` until the new reply starts.
  */
 export class AIConversationController<Message extends AIMessage = AIMessage> {
   /** The conversation's state, to follow with `useStateStore`. */
@@ -156,6 +164,12 @@ export class AIConversationController<Message extends AIMessage = AIMessage> {
   readonly approver: AIToolApprover | undefined;
   /** What the conversation's views offer the person to do with its messages. */
   readonly actions: Required<AIConversationActions>;
+  /**
+   * Whether the transport shows a message's other versions (`switchBranch`). Then any finished
+   * reply can be regenerated, any of the person's messages edited, and a message with several
+   * versions offers a ‹ i/n › switcher.
+   */
+  readonly canSwitchBranch: boolean;
 
   private readonly transport: AIConversationTransport<Message>;
   private readonly replyTimeout: number | null;
@@ -198,6 +212,7 @@ export class AIConversationController<Message extends AIMessage = AIMessage> {
     this.approver = approver;
     this.actions = { ...ALL_ACTIONS, ...actions };
     this.replyTimeout = replyTimeout;
+    this.canSwitchBranch = typeof transport.switchBranch === 'function';
     this.state = new StateStore<AIConversationControllerState<Message>>({
       activity: undefined,
       error: undefined,
@@ -338,6 +353,36 @@ export class AIConversationController<Message extends AIMessage = AIMessage> {
   }
 
   /**
+   * Shows the previous or the next version of the branch `message` belongs to, through the
+   * transport's `switchBranch`: a reply's regenerated versions, or the person's edits of a
+   * question. Does nothing without it, while the agent is answering, or past either end. A
+   * failure shows as `error`.
+   */
+  switchBranch(message: Message, to: 'previous' | 'next') {
+    const { switchBranch } = this.transport;
+    const { branch } = message;
+    if (
+      !switchBranch ||
+      !branch ||
+      isAIConversationAnswering(this.state.getLatestValue().status) ||
+      (to === 'previous' ? branch.index <= 1 : branch.index >= branch.count)
+    ) {
+      return;
+    }
+    const id = this.generation;
+    void (async () => {
+      try {
+        await switchBranch(message, to);
+      } catch (error) {
+        // Another request or stop took its place, or the person gave up on it.
+        if (this.disposed || id !== this.generation || isAbortError(error)) return;
+        this.error = asError(error);
+        this.refresh();
+      }
+    })();
+  }
+
+  /**
    * Loads the messages before the first one, while there are any. Rejects when they couldn't load,
    * so the conversation waits before it asks again.
    */
@@ -354,8 +399,9 @@ export class AIConversationController<Message extends AIMessage = AIMessage> {
   // What the conversation's views offer
 
   /**
-   * What the person can do with a finished reply: rate it, and write it again while it is the
-   * latest and the agent isn't answering.
+   * What the person can do with a finished reply: rate it, write it again while the agent isn't
+   * answering (while it is the latest, or any with the transport's `switchBranch`), and, with
+   * `switchBranch`, switch between its versions (`branch`).
    */
   replyActions(
     reply: Message,
@@ -364,7 +410,10 @@ export class AIConversationController<Message extends AIMessage = AIMessage> {
     return replyActionsOf(this, this.state.getLatestValue(), reply, isLatestReply);
   }
 
-  /** Edits a message of the person's, when it is their latest and the agent isn't answering. */
+  /**
+   * Edits a message of the person's in the composer while the agent isn't answering: their
+   * latest, or any with the transport's `switchBranch`.
+   */
   editAction(message: Message): (() => void) | undefined {
     const { messages, status } = this.state.getLatestValue();
     return editActionOf(
@@ -372,6 +421,14 @@ export class AIConversationController<Message extends AIMessage = AIMessage> {
       { latestUserMessageId: latestUserMessageIdOf(messages), status },
       message,
     );
+  }
+
+  /**
+   * What a message of the person's offers besides editing it: with the transport's
+   * `switchBranch`, the switcher between the versions of a question they edited (`branch`).
+   */
+  userMessageActions(message: Message): AIUserMessageActions | undefined {
+    return userMessageActionsOf(this, this.state.getLatestValue(), message);
   }
 
   // What the transport says

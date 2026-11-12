@@ -76,13 +76,23 @@ export type AIAgentActivity = {
   text?: string;
 };
 
-/** What the conversation's views offer the person to do with its messages. All by default. */
+/**
+ * What the conversation's views offer the person to do with its messages. All by default.
+ * Without the transport's `switchBranch`, editing and regenerating are offered on the latest
+ * message only; with it, on any, since the versions they replace stay a switch away.
+ */
 export type AIConversationActions = {
-  /** Editing the person's latest message, which is then answered again. */
+  /**
+   * Editing the person's latest message, or with `switchBranch` any of theirs, which is then
+   * answered again.
+   */
   edit?: boolean;
   /** Rating replies. */
   rate?: boolean;
-  /** Asking for a new reply in place of the latest. */
+  /**
+   * Asking for a new reply in place of the latest, or with `switchBranch` in place of any
+   * finished reply.
+   */
   regenerate?: boolean;
 };
 
@@ -141,6 +151,10 @@ export type AIConversationTransport<Message extends AIMessage = AIMessage> = {
    *   new reply in place of `message`, under its id.
    * - For an edit, change the person's `message` to say the request's `text`, under its id, and
    *   remove the messages after it.
+   *
+   * With `switchBranch`, the request's `message` can be any finished reply or any of the
+   * person's messages, not only the latest: the messages after it are left out the same way,
+   * and the version it starts is fed as the conversation, in place of the one it replaces.
    */
   send: (request: AIConversationRequest<Message>) => Promise<void>;
   /** Stops the reply the agent is writing. What it wrote so far stays. */
@@ -153,4 +167,16 @@ export type AIConversationTransport<Message extends AIMessage = AIMessage> = {
    * show through each message's `rating`.
    */
   rate?: (reply: Message, rating: AIMessageRating | null) => Promise<void>;
+  /**
+   * Shows the previous or the next version of the branch `message` belongs to: a reply's
+   * regenerated versions when its `branch.of` is `'reply'`, the person's edited versions of a
+   * question when it is `'question'`. Feed the messages of that version through
+   * `feed.updateMessages`. A rejection shows as the conversation's error; one with an
+   * `AbortError` shows nothing.
+   *
+   * With it, the conversation's views show a ‹ i/n › switcher on each message whose `branch` has
+   * two versions or more, and offer regenerating any finished reply and editing any of the
+   * person's messages. Without it, only the latest, and no switcher.
+   */
+  switchBranch?: (message: Message, to: 'previous' | 'next') => Promise<void>;
 };

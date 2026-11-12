@@ -53,6 +53,9 @@ export class AIConversationExchange<Message extends AIMessage> {
   // The messages it replaces, as they were, which the conversation leaves out while it waits:
   // the reply written again, or the message edited, and those after it.
   readonly replaced: Map<string, Message>;
+  // Those of `replaced` in the target's own turn, up to the person's next message: the ones its
+  // reply can be written in place of. A later turn's reply that changes is not its reply.
+  private readonly rewritable: Set<string>;
   // The person's message on its way.
   readonly pending: AIPendingMessage | undefined;
 
@@ -72,6 +75,18 @@ export class AIConversationExchange<Message extends AIMessage> {
       target >= 0 && (request.kind === 'regenerate' || request.kind === 'edit')
         ? conversation.slice(target).map((message) => [message.id, message])
         : [],
+    );
+    const nextQuestion =
+      target >= 0
+        ? conversation.findIndex(
+            (message, index) => index > target && message.role === 'user',
+          )
+        : -1;
+    this.rewritable = new Set(
+      [...this.replaced.keys()].slice(
+        0,
+        nextQuestion >= 0 ? nextQuestion - target : undefined,
+      ),
     );
     if (request.kind === 'regenerate') {
       this.pending = undefined;
@@ -106,7 +121,9 @@ export class AIConversationExchange<Message extends AIMessage> {
   reply(conversation: readonly Message[]) {
     const last = conversation[conversation.length - 1];
     if (!last || last.role === 'user') return undefined;
-    const original = this.replaced.get(last.id);
+    const original = this.rewritable.has(last.id)
+      ? this.replaced.get(last.id)
+      : undefined;
     const rewritten = original ? isRewritten(last, original) : false;
     return !this.known.has(last.id) || rewritten ? last : undefined;
   }

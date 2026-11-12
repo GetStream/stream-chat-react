@@ -1633,6 +1633,233 @@ describe('AIConversationController offers', () => {
   });
 });
 
+// A transport that switches between the versions of a message, held until the test finishes it.
+class BranchingTransport extends ConversationTransport {
+  switches: { id: string; to: 'previous' | 'next' }[] = [];
+  switchError: unknown;
+
+  switchBranch = (message: AIMessage, to: 'previous' | 'next') => {
+    this.switches.push({ id: message.id, to });
+    return this.switchError ? Promise.reject(this.switchError) : Promise.resolve();
+  };
+}
+
+const branched = (
+  message: AIMessage,
+  of: 'reply' | 'question',
+  index: number,
+  count: number,
+): AIMessage => ({ ...message, branch: { count, index, of } });
+
+describe('AIConversationController branches', () => {
+  it('offers the switcher only when the transport switches versions and there are several', () => {
+    const history = [
+      branched(user('u1'), 'question', 1, 2),
+      branched(reply('a1'), 'reply', 2, 2),
+      branched(user('u2'), 'question', 1, 1),
+      reply('a2'),
+    ];
+    const plain = makeController(new ConversationTransport(history));
+    const controller = makeController(new BranchingTransport(history));
+
+    expect(plain.canSwitchBranch).toBe(false);
+    expect(controller.canSwitchBranch).toBe(true);
+    expect('branch' in plain.replyActions(history[1], false)).toBe(false);
+    expect(plain.userMessageActions(history[0])).toBeUndefined();
+
+    expect(controller.replyActions(history[1], false).branch).toMatchObject({
+      count: 2,
+      index: 2,
+    });
+    expect(controller.userMessageActions(history[0])?.branch).toMatchObject({
+      count: 2,
+      index: 1,
+    });
+    // One version, none at all, or the other kind's versions.
+    expect(controller.userMessageActions(history[2])).toBeUndefined();
+    expect(controller.replyActions(history[3], true).branch).toBeUndefined();
+    expect(
+      controller.userMessageActions(branched(user('u3'), 'reply', 1, 2)),
+    ).toBeUndefined();
+    expect(
+      controller.replyActions(branched(reply('a3'), 'question', 1, 2), false).branch,
+    ).toBeUndefined();
+    expect(controller.userMessageActions(history[1])).toBeUndefined();
+  });
+
+  it('switches with the arrows, each left out at its end and while the agent is answering', async () => {
+    const first = branched(reply('a1'), 'reply', 1, 3);
+    const middle = branched(user('u1'), 'question', 2, 3);
+    const last = branched(reply('a1'), 'reply', 3, 3);
+    const transport = new BranchingTransport([middle, first]);
+    const controller = makeController(transport);
+
+    const atFirst = controller.replyActions(first, true).branch;
+    expect(atFirst?.onPrevious).toBeUndefined();
+    expect(controller.replyActions(last, true).branch?.onNext).toBeUndefined();
+    atFirst?.onNext?.();
+    const inMiddle = controller.userMessageActions(middle)?.branch;
+    inMiddle?.onPrevious?.();
+    inMiddle?.onNext?.();
+    await settle();
+
+    expect(transport.switches).toEqual([
+      { id: 'a1', to: 'next' },
+      { id: 'u1', to: 'previous' },
+      { id: 'u1', to: 'next' },
+    ]);
+
+    transport.update([middle, branched(reply('a2', '', true), 'reply', 1, 3)]);
+    const answering = controller.userMessageActions(middle)?.branch;
+
+    // The agent is answering: the switcher stays, with neither arrow.
+    expect(answering).toMatchObject({ count: 3, index: 2 });
+    expect(answering?.onPrevious).toBeUndefined();
+    expect(answering?.onNext).toBeUndefined();
+    controller.switchBranch(middle, 'next');
+    controller.switchBranch(first, 'previous');
+    await settle();
+
+    expect(transport.switches).toHaveLength(3);
+  });
+
+  it('shows a failed switch as the conversation’s error', async () => {
+    const transport = new BranchingTransport([
+      user('u1'),
+      branched(reply('a1'), 'reply', 2, 2),
+    ]);
+    transport.switchError = new TransportError('Gone');
+    const controller = makeController(transport);
+
+    controller.switchBranch(branched(reply('a1'), 'reply', 2, 2), 'previous');
+    await settle();
+
+    expect(stateOf(controller).error).toBeInstanceOf(TransportError);
+    expect(stateOf(controller).status).toBe('error');
+
+    transport.switchError = abortError();
+    controller.clearError();
+    controller.switchBranch(branched(reply('a1'), 'reply', 2, 2), 'previous');
+    await settle();
+
+    expect(stateOf(controller).error).toBeUndefined();
+    expect(stateOf(controller).status).toBe('ready');
+  });
+
+  it('does nothing on a switch without the transport’s switchBranch', async () => {
+    const transport = new ConversationTransport([
+      user('u1'),
+      branched(reply('a1'), 'reply', 2, 2),
+    ]);
+    const controller = makeController(transport);
+
+    controller.switchBranch(branched(reply('a1'), 'reply', 2, 2), 'previous');
+    await settle();
+
+    expect(stateOf(controller).status).toBe('ready');
+  });
+
+  it('offers regenerating any finished reply and editing any of the person’s messages', () => {
+    const transport = new BranchingTransport([
+      user('u1', 'Lisbon'),
+      reply('a1'),
+      user('u2', 'Porto'),
+      reply('a2'),
+    ]);
+    const controller = makeController(transport);
+
+    expect(controller.replyActions(reply('a1'), false).onRegenerate).toBeDefined();
+    expect(controller.editAction(user('u1'))).toBeDefined();
+    expect(controller.editAction(reply('a1'))).toBeUndefined();
+
+    const limited = makeController(new BranchingTransport([user('u1'), reply('a1')]), {
+      actions: { edit: false, regenerate: false },
+    });
+
+    expect(limited.replyActions(reply('a1'), false).onRegenerate).toBeUndefined();
+    expect(limited.editAction(user('u1'))).toBeUndefined();
+
+    transport.update([
+      user('u1', 'Lisbon'),
+      reply('a1'),
+      user('u2', 'Porto'),
+      reply('a2', 'Porto it is', true),
+    ]);
+
+    // The agent is answering.
+    expect(controller.replyActions(reply('a1'), false).onRegenerate).toBeUndefined();
+    expect(controller.editAction(user('u1'))).toBeUndefined();
+  });
+
+  it('leaves out what follows an earlier reply written again until the new one starts', async () => {
+    const transport = new BranchingTransport([
+      user('u1'),
+      reply('a1'),
+      user('u2'),
+      reply('a2'),
+    ]);
+    const controller = makeController(transport);
+
+    controller.replyActions(reply('a1'), false).onRegenerate?.();
+    await settle();
+
+    expect(transport.lastRequest).toMatchObject({
+      kind: 'regenerate',
+      message: { id: 'a1' },
+      text: 'Plan a weekend in Lisbon',
+    });
+    expect(ids(stateOf(controller).messages)).toEqual(['u1']);
+    expect(stateOf(controller).status).toBe('submitted');
+
+    // The conversation as it was, before the transport moves to the new version.
+    transport.update([user('u1'), reply('a1'), user('u2'), reply('a2', 'Updated')]);
+
+    expect(ids(stateOf(controller).messages)).toEqual(['u1']);
+    expect(stateOf(controller).status).toBe('submitted');
+
+    // The new version, whose reply shows nothing yet.
+    transport.update([user('u1'), reply('a3', '', true)]);
+
+    expect(stateOf(controller).status).toBe('submitted');
+
+    transport.update([user('u1'), reply('a3', 'Another plan', true)]);
+
+    expect(ids(stateOf(controller).messages)).toEqual(['u1', 'a3']);
+    expect(stateOf(controller).status).toBe('streaming');
+  });
+
+  it('edits an earlier message in the composer and sends it in its place', async () => {
+    const transport = new BranchingTransport([
+      user('u1', 'Lisbon'),
+      reply('a1'),
+      user('u2', 'Porto'),
+      reply('a2'),
+    ]);
+    const controller = makeController(transport);
+
+    controller.editAction(user('u1', 'Lisbon'))?.();
+
+    expect(controller.editingMessage?.id).toBe('u1');
+    expect(controller.composer.getLatestValue().text).toBe('Lisbon');
+
+    controller.send({ text: 'Lisbon in May' });
+    await settle();
+
+    expect(transport.lastRequest).toMatchObject({
+      kind: 'edit',
+      message: { id: 'u1' },
+      text: 'Lisbon in May',
+    });
+    expect(stateOf(controller).messages).toEqual([]);
+    expect(stateOf(controller).pendingMessage?.text).toBe('Lisbon in May');
+
+    transport.update([user('u1', 'Lisbon in May'), reply('a3', 'May it is', true)]);
+
+    expect(ids(stateOf(controller).messages)).toEqual(['u1', 'a3']);
+    expect(stateOf(controller).status).toBe('streaming');
+  });
+});
+
 describe('AIConversationController status', () => {
   it('follows the latest reply', () => {
     const transport = new ConversationTransport([user('u1'), reply('a1', '', true)]);

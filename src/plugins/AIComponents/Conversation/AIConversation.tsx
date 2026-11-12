@@ -35,7 +35,12 @@ import type {
   AIConversationController,
   AIConversationControllerState,
 } from './controller/AIConversationController';
-import { editActionOf, latestUserMessageIdOf, replyActionsOf } from './controller/offers';
+import {
+  editActionOf,
+  latestUserMessageIdOf,
+  replyActionsOf,
+  userMessageActionsOf,
+} from './controller/offers';
 import { useAIConversationState } from './controller/useAIConversationState';
 
 // How far from the end still counts as at the end, in pixels.
@@ -55,10 +60,14 @@ export type AIConversationUserMessageProps = {
   message?: AIMessage;
   /**
    * Which of the question's versions shows, when the person edited it, from
-   * `userMessageActions`. `AIUserMessage` shows a ‹ i/n › switcher while `count` is 2 or more.
+   * `userMessageActions`, or from a `conversation` whose transport switches versions.
+   * `AIUserMessage` shows a ‹ i/n › switcher while `count` is 2 or more.
    */
   branch?: AIBranchSwitch;
-  /** Edits the message: a `conversation` offers it on the person's latest message. */
+  /**
+   * Edits the message in the composer: a `conversation` offers it on the person's latest
+   * message, or on any of theirs when its transport switches versions.
+   */
   onEdit?: () => void;
   /**
    * Saves the person's edit of the message, made in place, from `userMessageActions`.
@@ -111,9 +120,11 @@ export type AIConversationProps = {
    * The conversation's state and what the person does in it, such as an
    * `AIConversationController`. The conversation shows its messages, the message on its way and
    * whether the agent thinks, loads its older messages, and offers rating and regenerating
-   * replies and editing the person's latest message. It takes the place of `messages`,
-   * `pendingMessage`, `isThinking` and `loadOlderMessages`, its reply actions are used unless
-   * `replyActions` is passed, and its `approver` unless one is passed.
+   * replies and editing the person's latest message, or any reply and message of theirs, with a
+   * ‹ i/n › switcher between versions, when its transport has `switchBranch`. It takes the place
+   * of `messages`, `pendingMessage`, `isThinking` and `loadOlderMessages`, its reply and
+   * user-message actions are used unless `replyActions` or `userMessageActions` is passed, and
+   * its `approver` unless one is passed.
    */
   conversation?: AIConversationController;
   /** The conversation, oldest message first. Required without `conversation`. */
@@ -169,7 +180,8 @@ export type AIConversationProps = {
   /**
    * What the person's messages offer besides what a `conversation` does: editing in place
    * (`onEdit(text)`) and a ‹ i/n › switcher between the versions of an edited question
-   * (`branch`). Passed to `UserMessage` as `onSaveEdit` and `branch`.
+   * (`branch`). Passed to `UserMessage` as `onSaveEdit` and `branch`. Takes the place of a
+   * `conversation`'s own, which offer the switcher only and edit in the composer.
    */
   userMessageActions?: (message: AIMessage) => AIUserMessageActions | undefined;
   /** The view of the person's messages. Defaults to `AIUserMessage`. */
@@ -381,6 +393,15 @@ const ControlledConversation = ({
       editActionOf(conversation, { latestUserMessageId, status }, message),
     [conversation, latestUserMessageId, status],
   );
+  // The switcher between the versions of a question the person edited, while the transport
+  // switches them. Editing stays in the composer.
+  const userMessageActions = useMemo(
+    () =>
+      conversation.canSwitchBranch
+        ? (message: AIMessage) => userMessageActionsOf(conversation, { status }, message)
+        : undefined,
+    [conversation, status],
+  );
   const { ui } = props;
   // A reply that shows only its UI has started, which the controller can't tell without the
   // host that reads it.
@@ -398,6 +419,7 @@ const ControlledConversation = ({
       messages={messages as AIMessage[]}
       pendingMessage={pendingMessage}
       replyActions={props.replyActions ?? replyActions}
+      userMessageActions={props.userMessageActions ?? userMessageActions}
     />
   );
 };
