@@ -26,7 +26,8 @@ export type AIUserMessageProps = {
   /**
    * Saves the person's edit of the message. With it, the edit button opens an editor in place
    * of the bubble, filled with the message's text: Save (or Enter) calls it with the new text,
-   * Cancel (or Escape) closes the editor.
+   * Cancel (or Escape) closes the editor. A text that is empty, or unchanged but for the spaces
+   * around it, can't be saved.
    */
   onSaveEdit?: (text: string) => void;
 };
@@ -47,12 +48,14 @@ const AIUserMessageEditor = ({ onCancel, onSave, text }: EditorProps) => {
     input.focus();
     input.setSelectionRange(input.value.length, input.value.length);
   }, []);
-  const canSave = draft.trim() !== '';
+  // Saving the text unchanged would answer it again for nothing.
+  const canSave = draft.trim() !== '' && draft.trim() !== text.trim();
   const save = () => {
     if (canSave) onSave(draft);
   };
   const onKeyDown = (event: KeyboardEvent<HTMLTextAreaElement>) => {
-    if (event.key === 'Escape') {
+    // Escape that ends an IME composition doesn't close the editor, nor does Enter save.
+    if (event.key === 'Escape' && !event.nativeEvent.isComposing) {
       event.preventDefault();
       onCancel();
       return;
@@ -147,7 +150,7 @@ export const AIUserMessage = ({
           <AIUserMessageEditor
             onCancel={closeEditor}
             onSave={(next) => {
-              setIsEditing(false);
+              closeEditor();
               onSaveEdit(next);
             }}
             text={text}

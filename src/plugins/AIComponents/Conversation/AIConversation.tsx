@@ -70,8 +70,9 @@ export type AIConversationUserMessageProps = {
    */
   onEdit?: () => void;
   /**
-   * Saves the person's edit of the message, made in place, from `userMessageActions`.
-   * `AIUserMessage` uses it in place of `onEdit` when both are passed.
+   * Saves the person's edit of the message, made in place, from `userMessageActions`, or from a
+   * `conversation` whose transport switches versions. `AIUserMessage` uses it in place of
+   * `onEdit` when both are passed.
    */
   onSaveEdit?: (text: string) => void;
 };
@@ -80,8 +81,11 @@ export type AIConversationUserMessageProps = {
 export type AIUserMessageActions = {
   /** Which of the question's versions shows, with how to show the others. */
   branch?: AIBranchSwitch;
-  /** Saves the person's edit of the message, which they make in place. Without it, no in-place edit. */
-  onEdit?: (text: string) => void;
+  /**
+   * Saves the person's edit of the message, which they make in place, with its new text. Without
+   * it, no in-place edit.
+   */
+  onSaveEdit?: (text: string) => void;
 };
 
 export type AIConversationAssistantMessageProps = {
@@ -179,9 +183,10 @@ export type AIConversationProps = {
   ui?: AIUIHost;
   /**
    * What the person's messages offer besides what a `conversation` does: editing in place
-   * (`onEdit(text)`) and a ‹ i/n › switcher between the versions of an edited question
+   * (`onSaveEdit(text)`) and a ‹ i/n › switcher between the versions of an edited question
    * (`branch`). Passed to `UserMessage` as `onSaveEdit` and `branch`. Takes the place of a
-   * `conversation`'s own, which offer the switcher only and edit in the composer.
+   * `conversation`'s own, which, when its transport switches versions, offer the switcher and
+   * editing in place.
    */
   userMessageActions?: (message: AIMessage) => AIUserMessageActions | undefined;
   /** The view of the person's messages. Defaults to `AIUserMessage`. */
@@ -267,7 +272,7 @@ const EntryView = ({
         branch={actions?.branch}
         message={message}
         onEdit={editAction?.(message)}
-        onSaveEdit={actions?.onEdit}
+        onSaveEdit={actions?.onSaveEdit}
         text={message.text}
       />
     );
@@ -410,15 +415,19 @@ const ControlledConversation = ({
       ),
     [conversation, isSwitchingBranch, latestUserMessageId, status],
   );
-  // The switcher between the versions of a question the person edited, while the transport
-  // switches them. Editing stays in the composer.
+  // The switcher between the versions of a question the person edited, and editing in place,
+  // while the transport switches versions.
   const userMessageActions = useMemo(
     () =>
       conversation.canSwitchBranch
         ? (message: AIMessage) =>
-            userMessageActionsOf(conversation, { isSwitchingBranch, status }, message)
+            userMessageActionsOf(
+              conversation,
+              { isSwitchingBranch, latestUserMessageId, status },
+              message,
+            )
         : undefined,
-    [conversation, isSwitchingBranch, status],
+    [conversation, isSwitchingBranch, latestUserMessageId, status],
   );
   const { ui } = props;
   // A reply that shows only its UI has started, which the controller can't tell without the

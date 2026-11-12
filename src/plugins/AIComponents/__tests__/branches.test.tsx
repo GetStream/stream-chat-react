@@ -1,5 +1,5 @@
 import React from 'react';
-import { fireEvent, render, screen, within } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 
 import {
   AIBranchSwitcher,
@@ -158,6 +158,35 @@ describe('AIUserMessage', () => {
     expect(screen.queryByRole('textbox')).not.toBeInTheDocument();
   });
 
+  it('keeps the editor open on an Escape that ends an IME composition', () => {
+    render(<AIUserMessage onSaveEdit={vi.fn()} text='Hi' />);
+    fireEvent.click(screen.getByRole('button', { name: 'Edit' }));
+    fireEvent.keyDown(screen.getByRole('textbox'), { isComposing: true, key: 'Escape' });
+    expect(screen.getByRole('textbox')).toBeInTheDocument();
+  });
+
+  it('returns focus to the edit button after saving', async () => {
+    render(<AIUserMessage onSaveEdit={vi.fn()} text='Hi' />);
+    fireEvent.click(screen.getByRole('button', { name: 'Edit' }));
+    fireEvent.change(screen.getByRole('textbox'), { target: { value: 'Hello' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Save' }));
+    await waitFor(() =>
+      expect(screen.getByRole('button', { name: 'Edit' })).toHaveFocus(),
+    );
+  });
+
+  it('does not save the text unchanged', () => {
+    const onSaveEdit = vi.fn();
+    render(<AIUserMessage onSaveEdit={onSaveEdit} text='Hi' />);
+    fireEvent.click(screen.getByRole('button', { name: 'Edit' }));
+    const input = screen.getByRole('textbox');
+    expect(screen.getByRole('button', { name: 'Save' })).toBeDisabled();
+    fireEvent.change(input, { target: { value: ' Hi \n' } });
+    expect(screen.getByRole('button', { name: 'Save' })).toBeDisabled();
+    fireEvent.keyDown(input, { key: 'Enter' });
+    expect(onSaveEdit).not.toHaveBeenCalled();
+  });
+
   it('does not save an empty edit', () => {
     const onSaveEdit = vi.fn();
     render(<AIUserMessage onSaveEdit={onSaveEdit} text='Hi' />);
@@ -247,7 +276,7 @@ describe('AIConversation branches and in-place edits', () => {
       message.branch?.of === 'question'
         ? {
             branch: { count: message.branch.count, index: message.branch.index },
-            onEdit: (text: string) => onEdit(message.id, text),
+            onSaveEdit: (text: string) => onEdit(message.id, text),
           }
         : undefined,
     );
@@ -287,7 +316,7 @@ describe('AIConversation branches and in-place edits', () => {
       <AIConversation
         messages={[user('u1', 'Hi'), reply('a1', 'Hello')]}
         UserMessage={UserMessage}
-        userMessageActions={() => ({ branch, onEdit })}
+        userMessageActions={() => ({ branch, onSaveEdit: onEdit })}
       />,
     );
     expect(UserMessage.mock.calls[0][0]).toMatchObject({

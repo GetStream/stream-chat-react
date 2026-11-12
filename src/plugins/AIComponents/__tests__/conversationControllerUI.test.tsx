@@ -446,10 +446,6 @@ describe('AIConversation with a controller whose transport switches versions', (
     expect(screen.getAllByRole('button', { name: 'Regenerate' })).toHaveLength(2);
     expect(screen.getAllByRole('button', { name: 'Edit' })).toHaveLength(2);
 
-    fireEvent.click(screen.getAllByRole('button', { name: 'Edit' })[0]);
-    expect(controller.editingMessage?.id).toBe('u1');
-    act(() => controller.cancelEditing());
-
     fireEvent.click(screen.getAllByRole('button', { name: 'Regenerate' })[0]);
     await settle();
 
@@ -465,6 +461,33 @@ describe('AIConversation with a controller whose transport switches versions', (
     expect(screen.queryByText('Porto')).not.toBeInTheDocument();
     expect(screen.queryByRole('button', { name: 'Edit' })).not.toBeInTheDocument();
     expect(previousVersion(switcher('Version 2 of 2'))).toBeDisabled();
+  });
+
+  it('edits the person’s messages in place', async () => {
+    const { controller, transport } = conversationOf(
+      history,
+      {},
+      { switchBranch: () => Promise.resolve() },
+    );
+    render(<AIConversation conversation={controller} />);
+
+    fireEvent.click(screen.getAllByRole('button', { name: 'Edit' })[0]);
+    fireEvent.change(screen.getByRole('textbox', { name: 'Edit message' }), {
+      target: { value: 'Lisbon in May' },
+    });
+    fireEvent.click(screen.getByRole('button', { name: 'Save' }));
+    await settle();
+
+    expect(controller.editingMessage).toBeUndefined();
+    expect(transport.send).toHaveBeenCalledWith(
+      expect.objectContaining({
+        kind: 'edit',
+        message: expect.objectContaining({ id: 'u1' }),
+        text: 'Lisbon in May',
+      }),
+    );
+    expect(screen.getByText('Lisbon in May')).toBeInTheDocument();
+    expect(screen.queryByText('Porto')).not.toBeInTheDocument();
   });
 
   it('shows a failed switch as the conversation’s error', async () => {

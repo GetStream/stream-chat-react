@@ -9,6 +9,7 @@ type Offerer<Message extends AIMessage> = {
   actions: { edit: boolean; rate: boolean; regenerate: boolean };
   canSwitchBranch: boolean;
   edit: (message: Message) => void;
+  editInPlace: (message: Message, text: string) => void;
   rate: (reply: Message, rating: AIMessageRating | null) => void;
   regenerate: (reply: Message) => void;
   switchBranch: (message: Message, to: 'previous' | 'next') => void;
@@ -44,6 +45,8 @@ const branchSwitchOf = <Message extends AIMessage>(
   }
   const { count, index } = branch;
   const isAnswering = isBusy(busy);
+  // The mark's ends, which the controller leaves the transport to judge past the last: a version
+  // may have been added since the mark was written.
   return {
     count,
     index,
@@ -96,37 +99,41 @@ export const latestUserMessageIdOf = (messages: readonly AIMessage[]) => {
   return undefined;
 };
 
-// Edits a message of the person's while the agent isn't answering: their latest, or any with a
-// version mark while the transport can switch versions.
+type EditState = Busy & { latestUserMessageId: string | undefined };
+
+// Whether a message of the person's can be edited while the agent isn't answering: their
+// latest, or any with a version mark while the transport can switch versions.
+const isEditable = <Message extends AIMessage>(
+  offerer: Offerer<Message>,
+  { isSwitchingBranch, latestUserMessageId, status }: EditState,
+  message: Message,
+) =>
+  offerer.actions.edit &&
+  message.role === 'user' &&
+  !isBusy({ isSwitchingBranch, status }) &&
+  (latestUserMessageId === message.id || isBranchable(offerer, message));
+
+// Edits a message of the person's in the composer, when it can be edited.
 export const editActionOf = <Message extends AIMessage>(
   offerer: Offerer<Message>,
-  {
-    isSwitchingBranch,
-    latestUserMessageId,
-    status,
-  }: Busy & { latestUserMessageId: string | undefined },
+  state: EditState,
   message: Message,
-): (() => void) | undefined => {
-  if (
-    !offerer.actions.edit ||
-    message.role !== 'user' ||
-    isBusy({ isSwitchingBranch, status })
-  ) {
-    return undefined;
-  }
-  return latestUserMessageId === message.id || isBranchable(offerer, message)
-    ? () => offerer.edit(message)
-    : undefined;
-};
+): (() => void) | undefined =>
+  isEditable(offerer, state, message) ? () => offerer.edit(message) : undefined;
 
-// What a message of the person's offers besides editing it in the composer: the switcher
-// between the versions of a question they edited, while the transport can switch them.
+// What a message of the person's offers while the transport can switch versions: the switcher
+// between the versions of a question they edited, and editing it in place when it can be edited.
 export const userMessageActionsOf = <Message extends AIMessage>(
   offerer: Offerer<Message>,
-  busy: Busy,
+  state: EditState,
   message: Message,
 ): AIUserMessageActions | undefined => {
-  if (message.role !== 'user') return undefined;
-  const branch = branchSwitchOf(offerer, busy, message, 'question');
-  return branch ? { branch } : undefined;
+  if (message.role !== 'user' || !offerer.canSwitchBranch) return undefined;
+  const actions: AIUserMessageActions = {};
+  const branch = branchSwitchOf(offerer, state, message, 'question');
+  if (branch) actions.branch = branch;
+  if (isEditable(offerer, state, message)) {
+    actions.onSaveEdit = (text) => offerer.editInPlace(message, text);
+  }
+  return actions.branch || actions.onSaveEdit ? actions : undefined;
 };

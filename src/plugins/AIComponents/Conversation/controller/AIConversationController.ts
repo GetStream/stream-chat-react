@@ -318,6 +318,22 @@ export class AIConversationController<Message extends AIMessage = AIMessage> {
     this.composer.partialNext({ isEditing: true, text: message.text });
   }
 
+  /**
+   * Asks the agent to answer a message of the person's again, changed to say `text`: an `edit`
+   * request, sent straight away rather than through the composer, as `AIUserMessage`'s in-place
+   * editor saves it. Does nothing for an empty text.
+   */
+  editInPlace(message: Message, text: string) {
+    if (message.role !== 'user' || text.trim() === '') return;
+    this.start({
+      attachments: [],
+      kind: 'edit',
+      message,
+      messageId: generateId(),
+      text,
+    });
+  }
+
   /** Stops editing a message, and empties the composer. */
   cancelEditing() {
     if (!this.editingMessage) return;
@@ -375,7 +391,8 @@ export class AIConversationController<Message extends AIMessage = AIMessage> {
    * Shows the previous or the next version of the branch `message` belongs to, through the
    * transport's `switchBranch`: a reply's regenerated versions, or the person's edits of a
    * question. Does nothing without it, while the agent is answering, while another switch is on
-   * its way, or past either end. Until it finishes, `isSwitchingBranch` is `true`; a request
+   * its way, or before the first version. Past the last the mark knows, the transport judges,
+   * since a version may have been added since the mark was written. Until it finishes, `isSwitchingBranch` is `true`; a request
    * started meanwhile aborts the `AbortSignal` the transport gets, and the switch's outcome is
    * ignored. It forgets `error` as it starts, since the person moved on, and again once it
    * succeeds. A failure shows as `error` (status `error`), and `retry()` switches again.
@@ -387,7 +404,7 @@ export class AIConversationController<Message extends AIMessage = AIMessage> {
       !branch ||
       this.switching ||
       isAIConversationAnswering(this.state.getLatestValue().status) ||
-      (to === 'previous' ? branch.index <= 1 : branch.index >= branch.count)
+      (to === 'previous' && branch.index <= 1)
     ) {
       return;
     }
@@ -457,11 +474,17 @@ export class AIConversationController<Message extends AIMessage = AIMessage> {
   }
 
   /**
-   * What a message of the person's offers besides editing it: with the transport's
-   * `switchBranch`, the switcher between the versions of a question they edited (`branch`).
+   * What a message of the person's offers with the transport's `switchBranch`: the switcher
+   * between the versions of a question they edited (`branch`), and editing it in place
+   * (`onSaveEdit`, through `editInPlace`) when `editAction` would offer editing it.
    */
   userMessageActions(message: Message): AIUserMessageActions | undefined {
-    return userMessageActionsOf(this, this.state.getLatestValue(), message);
+    const { isSwitchingBranch, messages, status } = this.state.getLatestValue();
+    return userMessageActionsOf(
+      this,
+      { isSwitchingBranch, latestUserMessageId: latestUserMessageIdOf(messages), status },
+      message,
+    );
   }
 
   // What the transport says

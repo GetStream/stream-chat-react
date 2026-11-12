@@ -1701,7 +1701,7 @@ describe('AIConversationController branches', () => {
       index: 1,
     });
     // One version, none at all, or the other kind's versions.
-    expect(controller.userMessageActions(history[2])).toBeUndefined();
+    expect(controller.userMessageActions(history[2])?.branch).toBeUndefined();
     expect(controller.replyActions(history[3], true).branch).toBeUndefined();
     expect(
       controller.userMessageActions(branched(user('u3'), 'reply', 1, 2)),
@@ -1812,6 +1812,64 @@ describe('AIConversationController branches', () => {
 
     // Nothing failed since: nothing to retry.
     expect(transport.switches).toHaveLength(4);
+  });
+
+  it('leaves the end of a branch it doesn’t know to the transport', async () => {
+    const transport = new BranchingTransport([user('u1'), reply('a1')]);
+    const controller = makeController(transport);
+
+    // The mark says 2 of 2, but a version may have been added since it was written.
+    controller.switchBranch(branched(reply('a1'), 'reply', 2, 2), 'next');
+    await settle();
+    // There is none before the first.
+    controller.switchBranch(branched(reply('a1'), 'reply', 1, 2), 'previous');
+    await settle();
+
+    expect(transport.switches.map(({ id, to }) => ({ id, to }))).toEqual([
+      { id: 'a1', to: 'next' },
+    ]);
+    // The switcher still shows the end the mark says.
+    expect(
+      controller.replyActions(branched(reply('a1'), 'reply', 2, 2), true).branch?.onNext,
+    ).toBeUndefined();
+  });
+
+  it('edits a message of the person’s in place', async () => {
+    const transport = new BranchingTransport([
+      marked(user('u1', 'Lisbon')),
+      marked(reply('a1')),
+      user('u2', 'Porto'),
+      reply('a2'),
+    ]);
+    const controller = makeController(transport);
+
+    // An earlier message without a version mark can't be branched from; the latest can.
+    expect(
+      controller.userMessageActions(user('u1', 'Lisbon'))?.onSaveEdit,
+    ).toBeUndefined();
+    expect(controller.userMessageActions(user('u2', 'Porto'))?.onSaveEdit).toBeDefined();
+    expect(controller.userMessageActions(marked(reply('a1')))).toBeUndefined();
+    const limited = makeController(transport, { actions: { edit: false } });
+    expect(limited.userMessageActions(user('u2', 'Porto'))?.onSaveEdit).toBeUndefined();
+
+    controller
+      .userMessageActions(marked(user('u1', 'Lisbon')))
+      ?.onSaveEdit?.('Lisbon in May');
+    await settle();
+
+    expect(transport.lastRequest).toMatchObject({
+      attachments: [],
+      kind: 'edit',
+      message: { id: 'u1' },
+      text: 'Lisbon in May',
+    });
+    expect(controller.composer.getLatestValue().isEditing).toBeFalsy();
+    expect(stateOf(controller).messages).toEqual([]);
+    expect(stateOf(controller).pendingMessage?.text).toBe('Lisbon in May');
+    // The agent is answering.
+    expect(
+      controller.userMessageActions(user('u2', 'Porto'))?.onSaveEdit,
+    ).toBeUndefined();
   });
 
   it('does nothing on a switch without the transport’s switchBranch', async () => {
@@ -2007,6 +2065,7 @@ describe('AIConversationController while a switch runs', () => {
     expect(actions.branch?.onPrevious).toBeUndefined();
     expect(controller.editAction(history[0])).toBeUndefined();
     expect(controller.userMessageActions(history[0])?.branch?.onPrevious).toBeUndefined();
+    expect(controller.userMessageActions(history[0])?.onSaveEdit).toBeUndefined();
     controller.switchBranch(history[0], 'previous');
     await settle();
     expect(transport.switches).toHaveLength(1);
