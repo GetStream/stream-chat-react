@@ -1,5 +1,6 @@
 /**
- * Seeds into Stream's public demo app, from src/base/demo-data.json, the cookbook's users,
+ * Seeds into the cookbook's app (Stream's public demo app, or an app of your own set in
+ * examples/cookbook/.env.local, see streamApp.mjs), from src/base/demo-data.json, the cookbook's users,
  * channels, members, messages and their custom fields, the users a message mentions, attachments, thread replies, pins,
  * receipts, members' read positions, the current user's channel and thread read state, and the
  * channels the current user pinned or archived, channels another cast member created with the
@@ -11,32 +12,29 @@
  *
  *   yarn workspace @stream-io/stream-chat-react-cookbook seed
  */
-import { existsSync } from 'node:fs';
-import { readdir, readFile } from 'node:fs/promises';
+import { readFile } from 'node:fs/promises';
 import { nsToMs, StreamChat } from 'stream-chat';
+import { createUserToken, loadOwnApp, recipeDemoDataFiles } from './streamApp.mjs';
 
 const readJson = async (url) => JSON.parse(await readFile(url, 'utf8'));
 const demoData = await readJson(new URL('../src/base/demo-data.json', import.meta.url));
 
 // A recipe that needs data of its own keeps it in src/recipes/<group>/<recipe>/demo-data.json, in
 // the same shape (`users` and `channels`); it is seeded together with the base data.
-const recipesDir = new URL('../src/recipes/', import.meta.url);
-for (const group of await readdir(recipesDir, { withFileTypes: true })) {
-  if (!group.isDirectory()) continue;
-  for (const recipe of await readdir(new URL(`${group.name}/`, recipesDir), {
-    withFileTypes: true,
-  })) {
-    const file = new URL(`${group.name}/${recipe.name}/demo-data.json`, recipesDir);
-    if (!recipe.isDirectory() || !existsSync(file)) continue;
-    const extra = await readJson(file);
-    for (const user of extra.users ?? []) {
-      if (!demoData.users.some(({ id }) => id === user.id)) demoData.users.push(user);
-    }
-    demoData.channels.push(...(extra.channels ?? []));
+for (const file of recipeDemoDataFiles()) {
+  const extra = await readJson(file);
+  for (const user of extra.users ?? []) {
+    if (!demoData.users.some(({ id }) => id === user.id)) demoData.users.push(user);
   }
+  demoData.channels.push(...(extra.channels ?? []));
 }
 
+const ownApp = loadOwnApp();
+const apiKey = ownApp?.apiKey ?? demoData.apiKey;
+console.log(ownApp ? `app ${apiKey} (your own)` : `app ${apiKey} (public demo app)`);
+
 const fetchToken = async (userId) => {
+  if (ownApp) return createUserToken(ownApp.secret, userId);
   const url = new URL('https://pronto.getstream.io/api/auth/create-token');
   url.searchParams.set('environment', demoData.tokenEnvironment);
   url.searchParams.set('user_id', userId);
@@ -54,7 +52,7 @@ const clients = new Map();
 
 try {
   for (const user of demoData.users) {
-    const client = new StreamChat(demoData.apiKey, {
+    const client = new StreamChat(apiKey, {
       client: { allowServerSideConnect: true },
     });
     clients.set(user.id, client);
