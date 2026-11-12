@@ -226,6 +226,8 @@ const transport: AIConversationTransport = {
   // Optional:
   loadOlderMessages: () => loadOlderPage(),
   rate: (reply, rating) => backend.rate(reply.id, rating),
+  // Shows the previous or next version of `message`'s branch, then feeds its messages.
+  switchBranch: (message, to) => agent.switchBranch(message, to),
 };
 ```
 
@@ -267,23 +269,32 @@ const Chat = ({ transport }: { transport: AIConversationTransport }) => {
 
 What it holds, in `conversation.state` (a `StateStore`; follow it with `useAIConversationState(conversation, selector)`, with the selector defined outside the component):
 
-| Field              | Description                                                                                                                                                                           |
-| ------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `messages`         | The conversation as it shows, oldest first. While a reply is written again, or an edited message is answered again, the messages it replaces are left out until the new reply starts. |
-| `pendingMessage`   | The message the person sent last that is not in `messages` yet. It stays until its reply starts, and after it was stopped or failed, while `retry()` can send it again.               |
-| `status`           | `ready`, `submitted` (on its way, or the agent works on it and its reply shows nothing yet), `streaming` or `error`. `isAIConversationAnswering(status)` is true for the middle two.  |
-| `error`            | Why the latest request failed, or, as an `AIAgentError`, that the agent couldn't answer or didn't start its reply in time (`replyTimeout`, five minutes by default).                  |
-| `activity`         | What the agent says it is doing besides its reply, such as checking sources (`AIAgentActivityStates`).                                                                                |
-| `hasOlderMessages` | Whether `loadOlderMessages()` has anything to load.                                                                                                                                   |
-| `ratings`          | How the person rated replies, by id: what they gave in the browser, or the reply's own `rating`.                                                                                      |
+| Field              | Description                                                                                                                                                                               |
+| ------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `messages`         | The conversation as it shows, oldest first. While a reply is written again, or an edited message is answered again, it and the messages after it are left out until the new reply starts. |
+| `pendingMessage`   | The message the person sent last that is not in `messages` yet. It stays until its reply starts, and after it was stopped or failed, while `retry()` can send it again.                   |
+| `status`           | `ready`, `submitted` (on its way, or the agent works on it and its reply shows nothing yet), `streaming` or `error`. `isAIConversationAnswering(status)` is true for the middle two.      |
+| `error`            | Why the latest request failed, or, as an `AIAgentError`, that the agent couldn't answer or didn't start its reply in time (`replyTimeout`, five minutes by default).                      |
+| `activity`         | What the agent says it is doing besides its reply, such as checking sources (`AIAgentActivityStates`).                                                                                    |
+| `hasOlderMessages` | Whether `loadOlderMessages()` has anything to load.                                                                                                                                       |
+| `ratings`          | How the person rated replies, by id: what they gave in the browser, or the reply's own `rating`.                                                                                          |
 
-What the person does: `send({ text, attachments?, chatOption?, custom? })` (a message, or the edit of the message being edited), `stop()`, `regenerate(reply)`, `edit(message)`, `cancelEditing()`, `retry()`, `clearError()`, `rate(reply, rating | null)` and `loadOlderMessages()`. A transport gets each as an `AIConversationRequest` with a `kind` (`message`, `regenerate`, `edit`, or one of your own), a `messageId` it can create the message with (a retry keeps it), the `text`, the `File`s picked, the `chatOption`, `custom`, and the `message` it is about. A generated UI's action travels as `custom.uiAction`.
+What the person does: `send({ text, attachments?, chatOption?, custom? })` (a message, or the edit of the message being edited), `stop()`, `regenerate(reply)`, `edit(message)`, `cancelEditing()`, `retry()`, `clearError()`, `rate(reply, rating | null)`, `switchBranch(message, 'previous' | 'next')` and `loadOlderMessages()`. A transport gets each as an `AIConversationRequest` with a `kind` (`message`, `regenerate`, `edit`, or one of your own), a `messageId` it can create the message with (a retry keeps it), the `text`, the `File`s picked, the `chatOption`, `custom`, and the `message` it is about. A generated UI's action travels as `custom.uiAction`.
 
-`actions: { edit, rate, regenerate }` turns off what the views offer (all by default). `composer` takes a store of your own (`createAIMessageComposerStore()`), and `approver` is given to `AIConversation` unless it gets one of its own.
+`actions: { edit, rate, regenerate }` turns off what the views offer (all by default): editing and regenerating the latest message only, or any with `switchBranch`. `composer` takes a store of your own (`createAIMessageComposerStore()`), and `approver` is given to `AIConversation` unless it gets one of its own.
 
 With a `conversation`:
 
-- `AIConversation` shows its messages, the message on its way and the agent thinking (status `submitted`), loads older messages while `hasOlderMessages`, offers rating under replies and regenerating the latest one while the agent isn't answering, and an edit button on the person's latest message. Passing `replyActions` replaces the controller's. `userMessageActions` adds to it: an `onEdit` of yours edits in place instead of in the composer.
+- `AIConversation` shows its messages, the message on its way and the agent thinking (status `submitted`), loads older messages while `hasOlderMessages`, offers rating under replies and regenerating the latest one while the agent isn't answering, and an edit button on the person's latest message, which edits it in the composer. Passing `replyActions` replaces the controller's. `userMessageActions` replaces the controller's switcher on the person's messages and keeps its edit button: an `onEdit` of yours edits in place instead of in the composer.
+
+With the transport's optional `switchBranch(message, to)` (`conversation.canSwitchBranch`), the conversation follows [versions of a message](#versions-of-a-message) without `replyActions` or `userMessageActions` of yours:
+
+- Each message whose `branch` has two versions or more shows the ‹ i/n › switcher: on the reply for `of: 'reply'`, among its regenerated versions, and on the person's message for `of: 'question'`, among their edits. The arrows call `switchBranch(message, 'previous' | 'next')`, which shows that version and feeds its messages. Each arrow is disabled at its end, and both while the agent is answering.
+- Regenerate is offered on every finished reply, and edit on every one of the person's messages, while the agent isn't answering (subject to `actions`). The request is the same as for the latest, with `message` the one regenerated or edited, which with what follows it is left out until the new reply starts. Editing always goes through the composer (`edit(message)` fills it); the controller doesn't wire the in-place editor.
+- A `switchBranch` that rejects shows as `error` (status `error`); `clearError()` forgets it, and `retry()` has nothing to send again.
+
+Without `switchBranch`, nothing changes: the latest only, and no switcher.
+
 - `AIMessageComposer` shows `conversation.composer`, and submitting sends what the person wrote, the files they picked and the chat option (which stays picked), unless `onSubmit` calls `event.preventDefault()`. While the agent answers, `SubmitButton` turns into a `StopButton` that stops it, and Enter does not send. While the person edits a message the composer says so above the text ("Editing"), with a button that cancels it (`isEditing` on the store).
 
 An `AIAgentError` without `agentMessage` carries the English `AI_AGENT_ERROR_MESSAGE`; check for that to show copy of your own:
