@@ -63,6 +63,9 @@ const responseIdOf = (mark: unknown) =>
     ? mark.response_id
     : undefined;
 
+/** The custom field the backend marks a re-sent copy of a message with, holding the original's id. */
+export const AI_RESENT_FROM_CUSTOM_DATA_KEY = 'resent_from';
+
 /**
  * Adapts a Stream message for `AIConversation`: a reply is one with `custom.ai_generated: true`,
  * it is being written while `custom.generating: true`, its steps are its `ai_reasoning` and
@@ -70,7 +73,8 @@ const responseIdOf = (mark: unknown) =>
  * agent wrote for it is its `custom.ai_ui` field. A person's message has no UI, whatever its
  * fields say. Which of its versions a message is, and its agent response, are its
  * `custom.support_branch` field (`{ response_id, of, index, count }`), read as `branch` and
- * `responseId`.
+ * `responseId`. A copy the backend re-sent of an earlier message has `custom.resent_from`, read
+ * as `resentFrom`.
  */
 export const fromStreamMessage = <M extends StreamMessage>(
   message: M,
@@ -85,6 +89,7 @@ export const fromStreamMessage = <M extends StreamMessage>(
   const mark = fields[AI_BRANCH_CUSTOM_DATA_KEY];
   const branch = branchOf(mark);
   const responseId = responseIdOf(mark);
+  const resentFrom = fields[AI_RESENT_FROM_CUSTOM_DATA_KEY];
   return {
     attachments: attachments
       .map(attachmentOf)
@@ -100,5 +105,6 @@ export const fromStreamMessage = <M extends StreamMessage>(
     ...(uiDocument ? { uiDocument } : {}),
     ...(branch ? { branch } : {}),
     ...(responseId ? { responseId } : {}),
+    ...(typeof resentFrom === 'string' && resentFrom !== '' ? { resentFrom } : {}),
   };
 };

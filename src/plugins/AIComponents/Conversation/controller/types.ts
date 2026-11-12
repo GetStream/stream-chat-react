@@ -161,6 +161,11 @@ export type AIConversationTransport<Message extends AIMessage = AIMessage> = {
    * on, and counts as the reply only one being written, or one that arrives after `send`
    * resolved. So when the version a switch shows has to become the conversation again first,
    * re-send its messages before `send` resolves.
+   *
+   * A request of any kind sent on a version a switch shows may first bring that version back
+   * into the conversation, its messages re-sent under new ids. Feed each copy with `resentFrom`,
+   * the id of the message it copies (`fromStreamMessage` reads it from `custom.resent_from`): a
+   * copy is never taken for the request's reply.
    */
   send: (request: AIConversationRequest<Message>) => Promise<void>;
   /** Stops the reply the agent is writing. What it wrote so far stays. */

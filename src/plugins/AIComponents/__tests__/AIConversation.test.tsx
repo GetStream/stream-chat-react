@@ -435,6 +435,20 @@ describe('fromStreamMessage', () => {
     expect(fromAPI.responseId).toBe('resp-2');
   });
 
+  it('reads the message a copy was re-sent from, from custom.resent_from', () => {
+    const read = (fields: Record<string, unknown>) =>
+      fromStreamMessage({ attachments: [], id: 'c1', text: 'Hi', ...fields });
+    expect(read({ custom: { resent_from: 'u1' } }).resentFrom).toBe('u1');
+    // A message from the API has its custom fields at the top level.
+    expect(read({ ai_generated: true, resent_from: 'a1' }).resentFrom).toBe('a1');
+    for (const malformed of ['', 42, null, {}, ['u1']]) {
+      expect(read({ custom: { resent_from: malformed } })).not.toHaveProperty(
+        'resentFrom',
+      );
+    }
+    expect(read({})).not.toHaveProperty('resentFrom');
+  });
+
   it('leaves out a malformed support_branch, keeping a good response id', () => {
     const read = (support_branch: unknown) =>
       fromStreamMessage({

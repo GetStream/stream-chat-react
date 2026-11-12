@@ -1670,6 +1670,13 @@ const branched = (
   count: number,
 ): AIMessage => ({ ...message, branch: { count, index, of } });
 
+// A copy of `message` that the transport re-sent, under a new id, as it brought a version back.
+const copyOf = (message: AIMessage, id: string): AIMessage => ({
+  ...message,
+  id,
+  resentFrom: message.id,
+});
+
 // A message with a version mark, which the transport can branch from.
 const marked = (message: AIMessage): AIMessage => ({
   ...message,
@@ -2104,6 +2111,58 @@ describe('AIConversationController while a switch runs', () => {
 });
 
 describe('AIConversationController answering again a version a switch shows', () => {
+  it('keeps the person’s message when its version’s copies arrive first, and shows a failure after', async () => {
+    const transport = new BranchingTransport([
+      user('u1'),
+      branched(reply('a1-v1'), 'reply', 1, 2),
+    ]);
+    transport.holdsSends = true;
+    const controller = makeController(transport);
+
+    controller.send({ text: 'And Porto?' });
+    await settle();
+    // Sending on the version shown brings it back first: its messages, re-sent.
+    transport.update([copyOf(user('u1'), 'u1c'), copyOf(reply('a1-v1'), 'a1c')]);
+
+    expect({
+      pendingMessage: stateOf(controller).pendingMessage?.text,
+      status: stateOf(controller).status,
+    }).toEqual({ pendingMessage: 'And Porto?', status: 'submitted' });
+
+    transport.finishSend(0, new TransportError('Offline'));
+    await settle();
+
+    expect(stateOf(controller).status).toBe('error');
+    expect(stateOf(controller).error).toBeInstanceOf(TransportError);
+    expect(stateOf(controller).pendingMessage?.text).toBe('And Porto?');
+  });
+
+  it('does not take copies that arrive after the request resolved for its reply', async () => {
+    const transport = new BranchingTransport([
+      marked(user('u1')),
+      marked(reply('a1')),
+      user('u2'),
+      reply('a2'),
+    ]);
+    const controller = makeController(transport);
+
+    controller.regenerate(marked(reply('a1')));
+    await settle();
+    transport.update([
+      copyOf(user('u1'), 'u1c'),
+      copyOf(reply('a1'), 'a1c'),
+      copyOf(user('u2'), 'u2c'),
+      copyOf(reply('a2'), 'a2c'),
+    ]);
+
+    expect(stateOf(controller).status).toBe('submitted');
+
+    transport.update([copyOf(user('u1'), 'u1c'), reply('a3', 'Another plan')]);
+
+    expect(ids(stateOf(controller).messages)).toEqual(['u1c', 'a3']);
+    expect(stateOf(controller).status).toBe('ready');
+  });
+
   // Answering again the version a switch shows brings it back into the conversation first: the
   // transport re-sends its messages, finished and under new ids, before the request resolves.
   it('does not take the re-sent copies of a regenerated reply’s version for its reply', async () => {

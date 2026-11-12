@@ -62,6 +62,12 @@ export type AIMessage = {
    * (`of: 'question'`) as `branch`, with how to show the others.
    */
   branch?: AIMessageBranch;
+  /**
+   * The id of the message this one is a copy of, when the backend re-sent it under a new id, as
+   * it does when it brings an earlier version of the conversation back before answering on it.
+   * A copy is never a request's reply.
+   */
+  resentFrom?: string;
 };
 
 /**

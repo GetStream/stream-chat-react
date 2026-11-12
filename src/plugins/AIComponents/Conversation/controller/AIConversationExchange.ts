@@ -172,7 +172,8 @@ export class AIConversationExchange<Message extends AIMessage> {
   reply(conversation: readonly Message[]) {
     const index = conversation.length - 1;
     const last = conversation[index];
-    if (!last || last.role === 'user') return undefined;
+    // A copy the transport re-sent, as it brought a version back, is never the reply.
+    if (!last || last.role === 'user' || last.resentFrom !== undefined) return undefined;
     const original =
       (this.rewritable?.has(last.id) ?? true) ? this.replaced.get(last.id) : undefined;
     if (original) return isRewritten(last, original) ? last : undefined;
@@ -199,7 +200,9 @@ export class AIConversationExchange<Message extends AIMessage> {
     conversation.forEach((message, index) => {
       if (this.known.has(message.id)) lastKnown = index;
     });
-    return conversation.slice(lastKnown + 1).some((message) => message.role === 'user');
+    return conversation
+      .slice(lastKnown + 1)
+      .some((message) => message.role === 'user' && message.resentFrom === undefined);
   }
 
   // What `retry()` sends: the request again, or, when the agent had the person's message but
