@@ -14,6 +14,14 @@ type Offerer<Message extends AIMessage> = {
   switchBranch: (message: Message, to: 'previous' | 'next') => void;
 };
 
+// Whether a message other than the latest can be answered again: while the transport switches
+// versions, and the message has a version mark (`responseId`), without which the transport has
+// nothing to branch from.
+const isBranchable = <Message extends AIMessage>(
+  offerer: Offerer<Message>,
+  message: Message,
+) => offerer.canSwitchBranch && !!message.responseId;
+
 // What the offers depend on besides the message: whether the agent is answering, or a switch to
 // another version is on its way, which leaves out everything that would start a request.
 type Busy = { isSwitchingBranch?: boolean; status: AIConversationStatus };
@@ -51,8 +59,8 @@ const branchSwitchOf = <Message extends AIMessage>(
 };
 
 // What the person can do with a finished reply: rate it, write it again while the agent isn't
-// answering (the latest only, or any while the transport can switch versions), and switch
-// between its versions.
+// answering (the latest, or any with a version mark while the transport can switch versions),
+// and switch between its versions.
 export const replyActionsOf = <Message extends AIMessage>(
   offerer: Offerer<Message>,
   {
@@ -69,7 +77,7 @@ export const replyActionsOf = <Message extends AIMessage>(
     onRate: offerer.actions.rate ? (rating) => offerer.rate(reply, rating) : undefined,
     onRegenerate:
       offerer.actions.regenerate &&
-      (isLatestReply || offerer.canSwitchBranch) &&
+      (isLatestReply || isBranchable(offerer, reply)) &&
       !isBusy({ isSwitchingBranch, status })
         ? () => offerer.regenerate(reply)
         : undefined,
@@ -88,8 +96,8 @@ export const latestUserMessageIdOf = (messages: readonly AIMessage[]) => {
   return undefined;
 };
 
-// Edits a message of the person's while the agent isn't answering: their latest, or any while
-// the transport can switch versions.
+// Edits a message of the person's while the agent isn't answering: their latest, or any with a
+// version mark while the transport can switch versions.
 export const editActionOf = <Message extends AIMessage>(
   offerer: Offerer<Message>,
   {
@@ -106,7 +114,7 @@ export const editActionOf = <Message extends AIMessage>(
   ) {
     return undefined;
   }
-  return offerer.canSwitchBranch || latestUserMessageId === message.id
+  return latestUserMessageId === message.id || isBranchable(offerer, message)
     ? () => offerer.edit(message)
     : undefined;
 };

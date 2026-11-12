@@ -344,12 +344,17 @@ describe('AIMessageComposer with a controller', () => {
   });
 });
 
+// A message with a version mark, as `fromStreamMessage` reads it: its branch, and its response.
 const branched = (
   message: AIMessage,
   of: 'reply' | 'question',
   index: number,
   count: number,
-): AIMessage => ({ ...message, branch: { count, index, of } });
+): AIMessage => ({
+  ...message,
+  branch: { count, index, of },
+  responseId: `r-${message.id}`,
+});
 
 const switcher = (name: string) => screen.getByRole('group', { name });
 const previousVersion = (group: HTMLElement) =>

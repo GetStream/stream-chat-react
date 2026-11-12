@@ -140,7 +140,8 @@ type RatingChange = {
  * `AIConversation` and `AIMessageComposer` as `conversation`, which show it and act on it:
  * sending, stopping, regenerating and rating replies, and editing the person's latest message.
  * With the transport's `switchBranch`, any finished reply can be regenerated and any of the
- * person's messages edited, and a ‹ i/n › switcher shows the other versions of each.
+ * person's messages edited, when it has a version mark (`responseId`), and a ‹ i/n › switcher
+ * shows the other versions of each.
  *
  * Create it in an effect and dispose of it in that effect's cleanup, so React's StrictMode,
  * which runs effects twice, ends with a controller that is connected:
@@ -173,8 +174,8 @@ export class AIConversationController<Message extends AIMessage = AIMessage> {
   readonly actions: Required<AIConversationActions>;
   /**
    * Whether the transport shows a message's other versions (`switchBranch`). Then any finished
-   * reply can be regenerated, any of the person's messages edited, and a message with several
-   * versions offers a ‹ i/n › switcher.
+   * reply can be regenerated and any of the person's messages edited, when it has a version mark
+   * (`responseId`), and a message with several versions offers a ‹ i/n › switcher.
    */
   readonly canSwitchBranch: boolean;
 
@@ -421,7 +422,8 @@ export class AIConversationController<Message extends AIMessage = AIMessage> {
 
   /**
    * What the person can do with a finished reply: rate it, write it again while the agent isn't
-   * answering (while it is the latest, or any with the transport's `switchBranch`), and, with
+   * answering (while it is the latest, or, with the transport's `switchBranch`, any with a
+   * version mark, `responseId`), and, with
    * `switchBranch`, switch between its versions (`branch`).
    */
   replyActions(
@@ -433,7 +435,7 @@ export class AIConversationController<Message extends AIMessage = AIMessage> {
 
   /**
    * Edits a message of the person's in the composer while the agent isn't answering: their
-   * latest, or any with the transport's `switchBranch`.
+   * latest, or, with the transport's `switchBranch`, any with a version mark (`responseId`).
    */
   editAction(message: Message): (() => void) | undefined {
     const { isSwitchingBranch, messages, status } = this.state.getLatestValue();

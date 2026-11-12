@@ -79,19 +79,20 @@ export type AIAgentActivity = {
 /**
  * What the conversation's views offer the person to do with its messages. All by default.
  * Without the transport's `switchBranch`, editing and regenerating are offered on the latest
- * message only; with it, on any, since the versions they replace stay a switch away.
+ * message only; with it, on any with a version mark (`responseId`), since the versions they
+ * replace stay a switch away. The transport has nothing to branch from without one.
  */
 export type AIConversationActions = {
   /**
-   * Editing the person's latest message, or with `switchBranch` any of theirs, which is then
-   * answered again.
+   * Editing the person's latest message, or with `switchBranch` any of theirs with a
+   * `responseId`, which is then answered again.
    */
   edit?: boolean;
   /** Rating replies. */
   rate?: boolean;
   /**
    * Asking for a new reply in place of the latest, or with `switchBranch` in place of any
-   * finished reply.
+   * finished reply with a `responseId`.
    */
   regenerate?: boolean;
 };
@@ -185,7 +186,7 @@ export type AIConversationTransport<Message extends AIMessage = AIMessage> = {
    *
    * With it, the conversation's views show a ‹ i/n › switcher on each message whose `branch` has
    * two versions or more, and offer regenerating any finished reply and editing any of the
-   * person's messages. Without it, only the latest, and no switcher.
+   * person's messages that has a `responseId`. Without it, only the latest, and no switcher.
    */
   switchBranch?: (
     message: Message,

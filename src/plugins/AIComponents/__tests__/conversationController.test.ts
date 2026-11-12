@@ -1666,6 +1666,12 @@ const branched = (
   count: number,
 ): AIMessage => ({ ...message, branch: { count, index, of } });
 
+// A message with a version mark, which the transport can branch from.
+const marked = (message: AIMessage): AIMessage => ({
+  ...message,
+  responseId: `r-${message.id}`,
+});
+
 describe('AIConversationController branches', () => {
   it('offers the switcher only when the transport switches versions and there are several', () => {
     const history = [
@@ -1778,46 +1784,74 @@ describe('AIConversationController branches', () => {
 
   it('offers regenerating any finished reply and editing any of the person’s messages', () => {
     const transport = new BranchingTransport([
-      user('u1', 'Lisbon'),
-      reply('a1'),
+      marked(user('u1', 'Lisbon')),
+      marked(reply('a1')),
       user('u2', 'Porto'),
       reply('a2'),
     ]);
     const controller = makeController(transport);
 
-    expect(controller.replyActions(reply('a1'), false).onRegenerate).toBeDefined();
-    expect(controller.editAction(user('u1'))).toBeDefined();
-    expect(controller.editAction(reply('a1'))).toBeUndefined();
+    expect(
+      controller.replyActions(marked(reply('a1')), false).onRegenerate,
+    ).toBeDefined();
+    expect(controller.editAction(marked(user('u1')))).toBeDefined();
+    expect(controller.editAction(marked(reply('a1')))).toBeUndefined();
 
-    const limited = makeController(new BranchingTransport([user('u1'), reply('a1')]), {
-      actions: { edit: false, regenerate: false },
-    });
+    const limited = makeController(
+      new BranchingTransport([marked(user('u1')), marked(reply('a1'))]),
+      {
+        actions: { edit: false, regenerate: false },
+      },
+    );
 
-    expect(limited.replyActions(reply('a1'), false).onRegenerate).toBeUndefined();
-    expect(limited.editAction(user('u1'))).toBeUndefined();
+    expect(limited.replyActions(marked(reply('a1')), false).onRegenerate).toBeUndefined();
+    expect(limited.editAction(marked(user('u1')))).toBeUndefined();
 
     transport.update([
-      user('u1', 'Lisbon'),
-      reply('a1'),
+      marked(user('u1', 'Lisbon')),
+      marked(reply('a1')),
       user('u2', 'Porto'),
       reply('a2', 'Porto it is', true),
     ]);
 
     // The agent is answering.
+    expect(
+      controller.replyActions(marked(reply('a1')), false).onRegenerate,
+    ).toBeUndefined();
+    expect(controller.editAction(marked(user('u1')))).toBeUndefined();
+  });
+
+  it('offers regenerating and editing an earlier message only when it has a version mark', () => {
+    const transport = new BranchingTransport([
+      user('u1', 'Lisbon'),
+      reply('a1'),
+      user('u2', 'Porto'),
+      reply('a2'),
+    ]);
+    const controller = makeController(transport);
+
+    // The transport can't branch from a message without one.
     expect(controller.replyActions(reply('a1'), false).onRegenerate).toBeUndefined();
     expect(controller.editAction(user('u1'))).toBeUndefined();
+    expect(
+      controller.replyActions(marked(reply('a1')), false).onRegenerate,
+    ).toBeDefined();
+    expect(controller.editAction(marked(user('u1')))).toBeDefined();
+    // The latest, as without switchBranch.
+    expect(controller.replyActions(reply('a2'), true).onRegenerate).toBeDefined();
+    expect(controller.editAction(user('u2'))).toBeDefined();
   });
 
   it('leaves out what follows an earlier reply written again until the new one starts', async () => {
     const transport = new BranchingTransport([
-      user('u1'),
-      reply('a1'),
+      marked(user('u1')),
+      marked(reply('a1')),
       user('u2'),
       reply('a2'),
     ]);
     const controller = makeController(transport);
 
-    controller.replyActions(reply('a1'), false).onRegenerate?.();
+    controller.replyActions(marked(reply('a1')), false).onRegenerate?.();
     await settle();
 
     expect(transport.lastRequest).toMatchObject({
@@ -1829,17 +1863,22 @@ describe('AIConversationController branches', () => {
     expect(stateOf(controller).status).toBe('submitted');
 
     // The conversation as it was, before the transport moves to the new version.
-    transport.update([user('u1'), reply('a1'), user('u2'), reply('a2', 'Updated')]);
+    transport.update([
+      marked(user('u1')),
+      marked(reply('a1')),
+      user('u2'),
+      reply('a2', 'Updated'),
+    ]);
 
     expect(ids(stateOf(controller).messages)).toEqual(['u1']);
     expect(stateOf(controller).status).toBe('submitted');
 
     // The new version, whose reply shows nothing yet.
-    transport.update([user('u1'), reply('a3', '', true)]);
+    transport.update([marked(user('u1')), reply('a3', '', true)]);
 
     expect(stateOf(controller).status).toBe('submitted');
 
-    transport.update([user('u1'), reply('a3', 'Another plan', true)]);
+    transport.update([marked(user('u1')), reply('a3', 'Another plan', true)]);
 
     expect(ids(stateOf(controller).messages)).toEqual(['u1', 'a3']);
     expect(stateOf(controller).status).toBe('streaming');
@@ -1847,14 +1886,14 @@ describe('AIConversationController branches', () => {
 
   it('edits an earlier message in the composer and sends it in its place', async () => {
     const transport = new BranchingTransport([
-      user('u1', 'Lisbon'),
-      reply('a1'),
+      marked(user('u1', 'Lisbon')),
+      marked(reply('a1')),
       user('u2', 'Porto'),
       reply('a2'),
     ]);
     const controller = makeController(transport);
 
-    controller.editAction(user('u1', 'Lisbon'))?.();
+    controller.editAction(marked(user('u1', 'Lisbon')))?.();
 
     expect(controller.editingMessage?.id).toBe('u1');
     expect(controller.composer.getLatestValue().text).toBe('Lisbon');
