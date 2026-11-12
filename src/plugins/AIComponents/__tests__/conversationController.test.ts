@@ -1814,6 +1814,30 @@ describe('AIConversationController branches', () => {
     expect(transport.switches).toHaveLength(4);
   });
 
+  it('keeps a failed message, and its retry, through a switch', async () => {
+    const shown = branched(reply('a1'), 'reply', 2, 2);
+    const transport = new BranchingTransport([user('u1'), shown]);
+    transport.sendError = new TransportError('Offline');
+    const controller = makeController(transport);
+
+    controller.send({ text: 'And Porto?' });
+    await settle();
+    expect(stateOf(controller).status).toBe('error');
+
+    controller.switchBranch(shown, 'previous');
+    await settle();
+
+    expect(stateOf(controller).error).toBeInstanceOf(TransportError);
+    expect(stateOf(controller).pendingMessage?.text).toBe('And Porto?');
+
+    transport.sendError = undefined;
+    controller.retry();
+    await settle();
+
+    expect(transport.lastRequest).toMatchObject({ kind: 'message', text: 'And Porto?' });
+    expect(transport.switches).toHaveLength(1);
+  });
+
   it('leaves the end of a branch it doesn’t know to the transport', async () => {
     const transport = new BranchingTransport([user('u1'), reply('a1')]);
     const controller = makeController(transport);

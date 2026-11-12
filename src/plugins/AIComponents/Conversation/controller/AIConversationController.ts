@@ -206,8 +206,11 @@ export class AIConversationController<Message extends AIMessage = AIMessage> {
   private ratingAttempts = 0;
   // The switch on its way, which the next request or another dispose gives up on.
   private switching: AbortController | undefined;
-  // The switch that failed, which `retry()` runs again, until the error is forgotten.
-  private failedSwitch: { message: Message; to: 'previous' | 'next' } | undefined;
+  // The switch that failed and why, which `retry()` runs again, until the next switch or request,
+  // or `clearError()`. It shows as `error` over the latest request's, which a switch keeps.
+  private failedSwitch:
+    | { error: Error; message: Message; to: 'previous' | 'next' }
+    | undefined;
   private isLoadingOlderMessages = false;
   // The object URLs the files the person picked show from while their message is on its way.
   private fileURLs = new Map<File, string>();
@@ -394,8 +397,9 @@ export class AIConversationController<Message extends AIMessage = AIMessage> {
    * its way, or before the first version. Past the last the mark knows, the transport judges,
    * since a version may have been added since the mark was written. Until it finishes, `isSwitchingBranch` is `true`; a request
    * started meanwhile aborts the `AbortSignal` the transport gets, and the switch's outcome is
-   * ignored. It forgets `error` as it starts, since the person moved on, and again once it
-   * succeeds. A failure shows as `error` (status `error`), and `retry()` switches again.
+   * ignored. A failure shows as `error` (status `error`), and `retry()` switches again; the
+   * next switch forgets it as it starts. A request that failed before stays, with its `error`
+   * and its retry, since the person's message can still be sent again.
    */
   switchBranch(message: Message, to: 'previous' | 'next') {
     const { branch } = message;
@@ -411,17 +415,17 @@ export class AIConversationController<Message extends AIMessage = AIMessage> {
     const id = this.generation;
     const switching = new AbortController();
     this.switching = switching;
-    this.forgetError();
+    // The switch that failed before, but not a request that failed: its message can still be
+    // sent again.
+    this.failedSwitch = undefined;
     this.refresh();
     void (async () => {
       try {
         await this.transport.switchBranch?.(message, to, switching.signal);
-        if (!this.disposed && id === this.generation) this.error = undefined;
       } catch (error) {
         // Another request or stop took its place, or the person gave up on it.
         if (this.disposed || id !== this.generation || isAbortError(error)) return;
-        this.error = asError(error);
-        this.failedSwitch = { message, to };
+        this.failedSwitch = { error: asError(error), message, to };
       } finally {
         if (this.switching === switching) {
           this.switching = undefined;
@@ -778,7 +782,7 @@ export class AIConversationController<Message extends AIMessage = AIMessage> {
       : nextRatings;
     const next: AIConversationControllerState<Message> = {
       activity: this.activity,
-      error: this.error,
+      error: this.failedSwitch?.error ?? this.error,
       hasOlderMessages: this.hasOlderMessages,
       isSwitchingBranch: !!this.switching,
       messages,
@@ -818,6 +822,6 @@ export class AIConversationController<Message extends AIMessage = AIMessage> {
     ) {
       return 'submitted';
     }
-    return this.error ? 'error' : 'ready';
+    return this.error || this.failedSwitch ? 'error' : 'ready';
   }
 }
