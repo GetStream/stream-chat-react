@@ -50,9 +50,9 @@ export type AIConversationControllerState<Message extends AIMessage = AIMessage>
    */
   isSwitchingBranch: boolean;
   /**
-   * Why the latest request failed, or, as an `AIAgentError`, what the agent said when it couldn't
-   * answer or that it didn't answer in time. It stays until the next request, or until a reply
-   * starts after all.
+   * Why the latest request or switch failed, or, as an `AIAgentError`, what the agent said when
+   * it couldn't answer or that it didn't answer in time. It stays until the next request or
+   * switch, or until a reply starts after all.
    */
   error: Error | undefined;
   /** What the agent says it is doing besides what its reply shows, such as checking sources. */
@@ -206,6 +206,8 @@ export class AIConversationController<Message extends AIMessage = AIMessage> {
   private ratingAttempts = 0;
   // The switch on its way, which the next request or another dispose gives up on.
   private switching: AbortController | undefined;
+  // The switch that failed, which `retry()` runs again, until the error is forgotten.
+  private failedSwitch: { message: Message; to: 'previous' | 'next' } | undefined;
   private isLoadingOlderMessages = false;
   // The object URLs the files the person picked show from while their message is on its way.
   private fileURLs = new Map<File, string>();
@@ -324,19 +326,23 @@ export class AIConversationController<Message extends AIMessage = AIMessage> {
   }
 
   /**
-   * Tries again after `error`: sends the request that failed again, with the same message id, or
-   * asks the agent again for the reply it couldn't write.
+   * Tries again after `error`: sends the request that failed again, with the same message id,
+   * asks the agent again for the reply it couldn't write, or switches again to the version a
+   * `switchBranch` failed to show.
    */
   retry() {
-    const { exchange } = this;
+    const { exchange, failedSwitch } = this;
+    if (failedSwitch) {
+      this.switchBranch(failedSwitch.message, failedSwitch.to);
+      return;
+    }
     if (!exchange?.hasFailed) return;
     this.start(exchange.retryRequest(this.received));
   }
 
-  /** Forgets `error`, and the request that failed. */
+  /** Forgets `error`, and the request or switch that failed. */
   clearError() {
-    this.error = undefined;
-    if (this.exchange?.hasFailed) this.exchange = undefined;
+    this.forgetError();
     this.refresh();
   }
 
@@ -371,7 +377,8 @@ export class AIConversationController<Message extends AIMessage = AIMessage> {
    * question. Does nothing without it, while the agent is answering, while another switch is on
    * its way, or past either end. Until it finishes, `isSwitchingBranch` is `true`; a request
    * started meanwhile aborts the `AbortSignal` the transport gets, and the switch's outcome is
-   * ignored. A failure shows as `error`.
+   * ignored. It forgets `error` as it starts, since the person moved on, and again once it
+   * succeeds. A failure shows as `error` (status `error`), and `retry()` switches again.
    */
   switchBranch(message: Message, to: 'previous' | 'next') {
     const { branch } = message;
@@ -387,14 +394,17 @@ export class AIConversationController<Message extends AIMessage = AIMessage> {
     const id = this.generation;
     const switching = new AbortController();
     this.switching = switching;
+    this.forgetError();
     this.refresh();
     void (async () => {
       try {
         await this.transport.switchBranch?.(message, to, switching.signal);
+        if (!this.disposed && id === this.generation) this.error = undefined;
       } catch (error) {
         // Another request or stop took its place, or the person gave up on it.
         if (this.disposed || id !== this.generation || isAbortError(error)) return;
         this.error = asError(error);
+        this.failedSwitch = { message, to };
       } finally {
         if (this.switching === switching) {
           this.switching = undefined;
@@ -511,6 +521,7 @@ export class AIConversationController<Message extends AIMessage = AIMessage> {
     // The version a switch on its way would feed would take the place of this request's.
     this.switching?.abort();
     this.switching = undefined;
+    this.failedSwitch = undefined;
     this.error = undefined;
     this.activity = undefined;
     this.ignoresActivity = false;
@@ -615,6 +626,13 @@ export class AIConversationController<Message extends AIMessage = AIMessage> {
     if (this.exchange) this.exchange.state = 'unanswered';
     this.clearReplyTimer();
     this.error = error;
+  }
+
+  // Forgets `error`, and the request or switch that failed.
+  private forgetError() {
+    this.error = undefined;
+    this.failedSwitch = undefined;
+    if (this.exchange?.hasFailed) this.exchange = undefined;
   }
 
   private waitForReply(id: number) {

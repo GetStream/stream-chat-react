@@ -1645,12 +1645,16 @@ class BranchingTransport extends ConversationTransport {
     to: 'previous' | 'next',
     signal?: AbortSignal,
   ) => {
-    this.switches.push({ id: message.id, signal, to });
-    if (this.holdsSwitches) await hold(this.heldSwitches);
+    const index = this.switches.push({ id: message.id, signal, to }) - 1;
+    if (this.holdsSwitches) {
+      await new Promise<void>((resolve, reject) => {
+        this.heldSwitches[index] = { reject, resolve };
+      });
+    }
     if (this.switchError) throw this.switchError;
   };
 
-  // Finishes a held switch, feeding the version it shows unless the switch was given up on, as a
+  // Finishes the held switch at `index` of `switches`, feeding the version it shows unless the switch was given up on, as a
   // transport that honours the signal does.
   finishSwitch(index: number, version?: AIMessage[], error?: unknown) {
     if (version && !this.switches[index].signal?.aborted) this.update(version);
@@ -1767,6 +1771,47 @@ describe('AIConversationController branches', () => {
 
     expect(stateOf(controller).error).toBeUndefined();
     expect(stateOf(controller).status).toBe('ready');
+  });
+
+  it('retries a failed switch, and forgets its error once a switch starts or succeeds', async () => {
+    const shown = branched(reply('a1'), 'reply', 2, 2);
+    const transport = new BranchingTransport([user('u1'), shown]);
+    transport.switchError = new TransportError('Gone');
+    const controller = makeController(transport);
+
+    controller.switchBranch(shown, 'previous');
+    await settle();
+    expect(stateOf(controller).status).toBe('error');
+
+    transport.switchError = undefined;
+    controller.retry();
+    await settle();
+
+    expect(transport.switches.map(({ id, to }) => ({ id, to }))).toEqual([
+      { id: 'a1', to: 'previous' },
+      { id: 'a1', to: 'previous' },
+    ]);
+    expect(stateOf(controller).error).toBeUndefined();
+    expect(stateOf(controller).status).toBe('ready');
+
+    // A failed switch, then another switch.
+    transport.switchError = new TransportError('Gone');
+    controller.switchBranch(shown, 'previous');
+    await settle();
+    transport.switchError = undefined;
+    transport.holdsSwitches = true;
+    controller.switchBranch(branched(user('u1'), 'question', 2, 2), 'previous');
+
+    expect(stateOf(controller).error).toBeUndefined();
+    expect(stateOf(controller).status).toBe('ready');
+
+    transport.finishSwitch(3);
+    await settle();
+    controller.retry();
+    await settle();
+
+    // Nothing failed since: nothing to retry.
+    expect(transport.switches).toHaveLength(4);
   });
 
   it('does nothing on a switch without the transport’s switchBranch', async () => {

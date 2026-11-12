@@ -8,7 +8,8 @@ import type { AIMessage } from '../types';
  * - `submitted`: the person's request is on its way, or the agent is working on it and its reply
  *   shows nothing yet.
  * - `streaming`: the agent is writing its reply.
- * - `error`: the latest request failed, or the agent couldn't answer it. `retry()` tries again.
+ * - `error`: the latest request failed, the agent couldn't answer it, or a `switchBranch` failed.
+ *   `retry()` tries again.
  */
 export type AIConversationStatus = 'ready' | 'submitted' | 'streaming' | 'error';
 
@@ -176,8 +177,8 @@ export type AIConversationTransport<Message extends AIMessage = AIMessage> = {
    * Shows the previous or the next version of the branch `message` belongs to: a reply's
    * regenerated versions when its `branch.of` is `'reply'`, the person's edited versions of a
    * question when it is `'question'`. Feed the messages of that version through
-   * `feed.updateMessages`. A rejection shows as the conversation's error; one with an
-   * `AbortError` shows nothing.
+   * `feed.updateMessages`. A rejection shows as the conversation's error, which the controller's
+   * `retry()` tries again; one with an `AbortError` shows nothing.
    *
    * `signal` aborts once the person sends a request before the switch finishes: feed nothing of
    * that version from then on, since it would take the place of the request's. The controller
