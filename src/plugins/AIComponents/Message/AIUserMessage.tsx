@@ -4,6 +4,7 @@ import clsx from 'clsx';
 import { useTranslationContext } from '../../../context/TranslationContext';
 import { useComponentContextIcons } from '../../../context/useComponentContextIcons';
 import { AIMessageAttachment, type AIMessageAttachmentData } from './AIMessageAttachment';
+import { ThemeScopeProvider, useAIThemeScopeClassName } from '../themeScope';
 
 export type AIUserMessageProps = {
   /** What the person wrote. */
@@ -25,33 +26,36 @@ export const AIUserMessage = ({
   onEdit,
   text,
 }: AIUserMessageProps) => {
+  const themeScopeClassName = useAIThemeScopeClassName();
   const { t } = useTranslationContext();
   const { IconEdit } = useComponentContextIcons();
   return (
-    <div className={clsx('str-chat__ai-user-message', className)}>
-      {attachments.length > 0 && (
-        <div className='str-chat__ai-user-message__attachments'>
-          {attachments.map((attachment, index) => (
-            <AIMessageAttachment attachment={attachment} key={index} role='user' />
-          ))}
-        </div>
-      )}
-      {text !== '' && (
-        <div className='str-chat__ai-user-message__row'>
-          {onEdit && (
-            <button
-              aria-label={t('aiComponents.userMessage.edit.ariaLabel', 'Edit')}
-              className='str-chat__ai-reply-actions__button str-chat__ai-user-message__edit'
-              onClick={onEdit}
-              title={t('aiComponents.userMessage.edit.ariaLabel', 'Edit')}
-              type='button'
-            >
-              <IconEdit />
-            </button>
-          )}
-          <div className='str-chat__ai-user-message__bubble'>{text}</div>
-        </div>
-      )}
-    </div>
+    <ThemeScopeProvider>
+      <div className={clsx(themeScopeClassName, 'str-chat__ai-user-message', className)}>
+        {attachments.length > 0 && (
+          <div className='str-chat__ai-user-message__attachments'>
+            {attachments.map((attachment, index) => (
+              <AIMessageAttachment attachment={attachment} key={index} role='user' />
+            ))}
+          </div>
+        )}
+        {text !== '' && (
+          <div className='str-chat__ai-user-message__row'>
+            {onEdit && (
+              <button
+                aria-label={t('aiComponents.userMessage.edit.ariaLabel', 'Edit')}
+                className='str-chat__ai-reply-actions__button str-chat__ai-user-message__edit'
+                onClick={onEdit}
+                title={t('aiComponents.userMessage.edit.ariaLabel', 'Edit')}
+                type='button'
+              >
+                <IconEdit />
+              </button>
+            )}
+            <div className='str-chat__ai-user-message__bubble'>{text}</div>
+          </div>
+        )}
+      </div>
+    </ThemeScopeProvider>
   );
 };

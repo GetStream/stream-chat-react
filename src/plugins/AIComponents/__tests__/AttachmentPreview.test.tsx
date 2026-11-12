@@ -23,7 +23,8 @@ describe('AttachmentPreview.Item', () => {
 
   it('applies no state modifier for an unknown state', () => {
     const { container } = render(<Item file={textFile()} state='finished' />);
-    expect(container.querySelector(`.${itemClass}`)?.className).toBe(itemClass);
+    const classes = [...(container.querySelector(`.${itemClass}`)?.classList ?? [])];
+    expect(classes.filter((name) => name.startsWith(`${itemClass}--`))).toEqual([]);
   });
 
   it('calls onDelete from the delete button', () => {

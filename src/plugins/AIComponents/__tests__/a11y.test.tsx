@@ -79,6 +79,21 @@ describe('AI components accessibility', () => {
     ).toHaveNoViolations();
   });
 
+  it('an inline composer with its actions and a stop button has no axe violations', async () => {
+    const { container } = render(
+      <WithEnglish>
+        <AIMessageComposer aria-label='Message composer' layout='inline'>
+          <AIMessageComposer.TextInput />
+          <AIMessageComposer.Actions>
+            <AIMessageComposer.SpeechToTextButton />
+            <AIMessageComposer.StopButton />
+          </AIMessageComposer.Actions>
+        </AIMessageComposer>
+      </WithEnglish>,
+    );
+    expect(await axe(container, axeRules)).toHaveNoViolations();
+  });
+
   it('names the submit button and the file upload control', () => {
     render(<FullComposer />);
     expect(screen.getByRole('button', { name: 'Send' })).toHaveAttribute(
