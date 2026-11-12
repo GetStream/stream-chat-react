@@ -31,7 +31,7 @@ for (const file of recipeDemoDataFiles()) {
 
 const ownApp = loadOwnApp();
 const apiKey = ownApp?.apiKey ?? demoData.apiKey;
-console.log(ownApp ? `app ${apiKey} (your own)` : `app ${apiKey} (public demo app)`);
+console.log(ownApp ? 'app: your own (.env.local)' : 'app: public demo app');
 
 const fetchToken = async (userId) => {
   if (ownApp) return createUserToken(ownApp.secret, userId);
