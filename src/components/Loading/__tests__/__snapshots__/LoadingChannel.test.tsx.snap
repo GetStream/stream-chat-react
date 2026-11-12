@@ -9,6 +9,9 @@ exports[`LoadingChannel > should render component with default props 1`] = `
       class="str-chat__channel-header str-chat__channel-header--loading"
     >
       <div
+        class="str-chat__channel-header__start"
+      />
+      <div
         class="str-chat__channel-header__data str-chat__channel-header__data--loading"
       >
         <div
@@ -16,8 +19,12 @@ exports[`LoadingChannel > should render component with default props 1`] = `
         />
       </div>
       <div
-        class="str-chat__loading-channel-header-avatar"
-      />
+        class="str-chat__channel-header__end"
+      >
+        <div
+          class="str-chat__loading-channel-header-avatar"
+        />
+      </div>
     </div>
     <div
       class="str-chat__message-list str-chat__message-list--loading"
