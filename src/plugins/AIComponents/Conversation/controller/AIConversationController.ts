@@ -490,7 +490,13 @@ export class AIConversationController<Message extends AIMessage = AIMessage> {
     this.ignoresActivity = false;
     this.stopped = new Set();
     this.clearReplyTimer();
-    this.exchange = new AIConversationExchange(id, request, this.received, this.urlOf);
+    this.exchange = new AIConversationExchange(
+      id,
+      request,
+      this.received,
+      this.urlOf,
+      this.canSwitchBranch,
+    );
     this.refresh();
     const previousStop = this.stopping;
     void (async () => {
@@ -576,6 +582,7 @@ export class AIConversationController<Message extends AIMessage = AIMessage> {
         request,
         this.received,
         this.urlOf,
+        this.canSwitchBranch,
       );
     }
     if (this.exchange) this.exchange.state = 'unanswered';

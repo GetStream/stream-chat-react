@@ -53,9 +53,10 @@ export class AIConversationExchange<Message extends AIMessage> {
   // The messages it replaces, as they were, which the conversation leaves out while it waits:
   // the reply written again, or the message edited, and those after it.
   readonly replaced: Map<string, Message>;
-  // Those of `replaced` in the target's own turn, up to the person's next message: the ones its
-  // reply can be written in place of. A later turn's reply that changes is not its reply.
-  private readonly rewritable: Set<string>;
+  // With `ownTurnOnly`, those of `replaced` in the target's own turn, up to the person's next
+  // message: the ones its reply can be written in place of. A later turn's reply that changes is
+  // not its reply. Without it, any of `replaced`.
+  private readonly rewritable: Set<string> | undefined;
   // The person's message on its way.
   readonly pending: AIPendingMessage | undefined;
 
@@ -66,6 +67,9 @@ export class AIConversationExchange<Message extends AIMessage> {
     conversation: readonly Message[],
     // Where the files the person picked show from while their message is on its way.
     urlOf?: AIFileURLOf,
+    // Whether only the target's own turn can hold its reply written in place, as when the
+    // transport switches versions and any message can be answered again.
+    ownTurnOnly = false,
   ) {
     this.known = new Set(conversation.map((message) => message.id));
     const target = request.message
@@ -76,18 +80,17 @@ export class AIConversationExchange<Message extends AIMessage> {
         ? conversation.slice(target).map((message) => [message.id, message])
         : [],
     );
-    const nextQuestion =
-      target >= 0
-        ? conversation.findIndex(
-            (message, index) => index > target && message.role === 'user',
-          )
-        : -1;
-    this.rewritable = new Set(
-      [...this.replaced.keys()].slice(
-        0,
-        nextQuestion >= 0 ? nextQuestion - target : undefined,
-      ),
+    const nextQuestion = conversation.findIndex(
+      (message, index) => target >= 0 && index > target && message.role === 'user',
     );
+    this.rewritable = ownTurnOnly
+      ? new Set(
+          [...this.replaced.keys()].slice(
+            0,
+            nextQuestion >= 0 ? nextQuestion - target : undefined,
+          ),
+        )
+      : undefined;
     if (request.kind === 'regenerate') {
       this.pending = undefined;
     } else {
@@ -121,9 +124,8 @@ export class AIConversationExchange<Message extends AIMessage> {
   reply(conversation: readonly Message[]) {
     const last = conversation[conversation.length - 1];
     if (!last || last.role === 'user') return undefined;
-    const original = this.rewritable.has(last.id)
-      ? this.replaced.get(last.id)
-      : undefined;
+    const original =
+      (this.rewritable?.has(last.id) ?? true) ? this.replaced.get(last.id) : undefined;
     const rewritten = original ? isRewritten(last, original) : false;
     return !this.known.has(last.id) || rewritten ? last : undefined;
   }

@@ -291,7 +291,7 @@ With the transport's optional `switchBranch(message, to)` (`conversation.canSwit
 
 - Each message whose `branch` has two versions or more shows the ‹ i/n › switcher: on the reply for `of: 'reply'`, among its regenerated versions, and on the person's message for `of: 'question'`, among their edits. The arrows call `switchBranch(message, 'previous' | 'next')`, which shows that version and feeds its messages. Each arrow is disabled at its end, and both while the agent is answering.
 - Regenerate is offered on every finished reply, and edit on every one of the person's messages, while the agent isn't answering (subject to `actions`). The request is the same as for the latest, with `message` the one regenerated or edited, which with what follows it is left out until the new reply starts. Editing always goes through the composer (`edit(message)` fills it); the controller doesn't wire the in-place editor.
-- A `switchBranch` that rejects shows as `error` (status `error`); `clearError()` forgets it, and `retry()` has nothing to send again.
+- A `switchBranch` that rejects shows as `error` (status `error`); `clearError()` forgets it, and `retry()` does not retry the switch.
 
 Without `switchBranch`, nothing changes: the latest only, and no switcher.
 
