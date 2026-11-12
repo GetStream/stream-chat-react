@@ -595,7 +595,6 @@ export class AIConversationController<Message extends AIMessage = AIMessage> {
 
   private requestSent(id: number) {
     const { exchange } = this;
-    if (!this.disposed && exchange?.id === id) exchange.markSent(this.received);
     // The agent may already say it is working on it.
     if (
       this.disposed ||

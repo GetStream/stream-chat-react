@@ -2137,6 +2137,33 @@ describe('AIConversationController answering again a version a switch shows', ()
     expect(stateOf(controller).pendingMessage?.text).toBe('And Porto?');
   });
 
+  it('takes a finished reply that arrives before the request resolves for its reply', async () => {
+    const transport = new BranchingTransport([
+      marked(user('u1')),
+      marked(reply('a1')),
+      user('u2'),
+      reply('a2'),
+    ]);
+    transport.holdsSends = true;
+    const controller = makeController(transport, { replyTimeout: 20 });
+
+    controller.regenerate(marked(reply('a1')));
+    await settle();
+    transport.update([marked(user('u1')), reply('a3', 'Another plan')]);
+
+    expect({
+      messages: ids(stateOf(controller).messages),
+      status: stateOf(controller).status,
+    }).toEqual({ messages: ['u1', 'a3'], status: 'ready' });
+
+    transport.finishSend(0);
+    await settle();
+    await sleep(50);
+
+    expect(stateOf(controller).error).toBeUndefined();
+    expect(stateOf(controller).status).toBe('ready');
+  });
+
   it('does not take copies that arrive after the request resolved for its reply', async () => {
     const transport = new BranchingTransport([
       marked(user('u1')),
@@ -2164,7 +2191,7 @@ describe('AIConversationController answering again a version a switch shows', ()
   });
 
   // Answering again the version a switch shows brings it back into the conversation first: the
-  // transport re-sends its messages, finished and under new ids, before the request resolves.
+  // transport re-sends its messages, finished, under new ids and marked as copies.
   it('does not take the re-sent copies of a regenerated reply’s version for its reply', async () => {
     const transport = new BranchingTransport([
       user('u1'),
@@ -2177,7 +2204,12 @@ describe('AIConversationController answering again a version a switch shows', ()
 
     controller.regenerate(reply('a1'));
     await settle();
-    transport.update([user('u1'), reply('a1x'), user('u2x'), reply('a2x')]);
+    transport.update([
+      user('u1'),
+      copyOf(reply('a1'), 'a1x'),
+      copyOf(user('u2'), 'u2x'),
+      copyOf(reply('a2'), 'a2x'),
+    ]);
 
     expect({
       messages: ids(stateOf(controller).messages),
@@ -2205,7 +2237,12 @@ describe('AIConversationController answering again a version a switch shows', ()
     controller.edit(user('u1', 'Lisbon'));
     controller.send({ text: 'Lisbon in May' });
     await settle();
-    transport.update([user('u1', 'Lisbon'), reply('a1x'), user('u2x'), reply('a2x')]);
+    transport.update([
+      user('u1', 'Lisbon'),
+      copyOf(reply('a1'), 'a1x'),
+      copyOf(user('u2'), 'u2x'),
+      copyOf(reply('a2'), 'a2x'),
+    ]);
 
     expect(stateOf(controller).status).toBe('submitted');
     expect(stateOf(controller).messages).toEqual([]);

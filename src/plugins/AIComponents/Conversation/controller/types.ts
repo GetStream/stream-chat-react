@@ -158,9 +158,7 @@ export type AIConversationTransport<Message extends AIMessage = AIMessage> = {
    * person's messages, not only the latest: the messages after it are left out the same way,
    * and the version it starts is fed as the conversation, in place of the one it replaces.
    * Until the new reply starts, the controller leaves out everything from `message`'s position
-   * on, and counts as the reply only one being written, or one that arrives after `send`
-   * resolved. So when the version a switch shows has to become the conversation again first,
-   * re-send its messages before `send` resolves.
+   * on, and counts as the reply a message that wasn't there, at or after that position.
    *
    * A request of any kind sent on a version a switch shows may first bring that version back
    * into the conversation, its messages re-sent under new ids. Feed each copy with `resentFrom`,

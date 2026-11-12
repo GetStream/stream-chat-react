@@ -60,9 +60,6 @@ export class AIConversationExchange<Message extends AIMessage> {
   // With `ownTurnOnly`, for a regenerate or an edit of a message there was, where the target
   // is: after the message before it, by id, which older messages loaded meanwhile don't move.
   private readonly target: { before: string | undefined; index: number } | undefined;
-  // With `ownTurnOnly`, the messages there were once the transport resolved the request, which
-  // `markSent` records.
-  private sent: Set<string> | undefined;
   // The person's message on its way.
   readonly pending: AIPendingMessage | undefined;
 
@@ -129,12 +126,6 @@ export class AIConversationExchange<Message extends AIMessage> {
       : undefined;
   }
 
-  // Records the messages there are once the transport resolved the request, which, for a
-  // regenerate or an edit while the transport switches versions, aren't its reply.
-  markSent(conversation: readonly Message[]) {
-    if (this.target) this.sent = new Set(conversation.map(({ id }) => id));
-  }
-
   // Where the target is in `conversation` now: after the message before it, or where it was
   // when that one is gone.
   private targetIndexIn(conversation: readonly Message[]) {
@@ -158,17 +149,13 @@ export class AIConversationExchange<Message extends AIMessage> {
   }
 
   // The latest message when it is the request's reply: a reply that wasn't there, or one the
-  // request replaces, once it is written again.
+  // request replaces, once it is written again. A copy the transport re-sent (`resentFrom`), as
+  // it brought back a version a switch shows, never is, whenever it arrives.
   //
-  // For a regenerate or an edit while the transport switches versions, answering again a version
-  // a switch shows first brings that version back into the conversation: the transport re-sends
-  // its messages, finished and under new ids, before it resolves the request. So a reply that
-  // wasn't there counts only when it comes at or after the target's position (after it, for an
-  // edit), by the message before the target, and either is being written (`isGenerating`), or
-  // wasn't there either once the request resolved (`markSent`). A finished one that arrives
-  // before the request resolves isn't the reply: it counts once an update after the request
-  // resolved brings it again under a new id, or else the wait times out. A reply written in place
-  // of one in the target's own turn counts as before.
+  // For a regenerate or an edit while the transport switches versions, a reply that wasn't there
+  // counts only when it comes at or after the target's position (after it, for an edit), found
+  // by the message before the target, finished or not. A reply written in place of one in the
+  // target's own turn counts as before.
   reply(conversation: readonly Message[]) {
     const index = conversation.length - 1;
     const last = conversation[index];
@@ -181,8 +168,7 @@ export class AIConversationExchange<Message extends AIMessage> {
     if (!this.target) return last;
     const target = this.targetIndexIn(conversation);
     const isAfterTarget = this.request.kind === 'edit' ? index > target : index >= target;
-    const isNew = !!last.isGenerating || (!!this.sent && !this.sent.has(last.id));
-    return isAfterTarget && isNew ? last : undefined;
+    return isAfterTarget ? last : undefined;
   }
 
   // Whether its reply has started: it shows something, or it is already finished.
