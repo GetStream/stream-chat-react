@@ -402,6 +402,75 @@ describe('fromStreamMessage', () => {
     ).toMatchObject({ role: 'assistant', text: 'From the agent' });
   });
 
+  it('reads which version a message is, and its response, from custom.support_branch', () => {
+    const support_branch = {
+      count: 3,
+      index: 2,
+      of: 'question',
+      parent_response_id: 'resp-0',
+      question_response_id: 'resp-1',
+      response_id: 'resp-1',
+    };
+    expect(
+      fromStreamMessage({
+        attachments: [],
+        custom: { support_branch },
+        id: 'u1',
+        text: 'Hi',
+      }),
+    ).toMatchObject({
+      branch: { count: 3, index: 2, of: 'question' },
+      responseId: 'resp-1',
+      role: 'user',
+    });
+    // A message from the API has its custom fields at the top level.
+    const fromAPI = fromStreamMessage({
+      ai_generated: true,
+      attachments: [],
+      id: 'a1',
+      support_branch: { count: 2, index: 1, of: 'reply', response_id: 'resp-2' },
+      text: 'Hello',
+    });
+    expect(fromAPI.branch).toEqual({ count: 2, index: 1, of: 'reply' });
+    expect(fromAPI.responseId).toBe('resp-2');
+  });
+
+  it('leaves out a malformed support_branch, keeping a good response id', () => {
+    const read = (support_branch: unknown) =>
+      fromStreamMessage({
+        attachments: [],
+        custom: { support_branch },
+        id: 'm',
+        text: '',
+      });
+    for (const malformed of [
+      null,
+      'reply',
+      [],
+      { count: 2, index: 1 },
+      { count: 2, index: 1, of: 'thread' },
+      { count: 2, index: 3, of: 'reply' },
+      { count: 2, index: 0, of: 'reply' },
+      { count: 2, index: 1.5, of: 'reply' },
+      { count: '2', index: 1, of: 'reply' },
+      { count: 0, index: 0, of: 'question' },
+      { count: Number.NaN, index: 1, of: 'reply' },
+    ]) {
+      const message = read(malformed);
+      expect(message).not.toHaveProperty('branch');
+      expect(message).not.toHaveProperty('responseId');
+    }
+    const message = read({ count: 2, index: 5, of: 'reply', response_id: 'resp-1' });
+    expect(message).not.toHaveProperty('branch');
+    expect(message.responseId).toBe('resp-1');
+    expect(read({ count: 2, index: 1, of: 'reply', response_id: 42 })).not.toHaveProperty(
+      'responseId',
+    );
+    expect(read({ count: 2, index: 1, of: 'reply', response_id: '' })).not.toHaveProperty(
+      'responseId',
+    );
+  });
+
   it('adapts the person’s message', () => {
     expect(fromStreamMessage({ attachments: [], id: 'u1', text: 'Hi' })).toMatchObject({
       isGenerating: false,

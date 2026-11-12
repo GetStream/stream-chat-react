@@ -14,6 +14,7 @@ import { useComponentContextIcons } from '../../../context/useComponentContextIc
 import type { AIUIHost } from '../GenerativeUI/AIUIHost';
 import { AIUIGenerated, useAIUIHostRefresh } from '../GenerativeUI/AIUIView';
 import { AIAssistantMessage } from '../Message/AIAssistantMessage';
+import type { AIBranchSwitch } from '../Message/AIBranchSwitcher';
 import type { AIMessageAttachmentData } from '../Message/AIMessageAttachment';
 import { AIReplyActions, type AIReplyActionsProps } from '../Message/AIReplyActions';
 import { AIUserMessage } from '../Message/AIUserMessage';
@@ -52,8 +53,26 @@ export type AIConversationUserMessageProps = {
   text: string;
   /** The message, or `undefined` for one on its way. */
   message?: AIMessage;
+  /**
+   * Which of the question's versions shows, when the person edited it, from
+   * `userMessageActions`. `AIUserMessage` shows a ‹ i/n › switcher while `count` is 2 or more.
+   */
+  branch?: AIBranchSwitch;
   /** Edits the message: a `conversation` offers it on the person's latest message. */
   onEdit?: () => void;
+  /**
+   * Saves the person's edit of the message, made in place, from `userMessageActions`.
+   * `AIUserMessage` uses it in place of `onEdit` when both are passed.
+   */
+  onSaveEdit?: (text: string) => void;
+};
+
+/** What the default `AIUserMessage` offers for a message of the person's, from `userMessageActions`. */
+export type AIUserMessageActions = {
+  /** Which of the question's versions shows, with how to show the others. */
+  branch?: AIBranchSwitch;
+  /** Saves the person's edit of the message, which they make in place. Without it, no in-place edit. */
+  onEdit?: (text: string) => void;
 };
 
 export type AIConversationAssistantMessageProps = {
@@ -135,7 +154,7 @@ export type AIConversationProps = {
   ReplyActions?: ComponentType<AIConversationReplyActionsProps> | null;
   /**
    * What the default `AIReplyActions` offers for a reply besides copy and share, such as its
-   * rating and how to rate or regenerate it.
+   * rating, how to rate or regenerate it, and which of its versions shows (`branch`).
    */
   replyActions?: (
     message: AIMessage,
@@ -147,16 +166,30 @@ export type AIConversationProps = {
    * them shows shows its text. Keep one host per conversation, for as long as it shows.
    */
   ui?: AIUIHost;
+  /**
+   * What the person's messages offer besides what a `conversation` does: editing in place
+   * (`onEdit(text)`) and a ‹ i/n › switcher between the versions of an edited question
+   * (`branch`). Passed to `UserMessage` as `onSaveEdit` and `branch`.
+   */
+  userMessageActions?: (message: AIMessage) => AIUserMessageActions | undefined;
   /** The view of the person's messages. Defaults to `AIUserMessage`. */
   UserMessage?: ComponentType<AIConversationUserMessageProps>;
 };
 
 const DefaultUserMessage = ({
   attachments,
+  branch,
   onEdit,
+  onSaveEdit,
   text,
 }: AIConversationUserMessageProps) => (
-  <AIUserMessage attachments={attachments} onEdit={onEdit} text={text} />
+  <AIUserMessage
+    attachments={attachments}
+    branch={branch}
+    onEdit={onEdit}
+    onSaveEdit={onSaveEdit}
+    text={text}
+  />
 );
 
 const NO_MESSAGES: AIMessage[] = [];
@@ -189,6 +222,7 @@ type EntryViewProps = {
   UserMessage: ComponentType<AIConversationUserMessageProps>;
   approver?: AIToolApprover;
   ui?: AIUIHost;
+  userMessageActions?: AIConversationProps['userMessageActions'];
 };
 
 // Not memoised: an app's messages are new objects on every update while a reply streams, and a
@@ -201,6 +235,7 @@ const EntryView = ({
   ReplyActions,
   ui,
   UserMessage,
+  userMessageActions,
 }: EntryViewProps) => {
   const { message, pending } = entry;
   if (!message) {
@@ -209,6 +244,7 @@ const EntryView = ({
     ) : null;
   }
   if (message.role === 'user') {
+    const actions = userMessageActions?.(message);
     return (
       <UserMessage
         attachments={
@@ -216,8 +252,10 @@ const EntryView = ({
             ? entry.sentAttachments
             : (message.attachments ?? [])
         }
+        branch={actions?.branch}
         message={message}
         onEdit={editAction?.(message)}
+        onSaveEdit={actions?.onEdit}
         text={message.text}
       />
     );
@@ -387,6 +425,7 @@ const ConversationView = ({
   replyActions,
   ui,
   UserMessage = DefaultUserMessage,
+  userMessageActions,
 }: ConversationViewProps) => {
   const themeScopeClassName = useAIThemeScopeClassName();
   const { t } = useTranslationContext();
@@ -662,6 +701,7 @@ const ConversationView = ({
               ReplyActions={ReplyActions}
               ui={ui}
               UserMessage={UserMessage}
+              userMessageActions={userMessageActions}
             />
           ))}
           {isLatest && thinking && <AIThinking />}
