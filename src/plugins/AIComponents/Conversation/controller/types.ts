@@ -155,6 +155,10 @@ export type AIConversationTransport<Message extends AIMessage = AIMessage> = {
    * With `switchBranch`, the request's `message` can be any finished reply or any of the
    * person's messages, not only the latest: the messages after it are left out the same way,
    * and the version it starts is fed as the conversation, in place of the one it replaces.
+   * Until the new reply starts, the controller leaves out everything from `message`'s position
+   * on, and counts as the reply only one being written, or one that arrives after `send`
+   * resolved. So when the version a switch shows has to become the conversation again first,
+   * re-send its messages before `send` resolves.
    */
   send: (request: AIConversationRequest<Message>) => Promise<void>;
   /** Stops the reply the agent is writing. What it wrote so far stays. */

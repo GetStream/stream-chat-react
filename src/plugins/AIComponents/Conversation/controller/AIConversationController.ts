@@ -555,6 +555,7 @@ export class AIConversationController<Message extends AIMessage = AIMessage> {
 
   private requestSent(id: number) {
     const { exchange } = this;
+    if (!this.disposed && exchange?.id === id) exchange.markSent(this.received);
     // The agent may already say it is working on it.
     if (
       this.disposed ||
@@ -708,16 +709,18 @@ export class AIConversationController<Message extends AIMessage = AIMessage> {
   // Works out what the conversation shows and where it is, after anything changes.
   private refresh() {
     const current = this.state.getLatestValue();
-    const replaced =
-      this.exchange?.state === 'waiting' ? this.exchange.replaced : undefined;
+    const hidden =
+      this.exchange?.state === 'waiting'
+        ? this.exchange.hiddenIn(this.received)
+        : undefined;
     let messages: readonly Message[] =
-      !replaced && this.stopped.size === 0
+      !hidden?.size && this.stopped.size === 0
         ? this.received
         : this.received.filter(
             (message) =>
               // A reply stopped before it showed anything has nothing to show, and the
               // conversation would think it is still on its way.
-              !replaced?.has(message.id) &&
+              !hidden?.has(message.id) &&
               !(this.stopped.has(message.id) && hasEmptyContent(message)),
           );
     if (sameItems(messages, current.messages)) messages = current.messages;

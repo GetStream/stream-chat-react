@@ -1936,6 +1936,63 @@ describe('AIConversationController while a switch runs', () => {
   });
 });
 
+describe('AIConversationController answering again a version a switch shows', () => {
+  // Answering again the version a switch shows brings it back into the conversation first: the
+  // transport re-sends its messages, finished and under new ids, before the request resolves.
+  it('does not take the re-sent copies of a regenerated reply’s version for its reply', async () => {
+    const transport = new BranchingTransport([
+      user('u1'),
+      reply('a1'),
+      user('u2'),
+      reply('a2'),
+    ]);
+    transport.holdsSends = true;
+    const controller = makeController(transport);
+
+    controller.regenerate(reply('a1'));
+    await settle();
+    transport.update([user('u1'), reply('a1x'), user('u2x'), reply('a2x')]);
+
+    expect({
+      messages: ids(stateOf(controller).messages),
+      status: stateOf(controller).status,
+    }).toEqual({ messages: ['u1'], status: 'submitted' });
+
+    transport.finishSend(0);
+    await settle();
+    transport.update([user('u1'), reply('a3', 'Another plan')]);
+
+    expect(ids(stateOf(controller).messages)).toEqual(['u1', 'a3']);
+    expect(stateOf(controller).status).toBe('ready');
+  });
+
+  it('does not take the re-sent copies of an edited question’s version for its reply', async () => {
+    const transport = new BranchingTransport([
+      user('u1', 'Lisbon'),
+      reply('a1'),
+      user('u2', 'Porto'),
+      reply('a2'),
+    ]);
+    transport.holdsSends = true;
+    const controller = makeController(transport);
+
+    controller.edit(user('u1', 'Lisbon'));
+    controller.send({ text: 'Lisbon in May' });
+    await settle();
+    transport.update([user('u1', 'Lisbon'), reply('a1x'), user('u2x'), reply('a2x')]);
+
+    expect(stateOf(controller).status).toBe('submitted');
+    expect(stateOf(controller).messages).toEqual([]);
+    expect(stateOf(controller).pendingMessage?.text).toBe('Lisbon in May');
+
+    // A reply being written counts, even before the request resolves.
+    transport.update([user('u1', 'Lisbon in May'), reply('a3', 'May', true)]);
+
+    expect(ids(stateOf(controller).messages)).toEqual(['u1', 'a3']);
+    expect(stateOf(controller).status).toBe('streaming');
+  });
+});
+
 describe('AIConversationController status', () => {
   it('follows the latest reply', () => {
     const transport = new ConversationTransport([user('u1'), reply('a1', '', true)]);

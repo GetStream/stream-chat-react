@@ -57,6 +57,12 @@ export class AIConversationExchange<Message extends AIMessage> {
   // message: the ones its reply can be written in place of. A later turn's reply that changes is
   // not its reply. Without it, any of `replaced`.
   private readonly rewritable: Set<string> | undefined;
+  // With `ownTurnOnly`, for a regenerate or an edit of a message there was, where the target
+  // is: after the message before it, by id, which older messages loaded meanwhile don't move.
+  private readonly target: { before: string | undefined; index: number } | undefined;
+  // With `ownTurnOnly`, the messages there were once the transport resolved the request, which
+  // `markSent` records.
+  private sent: Set<string> | undefined;
   // The person's message on its way.
   readonly pending: AIPendingMessage | undefined;
 
@@ -83,6 +89,10 @@ export class AIConversationExchange<Message extends AIMessage> {
     const nextQuestion = conversation.findIndex(
       (message, index) => target >= 0 && index > target && message.role === 'user',
     );
+    this.target =
+      ownTurnOnly && this.replaced.size > 0
+        ? { before: conversation[target - 1]?.id, index: target }
+        : undefined;
     this.rewritable = ownTurnOnly
       ? new Set(
           [...this.replaced.keys()].slice(
@@ -119,15 +129,59 @@ export class AIConversationExchange<Message extends AIMessage> {
       : undefined;
   }
 
+  // Records the messages there are once the transport resolved the request, which, for a
+  // regenerate or an edit while the transport switches versions, aren't its reply.
+  markSent(conversation: readonly Message[]) {
+    if (this.target) this.sent = new Set(conversation.map(({ id }) => id));
+  }
+
+  // Where the target is in `conversation` now: after the message before it, or where it was
+  // when that one is gone.
+  private targetIndexIn(conversation: readonly Message[]) {
+    if (!this.target) return -1;
+    const { before, index } = this.target;
+    if (before === undefined) return 0;
+    const at = conversation.findIndex((message) => message.id === before);
+    return at >= 0 ? at + 1 : index;
+  }
+
+  // The messages the conversation leaves out while it waits: those it replaces, and, while the
+  // transport switches versions, any from the target's position on, such as the copies of a
+  // version a switch shows, which the transport re-sends as it answers it again.
+  hiddenIn(conversation: readonly Message[]): ReadonlySet<string> {
+    if (!this.target) return new Set(this.replaced.keys());
+    const from = this.targetIndexIn(conversation);
+    return new Set([
+      ...this.replaced.keys(),
+      ...conversation.slice(from).map(({ id }) => id),
+    ]);
+  }
+
   // The latest message when it is the request's reply: a reply that wasn't there, or one the
   // request replaces, once it is written again.
+  //
+  // For a regenerate or an edit while the transport switches versions, answering again a version
+  // a switch shows first brings that version back into the conversation: the transport re-sends
+  // its messages, finished and under new ids, before it resolves the request. So a reply that
+  // wasn't there counts only when it comes at or after the target's position (after it, for an
+  // edit), by the message before the target, and either is being written (`isGenerating`), or
+  // wasn't there either once the request resolved (`markSent`). A finished one that arrives
+  // before the request resolves isn't the reply: it counts once an update after the request
+  // resolved brings it again under a new id, or else the wait times out. A reply written in place
+  // of one in the target's own turn counts as before.
   reply(conversation: readonly Message[]) {
-    const last = conversation[conversation.length - 1];
+    const index = conversation.length - 1;
+    const last = conversation[index];
     if (!last || last.role === 'user') return undefined;
     const original =
       (this.rewritable?.has(last.id) ?? true) ? this.replaced.get(last.id) : undefined;
-    const rewritten = original ? isRewritten(last, original) : false;
-    return !this.known.has(last.id) || rewritten ? last : undefined;
+    if (original) return isRewritten(last, original) ? last : undefined;
+    if (this.known.has(last.id)) return undefined;
+    if (!this.target) return last;
+    const target = this.targetIndexIn(conversation);
+    const isAfterTarget = this.request.kind === 'edit' ? index > target : index >= target;
+    const isNew = !!last.isGenerating || (!!this.sent && !this.sent.has(last.id));
+    return isAfterTarget && isNew ? last : undefined;
   }
 
   // Whether its reply has started: it shows something, or it is already finished.
