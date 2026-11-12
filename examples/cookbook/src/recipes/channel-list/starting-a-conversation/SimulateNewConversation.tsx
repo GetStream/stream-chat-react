@@ -69,7 +69,7 @@ export const SimulateNewConversation = () => {
       await waitFor(() => document.querySelector('.str-chat__channel-list-item'));
       const button = await waitFor(() =>
         document.querySelector<HTMLButtonElement>(
-          '.cookbook-channel-list-header button[aria-label="New conversation"]',
+          '.str-chat__channel-list__header button[aria-label="New conversation"]',
         ),
       );
       if (cancelled) return;

@@ -1,7 +1,7 @@
 [
   {
     "file": "drafts-list.png",
-    "query": { "channel": "docs-v15-cb-general", "drafts": "open" },
+    "query": { "drafts": "open" },
     "waitFor": ".cookbook-draft__open[data-draft-key=\"messaging:docs-v15-cb-kite-day/docs-v15-ck-kite-day-1\"]",
     "settleMs": 1500
   },

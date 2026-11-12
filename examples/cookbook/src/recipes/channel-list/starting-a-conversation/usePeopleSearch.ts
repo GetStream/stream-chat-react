@@ -10,18 +10,32 @@ const resultsSelector = ({
 }: SearchSourceState<UserResponse>) => ({ isLoading, items, lastQueryError });
 
 /**
- * People to start a conversation with, by name or id, sorted by name. An empty text lists everyone,
- * so the dialog has suggestions before the user types. The user isn't among the results.
+ * People to start a conversation with, by name, sorted by name. An empty text lists everyone, so
+ * the dialog has suggestions before the user types. The user isn't among the results.
  */
 export const usePeopleSearch = (text: string) => {
   const { client } = useChatContext();
   const [source] = useState(
     () =>
-      new UserSearchSource(client, {
-        allowEmptySearchString: true,
-        pageSize: 10,
-        sort: [{ direction: 1, field: 'name' }],
-      }),
+      new UserSearchSource(
+        client,
+        {
+          allowEmptySearchString: true,
+          pageSize: 10,
+          sort: [{ direction: 1, field: 'name' }],
+        },
+        {
+          // Matches the typed text against names only. The default filter matches ids too, and
+          // ids rarely look like the names the user sees.
+          initialFilterConfig: {
+            name: {
+              enabled: true,
+              generate: ({ searchQuery }) =>
+                searchQuery ? { name: { $autocomplete: searchQuery } } : null,
+            },
+          },
+        },
+      ),
   );
   const { isLoading, items, lastQueryError } = useStateStore(
     source.state,
