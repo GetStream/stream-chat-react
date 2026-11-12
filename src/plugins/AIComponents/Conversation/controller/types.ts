@@ -174,9 +174,18 @@ export type AIConversationTransport<Message extends AIMessage = AIMessage> = {
    * `feed.updateMessages`. A rejection shows as the conversation's error; one with an
    * `AbortError` shows nothing.
    *
+   * `signal` aborts once the person sends a request before the switch finishes: feed nothing of
+   * that version from then on, since it would take the place of the request's. The controller
+   * ignores the switch's outcome either way. Optional to honour, but a transport that feeds the
+   * version anyway can hide the request's question.
+   *
    * With it, the conversation's views show a ‹ i/n › switcher on each message whose `branch` has
    * two versions or more, and offer regenerating any finished reply and editing any of the
    * person's messages. Without it, only the latest, and no switcher.
    */
-  switchBranch?: (message: Message, to: 'previous' | 'next') => Promise<void>;
+  switchBranch?: (
+    message: Message,
+    to: 'previous' | 'next',
+    signal?: AbortSignal,
+  ) => Promise<void>;
 };

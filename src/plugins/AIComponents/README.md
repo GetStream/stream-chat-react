@@ -227,7 +227,8 @@ const transport: AIConversationTransport = {
   loadOlderMessages: () => loadOlderPage(),
   rate: (reply, rating) => backend.rate(reply.id, rating),
   // Shows the previous or next version of `message`'s branch, then feeds its messages.
-  switchBranch: (message, to) => agent.switchBranch(message, to),
+  // `signal` aborts when the person sends meanwhile: feed nothing of that version then.
+  switchBranch: (message, to, signal) => agent.switchBranch(message, to, { signal }),
 };
 ```
 
@@ -269,15 +270,16 @@ const Chat = ({ transport }: { transport: AIConversationTransport }) => {
 
 What it holds, in `conversation.state` (a `StateStore`; follow it with `useAIConversationState(conversation, selector)`, with the selector defined outside the component):
 
-| Field              | Description                                                                                                                                                                               |
-| ------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `messages`         | The conversation as it shows, oldest first. While a reply is written again, or an edited message is answered again, it and the messages after it are left out until the new reply starts. |
-| `pendingMessage`   | The message the person sent last that is not in `messages` yet. It stays until its reply starts, and after it was stopped or failed, while `retry()` can send it again.                   |
-| `status`           | `ready`, `submitted` (on its way, or the agent works on it and its reply shows nothing yet), `streaming` or `error`. `isAIConversationAnswering(status)` is true for the middle two.      |
-| `error`            | Why the latest request failed, or, as an `AIAgentError`, that the agent couldn't answer or didn't start its reply in time (`replyTimeout`, five minutes by default).                      |
-| `activity`         | What the agent says it is doing besides its reply, such as checking sources (`AIAgentActivityStates`).                                                                                    |
-| `hasOlderMessages` | Whether `loadOlderMessages()` has anything to load.                                                                                                                                       |
-| `ratings`          | How the person rated replies, by id: what they gave in the browser, or the reply's own `rating`.                                                                                          |
+| Field               | Description                                                                                                                                                                               |
+| ------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `messages`          | The conversation as it shows, oldest first. While a reply is written again, or an edited message is answered again, it and the messages after it are left out until the new reply starts. |
+| `pendingMessage`    | The message the person sent last that is not in `messages` yet. It stays until its reply starts, and after it was stopped or failed, while `retry()` can send it again.                   |
+| `status`            | `ready`, `submitted` (on its way, or the agent works on it and its reply shows nothing yet), `streaming` or `error`. `isAIConversationAnswering(status)` is true for the middle two.      |
+| `isSwitchingBranch` | Whether a `switchBranch` is on its way. `status` stays as it was meanwhile, and the views offer neither sending, regenerating, editing nor another switch.                                |
+| `error`             | Why the latest request failed, or, as an `AIAgentError`, that the agent couldn't answer or didn't start its reply in time (`replyTimeout`, five minutes by default).                      |
+| `activity`          | What the agent says it is doing besides its reply, such as checking sources (`AIAgentActivityStates`).                                                                                    |
+| `hasOlderMessages`  | Whether `loadOlderMessages()` has anything to load.                                                                                                                                       |
+| `ratings`           | How the person rated replies, by id: what they gave in the browser, or the reply's own `rating`.                                                                                          |
 
 What the person does: `send({ text, attachments?, chatOption?, custom? })` (a message, or the edit of the message being edited), `stop()`, `regenerate(reply)`, `edit(message)`, `cancelEditing()`, `retry()`, `clearError()`, `rate(reply, rating | null)`, `switchBranch(message, 'previous' | 'next')` and `loadOlderMessages()`. A transport gets each as an `AIConversationRequest` with a `kind` (`message`, `regenerate`, `edit`, or one of your own), a `messageId` it can create the message with (a retry keeps it), the `text`, the `File`s picked, the `chatOption`, `custom`, and the `message` it is about. A generated UI's action travels as `custom.uiAction`.
 
@@ -289,7 +291,8 @@ With a `conversation`:
 
 With the transport's optional `switchBranch(message, to)` (`conversation.canSwitchBranch`), the conversation follows [versions of a message](#versions-of-a-message) without `replyActions` or `userMessageActions` of yours:
 
-- Each message whose `branch` has two versions or more shows the ‹ i/n › switcher: on the reply for `of: 'reply'`, among its regenerated versions, and on the person's message for `of: 'question'`, among their edits. The arrows call `switchBranch(message, 'previous' | 'next')`, which shows that version and feeds its messages. Each arrow is disabled at its end, and both while the agent is answering.
+- Each message whose `branch` has two versions or more shows the ‹ i/n › switcher: on the reply for `of: 'reply'`, among its regenerated versions, and on the person's message for `of: 'question'`, among their edits. The arrows call `switchBranch(message, 'previous' | 'next')`, which shows that version and feeds its messages. Each arrow is disabled at its end, and both while the agent is answering or another switch is on its way.
+- While a switch is on its way (`isSwitchingBranch`), the composer's send button is disabled and Enter doesn't send, and regenerate and edit aren't offered. A request sent anyway, such as through `send()`, gives up on the switch: the `AbortSignal` `switchBranch` gets as its third argument aborts, and its outcome is ignored. A transport that feeds the switch's version after that can still take the place of the request's question, so honour the signal.
 - Regenerate is offered on every finished reply, and edit on every one of the person's messages, while the agent isn't answering (subject to `actions`). The request is the same as for the latest, with `message` the one regenerated or edited, which with what follows it is left out until the new reply starts. Editing always goes through the composer (`edit(message)` fills it); the controller doesn't wire the in-place editor.
 - A `switchBranch` that rejects shows as `error` (status `error`); `clearError()` forgets it, and `retry()` does not retry the switch.
 

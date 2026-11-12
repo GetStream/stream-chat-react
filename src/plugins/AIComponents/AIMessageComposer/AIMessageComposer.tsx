@@ -115,12 +115,23 @@ const AIMessageComposerConversationContext = createContext<
   AIConversationController | undefined
 >(undefined);
 
-const statusSelector = ({ status }: AIConversationControllerState) => ({ status });
+const statusSelector = ({
+  isSwitchingBranch,
+  status,
+}: AIConversationControllerState) => ({
+  isSwitchingBranch,
+  status,
+});
 
-// Whether the agent of the composer's conversation is answering. `false` without a conversation.
-const useIsAnswering = (conversation: AIConversationController | undefined) => {
-  const { status } = useStateStore(conversation?.state, statusSelector) ?? {};
-  return !!status && isAIConversationAnswering(status);
+// Whether the agent of the composer's conversation is answering, and whether another version of
+// a message is on its way, which sending would give up on. `false` without a conversation.
+const useConversationBusy = (conversation: AIConversationController | undefined) => {
+  const { isSwitchingBranch, status } =
+    useStateStore(conversation?.state, statusSelector) ?? {};
+  return {
+    isAnswering: !!status && isAIConversationAnswering(status),
+    isSwitchingBranch: !!isSwitchingBranch,
+  };
 };
 
 const isEditingSelector = (currentState: AIMessageComposerStore) => ({
@@ -396,7 +407,9 @@ export const AIMessageComposer: AIMessageComposer = ({
     if (!conversation || e.defaultPrevented) return;
     e.preventDefault();
     // Enter while the agent answers doesn't send: the send button is a stop button meanwhile.
-    if (isAIConversationAnswering(conversation.state.getLatestValue().status)) return;
+    // Nor while another version of a message is on its way: the send button is disabled.
+    const { isSwitchingBranch, status } = conversation.state.getLatestValue();
+    if (isSwitchingBranch || isAIConversationAnswering(status)) return;
     const { attachments, chatOption, custom, text } = stateStore.getLatestValue();
     if (text.trim() === '' && attachments.length === 0) return;
     conversation.send({
@@ -642,7 +655,7 @@ const SubmitButton = ({
   const { t } = useTranslationContext();
   const { IconSend } = useComponentContextIcons();
   const conversation = useContext(AIMessageComposerConversationContext);
-  const isAnswering = useIsAnswering(conversation);
+  const { isAnswering, isSwitchingBranch } = useConversationBusy(conversation);
   if (isAnswering) return <StopButton />;
   return (
     <button
@@ -653,7 +666,7 @@ const SubmitButton = ({
       )}
       type='submit'
       {...restProps}
-      disabled={disabled}
+      disabled={disabled || isSwitchingBranch}
     >
       <IconSend />
     </button>

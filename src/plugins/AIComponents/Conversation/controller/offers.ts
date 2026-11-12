@@ -14,11 +14,19 @@ type Offerer<Message extends AIMessage> = {
   switchBranch: (message: Message, to: 'previous' | 'next') => void;
 };
 
+// What the offers depend on besides the message: whether the agent is answering, or a switch to
+// another version is on its way, which leaves out everything that would start a request.
+type Busy = { isSwitchingBranch?: boolean; status: AIConversationStatus };
+
+const isBusy = ({ isSwitchingBranch, status }: Busy) =>
+  !!isSwitchingBranch || isAIConversationAnswering(status);
+
 // The ‹ i/n › switcher of a message with several versions of the kind `of`, while the transport
-// can switch them. Its arrows are left out at their ends and while the agent is answering.
+// can switch them. Its arrows are left out at their ends, while the agent is answering and while
+// another switch is on its way.
 const branchSwitchOf = <Message extends AIMessage>(
   offerer: Offerer<Message>,
-  status: AIConversationStatus,
+  busy: Busy,
   message: Message,
   of: AIMessageBranch['of'],
 ): AIBranchSwitch | undefined => {
@@ -27,7 +35,7 @@ const branchSwitchOf = <Message extends AIMessage>(
     return undefined;
   }
   const { count, index } = branch;
-  const isAnswering = isAIConversationAnswering(status);
+  const isAnswering = isBusy(busy);
   return {
     count,
     index,
@@ -48,11 +56,11 @@ const branchSwitchOf = <Message extends AIMessage>(
 export const replyActionsOf = <Message extends AIMessage>(
   offerer: Offerer<Message>,
   {
+    isSwitchingBranch,
     ratings,
     status,
-  }: {
+  }: Busy & {
     ratings: Readonly<Record<string, AIMessageRating>>;
-    status: AIConversationStatus;
   },
   reply: Message,
   isLatestReply: boolean,
@@ -62,12 +70,12 @@ export const replyActionsOf = <Message extends AIMessage>(
     onRegenerate:
       offerer.actions.regenerate &&
       (isLatestReply || offerer.canSwitchBranch) &&
-      !isAIConversationAnswering(status)
+      !isBusy({ isSwitchingBranch, status })
         ? () => offerer.regenerate(reply)
         : undefined,
     rating: ratings[reply.id] ?? null,
   };
-  const branch = branchSwitchOf(offerer, status, reply, 'reply');
+  const branch = branchSwitchOf(offerer, { isSwitchingBranch, status }, reply, 'reply');
   if (branch) actions.branch = branch;
   return actions;
 };
@@ -85,15 +93,16 @@ export const latestUserMessageIdOf = (messages: readonly AIMessage[]) => {
 export const editActionOf = <Message extends AIMessage>(
   offerer: Offerer<Message>,
   {
+    isSwitchingBranch,
     latestUserMessageId,
     status,
-  }: { latestUserMessageId: string | undefined; status: AIConversationStatus },
+  }: Busy & { latestUserMessageId: string | undefined },
   message: Message,
 ): (() => void) | undefined => {
   if (
     !offerer.actions.edit ||
     message.role !== 'user' ||
-    isAIConversationAnswering(status)
+    isBusy({ isSwitchingBranch, status })
   ) {
     return undefined;
   }
@@ -106,10 +115,10 @@ export const editActionOf = <Message extends AIMessage>(
 // between the versions of a question they edited, while the transport can switch them.
 export const userMessageActionsOf = <Message extends AIMessage>(
   offerer: Offerer<Message>,
-  { status }: { status: AIConversationStatus },
+  busy: Busy,
   message: Message,
 ): AIUserMessageActions | undefined => {
   if (message.role !== 'user') return undefined;
-  const branch = branchSwitchOf(offerer, status, message, 'question');
+  const branch = branchSwitchOf(offerer, busy, message, 'question');
   return branch ? { branch } : undefined;
 };

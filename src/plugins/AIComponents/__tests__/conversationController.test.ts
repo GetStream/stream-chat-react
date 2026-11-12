@@ -1635,13 +1635,28 @@ describe('AIConversationController offers', () => {
 
 // A transport that switches between the versions of a message, held until the test finishes it.
 class BranchingTransport extends ConversationTransport {
-  switches: { id: string; to: 'previous' | 'next' }[] = [];
+  switches: { id: string; signal?: AbortSignal; to: 'previous' | 'next' }[] = [];
   switchError: unknown;
+  holdsSwitches = false;
+  private heldSwitches: Held[] = [];
 
-  switchBranch = (message: AIMessage, to: 'previous' | 'next') => {
-    this.switches.push({ id: message.id, to });
-    return this.switchError ? Promise.reject(this.switchError) : Promise.resolve();
+  switchBranch = async (
+    message: AIMessage,
+    to: 'previous' | 'next',
+    signal?: AbortSignal,
+  ) => {
+    this.switches.push({ id: message.id, signal, to });
+    if (this.holdsSwitches) await hold(this.heldSwitches);
+    if (this.switchError) throw this.switchError;
   };
+
+  // Finishes a held switch, feeding the version it shows unless the switch was given up on, as a
+  // transport that honours the signal does.
+  finishSwitch(index: number, version?: AIMessage[], error?: unknown) {
+    if (version && !this.switches[index].signal?.aborted) this.update(version);
+    if (error) this.heldSwitches[index].reject(error);
+    else this.heldSwitches[index].resolve();
+  }
 }
 
 const branched = (
@@ -1697,13 +1712,15 @@ describe('AIConversationController branches', () => {
     const atFirst = controller.replyActions(first, true).branch;
     expect(atFirst?.onPrevious).toBeUndefined();
     expect(controller.replyActions(last, true).branch?.onNext).toBeUndefined();
+    // One switch at a time.
     atFirst?.onNext?.();
-    const inMiddle = controller.userMessageActions(middle)?.branch;
-    inMiddle?.onPrevious?.();
-    inMiddle?.onNext?.();
+    await settle();
+    controller.userMessageActions(middle)?.branch?.onPrevious?.();
+    await settle();
+    controller.userMessageActions(middle)?.branch?.onNext?.();
     await settle();
 
-    expect(transport.switches).toEqual([
+    expect(transport.switches.map(({ id, to }) => ({ id, to }))).toEqual([
       { id: 'a1', to: 'next' },
       { id: 'u1', to: 'previous' },
       { id: 'u1', to: 'next' },
@@ -1857,6 +1874,65 @@ describe('AIConversationController branches', () => {
 
     expect(ids(stateOf(controller).messages)).toEqual(['u1', 'a3']);
     expect(stateOf(controller).status).toBe('streaming');
+  });
+});
+
+describe('AIConversationController while a switch runs', () => {
+  it('keeps the person’s question when a switch finishes after they sent it', async () => {
+    const transport = new BranchingTransport([
+      user('u1'),
+      branched(reply('a1-v2'), 'reply', 2, 2),
+    ]);
+    transport.holdsSwitches = true;
+    const controller = makeController(transport);
+
+    controller.switchBranch(branched(reply('a1-v2'), 'reply', 2, 2), 'previous');
+    await settle();
+    controller.send({ text: 'And Porto?' });
+    await settle();
+    // The switch's version arrives late.
+    transport.finishSwitch(0, [user('u1'), branched(reply('a1-v1'), 'reply', 1, 2)]);
+    await settle();
+
+    expect({
+      pendingMessage: stateOf(controller).pendingMessage?.text,
+      status: stateOf(controller).status,
+    }).toEqual({ pendingMessage: 'And Porto?', status: 'submitted' });
+    expect(transport.switches[0].signal?.aborted).toBe(true);
+    expect(stateOf(controller).isSwitchingBranch).toBe(false);
+  });
+
+  it('is busy while a switch runs: nothing else is offered, and another switch waits', async () => {
+    const history = [
+      branched(user('u1'), 'question', 2, 2),
+      branched(reply('a1', 'Here’s a plan', false), 'reply', 2, 2),
+    ];
+    history[0].responseId = 'r-u1';
+    history[1].responseId = 'r-a1';
+    const transport = new BranchingTransport(history);
+    transport.holdsSwitches = true;
+    const controller = makeController(transport);
+
+    controller.switchBranch(history[1], 'previous');
+    await settle();
+
+    expect(stateOf(controller).isSwitchingBranch).toBe(true);
+    expect(stateOf(controller).status).toBe('ready');
+    const actions = controller.replyActions(history[1], true);
+    expect(actions.onRegenerate).toBeUndefined();
+    expect(actions.branch?.onPrevious).toBeUndefined();
+    expect(controller.editAction(history[0])).toBeUndefined();
+    expect(controller.userMessageActions(history[0])?.branch?.onPrevious).toBeUndefined();
+    controller.switchBranch(history[0], 'previous');
+    await settle();
+    expect(transport.switches).toHaveLength(1);
+
+    transport.finishSwitch(0);
+    await settle();
+
+    expect(stateOf(controller).isSwitchingBranch).toBe(false);
+    expect(controller.replyActions(history[1], true).onRegenerate).toBeDefined();
+    expect(controller.editAction(history[0])).toBeDefined();
   });
 });
 

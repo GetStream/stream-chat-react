@@ -43,6 +43,13 @@ export type AIConversationControllerState<Message extends AIMessage = AIMessage>
   /** Where the latest exchange with the agent is. */
   status: AIConversationStatus;
   /**
+   * Whether another version of a message is on its way through the transport's `switchBranch`.
+   * Meanwhile `status` stays as it was, and the views offer neither sending, regenerating,
+   * editing nor another switch. A request sent anyway, such as through `send()`, gives up on the
+   * switch: its `AbortSignal` aborts.
+   */
+  isSwitchingBranch: boolean;
+  /**
    * Why the latest request failed, or, as an `AIAgentError`, what the agent said when it couldn't
    * answer or that it didn't answer in time. It stays until the next request, or until a reply
    * starts after all.
@@ -196,6 +203,8 @@ export class AIConversationController<Message extends AIMessage = AIMessage> {
   private edited: Message | undefined;
   private ratingChanges = new Map<string, RatingChange>();
   private ratingAttempts = 0;
+  // The switch on its way, which the next request or another dispose gives up on.
+  private switching: AbortController | undefined;
   private isLoadingOlderMessages = false;
   // The object URLs the files the person picked show from while their message is on its way.
   private fileURLs = new Map<File, string>();
@@ -217,6 +226,7 @@ export class AIConversationController<Message extends AIMessage = AIMessage> {
       activity: undefined,
       error: undefined,
       hasOlderMessages: false,
+      isSwitchingBranch: false,
       messages: [],
       pendingMessage: undefined,
       ratings: {},
@@ -239,6 +249,8 @@ export class AIConversationController<Message extends AIMessage = AIMessage> {
     if (this.disposed) return;
     this.disposed = true;
     this.clearReplyTimer();
+    this.switching?.abort();
+    this.switching = undefined;
     this.disconnect?.();
     if (typeof URL !== 'undefined' && typeof URL.revokeObjectURL === 'function') {
       this.fileURLs.forEach((url) => URL.revokeObjectURL(url));
@@ -355,29 +367,38 @@ export class AIConversationController<Message extends AIMessage = AIMessage> {
   /**
    * Shows the previous or the next version of the branch `message` belongs to, through the
    * transport's `switchBranch`: a reply's regenerated versions, or the person's edits of a
-   * question. Does nothing without it, while the agent is answering, or past either end. A
-   * failure shows as `error`.
+   * question. Does nothing without it, while the agent is answering, while another switch is on
+   * its way, or past either end. Until it finishes, `isSwitchingBranch` is `true`; a request
+   * started meanwhile aborts the `AbortSignal` the transport gets, and the switch's outcome is
+   * ignored. A failure shows as `error`.
    */
   switchBranch(message: Message, to: 'previous' | 'next') {
-    const { switchBranch } = this.transport;
     const { branch } = message;
     if (
-      !switchBranch ||
+      !this.transport.switchBranch ||
       !branch ||
+      this.switching ||
       isAIConversationAnswering(this.state.getLatestValue().status) ||
       (to === 'previous' ? branch.index <= 1 : branch.index >= branch.count)
     ) {
       return;
     }
     const id = this.generation;
+    const switching = new AbortController();
+    this.switching = switching;
+    this.refresh();
     void (async () => {
       try {
-        await switchBranch(message, to);
+        await this.transport.switchBranch?.(message, to, switching.signal);
       } catch (error) {
         // Another request or stop took its place, or the person gave up on it.
         if (this.disposed || id !== this.generation || isAbortError(error)) return;
         this.error = asError(error);
-        this.refresh();
+      } finally {
+        if (this.switching === switching) {
+          this.switching = undefined;
+          if (!this.disposed) this.refresh();
+        }
       }
     })();
   }
@@ -415,10 +436,10 @@ export class AIConversationController<Message extends AIMessage = AIMessage> {
    * latest, or any with the transport's `switchBranch`.
    */
   editAction(message: Message): (() => void) | undefined {
-    const { messages, status } = this.state.getLatestValue();
+    const { isSwitchingBranch, messages, status } = this.state.getLatestValue();
     return editActionOf(
       this,
-      { latestUserMessageId: latestUserMessageIdOf(messages), status },
+      { isSwitchingBranch, latestUserMessageId: latestUserMessageIdOf(messages), status },
       message,
     );
   }
@@ -485,6 +506,9 @@ export class AIConversationController<Message extends AIMessage = AIMessage> {
 
   private start(request: AIConversationRequest<Message>) {
     const id = ++this.generation;
+    // The version a switch on its way would feed would take the place of this request's.
+    this.switching?.abort();
+    this.switching = undefined;
     this.error = undefined;
     this.activity = undefined;
     this.ignoresActivity = false;
@@ -710,6 +734,7 @@ export class AIConversationController<Message extends AIMessage = AIMessage> {
       activity: this.activity,
       error: this.error,
       hasOlderMessages: this.hasOlderMessages,
+      isSwitchingBranch: !!this.switching,
       messages,
       pendingMessage,
       ratings,

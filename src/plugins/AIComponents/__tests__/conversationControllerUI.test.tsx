@@ -380,6 +380,7 @@ describe('AIConversation with a controller whose transport switches versions', (
     expect(previousVersion(answer)).toBeDisabled();
 
     fireEvent.click(previousVersion(question));
+    await settle();
     fireEvent.click(nextVersion(answer));
     await settle();
 
@@ -387,12 +388,49 @@ describe('AIConversation with a controller whose transport switches versions', (
       1,
       expect.objectContaining({ id: 'u1' }),
       'previous',
+      expect.any(AbortSignal),
     );
     expect(switchBranch).toHaveBeenNthCalledWith(
       2,
       expect.objectContaining({ id: 'a1' }),
       'next',
+      expect.any(AbortSignal),
     );
+  });
+
+  it('offers nothing that starts a request while a switch is on its way', async () => {
+    let finish = () => undefined as void;
+    const switchBranch = vi.fn(
+      () =>
+        new Promise<void>((resolve) => {
+          finish = resolve;
+        }),
+    );
+    const { controller } = conversationOf(history, {}, { switchBranch });
+    render(
+      <>
+        <AIConversation conversation={controller} />
+        <AIMessageComposer conversation={controller}>
+          <AIMessageComposer.TextInput />
+          <AIMessageComposer.SubmitButton />
+        </AIMessageComposer>
+      </>,
+    );
+    fireEvent.change(screen.getByRole('textbox'), { target: { value: 'And Porto?' } });
+
+    fireEvent.click(nextVersion(switcher('Version 1 of 3')));
+    await settle();
+
+    expect(screen.getByRole('button', { name: 'Send' })).toBeDisabled();
+    expect(screen.queryByRole('button', { name: 'Regenerate' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Edit' })).not.toBeInTheDocument();
+    expect(previousVersion(switcher('Version 2 of 2'))).toBeDisabled();
+
+    act(() => finish());
+    await settle();
+
+    expect(screen.getByRole('button', { name: 'Send' })).toBeEnabled();
+    expect(screen.getAllByRole('button', { name: 'Regenerate' })).toHaveLength(2);
   });
 
   it('offers regenerating and editing every message, and disables the switcher while answering', async () => {

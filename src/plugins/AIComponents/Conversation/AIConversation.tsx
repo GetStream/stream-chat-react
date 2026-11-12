@@ -361,12 +361,14 @@ export const AIConversation = (props: AIConversationProps) =>
 
 const controlledSelector = ({
   hasOlderMessages,
+  isSwitchingBranch,
   messages,
   pendingMessage,
   ratings,
   status,
 }: AIConversationControllerState) => ({
   hasOlderMessages,
+  isSwitchingBranch,
   messages,
   pendingMessage,
   ratings,
@@ -379,28 +381,44 @@ const ControlledConversation = ({
   conversation,
   ...props
 }: AIConversationProps & { conversation: AIConversationController }) => {
-  const { hasOlderMessages, messages, pendingMessage, ratings, status } =
-    useAIConversationState(conversation, controlledSelector);
+  const {
+    hasOlderMessages,
+    isSwitchingBranch,
+    messages,
+    pendingMessage,
+    ratings,
+    status,
+  } = useAIConversationState(conversation, controlledSelector);
   const replyActions = useMemo(
     () =>
       (message: AIMessage, { isLatestReply }: { isLatestReply: boolean }) =>
-        replyActionsOf(conversation, { ratings, status }, message, isLatestReply),
-    [conversation, ratings, status],
+        replyActionsOf(
+          conversation,
+          { isSwitchingBranch, ratings, status },
+          message,
+          isLatestReply,
+        ),
+    [conversation, isSwitchingBranch, ratings, status],
   );
   const latestUserMessageId = latestUserMessageIdOf(messages);
   const editAction = useMemo<EditAction>(
     () => (message) =>
-      editActionOf(conversation, { latestUserMessageId, status }, message),
-    [conversation, latestUserMessageId, status],
+      editActionOf(
+        conversation,
+        { isSwitchingBranch, latestUserMessageId, status },
+        message,
+      ),
+    [conversation, isSwitchingBranch, latestUserMessageId, status],
   );
   // The switcher between the versions of a question the person edited, while the transport
   // switches them. Editing stays in the composer.
   const userMessageActions = useMemo(
     () =>
       conversation.canSwitchBranch
-        ? (message: AIMessage) => userMessageActionsOf(conversation, { status }, message)
+        ? (message: AIMessage) =>
+            userMessageActionsOf(conversation, { isSwitchingBranch, status }, message)
         : undefined,
-    [conversation, status],
+    [conversation, isSwitchingBranch, status],
   );
   const { ui } = props;
   // A reply that shows only its UI has started, which the controller can't tell without the
