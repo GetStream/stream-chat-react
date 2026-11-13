@@ -5,8 +5,9 @@ import { useStateStore } from '../../../store';
 import { useIsDmChannel } from '../../../hooks';
 import { useChannelHasMembersOnline } from './useChannelHasMembersOnline';
 
-const memberCountSelector = (nextValue: MembersState) => ({
-  memberCount: nextValue.memberCount,
+const memberCountSelector = ({ activeMemberCount, memberCount }: MembersState) => ({
+  activeMemberCount,
+  memberCount,
 });
 
 const watcherCountSelector = (nextValue: ChannelWatchState) => ({
@@ -21,7 +22,11 @@ const watcherCountSelector = (nextValue: ChannelWatchState) => ({
 export function useChannelHeaderOnlineStatus(): string | null {
   const { t } = useTranslationContext();
   const channel = useChannel();
-  const { memberCount } = useStateStore(channel.state, memberCountSelector);
+  const { activeMemberCount, memberCount } = useStateStore(
+    channel.state,
+    memberCountSelector,
+  );
+  const displayedMemberCount = activeMemberCount ?? memberCount;
   const { watcherCount } = useStateStore(channel.state, watcherCountSelector);
   const isDirectMessagingChannel = useIsDmChannel();
   const hasMembersOnline = useChannelHasMembersOnline({
@@ -36,5 +41,5 @@ export function useChannelHeaderOnlineStatus(): string | null {
       : t('common.offline.label', 'Offline');
   }
 
-  return `${t('channelHeader.online.members.label', '{{ memberCount }} members', { memberCount })} · ${t('channelHeader.online.online.label', '{{ watcherCount }} online', { watcherCount })}`;
+  return `${t('channelHeader.online.members.label', '{{ memberCount }} members', { memberCount: displayedMemberCount })} · ${t('channelHeader.online.online.label', '{{ watcherCount }} online', { watcherCount })}`;
 }
