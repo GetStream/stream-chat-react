@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import { flushSync } from 'react-dom';
 import { dateToNs, type LocalMessage, toScheduledMessagePreview } from 'stream-chat';
 import {
@@ -57,6 +57,8 @@ const AttachPollControls = ({ close }: PollCreationDialogControlsProps) => {
   const canSchedule = useCanScheduleMessage();
   const [isPickingTime, setIsPickingTime] = useState(false);
   const previewMessage = usePollMessagePreview();
+  // the poll a failed schedule created, kept for a retry; a poll attached before is not it
+  const pollCreatedForScheduleRef = useRef<string | null>(null);
 
   // As in the default controls: close and focus the composer synchronously, so focus does not
   // blip through the attachment selector's trigger.
@@ -68,14 +70,28 @@ const AttachPollControls = ({ close }: PollCreationDialogControlsProps) => {
   // rejects to keep the time dialog open, which then says the scheduling failed
   const schedulePoll = async (scheduledAt: Date) => {
     // a poll made by an earlier, failed attempt is reused
-    if (!messageComposer.pollId) await messageComposer.createPoll();
+    if (!messageComposer.pollId) {
+      await messageComposer.createPoll();
+      pollCreatedForScheduleRef.current = messageComposer.pollId;
+    }
     if (!messageComposer.pollId) throw new Error('The poll was not created');
     const { error, status } = await messageComposer.schedule(scheduledAt);
     if (status !== 'scheduled' && status !== 'sent') {
       throw error ?? new Error(`The poll was not scheduled: ${status}`);
     }
+    pollCreatedForScheduleRef.current = null;
     setIsPickingTime(false);
     closeAndFocusComposer();
+  };
+
+  // giving up on a failed schedule detaches the poll it created, which the user never attached
+  const closeTimePicker = () => {
+    const createdPollId = pollCreatedForScheduleRef.current;
+    pollCreatedForScheduleRef.current = null;
+    if (createdPollId && messageComposer.pollId === createdPollId) {
+      messageComposer.state.partialNext({ pollId: null });
+    }
+    setIsPickingTime(false);
   };
 
   return (
@@ -127,13 +143,13 @@ const AttachPollControls = ({ close }: PollCreationDialogControlsProps) => {
       <GlobalModal
         className='str-chat__schedule-message-modal'
         initialFocusStrategy='dialog'
-        onClose={() => setIsPickingTime(false)}
+        onClose={closeTimePicker}
         open={isPickingTime}
       >
         {isPickingTime && (
           <ScheduleTimeDialog
             channel={messageComposer.channel}
-            close={() => setIsPickingTime(false)}
+            close={closeTimePicker}
             errorMessage={t(
               asDynamicKey('viteExample.pollCreationDialog.schedulePollFailed.text'),
               "Couldn't schedule the poll. Try again",

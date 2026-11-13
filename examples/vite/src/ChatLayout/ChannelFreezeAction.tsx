@@ -38,6 +38,8 @@ const ChannelFreezeAction = () => {
   const { t } = useTranslationContext();
   const { canFreeze } = useStateStore(channel.state, selectCanFreeze);
   const [frozen, setFrozen] = useState(!!channel.data?.frozen);
+  // one request at a time, so failures cannot roll the switch back out of order
+  const [isUpdating, setIsUpdating] = useState(false);
 
   // follows a freeze made elsewhere, such as in the dashboard
   useEffect(() => {
@@ -58,12 +60,15 @@ const ChannelFreezeAction = () => {
   if (!canFreeze) return null;
 
   const toggleFrozen = async () => {
+    if (isUpdating) return;
     const nextFrozen = !frozen;
+    setIsUpdating(true);
     setFrozen(nextFrozen);
     try {
       await channel.updatePartial({ set: { frozen: nextFrozen } });
     } catch (error) {
-      setFrozen(!nextFrozen);
+      // back to what the channel last confirmed
+      setFrozen(!!channel.data?.frozen);
       addNotification({
         context: { channel },
         emitter: 'ChannelFreezeAction',
@@ -80,6 +85,8 @@ const ChannelFreezeAction = () => {
         severity: 'error',
         type: 'api:channel:freeze:failed',
       });
+    } finally {
+      setIsUpdating(false);
     }
   };
 
@@ -91,6 +98,7 @@ const ChannelFreezeAction = () => {
         'aria-pressed': frozen,
         className:
           'str-chat__form__switch-field str-chat__channel-management-view-action',
+        disabled: isUpdating,
         onClick: toggleFrozen,
       }}
       title={t(asDynamicKey('viteExample.channelFreeze.title'), 'Freeze channel')}
