@@ -34,7 +34,9 @@ import {
 } from '../../../mock-builders';
 import { getChannelByCid, SCHEDULED_MESSAGE_NOTIFICATION_TYPE } from '../utils';
 import { ScheduledMessageList } from '../ScheduledMessageList';
-import type { EditScheduledMessage } from '../types';
+import type { ScheduledMessageItemProps } from '../ScheduledMessageItem';
+
+type EditScheduledMessage = NonNullable<ScheduledMessageItemProps['onEdit']>;
 
 const cid = 'messaging:general';
 
@@ -345,6 +347,42 @@ describe('ScheduledMessageActions', () => {
     expect(getNotificationTypes(client)).toEqual([]);
   });
 
+  it('clears a reschedule failure once another time is picked', async () => {
+    const { client } = await renderActions();
+    vi.spyOn(getChannel(client), 'updateScheduledMessage').mockRejectedValue(
+      notFoundError,
+    );
+
+    await selectAction('reschedule');
+    await screen.findByTestId('schedule-message-dialog');
+    await act(() => fireEvent.click(screen.getByRole('button', { name: 'Save' })));
+    expect(await screen.findByText('Already sent')).toBeInTheDocument();
+
+    fireEvent.change(screen.getByLabelText('Time'), { target: { value: '14:30' } });
+
+    expect(screen.queryByText('Already sent')).not.toBeInTheDocument();
+  });
+
+  it('saves the exact send time when neither field changes', async () => {
+    const sendTime = new Date(2026, 9, 29, 9, 0, 45, 500);
+    const scheduledMessage = generateScheduledMessage({
+      cid,
+      scheduled_at: convertDateToTimestamp(sendTime),
+    });
+    const { client } = await renderActions({ scheduledMessage });
+    const updateScheduledMessage = vi
+      .spyOn(getChannel(client), 'updateScheduledMessage')
+      .mockResolvedValue(scheduledMessage);
+
+    await selectAction('reschedule');
+    await screen.findByTestId('schedule-message-dialog');
+    await act(() => fireEvent.click(screen.getByRole('button', { name: 'Save' })));
+
+    expect(updateScheduledMessage).toHaveBeenCalledWith(scheduledMessage.id, {
+      scheduled_at: sendTime,
+    });
+  });
+
   it('reports a reschedule failure without a specific reason generically', async () => {
     const { client } = await renderActions();
     vi.spyOn(getChannel(client), 'updateScheduledMessage').mockRejectedValue(
@@ -393,6 +431,29 @@ describe('ScheduledMessageActions', () => {
     await selectAction('copy');
 
     expect(writeText).toHaveBeenCalledWith('Launch moved to Monday');
+  });
+
+  it('reports a copy that fails', async () => {
+    Object.defineProperty(navigator, 'clipboard', {
+      configurable: true,
+      value: { writeText: vi.fn().mockRejectedValue(new Error('denied')) },
+    });
+    const { client } = await renderActions({
+      scheduledMessage: generateScheduledMessage({
+        cid,
+        failure_reason: SCHEDULED_MESSAGE_FAILURE_REASON.ChannelDeleted,
+        message: { custom: {}, text: 'Launch moved to Monday' },
+        status: SCHEDULED_MESSAGE_STATUS.Failed,
+      }),
+    });
+
+    await selectAction('copy');
+
+    await waitFor(() =>
+      expect(getNotificationTypes(client)).toEqual([
+        SCHEDULED_MESSAGE_NOTIFICATION_TYPE.copyFailed,
+      ]),
+    );
   });
 
   it('has no accessibility violations with the menu open', async () => {

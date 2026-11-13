@@ -25,6 +25,7 @@ const AFTERNOON_HOUR = 13;
 
 /** Notifications the UI emits; the composer's own come from `CORE_NOTIFICATION_TYPE`. */
 export const SCHEDULED_MESSAGE_NOTIFICATION_TYPE = {
+  copyFailed: 'browser:scheduled-message:copy:failed',
   deleteFailed: 'api:scheduled-message:delete:failed',
   sendNowFailed: 'api:scheduled-message:send-now:failed',
   sendNowSucceeded: 'api:scheduled-message:send-now:success',
@@ -98,11 +99,19 @@ export const getScheduleTimeError = (
   return undefined;
 };
 
-/** The next full hour after the earliest allowed time. */
-export const getDefaultScheduledAt = ({ earliest }: ScheduleTimeBounds) => {
-  const scheduledAt = new Date(earliest);
-  scheduledAt.setHours(scheduledAt.getHours() + 1, 0, 0, 0);
-  return scheduledAt;
+/**
+ * The next full hour after the earliest allowed time, or, when that is past the latest one, the
+ * first whole minute allowed (the fields pick minutes).
+ */
+export const getDefaultScheduledAt = ({ earliest, latest }: ScheduleTimeBounds) => {
+  const nextFullHour = new Date(earliest);
+  nextFullHour.setHours(nextFullHour.getHours() + 1, 0, 0, 0);
+  if (!latest || nextFullHour <= latest) return nextFullHour;
+  const firstWholeMinute = new Date(earliest);
+  if (firstWholeMinute.getSeconds() || firstWholeMinute.getMilliseconds()) {
+    firstWholeMinute.setMinutes(firstWholeMinute.getMinutes() + 1, 0, 0);
+  }
+  return firstWholeMinute;
 };
 
 const atLocalHour = (date: Date, dayOffset: number, hour: number) => {

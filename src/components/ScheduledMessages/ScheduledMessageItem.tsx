@@ -162,8 +162,21 @@ export const ScheduledMessageItem = ({
     copy: {
       Icon: IconCopy,
       label: t('scheduledMessages.copyText', 'Copy text'),
-      select: () =>
-        navigator.clipboard?.writeText(message.text ?? '').catch(() => undefined),
+      select: () => {
+        // reported, as copying may be the only way to keep the text of a message that can't be sent
+        const copied = navigator.clipboard
+          ? navigator.clipboard.writeText(message.text ?? '')
+          : Promise.reject(new Error('The clipboard is not available'));
+        copied.catch((error: unknown) =>
+          addNotification({
+            emitter: SCHEDULED_MESSAGES_EMITTER,
+            error: error instanceof Error ? error : new Error(String(error)),
+            message: t('scheduledMessages.couldntCopyTheText', "Couldn't copy the text"),
+            severity: 'error',
+            type: SCHEDULED_MESSAGE_NOTIFICATION_TYPE.copyFailed,
+          }),
+        );
+      },
     },
     delete: {
       Icon: IconDelete,

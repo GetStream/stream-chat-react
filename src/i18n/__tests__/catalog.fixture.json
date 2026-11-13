@@ -611,6 +611,7 @@
   "scheduledMessages.chooseAnEarlierTime": "Choose an earlier time",
   "scheduledMessages.clickTheArrowNextToTheSendButton": "Click the arrow next to the send button in a channel to schedule a message.",
   "scheduledMessages.copyText": "Copy text",
+  "scheduledMessages.couldntCopyTheText": "Couldn't copy the text",
   "scheduledMessages.couldntDeleteTheScheduledMessageTryAgain": "Couldn't delete the scheduled message. Try again",
   "scheduledMessages.couldntLoadScheduledMessages": "Couldn't load scheduled messages",
   "scheduledMessages.couldntRescheduleTheMessageTryAgain": "Couldn't reschedule the message. Try again",

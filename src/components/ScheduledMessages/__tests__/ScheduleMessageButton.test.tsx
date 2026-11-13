@@ -10,7 +10,7 @@ import {
   within,
 } from '@testing-library/react';
 import { fromPartial } from '@total-typescript/shoehorn';
-import { ScheduledMessageErrorReason } from 'stream-chat';
+import { CORE_NOTIFICATION_TYPE, ScheduledMessageErrorReason } from 'stream-chat';
 import type {
   Channel as ChannelType,
   ScheduledMessageResponse,
@@ -390,6 +390,7 @@ describe('ScheduleMessageButton', () => {
         const error = new Error('failed');
         client.notifications.addError({
           message: 'Failed to schedule the message',
+          options: { type: CORE_NOTIFICATION_TYPE.scheduledMessageCreateFailed },
           origin: { context: { composer: messageComposer }, emitter: 'MessageComposer' },
         });
         return Promise.resolve({ error, status: 'failed' });
@@ -402,6 +403,27 @@ describe('ScheduleMessageButton', () => {
         "Couldn't schedule message. Try again",
       );
       expect(getNotifications(client)).toEqual([]);
+    });
+
+    it("keeps the composer's other notifications raised meanwhile", async () => {
+      const { channel, client } = await renderComposer();
+      const { messageComposer } = channel;
+      mockSchedule(channel).mockImplementation(() => {
+        client.notifications.addError({
+          message: 'Failed to upload the file',
+          options: { type: CORE_NOTIFICATION_TYPE.attachmentUploadFailed },
+          origin: { context: { composer: messageComposer }, emitter: 'MessageComposer' },
+        });
+        return Promise.resolve({ error: new Error('failed'), status: 'failed' });
+      });
+
+      const dialog = await openDialog();
+      await act(() => fireEvent.click(screen.getByRole('button', { name: 'Schedule' })));
+
+      await within(dialog).findByRole('alert');
+      expect(getNotifications(client)).toEqual([
+        expect.objectContaining({ message: 'Failed to upload the file' }),
+      ]);
     });
 
     it.each(['blocked', 'nothing-to-send'] as const)(

@@ -64,6 +64,15 @@ describe('scheduled message utils', () => {
         at(28, 11),
       );
     });
+
+    it('picks the first whole minute allowed when the next full hour is too late', () => {
+      expect(
+        getDefaultScheduledAt({
+          earliest: new Date(2026, 9, 28, 10, 25, 30),
+          latest: new Date(2026, 9, 28, 10, 50),
+        }),
+      ).toEqual(new Date(2026, 9, 28, 10, 26));
+    });
   });
 
   describe('presets', () => {

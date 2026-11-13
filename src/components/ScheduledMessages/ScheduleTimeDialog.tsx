@@ -163,7 +163,18 @@ export const ScheduleTimeDialog = ({
   const [status, setStatus] = useState<'failed' | 'idle' | 'submitting'>('idle');
   const [submitError, setSubmitError] = useState<unknown>();
 
-  const scheduledAt = fromInputValues(dateValue, timeValue);
+  // the fields hold minutes only: unchanged, they stand for the initial instant itself
+  const isUnchanged =
+    dateValue === toDateInputValue(initialValue) &&
+    timeValue === toTimeInputValue(initialValue);
+  const scheduledAt = isUnchanged ? initialValue : fromInputValues(dateValue, timeValue);
+
+  // a failure describes the time it was for, not a newly picked one
+  const changeField = (setValue: (value: string) => void) => (value: string) => {
+    setValue(value);
+    setStatus((current) => (current === 'failed' ? 'idle' : current));
+    setSubmitError(undefined);
+  };
   const timeError = scheduledAt && getScheduleTimeError(scheduledAt, bounds);
   const canSubmit = !!scheduledAt && !timeError && isOnline && status !== 'submitting';
 
@@ -226,12 +237,12 @@ export const ScheduleTimeDialog = ({
             label={t('scheduledMessages.date', 'Date')}
             max={bounds.latest && toDateInputValue(bounds.latest)}
             min={toDateInputValue(bounds.earliest)}
-            onChange={setDateValue}
+            onChange={changeField(setDateValue)}
             value={dateValue}
           />
           <TimeInput
             label={t('scheduledMessages.time', 'Time')}
-            onChange={setTimeValue}
+            onChange={changeField(setTimeValue)}
             value={timeValue}
           />
         </div>

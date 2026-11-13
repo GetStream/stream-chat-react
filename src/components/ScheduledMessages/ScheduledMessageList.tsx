@@ -54,7 +54,7 @@ const selectLoadState = (state: PaginatorState<ScheduledMessageResponse>) => ({
   hasMoreTail: state.hasMoreTail,
   isFirstPageLoading: state.items === undefined && !state.lastQueryError,
   isLoading: state.isLoading,
-  lastQueryFailed: !!state.lastQueryError,
+  lastQueryError: state.lastQueryError,
 });
 
 const DefaultListLoadErrorIndicator = (props: ListLoadErrorIndicatorProps) => (
@@ -160,7 +160,7 @@ export const ScheduledMessageList = ({
     hasMoreTail,
     isFirstPageLoading,
     isLoading,
-    lastQueryFailed,
+    lastQueryError,
   } = useStateStore(paginator.state, selectLoadState);
   const firstPageLoadRetry = useFirstPageLoadRetry({
     firstPageLoadError,
@@ -170,7 +170,10 @@ export const ScheduledMessageList = ({
   });
   const showsNothing = !isFirstPageLoading && !shownMessages.length;
   // stops at a failed page instead of retrying it
-  const loadsFurther = showsNothing && hasMoreTail && !lastQueryFailed;
+  const loadsFurther = showsNothing && hasMoreTail && !lastQueryError;
+  // nothing matches so far, and the page that might have was not loaded
+  const furtherPageLoadError =
+    showsNothing && hasMoreTail && lastQueryError ? lastQueryError : undefined;
 
   useEffect(() => {
     if (loadsFurther && !isLoading) view.toTail();
@@ -188,6 +191,15 @@ export const ScheduledMessageList = ({
     }
     if (isFirstPageLoading) return <FirstPageLoadingIndicator />;
     if (loadsFurther) return <LoadingNextPageIndicator isLoading />;
+    if (furtherPageLoadError) {
+      return (
+        <ListLoadErrorIndicator
+          error={furtherPageLoadError}
+          isRetrying={isLoading}
+          retry={view.toTail}
+        />
+      );
+    }
     if (showsNothing) {
       // some are scheduled, but the filter accepts none of them
       return scheduledMessages.length ? (

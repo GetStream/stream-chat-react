@@ -1,5 +1,6 @@
 import React, { useCallback, useRef, useState } from 'react';
 import {
+  CORE_NOTIFICATION_TYPE,
   dateToNs,
   getScheduledMessageErrorReason,
   ScheduledMessageErrorReason,
@@ -30,6 +31,12 @@ import { ScheduleTimeDialog as DefaultScheduleTimeDialog } from './ScheduleTimeD
 import { getSchedulePresets, getScheduleTimeBounds } from './utils';
 
 const getChannelContainer = () => document.getElementById(CHANNEL_CONTAINER_ID);
+
+/** The composer's notifications of a failed schedule, which the dialog reports itself. */
+const SCHEDULING_FAILURE_NOTIFICATION_TYPES: ReadonlySet<string> = new Set([
+  CORE_NOTIFICATION_TYPE.scheduledMessageBlocked,
+  CORE_NOTIFICATION_TYPE.scheduledMessageCreateFailed,
+]);
 
 const ScheduleMessageMenuHeader = () => {
   const { t } = useTranslationContext();
@@ -86,8 +93,11 @@ export const ScheduleMessageButton = () => {
       } catch (error) {
         notifications.notifications
           .filter(
-            ({ id, origin }) =>
-              !shownBefore.has(id) && origin.context?.composer === messageComposer,
+            ({ id, origin, type }) =>
+              !shownBefore.has(id) &&
+              origin.context?.composer === messageComposer &&
+              !!type &&
+              SCHEDULING_FAILURE_NOTIFICATION_TYPES.has(type),
           )
           .forEach(({ id }) => notifications.remove(id));
         throw error;

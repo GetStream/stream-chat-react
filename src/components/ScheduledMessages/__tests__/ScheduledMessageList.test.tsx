@@ -34,7 +34,9 @@ import { useScheduledMessagesSearch } from '../hooks';
 import { getChannelByCid } from '../utils';
 import type { ScheduledMessageListProps } from '../ScheduledMessageList';
 import { ScheduledMessageList } from '../ScheduledMessageList';
-import type { EditScheduledMessage, ScheduledMessageItemProps } from '../types';
+import type { ScheduledMessageItemProps } from '../ScheduledMessageItem';
+
+type EditScheduledMessage = NonNullable<ScheduledMessageItemProps['onEdit']>;
 
 const cid = 'messaging:general';
 
@@ -297,7 +299,7 @@ describe('ScheduledMessageList', () => {
     expect(query).toHaveBeenCalledTimes(1);
   });
 
-  it('stops loading further pages when one fails', async () => {
+  it('stops at a further page that fails, and offers to load it again', async () => {
     const { client } = await renderList({
       scheduledMessages: [
         generateScheduledMessage({ cid, message: { custom: {}, text: 'Lunch at noon' } }),
@@ -310,8 +312,19 @@ describe('ScheduledMessageList', () => {
 
     setNextCursor(client);
 
-    expect(await screen.findByText('No messages found')).toBeInTheDocument();
+    const retry = await screen.findByRole('button', { name: 'Try again' });
+    expect(screen.queryByText('No messages found')).not.toBeInTheDocument();
     expect(query).toHaveBeenCalledTimes(1);
+
+    query.mockResolvedValue({
+      duration: '',
+      scheduled_messages: [
+        generateScheduledMessage({ cid, message: { custom: {}, text: 'Friday demo' } }),
+      ],
+    } as never);
+    await act(() => fireEvent.click(retry));
+
+    expect(await screen.findByText('Friday demo')).toBeInTheDocument();
   });
 
   // a list-state key overridden for the channel list (`EmptyListIndicator` takes no props) must not
