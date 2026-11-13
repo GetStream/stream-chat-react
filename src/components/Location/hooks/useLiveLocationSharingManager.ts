@@ -51,7 +51,11 @@ export const useLiveLocationSharingManager = ({
   useEffect(() => {
     if (!manager) return;
 
-    manager.init();
+    // `init` registers the subscriptions synchronously, so the cleanup below releases them even
+    // while the load of the active live locations is pending. A failed load is reported in
+    // `manager.state.lastQueryError` and `init` resolves; the catch covers stream-chat versions
+    // whose `init` rejects on a failed load.
+    manager.init().catch(() => undefined);
 
     return () => {
       // `unregisterSubscriptions` is ref-counted and releases the WebSocket subscriptions;
