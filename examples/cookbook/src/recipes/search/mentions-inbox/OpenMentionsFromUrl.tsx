@@ -9,7 +9,10 @@ const mentionId = params.get('mention');
 const steps: ClickStep[] =
   params.get('mentions') === 'open'
     ? [
-        { find: () => document.querySelector<HTMLElement>('.cookbook-mentions-button') },
+        {
+          find: () =>
+            document.querySelector<HTMLElement>('button[aria-label="Mentions"]'),
+        },
         ...(mentionId
           ? [
               {

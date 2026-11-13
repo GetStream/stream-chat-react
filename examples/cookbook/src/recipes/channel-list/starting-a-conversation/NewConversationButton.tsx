@@ -10,18 +10,14 @@ import {
 } from 'stream-chat-react';
 import { NewConversationDialog } from './NewConversationDialog';
 import { createOnFirstSend } from './startConversation';
-import './NewConversationButton.css';
 
-/** The default channel list header, with a button beside it that opens the dialog. */
-const ChannelListHeaderWithButton = () => {
+/** Opens the dialog that starts a new conversation. */
+const NewConversationButton = () => {
   const [open, setOpen] = useState(false);
   const close = () => setOpen(false);
 
   return (
-    <div className='cookbook-channel-list-header'>
-      <div className='cookbook-channel-list-header__title'>
-        <ChannelListHeader />
-      </div>
+    <>
       <Button
         appearance='solid'
         aria-haspopup='dialog'
@@ -34,12 +30,16 @@ const ChannelListHeaderWithButton = () => {
         <IconPlus />
       </Button>
       <GlobalModal onClose={close} open={open}>
-        {/* Mounted only while open, so every opening starts with an empty dialog. */}
-        {open && <NewConversationDialog onClose={close} />}
+        <NewConversationDialog onClose={close} />
       </GlobalModal>
-    </div>
+    </>
   );
 };
+
+/** The default channel list header, with the button at its end. */
+const ChannelListHeaderWithButton = () => (
+  <ChannelListHeader EndContent={NewConversationButton} />
+);
 
 // Declared once, so WithComponents gets the same object on every render.
 const overrides = { ChannelListHeader: ChannelListHeaderWithButton };

@@ -2,10 +2,18 @@ import type { ChannelFilters } from 'stream-chat';
 import demoData from './demo-data.json';
 
 /**
- * The cookbook runs against Stream's public demo app. Its token endpoint signs a token for any
- * user id, so the app needs no secret. Everything in that app is public: keep the content neutral.
+ * The key of an app of your own, from `VITE_STREAM_API_KEY` in examples/cookbook/.env.local, whose
+ * cast tokens the dev server signs (see scripts/streamApp.mjs). Empty for the public demo app.
  */
-export const apiKey = demoData.apiKey;
+const ownAppKey = import.meta.env.VITE_STREAM_API_KEY;
+const runsOnOwnApp = !!ownAppKey;
+
+/**
+ * The cookbook runs against Stream's public demo app unless an app of your own is set. The demo
+ * app's token endpoint signs a token for any user id, so it needs no secret. Everything in that app
+ * is public: keep the content neutral.
+ */
+export const apiKey = runsOnOwnApp ? ownAppKey : demoData.apiKey;
 
 export const currentUser = demoData.users.find(
   (user) => user.id === demoData.currentUserId,
@@ -58,10 +66,20 @@ export const channelFilters: ChannelFilters = {
   type: 'messaging',
 };
 
-export const fetchToken = async (userId: string): Promise<string> => {
+const tokenUrl = (userId: string) => {
+  if (runsOnOwnApp) {
+    const url = new URL('/cookbook/token', window.location.origin);
+    url.searchParams.set('user_id', userId);
+    return url;
+  }
   const url = new URL('https://pronto.getstream.io/api/auth/create-token');
   url.searchParams.set('environment', demoData.tokenEnvironment);
   url.searchParams.set('user_id', userId);
+  return url;
+};
+
+export const fetchToken = async (userId: string): Promise<string> => {
+  const url = tokenUrl(userId);
   const response = await fetch(url);
   if (!response.ok) throw new Error(`Token request failed: ${response.status}`);
   return ((await response.json()) as { token: string }).token;

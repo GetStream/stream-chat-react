@@ -43,6 +43,10 @@ style rules, and is shot in one frame with one cast. The runnable code lives her
   and `RecipeConfig.sidePanelProps` instead of copying the channels view. The Overview shows its
   code. Likewise, a recipe that adds a view beside the channels view sets `RecipeConfig.views` and
   `RecipeConfig.layouts`, which the base app merges into its own.
+- **App:** Stream's public demo app, unless `VITE_STREAM_API_KEY` and `STREAM_SECRET` in
+  `examples/cookbook/.env.local` (gitignored) set an app of your own. Then the dev server signs
+  the cast's tokens at `/cookbook/token` and the seed signs them itself, so the secret never
+  reaches the browser (`scripts/streamApp.mjs`). Run the seed once against a new app.
 - **Cast:** the user is Cleo; the others are Bob, Cara and Dan, with initials avatars and no
   photos. Channels: Design review, Weekend trip, Book club, Garden plot, General, and a direct
   message with Bob. All of it, with fixed message ids, is in `src/base/demo-data.json`.
@@ -98,6 +102,8 @@ examples/cookbook/
                          fields after sending it; sets read state and receipts, invites, and
                          the current user's pinned and archived channels, reminders, saved
                          messages and drafts (fields below)
+  scripts/streamApp.mjs  which app the cookbook runs against: the demo app, or your own from
+                         .env.local, whose tokens it signs for the dev server and the seed
   scripts/shots.mjs      takes every shot from the running app, writes them to --out
   scripts/check-css.mjs  the style-rule check
 ```
@@ -171,7 +177,9 @@ captions below an image). Each captioned screenshot sits between two horizontal 
 blank line on each side); consecutive screenshots share the rule between them.
 
 A component and its stylesheet go in one `<Tabs>` block, the code tab labelled `React` and the
-stylesheet tab `CSS`, each with its `title` (see the Pin indicator page).
+stylesheet tab `CSS`, each with its `title` (see the Pin indicator page). A step whose code spans
+several files labels each tab with its file name instead, the stylesheet's too, so the tabs can be
+told apart (see the New conversation dialog on the Starting a conversation page).
 
 Docs prose follows the v15 docs conventions: name methods as `Class.method()`, name every field with
 its owner (`channel.state.typing`), say "paginator" for the object that loads items, and put example
