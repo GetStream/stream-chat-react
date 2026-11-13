@@ -403,15 +403,11 @@ describe('AIConversation with a controller whose transport switches versions', (
     );
   });
 
-  it('offers nothing that starts a request while a switch is on its way', async () => {
-    let finish = () => undefined as void;
-    const switchBranch = vi.fn(
-      () =>
-        new Promise<void>((resolve) => {
-          finish = resolve;
-        }),
+  it('keeps sending while a switch is on its way, which gives up on it', async () => {
+    const switchBranch = vi.fn<NonNullable<AIConversationTransport['switchBranch']>>(
+      () => new Promise<void>(() => undefined),
     );
-    const { controller } = conversationOf(history, {}, { switchBranch });
+    const { controller, transport } = conversationOf(history, {}, { switchBranch });
     render(
       <>
         <AIConversation conversation={controller} />
@@ -426,16 +422,20 @@ describe('AIConversation with a controller whose transport switches versions', (
     fireEvent.click(nextVersion(switcher('Version 1 of 3')));
     await settle();
 
-    expect(screen.getByRole('button', { name: 'Send' })).toBeDisabled();
-    expect(screen.queryByRole('button', { name: 'Regenerate' })).not.toBeInTheDocument();
-    expect(screen.queryByRole('button', { name: 'Edit' })).not.toBeInTheDocument();
+    // The switched reply's regenerate and the arrows wait; the rest stays.
+    expect(screen.getByRole('button', { name: 'Send' })).toBeEnabled();
+    expect(screen.getAllByRole('button', { name: 'Regenerate' })).toHaveLength(1);
+    expect(screen.getAllByRole('button', { name: 'Edit' })).toHaveLength(2);
     expect(previousVersion(switcher('Version 2 of 2'))).toBeDisabled();
 
-    act(() => finish());
+    fireEvent.keyDown(screen.getByRole('textbox'), { key: 'Enter' });
     await settle();
 
-    expect(screen.getByRole('button', { name: 'Send' })).toBeEnabled();
-    expect(screen.getAllByRole('button', { name: 'Regenerate' })).toHaveLength(2);
+    expect(transport.send).toHaveBeenCalledWith(
+      expect.objectContaining({ kind: 'message', text: 'And Porto?' }),
+    );
+    expect(switchBranch.mock.calls[0][2]?.aborted).toBe(true);
+    expect(controller.state.getLatestValue().isSwitchingBranch).toBe(false);
   });
 
   it('offers regenerating and editing every message, and disables the switcher while answering', async () => {

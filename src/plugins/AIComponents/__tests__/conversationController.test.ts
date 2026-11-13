@@ -2095,13 +2095,13 @@ describe('AIConversationController while a switch runs', () => {
     expect(stateOf(controller).isSwitchingBranch).toBe(false);
   });
 
-  it('is busy while a switch runs: nothing else is offered, and another switch waits', async () => {
+  it('while a switch runs, leaves out the arrows and that message’s regenerate only', async () => {
     const history = [
-      branched(user('u1'), 'question', 2, 2),
-      branched(reply('a1', 'Here’s a plan', false), 'reply', 2, 2),
+      marked(branched(user('u1'), 'question', 2, 2)),
+      marked(branched(reply('a1', 'Here’s a plan', false), 'reply', 2, 2)),
+      marked(user('u2')),
+      marked(reply('a2')),
     ];
-    history[0].responseId = 'r-u1';
-    history[1].responseId = 'r-a1';
     const transport = new BranchingTransport(history);
     transport.holdsSwitches = true;
     const controller = makeController(transport);
@@ -2111,12 +2111,14 @@ describe('AIConversationController while a switch runs', () => {
 
     expect(stateOf(controller).isSwitchingBranch).toBe(true);
     expect(stateOf(controller).status).toBe('ready');
-    const actions = controller.replyActions(history[1], true);
+    const actions = controller.replyActions(history[1], false);
     expect(actions.onRegenerate).toBeUndefined();
     expect(actions.branch?.onPrevious).toBeUndefined();
-    expect(controller.editAction(history[0])).toBeUndefined();
     expect(controller.userMessageActions(history[0])?.branch?.onPrevious).toBeUndefined();
-    expect(controller.userMessageActions(history[0])?.onSaveEdit).toBeUndefined();
+    // The other messages: sending any of these gives up on the switch.
+    expect(controller.replyActions(history[3], true).onRegenerate).toBeDefined();
+    expect(controller.editAction(history[0])).toBeDefined();
+    expect(controller.userMessageActions(history[2])?.onSaveEdit).toBeDefined();
     controller.switchBranch(history[0], 'previous');
     await settle();
     expect(transport.switches).toHaveLength(1);
@@ -2125,8 +2127,34 @@ describe('AIConversationController while a switch runs', () => {
     await settle();
 
     expect(stateOf(controller).isSwitchingBranch).toBe(false);
-    expect(controller.replyActions(history[1], true).onRegenerate).toBeDefined();
-    expect(controller.editAction(history[0])).toBeDefined();
+    expect(controller.replyActions(history[1], false).onRegenerate).toBeDefined();
+  });
+
+  it('gives up on a switch that takes too long, and retries it', async () => {
+    const shown = branched(reply('a1'), 'reply', 2, 2);
+    const transport = new BranchingTransport([user('u1'), shown]);
+    transport.holdsSwitches = true;
+    const controller = makeController(transport, { switchTimeout: 20 });
+
+    controller.switchBranch(shown, 'previous');
+    await settle();
+    expect(stateOf(controller).isSwitchingBranch).toBe(true);
+    await waitUntil(() => !stateOf(controller).isSwitchingBranch);
+
+    expect(transport.switches[0].signal?.aborted).toBe(true);
+    expect(stateOf(controller).status).toBe('error');
+    expect(stateOf(controller).error?.name).toBe('TimeoutError');
+
+    // What it shows late is ignored.
+    transport.finishSwitch(0);
+    await settle();
+    expect(stateOf(controller).status).toBe('error');
+
+    controller.retry();
+    await settle();
+    expect(transport.switches).toHaveLength(2);
+    expect(stateOf(controller).isSwitchingBranch).toBe(true);
+    expect(stateOf(controller).error).toBeUndefined();
   });
 });
 

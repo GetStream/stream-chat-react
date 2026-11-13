@@ -8,6 +8,8 @@ import type { AIMessage, AIMessageBranch } from '../types';
 type Offerer<Message extends AIMessage> = {
   actions: { edit: boolean; rate: boolean; regenerate: boolean };
   canSwitchBranch: boolean;
+  // The message whose version a switch on its way changes, if any.
+  switchingMessageId: string | undefined;
   edit: (message: Message) => void;
   editInPlace: (message: Message, text: string) => void;
   rate: (reply: Message, rating: AIMessageRating | null) => void;
@@ -23,12 +25,24 @@ const isBranchable = <Message extends AIMessage>(
   message: Message,
 ) => offerer.canSwitchBranch && !!message.responseId;
 
-// What the offers depend on besides the message: whether the agent is answering, or a switch to
-// another version is on its way, which leaves out everything that would start a request.
+// What the offers depend on besides the message: whether the agent is answering, which leaves
+// out everything that would start a request, and whether a switch to another version is on its
+// way, which leaves out the arrows, and regenerating and editing the message it switches. Any
+// other request gives up on the switch.
 type Busy = { isSwitchingBranch?: boolean; status: AIConversationStatus };
 
 const isBusy = ({ isSwitchingBranch, status }: Busy) =>
   !!isSwitchingBranch || isAIConversationAnswering(status);
+
+// Whether a request about `message` can start: the agent isn't answering, and no switch on its
+// way changes it.
+const canAnswerAgain = <Message extends AIMessage>(
+  offerer: Offerer<Message>,
+  { isSwitchingBranch, status }: Busy,
+  message: Message,
+) =>
+  !isAIConversationAnswering(status) &&
+  !(isSwitchingBranch && offerer.switchingMessageId === message.id);
 
 // The ‹ i/n › switcher of a message with several versions of the kind `of`, while the transport
 // can switch them. Its arrows are left out at their ends, while the agent is answering and while
@@ -81,7 +95,7 @@ export const replyActionsOf = <Message extends AIMessage>(
     onRegenerate:
       offerer.actions.regenerate &&
       (isLatestReply || isBranchable(offerer, reply)) &&
-      !isBusy({ isSwitchingBranch, status })
+      canAnswerAgain(offerer, { isSwitchingBranch, status }, reply)
         ? () => offerer.regenerate(reply)
         : undefined,
     rating: ratings[reply.id] ?? null,
@@ -110,7 +124,7 @@ const isEditable = <Message extends AIMessage>(
 ) =>
   offerer.actions.edit &&
   message.role === 'user' &&
-  !isBusy({ isSwitchingBranch, status }) &&
+  canAnswerAgain(offerer, { isSwitchingBranch, status }, message) &&
   (latestUserMessageId === message.id || isBranchable(offerer, message));
 
 // Edits a message of the person's in the composer, when it can be edited.

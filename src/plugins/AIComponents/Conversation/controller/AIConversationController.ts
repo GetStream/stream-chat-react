@@ -44,9 +44,10 @@ export type AIConversationControllerState<Message extends AIMessage = AIMessage>
   status: AIConversationStatus;
   /**
    * Whether another version of a message is on its way through the transport's `switchBranch`.
-   * Meanwhile `status` stays as it was, and the views offer neither sending, regenerating,
-   * editing nor another switch. A request sent anyway, such as through `send()`, gives up on the
-   * switch: its `AbortSignal` aborts.
+   * Meanwhile `status` stays as it was, and the views offer no other switch, nor regenerating
+   * or editing the message it switches. Sending, and regenerating or editing any other message,
+   * stay offered: such a request gives up on the switch, whose `AbortSignal` aborts. A switch
+   * that takes longer than `switchTimeout` is given up on too, with a retryable `error`.
    */
   isSwitchingBranch: boolean;
   /**
@@ -82,6 +83,14 @@ export type AIConversationControllerOptions<Message extends AIMessage = AIMessag
    * `null` or `Infinity` waits as long as it takes.
    */
   replyTimeout?: number | null;
+  /**
+   * How many milliseconds a `switchBranch` may take before the controller gives up on it: it
+   * aborts the switch's signal and shows a retryable error named `TimeoutError`. 30 seconds by
+   * default: a switch is a couple of reads from the backend, well under a second normally, and
+   * the switcher's arrows stay disabled while one runs. `null` or `Infinity` waits as long as it
+   * takes.
+   */
+  switchTimeout?: number | null;
 };
 
 /** What the person sends: what `AIMessageComposer` hands on. */
@@ -95,6 +104,12 @@ export type AIConversationSendData = {
 };
 
 const DEFAULT_REPLY_TIMEOUT = 5 * 60 * 1000;
+const DEFAULT_SWITCH_TIMEOUT = 30 * 1000;
+
+const switchTimedOut = () =>
+  Object.assign(new Error('The other version didn’t load in time'), {
+    name: 'TimeoutError',
+  });
 // The longest `setTimeout` waits; anything longer waits as long as it takes.
 const MAX_TIMEOUT = 2 ** 31 - 1;
 
@@ -181,6 +196,7 @@ export class AIConversationController<Message extends AIMessage = AIMessage> {
 
   private readonly transport: AIConversationTransport<Message>;
   private readonly replyTimeout: number | null;
+  private readonly switchTimeout: number | null;
   private readonly disconnect: (() => void) | undefined;
   private disposed = false;
   // The messages as the transport last told them, including those left out of `messages`.
@@ -205,7 +221,7 @@ export class AIConversationController<Message extends AIMessage = AIMessage> {
   private ratingChanges = new Map<string, RatingChange>();
   private ratingAttempts = 0;
   // The switch on its way, which the next request or another dispose gives up on.
-  private switching: AbortController | undefined;
+  private switching: { controller: AbortController; message: Message } | undefined;
   // The switch that failed and why, which `retry()` runs again, until the next switch or request,
   // or `clearError()`. It shows as `error` over the latest request's, which a switch keeps.
   private failedSwitch:
@@ -220,6 +236,7 @@ export class AIConversationController<Message extends AIMessage = AIMessage> {
     approver,
     composer,
     replyTimeout = DEFAULT_REPLY_TIMEOUT,
+    switchTimeout = DEFAULT_SWITCH_TIMEOUT,
     transport,
   }: AIConversationControllerOptions<Message>) {
     this.transport = transport;
@@ -227,6 +244,7 @@ export class AIConversationController<Message extends AIMessage = AIMessage> {
     this.approver = approver;
     this.actions = { ...ALL_ACTIONS, ...actions };
     this.replyTimeout = replyTimeout;
+    this.switchTimeout = switchTimeout;
     this.canSwitchBranch = typeof transport.switchBranch === 'function';
     this.state = new StateStore<AIConversationControllerState<Message>>({
       activity: undefined,
@@ -255,7 +273,7 @@ export class AIConversationController<Message extends AIMessage = AIMessage> {
     if (this.disposed) return;
     this.disposed = true;
     this.clearReplyTimer();
-    this.switching?.abort();
+    this.switching?.controller.abort();
     this.switching = undefined;
     this.disconnect?.();
     if (typeof URL !== 'undefined' && typeof URL.revokeObjectURL === 'function') {
@@ -413,27 +431,47 @@ export class AIConversationController<Message extends AIMessage = AIMessage> {
     ) {
       return;
     }
-    const id = this.generation;
-    const switching = new AbortController();
+    const switching = { controller: new AbortController(), message };
     this.switching = switching;
     // The switch that failed before, but not a request that failed: its message can still be
     // sent again.
     this.failedSwitch = undefined;
     this.refresh();
+    // A switch that never finishes would keep the arrows disabled.
+    const timeout = this.switchTimeout;
+    const timer =
+      timeout === null || !Number.isFinite(timeout) || timeout > MAX_TIMEOUT
+        ? undefined
+        : setTimeout(
+            () => {
+              if (this.disposed || this.switching !== switching) return;
+              this.switching = undefined;
+              switching.controller.abort();
+              this.failedSwitch = { error: switchTimedOut(), message, to };
+              this.refresh();
+            },
+            Math.max(timeout, 0),
+          );
     void (async () => {
       try {
-        await this.transport.switchBranch?.(message, to, switching.signal);
+        await this.transport.switchBranch?.(message, to, switching.controller.signal);
       } catch (error) {
-        // Another request or stop took its place, or the person gave up on it.
-        if (this.disposed || id !== this.generation || isAbortError(error)) return;
+        // A request took its place, it took too long, or the person gave up on it.
+        if (this.disposed || this.switching !== switching || isAbortError(error)) return;
         this.failedSwitch = { error: asError(error), message, to };
       } finally {
+        clearTimeout(timer);
         if (this.switching === switching) {
           this.switching = undefined;
           if (!this.disposed) this.refresh();
         }
       }
     })();
+  }
+
+  /** The message whose version the switch on its way changes, if any. */
+  get switchingMessageId(): string | undefined {
+    return this.switching?.message.id;
   }
 
   /**
@@ -547,7 +585,7 @@ export class AIConversationController<Message extends AIMessage = AIMessage> {
   private start(request: AIConversationRequest<Message>) {
     const id = ++this.generation;
     // The version a switch on its way would feed would take the place of this request's.
-    this.switching?.abort();
+    this.switching?.controller.abort();
     this.switching = undefined;
     this.failedSwitch = undefined;
     this.error = undefined;
