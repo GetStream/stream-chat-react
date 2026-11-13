@@ -299,6 +299,41 @@ describe('ScheduledMessageList', () => {
     expect(query).toHaveBeenCalledTimes(1);
   });
 
+  // a page with no matches changes nothing on screen, so no scroll or resize asks for the next one
+  it('loads on past a page that adds no match while some are shown', async () => {
+    const { client } = await renderList({
+      scheduledMessages: [
+        generateScheduledMessage({ cid, message: { custom: {}, text: 'Friday plan' } }),
+      ],
+      searchQuery: 'friday',
+    });
+    const query = vi
+      .spyOn(client, 'queryScheduledMessages')
+      .mockResolvedValueOnce({
+        duration: '',
+        next: 'page-3',
+        scheduled_messages: [
+          generateScheduledMessage({
+            cid,
+            message: { custom: {}, text: 'Lunch at noon' },
+          }),
+        ],
+      } as never)
+      .mockResolvedValueOnce({
+        duration: '',
+        scheduled_messages: [
+          generateScheduledMessage({ cid, message: { custom: {}, text: 'Friday demo' } }),
+        ],
+      } as never);
+    setNextCursor(client);
+
+    // as a scroll to the bottom would
+    await act(() => getChannelByCid(client, cid).scheduledMessages.toTail());
+
+    expect(await screen.findByText('Friday demo')).toBeInTheDocument();
+    expect(query).toHaveBeenCalledTimes(2);
+  });
+
   it('stops at a further page that fails, and offers to load it again', async () => {
     const { client } = await renderList({
       scheduledMessages: [

@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo } from 'react';
+import React, { useEffect, useMemo, useRef } from 'react';
 import type { ComponentType } from 'react';
 import type {
   ChannelDataState,
@@ -178,6 +178,27 @@ export const ScheduledMessageList = ({
   useEffect(() => {
     if (loadsFurther && !isLoading) view.toTail();
   }, [isLoading, loadsFurther, view]);
+
+  // A page that adds nothing to show changes nothing on screen, so no scroll or resize asks for
+  // the next one: it is loaded here instead, until a page shows something or none is left.
+  const shownCountAtLoadStartRef = useRef<number | undefined>(undefined);
+  useEffect(() => {
+    if (isLoading) {
+      shownCountAtLoadStartRef.current ??= shownMessages.length;
+      return;
+    }
+    const shownCountAtLoadStart = shownCountAtLoadStartRef.current;
+    shownCountAtLoadStartRef.current = undefined;
+    if (
+      shownCountAtLoadStart !== undefined &&
+      !showsNothing &&
+      shownMessages.length === shownCountAtLoadStart &&
+      hasMoreTail &&
+      !lastQueryError
+    ) {
+      view.toTail();
+    }
+  }, [hasMoreTail, isLoading, lastQueryError, shownMessages.length, showsNothing, view]);
 
   const renderContent = () => {
     if (firstPageLoadRetry.error) {
