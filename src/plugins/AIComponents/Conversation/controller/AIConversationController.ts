@@ -7,6 +7,7 @@ import {
 import type { AIChatOption } from '../../AIMessageComposer/ChatOptions';
 import type { AIMessageRating, AIReplyActionsProps } from '../../Message/AIReplyActions';
 import type { AIToolApprover } from '../../ToolCalls/AIToolApprover';
+import type { AIUserMessageActions } from '../AIConversation';
 import type { AIMessage, AIPendingMessage } from '../types';
 import { AIAgentError } from './AIAgentError';
 import {
@@ -14,7 +15,12 @@ import {
   generateId,
   hasEmptyContent,
 } from './AIConversationExchange';
-import { editActionOf, latestUserMessageIdOf, replyActionsOf } from './offers';
+import {
+  editActionOf,
+  latestUserMessageIdOf,
+  replyActionsOf,
+  userMessageActionsOf,
+} from './offers';
 import {
   type AIAgentActivity,
   AIAgentActivityStates,
@@ -37,9 +43,17 @@ export type AIConversationControllerState<Message extends AIMessage = AIMessage>
   /** Where the latest exchange with the agent is. */
   status: AIConversationStatus;
   /**
-   * Why the latest request failed, or, as an `AIAgentError`, what the agent said when it couldn't
-   * answer or that it didn't answer in time. It stays until the next request, or until a reply
-   * starts after all.
+   * Whether another version of a message is on its way through the transport's `switchBranch`.
+   * Meanwhile `status` stays as it was, and the views offer no other switch, nor regenerating
+   * or editing the message it switches. Sending, and regenerating or editing any other message,
+   * stay offered: such a request gives up on the switch, whose `AbortSignal` aborts. A switch
+   * that takes longer than `switchTimeout` is given up on too, with a retryable `error`.
+   */
+  isSwitchingBranch: boolean;
+  /**
+   * Why the latest request or switch failed, or, as an `AIAgentError`, what the agent said when
+   * it couldn't answer or that it didn't answer in time. It stays until the next request or
+   * switch, or until a reply starts after all.
    */
   error: Error | undefined;
   /** What the agent says it is doing besides what its reply shows, such as checking sources. */
@@ -69,6 +83,14 @@ export type AIConversationControllerOptions<Message extends AIMessage = AIMessag
    * `null` or `Infinity` waits as long as it takes.
    */
   replyTimeout?: number | null;
+  /**
+   * How many milliseconds a `switchBranch` may take before the controller gives up on it: it
+   * aborts the switch's signal and shows a retryable error named `TimeoutError`. 30 seconds by
+   * default: a switch is a couple of reads from the backend, well under a second normally, and
+   * the switcher's arrows stay disabled while one runs. `null` or `Infinity` waits as long as it
+   * takes.
+   */
+  switchTimeout?: number | null;
 };
 
 /** What the person sends: what `AIMessageComposer` hands on. */
@@ -82,6 +104,12 @@ export type AIConversationSendData = {
 };
 
 const DEFAULT_REPLY_TIMEOUT = 5 * 60 * 1000;
+const DEFAULT_SWITCH_TIMEOUT = 30 * 1000;
+
+const switchTimedOut = () =>
+  Object.assign(new Error('The other version didn’t load in time'), {
+    name: 'TimeoutError',
+  });
 // The longest `setTimeout` waits; anything longer waits as long as it takes.
 const MAX_TIMEOUT = 2 ** 31 - 1;
 
@@ -126,6 +154,9 @@ type RatingChange = {
  * failed, and it sends what the person asks through its `AIConversationTransport`. Give it to
  * `AIConversation` and `AIMessageComposer` as `conversation`, which show it and act on it:
  * sending, stopping, regenerating and rating replies, and editing the person's latest message.
+ * With the transport's `switchBranch`, any finished reply can be regenerated and any of the
+ * person's messages edited, when it has a version mark (`responseId`), and a ‹ i/n › switcher
+ * shows the other versions of each.
  *
  * Create it in an effect and dispose of it in that effect's cleanup, so React's StrictMode,
  * which runs effects twice, ends with a controller that is connected:
@@ -145,7 +176,7 @@ type RatingChange = {
  *
  * What the person sends shows straight away, and the agent thinks until its reply starts. While
  * a reply is written again, or a message the person edited is answered again, the messages it
- * replaces are left out of `messages` until the new reply starts.
+ * replaces, from that message to the end, are left out of `messages` until the new reply starts.
  */
 export class AIConversationController<Message extends AIMessage = AIMessage> {
   /** The conversation's state, to follow with `useStateStore`. */
@@ -156,9 +187,16 @@ export class AIConversationController<Message extends AIMessage = AIMessage> {
   readonly approver: AIToolApprover | undefined;
   /** What the conversation's views offer the person to do with its messages. */
   readonly actions: Required<AIConversationActions>;
+  /**
+   * Whether the transport shows a message's other versions (`switchBranch`). Then any finished
+   * reply can be regenerated and any of the person's messages edited, when it has a version mark
+   * (`responseId`), and a message with several versions offers a ‹ i/n › switcher.
+   */
+  readonly canSwitchBranch: boolean;
 
   private readonly transport: AIConversationTransport<Message>;
   private readonly replyTimeout: number | null;
+  private readonly switchTimeout: number | null;
   private readonly disconnect: (() => void) | undefined;
   private disposed = false;
   // The messages as the transport last told them, including those left out of `messages`.
@@ -182,6 +220,13 @@ export class AIConversationController<Message extends AIMessage = AIMessage> {
   private edited: Message | undefined;
   private ratingChanges = new Map<string, RatingChange>();
   private ratingAttempts = 0;
+  // The switch on its way, which the next request or another dispose gives up on.
+  private switching: { controller: AbortController; message: Message } | undefined;
+  // The switch that failed and why, which `retry()` runs again, until the next switch or request,
+  // or `clearError()`. It shows as `error` over the latest request's, which a switch keeps.
+  private failedSwitch:
+    | { error: Error; message: Message; to: 'previous' | 'next' }
+    | undefined;
   private isLoadingOlderMessages = false;
   // The object URLs the files the person picked show from while their message is on its way.
   private fileURLs = new Map<File, string>();
@@ -191,6 +236,7 @@ export class AIConversationController<Message extends AIMessage = AIMessage> {
     approver,
     composer,
     replyTimeout = DEFAULT_REPLY_TIMEOUT,
+    switchTimeout = DEFAULT_SWITCH_TIMEOUT,
     transport,
   }: AIConversationControllerOptions<Message>) {
     this.transport = transport;
@@ -198,10 +244,13 @@ export class AIConversationController<Message extends AIMessage = AIMessage> {
     this.approver = approver;
     this.actions = { ...ALL_ACTIONS, ...actions };
     this.replyTimeout = replyTimeout;
+    this.switchTimeout = switchTimeout;
+    this.canSwitchBranch = typeof transport.switchBranch === 'function';
     this.state = new StateStore<AIConversationControllerState<Message>>({
       activity: undefined,
       error: undefined,
       hasOlderMessages: false,
+      isSwitchingBranch: false,
       messages: [],
       pendingMessage: undefined,
       ratings: {},
@@ -224,6 +273,8 @@ export class AIConversationController<Message extends AIMessage = AIMessage> {
     if (this.disposed) return;
     this.disposed = true;
     this.clearReplyTimer();
+    this.switching?.controller.abort();
+    this.switching = undefined;
     this.disconnect?.();
     if (typeof URL !== 'undefined' && typeof URL.revokeObjectURL === 'function') {
       this.fileURLs.forEach((url) => URL.revokeObjectURL(url));
@@ -288,6 +339,25 @@ export class AIConversationController<Message extends AIMessage = AIMessage> {
     this.composer.partialNext({ isEditing: true, text: message.text });
   }
 
+  /**
+   * Asks the agent to answer a message of the person's again, changed to say `text`: an `edit`
+   * request, sent straight away rather than through the composer, as `AIUserMessage`'s in-place
+   * editor saves it. Does nothing for an empty text, or where `userMessageActions` doesn't offer
+   * it: without the transport's `switchBranch`, while the agent answers, or on an earlier
+   * message without a version mark. An edit open in the composer is dropped.
+   */
+  editInPlace(message: Message, text: string) {
+    if (text.trim() === '' || !this.userMessageActions(message)?.onSaveEdit) return;
+    this.cancelEditing();
+    this.start({
+      attachments: [],
+      kind: 'edit',
+      message,
+      messageId: generateId(),
+      text,
+    });
+  }
+
   /** Stops editing a message, and empties the composer. */
   cancelEditing() {
     if (!this.editingMessage) return;
@@ -296,19 +366,24 @@ export class AIConversationController<Message extends AIMessage = AIMessage> {
   }
 
   /**
-   * Tries again after `error`: sends the request that failed again, with the same message id, or
-   * asks the agent again for the reply it couldn't write.
+   * Tries again after `error`: sends the request that failed again, with the same message id
+   * after the transport rejected it, or under a new one once the agent had it but didn't answer
+   * (`AIConversationRequest.messageId` says why), asks the agent again for the reply it couldn't
+   * write, or switches again to the version a `switchBranch` failed to show.
    */
   retry() {
-    const { exchange } = this;
+    const { exchange, failedSwitch } = this;
+    if (failedSwitch) {
+      this.switchBranch(failedSwitch.message, failedSwitch.to);
+      return;
+    }
     if (!exchange?.hasFailed) return;
     this.start(exchange.retryRequest(this.received));
   }
 
-  /** Forgets `error`, and the request that failed. */
+  /** Forgets `error`, and the request or switch that failed. */
   clearError() {
-    this.error = undefined;
-    if (this.exchange?.hasFailed) this.exchange = undefined;
+    this.forgetError();
     this.refresh();
   }
 
@@ -338,6 +413,71 @@ export class AIConversationController<Message extends AIMessage = AIMessage> {
   }
 
   /**
+   * Shows the previous or the next version of the branch `message` belongs to, through the
+   * transport's `switchBranch`: a reply's regenerated versions, or the person's edits of a
+   * question. Does nothing without it, while the agent is answering, while another switch is on
+   * its way, or before the first version. Past the last the mark knows, the transport judges,
+   * since a version may have been added since the mark was written. Until it finishes, `isSwitchingBranch` is `true`; a request
+   * started meanwhile aborts the `AbortSignal` the transport gets, and the switch's outcome is
+   * ignored. A failure shows as `error` (status `error`), and `retry()` switches again; the
+   * next switch forgets it as it starts. A request that failed before stays, with its `error`
+   * and its retry, since the person's message can still be sent again.
+   */
+  switchBranch(message: Message, to: 'previous' | 'next') {
+    const { branch } = message;
+    if (
+      !this.transport.switchBranch ||
+      !branch ||
+      this.switching ||
+      isAIConversationAnswering(this.state.getLatestValue().status) ||
+      (to === 'previous' && branch.index <= 1)
+    ) {
+      return;
+    }
+    const switching = { controller: new AbortController(), message };
+    this.switching = switching;
+    // The switch that failed before, but not a request that failed: its message can still be
+    // sent again.
+    this.failedSwitch = undefined;
+    this.refresh();
+    // A switch that never finishes would keep the arrows disabled.
+    const timeout = this.switchTimeout;
+    const timer =
+      timeout === null || !Number.isFinite(timeout) || timeout > MAX_TIMEOUT
+        ? undefined
+        : setTimeout(
+            () => {
+              if (this.disposed || this.switching !== switching) return;
+              this.switching = undefined;
+              switching.controller.abort();
+              this.failedSwitch = { error: switchTimedOut(), message, to };
+              this.refresh();
+            },
+            Math.max(timeout, 0),
+          );
+    void (async () => {
+      try {
+        await this.transport.switchBranch?.(message, to, switching.controller.signal);
+      } catch (error) {
+        // A request took its place, it took too long, or the person gave up on it.
+        if (this.disposed || this.switching !== switching || isAbortError(error)) return;
+        this.failedSwitch = { error: asError(error), message, to };
+      } finally {
+        clearTimeout(timer);
+        if (this.switching === switching) {
+          this.switching = undefined;
+          if (!this.disposed) this.refresh();
+        }
+      }
+    })();
+  }
+
+  /** The message whose version the switch on its way changes, if any. */
+  get switchingMessageId(): string | undefined {
+    return this.switching?.message.id;
+  }
+
+  /**
    * Loads the messages before the first one, while there are any. Rejects when they couldn't load,
    * so the conversation waits before it asks again.
    */
@@ -354,8 +494,10 @@ export class AIConversationController<Message extends AIMessage = AIMessage> {
   // What the conversation's views offer
 
   /**
-   * What the person can do with a finished reply: rate it, and write it again while it is the
-   * latest and the agent isn't answering.
+   * What the person can do with a finished reply: rate it, write it again while the agent isn't
+   * answering (while it is the latest, or, with the transport's `switchBranch`, any with a
+   * version mark, `responseId`), and, with
+   * `switchBranch`, switch between its versions (`branch`).
    */
   replyActions(
     reply: Message,
@@ -364,12 +506,29 @@ export class AIConversationController<Message extends AIMessage = AIMessage> {
     return replyActionsOf(this, this.state.getLatestValue(), reply, isLatestReply);
   }
 
-  /** Edits a message of the person's, when it is their latest and the agent isn't answering. */
+  /**
+   * Edits a message of the person's in the composer while the agent isn't answering: their
+   * latest, or, with the transport's `switchBranch`, any with a version mark (`responseId`).
+   */
   editAction(message: Message): (() => void) | undefined {
-    const { messages, status } = this.state.getLatestValue();
+    const { isSwitchingBranch, messages, status } = this.state.getLatestValue();
     return editActionOf(
       this,
-      { latestUserMessageId: latestUserMessageIdOf(messages), status },
+      { isSwitchingBranch, latestUserMessageId: latestUserMessageIdOf(messages), status },
+      message,
+    );
+  }
+
+  /**
+   * What a message of the person's offers with the transport's `switchBranch`: the switcher
+   * between the versions of a question they edited (`branch`), and editing it in place
+   * (`onSaveEdit`, through `editInPlace`) when `editAction` would offer editing it.
+   */
+  userMessageActions(message: Message): AIUserMessageActions | undefined {
+    const { isSwitchingBranch, messages, status } = this.state.getLatestValue();
+    return userMessageActionsOf(
+      this,
+      { isSwitchingBranch, latestUserMessageId: latestUserMessageIdOf(messages), status },
       message,
     );
   }
@@ -428,12 +587,22 @@ export class AIConversationController<Message extends AIMessage = AIMessage> {
 
   private start(request: AIConversationRequest<Message>) {
     const id = ++this.generation;
+    // The version a switch on its way would feed would take the place of this request's.
+    this.switching?.controller.abort();
+    this.switching = undefined;
+    this.failedSwitch = undefined;
     this.error = undefined;
     this.activity = undefined;
     this.ignoresActivity = false;
     this.stopped = new Set();
     this.clearReplyTimer();
-    this.exchange = new AIConversationExchange(id, request, this.received, this.urlOf);
+    this.exchange = new AIConversationExchange(
+      id,
+      request,
+      this.received,
+      this.urlOf,
+      this.canSwitchBranch,
+    );
     this.refresh();
     const previousStop = this.stopping;
     void (async () => {
@@ -519,11 +688,19 @@ export class AIConversationController<Message extends AIMessage = AIMessage> {
         request,
         this.received,
         this.urlOf,
+        this.canSwitchBranch,
       );
     }
     if (this.exchange) this.exchange.state = 'unanswered';
     this.clearReplyTimer();
     this.error = error;
+  }
+
+  // Forgets `error`, and the request or switch that failed.
+  private forgetError() {
+    this.error = undefined;
+    this.failedSwitch = undefined;
+    if (this.exchange?.hasFailed) this.exchange = undefined;
   }
 
   private waitForReply(id: number) {
@@ -620,16 +797,18 @@ export class AIConversationController<Message extends AIMessage = AIMessage> {
   // Works out what the conversation shows and where it is, after anything changes.
   private refresh() {
     const current = this.state.getLatestValue();
-    const replaced =
-      this.exchange?.state === 'waiting' ? this.exchange.replaced : undefined;
+    const hidden =
+      this.exchange?.state === 'waiting'
+        ? this.exchange.hiddenIn(this.received)
+        : undefined;
     let messages: readonly Message[] =
-      !replaced && this.stopped.size === 0
+      !hidden?.size && this.stopped.size === 0
         ? this.received
         : this.received.filter(
             (message) =>
               // A reply stopped before it showed anything has nothing to show, and the
               // conversation would think it is still on its way.
-              !replaced?.has(message.id) &&
+              !hidden?.has(message.id) &&
               !(this.stopped.has(message.id) && hasEmptyContent(message)),
           );
     if (sameItems(messages, current.messages)) messages = current.messages;
@@ -644,8 +823,9 @@ export class AIConversationController<Message extends AIMessage = AIMessage> {
       : nextRatings;
     const next: AIConversationControllerState<Message> = {
       activity: this.activity,
-      error: this.error,
+      error: this.failedSwitch?.error ?? this.error,
       hasOlderMessages: this.hasOlderMessages,
+      isSwitchingBranch: !!this.switching,
       messages,
       pendingMessage,
       ratings,
@@ -683,6 +863,6 @@ export class AIConversationController<Message extends AIMessage = AIMessage> {
     ) {
       return 'submitted';
     }
-    return this.error ? 'error' : 'ready';
+    return this.error || this.failedSwitch ? 'error' : 'ready';
   }
 }

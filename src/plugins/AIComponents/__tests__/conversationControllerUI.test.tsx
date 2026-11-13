@@ -1,5 +1,5 @@
 import React from 'react';
-import { act, fireEvent, render, screen } from '@testing-library/react';
+import { act, fireEvent, render, screen, within } from '@testing-library/react';
 
 import {
   AIConversation,
@@ -35,6 +35,8 @@ afterEach(() => {
 const conversationOf = (
   messages: AIMessage[],
   options: Omit<AIConversationControllerOptions, 'transport'> = {},
+  // What the transport does besides, such as switching versions.
+  extra: Pick<AIConversationTransport, 'switchBranch'> = {},
 ) => {
   let feed: AIConversationFeed | undefined;
   const transport = {
@@ -46,6 +48,7 @@ const conversationOf = (
     rate: vi.fn(() => Promise.resolve()),
     send: vi.fn(() => Promise.resolve()),
     stop: vi.fn(() => Promise.resolve()),
+    ...extra,
   } satisfies AIConversationTransport;
   const controller = new AIConversationController({ transport, ...options });
   controllers.push(controller);
@@ -338,6 +341,187 @@ describe('AIMessageComposer with a controller', () => {
       }),
     );
     expect(screen.queryByText('Editing')).not.toBeInTheDocument();
+  });
+});
+
+// A message with a version mark, as `fromStreamMessage` reads it: its branch, and its response.
+const branched = (
+  message: AIMessage,
+  of: 'reply' | 'question',
+  index: number,
+  count: number,
+): AIMessage => ({
+  ...message,
+  branch: { count, index, of },
+  responseId: `r-${message.id}`,
+});
+
+const switcher = (name: string) => screen.getByRole('group', { name });
+const previousVersion = (group: HTMLElement) =>
+  within(group).getByRole('button', { name: 'Previous version' });
+const nextVersion = (group: HTMLElement) =>
+  within(group).getByRole('button', { name: 'Next version' });
+
+describe('AIConversation with a controller whose transport switches versions', () => {
+  const history = [
+    branched(user('u1', 'Lisbon'), 'question', 2, 2),
+    branched(reply('a1', 'Lisbon it is'), 'reply', 1, 3),
+    user('u2', 'Porto'),
+    reply('a2', 'Porto it is'),
+  ];
+
+  it('shows the switcher on replies and questions with several versions, and switches', async () => {
+    const switchBranch = vi.fn(() => Promise.resolve());
+    const { controller } = conversationOf(history, {}, { switchBranch });
+    render(<AIConversation conversation={controller} />);
+
+    expect(screen.getAllByRole('group', { name: /^Version / })).toHaveLength(2);
+    const question = switcher('Version 2 of 2');
+    const answer = switcher('Version 1 of 3');
+    // The reply's under it, with its actions; the question's on the person's message.
+    expect(answer.closest('[role="toolbar"]')).not.toBeNull();
+    expect(question.closest('[role="toolbar"]')).toBeNull();
+    expect(nextVersion(question)).toBeDisabled();
+    expect(previousVersion(answer)).toBeDisabled();
+
+    fireEvent.click(previousVersion(question));
+    await settle();
+    fireEvent.click(nextVersion(answer));
+    await settle();
+
+    expect(switchBranch).toHaveBeenNthCalledWith(
+      1,
+      expect.objectContaining({ id: 'u1' }),
+      'previous',
+      expect.any(AbortSignal),
+    );
+    expect(switchBranch).toHaveBeenNthCalledWith(
+      2,
+      expect.objectContaining({ id: 'a1' }),
+      'next',
+      expect.any(AbortSignal),
+    );
+  });
+
+  it('keeps sending while a switch is on its way, which gives up on it', async () => {
+    const switchBranch = vi.fn<NonNullable<AIConversationTransport['switchBranch']>>(
+      () => new Promise<void>(() => undefined),
+    );
+    const { controller, transport } = conversationOf(history, {}, { switchBranch });
+    render(
+      <>
+        <AIConversation conversation={controller} />
+        <AIMessageComposer conversation={controller}>
+          <AIMessageComposer.TextInput />
+          <AIMessageComposer.SubmitButton />
+        </AIMessageComposer>
+      </>,
+    );
+    fireEvent.change(screen.getByRole('textbox'), { target: { value: 'And Porto?' } });
+
+    fireEvent.click(nextVersion(switcher('Version 1 of 3')));
+    await settle();
+
+    // The switched reply's regenerate and the arrows wait; the rest stays.
+    expect(screen.getByRole('button', { name: 'Send' })).toBeEnabled();
+    expect(screen.getAllByRole('button', { name: 'Regenerate' })).toHaveLength(1);
+    expect(screen.getAllByRole('button', { name: 'Edit' })).toHaveLength(2);
+    expect(previousVersion(switcher('Version 2 of 2'))).toBeDisabled();
+
+    fireEvent.keyDown(screen.getByRole('textbox'), { key: 'Enter' });
+    await settle();
+
+    expect(transport.send).toHaveBeenCalledWith(
+      expect.objectContaining({ kind: 'message', text: 'And Porto?' }),
+    );
+    expect(switchBranch.mock.calls[0][2]?.aborted).toBe(true);
+    expect(controller.state.getLatestValue().isSwitchingBranch).toBe(false);
+  });
+
+  it('offers regenerating and editing every message, and disables the switcher while answering', async () => {
+    const switchBranch = vi.fn(() => Promise.resolve());
+    const { controller, transport } = conversationOf(history, {}, { switchBranch });
+    render(<AIConversation conversation={controller} />);
+
+    expect(screen.getAllByRole('button', { name: 'Regenerate' })).toHaveLength(2);
+    expect(screen.getAllByRole('button', { name: 'Edit' })).toHaveLength(2);
+
+    fireEvent.click(screen.getAllByRole('button', { name: 'Regenerate' })[0]);
+    await settle();
+
+    expect(transport.send).toHaveBeenCalledWith(
+      expect.objectContaining({
+        kind: 'regenerate',
+        message: expect.objectContaining({ id: 'a1' }),
+        text: 'Lisbon',
+      }),
+    );
+    // Everything after the reply written again is left out until the new reply starts, and
+    // the agent is answering.
+    expect(screen.queryByText('Porto')).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Edit' })).not.toBeInTheDocument();
+    expect(previousVersion(switcher('Version 2 of 2'))).toBeDisabled();
+  });
+
+  it('edits the person’s messages in place', async () => {
+    const { controller, transport } = conversationOf(
+      history,
+      {},
+      { switchBranch: () => Promise.resolve() },
+    );
+    render(<AIConversation conversation={controller} />);
+
+    fireEvent.click(screen.getAllByRole('button', { name: 'Edit' })[0]);
+    fireEvent.change(screen.getByRole('textbox', { name: 'Edit message' }), {
+      target: { value: 'Lisbon in May' },
+    });
+    fireEvent.click(screen.getByRole('button', { name: 'Save' }));
+    await settle();
+
+    expect(controller.editingMessage).toBeUndefined();
+    expect(transport.send).toHaveBeenCalledWith(
+      expect.objectContaining({
+        kind: 'edit',
+        message: expect.objectContaining({ id: 'u1' }),
+        text: 'Lisbon in May',
+      }),
+    );
+    expect(screen.getByText('Lisbon in May')).toBeInTheDocument();
+    expect(screen.queryByText('Porto')).not.toBeInTheDocument();
+  });
+
+  it('shows a failed switch as the conversation’s error', async () => {
+    const switchBranch = vi.fn(() => Promise.reject(new Error('No such version')));
+    const { controller } = conversationOf(history, {}, { switchBranch });
+    render(<AIConversation conversation={controller} />);
+
+    fireEvent.click(nextVersion(switcher('Version 1 of 3')));
+    await settle();
+
+    expect(controller.state.getLatestValue().error?.message).toBe('No such version');
+  });
+
+  it('takes the app’s user-message actions over the controller’s', () => {
+    const { controller } = conversationOf(
+      history,
+      {},
+      { switchBranch: () => Promise.resolve() },
+    );
+    render(
+      <AIConversation conversation={controller} userMessageActions={() => undefined} />,
+    );
+
+    expect(screen.getAllByRole('group', { name: /^Version / })).toHaveLength(1);
+    expect(switcher('Version 1 of 3')).toBeInTheDocument();
+  });
+
+  it('shows no switcher and offers the latest only without switchBranch', () => {
+    const { controller } = conversationOf(history);
+    render(<AIConversation conversation={controller} />);
+
+    expect(screen.queryByRole('group', { name: /^Version / })).not.toBeInTheDocument();
+    expect(screen.getAllByRole('button', { name: 'Regenerate' })).toHaveLength(1);
+    expect(screen.getAllByRole('button', { name: 'Edit' })).toHaveLength(1);
   });
 });
 

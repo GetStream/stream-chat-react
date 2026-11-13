@@ -44,6 +44,9 @@ export type TranslationCatalog = {
   'aiComponents.a2ui.choicePickerFilter.placeholder': 'Search';
   'aiComponents.attachmentPreview.deleteAttachment.ariaLabel': 'Delete attachment';
   'aiComponents.attachmentPreview.unknownFileName.text': 'Unknown file name';
+  'aiComponents.branchSwitcher.next.ariaLabel': 'Next version';
+  'aiComponents.branchSwitcher.previous.ariaLabel': 'Previous version';
+  'aiComponents.branchSwitcher.versions.ariaLabel': 'Version {{ index }} of {{ total }}';
   'aiComponents.chart.loading.text': 'Loading chart...';
   'aiComponents.chart.unknownType.text': 'Unknown chart type';
   'aiComponents.chatOptions.chatOptions.ariaLabel': 'Chat options';
@@ -102,7 +105,10 @@ export type TranslationCatalog = {
   'aiComponents.toolCall.waitingForApproval.text': 'Waiting for approval';
   'aiComponents.toolCall.waitingForDevice.text': 'Waiting for the device';
   'aiComponents.toolCall.waitingForSignIn.text': 'Waiting for you to sign in';
+  'aiComponents.userMessage.cancelEdit.label': 'Cancel';
   'aiComponents.userMessage.edit.ariaLabel': 'Edit';
+  'aiComponents.userMessage.editInput.ariaLabel': 'Edit message';
+  'aiComponents.userMessage.saveEdit.label': 'Save';
   'aiComponents.voiceVisualization.connecting.text': 'Connecting';
   'aiComponents.voiceVisualization.listening.text': 'Listening';
   'aiComponents.voiceVisualization.ready.text': 'Ready';

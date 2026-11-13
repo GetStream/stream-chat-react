@@ -166,6 +166,66 @@
     overflow-wrap: anywhere;
     white-space: pre-wrap;
   }
+
+  // Editing in place: the editor takes the bubble's width, up to the whole row.
+  &--editing {
+    padding-inline-start: 0;
+  }
+
+  &__editor {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    width: 100%;
+    padding: 0.625rem 0.75rem;
+    border: 1px solid ai-token(card-border);
+    border-radius: 1.25rem;
+    background-color: ai-token(card-bg);
+
+    &:focus-within {
+      border-color: ai-token(border);
+    }
+  }
+
+  &__editor-input {
+    all: unset;
+    box-sizing: border-box;
+    width: 100%;
+    color: ai-token(text-primary);
+    font: inherit;
+    overflow-wrap: anywhere;
+    resize: none;
+    white-space: pre-wrap;
+  }
+
+  &__editor-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.5rem;
+  }
+}
+
+// ‹ i/n ›: which version of a message shows, between arrows to the others. Under a reply it
+// leads its actions; under the person's message it sits on the trailing side.
+.str-chat__ai-branch-switcher {
+  display: inline-flex;
+  align-items: center;
+  color: ai-token(text-secondary);
+  font-size: ai-scale(font-sm);
+  font-variant-numeric: tabular-nums;
+
+  &__button {
+    @include ai-icon-button(1.75rem);
+  }
+
+  &__position {
+    min-width: 2rem;
+    text-align: center;
+  }
+}
+
+[dir='rtl'] .str-chat__ai-branch-switcher__button svg {
+  transform: scaleX(-1);
 }
 
 .str-chat__ai-assistant-message {
