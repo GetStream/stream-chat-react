@@ -342,10 +342,13 @@ export class AIConversationController<Message extends AIMessage = AIMessage> {
   /**
    * Asks the agent to answer a message of the person's again, changed to say `text`: an `edit`
    * request, sent straight away rather than through the composer, as `AIUserMessage`'s in-place
-   * editor saves it. Does nothing for an empty text.
+   * editor saves it. Does nothing for an empty text, or where `userMessageActions` doesn't offer
+   * it: without the transport's `switchBranch`, while the agent answers, or on an earlier
+   * message without a version mark. An edit open in the composer is dropped.
    */
   editInPlace(message: Message, text: string) {
-    if (message.role !== 'user' || text.trim() === '') return;
+    if (text.trim() === '' || !this.userMessageActions(message)?.onSaveEdit) return;
+    this.cancelEditing();
     this.start({
       attachments: [],
       kind: 'edit',

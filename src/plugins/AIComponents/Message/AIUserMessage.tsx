@@ -116,10 +116,12 @@ export const AIUserMessage = ({
   const { IconEdit } = useComponentContextIcons();
   const [isEditing, setIsEditing] = useState(false);
   const editButtonRef = useRef<HTMLButtonElement>(null);
-  // An editor left open on a version that is no longer shown would save over the wrong one.
+  // An editor left open on a version that is no longer shown would save over the wrong one,
+  // and one whose saving went away, as while the agent answers, would reopen with a stale draft.
+  const canSaveEdit = !!onSaveEdit;
   useEffect(() => {
     setIsEditing(false);
-  }, [text, branch?.index]);
+  }, [text, branch?.index, canSaveEdit]);
   const editing = isEditing && !!onSaveEdit;
 
   const closeEditor = () => {

@@ -187,6 +187,17 @@ describe('AIUserMessage', () => {
     expect(onSaveEdit).not.toHaveBeenCalled();
   });
 
+  it('closes the editor once saving goes away, such as while the agent answers', () => {
+    const { rerender } = render(<AIUserMessage onSaveEdit={vi.fn()} text='Hi' />);
+    fireEvent.click(screen.getByRole('button', { name: 'Edit' }));
+    fireEvent.change(screen.getByRole('textbox'), { target: { value: 'Hello' } });
+
+    rerender(<AIUserMessage text='Hi' />);
+    rerender(<AIUserMessage onSaveEdit={vi.fn()} text='Hi' />);
+
+    expect(screen.queryByRole('textbox')).not.toBeInTheDocument();
+  });
+
   it('does not save an empty edit', () => {
     const onSaveEdit = vi.fn();
     render(<AIUserMessage onSaveEdit={onSaveEdit} text='Hi' />);

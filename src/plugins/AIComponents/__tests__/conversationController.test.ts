@@ -1923,6 +1923,37 @@ describe('AIConversationController branches', () => {
     expect(again.messageId).not.toBe(first.messageId);
   });
 
+  it('edits in place only where editing is offered, and leaves the composer’s edit', async () => {
+    const history = [
+      marked(user('u1', 'Lisbon')),
+      marked(reply('a1')),
+      user('u2'),
+      reply('a2'),
+    ];
+    const plain = makeController(new ConversationTransport(history));
+    plain.editInPlace(marked(user('u1', 'Lisbon')), 'Lisbon in May');
+    const transport = new BranchingTransport(history);
+    const controller = makeController(transport);
+    // An earlier message without a version mark.
+    controller.editInPlace(user('u1', 'Lisbon'), 'Lisbon in May');
+    await settle();
+    expect(transport.requests).toHaveLength(0);
+
+    controller.edit(user('u2'));
+    expect(controller.composer.getLatestValue().isEditing).toBe(true);
+    controller.editInPlace(marked(user('u1', 'Lisbon')), 'Lisbon in May');
+    await settle();
+
+    expect(transport.requests).toHaveLength(1);
+    expect(controller.editingMessage).toBeUndefined();
+    expect(controller.composer.getLatestValue().isEditing).toBe(false);
+
+    // The agent is answering.
+    controller.editInPlace(marked(user('u1', 'Lisbon')), 'Lisbon in June');
+    await settle();
+    expect(transport.requests).toHaveLength(1);
+  });
+
   it('does nothing on a switch without the transport’s switchBranch', async () => {
     const transport = new ConversationTransport([
       user('u1'),
