@@ -1,18 +1,22 @@
 import '../../..';
 import React from 'react';
-import { act, cleanup, fireEvent, render, screen } from '@testing-library/react';
+import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { fromPartial } from '@total-typescript/shoehorn';
 
 import { Channel } from '../../Channel';
 import { Chat } from '../../Chat';
 import { MessageComposer } from '../../MessageComposer';
 import {
+  convertDateToTimestamp,
+  generateMessage,
   generateScheduledMessage,
   generateUser,
   initClientWithChannels,
 } from '../../../mock-builders';
 
 const user = generateUser({ id: 'user-id' });
+const WEDNESDAY_MORNING = new Date(2026, 9, 28, 10, 30);
+const SEND_TIME = new Date(2026, 9, 29, 9, 0);
 
 const renderComposer = async () => {
   const {
@@ -44,6 +48,7 @@ const renderComposer = async () => {
   const scheduledMessage = generateScheduledMessage({
     cid: channel.cid,
     message: { custom: {}, text: 'Launch moved to Monday' },
+    scheduled_at: convertDateToTimestamp(SEND_TIME),
   });
   const { messageComposer } = channel;
 
@@ -72,18 +77,92 @@ const renderComposer = async () => {
 };
 
 describe('editing a scheduled message in the composer', () => {
+  beforeEach(() => {
+    vi.useFakeTimers({ shouldAdvanceTime: true, toFake: ['Date'] });
+    vi.setSystemTime(WEDNESDAY_MORNING);
+  });
+
   afterEach(() => {
     cleanup();
     vi.restoreAllMocks();
+    vi.useRealTimers();
   });
 
-  it('shows the scheduled edit preview and hides the schedule button', async () => {
+  it('shows when the message is sent and hides the schedule button', async () => {
     const { startEditing } = await renderComposer();
 
     await startEditing();
 
-    expect(screen.getByText('Edit scheduled message')).toBeInTheDocument();
+    expect(screen.getByTestId('scheduled-message-preview')).toHaveTextContent(
+      'This message will be sent Thu, Oct 29 at 09:00',
+    );
     expect(screen.queryByTestId('schedule-message-button')).not.toBeInTheDocument();
+  });
+
+  it('reschedules the message without saving the text being edited', async () => {
+    const { channel, messageComposer, scheduledMessage, startEditing } =
+      await renderComposer();
+    const newSendTime = new Date(2026, 9, 29, 14, 30);
+    const updateScheduledMessage = vi
+      .spyOn(channel, 'updateScheduledMessage')
+      .mockResolvedValue({
+        ...scheduledMessage,
+        scheduled_at: convertDateToTimestamp(newSendTime),
+        updated_at: scheduledMessage.updated_at + 1_000_000,
+      });
+
+    await startEditing();
+    await act(() => messageComposer.textComposer.setText('Launch moved to Tuesday'));
+    await act(() =>
+      fireEvent.click(screen.getByTestId('scheduled-message-preview-reschedule-button')),
+    );
+    const dialog = await screen.findByTestId('schedule-message-dialog');
+    expect(dialog).toHaveTextContent('Reschedule message');
+    expect(screen.getByLabelText('Time')).toHaveValue('09:00');
+
+    fireEvent.change(screen.getByLabelText('Time'), { target: { value: '14:30' } });
+    await act(() => fireEvent.click(screen.getByRole('button', { name: 'Save' })));
+
+    expect(updateScheduledMessage).toHaveBeenCalledWith(scheduledMessage.id, {
+      scheduled_at: newSendTime,
+    });
+    await waitFor(() =>
+      expect(screen.queryByTestId('schedule-message-dialog')).not.toBeInTheDocument(),
+    );
+    expect(screen.getByTestId('scheduled-message-preview')).toHaveTextContent(
+      'This message will be sent Thu, Oct 29 at 14:30',
+    );
+    expect(messageComposer.editedScheduledMessage?.id).toBe(scheduledMessage.id);
+    expect(messageComposer.textComposer.text).toBe('Launch moved to Tuesday');
+  });
+
+  it('shows the quoted message below the send time, and lets it be removed', async () => {
+    const { channel, client, messageComposer } = await renderComposer();
+    const quotedMessage = generateMessage({ text: 'Venue options for Saturday', user });
+    client.messageStore.upsert(quotedMessage);
+    const quotingMessage = generateScheduledMessage({
+      cid: channel.cid,
+      message: { custom: {}, quoted_message_id: quotedMessage.id, text: 'Booked it' },
+      scheduled_at: convertDateToTimestamp(SEND_TIME),
+    });
+
+    await act(() => messageComposer.editScheduledMessage(quotingMessage));
+
+    const sendTimePreview = screen.getByTestId('scheduled-message-preview');
+    const quotePreview = screen.getByTestId('quoted-message-preview');
+    expect(quotePreview).toHaveTextContent('Venue options for Saturday');
+    expect(
+      sendTimePreview.compareDocumentPosition(quotePreview) &
+        Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy();
+
+    await act(() =>
+      fireEvent.click(screen.getByTestId('quoted-message-preview-dismiss-btn')),
+    );
+
+    expect(screen.queryByTestId('quoted-message-preview')).not.toBeInTheDocument();
+    expect(messageComposer.quotedMessage).toBeNull();
+    expect(screen.getByTestId('scheduled-message-preview')).toBeInTheDocument();
   });
 
   it('saves the edit with updateScheduledMessage instead of sending', async () => {
@@ -107,10 +186,10 @@ describe('editing a scheduled message in the composer', () => {
 
     await startEditing();
     await act(() =>
-      fireEvent.click(screen.getByRole('button', { name: /cancel|remove/i })),
+      fireEvent.click(screen.getByRole('button', { name: 'Cancel editing' })),
     );
 
-    expect(screen.queryByText('Edit scheduled message')).not.toBeInTheDocument();
+    expect(screen.queryByTestId('scheduled-message-preview')).not.toBeInTheDocument();
     expect(messageComposer.textComposer.text).toBe('my unsent draft');
   });
 

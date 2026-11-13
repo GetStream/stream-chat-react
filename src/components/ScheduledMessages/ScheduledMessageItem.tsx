@@ -28,6 +28,7 @@ import { useStableId } from '../UtilityComponents/useStableId';
 import { VisuallyHidden } from '../VisuallyHidden';
 import { SCHEDULE_MESSAGE_CAPABILITY } from './hooks';
 import { useScheduledMessagePreview } from './hooks/useScheduledMessagePreview';
+import { useRescheduleDialogProps } from './hooks/useRescheduleDialogProps';
 import { ScheduleTimeDialog as DefaultScheduleTimeDialog } from './ScheduleTimeDialog';
 import {
   getChannelByCid,
@@ -91,6 +92,10 @@ export const ScheduledMessageItem = ({
   const editUnavailableId = useStableId();
   const getChannel = () => getChannelByCid(client, cid);
   const previewMessage = useScheduledMessagePreview(scheduledMessage);
+  const rescheduleDialogProps = useRescheduleDialogProps({
+    previewMessage,
+    scheduledMessage,
+  });
   const sendTime = nsToDate(scheduled_at);
   const isFailed = isFailedScheduledMessage(scheduledMessage);
   // a pending message is saved by scheduling it, a failed one is scheduled or sent again; a frozen
@@ -197,15 +202,6 @@ export const ScheduledMessageItem = ({
           },
         ),
     },
-  };
-
-  const rescheduleErrorMessage = t(
-    'scheduledMessages.couldntRescheduleTheMessageTryAgain',
-    "Couldn't reschedule the message. Try again",
-  );
-  // a failure keeps the dialog open, showing it
-  const reschedule = async (scheduledAt: Date) => {
-    await getChannel().updateScheduledMessage(id, { scheduled_at: scheduledAt });
   };
 
   const deleteScheduledMessage = () => {
@@ -366,23 +362,7 @@ export const ScheduledMessageItem = ({
           <ScheduleTimeDialog
             channel={getChannel()}
             close={closeDialog}
-            errorMessage={rescheduleErrorMessage}
-            initialScheduledAt={sendTime}
-            previewLabel={t(
-              'scheduledMessages.scheduledForTime',
-              'Scheduled for {{ time }}',
-              {
-                time: t('timestamp.ScheduledMessageSendTime', { timestamp: sendTime }),
-              },
-            )}
-            previewMessage={previewMessage}
-            submit={reschedule}
-            submitLabel={t('scheduledMessages.save', 'Save')}
-            title={t('scheduledMessages.rescheduleMessage', 'Reschedule message')}
-            tooSoonMessage={t(
-              'scheduledMessages.pickALaterTimeEditingCantSend',
-              "Pick a later time. Editing can't send a message right away.",
-            )}
+            {...rescheduleDialogProps}
           />
         )}
       </Modal>

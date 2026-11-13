@@ -111,20 +111,20 @@ const DefaultMessageComposerPreviewComponents = {
  */
 export const defaultMessageComposerPreviewSet: MessageComposerPreviewSetItem[] = [
   {
-    Component: DefaultMessageComposerPreviewComponents.EditedMessage,
-    isVisible: ({ editedMessage }) => !!editedMessage,
-    type: 'editedMessage',
-  },
-  {
     Component: DefaultMessageComposerPreviewComponents.ScheduledMessage,
     isVisible: ({ editedScheduledMessage }) => !!editedScheduledMessage,
     type: 'scheduledMessage',
   },
   {
+    Component: DefaultMessageComposerPreviewComponents.EditedMessage,
+    isVisible: ({ editedMessage }) => !!editedMessage,
+    type: 'editedMessage',
+  },
+  {
     Component: DefaultMessageComposerPreviewComponents.QuotedMessage,
-    // The edited message preview takes the quoted message's place while editing.
-    isVisible: ({ editedMessage, editedScheduledMessage, quotedMessage }) =>
-      !editedMessage && !editedScheduledMessage && !!quotedMessage,
+    // The edited message preview takes the quoted message's place while editing. A scheduled
+    // message keeps its quote visible, so it can be removed before the message is sent.
+    isVisible: ({ editedMessage, quotedMessage }) => !editedMessage && !!quotedMessage,
     type: 'quotedMessage',
   },
   {

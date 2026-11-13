@@ -615,6 +615,7 @@ export type TranslationCatalog = {
   'scheduledMessages.banner.scheduledReplies_other': '{{ count }} scheduled replies';
   'scheduledMessages.blockedByModeration': 'Blocked by moderation';
   'scheduledMessages.cancel': 'Cancel';
+  'scheduledMessages.cancelEditing.ariaLabel': 'Cancel editing';
   'scheduledMessages.cantSendInThisChannel': "Unavailable: you can't send messages in this channel";
   'scheduledMessages.channelFrozenNotice': "This channel is frozen. Scheduled messages won't be sent";
   'scheduledMessages.chooseALaterTime': 'Choose a later time';
@@ -633,7 +634,6 @@ export type TranslationCatalog = {
   'scheduledMessages.deleteScheduledMessage': 'Delete scheduled message?';
   'scheduledMessages.edit': 'Edit';
   'scheduledMessages.editReschedule': 'Edit & reschedule';
-  'scheduledMessages.editScheduledMessage': 'Edit scheduled message';
   'scheduledMessages.loaded': 'Scheduled messages loaded';
   'scheduledMessages.loadingScheduledMessages': 'Loading scheduled messages';
   'scheduledMessages.messageToName': 'Message to {{ name }}';
@@ -679,6 +679,7 @@ export type TranslationCatalog = {
   'scheduledMessages.thisChannelNowNeedsApprovalScheduleItAgain': 'This channel now needs approval. Schedule it again';
   'scheduledMessages.thisChannelWasDeleted': 'This channel was deleted';
   'scheduledMessages.thisMessageToNameWontBeSentThis': "This message to {{ name }} won't be sent. This can't be undone.";
+  'scheduledMessages.thisMessageWillBeSentTime': 'This message will be sent {{ time }}';
   'scheduledMessages.thisMessageWontBeSentThisCantBe': "This message won't be sent. This can't be undone.";
   'scheduledMessages.time': 'Time';
   'scheduledMessages.view': 'View';
