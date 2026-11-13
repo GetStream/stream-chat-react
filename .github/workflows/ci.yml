@@ -85,6 +85,10 @@ jobs:
   test:
     runs-on: ubuntu-latest
     name: Test
+    permissions:
+      contents: read
+      # Codecov authenticates the coverage upload with a GitHub OIDC token.
+      id-token: write
     steps:
       - uses: actions/checkout@v6
 
@@ -97,7 +101,7 @@ jobs:
         uses: codecov/codecov-action@v6
         with:
           verbose: true
-          token: ${{ secrets.CODECOV_TOKEN }}
+          use_oidc: true
 
   deploy-vite-example:
     concurrency:
