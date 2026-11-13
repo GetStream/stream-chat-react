@@ -1214,9 +1214,9 @@ describe('AIConversationController and what the agent says it is doing', () => {
     controller.retry();
     await settle();
 
-    // Not a1 written again.
+    // Not a1 written again, and under a new id: the agent had the first.
     expect(transport.lastRequest?.kind).toBe('message');
-    expect(transport.lastRequest?.messageId).toBe(sent?.messageId);
+    expect(transport.lastRequest?.messageId).not.toBe(sent?.messageId);
     expect(transport.lastRequest?.text).toBe('Porto?');
   });
 
@@ -1901,6 +1901,26 @@ describe('AIConversationController branches', () => {
     expect(
       controller.userMessageActions(user('u2', 'Porto'))?.onSaveEdit,
     ).toBeUndefined();
+  });
+
+  it('retries a regenerate the agent didn’t answer under a new id', async () => {
+    const transport = new BranchingTransport([
+      marked(user('u1')),
+      marked(reply('a1')),
+      user('u2'),
+      reply('a2'),
+    ]);
+    const controller = makeController(transport, { replyTimeout: 20 });
+
+    controller.regenerate(marked(reply('a1')));
+    await settle();
+    await waitUntil(() => stateOf(controller).status === 'error');
+    controller.retry();
+    await settle();
+
+    const [first, again] = transport.requests;
+    expect(again).toMatchObject({ kind: 'regenerate', message: { id: 'a1' } });
+    expect(again.messageId).not.toBe(first.messageId);
   });
 
   it('does nothing on a switch without the transport’s switchBranch', async () => {

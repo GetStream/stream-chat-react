@@ -345,9 +345,10 @@ export class AIConversationController<Message extends AIMessage = AIMessage> {
   }
 
   /**
-   * Tries again after `error`: sends the request that failed again, with the same message id,
-   * asks the agent again for the reply it couldn't write, or switches again to the version a
-   * `switchBranch` failed to show.
+   * Tries again after `error`: sends the request that failed again, with the same message id
+   * after the transport rejected it, or under a new one once the agent had it but didn't answer
+   * (`AIConversationRequest.messageId` says why), asks the agent again for the reply it couldn't
+   * write, or switches again to the version a `switchBranch` failed to show.
    */
   retry() {
     const { exchange, failedSwitch } = this;
