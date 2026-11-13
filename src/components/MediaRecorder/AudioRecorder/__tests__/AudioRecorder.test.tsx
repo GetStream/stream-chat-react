@@ -44,6 +44,7 @@ import {
 } from '../../../../mock-builders/browser';
 import { AudioRecorder } from '../AudioRecorder';
 import { MediaRecordingState } from '../../classes';
+import { BehaviorSubject } from '../../observable/BehaviorSubject';
 import { WithAudioPlayback } from '../../../AudioPlayback';
 import type {
   Attachment,
@@ -572,6 +573,117 @@ describe('AudioRecorder', () => {
       expect((toggleBtn as HTMLButtonElement).disabled).toBe(disabled);
     },
   );
+
+  describe('recording waveform', () => {
+    const AMPLITUDE_BAR_SELECTOR = '.str-chat__wave-progress-bar__amplitude-bar';
+    let trackWidth = 0;
+    let clientWidthSpy: { mockRestore: () => void };
+
+    let barWidth = 2;
+
+    beforeEach(() => {
+      barWidth = 2;
+      // Bars measure `barWidth`; every other div keeps this file's 120px.
+      vi.mocked(HTMLDivElement.prototype.getBoundingClientRect).mockImplementation(
+        function (this: HTMLDivElement) {
+          return fromPartial<DOMRect>({
+            width: this.classList.contains('str-chat__wave-progress-bar__amplitude-bar')
+              ? barWidth
+              : 120,
+          });
+        },
+      );
+      clientWidthSpy = vi
+        .spyOn(HTMLElement.prototype, 'clientWidth', 'get')
+        .mockImplementation(function (this: HTMLElement) {
+          return this.classList.contains('str-chat__wave-progress-bar__track')
+            ? trackWidth
+            : 0;
+        });
+    });
+
+    afterEach(() => {
+      vi.mocked(HTMLDivElement.prototype.getBoundingClientRect).mockReturnValue(
+        fromPartial<DOMRect>({ width: 120 }),
+      );
+      clientWidthSpy.mockRestore();
+      ResizeObserverMock.observers = [];
+    });
+
+    const renderRecordingWaveform = (amplitudeCount: number) =>
+      renderAudioRecorder({
+        recorder: {
+          amplitudeRecorder: {
+            amplitudes: new BehaviorSubject(
+              Array.from({ length: amplitudeCount }, (_, i) => (i % 10) / 10),
+            ),
+          },
+        },
+        recordingState: MediaRecordingState.RECORDING,
+      });
+
+    // jsdom computes no gap, so a bar takes its own width of the track.
+    it('draws as many of the latest amplitudes as fit the track', async () => {
+      trackWidth = 900;
+      const { container } = await renderRecordingWaveform(1000);
+      expect(container.querySelectorAll(AMPLITUDE_BAR_SELECTOR)).toHaveLength(450);
+    });
+
+    it('redraws for the new width when the track resizes', async () => {
+      trackWidth = 900;
+      const { container } = await renderRecordingWaveform(1000);
+
+      trackWidth = 300;
+      act(() => {
+        ResizeObserverMock.observers.forEach((observer) => {
+          if (observer.active) observer.cb([], observer as unknown as ResizeObserver);
+        });
+      });
+
+      expect(container.querySelectorAll(AMPLITUDE_BAR_SELECTOR)).toHaveLength(150);
+    });
+
+    it('measures again with the width of the first rendered bar', async () => {
+      trackWidth = 900;
+      barWidth = 3;
+      const amplitudes = new BehaviorSubject<number[]>([]);
+      const { container } = await renderAudioRecorder({
+        recorder: { amplitudeRecorder: { amplitudes } },
+        recordingState: MediaRecordingState.RECORDING,
+      });
+
+      act(() => {
+        amplitudes.next(Array.from({ length: 1000 }, () => 0.5));
+      });
+
+      expect(container.querySelectorAll(AMPLITUDE_BAR_SELECTOR)).toHaveLength(300);
+    });
+
+    it('counts the gap the track sets between bars', async () => {
+      trackWidth = 900;
+      const getComputedStyle = window.getComputedStyle;
+      const styleSpy = vi
+        .spyOn(window, 'getComputedStyle')
+        .mockImplementation((element, pseudo) => {
+          const style = getComputedStyle(element, pseudo);
+          return element.classList.contains('str-chat__wave-progress-bar__track')
+            ? ({ ...style, columnGap: '1px' } as CSSStyleDeclaration)
+            : style;
+        });
+
+      const { container } = await renderRecordingWaveform(1000);
+      styleSpy.mockRestore();
+
+      // (900 + 1) / (2 + 1)
+      expect(container.querySelectorAll(AMPLITUDE_BAR_SELECTOR)).toHaveLength(300);
+    });
+
+    it('draws every amplitude while there are fewer than fit', async () => {
+      trackWidth = 900;
+      const { container } = await renderRecordingWaveform(30);
+      expect(container.querySelectorAll(AMPLITUDE_BAR_SELECTOR)).toHaveLength(30);
+    });
+  });
 
   it('renders loading indicators while recording being uploaded', async () => {
     await renderAudioRecorder({
