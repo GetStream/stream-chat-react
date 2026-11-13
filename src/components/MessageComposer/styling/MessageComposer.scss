@@ -127,7 +127,10 @@
     display: flex;
     flex-direction: column;
     max-height: 400px;
-    overflow: hidden;
+    // scrolls once the previews outgrow the cap: only the attachment list shrinks to fit, so
+    // stacked previews (quote, link, location, poll) would otherwise be cut off
+    overflow-x: hidden;
+    overflow-y: auto;
     width: 100%;
     padding: var(--str-chat__spacing-xs) var(--str-chat__spacing-xs) 0;
     gap: var(--str-chat__spacing-xxs);
