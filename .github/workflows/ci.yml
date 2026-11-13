@@ -123,7 +123,7 @@ jobs:
       - build
     name: Deploy Vite Example to Vercel
     env:
-      VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+      VERCEL_ORG_ID: ${{ vars.VERCEL_ORG_ID }}
       VERCEL_PROJECT_ID: ${{ matrix.projects.project-id }}
       VITE_STREAM_API_KEY: ${{ matrix.projects.stream-api-key }}
       NODE_ENV: production
