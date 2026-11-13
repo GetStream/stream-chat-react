@@ -154,17 +154,24 @@ describe('ScheduleMessageButton', () => {
       expect(screen.queryByTestId('schedule-message-button')).not.toBeInTheDocument();
     });
 
-    it('comes back when the location that blocked scheduling is removed', async () => {
-      const { channel } = await renderComposer();
-      const { locationComposer } = channel.messageComposer;
+    it('comes back when the command that blocked scheduling is removed', async () => {
+      const { channel } = await renderComposer({ text: '/giphy hello' });
+      const { messageComposer } = channel;
 
-      await act(() => locationComposer.setData({ latitude: 50, longitude: 14 }));
       expect(screen.queryByTestId('schedule-message-button')).not.toBeInTheDocument();
-      // a change in another store the rule reads, while the location still blocks
+      // a change in another store the rule reads, while the command still blocks
+      await act(() => messageComposer.state.partialNext({ showReplyInChannel: true }));
+      await act(() => messageComposer.textComposer.setText('hello'));
+
+      expect(screen.getByTestId('schedule-message-button')).toBeInTheDocument();
+    });
+
+    it('stays with a shared location', async () => {
+      const { channel } = await renderComposer();
+
       await act(() =>
-        channel.messageComposer.state.partialNext({ showReplyInChannel: true }),
+        channel.messageComposer.locationComposer.setData({ latitude: 50, longitude: 14 }),
       );
-      await act(() => locationComposer.initState());
 
       expect(screen.getByTestId('schedule-message-button')).toBeInTheDocument();
     });

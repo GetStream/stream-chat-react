@@ -22,9 +22,8 @@ const selectIsEditing = (state: MessageComposerState) => ({
 });
 
 /**
- * `messageComposer.scheduleBlockReason`, kept current. The rule reads the composer, its text and
- * location composers, and the channel's config and capabilities, so a change to any of them
- * recomputes it.
+ * `messageComposer.scheduleBlockReason`, kept current. The rule reads the composer, its text
+ * composer, and the channel's config and capabilities, so a change to any of them recomputes it.
  */
 const useScheduleBlockReason = (messageComposer: MessageComposer) => {
   const [blockReason, setBlockReason] = useState(
@@ -32,12 +31,11 @@ const useScheduleBlockReason = (messageComposer: MessageComposer) => {
   );
 
   useEffect(() => {
-    const { channel, locationComposer, textComposer } = messageComposer;
+    const { channel, textComposer } = messageComposer;
     const update = () => setBlockReason(messageComposer.scheduleBlockReason);
     const unsubscribes = [
       messageComposer.state,
       textComposer.state,
-      locationComposer.state,
       channel.state,
       channel.configState,
     ].map((store) => store.subscribe(update));
@@ -49,7 +47,7 @@ const useScheduleBlockReason = (messageComposer: MessageComposer) => {
 
 /**
  * Whether the composition can be scheduled: the channel allows it, the feature is on, nothing is
- * being edited and the composition holds nothing that cannot be scheduled (a command or a location).
+ * being edited and the composition holds nothing that cannot be scheduled (a command).
  */
 export const useCanScheduleMessage = () => {
   const { client } = useChatContext();
