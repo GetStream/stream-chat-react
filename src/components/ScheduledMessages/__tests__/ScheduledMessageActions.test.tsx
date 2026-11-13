@@ -32,20 +32,27 @@ import {
   hydrateScheduledMessages,
   mockChatContext,
 } from '../../../mock-builders';
-import { getChannelByCid, SCHEDULED_MESSAGE_NOTIFICATION_TYPE } from '../utils';
+import { SCHEDULED_MESSAGE_NOTIFICATION_TYPE, splitCid } from '../utils';
 import { ScheduledMessageList } from '../ScheduledMessageList';
+import { ScheduledMessageItem } from '../ScheduledMessageItem';
 import type { ScheduledMessageItemProps } from '../ScheduledMessageItem';
+import { defaultScheduledMessageActionSet } from '../ScheduledMessageActions';
+import type { ScheduledMessageActionSetItem } from '../ScheduledMessageActions';
 
-type EditScheduledMessage = NonNullable<ScheduledMessageItemProps['onEdit']>;
+type OpenInComposer = NonNullable<ScheduledMessageItemProps['openInComposer']>;
 
 const cid = 'messaging:general';
 
-const ChannelScheduledMessageList = ({ onEdit }: { onEdit?: EditScheduledMessage }) => {
+const ChannelScheduledMessageList = ({
+  openInComposer,
+}: {
+  openInComposer?: OpenInComposer;
+}) => {
   const { client } = useChatContext();
   return (
     <ScheduledMessageList
-      onEdit={onEdit}
-      scheduledMessages={getChannelByCid(client, cid).scheduledMessages}
+      openInComposer={openInComposer}
+      scheduledMessages={client.channel(...splitCid(cid)).scheduledMessages}
     />
   );
 };
@@ -65,13 +72,13 @@ const notFoundError = new StreamAPIError('not found', {
 
 type RenderActionsOptions = {
   components?: Parameters<typeof WithComponents>[0]['overrides'];
-  onEdit?: EditScheduledMessage;
+  openInComposer?: OpenInComposer;
   scheduledMessage?: ScheduledMessageResponse;
 };
 
 const renderActions = async ({
   components = {},
-  onEdit,
+  openInComposer,
   scheduledMessage = generateScheduledMessage({
     cid,
     message: { custom: {}, text: 'Launch moved to Monday' },
@@ -91,7 +98,7 @@ const renderActions = async ({
       <ChatProvider value={mockChatContext({ client })}>
         <TranslationProvider value={{ t, tDateTimeParser, userLanguage: 'en' }}>
           <DialogManagerProvider id='scheduled-message-actions-test-dialog-manager'>
-            <ChannelScheduledMessageList onEdit={onEdit} />
+            <ChannelScheduledMessageList openInComposer={openInComposer} />
           </DialogManagerProvider>
         </TranslationProvider>
       </ChatProvider>
@@ -135,7 +142,7 @@ describe('ScheduledMessageActions', () => {
   });
 
   it('offers an Edit button and Reschedule, Send now and Delete for a scheduled message', async () => {
-    await renderActions({ onEdit: vi.fn() });
+    await renderActions({ openInComposer: vi.fn() });
 
     await openActionsMenu();
 
@@ -161,8 +168,8 @@ describe('ScheduledMessageActions', () => {
       );
 
     it('disables Edit, keeping it focusable and saying why', async () => {
-      const onEdit = vi.fn();
-      const { client } = await renderActions({ onEdit });
+      const openInComposer = vi.fn();
+      const { client } = await renderActions({ openInComposer });
       removeComposeCapabilities(client);
 
       const edit = screen.getByTestId('scheduled-message-edit-button');
@@ -173,13 +180,13 @@ describe('ScheduledMessageActions', () => {
       expect(edit).toHaveAccessibleDescription(
         "Unavailable: you can't send messages in this channel",
       );
-      expect(onEdit).not.toHaveBeenCalled();
+      expect(openInComposer).not.toHaveBeenCalled();
     });
 
     it('disables Edit & reschedule of a failed message', async () => {
-      const onEdit = vi.fn();
+      const openInComposer = vi.fn();
       const { client } = await renderActions({
-        onEdit,
+        openInComposer,
         scheduledMessage: generateScheduledMessage({
           cid,
           failure_reason: SCHEDULED_MESSAGE_FAILURE_REASON.ChannelFrozen,
@@ -195,13 +202,13 @@ describe('ScheduledMessageActions', () => {
       expect(editAndReschedule).toHaveAccessibleDescription(
         "Unavailable: you can't send messages in this channel",
       );
-      expect(onEdit).not.toHaveBeenCalled();
+      expect(openInComposer).not.toHaveBeenCalled();
       // the menu stays open on the unavailable item
       expect(screen.getByTestId('scheduled-message-actions-menu')).toBeInTheDocument();
     });
   });
 
-  it('disables the actions while the message is being sent', async () => {
+  it('offers no actions while the message is being sent', async () => {
     await renderActions({
       scheduledMessage: generateScheduledMessage({
         cid,
@@ -209,15 +216,23 @@ describe('ScheduledMessageActions', () => {
       }),
     });
 
-    expect(screen.getByTestId('scheduled-message-actions-button')).toBeDisabled();
+    expect(
+      screen.queryByTestId('scheduled-message-actions-button'),
+    ).not.toBeInTheDocument();
+    expect(screen.queryByTestId('scheduled-message-edit-button')).not.toBeInTheDocument();
   });
 
   it('offers Copy and Delete for a message in a deleted channel', async () => {
+    Object.defineProperty(navigator, 'clipboard', {
+      configurable: true,
+      value: { writeText: vi.fn() },
+    });
     await renderActions({
-      onEdit: vi.fn(),
+      openInComposer: vi.fn(),
       scheduledMessage: generateScheduledMessage({
         cid,
         failure_reason: SCHEDULED_MESSAGE_FAILURE_REASON.ChannelDeleted,
+        message: { custom: {}, text: 'Launch moved to Monday' },
         status: SCHEDULED_MESSAGE_STATUS.Failed,
       }),
     });
@@ -230,12 +245,12 @@ describe('ScheduledMessageActions', () => {
   });
 
   it('hands the scheduled message to the edit handler', async () => {
-    const onEdit = vi.fn();
-    const { scheduledMessage } = await renderActions({ onEdit });
+    const openInComposer = vi.fn();
+    const { scheduledMessage } = await renderActions({ openInComposer });
 
     await act(() => fireEvent.click(screen.getByTestId('scheduled-message-edit-button')));
 
-    expect(onEdit).toHaveBeenCalledWith(scheduledMessage);
+    expect(openInComposer).toHaveBeenCalledWith(scheduledMessage);
   });
 
   it('sends the message now and confirms it', async () => {
@@ -244,7 +259,7 @@ describe('ScheduledMessageActions', () => {
       .spyOn(getChannel(client), 'sendScheduledMessageNow')
       .mockResolvedValue(scheduledMessage);
 
-    await selectAction('send_now');
+    await selectAction('sendNow');
 
     expect(sendNow).toHaveBeenCalledWith(scheduledMessage.id);
     await waitFor(() =>
@@ -260,7 +275,7 @@ describe('ScheduledMessageActions', () => {
       notFoundError,
     );
 
-    await selectAction('send_now');
+    await selectAction('sendNow');
 
     await waitFor(() =>
       expect(client.notifications.store.getLatestValue().notifications).toEqual([
@@ -428,7 +443,7 @@ describe('ScheduledMessageActions', () => {
       }),
     });
 
-    await selectAction('copy');
+    await selectAction('copyMessageText');
 
     expect(writeText).toHaveBeenCalledWith('Launch moved to Monday');
   });
@@ -447,7 +462,7 @@ describe('ScheduledMessageActions', () => {
       }),
     });
 
-    await selectAction('copy');
+    await selectAction('copyMessageText');
 
     await waitFor(() =>
       expect(getNotificationTypes(client)).toEqual([
@@ -456,8 +471,38 @@ describe('ScheduledMessageActions', () => {
     );
   });
 
+  it('takes its actions from scheduledMessageActionSet', async () => {
+    const copyLink = vi.fn();
+    const CopyLink = () => (
+      <button onClick={copyLink} role='menuitem' type='button'>
+        Copy link
+      </button>
+    );
+    const scheduledMessageActionSet: ScheduledMessageActionSetItem[] = [
+      ...defaultScheduledMessageActionSet.filter(
+        (action) =>
+          action.placement === 'quick-dropdown-toggle' || action.type !== 'sendNow',
+      ),
+      { Component: CopyLink, placement: 'dropdown', type: 'copyLink' },
+    ];
+    await renderActions({
+      components: {
+        ScheduledMessageItem: (props: ScheduledMessageItemProps) => (
+          <ScheduledMessageItem
+            {...props}
+            scheduledMessageActionSet={scheduledMessageActionSet}
+          />
+        ),
+      },
+    });
+
+    await openActionsMenu();
+
+    expect(getMenuLabels()).toEqual(['Reschedule', 'Delete', 'Copy link']);
+  });
+
   it('has no accessibility violations with the menu open', async () => {
-    const { container } = await renderActions({ onEdit: vi.fn() });
+    const { container } = await renderActions({ openInComposer: vi.fn() });
 
     await openActionsMenu();
 

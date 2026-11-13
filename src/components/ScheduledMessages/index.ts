@@ -1,4 +1,5 @@
 export * from './hooks';
+export * from './ScheduledMessageActions';
 export * from './ScheduledMessageItem';
 export * from './ScheduledMessageList';
 export * from './ScheduledMessageListDialog';

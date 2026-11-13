@@ -375,13 +375,13 @@ describe('ScheduledMessagesBanner', () => {
   it('opens what the ScheduledMessageListDialog slot renders', async () => {
     const scheduledMessage = generateScheduledMessage({ cid });
     const ScheduledMessageListDialog = vi.fn(
-      ({ close, onEdit, open }: ScheduledMessageListDialogProps) =>
+      ({ close, open, openInComposer }: ScheduledMessageListDialogProps) =>
         open ? (
           <div data-testid='custom-list'>
             <button onClick={close} type='button'>
               Close list
             </button>
-            <button onClick={() => onEdit?.(scheduledMessage)} type='button'>
+            <button onClick={() => openInComposer?.(scheduledMessage)} type='button'>
               Edit it
             </button>
           </div>

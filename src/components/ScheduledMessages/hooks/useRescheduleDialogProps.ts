@@ -3,7 +3,7 @@ import type { LocalMessage, ScheduledMessageResponse } from 'stream-chat';
 
 import { useChatContext, useTranslationContext } from '../../../context';
 import type { ScheduleTimeDialogProps } from '../ScheduleTimeDialog';
-import { getChannelByCid } from '../utils';
+import { splitCid } from '../utils';
 
 export type UseRescheduleDialogPropsParams = {
   previewMessage: LocalMessage;
@@ -40,10 +40,9 @@ export const useRescheduleDialogProps = ({
     previewMessage,
     // a failure keeps the dialog open, showing it
     submit: async (scheduledAt: Date) => {
-      const updated = await getChannelByCid(
-        client,
-        scheduledMessage.cid,
-      ).updateScheduledMessage(scheduledMessage.id, { scheduled_at: scheduledAt });
+      const updated = await client
+        .channel(...splitCid(scheduledMessage.cid))
+        .updateScheduledMessage(scheduledMessage.id, { scheduled_at: scheduledAt });
       onRescheduled?.(updated);
     },
     submitLabel: t('scheduledMessages.save', 'Save'),

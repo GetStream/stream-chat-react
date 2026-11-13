@@ -7,7 +7,7 @@ import { useAppSettingsSelector } from '../AppSettings';
  * cancel a scheduled message opened in it, so the list offers no Edit or Retry.
  */
 export const ConfigurableScheduledMessageItem = ({
-  onEdit,
+  openInComposer,
   ...props
 }: ScheduledMessageItemProps) => {
   const { disabledPreviewSections } = useAppSettingsSelector((state) => state.composer);
@@ -15,7 +15,9 @@ export const ConfigurableScheduledMessageItem = ({
   return (
     <ScheduledMessageItem
       {...props}
-      onEdit={disabledPreviewSections.includes('scheduledMessage') ? undefined : onEdit}
+      openInComposer={
+        disabledPreviewSections.includes('scheduledMessage') ? undefined : openInComposer
+      }
     />
   );
 };

@@ -141,8 +141,8 @@ export const ScheduledMessagesBanner = () => {
       )}
       <ScheduledMessageListDialog
         close={closeDialog}
-        onEdit={editScheduledMessage}
         open={isDialogOpen}
+        openInComposer={editScheduledMessage}
         scheduledMessages={view}
       />
     </>

@@ -28,9 +28,12 @@ import { SCHEDULE_MESSAGE_CAPABILITY, useScheduledMessages } from './hooks';
 import type { ScheduledMessageItemProps } from './ScheduledMessageItem';
 import { ScheduledMessageItem as DefaultScheduledMessageItem } from './ScheduledMessageItem';
 import { ScheduledMessagesNotice } from './ScheduledMessagesNotice';
-import { getChannelByCid } from './utils';
+import { splitCid } from './utils';
 
-export type ScheduledMessageListProps = Pick<ScheduledMessageItemProps, 'onEdit'> & {
+export type ScheduledMessageListProps = Pick<
+  ScheduledMessageItemProps,
+  'openInComposer'
+> & {
   /**
    * What to list: `channel.scheduledMessages`, `thread.scheduledMessages`, or a view of a list
    * registered with `client.scheduledMessagePaginators`. Further pages load on scroll. When its
@@ -112,7 +115,7 @@ const selectScheduling = ({
 const SchedulingUnavailableNotice = ({ cid }: { cid: string }) => {
   const { t } = useTranslationContext();
   const { client } = useChatContext();
-  const channel = getChannelByCid(client, cid);
+  const channel = client.channel(...splitCid(cid));
   const { canSchedule, frozen } = useStateStore(channel.state, selectScheduling);
   if (canSchedule) return null;
   return (
@@ -144,7 +147,7 @@ export const ScheduledMessageList = ({
   FirstPageLoadingIndicator = DefaultFirstPageLoadingIndicator,
   ListLoadErrorIndicator = DefaultListLoadErrorIndicator,
   LoadingNextPageIndicator = DefaultLoadingNextPageIndicator,
-  onEdit,
+  openInComposer,
   scheduledMessages: view,
 }: ScheduledMessageListProps) => {
   const { ScheduledMessageItem = DefaultScheduledMessageItem } = useComponentContext();
@@ -241,7 +244,10 @@ export const ScheduledMessageList = ({
               className='str-chat__scheduled-message-list__item'
               key={scheduledMessage.id}
             >
-              <ScheduledMessageItem onEdit={onEdit} scheduledMessage={scheduledMessage} />
+              <ScheduledMessageItem
+                openInComposer={openInComposer}
+                scheduledMessage={scheduledMessage}
+              />
             </li>
           ))}
         </ul>

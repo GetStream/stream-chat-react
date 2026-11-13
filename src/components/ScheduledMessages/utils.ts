@@ -12,7 +12,6 @@ import type {
   MessageComposerState,
   ScheduledMessageFailureReason,
   ScheduledMessageResponse,
-  StreamChat,
 } from 'stream-chat';
 
 import type { StreamTFunction } from '../../i18n/types';
@@ -35,16 +34,10 @@ export const SCHEDULED_MESSAGES_EMITTER = 'ScheduledMessages';
 
 export type ScheduleTimeBounds = { earliest: Date; latest?: Date };
 
-export type ScheduledMessageAction =
-  | 'copy'
-  | 'delete'
-  | 'edit'
-  | 'reschedule'
-  | 'send_now';
-
-export const getChannelByCid = (client: StreamChat, cid: string) => {
+/** A channel's type and ID, for `client.channel(...splitCid(cid))`. Channel IDs contain no `:`. */
+export const splitCid = (cid: string) => {
   const [type, id] = cid.split(':');
-  return client.channelManager.get(cid) ?? client.channel(type, id);
+  return [type, id] as const;
 };
 
 export const isFailedScheduledMessage = ({ status }: ScheduledMessageResponse) =>
@@ -139,21 +132,6 @@ export const formatTimeZoneOffset = (date: Date) => {
   const hours = Math.floor(Math.abs(offsetMinutes) / 60);
   const minutes = Math.abs(offsetMinutes) % 60;
   return `GMT${sign}${hours}${minutes ? `:${String(minutes).padStart(2, '0')}` : ''}`;
-};
-
-/** What the user may do with a scheduled message; `edit` only where the list can open it. */
-export const getScheduledMessageActions = (
-  { failure_reason, status }: ScheduledMessageResponse,
-  canEdit: boolean,
-): ScheduledMessageAction[] => {
-  if (status === SCHEDULED_MESSAGE_STATUS.Sending) return [];
-  const actions: ScheduledMessageAction[] =
-    status !== SCHEDULED_MESSAGE_STATUS.Failed
-      ? ['edit', 'reschedule', 'send_now', 'delete']
-      : failure_reason === SCHEDULED_MESSAGE_FAILURE_REASON.ChannelDeleted
-        ? ['copy', 'delete']
-        : ['edit', 'delete'];
-  return canEdit ? actions : actions.filter((action) => action !== 'edit');
 };
 
 /**

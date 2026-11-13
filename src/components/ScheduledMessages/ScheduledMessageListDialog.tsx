@@ -21,7 +21,7 @@ const getChannelContainer = () => document.getElementById(CHANNEL_CONTAINER_ID);
 
 export type ScheduledMessageListDialogProps = Pick<
   ScheduledMessageItemProps,
-  'onEdit'
+  'openInComposer'
 > & {
   close: () => void;
   open: boolean;
@@ -31,9 +31,9 @@ export type ScheduledMessageListDialogProps = Pick<
 
 /** The dialog's content, mounted only while it is open: the search starts empty each time. */
 const ScheduledMessageListDialogBody = ({
-  onEdit,
+  openInComposer,
   scheduledMessages: view,
-}: Pick<ScheduledMessageListDialogProps, 'onEdit' | 'scheduledMessages'>) => {
+}: Pick<ScheduledMessageListDialogProps, 'openInComposer' | 'scheduledMessages'>) => {
   const { t } = useTranslationContext();
   const { IconSearch, IconXCircle } = useComponentContextIcons();
   const { ScheduledMessageList = DefaultScheduledMessageList } = useComponentContext();
@@ -76,7 +76,11 @@ const ScheduledMessageListDialogBody = ({
           value={searchQuery}
         />
       )}
-      <ScheduledMessageList filter={filter} onEdit={onEdit} scheduledMessages={view} />
+      <ScheduledMessageList
+        filter={filter}
+        openInComposer={openInComposer}
+        scheduledMessages={view}
+      />
     </Prompt.Body>
   );
 };
@@ -88,8 +92,8 @@ const ScheduledMessageListDialogBody = ({
  */
 export const ScheduledMessageListDialog = ({
   close,
-  onEdit,
   open,
+  openInComposer,
   scheduledMessages,
 }: ScheduledMessageListDialogProps) => {
   const { t } = useTranslationContext();
@@ -116,7 +120,7 @@ export const ScheduledMessageListDialog = ({
               }
             />
             <ScheduledMessageListDialogBody
-              onEdit={onEdit}
+              openInComposer={openInComposer}
               scheduledMessages={scheduledMessages}
             />
           </Prompt.Root>

@@ -45,7 +45,7 @@ export const ScheduledMessagesView = () => {
         )}
         <ScheduledMessageList
           filter={filter}
-          onEdit={editScheduledMessage}
+          openInComposer={editScheduledMessage}
           scheduledMessages={channel.scheduledMessages}
         />
       </Prompt.Body>

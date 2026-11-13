@@ -31,12 +31,12 @@ import {
 } from '../../../mock-builders';
 import type { ScheduledMessageSearchFilter } from '../hooks';
 import { useScheduledMessagesSearch } from '../hooks';
-import { getChannelByCid } from '../utils';
+import { splitCid } from '../utils';
 import type { ScheduledMessageListProps } from '../ScheduledMessageList';
 import { ScheduledMessageList } from '../ScheduledMessageList';
 import type { ScheduledMessageItemProps } from '../ScheduledMessageItem';
 
-type EditScheduledMessage = NonNullable<ScheduledMessageItemProps['onEdit']>;
+type OpenInComposer = NonNullable<ScheduledMessageItemProps['openInComposer']>;
 
 const cid = 'messaging:general';
 
@@ -48,7 +48,7 @@ const atLocalTime = (day: number, hour: number) =>
 type RenderListOptions = {
   client?: StreamChat;
   components?: Parameters<typeof WithComponents>[0]['overrides'];
-  onEdit?: EditScheduledMessage;
+  openInComposer?: OpenInComposer;
   filter?: ScheduledMessageSearchFilter;
   listProps?: Partial<ScheduledMessageListProps>;
   scheduledMessages?: ScheduledMessageResponse[];
@@ -59,17 +59,20 @@ type RenderListOptions = {
 const SearchedList = ({
   filter,
   listProps,
-  onEdit,
+  openInComposer,
   searchQuery = '',
-}: Pick<RenderListOptions, 'filter' | 'listProps' | 'onEdit' | 'searchQuery'>) => {
+}: Pick<
+  RenderListOptions,
+  'filter' | 'listProps' | 'openInComposer' | 'searchQuery'
+>) => {
   const { client } = useChatContext();
   const { filter: searchFilter, setSearchQuery } = useScheduledMessagesSearch({ filter });
   useEffect(() => setSearchQuery(searchQuery), [searchQuery, setSearchQuery]);
   return (
     <ScheduledMessageList
       filter={searchFilter}
-      onEdit={onEdit}
-      scheduledMessages={getChannelByCid(client, cid).scheduledMessages}
+      openInComposer={openInComposer}
+      scheduledMessages={client.channel(...splitCid(cid)).scheduledMessages}
       {...listProps}
     />
   );
@@ -80,7 +83,7 @@ const renderList = async ({
   components = {},
   filter,
   listProps,
-  onEdit,
+  openInComposer,
   scheduledMessages = [],
   searchQuery,
 }: RenderListOptions = {}) => {
@@ -97,7 +100,7 @@ const renderList = async ({
             <SearchedList
               filter={filter}
               listProps={listProps}
-              onEdit={onEdit}
+              openInComposer={openInComposer}
               searchQuery={searchQuery}
             />
           </DialogManagerProvider>
@@ -328,7 +331,7 @@ describe('ScheduledMessageList', () => {
     setNextCursor(client);
 
     // as a scroll to the bottom would
-    await act(() => getChannelByCid(client, cid).scheduledMessages.toTail());
+    await act(() => client.channel(...splitCid(cid)).scheduledMessages.toTail());
 
     expect(await screen.findByText('Friday demo')).toBeInTheDocument();
     expect(query).toHaveBeenCalledTimes(2);

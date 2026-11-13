@@ -6,7 +6,6 @@ import {
   formatTimeZoneOffset,
   fromInputValues,
   getDefaultScheduledAt,
-  getScheduledMessageActions,
   getSchedulePresets,
   getScheduleTimeBounds,
   getScheduleTimeError,
@@ -97,35 +96,6 @@ describe('scheduled message utils', () => {
         at(29, 13),
         new Date(2026, 10, 2, 9, 0),
       ]);
-    });
-  });
-
-  describe('actions', () => {
-    it('offers every action for a pending message, without edit when it cannot open', () => {
-      const pending = generateScheduledMessage();
-
-      expect(getScheduledMessageActions(pending, true)).toEqual([
-        'edit',
-        'reschedule',
-        'send_now',
-        'delete',
-      ]);
-      expect(getScheduledMessageActions(pending, false)).not.toContain('edit');
-    });
-
-    it('offers nothing while the message is being sent', () => {
-      expect(
-        getScheduledMessageActions(generateScheduledMessage({ status: 'sending' }), true),
-      ).toEqual([]);
-    });
-
-    it('offers copy and delete for a message whose channel was deleted', () => {
-      const failed = generateScheduledMessage({
-        failure_reason: SCHEDULED_MESSAGE_FAILURE_REASON.ChannelDeleted,
-        status: 'failed',
-      });
-
-      expect(getScheduledMessageActions(failed, true)).toEqual(['copy', 'delete']);
     });
   });
 
