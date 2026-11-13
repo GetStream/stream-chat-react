@@ -2847,8 +2847,6 @@ export const App = ({ children }: { children: React.ReactNode }) => (
 
 The props passed to `MessageUI` still override `MessageContext` for the bubble's content.
 
----
-
 ## 13. Message composer
 
 ### `overrideSubmitHandler` is removed

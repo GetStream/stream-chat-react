@@ -2,6 +2,7 @@ import {
   type ChangeEvent,
   type FormEvent,
   type KeyboardEvent,
+  useEffect,
   useRef,
   useState,
 } from 'react';
@@ -19,7 +20,12 @@ import {
   TextInput,
   useChatContext,
 } from 'stream-chat-react';
+import { LANGUAGE_NAMES } from 'stream-chat';
 
+import {
+  SearchableSelect,
+  type SearchableSelectOption,
+} from '../AppSettings/SearchableSelect';
 import { type ProfileUser, toProfileUser } from './useOwnUser';
 
 /**
@@ -183,6 +189,90 @@ const FieldRow = ({ label, onRemove, onSave, placeholder, value }: FieldRowProps
         </div>
       )}
       {!editing && error && <div className='app__user-profile__error'>{error}</div>}
+    </div>
+  );
+};
+
+const languageOptions: SearchableSelectOption<string>[] = [
+  { label: 'Not set', value: '' },
+  ...Object.entries(LANGUAGE_NAMES)
+    .map(([code, name]) => ({ label: `${name} (${code})`, value: code }))
+    .sort((a, b) => a.label.localeCompare(b.label)),
+];
+
+const languageLabel = (code: string) =>
+  languageOptions.find((option) => option.value === code)?.label ?? code;
+
+/**
+ * `user.language`: the language the API auto-translates messages and polls into for this user, and
+ * the one the SDK shows (`useTranslationContext().userLanguage`). Not the SDK's UI language, which
+ * is set in the app settings. Shown like the Name row; the pencil opens a searchable picker, and
+ * picking only changes the draft: the dialog's footer saves it.
+ */
+const LanguageRow = ({
+  disabled,
+  draft,
+  onDraftChange,
+  value,
+}: {
+  disabled: boolean;
+  draft: string;
+  onDraftChange: (language: string) => void;
+  value: string;
+}) => {
+  const [editing, setEditing] = useState(false);
+
+  return (
+    <div className='app__user-profile__field'>
+      <div className='app__user-profile__field-label'>Language</div>
+      <div className='app__user-profile__field-value-row'>
+        {editing ? (
+          <div className='app__user-profile__field-value'>
+            <SearchableSelect
+              onChange={onDraftChange}
+              options={languageOptions}
+              searchPlaceholder='Search languages'
+              value={draft}
+            />
+          </div>
+        ) : (
+          <div className='app__user-profile__field-value' title={languageLabel(value)}>
+            {value ? (
+              languageLabel(value)
+            ) : (
+              <span className='app__user-profile__field-empty'>Not set</span>
+            )}
+          </div>
+        )}
+        {editing ? (
+          <Button
+            appearance='ghost'
+            aria-label='Cancel editing Language'
+            circular
+            disabled={disabled}
+            onClick={() => {
+              onDraftChange(value);
+              setEditing(false);
+            }}
+            size='sm'
+            variant='secondary'
+          >
+            <IconXmark />
+          </Button>
+        ) : (
+          <Button
+            appearance='ghost'
+            aria-label='Edit Language'
+            circular
+            disabled={disabled}
+            onClick={() => setEditing(true)}
+            size='sm'
+            variant='secondary'
+          >
+            <IconEdit />
+          </Button>
+        )}
+      </div>
     </div>
   );
 };
@@ -364,6 +454,14 @@ export const UserDetailDialog = ({
   user: ProfileUser;
 }) => {
   const { client } = useChatContext();
+  const savedLanguage = user.language ?? '';
+  const [languageDraft, setLanguageDraft] = useState(savedLanguage);
+  const [saving, setSaving] = useState(false);
+  const [saveError, setSaveError] = useState<string>();
+  const languageChanged = languageDraft !== savedLanguage;
+
+  // a language saved elsewhere (another tab, device) replaces the unsaved choice
+  useEffect(() => setLanguageDraft(savedLanguage), [savedLanguage]);
 
   const update = async ({
     set,
@@ -377,6 +475,19 @@ export const UserDetailDialog = ({
     });
     const updated = users[user.id];
     if (updated) onUserChange(toProfileUser(updated));
+  };
+
+  // "Not set" saves an empty string: `unset` leaves the language in place
+  const saveLanguage = async () => {
+    setSaving(true);
+    setSaveError(undefined);
+    try {
+      await update({ set: { language: languageDraft } });
+    } catch (e) {
+      setSaveError(e instanceof Error ? e.message : String(e));
+    } finally {
+      setSaving(false);
+    }
   };
 
   // by name: the server returns custom data in no stable order, so rows would move on every save
@@ -405,6 +516,14 @@ export const UserDetailDialog = ({
             placeholder='Display name'
             value={user.name ?? ''}
           />
+          <LanguageRow
+            disabled={saving}
+            draft={languageDraft}
+            // remounts once a language is saved, which closes the picker
+            key={savedLanguage}
+            onDraftChange={setLanguageDraft}
+            value={savedLanguage}
+          />
           <FieldRow label='Role' value={user.role ?? ''} />
         </div>
 
@@ -432,6 +551,17 @@ export const UserDetailDialog = ({
           onAdd={(key, value) => update({ set: { [key]: value } })}
         />
       </Prompt.Body>
+      <Prompt.Footer className='app__user-profile__footer'>
+        {saveError && <div className='app__user-profile__error'>{saveError}</div>}
+        <Prompt.FooterControls>
+          <Prompt.FooterControlsButtonPrimary
+            disabled={saving || !languageChanged}
+            onClick={() => void saveLanguage()}
+          >
+            Save
+          </Prompt.FooterControlsButtonPrimary>
+        </Prompt.FooterControls>
+      </Prompt.Footer>
     </Prompt.Root>
   );
 };

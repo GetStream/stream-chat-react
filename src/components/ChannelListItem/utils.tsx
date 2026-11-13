@@ -7,6 +7,7 @@ import type { ChatContextValue } from '../../context';
 import { getTranslatedMessageText } from '../../context/MessageTranslationViewContext';
 import type { TranslationContextValue } from '../../context/TranslationContext';
 import { isMessageDeleted } from '../Message/utils';
+import { getPollTextTranslation } from '../Poll/utils/translations';
 import {
   previewRemarkPlugins,
   stripMarkdownToText,
@@ -97,6 +98,9 @@ const getLatestMessagePreviewParts = (
   }
 
   if (poll) {
+    // Previews have no original/translated toggle: they always show the user's language.
+    const pollName = getPollTextTranslation(poll.name_i18n, userLanguage) ?? poll.name;
+
     if (!poll.vote_count) {
       const createdBy =
         poll.created_by?.id === channel.getClient().userID
@@ -106,13 +110,13 @@ const getLatestMessagePreviewParts = (
         isUserMessageText: false,
         kind: 'poll',
         latestMessage,
-        pollName: poll.name,
+        pollName,
         text: t(
           'channelListItem.created.text',
           '📊 {{createdBy}} created: {{ pollName}}',
           {
             createdBy,
-            pollName: poll.name,
+            pollName,
           },
         ),
       };
@@ -128,12 +132,13 @@ const getLatestMessagePreviewParts = (
           isUserMessageText: false,
           kind: 'poll',
           latestMessage,
-          pollName: poll.name,
+          pollName,
           text: t(
             'channelListItem.voted.text',
             '📊 {{votedBy}} voted: {{pollOptionText}}',
             {
-              pollOptionText: option.text,
+              pollOptionText:
+                getPollTextTranslation(option.text_i18n, userLanguage) ?? option.text,
               votedBy:
                 latestVote?.user?.id === channel.getClient().userID
                   ? t('common.you.label', 'You')

@@ -68,7 +68,13 @@ const MessageWithContext = (props: MessageWithContextProps) => {
   const { getTranslationView, setTranslationView: setTranslationViewInContext } =
     useMessageTranslationViewContext();
 
-  const translationView = getTranslationView(message.id, !!message.i18n);
+  // The flag only picks the default view. Poll translations can arrive later through `poll.updated`
+  // and live in `client.polls`, not `message.poll`, so every poll message defaults to 'translated'.
+  // Without a translation, each reader falls back to the original.
+  const translationView = getTranslationView(
+    message.id,
+    !!message.i18n || !!message.poll_id,
+  );
   const setTranslationView = useCallback(
     (view: 'original' | 'translated') => setTranslationViewInContext(message.id, view),
     [message.id, setTranslationViewInContext],
