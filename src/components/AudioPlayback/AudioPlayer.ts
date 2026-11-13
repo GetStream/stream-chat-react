@@ -77,6 +77,9 @@ export const defaultRegisterAudioPlayerError = ({
 export const elementIsPlaying = (audioElement: HTMLAudioElement | null) =>
   audioElement && !(audioElement.paused || audioElement.ended);
 
+/** Whether `element.play()` rejected because something interrupted the start (`AbortError`). */
+const isPlayInterrupted = (error: unknown) => (error as Error)?.name === 'AbortError';
+
 export type SeekFn = (params: {
   clientX: number;
   currentTarget: HTMLDivElement;
@@ -375,11 +378,33 @@ export class AudioPlayer {
     }
   };
 
+  /** Whether a `play()` call is waiting for the element to start. */
+  private get isStartingPlayback() {
+    return this.playTimeout !== undefined;
+  }
+
+  /**
+   * Loads `src` into the element this player holds, at the position reached so far, and resumes
+   * playback if it was playing or starting: the same audio continues from its new address.
+   */
+  private switchElementSource = (elementRef: HTMLAudioElement, src: string) => {
+    const resumes = !!elementIsPlaying(elementRef) || this.isStartingPlayback;
+    if (elementRef.currentTime > 0) this.setSecondsElapsed(elementRef.currentTime);
+    elementRef.src = src;
+    this.restoreSavedPosition(elementRef);
+    if (resumes) void this.play();
+  };
+
   setDescriptor(descriptor: AudioPlayerDescriptor) {
     const previousSrc = this.src;
     this._data = { ...this._data, ...descriptor };
     if (descriptor.src !== previousSrc && this.elementRef) {
-      this.elementRef.src = descriptor.src;
+      this.switchElementSource(this.elementRef, descriptor.src);
+      // The same audio keeps the duration known so far; the element's `loadedmetadata` refreshes it.
+      if (descriptor.durationSeconds != null) {
+        this.setDurationSeconds(descriptor.durationSeconds);
+      }
+      return;
     }
     if (descriptor.src && descriptor.src !== previousSrc) {
       this.clearMetadataProbe();
@@ -498,6 +523,8 @@ export class AudioPlayer {
     elementRef.playbackRate = currentPlaybackRate ?? this.currentPlaybackRate;
 
     this.setPlaybackStartSafetyTimeout();
+    const startTimeout = this.playTimeout;
+    const startSrc = this.src;
 
     try {
       await elementRef.play();
@@ -508,10 +535,15 @@ export class AudioPlayer {
       });
       this._pool.setActiveAudioPlayer(this);
     } catch (e) {
-      this.registerError({ error: e as Error });
-      this.state.partialNext({ isPlaying: false });
+      // A start interrupted by a new source is not a failure: the switch resumes playback itself.
+      const replacedBySourceSwitch = isPlayInterrupted(e) && this.src !== startSrc;
+      if (!replacedBySourceSwitch) {
+        this.registerError({ error: e as Error });
+        this.state.partialNext({ isPlaying: false });
+      }
     } finally {
-      this.clearPlaybackStartSafetyTimeout();
+      // A later `play()` may have armed its own safety timeout, which stays.
+      if (this.playTimeout === startTimeout) this.clearPlaybackStartSafetyTimeout();
     }
   };
 

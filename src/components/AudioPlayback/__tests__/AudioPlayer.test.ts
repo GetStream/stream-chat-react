@@ -254,6 +254,169 @@ describe('AudioPlayer', () => {
     expect(player.currentPlaybackRate).toBe(1.5);
   });
 
+  describe('setDescriptor with a new src while holding the element', () => {
+    // Loading a new source pauses a real element, which jsdom does not do.
+    const pauseOnSourceChange = () => {
+      let paused = true;
+      vi.spyOn(HTMLMediaElement.prototype, 'paused', 'get').mockImplementation(
+        () => paused,
+      );
+      vi.spyOn(HTMLMediaElement.prototype, 'src', 'set').mockImplementation(function (
+        this: HTMLMediaElement,
+        value: string,
+      ) {
+        this.setAttribute('src', value);
+        paused = true;
+      });
+      return { setPaused: (value: boolean) => (paused = value) };
+    };
+
+    const SWITCHED_POSITION = 12;
+
+    const makePlayingPlayer = (overrides: Partial<AudioPlayerOptions> = {}) => {
+      vi.spyOn(HTMLMediaElement.prototype, 'canPlayType').mockReturnValue('maybe');
+      const { setPaused } = pauseOnSourceChange();
+      const player = makePlayer({ src: 'blob:local', ...overrides });
+      const element = player['ensureElementRef']();
+      setPaused(false);
+      element.currentTime = SWITCHED_POSITION;
+      player.state.partialNext({
+        isPlaying: true,
+        secondsElapsed: SWITCHED_POSITION - 1,
+      });
+      return { element, player };
+    };
+
+    it('continues a playing player from the element position on the new source', () => {
+      const { element, player } = makePlayingPlayer();
+      const playSpy = vi.spyOn(element, 'play');
+
+      player.setDescriptor({ id: 'id-1', src: SRC });
+      element.currentTime = 0;
+      element.dispatchEvent(new Event('loadedmetadata'));
+
+      expect(element.getAttribute('src')).toBe(SRC);
+      expect(element.currentTime).toBe(SWITCHED_POSITION);
+      expect(playSpy).toHaveBeenCalledTimes(1);
+    });
+
+    it('keeps the progress while the new source loads', () => {
+      const { element, player } = makePlayingPlayer();
+
+      player.setDescriptor({ id: 'id-1', src: SRC });
+      element.currentTime = 0;
+      element.dispatchEvent(new Event('timeupdate'));
+
+      expect(player.secondsElapsed).toBe(SWITCHED_POSITION);
+    });
+
+    it('keeps the known duration when the new descriptor has none', () => {
+      const { player } = makePlayingPlayer({ durationSeconds: 42 });
+
+      player.setDescriptor({ id: 'id-1', src: SRC });
+
+      expect(player.durationSeconds).toBe(42);
+    });
+
+    it('resumes a start that the switch interrupted, without reporting an error', async () => {
+      vi.spyOn(HTMLMediaElement.prototype, 'canPlayType').mockReturnValue('maybe');
+      pauseOnSourceChange();
+      const { onError, plugin } = makeErrorPlugin();
+      const player = makePlayer({ plugins: [plugin], src: 'blob:local' });
+      const element = player['ensureElementRef']();
+      let rejectFirstStart: (error: Error) => void = () => {};
+      const playSpy = vi
+        .spyOn(element, 'play')
+        .mockImplementationOnce(
+          () => new Promise<void>((_, reject) => (rejectFirstStart = reject)),
+        );
+      const firstStart = player.play();
+
+      player.setDescriptor({ id: 'id-1', src: SRC });
+      rejectFirstStart(new DOMException('interrupted', 'AbortError'));
+      await firstStart;
+
+      expect(playSpy).toHaveBeenCalledTimes(2);
+      expect(onError).not.toHaveBeenCalled();
+      await vi.waitFor(() => expect(player.isPlaying).toBe(true));
+    });
+
+    it('keeps the safety timeout of the start that resumes playback', async () => {
+      vi.spyOn(HTMLMediaElement.prototype, 'canPlayType').mockReturnValue('maybe');
+      pauseOnSourceChange();
+      vi.useFakeTimers({ now: Date.now() });
+      const player = makePlayer({ src: 'blob:local' });
+      const element = player['ensureElementRef']();
+      let rejectFirstStart: (error: Error) => void = () => {};
+      vi.spyOn(element, 'play')
+        .mockImplementationOnce(
+          () => new Promise<void>((_, reject) => (rejectFirstStart = reject)),
+        )
+        // The resumed start never settles.
+        .mockImplementationOnce(() => new Promise<void>(() => {}));
+      const pauseSpy = vi.spyOn(element, 'pause');
+      const firstStart = player.play();
+
+      player.setDescriptor({ id: 'id-1', src: SRC });
+      rejectFirstStart(new DOMException('interrupted', 'AbortError'));
+      await firstStart;
+      vi.advanceTimersByTime(2000);
+
+      expect(pauseSpy).toHaveBeenCalledTimes(1);
+      expect(player.isPlaying).toBe(false);
+      vi.useRealTimers();
+    });
+
+    it('reports a start that fails for another reason during a source switch', async () => {
+      vi.spyOn(HTMLMediaElement.prototype, 'canPlayType').mockReturnValue('maybe');
+      pauseOnSourceChange();
+      const { onError, plugin } = makeErrorPlugin();
+      const player = makePlayer({ plugins: [plugin], src: 'blob:local' });
+      const element = player['ensureElementRef']();
+      let rejectFirstStart: (error: Error) => void = () => {};
+      vi.spyOn(element, 'play').mockImplementationOnce(
+        () => new Promise<void>((_, reject) => (rejectFirstStart = reject)),
+      );
+      const firstStart = player.play();
+
+      player.setDescriptor({ id: 'id-1', src: SRC });
+      rejectFirstStart(new DOMException('blocked', 'NotAllowedError'));
+      await firstStart;
+
+      expect(onError).toHaveBeenCalled();
+    });
+
+    it('reports a start interrupted without a source switch', async () => {
+      vi.spyOn(HTMLMediaElement.prototype, 'canPlayType').mockReturnValue('maybe');
+      const { onError, plugin } = makeErrorPlugin();
+      const player = makePlayer({ plugins: [plugin] });
+      const element = player['ensureElementRef']();
+      vi.spyOn(element, 'play').mockRejectedValueOnce(
+        new DOMException('interrupted', 'AbortError'),
+      );
+
+      await player.play();
+
+      expect(onError).toHaveBeenCalled();
+      expect(player.isPlaying).toBe(false);
+    });
+
+    it('keeps the position of a paused player without starting playback', () => {
+      pauseOnSourceChange();
+      const player = makePlayer({ src: 'blob:local' });
+      const element = player['ensureElementRef']();
+      player.state.partialNext({ secondsElapsed: SWITCHED_POSITION });
+      const playSpy = vi.spyOn(element, 'play');
+
+      player.setDescriptor({ id: 'id-1', src: SRC });
+      element.dispatchEvent(new Event('loadedmetadata'));
+
+      expect(element.getAttribute('src')).toBe(SRC);
+      expect(element.currentTime).toBe(SWITCHED_POSITION);
+      expect(playSpy).not.toHaveBeenCalled();
+    });
+  });
+
   it('stop() pauses, resets secondsElapsed and currentTime', () => {
     const player = makePlayer();
     player['ensureElementRef']();
