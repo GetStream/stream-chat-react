@@ -11,6 +11,8 @@ import { defaultMessageComposerPreviewSet } from './MessageComposerPreviews.defa
 export type DefaultMessageComposerPreviewType =
   | 'attachments'
   | 'editedMessage'
+  | 'editedScheduledMessage'
+  | 'failedScheduledMessage'
   | 'linkPreviews'
   | 'location'
   | 'quotedMessage'

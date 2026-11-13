@@ -95,3 +95,16 @@ export const IconCollapse = createIcon(
     strokeWidth='1.5'
   />,
 );
+
+/** A calendar page, for the event invite attachment (EventInvite/). */
+export const IconCalendar = createIcon(
+  'IconCalendar',
+  <path
+    d='M6.25 2.5V5M13.75 2.5V5M2.5 8.125H17.5M3.75 4.375H16.25C16.5952 4.375 16.875 4.65482 16.875 5V16.25C16.875 16.5952 16.5952 16.875 16.25 16.875H3.75C3.40482 16.875 3.125 16.5952 3.125 16.25V5C3.125 4.65482 3.40482 4.375 3.75 4.375Z'
+    fill='none'
+    stroke='currentColor'
+    strokeLinecap='round'
+    strokeLinejoin='round'
+    strokeWidth='1.5'
+  />,
+);

@@ -2,6 +2,7 @@ import type {
   ChannelConfigWithInfo,
   ChannelResponse,
   GetDraftResponse,
+  ScheduledMessageResponse,
   StreamChat,
   UserResponse,
 } from 'stream-chat';
@@ -114,3 +115,9 @@ export const initClientWithChannels = async ({
 
   return { channels, client };
 };
+
+export const hydrateScheduledMessages = (
+  client: StreamChat,
+  cid: string,
+  scheduledMessages: ScheduledMessageResponse[] = [],
+) => client.scheduledMessages.hydrateChannelState(cid, scheduledMessages);

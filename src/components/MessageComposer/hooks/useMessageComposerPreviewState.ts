@@ -14,10 +14,14 @@ import { useMessageComposerController } from './useMessageComposerController';
 
 const messageComposerStateSelector = ({
   editedMessage,
+  editedScheduledMessage,
+  failedScheduledMessage,
   pollId,
   quotedMessage,
 }: MessageComposerState) => ({
   editedMessage,
+  editedScheduledMessage,
+  failedScheduledMessage,
   pollId,
   quotedMessage,
 });
@@ -47,6 +51,10 @@ export type MessageComposerPreviewVisibilityFilterParams = {
   /** The composer's custom data (`messageComposer.customDataManager`). */
   customData: CustomDataManagerState['custom'];
   editedMessage: MessageComposerState['editedMessage'];
+  /** The scheduled message being edited. */
+  editedScheduledMessage: MessageComposerState['editedScheduledMessage'];
+  /** The failed scheduled message loaded to be scheduled or sent again. */
+  failedScheduledMessage: MessageComposerState['failedScheduledMessage'];
   /** Link previews that are loading or loaded. */
   linkPreviews: LinkPreview[];
   location: LocationComposerState['location'];
@@ -65,10 +73,13 @@ export type MessageComposerPreviewVisibilityFilterParams = {
 export const useMessageComposerPreviewState =
   (): MessageComposerPreviewVisibilityFilterParams => {
     const messageComposer = useMessageComposerController();
-    const { editedMessage, pollId, quotedMessage } = useStateStore(
-      messageComposer.state,
-      messageComposerStateSelector,
-    );
+    const {
+      editedMessage,
+      editedScheduledMessage,
+      failedScheduledMessage,
+      pollId,
+      quotedMessage,
+    } = useStateStore(messageComposer.state, messageComposerStateSelector);
     const { attachments } = useStateStore(
       messageComposer.attachmentManager.state,
       attachmentManagerStateSelector,
@@ -101,6 +112,8 @@ export const useMessageComposerPreviewState =
         attachments,
         customData,
         editedMessage,
+        editedScheduledMessage,
+        failedScheduledMessage,
         linkPreviews,
         location,
         pollId,
@@ -110,6 +123,8 @@ export const useMessageComposerPreviewState =
         attachments,
         customData,
         editedMessage,
+        editedScheduledMessage,
+        failedScheduledMessage,
         linkPreviews,
         location,
         pollId,

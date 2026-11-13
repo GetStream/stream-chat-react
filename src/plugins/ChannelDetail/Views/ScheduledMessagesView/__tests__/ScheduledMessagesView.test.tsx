@@ -1,0 +1,153 @@
+import React from 'react';
+import { cleanup, fireEvent, render, screen } from '@testing-library/react';
+import type { ScheduledMessageResponse } from 'stream-chat';
+
+import { axe } from '../../../../../../axe-helper';
+import {
+  ChatProvider,
+  DialogManagerProvider,
+  ModalContextProvider,
+  TranslationProvider,
+} from '../../../../../context';
+import { WithComponents } from '../../../../../context/WithComponents';
+import { Streami18n } from '../../../../../i18n';
+import {
+  generateChannel,
+  generateScheduledMessage,
+  generateUser,
+  hydrateScheduledMessages,
+  initClientWithChannels,
+  mockChatContext,
+} from '../../../../../mock-builders';
+import { defaultChannelDetailSections } from '../../../ChannelDetail';
+import { ChannelDetailProvider } from '../../../ChannelDetailContext';
+import { ScheduledMessagesView } from '../ScheduledMessagesView';
+
+const cid = 'messaging:general';
+
+const isInChannel =
+  (channelCid: string) =>
+  ({ cid: scheduledMessageCid }: ScheduledMessageResponse) =>
+    scheduledMessageCid === channelCid;
+
+const renderView = async (
+  scheduledMessages: ScheduledMessageResponse[] = [],
+  components: Parameters<typeof WithComponents>[0]['overrides'] = {},
+) => {
+  const {
+    channels: [channel],
+    client,
+  } = await initClientWithChannels({
+    channelsData: [generateChannel({ channel: { id: 'general', type: 'messaging' } })],
+    customUser: generateUser({ id: 'user-id' }),
+  });
+  const scheduledMessageCids = new Set([cid, ...scheduledMessages.map(({ cid }) => cid)]);
+  scheduledMessageCids.forEach((scheduledMessageCid) =>
+    hydrateScheduledMessages(
+      client,
+      scheduledMessageCid,
+      scheduledMessages.filter(isInChannel(scheduledMessageCid)),
+    ),
+  );
+
+  const close = vi.fn();
+  const translators = await new Streami18n({ language: 'en' }).init();
+
+  const view = render(
+    <WithComponents overrides={components}>
+      <ChatProvider value={mockChatContext({ client })}>
+        <TranslationProvider value={{ ...translators, userLanguage: 'en' }}>
+          <ModalContextProvider value={{ close }}>
+            <DialogManagerProvider id='scheduled-messages-view-test-dialog-manager'>
+              <ChannelDetailProvider channel={channel}>
+                <ScheduledMessagesView />
+              </ChannelDetailProvider>
+            </DialogManagerProvider>
+          </ModalContextProvider>
+        </TranslationProvider>
+      </ChatProvider>
+    </WithComponents>,
+  );
+
+  return { ...view, channel, close };
+};
+
+describe('ScheduledMessagesView', () => {
+  afterEach(() => {
+    cleanup();
+  });
+
+  it('is one of the default channel detail sections', () => {
+    const sectionIds = defaultChannelDetailSections.map(({ id }) => id);
+
+    expect(sectionIds).toContain('scheduled-messages');
+    expect(sectionIds.indexOf('scheduled-messages')).toBe(
+      sectionIds.indexOf('pinned-messages') + 1,
+    );
+  });
+
+  it('lists the scheduled messages of the channel', async () => {
+    await renderView([
+      generateScheduledMessage({
+        cid,
+        message: { custom: {}, text: 'Launch moved to Monday' },
+      }),
+      generateScheduledMessage({
+        cid: 'messaging:random',
+        message: { custom: {}, text: 'Elsewhere' },
+      }),
+    ]);
+
+    expect(screen.getByText('Scheduled messages')).toBeInTheDocument();
+    expect(screen.getByText('Launch moved to Monday')).toBeInTheDocument();
+    expect(screen.queryByText('Elsewhere')).not.toBeInTheDocument();
+  });
+
+  it('shows the empty state when nothing is scheduled', async () => {
+    await renderView();
+
+    expect(screen.getByText('No scheduled messages')).toBeInTheDocument();
+    expect(screen.queryByRole('searchbox', { name: 'Search' })).not.toBeInTheDocument();
+  });
+
+  it('filters the list by the search field', async () => {
+    await renderView([
+      generateScheduledMessage({
+        cid,
+        message: { custom: {}, text: 'Launch moved to Monday' },
+      }),
+      generateScheduledMessage({ cid, message: { custom: {}, text: 'Lunch at noon' } }),
+    ]);
+
+    fireEvent.change(screen.getByRole('searchbox', { name: 'Search' }), {
+      target: { value: 'lunch' },
+    });
+
+    expect(screen.getByText('Lunch at noon')).toBeInTheDocument();
+    expect(screen.queryByText('Launch moved to Monday')).not.toBeInTheDocument();
+  });
+
+  it('renders the list through the ScheduledMessageList slot', async () => {
+    const CustomList = ({ cid: listCid }: { cid: string }) => (
+      <div data-testid='custom-scheduled-message-list'>{listCid}</div>
+    );
+
+    await renderView([], { ScheduledMessageList: CustomList });
+
+    expect(screen.getByTestId('custom-scheduled-message-list')).toHaveTextContent(cid);
+  });
+
+  it('closes the channel detail modal from the header', async () => {
+    const { close } = await renderView();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Close' }));
+
+    expect(close).toHaveBeenCalledTimes(1);
+  });
+
+  it('has no accessibility violations', async () => {
+    const { container } = await renderView([generateScheduledMessage({ cid })]);
+
+    expect(await axe(container)).toHaveNoViolations();
+  });
+});

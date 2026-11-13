@@ -20,13 +20,18 @@ import { AIStates } from 'stream-chat';
 import type { AIState, MessageComposerState, TextComposerState } from 'stream-chat';
 import { useStateStore } from '../../store';
 import { useInertWhenHidden } from '../Accessibility';
+import { useCanScheduleMessage } from '../ScheduledMessages/hooks/useCanScheduleMessage';
+import { ScheduleMessageButton as DefaultScheduleMessageButton } from '../ScheduledMessages/ScheduleMessageButton';
 
 // Typed as `AIState[]` because an inferred array of the literal-typed `AIStates` members would
 // reject the wide `AIState` that `useAIState` returns.
 const STOPPABLE_AI_STATES: readonly AIState[] = [AIStates.Thinking, AIStates.Generating];
 
-const messageComposerStateSelector = ({ editedMessage }: MessageComposerState) => ({
+const messageComposerStateSelector = ({
   editedMessage,
+  editedScheduledMessage,
+}: MessageComposerState) => ({
+  isEditing: !!editedMessage || !!editedScheduledMessage,
 });
 
 const textComposerStateSelector = ({ command, text }: TextComposerState) => ({
@@ -41,11 +46,13 @@ export const MessageComposerActions = () => {
   const messageComposer = useMessageComposerController();
   const {
     CooldownTimer = DefaultCooldownTimer,
+    ScheduleMessageButton: ScheduleMessageButtonOverride,
     SendButton,
     StopAIGenerationButton: StopAIGenerationButtonOverride,
   } = useComponentContext();
 
-  const { editedMessage } = useStateStore(
+  const canScheduleMessage = useCanScheduleMessage();
+  const { isEditing } = useStateStore(
     messageComposer.state,
     messageComposerStateSelector,
   );
@@ -75,6 +82,19 @@ export const MessageComposerActions = () => {
   // Accounts for an iOS requirement, see https://bugs.webkit.org/show_bug.cgi?id=252303
   const recordingEnabled = !!(recordingController.recorder && navigator.mediaDevices);
 
+  const ScheduleMessageButton =
+    ScheduleMessageButtonOverride === undefined
+      ? DefaultScheduleMessageButton
+      : ScheduleMessageButtonOverride;
+
+  const sendButton = SendButton ? (
+    <SendButton sendMessage={submitMessageFn} />
+  ) : (
+    <DefaultSendButton sendMessage={submitMessageFn}>
+      {isEditing || command ? <IconCheckmark /> : <IconSend />}
+    </DefaultSendButton>
+  );
+
   // One control fills the slot, first match wins. While the AI is answering, stopping it is the
   // only useful action, so the stop button outranks everything else, `hideSendButton` included.
   let content: React.ReactNode;
@@ -84,16 +104,17 @@ export const MessageComposerActions = () => {
     return null;
   } else if (isCooldownActive) {
     content = <CooldownTimer />;
-  } else if (contentIsEmpty && !editedMessage && !command && recordingEnabled) {
+  } else if (contentIsEmpty && !isEditing && !command && recordingEnabled) {
     content = <AudioRecordingButtonWithNotification />;
-  } else if (SendButton) {
-    content = <SendButton sendMessage={submitMessageFn} />;
-  } else {
+  } else if (canScheduleMessage && ScheduleMessageButton) {
     content = (
-      <DefaultSendButton sendMessage={submitMessageFn}>
-        {editedMessage || command ? <IconCheckmark /> : <IconSend />}
-      </DefaultSendButton>
+      <div className='str-chat__split-send-button'>
+        {sendButton}
+        <ScheduleMessageButton />
+      </div>
     );
+  } else {
+    content = sendButton;
   }
 
   return <div className='str-chat__message-composer__actions'>{content}</div>;
