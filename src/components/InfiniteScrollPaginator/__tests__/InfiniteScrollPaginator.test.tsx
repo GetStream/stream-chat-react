@@ -208,6 +208,14 @@ describe('InfiniteScrollPaginator', () => {
       expect(listenToScroll).toHaveBeenCalledTimes(1);
     });
 
+    it('observes the content as well as the root', () => {
+      const { root } = renderPaginator();
+
+      const observer = ResizeObserverMock.observers.at(-1);
+      expect(observer?.observe).toHaveBeenCalledWith(root);
+      expect(observer?.observe).toHaveBeenCalledWith(root.firstElementChild);
+    });
+
     it('drops a pending check when the observer is replaced', () => {
       const { listenToScroll, replaceThreshold, root } = renderPaginator();
       root.scrollTop = 0;

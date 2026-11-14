@@ -135,6 +135,18 @@
   box-shadow: none;
 }
 
+// Rendered while the field is empty too, so the field keeps its height; hidden, it can be neither
+// focused nor clicked
+.str-chat__form-text-input__clear-button--hidden {
+  visibility: hidden;
+}
+
+// A field with its own clear button drops the native one, which the keyboard cannot reach
+.str-chat__form-text-input__control-row:has(.str-chat__form-text-input__trailing)
+  .str-chat__form-text-input__input::-webkit-search-cancel-button {
+  display: none;
+}
+
 .str-chat__form-text-input.str-chat__form-text-input--disabled
   .str-chat__form-text-input__input {
   color: var(--str-chat__input-text-placeholder);

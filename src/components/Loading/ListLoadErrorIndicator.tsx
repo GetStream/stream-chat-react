@@ -16,7 +16,7 @@ export type ListLoadErrorIndicatorProps = {
 
 export type DefaultListLoadErrorIndicatorProps = ListLoadErrorIndicatorProps & {
   /** Which list failed to load; picks the explanation. */
-  listType: 'channel' | 'thread';
+  listType: 'channel' | 'scheduled-message' | 'thread';
 };
 
 /**
@@ -34,7 +34,12 @@ export const ListLoadErrorIndicator = ({
   const text =
     listType === 'channel'
       ? t('channelList.loadError.text', "Couldn't load conversations")
-      : t('threadList.loadError.text', "Couldn't load threads");
+      : listType === 'scheduled-message'
+        ? t(
+            'scheduledMessages.couldntLoadScheduledMessages',
+            "Couldn't load scheduled messages",
+          )
+        : t('threadList.loadError.text', "Couldn't load threads");
 
   return (
     <div

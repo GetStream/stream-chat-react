@@ -266,12 +266,15 @@ describe('Streami18n - the calendar keys that carry English words', () => {
   // dayjs takes the calendar wording in the format string, so a few `timestamp.*` values embed
   // English day words. A per-key `calendarFormats` replaces the locale's calendar, so
   // `dayjsLocaleConfigForLanguage` cannot translate them; only overriding the key can. The
-  // migration guide names these four, and this keeps that list honest.
+  // migration guide names these eight, and this keeps that list honest.
   const KEYS_WITH_ENGLISH_WORDS = [
     'timestamp.ChannelDetailPinnedMessageTimestamp',
     'timestamp.ChannelPreviewTimestamp',
     'timestamp.DateSeparator',
     'timestamp.ReminderNotification',
+    'timestamp.SchedulePreset',
+    'timestamp.ScheduledMessageConfirmation',
+    'timestamp.ScheduledMessageSendTime',
   ];
 
   it('is exactly the set the migration guide documents', () => {
