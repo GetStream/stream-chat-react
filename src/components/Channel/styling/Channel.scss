@@ -75,6 +75,8 @@
       display: flex;
       width: 100%;
       column-gap: var(--str-chat__spacing-sm);
+      // The same inline padding as .str-chat__message.
+      padding-inline: var(--str-chat__message-composer-padding);
 
       .str-chat__loading-channel-message-avatar {
         flex-shrink: 0;

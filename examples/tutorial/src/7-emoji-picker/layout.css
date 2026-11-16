@@ -49,14 +49,16 @@ body {
   display: flex;
 }
 
-.str-chat__channel-list {
-  width: 30%;
+.str-chat {
+  --str-chat__channel-list-width: 30%;
 }
 .str-chat__channel {
   width: 100%;
 }
-.str-chat__thread {
-  width: 45%;
+/* A thread opened beside the channel takes 40% of the width. From Step 4 on, a thread opens
+   in a slot instead and fills it, so this rule doesn't apply there. */
+.str-chat__chat-view__channels > .str-chat__thread {
+  flex: 0 0 40%;
 }
 
 /* The two channel slots share the width beside the channel list. When they are too narrow for

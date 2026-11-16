@@ -7,3 +7,4 @@ export * from './PollOptionList';
 export * from './PollOptionSelector';
 export * from './PollVote';
 export * from './hooks';
+export * from './types';

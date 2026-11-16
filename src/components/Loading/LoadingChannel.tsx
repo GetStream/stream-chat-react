@@ -39,12 +39,17 @@ const LoadingMessageInput = () => (
   </div>
 );
 
+// Same start / data / end columns as ChannelHeader, so the header grid places the placeholders where
+// the title and avatar will appear.
 const LoadingChannelHeader = () => (
   <div className='str-chat__channel-header str-chat__channel-header--loading'>
+    <div className='str-chat__channel-header__start'></div>
     <div className='str-chat__channel-header__data str-chat__channel-header__data--loading'>
       <div className='str-chat__loading-channel-header-name'></div>
     </div>
-    <div className='str-chat__loading-channel-header-avatar'></div>
+    <div className='str-chat__channel-header__end'>
+      <div className='str-chat__loading-channel-header-avatar'></div>
+    </div>
   </div>
 );
 
