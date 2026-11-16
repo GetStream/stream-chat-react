@@ -6,6 +6,7 @@ import {
   useTranslationContext,
 } from '../../../../context';
 import type { PollOptionResponseData, PollState } from 'stream-chat';
+import { usePollTextTranslation } from '../../hooks';
 
 type PollStateSelectorReturnValue = {
   maxVotedOptionIds: string[];
@@ -57,6 +58,7 @@ export const PollOptionWithVotesHeader = ({
   optionOrderNumber,
 }: PollOptionWithVotesHeaderProps) => {
   const { t } = useTranslationContext();
+  const translate = usePollTextTranslation();
 
   return (
     <div className='str-chat__poll-option__header'>
@@ -66,7 +68,9 @@ export const PollOptionWithVotesHeader = ({
         })}
       </div>
       <div className='str-chat__poll-option__header__title'>
-        <div className='str-chat__poll-option__option-text'>{option.text}</div>
+        <div className='str-chat__poll-option__option-text'>
+          {translate(option.text, option.text_i18n)}
+        </div>
         <PollResultOptionVoteCounter optionId={option.id} />
       </div>
     </div>
