@@ -196,6 +196,11 @@
     overflow-wrap: anywhere;
     resize: none;
     white-space: pre-wrap;
+
+    // all: unset removes the native outline; this is the ring every other AI control shows.
+    &:focus-visible {
+      @include ai-focus-ring;
+    }
   }
 
   &__editor-actions {
