@@ -19,10 +19,10 @@ const newlyTypedValue = 'XX';
 
 const t = mockT as TranslationContextValue['t'];
 
-const renderComponent = ({ client, poll, props }: any) =>
+const renderComponent = ({ client, poll, props, userLanguage }: any) =>
   render(
     <ChatProvider value={mockChatContext({ client })}>
-      <TranslationProvider value={mockTranslationContextValue({ t })}>
+      <TranslationProvider value={mockTranslationContextValue({ t, userLanguage })}>
         <PollProvider poll={poll}>
           <SuggestPollOptionPrompt {...props} />
         </PollProvider>
@@ -68,5 +68,31 @@ describe('SuggestPollOptionPrompt', () => {
         { text: newlyTypedValue },
       );
     });
+  });
+
+  it('rejects an option whose translated text already exists', async () => {
+    const createPollOptionSpy = vi.fn();
+    const client = fromPartial<StreamChat>({ createPollOption: createPollOptionSpy });
+    const poll = new Poll({
+      client,
+      poll: generatePoll({
+        options: [{ id: 'berlin', text: 'Berlín', text_i18n: { en_text: 'Berlin' } }],
+      }),
+    });
+    const { container, findByText } = renderComponent({
+      client,
+      poll,
+      userLanguage: 'en',
+    });
+    const input = container.querySelector('input');
+
+    act(() => {
+      fireEvent.change(input, { target: { value: 'Berlin' } });
+    });
+
+    expect(await findByText('Option already exists')).toBeInTheDocument();
+    const submitButton = container.querySelector('button[type="submit"]');
+    expect(submitButton).toBeDisabled();
+    expect(createPollOptionSpy).not.toHaveBeenCalled();
   });
 });
