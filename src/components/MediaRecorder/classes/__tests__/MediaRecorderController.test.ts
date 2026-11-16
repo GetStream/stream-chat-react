@@ -565,6 +565,31 @@ describe('MediaRecorderController', () => {
       });
     });
 
+    it('renewRecordingUri leaves the URL alone without a recording', async () => {
+      const { controller } = await setUpStoppedController();
+      controller.recording.next(undefined);
+      const createCalls = vi.mocked(window.URL.createObjectURL).mock.calls.length;
+      controller.renewRecordingUri();
+      expect(window.URL.createObjectURL).toHaveBeenCalledTimes(createCalls);
+      expect(window.URL.revokeObjectURL).not.toHaveBeenCalled();
+      expect(controller.recordingUri).toBe('recording-uri');
+    });
+
+    it('renewRecordingUri leaves the URL alone when the recording has no file', async () => {
+      const { controller, recording } = await setUpStoppedController();
+      const recordingWithoutFile = {
+        ...recording,
+        localMetadata: { ...recording.localMetadata, file: undefined },
+      } as unknown as typeof recording;
+      controller.recording.next(recordingWithoutFile);
+      const createCalls = vi.mocked(window.URL.createObjectURL).mock.calls.length;
+      controller.renewRecordingUri();
+      expect(window.URL.createObjectURL).toHaveBeenCalledTimes(createCalls);
+      expect(window.URL.revokeObjectURL).not.toHaveBeenCalled();
+      expect(controller.recordingUri).toBe('recording-uri');
+      expect(controller.recording.value).toBe(recordingWithoutFile);
+    });
+
     it('handOverRecording stops the microphone and drops the recording but keeps its object URL', async () => {
       const { controller, track } = await setUpStoppedController();
       controller.handOverRecording();

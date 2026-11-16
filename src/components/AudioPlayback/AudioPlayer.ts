@@ -390,6 +390,11 @@ export class AudioPlayer {
   private switchElementSource = (elementRef: HTMLAudioElement, src: string) => {
     const resumes = !!elementIsPlaying(elementRef) || this.isStartingPlayback;
     if (elementRef.currentTime > 0) this.setSecondsElapsed(elementRef.currentTime);
+    // A source the element could not load (an expired or revoked URL) does not make the new one
+    // unplayable: playability comes from the MIME type again.
+    this.state.partialNext({
+      canPlayRecord: this.mimeType ? this.canPlayMimeType(this.mimeType) : true,
+    });
     elementRef.src = src;
     this.restoreSavedPosition(elementRef);
     if (resumes) void this.play();

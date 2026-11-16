@@ -401,6 +401,26 @@ describe('AudioPlayer', () => {
       expect(player.isPlaying).toBe(false);
     });
 
+    it('plays the new source after the previous one failed to load', async () => {
+      vi.spyOn(HTMLMediaElement.prototype, 'canPlayType').mockReturnValue('maybe');
+      pauseOnSourceChange();
+      const player = makePlayer({ src: 'blob:revoked' });
+      const element = player['ensureElementRef']();
+      Object.defineProperty(element, 'error', {
+        configurable: true,
+        value: { code: 4 } as MediaError,
+      });
+      element.dispatchEvent(new Event('error'));
+      expect(player.canPlayRecord).toBe(false);
+      const playSpy = vi.spyOn(element, 'play').mockResolvedValue();
+
+      player.setDescriptor({ id: 'id-1', src: SRC });
+      await player.play();
+
+      expect(player.canPlayRecord).toBe(true);
+      expect(playSpy).toHaveBeenCalledTimes(1);
+    });
+
     it('keeps the position of a paused player without starting playback', () => {
       pauseOnSourceChange();
       const player = makePlayer({ src: 'blob:local' });
