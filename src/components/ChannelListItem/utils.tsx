@@ -98,7 +98,6 @@ const getLatestMessagePreviewParts = (
   }
 
   if (poll) {
-    // Previews have no original/translated toggle: they always show the user's language.
     const pollName = getPollTextTranslation(poll.name_i18n, userLanguage) ?? poll.name;
 
     if (!poll.vote_count) {

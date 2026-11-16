@@ -196,8 +196,6 @@ describe('<Message /> component', () => {
   afterEach(cleanup);
 
   describe('default translation view', () => {
-    // Poll translations live in the poll's state, not in `message.poll`, so the default can't depend on
-    // them; 'translated' is safe because a poll text without a translation falls back to its original.
     it('is translated for a poll message', async () => {
       let context: Record<string, unknown> = {};
       const poll = generatePoll({ id: 'poll-default-view' });

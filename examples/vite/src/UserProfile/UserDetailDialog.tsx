@@ -203,12 +203,6 @@ const languageOptions: SearchableSelectOption<string>[] = [
 const languageLabel = (code: string) =>
   languageOptions.find((option) => option.value === code)?.label ?? code;
 
-/**
- * `user.language`: the language the API auto-translates messages and polls into for this user, and
- * the one the SDK shows (`useTranslationContext().userLanguage`). Not the SDK's UI language, which
- * is set in the app settings. Shown like the Name row; the pencil opens a searchable picker, and
- * picking only changes the draft: the dialog's footer saves it.
- */
 const LanguageRow = ({
   disabled,
   draft,
@@ -460,7 +454,6 @@ export const UserDetailDialog = ({
   const [saveError, setSaveError] = useState<string>();
   const languageChanged = languageDraft !== savedLanguage;
 
-  // a language saved elsewhere (another tab, device) replaces the unsaved choice
   useEffect(() => setLanguageDraft(savedLanguage), [savedLanguage]);
 
   const update = async ({
@@ -477,7 +470,6 @@ export const UserDetailDialog = ({
     if (updated) onUserChange(toProfileUser(updated));
   };
 
-  // "Not set" saves an empty string: `unset` leaves the language in place
   const saveLanguage = async () => {
     setSaving(true);
     setSaveError(undefined);
@@ -519,7 +511,6 @@ export const UserDetailDialog = ({
           <LanguageRow
             disabled={saving}
             draft={languageDraft}
-            // remounts once a language is saved, which closes the picker
             key={savedLanguage}
             onDraftChange={setLanguageDraft}
             value={savedLanguage}

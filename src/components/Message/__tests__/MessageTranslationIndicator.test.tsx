@@ -118,8 +118,35 @@ describe('MessageTranslationIndicator', () => {
       expect(screen.queryByText(/Translated/)).not.toBeInTheDocument();
     });
 
-    // The poll renders from its live state; `message.poll` is the snapshot it was loaded with and is
-    // never updated by poll events.
+    it('stays hidden for a deleted message that still carries a translated poll', async () => {
+      const client = await getTestClientWithUser();
+      const i18n = new Streami18n({ logger: () => {} });
+      const { t, tDateTimeParser } = await i18n.init();
+      const deletedPollMessage = {
+        ...pollMessage,
+        deleted_at: convertDateToTimestamp(),
+        type: 'deleted',
+      };
+      render(
+        <ChatProvider value={mockChatContext({ client })}>
+          <TranslationProvider
+            value={{ t: t as StreamTFunction, tDateTimeParser, userLanguage: 'es' }}
+          >
+            <MessageProvider
+              value={mockMessageContext({
+                message: deletedPollMessage,
+                setTranslationView: vi.fn(),
+                translationView: 'translated',
+              })}
+            >
+              <MessageTranslationIndicator />
+            </MessageProvider>
+          </TranslationProvider>
+        </ChatProvider>,
+      );
+      expect(screen.queryByText(/Translated/)).not.toBeInTheDocument();
+    });
+
     it('appears when a poll.updated event brings translations after the first render', async () => {
       const client = await getTestClientWithUser();
       client.polls.registerSubscriptions();
