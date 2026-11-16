@@ -565,8 +565,9 @@ export class AIConversationController<Message extends AIMessage = AIMessage> {
   private receiveMessages(messages: readonly Message[]) {
     this.received = messages;
     const { exchange } = this;
-    // A switch only runs while no request is being answered, so what it shows is a version,
-    // never the reply to a request that failed before it.
+    // What a switch shows is a version, never the reply to a request that failed before it. A
+    // switch can also start once a request was stopped or timed out, so a late reply arriving
+    // during the switch is skipped as well.
     if (exchange && this.switching) {
       for (const message of messages) exchange.known.add(message.id);
     }
