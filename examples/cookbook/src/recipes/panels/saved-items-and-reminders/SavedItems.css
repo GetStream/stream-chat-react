@@ -11,13 +11,6 @@
     padding: var(--str-chat__spacing-sm) var(--str-chat__spacing-md);
   }
 
-  /* The kind on show looks selected. */
-  .cookbook-saved-items__kind[aria-pressed='true'] {
-    border-color: var(--str-chat__accent-primary);
-    background: var(--str-chat__background-utility-selected);
-    color: var(--str-chat__accent-primary);
-  }
-
   .cookbook-saved-items__list {
     margin: 0;
     padding: 0;
