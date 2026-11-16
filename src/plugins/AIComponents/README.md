@@ -594,6 +594,9 @@ Every key the components use:
 | `aiComponents.a2ui.choicePickerFilter.placeholder`            | Search                                                                | `Search`                                                                |
 | `aiComponents.attachmentPreview.deleteAttachment.ariaLabel`   | Delete attachment                                                     | `Delete attachment`                                                     |
 | `aiComponents.attachmentPreview.unknownFileName.text`         | Unknown file name                                                     | `Unknown file name`                                                     |
+| `aiComponents.branchSwitcher.next.ariaLabel`                  | Next version                                                          | `aria/Next version`                                                     |
+| `aiComponents.branchSwitcher.previous.ariaLabel`              | Previous version                                                      | `aria/Previous version`                                                 |
+| `aiComponents.branchSwitcher.versions.ariaLabel`              | Version {{ index }} of {{ total }}                                    | `aria/Version {{ index }} of {{ total }}`                               |
 | `aiComponents.chart.loading.text`                             | Loading chart...                                                      | `Loading chart...`                                                      |
 | `aiComponents.chart.unknownType.text`                         | Unknown chart type                                                    | `Unknown chart type`                                                    |
 | `aiComponents.chatOptions.chatOptions.ariaLabel`              | Chat options                                                          | `aria/Chat options`                                                     |
@@ -650,7 +653,10 @@ Every key the components use:
 | `aiComponents.toolCall.waitingForApproval.text`               | Waiting for approval                                                  | `Waiting for approval`                                                  |
 | `aiComponents.toolCall.waitingForDevice.text`                 | Waiting for the device                                                | `Waiting for the device`                                                |
 | `aiComponents.toolCall.waitingForSignIn.text`                 | Waiting for you to sign in                                            | `Waiting for you to sign in`                                            |
+| `aiComponents.userMessage.cancelEdit.label`                   | Cancel                                                                | `Cancel`                                                                |
 | `aiComponents.userMessage.edit.ariaLabel`                     | Edit                                                                  | `aria/Edit`                                                             |
+| `aiComponents.userMessage.editInput.ariaLabel`                | Edit message                                                          | `aria/Edit message`                                                     |
+| `aiComponents.userMessage.saveEdit.label`                     | Save                                                                  | `Save`                                                                  |
 | `aiComponents.voiceVisualization.connecting.text`             | Connecting                                                            | `Connecting`                                                            |
 | `aiComponents.voiceVisualization.listening.text`              | Listening                                                             | `Listening`                                                             |
 | `aiComponents.voiceVisualization.ready.text`                  | Ready                                                                 | `Ready`                                                                 |
