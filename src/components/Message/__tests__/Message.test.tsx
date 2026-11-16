@@ -14,6 +14,7 @@ import { TranslationProvider } from '../../../context/TranslationContext';
 import {
   generateChannel,
   generateMessage,
+  generatePoll,
   generateReaction,
   generateUser,
   getTestClientWithUser,
@@ -148,6 +149,31 @@ function renderComponentWithMessage(
 describe('<Message /> component', () => {
   beforeEach(vi.clearAllMocks);
   afterEach(cleanup);
+
+  describe('default translation view', () => {
+    it('is translated for a poll message', async () => {
+      let context: Record<string, unknown> = {};
+      const poll = generatePoll({ id: 'poll-default-view' });
+      await renderComponent({
+        contextCallback: (ctx) => (context = ctx),
+        message: generateMessage({ poll, poll_id: poll.id, text: '' }),
+      });
+      expect(context.translationView).toBe('translated');
+    });
+
+    it('is original for a message with neither i18n nor a poll', async () => {
+      let context: Record<string, unknown> = {};
+      await renderComponent({
+        contextCallback: (ctx) => (context = ctx),
+        message: generateMessage({
+          i18n: undefined,
+          poll: undefined,
+          poll_id: undefined,
+        }),
+      });
+      expect(context.translationView).toBe('original');
+    });
+  });
 
   it('should not pass custom props to its Message child component', async () => {
     await renderComponentWithMessage({

@@ -10,6 +10,7 @@ import type { PollOption, PollState } from 'stream-chat';
 import { Prompt } from '../../Dialog';
 import { TextInput } from '../../Form';
 import { useFormState } from '../../Form/hooks';
+import { getPollTextTranslation } from '../utils/translations';
 
 type PollStateSelectorReturnValue = { options: PollOption[] };
 const pollStateSelector = (nextValue: PollState): PollStateSelectorReturnValue => ({
@@ -20,7 +21,7 @@ export type SuggestPollOptionFormProps = Record<string, never>;
 
 export const SuggestPollOptionPrompt = () => {
   const { client } = useChatContext();
-  const { t } = useTranslationContext();
+  const { t, userLanguage } = useTranslationContext();
   const { poll } = usePollContext();
   const { close } = useModalContext();
   const { options } = useStateStore(poll.state, pollStateSelector);
@@ -34,14 +35,18 @@ export const SuggestPollOptionPrompt = () => {
         if (!trimmed) {
           return new Error(t('This field cannot be empty or contain only spaces'));
         }
-        const existingOption = options.find((option) => option.text === trimmed);
+        const existingOption = options.find(
+          (option) =>
+            option.text === trimmed ||
+            getPollTextTranslation(option.text_i18n, userLanguage) === trimmed,
+        );
         if (existingOption) {
           return new Error(t('Option already exists'));
         }
         return undefined;
       },
     }),
-    [t, options],
+    [t, options, userLanguage],
   );
 
   const onSubmit = useCallback(

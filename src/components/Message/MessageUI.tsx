@@ -70,6 +70,7 @@ const MessageUIWithContext = ({
   renderText,
   showAvatar = 'incoming',
   threadList,
+  translationView,
 }: MessageUIWithContextProps) => {
   const { channel } = useChannelStateContext();
   const { client } = useChatContext();
@@ -243,7 +244,7 @@ const MessageUIWithContext = ({
           ) : (
             <>
               <MessageBubble>
-                {poll && <Poll poll={poll} />}
+                {poll && <Poll poll={poll} translationView={translationView} />}
                 {message.quoted_message && <QuotedMessage />}
                 {finalAttachments?.length ? (
                   <Attachment
