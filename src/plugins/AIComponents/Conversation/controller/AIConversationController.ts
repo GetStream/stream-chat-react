@@ -381,9 +381,16 @@ export class AIConversationController<Message extends AIMessage = AIMessage> {
     this.start(exchange.retryRequest(this.received));
   }
 
-  /** Forgets `error`, and the request or switch that failed. */
+  /**
+   * Forgets `error`, and the request or switch that failed. A failed switch's error hides a
+   * request that failed before it, which is forgotten only once its own error was shown.
+   */
   clearError() {
-    this.forgetError();
+    if (this.failedSwitch) {
+      this.failedSwitch = undefined;
+    } else {
+      this.forgetError();
+    }
     this.refresh();
   }
 
@@ -558,6 +565,11 @@ export class AIConversationController<Message extends AIMessage = AIMessage> {
   private receiveMessages(messages: readonly Message[]) {
     this.received = messages;
     const { exchange } = this;
+    // A switch only runs while no request is being answered, so what it shows is a version,
+    // never the reply to a request that failed before it.
+    if (exchange && this.switching) {
+      for (const message of messages) exchange.known.add(message.id);
+    }
     const reply = exchange?.reply(messages);
     if (exchange && reply) this.receiveReply(reply, exchange);
     this.refresh();

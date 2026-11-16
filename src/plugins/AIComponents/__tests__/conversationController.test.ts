@@ -1845,6 +1845,51 @@ describe('AIConversationController branches', () => {
     expect(transport.switches).toHaveLength(1);
   });
 
+  it('keeps a failed message, and its retry, through a switch that shows another version', async () => {
+    const shown = branched(reply('a1'), 'reply', 2, 2);
+    const transport = new BranchingTransport([user('u1'), shown]);
+    transport.sendError = new TransportError('Offline');
+    transport.holdsSwitches = true;
+    const controller = makeController(transport);
+    controller.send({ text: 'And Porto?' });
+    await settle();
+    expect(stateOf(controller).status).toBe('error');
+
+    controller.switchBranch(shown, 'previous');
+    transport.finishSwitch(0, [user('u1'), branched(reply('a1-v1'), 'reply', 1, 2)]);
+    await settle();
+
+    // The version the switch shows is no reply to the message that failed.
+    expect(stateOf(controller).error).toBeInstanceOf(TransportError);
+    expect(stateOf(controller).pendingMessage?.text).toBe('And Porto?');
+    transport.sendError = undefined;
+    controller.retry();
+    await settle();
+    expect(transport.lastRequest).toMatchObject({ kind: 'message', text: 'And Porto?' });
+  });
+
+  it('dismisses a failed switch alone, and shows the failed message’s error again', async () => {
+    const shown = branched(reply('a1'), 'reply', 2, 2);
+    const transport = new BranchingTransport([user('u1'), shown]);
+    transport.sendError = new TransportError('Offline');
+    const controller = makeController(transport);
+    controller.send({ text: 'And Porto?' });
+    await settle();
+    transport.switchError = new Error('switch failed');
+    controller.switchBranch(shown, 'previous');
+    await settle();
+    expect(stateOf(controller).error?.message).toBe('switch failed');
+
+    controller.clearError();
+
+    expect(stateOf(controller).error).toBeInstanceOf(TransportError);
+    expect(stateOf(controller).pendingMessage?.text).toBe('And Porto?');
+    transport.sendError = undefined;
+    controller.retry();
+    await settle();
+    expect(transport.lastRequest).toMatchObject({ kind: 'message', text: 'And Porto?' });
+  });
+
   it('leaves the end of a branch it doesn’t know to the transport', async () => {
     const transport = new BranchingTransport([user('u1'), reply('a1')]);
     const controller = makeController(transport);
