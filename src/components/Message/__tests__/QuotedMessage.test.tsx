@@ -151,7 +151,6 @@ describe('QuotedMessage', () => {
   describe('quoted poll', () => {
     const quotedPollMessage = {
       quoted_message: {
-        // Server messages always carry `attachments`; the preview finds the poll alongside them.
         attachments: [],
         poll: {
           name: 'Favourite fruit?',

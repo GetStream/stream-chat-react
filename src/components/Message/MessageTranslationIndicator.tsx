@@ -8,6 +8,7 @@ import {
   useTranslationContext,
 } from '../../context';
 import { Button } from '../Button';
+import { isMessageDeleted } from './utils';
 import { useStateStore } from '../../store';
 import {
   getPollSourceLanguage,
@@ -38,8 +39,6 @@ export const MessageTranslationIndicator = ({
   } = useMessageContext('MessageTranslationIndicator');
   const message = propMessage ?? contextMessage;
 
-  // The poll renders from its live state, which poll events update; `message.poll` is the snapshot
-  // the message was loaded with.
   const { client } = useChatContext('MessageTranslationIndicator');
   const livePoll = message?.poll_id ? client.polls.fromState(message.poll_id) : undefined;
   const livePollTexts = useStateStore(livePoll?.state, pollTextsSelector);
@@ -82,7 +81,7 @@ export const MessageTranslationIndicator = ({
       : sourceLanguageCode;
   }, [message?.i18n?.language, pollTexts, t]);
 
-  if (!message || !setTranslationView) return null;
+  if (!message || isMessageDeleted(message) || !setTranslationView) return null;
   if (!hasTranslationForUserLanguage) return null;
 
   return (

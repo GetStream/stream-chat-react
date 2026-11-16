@@ -200,7 +200,6 @@ describe('ChannelPreview utils', () => {
       expect(getLatestMessagePreviewText(channel, tAria, 'de')).toBe('Poll: Lunch spot?');
     });
 
-    // The vote copy writes its placeholders without spaces (`{{votedBy}}`), which `tAria` doesn't fill.
     const tInterpolate = ((key: string, opts?: Record<string, unknown>) =>
       Object.entries(opts ?? {}).reduce(
         (value, [name, arg]) =>

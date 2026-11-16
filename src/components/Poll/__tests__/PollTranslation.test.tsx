@@ -135,7 +135,6 @@ describe('poll translations', () => {
       userLanguage: 'es',
     });
     expect(container.querySelector(TITLE_SELECTOR)).toHaveTextContent('¿Fruta favorita?');
-    // An option without a translation falls back to its original text.
     expect(optionTexts(container)).toEqual(['Manzanas', 'Plátanos', 'Cherries']);
     expect(await axe(container)).toHaveNoViolations();
   });

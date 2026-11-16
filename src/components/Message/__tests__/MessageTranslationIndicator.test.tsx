@@ -32,8 +32,6 @@ describe('MessageTranslationIndicator', () => {
       type: 'regular',
     };
 
-    // Rendered against a real `Streami18n`, so "Translated from English" comes from the `language/en`
-    // entry rather than a mocked `t`.
     const renderIndicator = async ({
       message = pollMessage,
       setTranslationView = vi.fn(),
@@ -81,8 +79,18 @@ describe('MessageTranslationIndicator', () => {
       expect(screen.queryByText(/Translated/)).not.toBeInTheDocument();
     });
 
-    // The poll renders from its live state; `message.poll` is the snapshot it was loaded with and is
-    // never updated by poll events.
+    it('stays hidden for a deleted message that still carries a translated poll', async () => {
+      await renderIndicator({
+        message: {
+          ...pollMessage,
+          deleted_at: new Date().toISOString(),
+          type: 'deleted',
+        },
+        userLanguage: 'es',
+      });
+      expect(screen.queryByText(/Translated/)).not.toBeInTheDocument();
+    });
+
     it('appears when a poll.updated event brings translations after the first render', async () => {
       client.polls.registerSubscriptions();
       const pollData = generatePoll({
