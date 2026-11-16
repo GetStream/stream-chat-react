@@ -48,6 +48,9 @@
   position: relative;
   display: flex;
   flex-direction: column;
+  // Fills its parent, as it scrolls inside itself: the space left in a flex container, else the
+  // parent's height.
+  flex: 1;
   min-height: 0;
   height: 100%;
 

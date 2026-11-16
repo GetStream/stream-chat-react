@@ -28,6 +28,7 @@ import {
 } from '../Dialog';
 import { useResolvedModalAriaProps } from '../../a11y/hooks/useResolvedModalAriaProps';
 import { useStableId } from '../UtilityComponents/useStableId';
+import { ThemeScopeProvider } from '../../context/ThemeScopeContext';
 
 export type ModalCloseEvent =
   | KeyboardEvent
@@ -212,62 +213,67 @@ export const GlobalModal = ({
   return (
     <DialogPortalEntry dialogId={resolvedDialogId} dialogManagerId={modalDialogManagerId}>
       <ModalContextProvider value={modalContextValue}>
-        <div
-          className={clsx(
-            'str-chat',
-            theme,
-            'str-chat__modal str-chat-react__modal str-chat__modal--open',
-            className,
-          )}
-          onClick={handleOverlayClick}
-          ref={overlayRef}
-        >
-          <FocusScope
-            autoFocus={
-              isTopmost &&
-              !getInitialFocusElement &&
-              resolvedInitialFocusStrategy === 'firstElement'
-            }
-            contain={isTopmost}
-            restoreFocus
+        <ThemeScopeProvider>
+          <div
+            className={clsx(
+              'str-chat',
+              theme,
+              'str-chat__modal str-chat-react__modal str-chat__modal--open',
+              className,
+            )}
+            onClick={handleOverlayClick}
+            ref={overlayRef}
           >
-            <div
-              {...dialogRootPropsRest}
-              aria-describedby={resolvedModalAriaProps['aria-describedby']}
-              aria-label={resolvedModalAriaProps['aria-label']}
-              aria-labelledby={resolvedModalAriaProps['aria-labelledby']}
-              aria-modal={isTopmost ? 'true' : undefined}
-              className={clsx('str-chat__modal__dialog', dialogRootClassName)}
-              inert={isTopmost ? undefined : true}
-              onKeyDown={handleDialogKeyDown}
-              ref={dialogRef}
-              role={role}
-              tabIndex={isTopmost ? 0 : -1}
+            <FocusScope
+              autoFocus={
+                isTopmost &&
+                !getInitialFocusElement &&
+                resolvedInitialFocusStrategy === 'firstElement'
+              }
+              contain={isTopmost}
+              restoreFocus
             >
-              <DialogManagerProvider
-                id={`${resolvedDialogId}-floating-dialog-manager`}
-                portalDestinationProps={{
-                  captureOutsideClicks: true,
-                  className: 'str-chat__modal__floating-dialog-overlay',
-                }}
+              <div
+                {...dialogRootPropsRest}
+                aria-describedby={resolvedModalAriaProps['aria-describedby']}
+                aria-label={resolvedModalAriaProps['aria-label']}
+                aria-labelledby={resolvedModalAriaProps['aria-labelledby']}
+                aria-modal={isTopmost ? 'true' : undefined}
+                className={clsx('str-chat__modal__dialog', dialogRootClassName)}
+                inert={isTopmost ? undefined : true}
+                onKeyDown={handleDialogKeyDown}
+                ref={dialogRef}
+                role={role}
+                tabIndex={isTopmost ? 0 : -1}
               >
-                {children}
-                {/* Render the live-region outlet inside the active modal subtree
+                <DialogManagerProvider
+                  id={`${resolvedDialogId}-floating-dialog-manager`}
+                  portalDestinationProps={{
+                    captureOutsideClicks: true,
+                    className: 'str-chat__modal__floating-dialog-overlay',
+                  }}
+                >
+                  {children}
+                  {/* Render the live-region outlet inside the active modal subtree
                   (only the topmost dialog carries `aria-modal`) so announcements
                   are not suppressed by assistive technologies. */}
-                {isTopmost && <AriaLiveOutlet layer={1} />}
-              </DialogManagerProvider>
-            </div>
-          </FocusScope>
-          <NotificationList
-            className='str-chat__modal__notification-list'
-            panel='modal'
-            verticalAlignment='top'
-          />
-          {CloseButtonOnOverlay && (
-            <CloseButtonOnOverlay onClick={handleCloseButtonClick} ref={closeButtonRef} />
-          )}
-        </div>
+                  {isTopmost && <AriaLiveOutlet layer={1} />}
+                </DialogManagerProvider>
+              </div>
+            </FocusScope>
+            <NotificationList
+              className='str-chat__modal__notification-list'
+              panel='modal'
+              verticalAlignment='top'
+            />
+            {CloseButtonOnOverlay && (
+              <CloseButtonOnOverlay
+                onClick={handleCloseButtonClick}
+                ref={closeButtonRef}
+              />
+            )}
+          </div>
+        </ThemeScopeProvider>
       </ModalContextProvider>
     </DialogPortalEntry>
   );

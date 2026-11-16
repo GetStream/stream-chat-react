@@ -10,6 +10,7 @@ import { useAttachments } from './AIMessageComposer';
 import clsx from 'clsx';
 import { useComponentContextIcons } from '../../../context/useComponentContextIcons';
 import { useTranslationContext } from '../../../context/TranslationContext';
+import { ThemeScopeProvider, useAIThemeScopeClassName } from '../themeScope';
 
 const byteValueNumberFormatter = Intl.NumberFormat('en', {
   notation: 'compact',
@@ -33,6 +34,7 @@ export const Item = ({
   onDelete?: (_: MouseEvent<HTMLButtonElement>) => void;
   onRetry?: (_: MouseEvent<HTMLButtonElement>) => void;
 }) => {
+  const themeScopeClassName = useAIThemeScopeClassName();
   const { t } = useTranslationContext();
   const { IconFile, IconRetry, IconXmark } = useComponentContextIcons();
   const fileName = title || file.name || t('Unknown file name');
@@ -40,57 +42,62 @@ export const Item = ({
   const isImage = file.type.startsWith('image/');
 
   return (
-    <div
-      className={clsx('str-chat__ai-attachment-preview__item', {
-        'str-chat__ai-attachment-preview__item--failed': state === 'failed',
-        'str-chat__ai-attachment-preview__item--pending': state === 'pending',
-        'str-chat__ai-attachment-preview__item--uploaded': state === 'uploaded',
-        'str-chat__ai-attachment-preview__item--uploading': state === 'uploading',
-      })}
-    >
-      <button
-        aria-label={t('Delete attachment')}
-        className='str-chat__ai-attachment-preview__delete-button'
-        onClick={onDelete}
-        type='button'
+    <ThemeScopeProvider>
+      <div
+        className={clsx(themeScopeClassName, 'str-chat__ai-attachment-preview__item', {
+          'str-chat__ai-attachment-preview__item--failed': state === 'failed',
+          'str-chat__ai-attachment-preview__item--pending': state === 'pending',
+          'str-chat__ai-attachment-preview__item--uploaded': state === 'uploaded',
+          'str-chat__ai-attachment-preview__item--uploading': state === 'uploading',
+        })}
       >
-        <IconXmark />
-      </button>
+        <button
+          aria-label={t('Delete attachment')}
+          className='str-chat__ai-attachment-preview__delete-button'
+          onClick={onDelete}
+          type='button'
+        >
+          <IconXmark />
+        </button>
 
-      {state === 'failed' && (
-        <div className='str-chat__ai-attachment-preview__failed-state-overlay'>
-          <button
-            aria-label={t('aria/Retry upload')}
-            className='str-chat__ai-attachment-preview__retry-button'
-            onClick={onRetry}
-            type='button'
-          >
-            <IconRetry />
-          </button>
-        </div>
-      )}
+        {state === 'failed' && (
+          <div className='str-chat__ai-attachment-preview__failed-state-overlay'>
+            <button
+              aria-label={t('aria/Retry upload')}
+              className='str-chat__ai-attachment-preview__retry-button'
+              onClick={onRetry}
+              type='button'
+            >
+              <IconRetry />
+            </button>
+          </div>
+        )}
 
-      {!isImage && (
-        <div className='str-chat__ai-attachment-preview__item-content'>
-          <IconFile />
-          <div className='str-chat__ai-attachment-preview__file-metadata'>
-            <div className='str-chat__ai-attachment-preview__file-name' title={fileName}>
-              {fileName}
-            </div>
-            <div className='str-chat__ai-attachment-preview__file-size'>
-              {readableFileSize}
+        {!isImage && (
+          <div className='str-chat__ai-attachment-preview__item-content'>
+            <IconFile />
+            <div className='str-chat__ai-attachment-preview__file-metadata'>
+              <div
+                className='str-chat__ai-attachment-preview__file-name'
+                title={fileName}
+              >
+                {fileName}
+              </div>
+              <div className='str-chat__ai-attachment-preview__file-size'>
+                {readableFileSize}
+              </div>
             </div>
           </div>
-        </div>
-      )}
-      {isImage && (
-        <img
-          alt={fileName}
-          className='str-chat__ai-attachment-preview__image'
-          src={imagePreviewSource}
-        />
-      )}
-    </div>
+        )}
+        {isImage && (
+          <img
+            alt={fileName}
+            className='str-chat__ai-attachment-preview__image'
+            src={imagePreviewSource}
+          />
+        )}
+      </div>
+    </ThemeScopeProvider>
   );
 };
 
@@ -163,6 +170,7 @@ export const AttachmentPreview = ({
 }: Omit<ComponentPropsWithoutRef<'div'>, 'children'> & {
   children?: React.ReactNode | ((_: Attachments) => React.ReactNode);
 }) => {
+  const themeScopeClassName = useAIThemeScopeClassName();
   const attachments = useAttachments();
 
   if (!children && attachments.attachments.length === 0) {
@@ -170,11 +178,20 @@ export const AttachmentPreview = ({
   }
 
   return (
-    <div className={clsx('str-chat__ai-attachment-preview', className)} {...restProps}>
-      {typeof children === 'function'
-        ? children(attachments)
-        : (children ?? <DefaultItems {...attachments} />)}
-    </div>
+    <ThemeScopeProvider>
+      <div
+        className={clsx(
+          themeScopeClassName,
+          'str-chat__ai-attachment-preview',
+          className,
+        )}
+        {...restProps}
+      >
+        {typeof children === 'function'
+          ? children(attachments)
+          : (children ?? <DefaultItems {...attachments} />)}
+      </div>
+    </ThemeScopeProvider>
   );
 };
 

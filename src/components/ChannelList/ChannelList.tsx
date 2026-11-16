@@ -41,6 +41,7 @@ import type { TranslationContextValue } from '../../context/TranslationContext';
 import type { PaginatorProps } from '../../types/types';
 import { ChannelListHeader as DefaultChannelListHeader } from './ChannelListHeader';
 import { useStableId } from '../UtilityComponents/useStableId';
+import { ThemeScopeProvider } from '../../context/ThemeScopeContext';
 
 const DEFAULT_FILTERS = {};
 const DEFAULT_OPTIONS = {};
@@ -355,36 +356,38 @@ const UnMemoizedChannelList = (props: ChannelListProps) => {
       value={{ channels, hasNextPage, loadNextPage, setChannels }}
     >
       <div className={className} ref={channelListRef}>
-        <DialogManagerProvider id={`channel-list-dialog-manager-${stableId}`}>
-          <ChannelListHeader />
-          {showChannelSearch && <Search />}
-          {showChannelList && (
-            <ChannelListUI
-              error={channelsQueryState.error}
-              loadedChannels={sendChannelsToList ? loadedChannels : undefined}
-              loading={
-                !!channelsQueryState.queryInProgress &&
-                ['reload', 'uninitialized'].includes(channelsQueryState.queryInProgress)
-              }
-              setChannels={setChannels}
-            >
-              {!loadedChannels?.length ? (
-                <EmptyStateIndicator listType='channel' />
-              ) : (
-                <Paginator
-                  hasNextPage={hasNextPage}
-                  isLoading={channelsQueryState.queryInProgress === 'load-more'}
-                  loadNextPage={loadNextPage}
-                >
-                  {renderChannels
-                    ? renderChannels(loadedChannels, renderChannel)
-                    : loadedChannels.map((channel) => renderChannel(channel))}
-                </Paginator>
-              )}
-            </ChannelListUI>
-          )}
-          <NotificationList panel='channel-list' />
-        </DialogManagerProvider>
+        <ThemeScopeProvider>
+          <DialogManagerProvider id={`channel-list-dialog-manager-${stableId}`}>
+            <ChannelListHeader />
+            {showChannelSearch && <Search />}
+            {showChannelList && (
+              <ChannelListUI
+                error={channelsQueryState.error}
+                loadedChannels={sendChannelsToList ? loadedChannels : undefined}
+                loading={
+                  !!channelsQueryState.queryInProgress &&
+                  ['reload', 'uninitialized'].includes(channelsQueryState.queryInProgress)
+                }
+                setChannels={setChannels}
+              >
+                {!loadedChannels?.length ? (
+                  <EmptyStateIndicator listType='channel' />
+                ) : (
+                  <Paginator
+                    hasNextPage={hasNextPage}
+                    isLoading={channelsQueryState.queryInProgress === 'load-more'}
+                    loadNextPage={loadNextPage}
+                  >
+                    {renderChannels
+                      ? renderChannels(loadedChannels, renderChannel)
+                      : loadedChannels.map((channel) => renderChannel(channel))}
+                  </Paginator>
+                )}
+              </ChannelListUI>
+            )}
+            <NotificationList panel='channel-list' />
+          </DialogManagerProvider>
+        </ThemeScopeProvider>
       </div>
     </ChannelListContextProvider>
   );
