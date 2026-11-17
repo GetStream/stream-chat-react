@@ -5,16 +5,22 @@ import { type TypingEntry, useTypingUsers } from './useTypingUsers';
 
 const DEFAULT_HIDE_DELAY_MS = 2000;
 
-// Memoizes the typing users by ID, so a new array with the same users keeps its reference. Entries
-// without `user.id` are not told apart, and a single one has the same key as an empty list.
-const useStableTypingUsers = (typingUsers: readonly TypingEntry[]) => {
+// Memoizes the typing users of one channel and thread by ID, so a new array with the same users
+// keeps its reference. Another channel or thread gets its own entries even when the same users type
+// there. Entries without `user.id` are not told apart, and a single one has the same key as an empty
+// list.
+const useStableTypingUsers = (
+  typingUsers: readonly TypingEntry[],
+  channel: Channel,
+  parentId: string | undefined,
+) => {
   const key = typingUsers
     .map((entry) => entry.user?.id ?? '')
     .sort()
     .join(',');
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  return useMemo(() => [...typingUsers], [key]);
+  return useMemo(() => [...typingUsers], [channel, key, parentId]);
 };
 
 /** The last non-empty list of typing users, with the channel and thread it was read from. */
@@ -48,7 +54,11 @@ export const useDisplayedTypingUsers = (
   parentId?: string,
   delayMs: number = DEFAULT_HIDE_DELAY_MS,
 ): readonly TypingEntry[] => {
-  const typingUsers = useStableTypingUsers(useTypingUsers(channel, parentId));
+  const typingUsers = useStableTypingUsers(
+    useTypingUsers(channel, parentId),
+    channel,
+    parentId,
+  );
   const [lastTyping, setLastTyping] = useState<LastTyping | null>(null);
 
   useEffect(() => {
