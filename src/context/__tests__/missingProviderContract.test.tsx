@@ -48,6 +48,12 @@ describe('context hooks outside their provider', () => {
     it.each(REQUIRED_HOOKS)('%s', (name, hook) => {
       expect(() => renderHook(() => hook())).toThrow(new RegExp(name));
     });
+
+    it('useSearchSourceResultsContext names the exported provider', () => {
+      expect(() => renderHook(() => useSearchSourceResultsContext())).toThrow(
+        '<SearchSourceResultsContextProvider>',
+      );
+    });
   });
 
   describe('contexts that are optional by design keep working', () => {

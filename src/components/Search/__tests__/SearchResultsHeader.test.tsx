@@ -83,6 +83,34 @@ describe('SearchResultsHeader', () => {
     });
   });
 
+  describe('custom source label', () => {
+    const customSource = { items: [], search: vi.fn(), state: {}, type: 'docs' };
+    const customLabelKey = 'search-results-header-filter-source-button-label--docs';
+
+    beforeEach(() => {
+      (mockSources as Record<string, typeof customSource>).docs = customSource;
+    });
+
+    afterEach(() => {
+      delete (mockSources as Record<string, typeof customSource>).docs;
+    });
+
+    it("shows the source's type until the app translates its label key", () => {
+      render(<SearchResultsHeader />);
+      expect(screen.getByRole('button', { name: /docs$/ })).toHaveTextContent(/^docs$/);
+      expect(screen.queryByText(customLabelKey)).not.toBeInTheDocument();
+    });
+
+    it("shows the app's translation of the label key", () => {
+      useTranslationContext['mockReturnValue']({
+        t: (key: string, ...rest: unknown[]) =>
+          key === customLabelKey ? 'Docs' : mockT(key, ...(rest as [])),
+      });
+      render(<SearchResultsHeader />);
+      expect(screen.getByText('Docs')).toBeInTheDocument();
+    });
+  });
+
   describe('button states and styling', () => {
     it('applies active class to button when source is active', () => {
       useStateStore['mockReturnValue']({ isActive: true });
