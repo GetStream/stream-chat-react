@@ -1,5 +1,5 @@
 import type { TranslationContextValue } from '../../../context/TranslationContext';
-import type { TypingEntry } from '../hooks/useDebouncedTypingActive';
+import type { TypingEntry } from '../hooks/useTypingUsers';
 
 /** Localized typing status for the live region and the inline header: names, or a count. */
 export const getTypingStatusMessage = (

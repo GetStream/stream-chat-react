@@ -1,4 +1,4 @@
-import { cleanup, fireEvent, render, screen } from '@testing-library/react';
+import { act, cleanup, fireEvent, render, screen } from '@testing-library/react';
 import React from 'react';
 import { fromPartial } from '@total-typescript/shoehorn';
 import { StateStore } from '@stream-io/state-store';
@@ -56,6 +56,7 @@ import { useThreadContext } from '../../Threads';
 import { mockT } from '../../../mock-builders/translator';
 
 const alice = { id: 'alice', name: 'Alice' };
+const carol = { id: 'carol', name: 'Carol' };
 
 // The header reads the parent message and reply count from the thread state.
 const createThreadInstance = (user?: { id: string; name?: string }) =>
@@ -113,7 +114,7 @@ const renderComponent = ({
   );
   vi.mocked(useThreadContext).mockReturnValue(threadContext);
 
-  return render(
+  const tree = () => (
     <ChatProvider
       value={fromPartial<ChatContextValue>({
         client,
@@ -136,8 +137,12 @@ const renderComponent = ({
           </TranslationProvider>
         </WorkspaceNavigationProvider>
       </ChannelInstanceProvider>
-    </ChatProvider>,
+    </ChatProvider>
   );
+  const result = render(tree());
+
+  // Renders the tree again, e.g. after `useThreadContext` is mocked to return another thread.
+  return { ...result, channel, rerenderHeader: () => result.rerender(tree()) };
 };
 
 describe('ThreadHeader', () => {
@@ -211,6 +216,95 @@ describe('ThreadHeader', () => {
 
     expect(screen.queryByText('Typing...')).not.toBeInTheDocument();
     expect(screen.getByText('Alice · 2 replies')).toBeInTheDocument();
+  });
+
+  // The header lingers as long as the message-list `TypingIndicator`, which hides 2s after typing
+  // stops.
+  describe('after typing stops in this thread', () => {
+    const bobTypingInThread = {
+      bob: fromPartial<ChannelStateData['typing'][string]>({
+        parent_id: 'alice-message',
+        type: 'typing.start',
+        user: { id: 'bob' },
+      }),
+    };
+
+    beforeEach(() => {
+      vi.useFakeTimers();
+    });
+
+    afterEach(() => {
+      vi.useRealTimers();
+    });
+
+    it('keeps the typing indicator for the hide delay, then shows the reply count', () => {
+      const { channel } = renderComponent({ channelTyping: bobTypingInThread });
+      expect(screen.getByText('Typing...')).toBeInTheDocument();
+
+      act(() => {
+        channel.state.partialNext({ typing: {} });
+      });
+      act(() => {
+        vi.advanceTimersByTime(1999);
+      });
+      expect(screen.getByText('Typing...')).toBeInTheDocument();
+      expect(screen.queryByText('Alice · 2 replies')).not.toBeInTheDocument();
+
+      act(() => {
+        vi.advanceTimersByTime(1);
+      });
+      expect(screen.queryByText('Typing...')).not.toBeInTheDocument();
+      expect(screen.getByText('Alice · 2 replies')).toBeInTheDocument();
+    });
+
+    it('restarts the hide delay when typing stops again', () => {
+      const { channel } = renderComponent({ channelTyping: bobTypingInThread });
+
+      act(() => {
+        channel.state.partialNext({ typing: {} });
+      });
+      act(() => {
+        vi.advanceTimersByTime(1000);
+      });
+      act(() => {
+        channel.state.partialNext({ typing: bobTypingInThread });
+      });
+      act(() => {
+        vi.advanceTimersByTime(500);
+      });
+      act(() => {
+        channel.state.partialNext({ typing: {} });
+      });
+      // 3s after typing first stopped, but 1.5s after it stopped again.
+      act(() => {
+        vi.advanceTimersByTime(1500);
+      });
+      expect(screen.getByText('Typing...')).toBeInTheDocument();
+
+      act(() => {
+        vi.advanceTimersByTime(500);
+      });
+      expect(screen.queryByText('Typing...')).not.toBeInTheDocument();
+    });
+  });
+
+  it('does not carry typing over into the next thread', () => {
+    const { rerenderHeader } = renderComponent({
+      channelTyping: {
+        bob: fromPartial({
+          parent_id: 'alice-message',
+          type: 'typing.start',
+          user: { id: 'bob' },
+        }),
+      },
+    });
+    expect(screen.getByText('Typing...')).toBeInTheDocument();
+
+    vi.mocked(useThreadContext).mockReturnValue(createThreadInstance(carol));
+    rerenderHeader();
+
+    expect(screen.queryByText('Typing...')).not.toBeInTheDocument();
+    expect(screen.getByText(/2 replies/)).toBeInTheDocument();
   });
 
   it('closes the thread in context when the close button is pressed', () => {
