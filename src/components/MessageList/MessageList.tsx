@@ -7,6 +7,11 @@ import {
   useScrollLocationLogic,
   useUnreadMessagesNotification,
 } from './hooks/MessageList';
+import {
+  findMessageElement,
+  isMessageViewed,
+  MESSAGE_VIEWED_THRESHOLDS,
+} from './messageFocus';
 import { getMessageSourceKey } from './messageSourceKey';
 import { useMarkRead } from './hooks/useMarkRead';
 
@@ -50,7 +55,7 @@ import { useStateStore } from '../../store';
 import type { InfiniteScrollPaginatorProps } from '../InfiniteScrollPaginator/InfiniteScrollPaginator';
 import { InfiniteScrollPaginator } from '../InfiniteScrollPaginator/InfiniteScrollPaginator';
 import { useMessagePaginator } from '../../hooks';
-import { ScrollToLatestMessageButton } from './ScrollToLatestMessageButton';
+import { ScrollToLatestMessageButton as DefaultScrollToLatestMessageButton } from './ScrollToLatestMessageButton';
 import { useCanPaginateReplies } from './hooks/useCanPaginateReplies';
 
 type MessageListWithContextProps = MessageListProps;
@@ -102,7 +107,6 @@ const MessageListWithContext = (props: MessageListWithContextProps) => {
   } = props;
   // The list-wide props every message gets, the thread's parent message included.
   const messageProps: SharedMessageProps = {
-    additionalMessageComposerProps: props.additionalMessageComposerProps,
     closeReactionSelectorOnClick: props.closeReactionSelectorOnClick,
     formatDate: props.formatDate,
     onMentionsClick: props.onMentionsClick,
@@ -131,6 +135,7 @@ const MessageListWithContext = (props: MessageListWithContextProps) => {
     LoadingIndicator = DefaultLoadingIndicator,
     MessageListWrapper = 'ul',
     NewMessageNotification = DefaultNewMessageNotification,
+    ScrollToLatestMessageButton = DefaultScrollToLatestMessageButton,
     TypingIndicator = DefaultTypingIndicator,
     UnreadMessagesNotification = DefaultUnreadMessagesNotification,
   } = useComponentContext();
@@ -168,11 +173,12 @@ const MessageListWithContext = (props: MessageListWithContextProps) => {
     suppressAutoscroll,
   });
 
-  const { show: showUnreadMessagesNotification } = useUnreadMessagesNotification({
-    isMessageListScrolledToBottom,
-    listElement,
-    showAlways: !!showUnreadNotificationAlways,
-  });
+  const { show: showUnreadMessagesNotification, unreadIsBelow } =
+    useUnreadMessagesNotification({
+      isMessageListScrolledToBottom,
+      listElement,
+      showAlways: !!showUnreadNotificationAlways,
+    });
 
   useMarkRead({
     hasMoreNewer,
@@ -261,8 +267,7 @@ const MessageListWithContext = (props: MessageListWithContextProps) => {
     if (!messageFocusSignal || !listElement) return;
     const { messageId, token } = messageFocusSignal;
 
-    const findTarget = () =>
-      listElement.querySelector<HTMLElement>(`[data-message-id='${messageId}']`);
+    const findTarget = () => findMessageElement(listElement, messageId);
     const centerTarget = (behavior: ScrollBehavior) =>
       findTarget()?.scrollIntoView({ behavior, block: 'center' });
 
@@ -297,18 +302,12 @@ const MessageListWithContext = (props: MessageListWithContextProps) => {
     const viewObserver = new IntersectionObserver(
       (entries) => {
         const entry = entries[entries.length - 1];
-        const rootHeight = listElement.clientHeight || 1;
-        // Viewed: half the message is visible, or the visible slice fills half the viewport.
-        const viewed =
-          entry.isIntersecting &&
-          (entry.intersectionRatio >= 0.5 ||
-            entry.intersectionRect.height >= rootHeight * 0.5);
-        if (!viewed) return;
+        if (!isMessageViewed(entry, listElement.clientHeight)) return;
         messagePaginator.scheduleMessageFocusSignalClear({ token });
         viewObserver.disconnect();
         relayoutObserver.disconnect();
       },
-      { root: listElement, threshold: [0, 0.5, 1] },
+      { root: listElement, threshold: MESSAGE_VIEWED_THRESHOLDS },
     );
 
     viewObserver.observe(target);
@@ -338,7 +337,10 @@ const MessageListWithContext = (props: MessageListWithContextProps) => {
       <MessageTranslationViewProvider>
         <DialogManagerProvider id={dialogManagerId}>
           {!isThreadList && showUnreadMessagesNotification && (
-            <UnreadMessagesNotification unreadCount={channelUnreadUiState?.unreadCount} />
+            <UnreadMessagesNotification
+              unreadCount={channelUnreadUiState?.unreadCount}
+              unreadIsBelow={unreadIsBelow}
+            />
           )}
           {/*todo: apply styles
             .str-chat__list {
@@ -415,7 +417,6 @@ const MessageListWithContext = (props: MessageListWithContextProps) => {
 };
 
 type PropsDrilledToMessage =
-  | 'additionalMessageComposerProps'
   | 'closeReactionSelectorOnClick'
   | 'formatDate'
   | 'onMentionsClick'

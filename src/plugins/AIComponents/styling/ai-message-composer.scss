@@ -15,6 +15,14 @@
     box-shadow: 0 0 0 1px $ai-focus-ring-color;
   }
 
+  // `Actions`: the controls in a row, at its end
+  .str-chat__ai-message-composer__actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 0.25rem;
+  }
+
   .str-chat__ai-message-composer__round-button {
     all: unset;
     display: flex;
@@ -48,6 +56,11 @@
 
     &:focus-visible {
       @include ai-focus-ring;
+    }
+
+    // `StopButton`: filled while a reply runs, so it reads as the way to stop it
+    &--stop {
+      background-color: ai-token(surface-pressed);
     }
   }
 
@@ -102,6 +115,39 @@
 
     &:focus-visible {
       @include ai-focus-ring;
+    }
+  }
+
+  // Says the person is editing a message they sent, above the text, with a button that cancels it
+  .str-chat__ai-message-composer__editing {
+    display: flex;
+  }
+
+  // `layout='inline'`: the text and the controls on one line, the controls level with its last
+  // line as it grows. Attachment previews keep a full-width row of their own, above.
+  // Last in the block: the text input's `all: unset` above would reset these at equal specificity.
+  &--inline {
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    gap: 0.5rem;
+
+    > .str-chat__ai-attachment-preview {
+      flex-basis: 100%;
+      order: -1;
+    }
+
+    > .str-chat__ai-message-composer__editing {
+      flex-basis: 100%;
+      order: -2;
+    }
+
+    .str-chat__ai-message-composer__text-input {
+      // shares the line, so it takes what the controls leave and shrinks below its content
+      flex: 1 1 0;
+      min-width: 0;
+      // as tall as a round button (1.5rem icon + 2 × 0.25rem padding) on a single line
+      padding-block: 0.25rem;
     }
   }
 }

@@ -214,7 +214,7 @@ const MessageUIWithContext = ({
                 <MessageBubbleContent />
               </MessageBubble>
               <div className='str-chat__message-reactions-host'>
-                {hasReactions && <MessageReactions reverse />}
+                {hasReactions && <MessageReactions />}
               </div>
               <div className='str-chat__message-error-indicator'>
                 <ErrorBadge />

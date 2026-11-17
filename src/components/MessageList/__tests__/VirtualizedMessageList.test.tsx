@@ -26,6 +26,8 @@ import { StateStore } from '@stream-io/state-store';
 import { fromPartial } from '@total-typescript/shoehorn';
 import type { LocalMessage, Thread, ThreadState } from 'stream-chat';
 import type { MessageProps } from '../../Message';
+import type { ComponentContextValue } from '../../../context';
+import type { VirtualizedMessageListProps } from '../VirtualizedMessageList';
 import type { GiphyPreviewMessageProps } from '../GiphyPreviewMessage';
 
 const threadWithParentMessage = () =>
@@ -39,13 +41,19 @@ const threadWithParentMessage = () =>
 // Records the props `VirtualizedMessageList` hands to Virtuoso and routes the imperative handle
 // through a spy, so the scroll target is assertable. The overrides keep the real Virtuoso
 // renderable under jsdom, which reports every element as 0px.
-const { scrollToIndexSpy, virtuosoProps } = vi.hoisted(() => ({
+// `mockViewport` opts a test into rendering items: jsdom lays nothing out, so Virtuoso renders none
+// unless `VirtuosoMockContext` gives it item and viewport sizes.
+const { mockViewport, scrollToIndexSpy, virtuosoProps } = vi.hoisted(() => ({
+  mockViewport: {
+    current: null as { itemHeight: number; viewportHeight: number } | null,
+  },
   scrollToIndexSpy: vi.fn(),
   virtuosoProps: [] as Record<string, any>[],
 }));
 
 vi.mock('react-virtuoso', async (importOriginal) => {
-  const { Virtuoso } = await importOriginal<typeof import('react-virtuoso')>();
+  const { Virtuoso, VirtuosoMockContext } =
+    await importOriginal<typeof import('react-virtuoso')>();
   const { forwardRef, useImperativeHandle, useRef } = await import('react');
   return {
     Virtuoso: forwardRef((props: any, ref: any) => {
@@ -66,7 +74,7 @@ vi.mock('react-virtuoso', async (importOriginal) => {
         }),
         [],
       );
-      return (
+      const list = (
         <Virtuoso
           ref={innerRef}
           {...props}
@@ -74,6 +82,13 @@ vi.mock('react-virtuoso', async (importOriginal) => {
           initialTopMostItemIndex={0}
           overscan={0}
         />
+      );
+      return mockViewport.current ? (
+        <VirtuosoMockContext.Provider value={mockViewport.current}>
+          {list}
+        </VirtuosoMockContext.Provider>
+      ) : (
+        list
       );
     }),
   };
@@ -349,7 +364,15 @@ describe('VirtualizedMessageList', () => {
       return null;
     };
 
-    const renderList = async ({ hasMoreHead = false, listProps = {} } = {}) => {
+    const renderList = async ({
+      hasMoreHead = false,
+      listProps = {},
+      overrides = {},
+    }: {
+      hasMoreHead?: boolean;
+      listProps?: Partial<VirtualizedMessageListProps>;
+      overrides?: Partial<ComponentContextValue>;
+    } = {}) => {
       const user1 = generateUser();
       const user2 = generateUser();
       // The file-wide nanoid mock collapses generated IDs, which would dedupe the messages down
@@ -374,7 +397,9 @@ describe('VirtualizedMessageList', () => {
         render(
           <Chat client={client}>
             <Channel channel={channel}>
-              <WithComponents overrides={{ TypingIndicator: TypingIndicatorProbe }}>
+              <WithComponents
+                overrides={{ TypingIndicator: TypingIndicatorProbe, ...overrides }}
+              >
                 <VirtualizedMessageList {...listProps} />
               </WithComponents>
             </Channel>
@@ -387,6 +412,22 @@ describe('VirtualizedMessageList', () => {
     beforeEach(() => {
       virtuosoProps.length = 0;
       scrollToBottom = undefined;
+    });
+
+    it('renders the ScrollToLatestMessageButton override with the list state', async () => {
+      const ScrollToLatestMessageButton = vi.fn(() => (
+        <div data-testid='custom-scroll-to-latest' />
+      ));
+      await renderList({ overrides: { ScrollToLatestMessageButton } });
+
+      expect(screen.getByTestId('custom-scroll-to-latest')).toBeInTheDocument();
+      expect(ScrollToLatestMessageButton).toHaveBeenCalledWith(
+        expect.objectContaining({
+          isNotAtLatestMessageSet: false,
+          onClick: expect.any(Function),
+        }),
+        undefined,
+      );
     });
 
     it('anchors the initial scroll to the end of the last item', async () => {
@@ -587,6 +628,174 @@ describe('VirtualizedMessageList', () => {
         align: 'end',
         index: MESSAGE_COUNT - 1,
       });
+    });
+  });
+
+  // MessagePaginator leaves a jump's highlight countdown to the list: VML starts it once the focused
+  // message was viewed, and stops scrolling back to it then.
+  describe('message focus signal', () => {
+    const MESSAGE_COUNT = 20;
+    const targetId = 'focus-msg-10';
+    // The paginator orders messages by creation time, so the target's index is read from the list.
+    const recenterCall = () =>
+      expect.objectContaining({
+        align: 'center',
+        index: virtuosoProps[
+          virtuosoProps.length - 1
+        ].context.processedMessages.findIndex(
+          (message: { id: string }) => message.id === targetId,
+        ),
+      });
+
+    // jsdom has no IntersectionObserver: a fake records what it observes and reports entries.
+    const intersectionObservers: {
+      callback: IntersectionObserverCallback;
+      observed: Element[];
+    }[] = [];
+    class IntersectionObserverMock {
+      entry: { callback: IntersectionObserverCallback; observed: Element[] };
+      constructor(callback: IntersectionObserverCallback) {
+        this.entry = { callback, observed: [] };
+        intersectionObservers.push(this.entry);
+      }
+      disconnect = () => {
+        this.entry.observed = [];
+      };
+      observe = (element: Element) => {
+        this.entry.observed.push(element);
+      };
+      takeRecords = () => [];
+      unobserve = (element: Element) => {
+        this.entry.observed = this.entry.observed.filter((e) => e !== element);
+      };
+    }
+    const originalIntersectionObserver = window.IntersectionObserver;
+
+    const reportTargetViewed = () => {
+      const target = document.querySelector(`[data-message-id="${targetId}"]`);
+      expect(target, 'focused message rendered').not.toBeNull();
+      const observer = intersectionObservers.find((o) => o.observed.includes(target!));
+      expect(observer, 'focused message observed').toBeDefined();
+      act(() => {
+        observer!.callback(
+          [
+            fromPartial<IntersectionObserverEntry>({
+              intersectionRatio: 1,
+              intersectionRect: fromPartial<DOMRectReadOnly>({ height: 30 }),
+              isIntersecting: true,
+              target: target!,
+            }),
+          ],
+          fromPartial<IntersectionObserver>({}),
+        );
+      });
+    };
+
+    const renderList = async () => {
+      const user = generateUser({ id: 'focus-user' });
+      const mockedChannel = generateChannel({
+        channel: { id: 'focus-channel' },
+        members: [generateMember({ user })],
+        // The file-wide nanoid mock collapses generated IDs, so they are explicit.
+        messages: Array.from({ length: MESSAGE_COUNT }, (_v, i) =>
+          generateMessage({ id: `focus-msg-${i}`, user }),
+        ),
+      });
+      const client = await getTestClientWithUser({ id: 'id' });
+      useMockedApis(client, [getOrCreateChannelApi(mockedChannel)]); // eslint-disable-line react-hooks/rules-of-hooks
+      const channel = client.channel('messaging', mockedChannel.channel.id);
+      await channel.watch();
+      const scheduleClear = vi.spyOn(
+        channel.messagePaginator,
+        'scheduleMessageFocusSignalClear',
+      );
+
+      await act(() => {
+        render(
+          <Chat client={client}>
+            <Channel channel={channel}>
+              <VirtualizedMessageList />
+            </Channel>
+          </Chat>,
+        );
+      });
+
+      let token = 0;
+      act(() => {
+        ({ token } = channel.messagePaginator.emitMessageFocusSignal({
+          messageId: targetId,
+          reason: 'jump-to-message',
+        }));
+      });
+      await vi.waitFor(() =>
+        expect(scrollToIndexSpy).toHaveBeenCalledWith(recenterCall()),
+      );
+
+      const receiveMessage = async (id: string) => {
+        scrollToIndexSpy.mockClear();
+        act(() => {
+          dispatchMessageNewEvent(
+            client,
+            generateMessage({ cid: channel.cid, id, user }),
+            mockedChannel.channel,
+          );
+        });
+        await act(() => new Promise((resolve) => setTimeout(resolve, 0)));
+      };
+
+      return { channel, receiveMessage, scheduleClear, token };
+    };
+
+    beforeEach(() => {
+      intersectionObservers.length = 0;
+      mockViewport.current = { itemHeight: 30, viewportHeight: 600 };
+      window.IntersectionObserver =
+        IntersectionObserverMock as unknown as typeof IntersectionObserver;
+    });
+
+    afterEach(() => {
+      mockViewport.current = null;
+      window.IntersectionObserver = originalIntersectionObserver;
+    });
+
+    it('re-centers on the focused message while it has not been viewed', async () => {
+      const { receiveMessage, scheduleClear } = await renderList();
+
+      expect(scheduleClear).not.toHaveBeenCalled();
+      await receiveMessage('arrived-before-viewed');
+      expect(scrollToIndexSpy).toHaveBeenCalledWith(recenterCall());
+    });
+
+    it('starts the dismissal countdown once the focused message is viewed, and stops re-centering', async () => {
+      const { receiveMessage, scheduleClear, token } = await renderList();
+
+      reportTargetViewed();
+      expect(scheduleClear).toHaveBeenCalledTimes(1);
+      expect(scheduleClear).toHaveBeenCalledWith({ token });
+
+      // The signal still lives during the countdown, but a reader who scrolled away stays there.
+      await receiveMessage('arrived-after-viewed');
+      expect(scrollToIndexSpy).not.toHaveBeenCalledWith(
+        expect.objectContaining({ align: 'center' }),
+      );
+    });
+
+    it('starts the dismissal countdown at once for a message that is not in the list', async () => {
+      const { channel, scheduleClear } = await renderList();
+      scrollToIndexSpy.mockClear();
+
+      let token = 0;
+      act(() => {
+        ({ token } = channel.messagePaginator.emitMessageFocusSignal({
+          messageId: 'not-in-list',
+          reason: 'jump-to-message',
+        }));
+      });
+      await act(() => new Promise((resolve) => setTimeout(resolve, 0)));
+      expect(scheduleClear).toHaveBeenCalledWith({ token });
+      expect(scrollToIndexSpy).not.toHaveBeenCalledWith(
+        expect.objectContaining({ align: 'center' }),
+      );
     });
   });
 

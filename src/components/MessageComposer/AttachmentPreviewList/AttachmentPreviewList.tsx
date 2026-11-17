@@ -25,7 +25,7 @@ import {
   type MediaAttachmentPreviewProps,
 } from './MediaAttachmentPreview';
 import { toBaseImageDescriptors } from '../../BaseImage';
-import { Gallery } from '../../Gallery';
+import { Gallery as DefaultGallery } from '../../Gallery';
 import { GlobalModal, type ModalCloseSource } from '../../Modal';
 import { useComponentContext } from '../../../context';
 import { useRetryAttachmentUpload } from './useRetryAttachmentUpload';
@@ -49,7 +49,7 @@ export const AttachmentPreviewList = ({
 }: AttachmentPreviewListProps) => {
   const messageComposer = useMessageComposerController();
   const retryUpload = useRetryAttachmentUpload();
-  const { Modal = GlobalModal } = useComponentContext();
+  const { Gallery = DefaultGallery, Modal = GlobalModal } = useComponentContext();
   const [showPreview, setShowPreview] = useState(false);
   const initialIndexRef = useRef(0);
   const preventOverlayClose = useCallback(
@@ -155,7 +155,11 @@ export const AttachmentPreviewList = ({
           onCloseAttempt={preventOverlayClose}
           open={showPreview}
         >
-          <Gallery initialIndex={initialIndexRef.current} items={galleryItems} />
+          <Gallery
+            initialIndex={initialIndexRef.current}
+            items={galleryItems}
+            onRequestClose={() => setShowPreview(false)}
+          />
         </Modal>
       )}
     </div>

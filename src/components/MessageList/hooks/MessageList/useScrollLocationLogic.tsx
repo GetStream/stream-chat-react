@@ -69,7 +69,11 @@ export const useScrollLocationLogic = (params: UseScrollLocationLogicParams) => 
 
   const [isMessageListScrolledToBottom, setIsMessageListScrolledToBottom] =
     useState(true);
-  const closeToBottom = useRef(false);
+  // Starts where the state does: `onScroll` flips the state only on a change of this ref, so a
+  // `false` start left the first scroll up after opening a list undetected (no new-messages
+  // notification, and new messages marked read unseen) unless a scroll event had first reported the
+  // bottom.
+  const closeToBottom = useRef(true);
   const closeToTop = useRef(false);
   const initialDataAutoscrollDoneRef = useRef(false);
   const isRestoringOlderAnchorRef = useRef(false);

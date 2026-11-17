@@ -1,7 +1,7 @@
 import type { PropsWithChildren } from 'react';
 import React from 'react';
-import { LoadingIndicator } from '../Loading';
-import { useTranslationContext } from '../../context';
+import { LoadingIndicator as DefaultLoadingIndicator } from '../Loading';
+import { useComponentContext, useTranslationContext } from '../../context';
 import { Button } from '../Button';
 
 export type LoadMoreButtonProps = {
@@ -17,6 +17,7 @@ const UnMemoizedLoadMoreButton = ({
   onClick,
 }: PropsWithChildren<LoadMoreButtonProps>) => {
   const { t } = useTranslationContext();
+  const { LoadingIndicator = DefaultLoadingIndicator } = useComponentContext();
 
   const childrenOrDefaultString =
     children ?? t('loadMore.button.loadMore.label', 'Load more');

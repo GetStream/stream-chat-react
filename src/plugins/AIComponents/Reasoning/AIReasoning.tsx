@@ -9,6 +9,7 @@ import { IconAIReasoning } from '../icons';
 import type { AIReasoningPart } from '../MessageParts/types';
 import { formatMinutesAndSeconds, useNow } from '../utils';
 import { FINISHED_REASONING_SHOWN_MS, useAIThinkingTurn } from './thinkingClock';
+import { ThemeScopeProvider, useAIThemeScopeClassName } from '../themeScope';
 
 /**
  * Splits reasoning at blank lines. Reasoning only grows at its end, so a paragraph's position
@@ -182,6 +183,7 @@ export const AIReasoning = ({
   summary: summaryProp,
   text: textProp,
 }: AIReasoningProps) => {
+  const themeScopeClassName = useAIThemeScopeClassName();
   const { t, userLanguage } = useTranslationContext();
   const { IconChevronRight } = useComponentContextIcons();
   const panelId = `str-chat__ai-reasoning-${useStableId()}`;
@@ -284,63 +286,66 @@ export const AIReasoning = ({
   const expanded = open && text !== '';
 
   return (
-    <div
-      className={clsx(
-        'str-chat__ai-reasoning',
-        isThinking && 'str-chat__ai-reasoning--thinking',
-        expanded && 'str-chat__ai-reasoning--expanded',
-        className,
-      )}
-    >
-      <button
-        aria-controls={text ? panelId : undefined}
-        aria-expanded={expanded}
-        className='str-chat__ai-reasoning__header'
-        onClick={() => {
-          setChoice(!expanded);
-          setOpen(!expanded);
-        }}
-        type='button'
-      >
-        <span className='str-chat__ai-reasoning__icon'>
-          <IconAIReasoning />
-        </span>
-        <span
-          className={clsx(
-            'str-chat__ai-reasoning__title',
-            isThinking && 'str-chat__ai-shimmer',
-          )}
-        >
-          {title}
-        </span>
-        {summary && !isThinking && !expanded && (
-          <span className='str-chat__ai-reasoning__summary'>{summary}</span>
+    <ThemeScopeProvider>
+      <div
+        className={clsx(
+          themeScopeClassName,
+          'str-chat__ai-reasoning',
+          isThinking && 'str-chat__ai-reasoning--thinking',
+          expanded && 'str-chat__ai-reasoning--expanded',
+          className,
         )}
-        <span className='str-chat__ai-reasoning__disclosure'>
-          <IconChevronRight />
-        </span>
-      </button>
-      {text !== '' && (
-        <div
-          aria-hidden={!expanded}
-          className='str-chat__ai-reasoning__fold'
-          // folding shrinks the panel in place, so what sits below glides up with it
-          data-open={expanded}
+      >
+        <button
+          aria-controls={text ? panelId : undefined}
+          aria-expanded={expanded}
+          className='str-chat__ai-reasoning__header'
+          onClick={() => {
+            setChoice(!expanded);
+            setOpen(!expanded);
+          }}
+          type='button'
         >
-          <div className='str-chat__ai-reasoning__fold-inner'>
-            <ReasoningPanel
-              id={panelId}
-              isLive={isThinking}
-              maxHeight={maxExpandedHeight}
-              text={text}
-            />
-            {footnote && !isThinking && (choice === true || initiallyExpanded) && (
-              <div className='str-chat__ai-reasoning__footnote'>{footnote}</div>
+          <span className='str-chat__ai-reasoning__icon'>
+            <IconAIReasoning />
+          </span>
+          <span
+            className={clsx(
+              'str-chat__ai-reasoning__title',
+              isThinking && 'str-chat__ai-shimmer',
             )}
+          >
+            {title}
+          </span>
+          {summary && !isThinking && !expanded && (
+            <span className='str-chat__ai-reasoning__summary'>{summary}</span>
+          )}
+          <span className='str-chat__ai-reasoning__disclosure'>
+            <IconChevronRight />
+          </span>
+        </button>
+        {text !== '' && (
+          <div
+            aria-hidden={!expanded}
+            className='str-chat__ai-reasoning__fold'
+            // folding shrinks the panel in place, so what sits below glides up with it
+            data-open={expanded}
+          >
+            <div className='str-chat__ai-reasoning__fold-inner'>
+              <ReasoningPanel
+                id={panelId}
+                isLive={isThinking}
+                maxHeight={maxExpandedHeight}
+                text={text}
+              />
+              {footnote && !isThinking && (choice === true || initiallyExpanded) && (
+                <div className='str-chat__ai-reasoning__footnote'>{footnote}</div>
+              )}
+            </div>
           </div>
-        </div>
-      )}
-    </div>
+        )}
+      </div>
+    </ThemeScopeProvider>
   );
 };
 

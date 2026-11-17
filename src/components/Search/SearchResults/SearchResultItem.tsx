@@ -22,7 +22,7 @@ import {
   useWorkspaceNavigation,
 } from '../../../context';
 import type { TranslationContextValue } from '../../../context';
-import { Timestamp } from '../../../components/Message/Timestamp';
+import { Timestamp as DefaultTimestamp } from '../../../components/Message/Timestamp';
 import { useStateStore } from '../../../store';
 
 type SearchResultMessage = MessageResponse & { channel?: ChannelResponse };
@@ -199,8 +199,11 @@ export const UserSearchResultItem = ({ item, onSelect }: UserSearchResultItemPro
   const { openChannel } = useWorkspaceNavigation();
   const { directMessagingChannelType } = useSearchContext();
   const { t } = useTranslationContext();
-  const { Avatar = DefaultAvatar, extractDisplayInfo = defaultExtractDisplayInfo } =
-    useComponentContext();
+  const {
+    Avatar = DefaultAvatar,
+    extractDisplayInfo = defaultExtractDisplayInfo,
+    Timestamp = DefaultTimestamp,
+  } = useComponentContext();
 
   const onClick = useCallback(
     (event: React.MouseEvent) => {

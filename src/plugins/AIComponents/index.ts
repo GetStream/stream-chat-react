@@ -9,5 +9,6 @@ export * from './MessageParts';
 export * from './Reasoning';
 export * from './StreamingMessage/StreamingMessage';
 export * from './Suggestions/AISuggestions';
+export { ThemeScopeProvider } from './themeScope';
 export * from './ToolCalls';
 export * from './VoiceVisualization';

@@ -24,7 +24,7 @@ import {
   useTranslationContext,
 } from '../../../context';
 import { useStateStore } from '../../../store';
-import { ThreadListHeader } from './ThreadListHeader';
+import { ThreadListHeader as DefaultThreadListHeader } from './ThreadListHeader';
 
 const noThreads: Thread[] = [];
 
@@ -80,6 +80,7 @@ export const ThreadList = ({ virtuosoProps }: ThreadListProps) => {
     ListLoadErrorIndicator = DefaultListLoadErrorIndicator,
     NotificationList: NotificationListFromContext = NotificationList,
     ThreadListEmptyPlaceholder = DefaultThreadListEmptyPlaceholder,
+    ThreadListHeader = DefaultThreadListHeader,
     ThreadListItem = DefaultThreadListItem,
     ThreadListLoadingIndicator = DefaultThreadListLoadingIndicator,
     ThreadListUnseenThreadsBanner = DefaultThreadListUnseenThreadsBanner,

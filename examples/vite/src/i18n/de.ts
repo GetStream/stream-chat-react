@@ -58,6 +58,9 @@ export const deTranslations = {
   'aiComponents.a2ui.choicePickerFilter.placeholder': 'Suchen',
   'aiComponents.attachmentPreview.deleteAttachment.ariaLabel': 'Anhang löschen',
   'aiComponents.attachmentPreview.unknownFileName.text': 'Unbekannter Dateiname',
+  'aiComponents.branchSwitcher.next.ariaLabel': 'Nächste Version',
+  'aiComponents.branchSwitcher.previous.ariaLabel': 'Vorherige Version',
+  'aiComponents.branchSwitcher.versions.ariaLabel': 'Version {{ index }} von {{ total }}',
   'aiComponents.chart.loading.text': 'Diagramm wird geladen...',
   'aiComponents.chart.unknownType.text': 'Unbekannter Diagrammtyp',
   'aiComponents.chatOptions.chatOptions.ariaLabel': 'Chat-Optionen',
@@ -67,6 +70,8 @@ export const deTranslations = {
   'aiComponents.conversation.scrollToLatest.ariaLabel': 'Zur neuesten Nachricht scrollen',
   'aiComponents.messageAttachment.file.text': 'Datei',
   'aiComponents.messageAttachment.image.text': 'Bild',
+  'aiComponents.messageComposer.cancelEditing.ariaLabel': 'Bearbeiten abbrechen',
+  'aiComponents.messageComposer.editing.text': 'Wird bearbeitet',
   'aiComponents.messageComposer.speechToText.ariaLabel': 'Spracheingabe starten',
   'aiComponents.messageComposer.textInput.placeholder': 'Stelle eine Frage...',
   'aiComponents.messageParts.unsupportedStep.text':
@@ -103,6 +108,8 @@ export const deTranslations = {
   'aiComponents.toolApproval.allow.label': 'Erlauben',
   'aiComponents.toolApproval.answerNotSent.text':
     'Deine Antwort konnte nicht gesendet werden. Versuche es erneut.',
+  'aiComponents.toolApproval.arguments.ariaLabel': 'Was gesendet wird',
+  'aiComponents.toolApproval.arguments.label': 'Was gesendet wird',
   'aiComponents.toolApproval.dontAllow.label': 'Nicht erlauben',
   'aiComponents.toolAuthorization.answerNotSent.text':
     'Deine Antwort konnte nicht gesendet werden. Versuche es erneut.',
@@ -124,7 +131,10 @@ export const deTranslations = {
   'aiComponents.toolCall.waitingForApproval.text': 'Wartet auf Bestätigung',
   'aiComponents.toolCall.waitingForDevice.text': 'Wartet auf das Gerät',
   'aiComponents.toolCall.waitingForSignIn.text': 'Wartet auf deine Anmeldung',
+  'aiComponents.userMessage.cancelEdit.label': 'Abbrechen',
   'aiComponents.userMessage.edit.ariaLabel': 'Bearbeiten',
+  'aiComponents.userMessage.editInput.ariaLabel': 'Nachricht bearbeiten',
+  'aiComponents.userMessage.saveEdit.label': 'Speichern',
   'aiComponents.voiceVisualization.connecting.text': 'Verbinde',
   'aiComponents.voiceVisualization.listening.text': 'Hört zu',
   'aiComponents.voiceVisualization.ready.text': 'Bereit',

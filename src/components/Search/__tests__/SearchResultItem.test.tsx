@@ -16,6 +16,7 @@ import {
   ChatProvider,
   DialogManagerProvider,
   TranslationProvider,
+  WithComponents,
 } from '../../../context';
 import {
   generateChannel,
@@ -25,6 +26,7 @@ import {
   initClientWithChannels,
   mockTranslationContextValue,
 } from '../../../mock-builders';
+import { convertDateToTimestamp } from '../../../mock-builders/generator/time';
 import { mockT } from '../../../mock-builders/translator';
 
 const CHANNEL_PREVIEW_BUTTON_TEST_ID = 'channel-list-item-button';
@@ -396,6 +398,32 @@ describe('SearchResultItem Components', () => {
       expect(screen.getByTestId('avatar')).toBeInTheDocument();
       // `generateUser` always sets a name, but `UserResponse.name` is optional
       expect(screen.getByText(String(user.name))).toBeInTheDocument();
+    });
+
+    it('renders the Timestamp from ComponentContext with the last active date', async () => {
+      const lastActive = new Date('2026-01-02T03:04:05.000Z');
+      const CustomTimestamp = vi.fn(() => <span data-testid='custom-timestamp' />);
+      const UserSearchResultItemWithTimestamp = (
+        props: React.ComponentProps<typeof UserSearchResultItem>,
+      ) => (
+        <WithComponents overrides={{ Timestamp: CustomTimestamp }}>
+          <UserSearchResultItem {...props} />
+        </WithComponents>
+      );
+
+      await renderComponent({
+        SearchResultItemComponent: UserSearchResultItemWithTimestamp,
+        userData: { ...user, last_active: convertDateToTimestamp(lastActive) },
+      });
+
+      expect(screen.getByTestId('custom-timestamp')).toBeInTheDocument();
+      expect(CustomTimestamp).toHaveBeenCalledWith(
+        expect.objectContaining({
+          customClass: 'str-chat__search-result__last-active-timestamp',
+          timestamp: lastActive,
+        }),
+        undefined,
+      );
     });
 
     it('handles user selection', async () => {

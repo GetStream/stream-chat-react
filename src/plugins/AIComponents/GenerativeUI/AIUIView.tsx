@@ -1,3 +1,4 @@
+import clsx from 'clsx';
 import React, { type ReactNode } from 'react';
 import { useSyncExternalStore } from 'use-sync-external-store/shim';
 
@@ -5,6 +6,7 @@ import type { AIUIDocument } from './AIUIDocument';
 import { AIUIEntranceStage } from './AIUIEntrance';
 import { AIUIErrorBoundary } from './AIUIErrorBoundary';
 import type { AIUIHost } from './AIUIHost';
+import { ThemeScopeProvider, useAIThemeScopeClassName } from '../themeScope';
 
 /**
  * A reply's generated UI as it shows in place of the reply's text: as wide as the reply, coming
@@ -20,11 +22,19 @@ export const AIUIGenerated = ({
   children: ReactNode;
   isStreaming: boolean;
   onError: (error: unknown) => void;
-}) => (
-  <AIUIEntranceStage className='str-chat__ai-ui' isStreaming={isStreaming}>
-    <AIUIErrorBoundary onError={onError}>{children}</AIUIErrorBoundary>
-  </AIUIEntranceStage>
-);
+}) => {
+  const themeScopeClassName = useAIThemeScopeClassName();
+  return (
+    <ThemeScopeProvider>
+      <AIUIEntranceStage
+        className={clsx(themeScopeClassName, 'str-chat__ai-ui')}
+        isStreaming={isStreaming}
+      >
+        <AIUIErrorBoundary onError={onError}>{children}</AIUIErrorBoundary>
+      </AIUIEntranceStage>
+    </ThemeScopeProvider>
+  );
+};
 
 const subscribeToNothing = () => () => undefined;
 const noVersion = () => 0;

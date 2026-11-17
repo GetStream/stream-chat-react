@@ -13,7 +13,7 @@ const readEventsSelector = ({ readEvents }: ChannelConfig) => ({
 
 const hasReadLastMessage = (channel: Channel, userId: string) => {
   // `latestMessage`, not `anchoredHeadItem`: marking read records `latestMessage`, which skips
-  // messages that do not count as the channel's latest (e.g. system messages, when so configured).
+  // messages that do not count as the channel's latest (e.g. error and ephemeral messages).
   const latestMessageIdInChannel = channel.messagePaginator.latestMessage?.id;
   const lastReadMessageIdServer = channel.state.read[userId]?.last_read_message_id;
   return latestMessageIdInChannel === lastReadMessageIdServer;

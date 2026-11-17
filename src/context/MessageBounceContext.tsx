@@ -58,7 +58,8 @@ export function MessageBounceProvider({ children }: PropsWithChildrenOnly) {
   );
 
   const handleRetry: ReactEventHandler = useCallback(() => {
-    void doHandleRetry({ localMessage: message });
+    // A failed retry marks the message failed again; that is its report, not the rejection.
+    doHandleRetry({ localMessage: message }).catch(() => undefined);
   }, [doHandleRetry, message]);
 
   const value = useMemo(

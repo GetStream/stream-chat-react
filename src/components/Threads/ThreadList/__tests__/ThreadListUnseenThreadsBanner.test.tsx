@@ -89,6 +89,18 @@ describe('ThreadListUnseenThreadsBanner', () => {
     expect(screen.queryByRole('button')).not.toBeInTheDocument();
   });
 
+  it('renders the LoadingIndicator from ComponentContext while its reload is pending', () => {
+    vi.spyOn(client.threads, 'reload').mockReturnValue(deferred().promise);
+    client.threads.state.partialNext({ unseenThreadIds: ['unseen-thread'] });
+    renderWithClient(<ThreadListUnseenThreadsBanner />);
+
+    expect(screen.queryByTestId('loading-indicator')).not.toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole('button'));
+
+    expect(screen.getByTestId('loading-indicator')).toBeInTheDocument();
+  });
+
   it('keeps the banner after a failed reload', async () => {
     // `reload()` logs a failure and leaves `unseenThreadIds` in place.
     const pending = deferred();

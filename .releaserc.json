@@ -1,13 +1,13 @@
 {
   "branches": [
     {
-      "name": "release-v14",
+      "name": "master",
       "channel": "latest"
     },
     {
-      "name": "master",
-      "prerelease": "rc",
-      "channel": "rc"
+      "name": "release-v14",
+      "channel": "v14",
+      "range": "14.x"
     }
   ],
   "plugins": [

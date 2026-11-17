@@ -58,6 +58,9 @@ jobs:
       - name: Validate main entry does not pull in ai-components
         run: yarn validate-entry-isolation
 
+      - name: Validate A2UI and OpenUI read no colour the AI tokens leave unset
+        run: yarn validate-ai-ui-tokens
+
       - name: Validate translations are in sync with source
         # `yarn build` above already ran build-translations, which regenerates keys.ts from the
         # t() call sites and runtimeDefaults.ts. A diff here means the author changed a call site
@@ -66,7 +69,7 @@ jobs:
         run: git diff --exit-code -- src/i18n/keys.ts
 
       - name: Build the example apps
-        # Type-checks and bundles every `examples/*` workspace (vite, tutorial, ai-chatbot, cookbook) against
+        # Type-checks and bundles every `examples/*` workspace (vite, tutorial, ai-chatbot, ai-ui-gallery, cookbook) against
         # the `dist` built above, so an SDK change that breaks an example (or a stream-chat API one
         # relies on) fails here. None of the builds need Stream credentials.
         env:
@@ -82,6 +85,10 @@ jobs:
   test:
     runs-on: ubuntu-latest
     name: Test
+    permissions:
+      contents: read
+      # Codecov authenticates the coverage upload with a GitHub OIDC token.
+      id-token: write
     steps:
       - uses: actions/checkout@v6
 
@@ -94,7 +101,7 @@ jobs:
         uses: codecov/codecov-action@v6
         with:
           verbose: true
-          token: ${{ secrets.CODECOV_TOKEN }}
+          use_oidc: true
 
   deploy-vite-example:
     concurrency:
@@ -120,7 +127,7 @@ jobs:
       - build
     name: Deploy Vite Example to Vercel
     env:
-      VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+      VERCEL_ORG_ID: ${{ vars.VERCEL_ORG_ID }}
       VERCEL_PROJECT_ID: ${{ matrix.projects.project-id }}
       VITE_STREAM_API_KEY: ${{ matrix.projects.stream-api-key }}
       NODE_ENV: production

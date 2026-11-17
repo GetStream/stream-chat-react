@@ -49,6 +49,9 @@ export const itTranslations = {
   'aiComponents.a2ui.choicePickerFilter.placeholder': 'Cerca',
   'aiComponents.attachmentPreview.deleteAttachment.ariaLabel': 'Elimina allegato',
   'aiComponents.attachmentPreview.unknownFileName.text': 'Nome file sconosciuto',
+  'aiComponents.branchSwitcher.next.ariaLabel': 'Versione successiva',
+  'aiComponents.branchSwitcher.previous.ariaLabel': 'Versione precedente',
+  'aiComponents.branchSwitcher.versions.ariaLabel': 'Versione {{ index }} di {{ total }}',
   'aiComponents.chart.loading.text': 'Caricamento del grafico...',
   'aiComponents.chart.unknownType.text': 'Tipo di grafico sconosciuto',
   'aiComponents.chatOptions.chatOptions.ariaLabel': 'Opzioni della chat',
@@ -58,6 +61,8 @@ export const itTranslations = {
   'aiComponents.conversation.scrollToLatest.ariaLabel': "Vai all'ultimo messaggio",
   'aiComponents.messageAttachment.file.text': 'File',
   'aiComponents.messageAttachment.image.text': 'Immagine',
+  'aiComponents.messageComposer.cancelEditing.ariaLabel': 'Annulla modifica',
+  'aiComponents.messageComposer.editing.text': 'In modifica',
   'aiComponents.messageComposer.speechToText.ariaLabel': 'Avvia input vocale',
   'aiComponents.messageComposer.textInput.placeholder': 'Fai una domanda...',
   'aiComponents.messageParts.unsupportedStep.text':
@@ -94,6 +99,8 @@ export const itTranslations = {
   'aiComponents.toolApproval.allow.label': 'Consenti',
   'aiComponents.toolApproval.answerNotSent.text':
     'Impossibile inviare la tua risposta. Riprova.',
+  'aiComponents.toolApproval.arguments.ariaLabel': 'Cosa invia',
+  'aiComponents.toolApproval.arguments.label': 'Cosa invia',
   'aiComponents.toolApproval.dontAllow.label': 'Non consentire',
   'aiComponents.toolAuthorization.answerNotSent.text':
     'Impossibile inviare la tua risposta. Riprova.',
@@ -115,7 +122,10 @@ export const itTranslations = {
   'aiComponents.toolCall.waitingForApproval.text': 'In attesa di approvazione',
   'aiComponents.toolCall.waitingForDevice.text': 'In attesa del dispositivo',
   'aiComponents.toolCall.waitingForSignIn.text': 'In attesa del tuo accesso',
+  'aiComponents.userMessage.cancelEdit.label': 'Annulla',
   'aiComponents.userMessage.edit.ariaLabel': 'Modifica',
+  'aiComponents.userMessage.editInput.ariaLabel': 'Modifica messaggio',
+  'aiComponents.userMessage.saveEdit.label': 'Salva',
   'aiComponents.voiceVisualization.connecting.text': 'Connessione',
   'aiComponents.voiceVisualization.listening.text': 'In ascolto',
   'aiComponents.voiceVisualization.ready.text': 'Pronto',

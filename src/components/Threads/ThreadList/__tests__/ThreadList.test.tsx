@@ -251,6 +251,17 @@ describe('ThreadList', () => {
     expect(screen.queryByTestId('loading-channels')).not.toBeInTheDocument();
   });
 
+  it('renders the ThreadListHeader override instead of the default header', () => {
+    mockUseComponentContext.mockReturnValue({
+      ThreadListHeader: () => <div data-testid='custom-thread-list-header' />,
+    });
+
+    render(<ThreadList />);
+
+    expect(screen.getByTestId('custom-thread-list-header')).toBeInTheDocument();
+    expect(screen.queryByTestId('thread-list-header')).not.toBeInTheDocument();
+  });
+
   it('renders the overrides of the first-load skeleton and the load error', () => {
     const lastQueryError = new Error('query failed');
     const ListLoadErrorIndicator = vi.fn(() => <div data-testid='custom-load-error' />);

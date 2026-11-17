@@ -18,9 +18,15 @@ import React from 'react';
 import { fromPartial } from '@total-typescript/shoehorn';
 import { Chat } from '../../Chat';
 import { Channel } from '../../Channel';
+import { WithComponents } from '../../../context';
 import type { ChannelProps } from '../../Channel';
 
-import type { Attachment, StreamChat } from 'stream-chat';
+import type {
+  Attachment,
+  LinkPreview,
+  Channel as StreamChannel,
+  StreamChat,
+} from 'stream-chat';
 import { LinkPreviewStatus } from 'stream-chat';
 import type { GenerateChannelOptions } from '../../../mock-builders/generator/channel';
 import { LinkPreviewCard, LinkPreviewList } from '../LinkPreviewList';
@@ -145,13 +151,28 @@ describe('LinkPreviewList', () => {
   });
 });
 
-const renderLinkPreviewCard = async ({ channel, client, linkPreview }) => {
+const renderLinkPreviewCard = async ({
+  channel,
+  client,
+  components,
+  linkPreview,
+}: {
+  channel: StreamChannel;
+  client: StreamChat;
+  components?: React.ComponentProps<typeof WithComponents>['overrides'];
+  linkPreview: Attachment | LinkPreview;
+}) => {
   let result: RenderResult;
+  const card = <LinkPreviewCard linkPreview={linkPreview as LinkPreview} />;
   await act(() => {
     result = render(
       <Chat client={client}>
         <Channel channel={channel}>
-          <LinkPreviewCard linkPreview={linkPreview} />
+          {components ? (
+            <WithComponents overrides={components}>{card}</WithComponents>
+          ) : (
+            card
+          )}
         </Channel>
       </Chat>,
     );
@@ -281,6 +302,27 @@ describe('LinPreviewCard', () => {
       'src',
       'https://example.com/thumb.png',
     );
+  });
+  it('renders the BaseImage from ComponentContext as the thumbnail', async () => {
+    const CustomBaseImage = ({ src, title }: { src?: string; title?: string }) => (
+      <div data-src={src} data-testid='custom-base-image' title={title} />
+    );
+    const { channel, client } = await setup();
+    await renderLinkPreviewCard({
+      channel,
+      client,
+      components: { BaseImage: CustomBaseImage },
+      linkPreview: fromPartial<LinkPreview>({
+        image_url: 'https://example.com/image.png',
+        og_scrape_url: 'https://example.com',
+        status: LinkPreviewStatus.LOADED,
+        title: 'title',
+      }),
+    });
+    const image = screen.getByTestId('custom-base-image');
+    expect(image).toHaveAttribute('data-src', 'https://example.com/image.png');
+    expect(image).toHaveAttribute('title', 'title');
+    expect(screen.queryByTestId('str-chat__base-image')).not.toBeInTheDocument();
   });
   it('renders no thumbnail when the preview has only a title_link', async () => {
     const { channel, client } = await setup();

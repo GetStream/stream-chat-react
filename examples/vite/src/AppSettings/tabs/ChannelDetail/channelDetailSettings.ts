@@ -1,5 +1,6 @@
 import {
   type ChannelMembersHeaderActionItem,
+  type ChannelMembersHeaderActionVisibilityFilterParams,
   DefaultChannelMembersHeaderActions,
 } from 'stream-chat-react/channel-detail';
 
@@ -22,14 +23,22 @@ export const channelMembersHeaderActionLabels: Record<
 
 // Bulk removal is an app-defined action, so the app owns its permission check.
 // (The SDK gates its own `addMembers` action internally.)
-const canRemoveMembers: ChannelMembersHeaderActionItem['filter'] = ({ channel }) =>
+const canRemoveMembers = ({
+  channel,
+}: ChannelMembersHeaderActionVisibilityFilterParams) =>
   channel.data?.own_capabilities?.includes('update-channel-members') ?? false;
 
 export const getChannelMembersHeaderActionSet = (
   channelDetail: ChannelDetailSettingsState,
 ): ChannelMembersHeaderActionItem[] => {
   const { headerActions } = channelDetail.modal.channelMembersView;
-  const actionSet: ChannelMembersHeaderActionItem[] = [];
+  // The toggle renders only while a `dropdown` action is enabled.
+  const actionSet: ChannelMembersHeaderActionItem[] = [
+    {
+      Component: DefaultChannelMembersHeaderActions.QuickDropdownToggle,
+      placement: 'quick-dropdown-toggle',
+    },
+  ];
 
   (Object.keys(headerActions) as ChannelMembersHeaderActionId[]).forEach((type) => {
     const action = headerActions[type];
@@ -39,7 +48,7 @@ export const getChannelMembersHeaderActionSet = (
     switch (type) {
       case 'addMembers':
         actionSet.push({
-          component:
+          Component:
             action.form === 'quick'
               ? DefaultChannelMembersHeaderActions.AddMembers
               : DefaultChannelMembersHeaderActions.AddMembersMenu,
@@ -49,9 +58,9 @@ export const getChannelMembersHeaderActionSet = (
         break;
       case 'removeMembers':
         actionSet.push({
-          component:
+          Component:
             action.form === 'quick' ? RemoveMembersHeaderAction : RemoveMembersMenuAction,
-          filter: canRemoveMembers,
+          isVisible: canRemoveMembers,
           placement: action.form,
           type,
         });

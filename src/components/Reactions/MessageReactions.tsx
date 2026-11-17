@@ -31,8 +31,6 @@ export type MessageReactionsProps = Partial<
   reaction_groups?: Record<string, ReactionGroupResponse>;
   /** Latest reactions, used for the reacting user names. Defaults to the message's latest ones. */
   reactions?: ReactionResponse[];
-  /** Not read by the component: the list order comes from `sortReactions`. */
-  reverse?: boolean;
   /**
    * Comparator that orders the reaction types. Defaults to `sortReactions` from `MessageContext`,
    * then to ascending time of the first reaction.

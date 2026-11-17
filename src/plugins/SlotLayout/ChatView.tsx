@@ -54,7 +54,6 @@ import type {
   SlotName,
 } from './layoutController/layoutControllerTypes';
 import type {
-  ChatViewEntityBinding,
   ChatViewSlotFallbackProps,
   ChatViewSlotRenderers,
   LayoutDescriptor,
@@ -71,12 +70,6 @@ export { defaultSlotKindRegistry } from './slotRegistry';
 
 export type ChatView = 'channels' | 'threads';
 
-export type ChatViewEntityInferer = {
-  kind: ChatViewEntityBinding['kind'];
-  match: (source: unknown) => boolean;
-  toBinding: (source: unknown) => ChatViewEntityBinding;
-};
-
 export type ChatViewBuiltinLayout = 'nav-rail-entity-list-workspace';
 
 export type ChatViewProps = PropsWithChildren<{
@@ -92,7 +85,6 @@ export type ChatViewProps = PropsWithChildren<{
    */
   dialogManagerId?: string;
   duplicateEntityPolicy?: DuplicateEntityPolicy;
-  entityInferrers?: ChatViewEntityInferer[];
   layout?: ChatViewBuiltinLayout;
   layoutController?: LayoutController;
   layouts?: LayoutDescriptor[];
@@ -137,7 +129,6 @@ export type ViewActionSlotResolvers = Partial<
 
 type ChatViewContextValue = {
   activeView: ChatView;
-  entityInferers: ChatViewEntityInferer[];
   layoutController: LayoutController;
   registerViewActionSlotResolvers: (
     view: ChatView,
@@ -228,7 +219,6 @@ export const ChatView = ({
   deriveWorkspaceNavigation,
   dialogManagerId,
   duplicateEntityPolicy,
-  entityInferrers = [],
   layout,
   layoutController,
   layouts: layoutsProp,
@@ -319,7 +309,6 @@ export const ChatView = ({
   const value = useMemo(
     () => ({
       activeView,
-      entityInferers: entityInferrers,
       layoutController: effectiveLayoutController,
       registerViewActionSlotResolvers,
       resolveActionTargetSlot,
@@ -328,7 +317,6 @@ export const ChatView = ({
     [
       activeView,
       effectiveLayoutController,
-      entityInferrers,
       registerViewActionSlotResolvers,
       resolveActionTargetSlot,
       setActiveView,

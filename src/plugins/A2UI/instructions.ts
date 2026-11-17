@@ -25,7 +25,11 @@ import {
   writing,
 } from './A2UIInstructions';
 import { A2UI_VERSION, a2uiMessagesIn, normalizeA2UIMessage } from './A2UIStream';
-import { A2UI_DEFAULT_CATALOG_ID, a2uiAppCatalogDocument } from './catalogDocument';
+import {
+  A2UI_DEFAULT_CATALOG_ID,
+  A2UI_LEGACY_CATALOG_ID,
+  a2uiAppCatalogDocument,
+} from './catalogDocument';
 
 type Entry = ComponentApi;
 
@@ -168,7 +172,11 @@ export const a2uiProblemsWith = (text: string, catalog: Catalog<Entry>) => {
       created = true;
       const components = componentsOf(body.components);
       problems.push(...duplicates(components, surfaceId));
-      if (typeof body.catalogId === 'string' && body.catalogId !== catalog.id) {
+      // The renderer with the default id also shows the default's former id.
+      const named = body.catalogId;
+      const isFormerDefault =
+        catalog.id === A2UI_DEFAULT_CATALOG_ID && named === A2UI_LEGACY_CATALOG_ID;
+      if (typeof named === 'string' && named !== catalog.id && !isFormerDefault) {
         problems.push(
           `surface ${surfaceId} names the catalog ${body.catalogId}, not ${catalog.id}`,
         );

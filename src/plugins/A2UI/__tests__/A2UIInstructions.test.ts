@@ -69,13 +69,13 @@ describe('a2uiInstructions', () => {
       '# Generating user interfaces with A2UI v1.0',
       '## Catalog Guidelines',
       "## The app's components",
-      '## The catalog `getstream.io:app-catalog`',
+      '## The catalog `stream-app-catalog`',
       '## Rules',
       '## Examples',
     ]);
     expect(text.startsWith('Some answers work better')).toBe(true);
     expect(text).toContain('whose info string is `ui:a2ui@1.0`');
-    expect(text).toContain('the `catalogId` `getstream.io:app-catalog`');
+    expect(text).toContain('the `catalogId` `stream-app-catalog`');
     expect(text).toContain(
       '1. Never add images for places.\n2. Write the whole UI again.',
     );
@@ -211,7 +211,7 @@ describe('a2uiProblems', () => {
       "this isn't JSON: {not json}",
       'surface later gets components before it is created',
       "a reply's UI calls no functions",
-      'surface s names the catalog someone-else, not getstream.io:app-catalog',
+      'surface s names the catalog someone-else, not stream-app-catalog',
       'surface s defines root more than once in one message',
     ]);
     expect(

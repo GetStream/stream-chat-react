@@ -6,9 +6,9 @@ import { useStateStore } from '../../store';
 import { PopperTooltip } from '../Tooltip';
 import { useEnterLeaveHandlers } from '../Tooltip/hooks';
 import { useMessageComposerController } from './hooks';
-import { BaseImage } from '../BaseImage';
+import { BaseImage as DefaultBaseImage } from '../BaseImage';
 import { RemoveAttachmentPreviewButton } from './RemoveAttachmentPreviewButton';
-import { useComponentContextIcons } from '../../context';
+import { useComponentContext, useComponentContextIcons } from '../../context';
 
 export type LinkPreviewListProps = {
   displayLinkCount?: number;
@@ -47,6 +47,7 @@ type LinkPreviewProps = {
 
 export const LinkPreviewCard = ({ linkPreview }: LinkPreviewProps) => {
   const { IconLink } = useComponentContextIcons();
+  const { BaseImage = DefaultBaseImage } = useComponentContext();
   const { linkPreviewsManager } = useMessageComposerController();
   const { handleEnter, handleLeave, tooltipVisible } =
     useEnterLeaveHandlers<HTMLDivElement>();

@@ -1,5 +1,6 @@
 export * from './AIMessageComposer';
 export * from './hooks/useSpeechToText';
+export { createAIMessageComposerStore } from './store';
 export {
   type AIChatOption,
   ChatOptionsList,

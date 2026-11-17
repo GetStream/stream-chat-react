@@ -63,6 +63,8 @@ export const Item = ({ context, ...props }: ItemProps & CommonVirtuosoComponentP
           [`str-chat__li--${groupStyles}`]: groupStyles,
         })
       }
+      // Lets the list find a message's item (e.g. to tell when a jumped-to message was viewed).
+      data-message-id={message.id}
     />
   );
 };
@@ -107,7 +109,6 @@ export const messageRenderer = (
   virtuosoContext: VirtuosoContext,
 ) => {
   const {
-    additionalMessageComposerProps,
     channel,
     closeReactionSelectorOnClick,
     customMessageRenderer,
@@ -182,7 +183,6 @@ export const messageRenderer = (
         </div>
       )}
       <Message
-        additionalMessageComposerProps={additionalMessageComposerProps}
         autoscrollToBottom={virtuosoRef.current?.autoscrollToBottom}
         closeReactionSelectorOnClick={closeReactionSelectorOnClick}
         deliveredTo={ownMessagesDeliveredToOthers[message.id] || []}
