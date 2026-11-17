@@ -170,7 +170,8 @@ const App = () => {
     if (!client) return;
 
     const initChannel = async () => {
-      const channel = client.channel('messaging', 'react-tutorial-products', {
+      // One channel per user, as in Step 3: `members` only applies when the channel is created.
+      const channel = client.channel('messaging', `react-tutorial-products-${userId}`, {
         members: [userId],
         custom: {
           image: 'https://getstream.io/random_png/?name=products',

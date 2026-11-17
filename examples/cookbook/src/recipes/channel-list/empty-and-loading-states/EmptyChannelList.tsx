@@ -31,8 +31,7 @@ export const EmptyChannelList = () => {
         New conversation
       </Button>
       <GlobalModal onClose={close} open={open}>
-        {/* Mounted only while open, so every opening starts with an empty dialog. */}
-        {open && <NewConversationDialog onClose={close} />}
+        <NewConversationDialog onClose={close} />
       </GlobalModal>
     </div>
   );

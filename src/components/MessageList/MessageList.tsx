@@ -7,6 +7,11 @@ import {
   useScrollLocationLogic,
   useUnreadMessagesNotification,
 } from './hooks/MessageList';
+import {
+  findMessageElement,
+  isMessageViewed,
+  MESSAGE_VIEWED_THRESHOLDS,
+} from './messageFocus';
 import { getMessageSourceKey } from './messageSourceKey';
 import { useMarkRead } from './hooks/useMarkRead';
 
@@ -262,8 +267,7 @@ const MessageListWithContext = (props: MessageListWithContextProps) => {
     if (!messageFocusSignal || !listElement) return;
     const { messageId, token } = messageFocusSignal;
 
-    const findTarget = () =>
-      listElement.querySelector<HTMLElement>(`[data-message-id='${messageId}']`);
+    const findTarget = () => findMessageElement(listElement, messageId);
     const centerTarget = (behavior: ScrollBehavior) =>
       findTarget()?.scrollIntoView({ behavior, block: 'center' });
 
@@ -298,18 +302,12 @@ const MessageListWithContext = (props: MessageListWithContextProps) => {
     const viewObserver = new IntersectionObserver(
       (entries) => {
         const entry = entries[entries.length - 1];
-        const rootHeight = listElement.clientHeight || 1;
-        // Viewed: half the message is visible, or the visible slice fills half the viewport.
-        const viewed =
-          entry.isIntersecting &&
-          (entry.intersectionRatio >= 0.5 ||
-            entry.intersectionRect.height >= rootHeight * 0.5);
-        if (!viewed) return;
+        if (!isMessageViewed(entry, listElement.clientHeight)) return;
         messagePaginator.scheduleMessageFocusSignalClear({ token });
         viewObserver.disconnect();
         relayoutObserver.disconnect();
       },
-      { root: listElement, threshold: [0, 0.5, 1] },
+      { root: listElement, threshold: MESSAGE_VIEWED_THRESHOLDS },
     );
 
     viewObserver.observe(target);

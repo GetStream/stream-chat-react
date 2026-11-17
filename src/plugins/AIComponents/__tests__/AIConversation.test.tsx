@@ -11,6 +11,7 @@ import {
   fromStreamMessage,
   parseMessageParts,
 } from '..';
+import { AIPendingMessageTracker, turnsOf } from '../Conversation/entries';
 
 const user = (id: string, text: string): AIMessage => ({ id, role: 'user', text });
 const reply = (id: string, text: string, extra: Partial<AIMessage> = {}): AIMessage => ({
@@ -401,11 +402,163 @@ describe('fromStreamMessage', () => {
     ).toMatchObject({ role: 'assistant', text: 'From the agent' });
   });
 
+  it('reads which version a message is, and its response, from custom.support_branch', () => {
+    const support_branch = {
+      count: 3,
+      index: 2,
+      of: 'question',
+      parent_response_id: 'resp-0',
+      question_response_id: 'resp-1',
+      response_id: 'resp-1',
+    };
+    expect(
+      fromStreamMessage({
+        attachments: [],
+        custom: { support_branch },
+        id: 'u1',
+        text: 'Hi',
+      }),
+    ).toMatchObject({
+      branch: { count: 3, index: 2, of: 'question' },
+      responseId: 'resp-1',
+      role: 'user',
+    });
+    // A message from the API has its custom fields at the top level.
+    const fromAPI = fromStreamMessage({
+      ai_generated: true,
+      attachments: [],
+      id: 'a1',
+      support_branch: { count: 2, index: 1, of: 'reply', response_id: 'resp-2' },
+      text: 'Hello',
+    });
+    expect(fromAPI.branch).toEqual({ count: 2, index: 1, of: 'reply' });
+    expect(fromAPI.responseId).toBe('resp-2');
+  });
+
+  it('reads the message a copy was re-sent from, from custom.resent_from or the top level', () => {
+    const read = (fields: Record<string, unknown>) =>
+      fromStreamMessage({ attachments: [], id: 'c1', text: 'Hi', ...fields });
+    expect(read({ custom: { resent_from: 'u1' } }).resentFrom).toBe('u1');
+    // stream-chat 9, and a message from the API, keep custom fields at the top level.
+    expect(read({ ai_generated: true, resent_from: 'a1' }).resentFrom).toBe('a1');
+    expect(read({ resent_from: 'u1' })).toMatchObject({ resentFrom: 'u1', role: 'user' });
+    for (const malformed of ['', 42, null, {}, ['u1']]) {
+      expect(read({ custom: { resent_from: malformed } })).not.toHaveProperty(
+        'resentFrom',
+      );
+    }
+    expect(read({})).not.toHaveProperty('resentFrom');
+  });
+
+  it('leaves out a malformed support_branch, keeping a good response id', () => {
+    const read = (support_branch: unknown) =>
+      fromStreamMessage({
+        attachments: [],
+        custom: { support_branch },
+        id: 'm',
+        text: '',
+      });
+    for (const malformed of [
+      null,
+      'reply',
+      [],
+      { count: 2, index: 1 },
+      { count: 2, index: 1, of: 'thread' },
+      { count: 2, index: 3, of: 'reply' },
+      { count: 2, index: 0, of: 'reply' },
+      { count: 2, index: 1.5, of: 'reply' },
+      { count: '2', index: 1, of: 'reply' },
+      { count: 0, index: 0, of: 'question' },
+      { count: Number.NaN, index: 1, of: 'reply' },
+    ]) {
+      const message = read(malformed);
+      expect(message).not.toHaveProperty('branch');
+      expect(message).not.toHaveProperty('responseId');
+    }
+    const message = read({ count: 2, index: 5, of: 'reply', response_id: 'resp-1' });
+    expect(message).not.toHaveProperty('branch');
+    expect(message.responseId).toBe('resp-1');
+    expect(read({ count: 2, index: 1, of: 'reply', response_id: 42 })).not.toHaveProperty(
+      'responseId',
+    );
+    expect(read({ count: 2, index: 1, of: 'reply', response_id: '' })).not.toHaveProperty(
+      'responseId',
+    );
+  });
+
   it('adapts the person’s message', () => {
     expect(fromStreamMessage({ attachments: [], id: 'u1', text: 'Hi' })).toMatchObject({
       isGenerating: false,
       parts: [],
       role: 'user',
     });
+  });
+});
+
+describe('AIPendingMessageTracker', () => {
+  it('keeps a turn that starts with a reply when older messages load above it', () => {
+    const starts = new Set<string>();
+    const tracker = new AIPendingMessageTracker();
+    const page = [
+      reply('a1', 'It is noon.'),
+      user('u2', 'And the weather?'),
+      reply('a2', 'Sunny.'),
+    ];
+    expect(turnsOf(tracker.entries(page), starts).map((turn) => turn.id)).toEqual([
+      'a1',
+      'u2',
+    ]);
+
+    const older = [user('u1', 'What time is it?'), ...page];
+    expect(turnsOf(tracker.entries(older), starts).map((turn) => turn.id)).toEqual([
+      'u1',
+      'a1',
+      'u2',
+    ]);
+  });
+
+  it('takes the copy of a message on its way that arrives in the update that first passes it', () => {
+    const tracker = new AIPendingMessageTracker();
+    const history = [user('u1', 'Hello'), reply('a1', 'Hi!')];
+    tracker.entries(history);
+    const pending = { id: 'local-1', text: 'Plan my day' };
+    const entries = tracker.entries(
+      [...history, user('stream-u2', 'Plan my day')],
+      pending,
+    );
+    expect(entries.map((entry) => entry.id)).toEqual(['u1', 'a1', 'local-1']);
+    expect(entries.filter((entry) => entry.pending)).toHaveLength(0);
+  });
+
+  it('takes the copy of a message on its way from a window of the same length', () => {
+    const tracker = new AIPendingMessageTracker();
+    tracker.entries([user('u1', 'Hello'), reply('a1', 'Hi!')]);
+    const pending = { id: 'local-1', text: 'Plan my day' };
+    // A reconnect reloads the latest page: as many messages, the newest one the copy.
+    const entries = tracker.entries(
+      [reply('a1', 'Hi!'), user('stream-u2', 'Plan my day')],
+      pending,
+    );
+    expect(entries.map((entry) => entry.id)).toEqual(['a1', 'local-1']);
+  });
+
+  it('takes no older question for the copy of a message on its way when it mounts with one', () => {
+    const history = [user('u1', 'Hello'), reply('a1', 'Hi!'), user('u2', 'Plan my day')];
+    const pending = { id: 'local-3', text: 'Plan my week' };
+    const entries = new AIPendingMessageTracker().entries(history, pending);
+    expect(entries.map((entry) => entry.id)).toEqual(['u1', 'a1', 'u2', 'local-3']);
+    expect(entries[3].pending).toBe(pending);
+  });
+
+  it('shows a question once when its copy arrives in the update that first passes it', () => {
+    const history = [user('u1', 'Hello'), reply('a1', 'Hi!')];
+    const { rerender } = render(<AIConversation messages={history} />);
+    rerender(
+      <AIConversation
+        messages={[...history, user('stream-u2', 'Plan my day')]}
+        pendingMessage={{ id: 'local-1', text: 'Plan my day' }}
+      />,
+    );
+    expect(screen.getAllByText('Plan my day')).toHaveLength(1);
   });
 });

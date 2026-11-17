@@ -1,3 +1,4 @@
+import clsx from 'clsx';
 import React, {
   forwardRef,
   useEffect,
@@ -8,6 +9,7 @@ import React, {
 
 import { useStableCallback } from '../../../utils/useStableCallback';
 import { AIMarkdown } from '../AIMarkdown';
+import { ThemeScopeProvider, useAIThemeScopeClassName } from '../themeScope';
 
 export type UseMessageTextStreamingProps = {
   /** A fixed pace instead of catching up: the time between each step, in milliseconds. */
@@ -83,6 +85,7 @@ export const StreamingMessage = forwardRef<
   StreamingMessageRef,
   UseMessageTextStreamingProps
 >(({ letterIntervalMs, renderingLetterCount, text }, ref) => {
+  const themeScopeClassName = useAIThemeScopeClassName();
   const { skipAnimation, typedText } = useTypedText({
     letterIntervalMs,
     renderingLetterCount,
@@ -92,9 +95,11 @@ export const StreamingMessage = forwardRef<
   useImperativeHandle(ref, () => ({ skipAnimation }), [skipAnimation]);
 
   return (
-    <div className='str-chat__ai-streaming-message'>
-      <AIMarkdown>{typedText}</AIMarkdown>
-    </div>
+    <ThemeScopeProvider>
+      <div className={clsx(themeScopeClassName, 'str-chat__ai-streaming-message')}>
+        <AIMarkdown>{typedText}</AIMarkdown>
+      </div>
+    </ThemeScopeProvider>
   );
 });
 

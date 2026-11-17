@@ -1,12 +1,26 @@
-import type { LocalMessage } from 'stream-chat';
+import type { LocalMessage, PollState } from 'stream-chat';
 import React, { useCallback, useMemo } from 'react';
 import {
   getTranslatedMessageText,
+  useChatContext,
   useComponentContextIcons,
   useMessageContext,
   useTranslationContext,
 } from '../../context';
 import { Button } from '../Button';
+import { isMessageDeleted } from './utils';
+import { useStateStore } from '../../store';
+import {
+  getPollSourceLanguage,
+  pollHasTranslation,
+  type PollTexts,
+} from '../Poll/utils/translations';
+
+const pollTextsSelector = ({ name, name_i18n, options }: PollState): PollTexts => ({
+  name,
+  name_i18n,
+  options,
+});
 
 export type TranslationIndicatorProps = {
   message?: LocalMessage;
@@ -24,18 +38,25 @@ export const MessageTranslationIndicator = ({
   } = useMessageContext();
   const message = propMessage ?? contextMessage;
 
+  const { client } = useChatContext();
+  const livePoll = message?.poll_id ? client.polls.fromState(message.poll_id) : undefined;
+  const livePollTexts = useStateStore(livePoll?.state, pollTextsSelector);
+  const pollTexts = livePollTexts ?? message?.poll;
+
   const translatedTextForUser = useMemo(
     () => getTranslatedMessageText({ language: userLanguage, message }),
     [userLanguage, message],
   );
 
-  const hasTranslationForUserLanguage = useMemo(
-    () =>
-      translatedTextForUser != null &&
-      message?.text !== undefined &&
-      translatedTextForUser !== message.text,
-    [translatedTextForUser, message?.text],
+  const messageTextIsTranslated =
+    !!message?.text && !!translatedTextForUser && translatedTextForUser !== message.text;
+
+  const pollIsTranslated = useMemo(
+    () => pollHasTranslation(pollTexts, userLanguage),
+    [pollTexts, userLanguage],
   );
+
+  const hasTranslationForUserLanguage = messageTextIsTranslated || pollIsTranslated;
 
   const viewingOriginal = useMemo(
     () =>
@@ -49,7 +70,8 @@ export const MessageTranslationIndicator = ({
   }, [setTranslationView, viewingOriginal]);
 
   const sourceLanguageName = useMemo(() => {
-    const sourceLanguageCode = message?.i18n?.language;
+    const sourceLanguageCode =
+      message?.i18n?.language ?? getPollSourceLanguage(pollTexts);
     if (!sourceLanguageCode) return '';
     // `message.i18n.language` is server data, so it can name a language missing from the catalog;
     // i18next then echoes the key back, and the comparison falls back to the bare code instead of
@@ -57,9 +79,9 @@ export const MessageTranslationIndicator = ({
     const languageKey = `language.${sourceLanguageCode}` as const;
     const translatedName = t(languageKey);
     return translatedName === languageKey ? sourceLanguageCode : translatedName;
-  }, [message?.i18n?.language, t]);
+  }, [message?.i18n?.language, pollTexts, t]);
 
-  if (!message?.i18n || !setTranslationView) return null;
+  if (!message || isMessageDeleted(message) || !setTranslationView) return null;
   if (!hasTranslationForUserLanguage) return null;
 
   return (

@@ -17,7 +17,7 @@
     "query": {
       "channel": "docs-v15-cb-design"
     },
-    "waitFor": ".cookbook-channel-list-header button",
+    "waitFor": ".str-chat__channel-list__header button",
     "clip": ".str-chat__channel-list",
     "padding": 0
   },
