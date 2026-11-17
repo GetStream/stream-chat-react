@@ -411,6 +411,9 @@ export type TranslationCatalog = {
   'messageActions.editMessage.ariaLabel': 'Edit Message';
   'messageActions.errorAddingFlag.text': 'Error adding flag';
   'messageActions.errorMarkingMessageUnread.text': 'Error marking message unread. Cannot mark unread messages older than the newest 100 channel messages.';
+  'messageActions.errorRemovingReminder.text': 'Error removing reminder';
+  'messageActions.errorRemovingSaveLater.text': 'Error removing message from saved for later';
+  'messageActions.errorSavingLater.text': 'Error saving message for later';
   'messageActions.flag.text': 'Flag';
   'messageActions.flagMessage.ariaLabel': 'Flag Message';
   'messageActions.markMessageUnread.ariaLabel': 'Mark Message Unread';
@@ -427,6 +430,7 @@ export type TranslationCatalog = {
   'messageActions.quoteReply.text': 'Quote Reply';
   'messageActions.remindMe.text': 'Remind me';
   'messageActions.remindMeMessage.ariaLabel': 'Remind Me Message';
+  'messageActions.remindMeSubmenu.errorSettingReminder.text': 'Error setting reminder';
   'messageActions.remindMeSubmenu.remindMe.text': 'Remind Me';
   'messageActions.removeReminder.ariaLabel': 'Remove Reminder';
   'messageActions.removeReminder.text': 'Remove reminder';

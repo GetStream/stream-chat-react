@@ -390,8 +390,8 @@ const DefaultMessageActionComponents = {
         <MessageActionsMenuItemButton
           aria-label={
             reminder
-              ? t('messageActions.remindMeMessage.ariaLabel', 'Remind Me Message')
-              : t('messageActions.removeReminder.ariaLabel', 'Remove Reminder')
+              ? t('messageActions.removeReminder.ariaLabel', 'Remove Reminder')
+              : t('messageActions.remindMeMessage.ariaLabel', 'Remind Me Message')
           }
           className={msgActionsBoxButtonClassName}
           hasSubMenu={!reminder}
@@ -416,7 +416,13 @@ const DefaultMessageActionComponents = {
                   },
                   emitter: 'MessageActions',
                   error: getNotificationError(error),
-                  message: getErrorMessage(error, 'Error removing reminder'),
+                  message: getErrorMessage(
+                    error,
+                    t(
+                      'messageActions.errorRemovingReminder.text',
+                      'Error removing reminder',
+                    ),
+                  ),
                   severity: 'error',
                   type: 'api:message:reminder:delete:failed',
                 });
@@ -497,8 +503,14 @@ const DefaultMessageActionComponents = {
                 message: getErrorMessage(
                   error,
                   reminder
-                    ? 'Error removing message from saved for later'
-                    : 'Error saving message for later',
+                    ? t(
+                        'messageActions.errorRemovingSaveLater.text',
+                        'Error removing message from saved for later',
+                      )
+                    : t(
+                        'messageActions.errorSavingLater.text',
+                        'Error saving message for later',
+                      ),
                 ),
                 severity: 'error',
                 type: reminder
