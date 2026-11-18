@@ -1,7 +1,12 @@
 import React from 'react';
 import { act, renderHook } from '@testing-library/react';
 import { fromPartial } from '@total-typescript/shoehorn';
-import type { Channel, ChannelState, StreamChat } from 'stream-chat';
+import type {
+  Channel,
+  ChannelMemberResponse,
+  ChannelState,
+  StreamChat,
+} from 'stream-chat';
 
 import { ChannelInstanceProvider, ChatProvider } from '../../context';
 import { generateChannelState, mockChatContext } from '../../mock-builders';
@@ -132,27 +137,54 @@ describe('useIsDmChannel', () => {
     expect(result.current).toBe(true);
   });
 
-  it('reads the current user from Chat for a channel pending disposal, whose client throws', () => {
-    const chatClient = fromPartial<StreamChat>({ user: { id: 'user-1' } });
-    const members = fromPartial<ChannelState['members']>({
-      'user-1': { user: { id: 'user-1' } },
-      'user-2': { user: { id: 'user-2' } },
-    });
-    const { channel } = makeChannel(2, members, 'user-a');
-    Object.assign(channel, {
-      getClient: () => {
-        throw new Error('pending disposal');
-      },
-      pendingDisposal: true,
-    });
+  describe('for a channel pending disposal, whose client throws', () => {
+    const makeDisposedDm = (membershipUserId?: string) => {
+      const members = fromPartial<ChannelState['members']>({
+        'user-a': { user: { id: 'user-a' } },
+        'user-b': { user: { id: 'user-b' } },
+      });
+      const state = generateChannelState({
+        memberCount: 2,
+        members,
+        membership: fromPartial<ChannelMemberResponse>(
+          membershipUserId ? { user: { id: membershipUserId } } : {},
+        ),
+      });
+      return fromPartial<Channel>({
+        data: { member_count: 2 },
+        getClient: () => {
+          throw new Error('pending disposal');
+        },
+        pendingDisposal: true,
+        state,
+      });
+    };
+    // The Chat user is a member too, so reading it would make this look like their DM.
     const wrapper = ({ children }: React.PropsWithChildren) => (
-      <ChatProvider value={mockChatContext({ client: chatClient })}>
+      <ChatProvider
+        value={mockChatContext({
+          client: fromPartial<StreamChat>({ user: { id: 'user-b' } }),
+        })}
+      >
         {children}
       </ChatProvider>
     );
 
-    const { result } = renderHook(() => useIsDmChannel({ channel }), { wrapper });
+    it("reads the current user from the channel's own membership", () => {
+      const { result } = renderHook(
+        () => useIsDmChannel({ channel: makeDisposedDm('user-a') }),
+        { wrapper },
+      );
 
-    expect(result.current).toBe(true);
+      expect(result.current).toBe(true);
+    });
+
+    it('does not fall back to the user in Chat without a membership', () => {
+      const { result } = renderHook(() => useIsDmChannel({ channel: makeDisposedDm() }), {
+        wrapper,
+      });
+
+      expect(result.current).toBe(false);
+    });
   });
 });
