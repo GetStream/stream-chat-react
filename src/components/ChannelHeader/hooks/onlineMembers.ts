@@ -8,7 +8,9 @@ import type { ChannelMemberResponse, ChannelWatchState, MembersState } from 'str
 export const isMemberOnline = (
   member: ChannelMemberResponse,
   watchers: ChannelWatchState['watchers'],
-) => !!member.user?.online || !!(member.user?.id && watchers[member.user.id]);
+) =>
+  !!member.user?.online ||
+  (!!member.user?.id && Object.prototype.hasOwnProperty.call(watchers, member.user.id));
 
 /** The loaded members (`channel.state.members`) that are online. */
 export const getOnlineMembers = ({

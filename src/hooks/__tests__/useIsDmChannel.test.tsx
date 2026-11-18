@@ -131,4 +131,28 @@ describe('useIsDmChannel', () => {
 
     expect(result.current).toBe(true);
   });
+
+  it('reads the current user from Chat for a channel pending disposal, whose client throws', () => {
+    const chatClient = fromPartial<StreamChat>({ user: { id: 'user-1' } });
+    const members = fromPartial<ChannelState['members']>({
+      'user-1': { user: { id: 'user-1' } },
+      'user-2': { user: { id: 'user-2' } },
+    });
+    const { channel } = makeChannel(2, members, 'user-a');
+    Object.assign(channel, {
+      getClient: () => {
+        throw new Error('pending disposal');
+      },
+      pendingDisposal: true,
+    });
+    const wrapper = ({ children }: React.PropsWithChildren) => (
+      <ChatProvider value={mockChatContext({ client: chatClient })}>
+        {children}
+      </ChatProvider>
+    );
+
+    const { result } = renderHook(() => useIsDmChannel({ channel }), { wrapper });
+
+    expect(result.current).toBe(true);
+  });
 });

@@ -3,6 +3,7 @@ import { act, renderHook } from '@testing-library/react';
 import type { Channel, Event, StreamChat } from 'stream-chat';
 
 import { Chat } from '../../../Chat';
+import { ChannelInstanceProvider } from '../../../../context';
 import {
   generateMember,
   generateUser,
@@ -112,6 +113,25 @@ describe('useChannelHasOtherMembersOnline', () => {
 
     // The channel's own user "me" is online but not counted; "other" is offline.
     const { result } = renderForChannel(chatClient, channel);
+
+    expect(result.current).toBe(false);
+  });
+
+  it("leaves out the context channel's own user, not the user in Chat", async () => {
+    const { channel } = await setupChannel({ otherOnline: false });
+    const { client: chatClient } = await initClientWithChannels({
+      customUser: { id: 'other' },
+    });
+
+    const { result } = renderHook(() => useChannelHasOtherMembersOnline(), {
+      wrapper: ({ children }: React.PropsWithChildren) => (
+        <Chat client={chatClient}>
+          <ChannelInstanceProvider value={{ channel }}>
+            {children}
+          </ChannelInstanceProvider>
+        </Chat>
+      ),
+    });
 
     expect(result.current).toBe(false);
   });

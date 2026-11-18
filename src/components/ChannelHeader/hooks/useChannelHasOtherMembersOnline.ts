@@ -3,6 +3,7 @@ import type { Channel, ChannelStateData } from 'stream-chat';
 import { useChatContext } from '../../../context/ChatContext';
 import { useResolvedChannel } from '../../../context/useContextChannel';
 import { useStateStore } from '../../../store';
+import { getChannelOwnUserId } from '../../../utils/getChannelOwnUserId';
 import { getOnlineMembers } from './onlineMembers';
 
 export type UseChannelHasOtherMembersOnlineParams = {
@@ -29,8 +30,7 @@ export const useChannelHasOtherMembersOnline = ({
 
   if (!enabled) return false;
 
-  // A given channel can belong to another client than the one in `Chat`.
-  const ownUserId = channelOverride ? channel.getClient().user?.id : client.user?.id;
+  const ownUserId = getChannelOwnUserId(channel, client);
   return getOnlineMembers({ members, watchers }).some(
     (member) => member.user?.id !== ownUserId,
   );

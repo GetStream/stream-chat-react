@@ -725,11 +725,13 @@ describe('ChannelHeader', () => {
     });
 
     it('counts the members of a group who are online or watch it, not other watchers', async () => {
-      const [user3, user4, nonMember] = [generateUser(), generateUser(), generateUser()];
+      const [user3, user4] = [generateUser(), generateUser()];
+      const nonMembers = [generateUser(), generateUser()];
+      // 4 watchers, of whom 2 are members; online: user1 and user3, and user2 by watching.
       await renderSubtitle({
         members: [user1, user2, user3, user4],
         onlineUserIds: [user1.id, user3.id],
-        watchers: [user1, user2, nonMember],
+        watchers: [user1, user2, ...nonMembers],
       });
 
       expect(await screen.findByText('4 members · 3 online')).toBeInTheDocument();

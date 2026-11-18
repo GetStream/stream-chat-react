@@ -40,10 +40,9 @@ export function useChannelHeaderOnlineStatus({
     () => getOnlineMembers({ members, watchers }).length,
     [members, watchers],
   );
-  // Each resolves the channel itself, so the current user comes from the right client.
-  const isDirectMessagingChannel = useIsDmChannel({ channel: channelOverride });
+  const isDirectMessagingChannel = useIsDmChannel({ channel });
   const hasOtherMembersOnline = useChannelHasOtherMembersOnline({
-    channel: channelOverride,
+    channel,
     enabled: isDirectMessagingChannel,
   });
 

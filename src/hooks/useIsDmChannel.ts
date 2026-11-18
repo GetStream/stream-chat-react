@@ -4,6 +4,7 @@ import { useChatContext } from '../context';
 import { useResolvedChannel } from '../context/useContextChannel';
 import { useStateStore } from '../store';
 import { isDmChannel } from '../utils';
+import { getChannelOwnUserId } from '../utils/getChannelOwnUserId';
 
 export type UseIsDmChannelParams = {
   channel?: Channel;
@@ -29,7 +30,5 @@ export const useIsDmChannel = ({
   // Subscribes so `isDmChannel` re-runs whenever the members change.
   useStateStore(channel.state, membersSelector);
 
-  // A given channel can belong to another client than the one in `Chat`.
-  const ownUserId = channelOverride ? channel.getClient().user?.id : client.user?.id;
-  return isDmChannel({ channel, ownUserId });
+  return isDmChannel({ channel, ownUserId: getChannelOwnUserId(channel, client) });
 };
