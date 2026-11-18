@@ -256,6 +256,16 @@ describe('useChatViewNavigation', () => {
       channel: primaryChannel,
       id: 'reply-thread',
     } as unknown as StreamThread;
+    const otherReplyThread = {
+      channel: primaryChannel,
+      id: 'other-reply-thread',
+    } as unknown as StreamThread;
+    const secondaryReplyThread = {
+      channel: secondaryChannel,
+      id: 'secondary-reply-thread',
+    } as unknown as StreamThread;
+    // Another instance of the secondary channel's conversation (same `cid`).
+    const secondaryChannelInstance = makeChannel('messaging:secondary');
     let capturedController: LayoutController | undefined;
 
     const channelBinding = (channel: StreamChannel) => ({
@@ -303,18 +313,140 @@ describe('useChatViewNavigation', () => {
           >
             open-next
           </button>
+          <button
+            onClick={() =>
+              navigation.open({
+                key: otherReplyThread.id,
+                kind: 'thread',
+                source: otherReplyThread,
+              })
+            }
+            type='button'
+          >
+            open-other-reply-thread
+          </button>
+          <button
+            onClick={() =>
+              navigation.pushLayer('slot2', {
+                key: 'user-1',
+                kind: 'userProfile',
+                source: { userId: 'user-1' },
+              })
+            }
+            type='button'
+          >
+            push-profile
+          </button>
+          <button onClick={() => navigation.openView('threads')} type='button'>
+            open-threads-view
+          </button>
+          <button
+            onClick={() =>
+              navigation.open(
+                { key: replyThread.id, kind: 'thread', source: replyThread },
+                { slot: 'slot2' },
+              )
+            }
+            type='button'
+          >
+            open-reply-thread-in-slot2
+          </button>
+          <button
+            onClick={() =>
+              navigation.open(
+                { key: replyThread.id, kind: 'thread', source: replyThread },
+                { layer: true },
+              )
+            }
+            type='button'
+          >
+            layer-reply-thread
+          </button>
+          <button
+            onClick={() =>
+              navigation.open({
+                key: secondaryReplyThread.id,
+                kind: 'thread',
+                source: secondaryReplyThread,
+              })
+            }
+            type='button'
+          >
+            open-secondary-reply-thread
+          </button>
+          <button
+            onClick={() =>
+              navigation.open(channelBinding(nextChannel), { slot: 'slot1' })
+            }
+            type='button'
+          >
+            open-next-in-slot1
+          </button>
+          <button
+            onClick={() =>
+              navigation.open(channelBinding(nextChannel), { slot: 'slot2' })
+            }
+            type='button'
+          >
+            open-next-in-slot2
+          </button>
+          <button
+            onClick={() =>
+              navigation.open(channelBinding(secondaryChannelInstance), {
+                slot: 'slot2',
+              })
+            }
+            type='button'
+          >
+            open-secondary-instance-in-slot2
+          </button>
+          <button
+            onClick={() =>
+              navigation.pushLayer('slot2', {
+                key: 'user-2',
+                kind: 'userProfile',
+                source: { userId: 'user-2' },
+              })
+            }
+            type='button'
+          >
+            push-other-profile
+          </button>
+          <button onClick={() => navigation.release('slot1')} type='button'>
+            release-slot1
+          </button>
+          <button
+            onClick={() =>
+              navigation.open(channelBinding(primaryChannel), { layer: true })
+            }
+            type='button'
+          >
+            layer-primary
+          </button>
+          <button
+            onClick={() =>
+              navigation.pushLayer('slot1', {
+                key: 'user-1',
+                kind: 'userProfile',
+                source: { userId: 'user-1' },
+              })
+            }
+            type='button'
+          >
+            push-profile-slot1
+          </button>
         </>
       );
     };
 
-    const renderHarness = () =>
+    const renderHarness = (layouts = twoSlotLayouts) =>
       renderWithProviders(
-        <ChatView layouts={twoSlotLayouts}>
+        <ChatView layouts={layouts}>
           <Harness />
         </ChatView>,
       );
 
-    it('keeps a channel stacked over its reply thread, as the slot base', () => {
+    it('keeps its reply thread in another slot, with the channel stacked over it', () => {
       renderHarness();
       fireEvent.click(screen.getByText('open-primary'));
       fireEvent.click(screen.getByText('open-reply-thread'));
@@ -328,23 +460,338 @@ describe('useChatViewNavigation', () => {
       expect(getChatViewEntityBinding(state?.slotBindings.slot1)?.source).toBe(
         nextChannel,
       );
-      // The reply thread of the replaced channel is gone; the channel above it stays.
       expect(getChatViewEntityBinding(state?.slotBindings.slot2)?.source).toBe(
-        secondaryChannel,
+        replyThread,
+      );
+      expect(
+        (state?.slotLayers?.slot2 ?? []).map(
+          (layer) => getChatViewEntityBinding(layer)?.source,
+        ),
+      ).toEqual([secondaryChannel]);
+    });
+
+    it('keeps its reply threads when the channel already shown is opened again', () => {
+      renderHarness();
+      fireEvent.click(screen.getByText('open-primary'));
+      fireEvent.click(screen.getByText('open-reply-thread'));
+
+      fireEvent.click(screen.getByText('open-primary'));
+
+      const state = viewState(capturedController);
+      expect(getChatViewEntityBinding(state?.slotBindings.slot1)?.source).toBe(
+        primaryChannel,
+      );
+      expect(getChatViewEntityBinding(state?.slotBindings.slot2)?.source).toBe(
+        replyThread,
+      );
+    });
+
+    it('stacks a thread opened into a slot whose thread is covered, so it is shown', () => {
+      renderHarness();
+      fireEvent.click(screen.getByText('open-primary'));
+      fireEvent.click(screen.getByText('open-reply-thread'));
+      fireEvent.click(screen.getByText('push-profile'));
+
+      fireEvent.click(screen.getByText('open-other-reply-thread'));
+
+      // slot2: the first thread, the profile over it, the new thread on top.
+      const state = viewState(capturedController);
+      expect(getChatViewEntityBinding(state?.slotBindings.slot2)?.source).toBe(
+        replyThread,
+      );
+      expect(
+        (state?.slotLayers?.slot2 ?? []).map(
+          (layer) => getChatViewEntityBinding(layer)?.source,
+        ),
+      ).toEqual([{ userId: 'user-1' }, otherReplyThread]);
+    });
+
+    it('does not stack a copy of the thread already shown on top', () => {
+      renderHarness();
+      fireEvent.click(screen.getByText('open-primary'));
+      fireEvent.click(screen.getByText('open-reply-thread'));
+      fireEvent.click(screen.getByText('push-profile'));
+      fireEvent.click(screen.getByText('open-other-reply-thread'));
+
+      fireEvent.click(screen.getByText('open-other-reply-thread'));
+
+      expect(viewState(capturedController)?.slotLayers?.slot2).toHaveLength(2);
+    });
+
+    it('moves a covered thread to the top when it is opened again', () => {
+      renderHarness();
+      fireEvent.click(screen.getByText('open-primary'));
+      fireEvent.click(screen.getByText('open-reply-thread'));
+      fireEvent.click(screen.getByText('push-profile'));
+
+      fireEvent.click(screen.getByText('open-reply-thread'));
+
+      // The profile that covered the thread becomes the base, under the thread.
+      const state = viewState(capturedController);
+      expect(getChatViewEntityBinding(state?.slotBindings.slot2)?.source).toEqual({
+        userId: 'user-1',
+      });
+      expect(
+        (state?.slotLayers?.slot2 ?? []).map(
+          (layer) => getChatViewEntityBinding(layer)?.source,
+        ),
+      ).toEqual([replyThread]);
+    });
+
+    it('moves a layer opened again to the top, keeping the others in their order', () => {
+      renderHarness();
+      fireEvent.click(screen.getByText('open-primary'));
+      fireEvent.click(screen.getByText('open-reply-thread'));
+      fireEvent.click(screen.getByText('push-profile'));
+      fireEvent.click(screen.getByText('open-other-reply-thread'));
+      fireEvent.click(screen.getByText('push-other-profile'));
+      // slot2: the reply thread, profile 1, another reply thread, profile 2.
+
+      fireEvent.click(screen.getByText('open-other-reply-thread'));
+
+      const state = viewState(capturedController);
+      expect(getChatViewEntityBinding(state?.slotBindings.slot2)?.source).toBe(
+        replyThread,
+      );
+      expect(
+        (state?.slotLayers?.slot2 ?? []).map(
+          (layer) => getChatViewEntityBinding(layer)?.source,
+        ),
+      ).toEqual([{ userId: 'user-1' }, { userId: 'user-2' }, otherReplyThread]);
+    });
+
+    it('replaces an uncovered thread with the thread opened into its slot', () => {
+      renderHarness();
+      fireEvent.click(screen.getByText('open-primary'));
+      fireEvent.click(screen.getByText('open-reply-thread'));
+
+      fireEvent.click(screen.getByText('open-other-reply-thread'));
+
+      const state = viewState(capturedController);
+      expect(getChatViewEntityBinding(state?.slotBindings.slot2)?.source).toBe(
+        otherReplyThread,
       );
       expect(state?.slotLayers?.slot2 ?? []).toHaveLength(0);
     });
 
-    it('closes its reply thread stacked over another channel, revealing that channel', () => {
+    it('keeps reply threads in another view', () => {
+      renderHarness([
+        { id: 'channels', slots: ['slot1', 'slot2'] },
+        { id: 'threads', slots: ['slot1', 'slot2'] },
+      ]);
+      fireEvent.click(screen.getByText('open-primary'));
+      fireEvent.click(screen.getByText('open-secondary'));
+      fireEvent.click(screen.getByText('open-threads-view'));
+      fireEvent.click(screen.getByText('open-reply-thread-in-slot2'));
+
+      fireEvent.click(screen.getByText('open-next'));
+
+      const state = capturedController?.state.getLatestValue();
+      const channelsView = state && getLayoutViewState(state, 'channels');
+      const threadsView = state && getLayoutViewState(state, 'threads');
+      expect(state?.activeView).toBe('channels');
+      expect(getChatViewEntityBinding(channelsView?.slotBindings.slot1)?.source).toBe(
+        nextChannel,
+      );
+      // The channel opened beside the primary one stays in the channels view.
+      expect(getChatViewEntityBinding(channelsView?.slotBindings.slot2)?.source).toBe(
+        secondaryChannel,
+      );
+      expect(getChatViewEntityBinding(threadsView?.slotBindings.slot2)?.source).toBe(
+        replyThread,
+      );
+    });
+
+    it('keeps its reply threads in another slot, with every layer in its order', () => {
+      renderHarness();
+      fireEvent.click(screen.getByText('open-primary'));
+      fireEvent.click(screen.getByText('open-reply-thread'));
+      fireEvent.click(screen.getByText('open-secondary'));
+      fireEvent.click(screen.getByText('push-profile'));
+      fireEvent.click(screen.getByText('open-other-reply-thread'));
+      fireEvent.click(screen.getByText('push-other-profile'));
+      // slot2: the reply thread, the 2nd channel, profile 1, another reply thread, profile 2.
+      expect(viewState(capturedController)?.slotLayers?.slot2).toHaveLength(4);
+
+      fireEvent.click(screen.getByText('open-next'));
+
+      const state = viewState(capturedController);
+      expect(getChatViewEntityBinding(state?.slotBindings.slot2)?.source).toBe(
+        replyThread,
+      );
+      expect(
+        (state?.slotLayers?.slot2 ?? []).map(
+          (layer) => getChatViewEntityBinding(layer)?.source,
+        ),
+      ).toEqual([
+        secondaryChannel,
+        { userId: 'user-1' },
+        otherReplyThread,
+        { userId: 'user-2' },
+      ]);
+    });
+
+    it('keeps reply threads layered over another panel when nothing is replaced', () => {
       renderHarness();
       fireEvent.click(screen.getByText('open-primary'));
       fireEvent.click(screen.getByText('open-secondary'));
       fireEvent.click(screen.getByText('open-reply-thread'));
-      // The reply thread covers the 2nd channel in slot2.
+      fireEvent.click(screen.getByText('release-slot1'));
+      // slot1 is empty; slot2: the 2nd channel, the reply thread over it.
+
+      fireEvent.click(screen.getByText('open-next-in-slot1'));
+
+      const state = viewState(capturedController);
+      expect(getChatViewEntityBinding(state?.slotBindings.slot1)?.source).toBe(
+        nextChannel,
+      );
+      expect(getChatViewEntityBinding(state?.slotBindings.slot2)?.source).toBe(
+        secondaryChannel,
+      );
       expect(
-        getChatViewEntityBinding(viewState(capturedController)?.slotLayers?.slot2?.[0])
-          ?.source,
-      ).toBe(replyThread);
+        (state?.slotLayers?.slot2 ?? []).map(
+          (layer) => getChatViewEntityBinding(layer)?.source,
+        ),
+      ).toEqual([replyThread]);
+    });
+
+    it('keeps reply threads when a channel opens beside the others into an empty slot', () => {
+      renderHarness([{ id: 'channels', slots: ['slot1', 'slot2', 'slot3'] }]);
+      fireEvent.click(screen.getByText('open-primary'));
+      fireEvent.click(screen.getByText('open-reply-thread'));
+
+      fireEvent.click(screen.getByText('open-secondary'));
+
+      const state = viewState(capturedController);
+      expect(getChatViewEntityBinding(state?.slotBindings.slot2)?.source).toBe(
+        replyThread,
+      );
+      expect(getChatViewEntityBinding(state?.slotBindings.slot3)?.source).toBe(
+        secondaryChannel,
+      );
+    });
+
+    it('keeps the reply thread of a closed channel when a channel opens into an empty slot', () => {
+      renderHarness();
+      fireEvent.click(screen.getByText('open-primary'));
+      fireEvent.click(screen.getByText('open-reply-thread'));
+      fireEvent.click(screen.getByText('release-slot1'));
+
+      fireEvent.click(screen.getByText('open-secondary'));
+
+      const state = viewState(capturedController);
+      expect(getChatViewEntityBinding(state?.slotBindings.slot1)?.source).toBe(
+        secondaryChannel,
+      );
+      expect(getChatViewEntityBinding(state?.slotBindings.slot2)?.source).toBe(
+        replyThread,
+      );
+    });
+
+    it('closes the reply thread it replaces even when its channel is layered over it', () => {
+      renderHarness([{ id: 'channels', slots: ['slot1'] }]);
+      fireEvent.click(screen.getByText('open-primary'));
+      fireEvent.click(screen.getByText('open-reply-thread'));
+      fireEvent.click(screen.getByText('layer-primary'));
+      // slot1: the reply thread, the primary channel over it.
+
+      fireEvent.click(screen.getByText('open-next'));
+
+      const state = viewState(capturedController);
+      expect(getChatViewEntityBinding(state?.slotBindings.slot1)?.source).toBe(
+        nextChannel,
+      );
+      expect(state?.slotLayers?.slot1 ?? []).toHaveLength(0);
+    });
+
+    it('closes the reply thread it replaces when its own channel opens in its place', () => {
+      renderHarness([{ id: 'channels', slots: ['slot1'] }]);
+      fireEvent.click(screen.getByText('open-primary'));
+      fireEvent.click(screen.getByText('open-reply-thread'));
+      fireEvent.click(screen.getByText('push-profile-slot1'));
+      // slot1: the reply thread, a profile over it.
+
+      fireEvent.click(screen.getByText('open-primary'));
+
+      const state = viewState(capturedController);
+      expect(getChatViewEntityBinding(state?.slotBindings.slot1)?.source).toBe(
+        primaryChannel,
+      );
+      expect(state?.slotLayers?.slot1 ?? []).toHaveLength(0);
+    });
+
+    it('stacks a thread opened as a layer even when the slot already holds it', () => {
+      renderHarness();
+      fireEvent.click(screen.getByText('open-primary'));
+      fireEvent.click(screen.getByText('open-reply-thread'));
+      fireEvent.click(screen.getByText('push-profile'));
+
+      fireEvent.click(screen.getByText('layer-reply-thread'));
+
+      expect(
+        (viewState(capturedController)?.slotLayers?.slot2 ?? []).map(
+          (layer) => getChatViewEntityBinding(layer)?.source,
+        ),
+      ).toEqual([{ userId: 'user-1' }, replyThread]);
+    });
+
+    it('replaces a covered channel and closes its reply threads', () => {
+      renderHarness();
+      fireEvent.click(screen.getByText('open-primary'));
+      fireEvent.click(screen.getByText('open-secondary'));
+      fireEvent.click(screen.getByText('open-secondary-reply-thread'));
+      // slot2: the 2nd channel, its reply thread over it.
+      expect(viewState(capturedController)?.slotLayers?.slot2).toHaveLength(1);
+
+      fireEvent.click(screen.getByText('open-next-in-slot2'));
+
+      const state = viewState(capturedController);
+      expect(getChatViewEntityBinding(state?.slotBindings.slot2)?.source).toBe(
+        nextChannel,
+      );
+      expect(state?.slotLayers?.slot2 ?? []).toHaveLength(0);
+    });
+
+    it('shows another instance of the channel the secondary slot holds, on top', () => {
+      renderHarness();
+      fireEvent.click(screen.getByText('open-primary'));
+      fireEvent.click(screen.getByText('open-secondary'));
+      fireEvent.click(screen.getByText('push-profile'));
+
+      fireEvent.click(screen.getByText('open-secondary-instance-in-slot2'));
+
+      const state = viewState(capturedController);
+      expect(getChatViewEntityBinding(state?.slotBindings.slot2)?.source).toEqual({
+        userId: 'user-1',
+      });
+      expect(
+        (state?.slotLayers?.slot2 ?? []).map(
+          (layer) => getChatViewEntityBinding(layer)?.source,
+        ),
+      ).toEqual([secondaryChannelInstance]);
+    });
+
+    it('replaces the channel the secondary slot shows with another instance of it', () => {
+      renderHarness();
+      fireEvent.click(screen.getByText('open-primary'));
+      fireEvent.click(screen.getByText('open-secondary'));
+
+      fireEvent.click(screen.getByText('open-secondary-instance-in-slot2'));
+
+      const state = viewState(capturedController);
+      expect(getChatViewEntityBinding(state?.slotBindings.slot2)?.source).toBe(
+        secondaryChannelInstance,
+      );
+      expect(state?.slotLayers?.slot2 ?? []).toHaveLength(0);
+    });
+
+    it('keeps its reply thread stacked over another channel in another slot', () => {
+      renderHarness();
+      fireEvent.click(screen.getByText('open-primary'));
+      fireEvent.click(screen.getByText('open-secondary'));
+      fireEvent.click(screen.getByText('open-reply-thread'));
+      fireEvent.click(screen.getByText('push-profile'));
+      // slot2: the 2nd channel, the reply thread over it, a profile on top.
 
       fireEvent.click(screen.getByText('open-next'));
 
@@ -355,7 +802,11 @@ describe('useChatViewNavigation', () => {
       expect(getChatViewEntityBinding(state?.slotBindings.slot2)?.source).toBe(
         secondaryChannel,
       );
-      expect(state?.slotLayers?.slot2 ?? []).toHaveLength(0);
+      expect(
+        (state?.slotLayers?.slot2 ?? []).map(
+          (layer) => getChatViewEntityBinding(layer)?.source,
+        ),
+      ).toEqual([replyThread, { userId: 'user-1' }]);
     });
   });
 
@@ -1624,14 +2075,11 @@ describe('stacked panels', () => {
     );
   });
 
-  // A thread of another channel bound as a slot's base also stays when the primary channel is
-  // replaced; only the replaced channel's own threads are released.
-  it.each([
-    ['keeps', 'messaging:other', true],
-    ['releases', 'messaging:primary', false],
-  ])(
-    '%s a thread slot base of %s when the primary channel is replaced',
-    (_, threadCid, kept) => {
+  // A thread bound as another slot's base stays when the primary channel is replaced, whichever
+  // channel it belongs to: slots are independent.
+  it.each([['messaging:other'], ['messaging:primary']])(
+    'keeps a thread slot base of %s when the primary channel is replaced',
+    (threadCid) => {
       const primaryChannel = makeChannel('messaging:primary');
       const nextChannel = makeChannel('messaging:next');
       const thread = {
@@ -1686,9 +2134,7 @@ describe('stacked panels', () => {
       expect(getChatViewEntityBinding(state?.slotBindings.slot1)?.source).toBe(
         nextChannel,
       );
-      expect(getChatViewEntityBinding(state?.slotBindings.slot2)?.source).toBe(
-        kept ? thread : undefined,
-      );
+      expect(getChatViewEntityBinding(state?.slotBindings.slot2)?.source).toBe(thread);
     },
   );
 
