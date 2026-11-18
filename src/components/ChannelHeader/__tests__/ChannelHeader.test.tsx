@@ -1,11 +1,20 @@
 import React from 'react';
-import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import {
+  act,
+  cleanup,
+  fireEvent,
+  render,
+  renderHook,
+  screen,
+  waitFor,
+} from '@testing-library/react';
 import { fromPartial } from '@total-typescript/shoehorn';
 
 import { ChannelHeader, ChannelHeaderSubtitle } from '../ChannelHeader';
 
 import { Channel } from '../../Channel';
 import { Chat } from '../../Chat';
+import { ChannelInstanceProvider } from '../../../context';
 import { WithComponents } from '../../../context/WithComponents';
 import {
   defaultWorkspaceNavigation,
@@ -24,6 +33,7 @@ import {
 } from '../../../mock-builders';
 import { axe } from '../../../../axe-helper';
 import { ChannelAvatar } from '../../Avatar';
+import { useChannelHeaderOnlineStatus } from '../hooks/useChannelHeaderOnlineStatus';
 import type {
   ChannelAPIResponse,
   ChannelResponse,
@@ -693,5 +703,65 @@ describe('ChannelHeader', () => {
       expect(await screen.findByText('Offline')).toBeInTheDocument();
       expect(await axe(container)).toHaveNoViolations();
     });
+  });
+});
+
+describe('useChannelHeaderOnlineStatus', () => {
+  let client: StreamChat;
+  let contextChannel: ChannelType;
+  let givenChannel: ChannelType;
+
+  beforeEach(async () => {
+    client = await getTestClientWithUser({ id: 'own-user' });
+    contextChannel = client.channel('messaging', 'context');
+    contextChannel.data = { member_count: 7 };
+    contextChannel.state.watcher_count = 5;
+    givenChannel = client.channel('messaging', 'given');
+    givenChannel.data = { member_count: 3 };
+    givenChannel.state.watcher_count = 2;
+  });
+
+  it('reads the channel in context when none is given', () => {
+    const { result } = renderHook(() => useChannelHeaderOnlineStatus(), {
+      wrapper: ({ children }: React.PropsWithChildren) => (
+        <Chat client={client}>
+          <ChannelInstanceProvider value={{ channel: contextChannel }}>
+            {children}
+          </ChannelInstanceProvider>
+        </Chat>
+      ),
+    });
+
+    expect(result.current).toBe('7 members · 5 online');
+  });
+
+  it('reads the given channel without a channel provider', () => {
+    const { result } = renderHook(
+      () => useChannelHeaderOnlineStatus({ channel: givenChannel }),
+      {
+        wrapper: ({ children }: React.PropsWithChildren) => (
+          <Chat client={client}>{children}</Chat>
+        ),
+      },
+    );
+
+    expect(result.current).toBe('3 members · 2 online');
+  });
+
+  it('reads the given channel instead of the channel in context', () => {
+    const { result } = renderHook(
+      () => useChannelHeaderOnlineStatus({ channel: givenChannel }),
+      {
+        wrapper: ({ children }: React.PropsWithChildren) => (
+          <Chat client={client}>
+            <ChannelInstanceProvider value={{ channel: contextChannel }}>
+              {children}
+            </ChannelInstanceProvider>
+          </Chat>
+        ),
+      },
+    );
+
+    expect(result.current).toBe('3 members · 2 online');
   });
 });

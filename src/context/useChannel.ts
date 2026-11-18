@@ -1,13 +1,10 @@
-import { useThreadContext } from '../components/Threads';
-import { useChannelInstanceContext } from './ChannelInstanceContext';
-
 import type { Channel } from 'stream-chat';
 
+import { useContextChannel } from './useContextChannel';
+
+/** The nearest `Thread`'s channel, else the nearest `Channel`'s. Throws outside both. */
 export const useChannel = (): Channel => {
-  const thread = useThreadContext();
-  const channelFromThread = thread?.channel;
-  const { channel: channelFromInstanceContext } = useChannelInstanceContext();
-  const channel = channelFromThread ?? channelFromInstanceContext;
+  const channel = useContextChannel();
 
   if (!channel) {
     throw new Error(

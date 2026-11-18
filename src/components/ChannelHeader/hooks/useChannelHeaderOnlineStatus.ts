@@ -1,6 +1,7 @@
-import type { ChannelWatchState, MembersState } from 'stream-chat';
+import type { Channel, ChannelWatchState, MembersState } from 'stream-chat';
 
-import { useChannel, useTranslationContext } from '../../../context';
+import { useTranslationContext } from '../../../context';
+import { useResolvedChannel } from '../../../context/useContextChannel';
 import { useStateStore } from '../../../store';
 import { useIsDmChannel } from '../../../hooks';
 import { useChannelHasMembersOnline } from './useChannelHasMembersOnline';
@@ -13,18 +14,26 @@ const watcherCountSelector = (nextValue: ChannelWatchState) => ({
   watcherCount: nextValue.watcherCount,
 });
 
+export type UseChannelHeaderOnlineStatusParams = {
+  channel?: Channel;
+};
+
 /**
- * Online status text for the channel in context, as the channel header shows it: "Online" or
- * "Offline" for a direct message, otherwise "N members · M online", translated. Returns null when
- * the channel has no members. `ChannelHeaderSubtitle` renders it when nobody is typing.
+ * Online status text for a channel, as the channel header shows it: "Online" or "Offline" for a
+ * direct message, otherwise "N members · M online", translated. Returns null when the channel has
+ * no members. `ChannelHeaderSubtitle` renders it when nobody is typing. `channel` defaults to the
+ * channel in context.
  */
-export function useChannelHeaderOnlineStatus(): string | null {
+export function useChannelHeaderOnlineStatus({
+  channel: channelOverride,
+}: UseChannelHeaderOnlineStatusParams = {}): string | null {
   const { t } = useTranslationContext();
-  const channel = useChannel();
+  const channel = useResolvedChannel(channelOverride);
   const { memberCount } = useStateStore(channel.state, memberCountSelector);
   const { watcherCount } = useStateStore(channel.state, watcherCountSelector);
-  const isDirectMessagingChannel = useIsDmChannel();
+  const isDirectMessagingChannel = useIsDmChannel({ channel });
   const hasMembersOnline = useChannelHasMembersOnline({
+    channel,
     enabled: isDirectMessagingChannel,
   });
 

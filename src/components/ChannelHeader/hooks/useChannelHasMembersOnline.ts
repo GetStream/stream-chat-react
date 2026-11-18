@@ -1,7 +1,7 @@
 import type { Channel, ChannelWatchState } from 'stream-chat';
 
-import { useChannel } from '../../../context';
 import { useChatContext } from '../../../context/ChatContext';
+import { useResolvedChannel } from '../../../context/useContextChannel';
 import { useStateStore } from '../../../store';
 
 export type UseChannelHasMembersOnlineParams = {
@@ -22,8 +22,7 @@ export const useChannelHasMembersOnline = ({
   channel: channelOverride,
   enabled = true,
 }: UseChannelHasMembersOnlineParams = {}) => {
-  const contextChannel = useChannel();
-  const channel = channelOverride ?? contextChannel;
+  const channel = useResolvedChannel(channelOverride);
   const { client } = useChatContext();
   const { watchers } = useStateStore(channel.state, watchersSelector);
 

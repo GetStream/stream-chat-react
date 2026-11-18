@@ -76,8 +76,7 @@ export const ChannelManagementInfoBody = ({
   const { muted: channelMuted } = useIsChannelMuted(channel);
   const userMuted = useIsUserMuted(otherMemberUserId);
   const membership = useChannelMembershipState(channel);
-  // Reads its channel through `useChannel()`, which must match the `ChannelDetailContext` channel.
-  const onlineStatusText = useChannelHeaderOnlineStatus();
+  const onlineStatusText = useChannelHeaderOnlineStatus({ channel });
   const pinned = membership.pinned_at != null;
 
   return (

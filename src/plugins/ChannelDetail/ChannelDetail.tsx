@@ -123,6 +123,10 @@ export const defaultChannelDetailSections: SectionNavigatorSection[] = [
 ];
 
 export type ChannelDetailProps = Omit<SectionNavigatorProps, 'sections'> & {
+  /**
+   * The channel to show, also inside another channel's `Channel` or `Thread`; no `Channel` around it
+   * is needed. Custom sections read it with `useChannelDetailContext()`.
+   */
   channel: Channel;
   /** Closes the channel detail. See `ChannelDetailProviderProps.onClose`. */
   onClose?: ChannelDetailProviderProps['onClose'];

@@ -1,27 +1,23 @@
-import { useEffect, useState } from 'react';
-import type { Channel } from 'stream-chat';
+import { useMemo } from 'react';
+import type { Channel, MembersState } from 'stream-chat';
 
-import { getChannelMemberUserIds } from './ChannelMembersView.utils';
+import { useStateStore } from '../../../../store';
+import { getMemberUserIds } from './ChannelMembersView.utils';
 
-// Channel events that add, remove or change a member; the SDK keeps `channel.state.members` in sync
-// on them. Re-reading the IDs on each needs no bookkeeping in the views that change membership.
-const MEMBER_IDS_EVENTS = ['member.added', 'member.removed', 'member.updated'] as const;
+const MEMBER_IDS_SEPARATOR = '\n';
 
-/** Reactive set of channel member user IDs. */
+// `members` is replaced on every presence update, but the joined IDs (which contain no line
+// breaks) change only when a member joins or leaves.
+const memberIdsKeySelector = ({ members }: MembersState) => ({
+  memberIdsKey: getMemberUserIds(members).join(MEMBER_IDS_SEPARATOR),
+});
+
+/** Reactive list of channel member user IDs, from `channel.state`. */
 export const useChannelMemberIds = (channel: Channel) => {
-  const [memberIds, setMemberIds] = useState(() => getChannelMemberUserIds(channel));
+  const { memberIdsKey } = useStateStore(channel.state, memberIdsKeySelector);
 
-  useEffect(() => {
-    const syncMemberIds = () => setMemberIds(getChannelMemberUserIds(channel));
-
-    syncMemberIds();
-
-    const subscriptions = MEMBER_IDS_EVENTS.map((event) =>
-      channel.on(event, syncMemberIds),
-    );
-
-    return () => subscriptions.forEach((subscription) => subscription.unsubscribe());
-  }, [channel]);
-
-  return memberIds;
+  return useMemo(
+    () => (memberIdsKey ? memberIdsKey.split(MEMBER_IDS_SEPARATOR) : []),
+    [memberIdsKey],
+  );
 };

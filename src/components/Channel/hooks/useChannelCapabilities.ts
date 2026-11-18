@@ -1,18 +1,31 @@
 import { useMemo } from 'react';
-import type { OwnCapabilitiesState } from 'stream-chat';
-import { useChannel } from '../../../context';
+import type { Channel, OwnCapabilitiesState } from 'stream-chat';
+import { useContextChannel } from '../../../context/useContextChannel';
 import { useStateStore } from '../../../store';
 
 const ownCapabilitiesSelector = ({ ownCapabilities }: OwnCapabilitiesState) => ({
   ownCapabilities,
 });
 
-export const useChannelCapabilities = ({ cid }: { cid: string | undefined }) => {
-  const channel = useChannel();
-  const { ownCapabilities } = useStateStore(channel.state, ownCapabilitiesSelector) ?? {};
+export type UseChannelCapabilitiesParams = {
+  /** Takes precedence over `cid`. */
+  channel?: Channel;
+  // TODO: remove `cid` in the next major release; `channel` covers it.
+  /** Reads the channel in context when it has this cid. */
+  cid?: string;
+};
 
-  return useMemo(() => {
-    if (!cid || channel.cid !== cid) return new Set<string>();
-    return new Set(ownCapabilities ?? []);
-  }, [channel.cid, cid, ownCapabilities]);
+/** The current user's capabilities in the channel, as a `Set`; empty until they load. */
+export const useChannelCapabilities = ({
+  channel: channelParam,
+  cid,
+}: UseChannelCapabilitiesParams) => {
+  const contextChannel = useContextChannel();
+  const contextChannelWithCid =
+    cid && contextChannel?.cid === cid ? contextChannel : undefined;
+  const channel = channelParam ?? contextChannelWithCid;
+  const { ownCapabilities } =
+    useStateStore(channel?.state, ownCapabilitiesSelector) ?? {};
+
+  return useMemo(() => new Set<string>(ownCapabilities ?? []), [ownCapabilities]);
 };
