@@ -66,6 +66,9 @@ describe('useChannelCapabilities', () => {
 
   it('is empty without a channel or cid', () => {
     expect(renderCapabilities({ cid: undefined }).result.current.size).toBe(0);
+    expect(
+      renderCapabilities({ channel: undefined, cid: undefined }).result.current.size,
+    ).toBe(0);
   });
 
   it('updates when the capabilities change', () => {

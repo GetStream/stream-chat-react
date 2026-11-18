@@ -9,10 +9,10 @@ const ownCapabilitiesSelector = ({ ownCapabilities }: OwnCapabilitiesState) => (
 
 export type UseChannelCapabilitiesParams = {
   /** Takes precedence over `cid`. */
-  channel?: Channel;
+  channel?: Channel | undefined;
   // TODO: remove `cid` in the next major release; `channel` covers it.
   /** Reads the channel in context when it has this cid. */
-  cid?: string;
+  cid?: string | undefined;
 };
 
 /** The current user's capabilities in the channel, as a `Set`; empty until they load. */
