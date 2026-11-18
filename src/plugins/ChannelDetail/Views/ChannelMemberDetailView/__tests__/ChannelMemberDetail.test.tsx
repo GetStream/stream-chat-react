@@ -163,7 +163,7 @@ describe('ChannelMemberDetail', () => {
     expect(screen.queryByText('Remove')).not.toBeInTheDocument();
   });
 
-  it('hides member actions when viewing current user details', () => {
+  it('renders no actions container when viewing current user details', () => {
     const ownMember = fromPartial<ChannelMemberResponse>({
       user: { id: 'user-me', name: 'Me' },
       user_id: 'user-me',
@@ -187,6 +187,11 @@ describe('ChannelMemberDetail', () => {
     expect(screen.queryByText('Mute')).not.toBeInTheDocument();
     expect(screen.queryByText('Block')).not.toBeInTheDocument();
     expect(screen.queryByText('Remove')).not.toBeInTheDocument();
+    expect(
+      document.querySelector(
+        '.str-chat__channel-detail__channel-member-detail-view__actions',
+      ),
+    ).not.toBeInTheDocument();
   });
 
   it('closes through a modal context provided inside ChannelDetailProvider', () => {

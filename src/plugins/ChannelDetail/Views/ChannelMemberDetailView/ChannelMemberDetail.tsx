@@ -123,11 +123,13 @@ const ChannelMemberDetailContent = ({
           </div>
         </div>
 
-        <div className='str-chat__channel-detail__channel-member-detail-view__actions str-chat__form__switch-fieldset'>
-          {filteredActions.map(({ Component, type }) => (
-            <Component key={type} />
-          ))}
-        </div>
+        {filteredActions.length > 0 && (
+          <div className='str-chat__channel-detail__channel-member-detail-view__actions str-chat__form__switch-fieldset'>
+            {filteredActions.map(({ Component, type }) => (
+              <Component key={type} />
+            ))}
+          </div>
+        )}
       </Prompt.Body>
     </div>
   );
