@@ -567,6 +567,11 @@ export const deTranslations = {
   'messageActions.errorAddingFlag.text': 'Fehler beim Melden',
   'messageActions.errorMarkingMessageUnread.text':
     'Fehler beim Markieren als ungelesen. Nachrichten, die älter als die neuesten 100 Kanalnachrichten sind, können nicht als ungelesen markiert werden.',
+  'messageActions.errorRemovingReminder.text': 'Fehler beim Entfernen der Erinnerung',
+  'messageActions.errorRemovingSaveLater.text':
+    'Fehler beim Entfernen der Nachricht aus „Für später gespeichert“',
+  'messageActions.errorSavingLater.text':
+    'Fehler beim Speichern der Nachricht für später',
   'messageActions.flag.text': 'Melden',
   'messageActions.flagMessage.ariaLabel': 'Nachricht melden',
   'messageActions.markMessageUnread.ariaLabel': 'Nachricht als ungelesen markieren',
@@ -585,6 +590,8 @@ export const deTranslations = {
   'messageActions.quoteReply.text': 'Zitiert antworten',
   'messageActions.remindMe.text': 'Erinnere mich',
   'messageActions.remindMeMessage.ariaLabel': 'An Nachricht erinnern',
+  'messageActions.remindMeSubmenu.errorSettingReminder.text':
+    'Fehler beim Setzen der Erinnerung',
   'messageActions.remindMeSubmenu.remindMe.text': 'Erinnere mich',
   'messageActions.removeReminder.ariaLabel': 'Erinnerung entfernen',
   'messageActions.removeReminder.text': 'Erinnerung entfernen',
