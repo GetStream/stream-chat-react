@@ -143,7 +143,7 @@
     "react-player": "2.10.1",
     "react-syntax-highlighter": "^16.1.0",
     "react-textarea-autosize": "^8.5.9",
-    "react-virtuoso": "^4.18.20",
+    "react-virtuoso": "^4.18.22",
     "remark-gfm": "^4.0.1",
     "remark-parse": "^11.0.0",
     "unified": "^11.0.5",

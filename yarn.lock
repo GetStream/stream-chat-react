@@ -11052,13 +11052,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-virtuoso@npm:^4.18.20":
-  version: 4.18.20
-  resolution: "react-virtuoso@npm:4.18.20"
+"react-virtuoso@npm:^4.18.22":
+  version: 4.18.22
+  resolution: "react-virtuoso@npm:4.18.22"
   peerDependencies:
     react: ">=16 || >=17 || >= 18 || >= 19"
     react-dom: ">=16 || >=17 || >= 18 || >=19"
-  checksum: 10c0/b85199075a158cba77a6a3ad99cc6d76b9e12fa7aadfc2cbffd69aaa519fbc08f0847b156a389a132e934c23fbbb3f3ebb636b464caed36cf5eb53bc27b9edb6
+  checksum: 10c0/b3ec29ad9ed949dea258beae7a78c0437c9afea2237512fe8b2978101a94ef4bb3c7f725a27848cd453a9ddf657bb29af057eb3aeee0193be7c0c84d8e09a212
   languageName: node
   linkType: hard
 
@@ -12139,7 +12139,7 @@ __metadata:
     react-player: "npm:2.10.1"
     react-syntax-highlighter: "npm:^16.1.0"
     react-textarea-autosize: "npm:^8.5.9"
-    react-virtuoso: "npm:^4.18.20"
+    react-virtuoso: "npm:^4.18.22"
     react-virtuoso-v2: "npm:react-virtuoso@2.19.1"
     remark-gfm: "npm:^4.0.1"
     remark-parse: "npm:^11.0.0"
