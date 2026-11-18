@@ -9,7 +9,11 @@ import type {
 } from 'stream-chat';
 
 import { ChannelInstanceProvider, ChatProvider } from '../../context';
-import { generateChannelState, mockChatContext } from '../../mock-builders';
+import {
+  generateChannelState,
+  getTestClientWithUser,
+  mockChatContext,
+} from '../../mock-builders';
 import { useIsDmChannel } from '../useIsDmChannel';
 
 // The `isDmChannel` util has its own tests. These cover the hook wiring: it returns that result
@@ -138,7 +142,7 @@ describe('useIsDmChannel', () => {
   });
 
   describe('for a channel pending disposal, whose client throws', () => {
-    const makeDisposedDm = (membershipUserId?: string) => {
+    const makeDisposedDm = (membership: Partial<ChannelMemberResponse> = {}) => {
       const members = fromPartial<ChannelState['members']>({
         'user-a': { user: { id: 'user-a' } },
         'user-b': { user: { id: 'user-b' } },
@@ -146,9 +150,7 @@ describe('useIsDmChannel', () => {
       const state = generateChannelState({
         memberCount: 2,
         members,
-        membership: fromPartial<ChannelMemberResponse>(
-          membershipUserId ? { user: { id: membershipUserId } } : {},
-        ),
+        membership: fromPartial<ChannelMemberResponse>(membership),
       });
       return fromPartial<Channel>({
         data: { member_count: 2 },
@@ -159,32 +161,57 @@ describe('useIsDmChannel', () => {
         state,
       });
     };
-    // The Chat user is a member too, so reading it would make this look like their DM.
-    const wrapper = ({ children }: React.PropsWithChildren) => (
-      <ChatProvider
-        value={mockChatContext({
-          client: fromPartial<StreamChat>({ user: { id: 'user-b' } }),
-        })}
-      >
-        {children}
-      </ChatProvider>
-    );
+    const wrapperFor = (chatUserId: string) => {
+      const ChatWithUser = ({ children }: React.PropsWithChildren) => (
+        <ChatProvider
+          value={mockChatContext({
+            client: fromPartial<StreamChat>({ user: { id: chatUserId } }),
+          })}
+        >
+          {children}
+        </ChatProvider>
+      );
+      return ChatWithUser;
+    };
 
-    it("reads the current user from the channel's own membership", () => {
+    // The Chat user is not a member, so only the membership can make this a DM.
+    it.each([
+      ['user', { user: { id: 'user-a' } }],
+      ['user_id', { user_id: 'user-a' }],
+    ])("reads the current user from the channel's own membership %s", (_, membership) => {
       const { result } = renderHook(
-        () => useIsDmChannel({ channel: makeDisposedDm('user-a') }),
-        { wrapper },
+        () => useIsDmChannel({ channel: makeDisposedDm(membership) }),
+        { wrapper: wrapperFor('user-outside') },
       );
 
       expect(result.current).toBe(true);
     });
 
+    // The Chat user is a member, so reading it would make this look like their DM.
     it('does not fall back to the user in Chat without a membership', () => {
       const { result } = renderHook(() => useIsDmChannel({ channel: makeDisposedDm() }), {
-        wrapper,
+        wrapper: wrapperFor('user-b'),
       });
 
       expect(result.current).toBe(false);
     });
+  });
+
+  it('recomputes when the channel enters disposal', async () => {
+    const client = await getTestClientWithUser({ id: 'own-user' });
+    const channel = client.channel('messaging', 'dm');
+    channel.data = { member_count: 2 };
+    channel.state.members = fromPartial<ChannelState['members']>({
+      'other-user': { user: { id: 'other-user' } },
+      'own-user': { user: { id: 'own-user' } },
+    });
+
+    const { result } = renderHook(() => useIsDmChannel({ channel }));
+    expect(result.current).toBe(true);
+
+    // Without a membership, a disposed channel no longer names its current user.
+    act(() => channel.state.partialNext({ pendingDisposal: true }));
+
+    expect(result.current).toBe(false);
   });
 });

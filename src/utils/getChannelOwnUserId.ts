@@ -7,5 +7,5 @@ import type { Channel } from 'stream-chat';
  */
 export const getChannelOwnUserId = (channel: Channel) =>
   channel.pendingDisposal
-    ? channel.state.membership?.user?.id
+    ? (channel.state.membership?.user?.id ?? channel.state.membership?.user_id)
     : channel.getClient().user?.id;
