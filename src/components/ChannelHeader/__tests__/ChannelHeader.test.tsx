@@ -809,7 +809,7 @@ describe('useChannelHeaderOnlineStatus', () => {
     expect(result.current).toBe('3 members · 2 online');
   });
 
-  it('shows Offline for a disposed one-member channel whose current user is unknown', () => {
+  it('shows no status for a disposed one-member channel whose current user is unknown', () => {
     const soloChannel = client.channel('messaging', 'solo');
     soloChannel.data = { member_count: 1 };
     // The only member is the current user, online; without a membership, nothing names them.
@@ -825,7 +825,7 @@ describe('useChannelHeaderOnlineStatus', () => {
       },
     );
 
-    expect(result.current).toBe('Offline');
+    expect(result.current).toBeNull();
   });
 
   it.each(['{{ onlineCount }}', '{{ watcherCount }}'])(
