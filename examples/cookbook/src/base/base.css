@@ -49,6 +49,11 @@
     color: var(--str-chat__text-primary);
   }
 
+  /* While no channel is open, the panel follows the view's first column and takes the free space. */
+  .str-chat__chat-view__channels > :first-child + .cookbook-side-panel {
+    flex: 1 1 auto;
+  }
+
   /* On a phone, the panel covers the channels view, above the channel's own layers. */
   @media (max-width: 767px) {
     .cookbook-side-panel {

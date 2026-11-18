@@ -68,7 +68,10 @@ const MessageWithContext = (props: MessageWithContextProps) => {
   const { getTranslationView, setTranslationView: setTranslationViewInContext } =
     useMessageTranslationViewContext();
 
-  const translationView = getTranslationView(message.id, !!message.i18n);
+  const translationView = getTranslationView(
+    message.id,
+    !!message.i18n || !!message.poll_id,
+  );
   const setTranslationView = useCallback(
     (view: 'original' | 'translated') => setTranslationViewInContext(message.id, view),
     [message.id, setTranslationViewInContext],

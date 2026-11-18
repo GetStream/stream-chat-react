@@ -45,15 +45,19 @@ what the tutorial tells the reader to write:
   `optional-livestream`, which don't pass `theme="custom-theme"` to `<Chat>`. The
   reader's single `layout.css` holds the tokens and leaves them unused for those
   same two examples.
-- The `.str-chat__channel-list` / `__channel` / `__thread` widths are overridden
-  by `.tutorial-browser__step-shell .str-chat__*` in `tutorial-main.css`, which
-  wins on specificity (0,2,0 against 0,1,0). The tutorial's widths assume the app
-  owns the whole page; here it is sized to fit a preview card.
+- The channel list width (`--str-chat__channel-list-width`) and the
+  `.str-chat__channel` / `__thread` widths are overridden by
+  `.tutorial-browser__step-shell .str-chat__*` in `tutorial-main.css`, which sets
+  the channel list's `flex` directly and wins on specificity (0,2,0 against
+  0,1,0). The tutorial's widths assume the app owns the whole page; here it is
+  sized to fit a preview card. Because of this override, the browser never shows
+  how the tutorial's own channel list width behaves: check that in an app of its
+  own.
 - The `html` / `body` / `#root` rules are real, but `tutorial-main.css` declares
   them too, so the chrome does not depend on a step's stylesheet.
 
 None of this costs bundle size: Vite collapses the identical copies, so the built
-CSS contains one `width: 30%` and one `@layer stream`.
+CSS contains one `--str-chat__channel-list-width: 30%` and one `@layer stream`.
 
 ### One deliberate deviation: unlayered theme tokens
 
