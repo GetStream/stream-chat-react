@@ -288,7 +288,7 @@ export const deTranslations = {
   'channelDetail.sectionNavigatorHeader.openMenu.ariaLabel': 'Menü öffnen',
   'channelHeader.closeChannel.ariaLabel': 'Kanal schließen',
   'channelHeader.online.members.label': '{{ memberCount }} Mitglieder',
-  'channelHeader.online.online.label': '{{ watcherCount }} online',
+  'channelHeader.online.online.label': '{{ onlineCount }} online',
   'channelList.channelList.ariaLabel': 'Kanalliste',
   'channelList.header.chats.text': 'Chats',
   'channelList.loadError.text': 'Unterhaltungen konnten nicht geladen werden',

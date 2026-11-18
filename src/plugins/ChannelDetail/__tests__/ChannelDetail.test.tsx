@@ -1,7 +1,7 @@
 import React from 'react';
-import { fireEvent, render, screen } from '@testing-library/react';
+import { act, fireEvent, render, screen } from '@testing-library/react';
 import { afterEach, beforeEach, vi } from 'vitest';
-import type { Channel as StreamChannel, StreamChat } from 'stream-chat';
+import type { Event, Channel as StreamChannel, StreamChat } from 'stream-chat';
 
 import { ChannelDetail } from '../ChannelDetail';
 import { ChannelDetailProvider, useChannelDetailContext } from '../ChannelDetailContext';
@@ -332,15 +332,16 @@ describe('useChannelDetailContext', () => {
   });
 });
 
-const ownUser = generateUser({ id: 'own-user' });
+const ownUser = generateUser({ id: 'own-user', online: true });
 
-const groupChannelData = (id: string, memberCount: number) => ({
+/** A group channel of `memberCount` members, the first `onlineCount` of them online. */
+const groupChannelData = (id: string, memberCount: number, onlineCount: number) => ({
   channel: { id, member_count: memberCount },
-  members: [
-    generateMember({ user: ownUser }),
-    generateMember({ user: generateUser() }),
-    generateMember({ user: generateUser() }),
-  ],
+  members: Array.from({ length: memberCount }, (_, index) =>
+    generateMember({
+      user: index === 0 ? ownUser : generateUser({ online: index < onlineCount }),
+    }),
+  ),
 });
 
 describe('ChannelDetail channel', () => {
@@ -359,11 +360,9 @@ describe('ChannelDetail channel', () => {
       channels: [detailChannel, otherChannel],
       client,
     } = await initClientWithChannels({
-      channelsData: [groupChannelData('detail', 3), groupChannelData('other', 7)],
+      channelsData: [groupChannelData('detail', 3, 2), groupChannelData('other', 7, 5)],
       customUser: ownUser,
     }));
-    detailChannel.state.watcher_count = 2;
-    otherChannel.state.watcher_count = 5;
   });
 
   afterEach(() => {
@@ -411,5 +410,60 @@ describe('ChannelDetail channel', () => {
 
     expect(screen.getByText(detailStatus)).toBeInTheDocument();
     expect(screen.queryByText(otherStatus)).not.toBeInTheDocument();
+  });
+});
+
+describe('ChannelDetail online status', () => {
+  const OriginalResizeObserver = globalThis.ResizeObserver;
+
+  beforeEach(() => {
+    globalThis.ResizeObserver = class MockResizeObserver implements ResizeObserver {
+      disconnect = vi.fn();
+      observe = vi.fn();
+      unobserve = vi.fn();
+    };
+  });
+
+  afterEach(() => {
+    globalThis.ResizeObserver = OriginalResizeObserver;
+  });
+
+  it("shows a direct message's status from the other member's user.online, live", async () => {
+    const ownUser = generateUser({ id: 'own-user', online: true });
+    const otherUser = generateUser({ id: 'other-user', online: true });
+    const {
+      channels: [channel],
+      client,
+    } = await initClientWithChannels({
+      channelsData: [
+        {
+          channel: { member_count: 2 },
+          members: [
+            generateMember({ user: ownUser }),
+            generateMember({ user: otherUser }),
+          ],
+          // The other member is online but not watching this channel.
+          watchers: [],
+        },
+      ],
+      customUser: ownUser,
+    });
+
+    render(
+      <Chat client={client}>
+        <ChannelDetail channel={channel} />
+      </Chat>,
+    );
+
+    expect(screen.getByText('Online')).toBeInTheDocument();
+
+    act(() => {
+      client.dispatchEvent({
+        type: 'user.presence.changed',
+        user: { ...otherUser, online: false },
+      } as Event);
+    });
+
+    expect(screen.getByText('Offline')).toBeInTheDocument();
   });
 });

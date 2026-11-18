@@ -276,7 +276,7 @@ export const itTranslations = {
   'channelDetail.sectionNavigatorHeader.openMenu.ariaLabel': 'Apri menu',
   'channelHeader.closeChannel.ariaLabel': 'Chiudi canale',
   'channelHeader.online.members.label': '{{ memberCount }} membri',
-  'channelHeader.online.online.label': '{{ watcherCount }} online',
+  'channelHeader.online.online.label': '{{ onlineCount }} online',
   'channelList.channelList.ariaLabel': 'Elenco canali',
   'channelList.header.chats.text': 'Chat',
   'channelList.loadError.text': 'Impossibile caricare le conversazioni',

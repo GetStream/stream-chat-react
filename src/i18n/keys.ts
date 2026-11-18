@@ -219,7 +219,7 @@ export type TranslationCatalog = {
   'channelDetail.sectionNavigatorHeader.openMenu.ariaLabel': 'Open menu';
   'channelHeader.closeChannel.ariaLabel': 'Close channel';
   'channelHeader.online.members.label': '{{ memberCount }} members';
-  'channelHeader.online.online.label': '{{ watcherCount }} online';
+  'channelHeader.online.online.label': '{{ onlineCount }} online';
   'channelList.channelList.ariaLabel': 'Channel list';
   'channelList.header.chats.text': 'Chats';
   'channelList.loadError.text': "Couldn't load conversations";

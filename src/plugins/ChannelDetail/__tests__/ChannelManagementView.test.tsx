@@ -97,9 +97,12 @@ vi.mock('../../../components/ChannelListItem/hooks/useIsChannelMuted', () => ({
   useIsChannelMuted: () => ({ muted: false }),
 }));
 
-vi.mock('../../../components/ChannelHeader/hooks/useChannelHasMembersOnline', () => ({
-  useChannelHasMembersOnline: () => false,
-}));
+vi.mock(
+  '../../../components/ChannelHeader/hooks/useChannelHasOtherMembersOnline',
+  () => ({
+    useChannelHasOtherMembersOnline: () => false,
+  }),
+);
 
 vi.mock('../../../components/ChannelHeader/hooks/useChannelHeaderOnlineStatus', () => ({
   useChannelHeaderOnlineStatus: () => undefined,

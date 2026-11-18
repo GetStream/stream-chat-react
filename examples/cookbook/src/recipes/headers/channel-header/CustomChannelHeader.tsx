@@ -11,14 +11,10 @@ import {
 } from 'stream-chat-react';
 import './CustomChannelHeader.css';
 
-const channelStateSelector = ({
+const channelStateSelector = ({ memberCount, members, typing }: ChannelStateData) => ({
   memberCount,
+  members,
   typing,
-  watcherCount,
-}: ChannelStateData) => ({
-  memberCount,
-  typing,
-  watcherCount,
 });
 
 const typingEventsSelector = ({ typingEvents }: ChannelConfig) => ({
@@ -28,10 +24,14 @@ const typingEventsSelector = ({ typingEvents }: ChannelConfig) => ({
 export const CustomChannelHeader = () => {
   const { client } = useChatContext();
   const channel = useChannel();
-  const { memberCount, typing, watcherCount } = useStateStore(
+  const { memberCount, members, typing } = useStateStore(
     channel.state,
     channelStateSelector,
   );
+  // Members whose user is online anywhere, as the default header counts them.
+  const onlineCount = Object.values(members).filter(
+    (member) => member.user?.online,
+  ).length;
   const { typingEventsEnabled } = useStateStore(
     channel.configState,
     typingEventsSelector,
@@ -60,7 +60,7 @@ export const CustomChannelHeader = () => {
           {typingEventsEnabled && someoneIsTyping ? (
             <TypingIndicatorHeader />
           ) : (
-            `${memberCount} members · ${watcherCount} online`
+            `${memberCount} members · ${onlineCount} online`
           )}
         </div>
       </div>
