@@ -197,15 +197,20 @@ const SidePanelFrame = ({ body, ownHeader, title }: SidePanelContent) => {
     (ownHeader ? panelRef.current : headingRef.current)?.focus();
   }, [ownHeader, panelRef]);
 
-  // While the panel covers the channel and the thread, keyboard focus can't reach them.
+  // While the panel covers the channel and the thread, keyboard focus can't reach them, including
+  // a channel or thread that opens beside it later.
   useEffect(() => {
     const panel = panelRef.current;
     const coversChannels = window.matchMedia(COVERS_CHANNELS_QUERY);
     const update = () => setCoveredInert(panel, coversChannels.matches);
+    const siblingsObserver = new MutationObserver(update);
     update();
     coversChannels.addEventListener('change', update);
+    if (panel?.parentElement)
+      siblingsObserver.observe(panel.parentElement, { childList: true });
     return () => {
       coversChannels.removeEventListener('change', update);
+      siblingsObserver.disconnect();
       setCoveredInert(panel, false);
     };
   }, [panelRef]);
