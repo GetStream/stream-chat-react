@@ -69,6 +69,16 @@ const SIZE_PROPERTIES = ['width', 'height', 'max-width', 'max-height', 'min-widt
 const FULL_SCREEN_MEDIA = '(max-width: 679.98px)';
 const IN_MODAL = ':where(.str-chat__modal__dialog, .str-chat__channel-detail-modal)';
 const MODAL_ROOT = `${IN_MODAL} .str-chat__channel-detail`;
+// The compound selector of the element a selector targets: the part after its last combinator.
+const targetCompound = (selector: string) =>
+  selector
+    .replace(/:where\([^)]*\)/g, (where) => where.replace(/\s/g, ''))
+    .split(/[\s>+~]+/)
+    .pop() ?? '';
+// The number of classes outside `:where()`, which sets the selector's specificity here.
+const countedClasses = (selector: string) =>
+  (selector.replace(/:where\([^)]*\)/g, '').match(/\.[\w-]+/g) ?? []).length;
+
 const FULL_SCREEN = {
   height: '100dvh',
   'max-width': 'none',
@@ -88,8 +98,9 @@ describe('ChannelDetail stylesheet', () => {
       .filter((rule) =>
         rule.selectors.some(
           (selector) =>
-            /\.str-chat__channel-detail--inline$/.test(selector) &&
-            !selector.startsWith(IN_MODAL),
+            /\.str-chat__channel-detail--inline(?![\w-])/.test(
+              targetCompound(selector),
+            ) && !selector.startsWith(IN_MODAL),
         ),
       )
       .flatMap((rule) =>
@@ -99,11 +110,20 @@ describe('ChannelDetail stylesheet', () => {
     expect(layoutSizeDeclarations).toEqual([]);
   });
 
-  it('keeps the 800×640 window in a modal, at the specificity of the root class', () => {
+  it('keeps the 800×640 window in a modal, never narrower than the tabs layout needs', () => {
     expect(declarationsFor(MODAL_ROOT)).toMatchObject({
       height: 'min(640px, 100vh - 2 * var(--str-chat__spacing-lg))',
-      width: 'min(800px, 100vw - 2 * var(--str-chat__spacing-lg))',
+      width: 'min(800px, max(640px, 100vw - 2 * var(--str-chat__spacing-lg)))',
     });
+  });
+
+  it('sizes the modal at the specificity of the root class, so an app size for it wins', () => {
+    const modalSelectors = rules
+      .flatMap((rule) => rule.selectors)
+      .filter((selector) => selector.startsWith(IN_MODAL));
+
+    expect(modalSelectors.length).toBeGreaterThan(0);
+    expect(modalSelectors.map(countedClasses)).toEqual(modalSelectors.map(() => 1));
   });
 
   it('goes full screen in a modal on a narrow viewport', () => {
@@ -115,7 +135,7 @@ describe('ChannelDetail stylesheet', () => {
 
   it('goes full screen in a modal in the inline layout', () => {
     expect(
-      declarationsFor(`${MODAL_ROOT}.str-chat__channel-detail--inline`),
+      declarationsFor(`${MODAL_ROOT}:where(.str-chat__channel-detail--inline)`),
     ).toMatchObject(FULL_SCREEN);
   });
 });

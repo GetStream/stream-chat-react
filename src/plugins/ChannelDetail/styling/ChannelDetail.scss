@@ -60,15 +60,16 @@ $channel-detail-modal-full-screen-max-width: 679.98px;
 
 // In an SDK modal the dialog sizes to its content, so the channel detail sets the window size.
 // `.str-chat__channel-detail-modal` covers a custom `Modal` slot; `:where()` lets an app's
-// `.str-chat__channel-detail` size win. With the default `tabsLayoutMinWidth`, only a narrow
-// viewport, already full screen, picks the inline layout, so the layout cannot flip.
+// `.str-chat__channel-detail` size win. The window is at least the default `tabsLayoutMinWidth`
+// (640px) wide, whatever the spacing token, so only a narrow viewport, already full screen, picks
+// the inline layout, and the layout cannot flip.
 :where(.str-chat__modal__dialog, .str-chat__channel-detail-modal)
   .str-chat__channel-detail {
-  width: min(800px, calc(100vw - (2 * var(--str-chat__spacing-lg))));
+  width: min(800px, max(640px, calc(100vw - (2 * var(--str-chat__spacing-lg)))));
   max-width: 100%;
   height: min(640px, calc(100vh - (2 * var(--str-chat__spacing-lg))));
 
-  &.str-chat__channel-detail--inline {
+  &:where(.str-chat__channel-detail--inline) {
     width: 100dvw;
     max-width: none;
     height: 100dvh;
