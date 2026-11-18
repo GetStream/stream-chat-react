@@ -132,9 +132,15 @@ export const OPERATIONS: Operation[] = [
     run: async (mounted, rng) => {
       const target = rng.pick(mounted.history.slice(0, mounted.history.length - 10));
       await mounted.channel.messagePaginator.jumpToMessage(target.id);
-      // While the jump's focus signal lives, every change of the list re-centers it on the target:
-      // end it, then wait past the window in which the scroll target is re-applied.
-      await waitForFocusSignalToClear(mounted);
+      // VML clears the jump's focus signal (and its highlight) once the target was viewed; waiting
+      // for that keeps later steps' renders the same across runtimes and fails a list that never
+      // clears it. Then past the window in which the scroll target is re-applied.
+      await waitUntil(
+        () =>
+          !mounted.channel.messagePaginator.messageFocusSignal.getLatestValue().signal,
+        6000,
+        'focus signal to clear',
+      );
       await wait(SCROLL_TARGET_RETRY_WINDOW_MS);
       return target.id;
     },
@@ -174,20 +180,6 @@ export const OPERATIONS: Operation[] = [
     weight: 1,
   },
 ];
-
-/**
- * Ends the jump's focus signal the way `MessageList` does once the target was viewed.
- * `VirtualizedMessageList` never schedules that clear, so the signal would live until the next jump
- * and every later step would re-center on the target (B-27 records that as it is).
- */
-const waitForFocusSignalToClear = (mounted: Mounted) => {
-  mounted.channel.messagePaginator.scheduleMessageFocusSignalClear({ ttlMs: 0 });
-  return waitUntil(
-    () => !mounted.channel.messagePaginator.messageFocusSignal.getLatestValue().signal,
-    6000,
-    'focus signal to clear',
-  );
-};
 
 export const pickOperation = (rng: Rng) => {
   const total = OPERATIONS.reduce((sum, operation) => sum + operation.weight, 0);

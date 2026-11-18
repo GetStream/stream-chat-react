@@ -33,7 +33,8 @@ const describeElement = (element: Element | null | undefined) => {
   const attributes = Array.from(element.attributes)
     .filter((attribute) => attribute.name !== 'style')
     .map((attribute) =>
-      attribute.name.startsWith('data-') && /index|size/.test(attribute.name)
+      // The item's position and message are compared as `rendered` and `firstVisible`.
+      attribute.name.startsWith('data-') && /index|size|message-id/.test(attribute.name)
         ? attribute.name
         : `${attribute.name}=${attribute.value}`,
     )

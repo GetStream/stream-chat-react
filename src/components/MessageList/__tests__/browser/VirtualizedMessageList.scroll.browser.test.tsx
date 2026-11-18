@@ -544,33 +544,57 @@ describe('VirtualizedMessageList in a real browser', () => {
     );
   });
 
-  it('B-27 re-centers on a jump target while its focus signal lives', async () => {
-    // Characterization: VML scrolls back to the focused message whenever the list changes while the
-    // focus signal lives. VML never starts the signal's dismissal countdown (MessageList does once
-    // the target is viewed), so it lives until the next jump. The re-centering is compared across
-    // runtimes; the assertion pins the never-cleared signal so a fix shows up here.
+  it('B-27 clears the focus signal once the jump target is viewed, and stops re-centering on it', async () => {
+    // `MessagePaginator` leaves a jump's highlight countdown to the list. VML starts it once the
+    // jumped-to message has been viewed and stops scrolling back to it then, so a reader who scrolls
+    // away is not pulled back when a message arrives (before the fix the signal lived until the
+    // next jump, and every change of the list re-centered on the target). The target is in the
+    // latest page, so arriving messages join the rendered list, which is what re-centered it.
     await runScenario(
       'B-27-focus-signal-recenter',
       { pageSize: 40 },
       async ({ mounted, step }) => {
-        await step('jump to m-0120', () =>
-          mounted.channel.messagePaginator.jumpToMessage('m-0120'),
+        const focusSignal = () =>
+          mounted.channel.messagePaginator.messageFocusSignal.getLatestValue().signal;
+        const firstVisibleId = () => readVisibleItems(mounted.frame)[0]?.id;
+
+        await step('jump to m-0170', () =>
+          mounted.channel.messagePaginator.jumpToMessage('m-0170'),
         );
+        expect(
+          readVisibleItems(mounted.frame).some((item) => item.id === 'm-0170'),
+          'jump target in view',
+        ).toBe(true);
+        expect(focusSignal()?.messageId, 'focus signal lives while counting down').toBe(
+          'm-0170',
+        );
+
+        // Past the window in which Virtuoso re-applies its scroll target, still within the focus
+        // signal's countdown (3s from when the target was viewed).
+        await wait(SCROLL_TARGET_RETRY_WINDOW_MS);
+        // Sampled: on v4 the messages revealed at the top measure taller than estimated, and for one
+        // pass the jumped-to message and the two after it leave the rendered range (and remount);
+        // no frame may show the viewport uncovered meanwhile.
+        const scrolled = await step(
+          'scroll up within the focus window',
+          () => scrollBy(mounted.frame, -300),
+          { sample: true },
+        );
+        // Soft: a failure must not cut the trace short, or the comparison sees missing steps.
+        expect.soft(scrolled.frames?.blankFrames, 'blank frames').toBe(0);
+        const readingAt = firstVisibleId();
         await step('message arrives within the focus window', () =>
           receiveMessage(mounted, mounted.other),
         );
-        await step('scroll up within the focus window', () =>
-          scrollBy(mounted.frame, -300),
+        expect(firstVisibleId(), 'not pulled back to the viewed target').toBe(readingAt);
+
+        await step('focus signal clears', () =>
+          waitUntil(() => !focusSignal(), 6000, 'focus signal to clear'),
         );
-        await step('4s later, another message arrives', async () => {
-          await wait(4000);
-          await receiveMessage(mounted, mounted.other);
-        });
-        expect(
-          mounted.channel.messagePaginator.messageFocusSignal.getLatestValue().signal
-            ?.messageId,
-          'focus signal still alive (VML never clears it)',
-        ).toBe('m-0120');
+        await step('another message arrives', () =>
+          receiveMessage(mounted, mounted.other),
+        );
+        expect(firstVisibleId(), 'still where the reader scrolled to').toBe(readingAt);
       },
     );
   });

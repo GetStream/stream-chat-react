@@ -309,17 +309,19 @@ const compareCheckpoint = (
     if ((h?.maxAnchorShift ?? 0) > (b?.maxAnchorShift ?? 0) + GEOMETRY_TOLERANCE_PX) {
       push('frames.maxAnchorShift', b?.maxAnchorShift, h?.maxAnchorShift);
     }
-    if (
-      !closeNumbers(
-        b?.finalDistanceFromBottom,
-        h?.finalDistanceFromBottom,
-        GEOMETRY_TOLERANCE_PX,
-      )
-    ) {
+    // As for the settled geometry: ending at the bottom on one runtime only is a difference; away
+    // from the bottom the distance follows the runtimes' size estimates and is informational.
+    const baseFinal = b?.finalDistanceFromBottom ?? undefined;
+    const headFinal = h?.finalDistanceFromBottom ?? undefined;
+    if (!closeNumbers(baseFinal, headFinal, GEOMETRY_TOLERANCE_PX)) {
       push(
         'frames.finalDistanceFromBottom',
-        b?.finalDistanceFromBottom,
-        h?.finalDistanceFromBottom,
+        baseFinal,
+        headFinal,
+        atBottom(baseFinal) === atBottom(headFinal) &&
+          !atBottom(baseFinal) &&
+          baseFinal !== undefined &&
+          headFinal !== undefined,
       );
     }
   }
