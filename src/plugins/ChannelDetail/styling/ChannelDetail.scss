@@ -1,9 +1,13 @@
+// Below this viewport width the windowed modal would be narrower than the default
+// `tabsLayoutMinWidth` (640px), so it goes full screen.
+$channel-detail-modal-full-screen-max-width: 679.98px;
+
+// Fills its container. The section navigator measures this element, so no layout sizes it.
 .str-chat__channel-detail {
   display: flex;
   flex-direction: column;
-  width: min(800px, calc(100vw - (2 * var(--str-chat__spacing-lg))));
-  max-width: 100%;
-  height: min(640px, calc(100vh - (2 * var(--str-chat__spacing-lg))));
+  width: 100%;
+  height: 100%;
   min-height: 0;
   overflow: hidden;
 
@@ -34,9 +38,6 @@
 }
 
 .str-chat__channel-detail--inline {
-  width: 100dvw;
-  height: 100dvh;
-  max-width: none;
   border-radius: 0;
   box-shadow: none;
 
@@ -54,6 +55,31 @@
         width: 100%;
       }
     }
+  }
+}
+
+// In an SDK modal the dialog sizes to its content, so the channel detail sets the window size.
+// `.str-chat__channel-detail-modal` covers a custom `Modal` slot; `:where()` lets an app's
+// `.str-chat__channel-detail` size win. With the default `tabsLayoutMinWidth`, only a narrow
+// viewport, already full screen, picks the inline layout, so the layout cannot flip.
+:where(.str-chat__modal__dialog, .str-chat__channel-detail-modal)
+  .str-chat__channel-detail {
+  width: min(800px, calc(100vw - (2 * var(--str-chat__spacing-lg))));
+  max-width: 100%;
+  height: min(640px, calc(100vh - (2 * var(--str-chat__spacing-lg))));
+
+  &.str-chat__channel-detail--inline {
+    width: 100dvw;
+    max-width: none;
+    height: 100dvh;
+  }
+
+  @media (max-width: $channel-detail-modal-full-screen-max-width) {
+    width: 100dvw;
+    max-width: none;
+    height: 100dvh;
+    border-radius: 0;
+    box-shadow: none;
   }
 }
 
