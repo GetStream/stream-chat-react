@@ -66,8 +66,12 @@ const userProfileId = (userId: string) => `user-profile:${userId}`;
 const COVERS_CHANNELS_QUERY = '(max-width: 767px)';
 
 /** Makes everything beside the panel inert, or interactive again, so focus stays in the panel. */
-const setCoveredInert = (panel: HTMLElement | null, inert: boolean) => {
-  for (const sibling of panel?.parentElement?.children ?? []) {
+const setCoveredInert = (
+  container: HTMLElement | null | undefined,
+  panel: HTMLElement | null,
+  inert: boolean,
+) => {
+  for (const sibling of container?.children ?? []) {
     if (sibling !== panel && sibling instanceof HTMLElement) sibling.inert = inert;
   }
 };
@@ -139,7 +143,7 @@ export const useSidePanel = () => {
     const hadFocus =
       active === document.body || !!(active && panelRef.current?.contains(active));
     // The opener sits beside the panel, which on a phone is inert until the panel unmounts.
-    setCoveredInert(panelRef.current, false);
+    setCoveredInert(panelRef.current?.parentElement, panelRef.current, false);
     release(SIDE_PANEL_SLOT);
     setContent(undefined);
     if (hadFocus) focusTargetAfterClose(openerRef.current)?.focus();
@@ -201,17 +205,18 @@ const SidePanelFrame = ({ body, ownHeader, title }: SidePanelContent) => {
   // a channel or thread that opens beside it later.
   useEffect(() => {
     const panel = panelRef.current;
+    // Kept from the start: the cleanup can run after the panel has left the page.
+    const container = panel?.parentElement;
     const coversChannels = window.matchMedia(COVERS_CHANNELS_QUERY);
-    const update = () => setCoveredInert(panel, coversChannels.matches);
+    const update = () => setCoveredInert(container, panel, coversChannels.matches);
     const siblingsObserver = new MutationObserver(update);
     update();
     coversChannels.addEventListener('change', update);
-    if (panel?.parentElement)
-      siblingsObserver.observe(panel.parentElement, { childList: true });
+    if (container) siblingsObserver.observe(container, { childList: true });
     return () => {
       coversChannels.removeEventListener('change', update);
       siblingsObserver.disconnect();
-      setCoveredInert(panel, false);
+      setCoveredInert(container, panel, false);
     };
   }, [panelRef]);
 
