@@ -10,10 +10,15 @@ import { useIsDmChannel } from '../useIsDmChannel';
 // The `isDmChannel` util has its own tests. These cover the hook wiring: it returns that result
 // for the context channel and recomputes when the members state emits.
 
-const makeChannel = (memberCount: number, members: ChannelState['members'] = {}) => {
+const makeChannel = (
+  memberCount: number,
+  members: ChannelState['members'] = {},
+  ownUserId = 'user-1',
+) => {
   const state = generateChannelState({ memberCount, members });
   const channel = fromPartial<Channel>({
     data: { member_count: memberCount },
+    getClient: () => fromPartial<StreamChat>({ user: { id: ownUserId } }),
     state,
   });
   return { channel, state };
@@ -105,6 +110,24 @@ describe('useIsDmChannel', () => {
       () => useIsDmChannel({ channel: makeChannel(1).channel }),
       { wrapper },
     );
+
+    expect(result.current).toBe(true);
+  });
+
+  it("reads the current user from the given channel's client", () => {
+    const chatClient = fromPartial<StreamChat>({ user: { id: 'user-1' } });
+    const members = fromPartial<ChannelState['members']>({
+      'user-a': { user: { id: 'user-a' } },
+      'user-b': { user: { id: 'user-b' } },
+    });
+    const { channel } = makeChannel(2, members, 'user-a');
+    const wrapper = ({ children }: React.PropsWithChildren) => (
+      <ChatProvider value={mockChatContext({ client: chatClient })}>
+        {children}
+      </ChatProvider>
+    );
+
+    const { result } = renderHook(() => useIsDmChannel({ channel }), { wrapper });
 
     expect(result.current).toBe(true);
   });

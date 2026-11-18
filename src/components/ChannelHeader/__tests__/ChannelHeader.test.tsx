@@ -711,25 +711,28 @@ describe('ChannelHeader', () => {
       expect(await axe(container)).toHaveNoViolations();
     });
 
-    it('shows Offline for a direct message whose other member is offline, even while watching', async () => {
-      const { container } = await renderSubtitle({
-        onlineUserIds: [user1.id],
-        watchers: [user2],
-      });
+    it('shows Offline for a direct message whose other member is offline', async () => {
+      const { container } = await renderSubtitle({ onlineUserIds: [user1.id] });
 
       expect(await screen.findByText('Offline')).toBeInTheDocument();
       expect(await axe(container)).toHaveNoViolations();
     });
 
-    it('counts the online members of a group, not its watchers', async () => {
-      const user3 = generateUser();
+    it('shows Online for a direct message whose other member watches it', async () => {
+      await renderSubtitle({ onlineUserIds: [user1.id], watchers: [user2] });
+
+      expect(await screen.findByText('Online')).toBeInTheDocument();
+    });
+
+    it('counts the members of a group who are online or watch it, not other watchers', async () => {
+      const [user3, user4, nonMember] = [generateUser(), generateUser(), generateUser()];
       await renderSubtitle({
-        members: [user1, user2, user3],
+        members: [user1, user2, user3, user4],
         onlineUserIds: [user1.id, user3.id],
-        watchers: [user1],
+        watchers: [user1, user2, nonMember],
       });
 
-      expect(await screen.findByText('3 members · 2 online')).toBeInTheDocument();
+      expect(await screen.findByText('4 members · 3 online')).toBeInTheDocument();
     });
   });
 });

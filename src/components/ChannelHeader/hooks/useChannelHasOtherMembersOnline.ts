@@ -1,4 +1,4 @@
-import type { Channel, MembersState } from 'stream-chat';
+import type { Channel, ChannelStateData } from 'stream-chat';
 
 import { useChatContext } from '../../../context/ChatContext';
 import { useResolvedChannel } from '../../../context/useContextChannel';
@@ -10,10 +10,13 @@ export type UseChannelHasOtherMembersOnlineParams = {
   enabled?: boolean;
 };
 
-const membersSelector = ({ members }: MembersState) => ({ members });
+const membersSelector = ({ members, watchers }: ChannelStateData) => ({
+  members,
+  watchers,
+});
 
 /**
- * Whether a member other than the current user is online (`member.user.online`). `channel`
+ * Whether a member other than the current user is online (see `isMemberOnline`). `channel`
  * defaults to the channel in context, and `enabled: false` returns false.
  */
 export const useChannelHasOtherMembersOnline = ({
@@ -22,10 +25,13 @@ export const useChannelHasOtherMembersOnline = ({
 }: UseChannelHasOtherMembersOnlineParams = {}) => {
   const channel = useResolvedChannel(channelOverride);
   const { client } = useChatContext();
-  const { members } = useStateStore(channel.state, membersSelector);
+  const { members, watchers } = useStateStore(channel.state, membersSelector);
 
   if (!enabled) return false;
 
-  const ownUserId = client.user?.id;
-  return getOnlineMembers(members).some((member) => member.user?.id !== ownUserId);
+  // A given channel can belong to another client than the one in `Chat`.
+  const ownUserId = channelOverride ? channel.getClient().user?.id : client.user?.id;
+  return getOnlineMembers({ members, watchers }).some(
+    (member) => member.user?.id !== ownUserId,
+  );
 };

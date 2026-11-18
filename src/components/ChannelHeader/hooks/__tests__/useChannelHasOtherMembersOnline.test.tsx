@@ -27,11 +27,12 @@ const setupChannel = async ({
     channelsData: [
       {
         members: [generateMember({ user: ownUser }), generateMember({ user: otherUser })],
-        watchers: otherWatching ? [otherUser] : [],
       },
     ],
     customUser: ownUser,
   });
+  // `initClientWithChannels` leaves the watchers out of the channel response.
+  if (otherWatching) channel.state.watchers = { [otherUser.id]: otherUser };
   return { channel, client };
 };
 
@@ -72,13 +73,45 @@ describe('useChannelHasOtherMembersOnline', () => {
     expect(result.current).toBe(true);
   });
 
-  it('does not count a watcher whose user is offline', async () => {
+  it('counts a member who watches the channel, whose user.online was not updated', async () => {
     const { channel, client } = await setupChannel({
       otherOnline: false,
       otherWatching: true,
     });
 
     const { result } = renderForChannel(client, channel);
+
+    expect(result.current).toBe(true);
+  });
+
+  it('follows user.watching.start and user.watching.stop without presence', async () => {
+    const { channel, client } = await setupChannel({ otherOnline: false });
+
+    const { result } = renderForChannel(client, channel);
+    expect(result.current).toBe(false);
+
+    for (const type of ['user.watching.start', 'user.watching.stop'] as const) {
+      act(() => {
+        client.dispatchEvent({
+          channel_id: channel.id,
+          channel_type: channel.type,
+          cid: channel.cid,
+          type,
+          user: { id: 'other', online: false },
+        } as Event);
+      });
+      expect(result.current).toBe(type === 'user.watching.start');
+    }
+  });
+
+  it("leaves out the given channel's own user, not the user in Chat", async () => {
+    const { channel } = await setupChannel({ otherOnline: false });
+    const { client: chatClient } = await initClientWithChannels({
+      customUser: { id: 'other' },
+    });
+
+    // The channel's own user "me" is online but not counted; "other" is offline.
+    const { result } = renderForChannel(chatClient, channel);
 
     expect(result.current).toBe(false);
   });

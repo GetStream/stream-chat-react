@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import type { Channel, MembersState } from 'stream-chat';
+import type { Channel, ChannelStateData } from 'stream-chat';
 
 import { useTranslationContext } from '../../../context';
 import { useResolvedChannel } from '../../../context/useContextChannel';
@@ -8,9 +8,10 @@ import { useIsDmChannel } from '../../../hooks';
 import { getOnlineMembers } from './onlineMembers';
 import { useChannelHasOtherMembersOnline } from './useChannelHasOtherMembersOnline';
 
-const membersSelector = ({ memberCount, members }: MembersState) => ({
+const membersSelector = ({ memberCount, members, watchers }: ChannelStateData) => ({
   memberCount,
   members,
+  watchers,
 });
 
 export type UseChannelHeaderOnlineStatusParams = {
@@ -20,7 +21,8 @@ export type UseChannelHeaderOnlineStatusParams = {
 /**
  * The channel header's online status, translated: "Online" or "Offline" for a DM (the other
  * member), otherwise "N members · M online", where M counts the loaded members whose `user.online`
- * is true. Null when the channel has no members. `channel` defaults to the channel in context.
+ * is true or who watch the channel. Null when the channel has no members. `channel` defaults to
+ * the channel in context.
  *
  * `user.online` stays current only on channels queried or watched with `presence: true`. The copy
  * gets the count as both `{{ onlineCount }}` and `{{ watcherCount }}`.
@@ -30,11 +32,18 @@ export function useChannelHeaderOnlineStatus({
 }: UseChannelHeaderOnlineStatusParams = {}): string | null {
   const { t } = useTranslationContext();
   const channel = useResolvedChannel(channelOverride);
-  const { memberCount, members } = useStateStore(channel.state, membersSelector);
-  const onlineCount = useMemo(() => getOnlineMembers(members).length, [members]);
-  const isDirectMessagingChannel = useIsDmChannel({ channel });
+  const { memberCount, members, watchers } = useStateStore(
+    channel.state,
+    membersSelector,
+  );
+  const onlineCount = useMemo(
+    () => getOnlineMembers({ members, watchers }).length,
+    [members, watchers],
+  );
+  // Each resolves the channel itself, so the current user comes from the right client.
+  const isDirectMessagingChannel = useIsDmChannel({ channel: channelOverride });
   const hasOtherMembersOnline = useChannelHasOtherMembersOnline({
-    channel,
+    channel: channelOverride,
     enabled: isDirectMessagingChannel,
   });
 

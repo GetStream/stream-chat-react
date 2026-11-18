@@ -29,5 +29,7 @@ export const useIsDmChannel = ({
   // Subscribes so `isDmChannel` re-runs whenever the members change.
   useStateStore(channel.state, membersSelector);
 
-  return isDmChannel({ channel, ownUserId: client.user?.id });
+  // A given channel can belong to another client than the one in `Chat`.
+  const ownUserId = channelOverride ? channel.getClient().user?.id : client.user?.id;
+  return isDmChannel({ channel, ownUserId });
 };
