@@ -62,6 +62,16 @@ export const SidePanelProvider = ({ children }: PropsWithChildren) => {
 /** The `id` the panel gives a user's profile, so a button can tell whether that profile is open. */
 const userProfileId = (userId: string) => `user-profile:${userId}`;
 
+/** Matches base.css: below 768px the panel covers the channels view. */
+const COVERS_CHANNELS_QUERY = '(max-width: 767px)';
+
+/** Makes everything beside the panel inert, or interactive again, so focus stays in the panel. */
+const setCoveredInert = (panel: HTMLElement | null, inert: boolean) => {
+  for (const sibling of panel?.parentElement?.children ?? []) {
+    if (sibling !== panel && sibling instanceof HTMLElement) sibling.inert = inert;
+  }
+};
+
 /**
  * Where focus goes when the panel closes: the element that opened it, or, when that one is gone
  * (an item of a menu that has closed, say), the open channel's composer.
@@ -128,6 +138,8 @@ export const useSidePanel = () => {
     const active = document.activeElement;
     const hadFocus =
       active === document.body || !!(active && panelRef.current?.contains(active));
+    // The opener sits beside the panel, which on a phone is inert until the panel unmounts.
+    setCoveredInert(panelRef.current, false);
     release(SIDE_PANEL_SLOT);
     setContent(undefined);
     if (hadFocus) focusTargetAfterClose(openerRef.current)?.focus();
@@ -184,6 +196,19 @@ const SidePanelFrame = ({ body, ownHeader, title }: SidePanelContent) => {
   useEffect(() => {
     (ownHeader ? panelRef.current : headingRef.current)?.focus();
   }, [ownHeader, panelRef]);
+
+  // While the panel covers the channel and the thread, keyboard focus can't reach them.
+  useEffect(() => {
+    const panel = panelRef.current;
+    const coversChannels = window.matchMedia(COVERS_CHANNELS_QUERY);
+    const update = () => setCoveredInert(panel, coversChannels.matches);
+    update();
+    coversChannels.addEventListener('change', update);
+    return () => {
+      coversChannels.removeEventListener('change', update);
+      setCoveredInert(panel, false);
+    };
+  }, [panelRef]);
 
   return (
     <aside
