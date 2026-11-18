@@ -809,6 +809,25 @@ describe('useChannelHeaderOnlineStatus', () => {
     expect(result.current).toBe('3 members · 2 online');
   });
 
+  it('shows Offline for a disposed one-member channel whose current user is unknown', () => {
+    const soloChannel = client.channel('messaging', 'solo');
+    soloChannel.data = { member_count: 1 };
+    // The only member is the current user, online; without a membership, nothing names them.
+    soloChannel.state.members = membersWithOnline(1, 1);
+    soloChannel.state.partialNext({ pendingDisposal: true });
+
+    const { result } = renderHook(
+      () => useChannelHeaderOnlineStatus({ channel: soloChannel }),
+      {
+        wrapper: ({ children }: React.PropsWithChildren) => (
+          <Chat client={client}>{children}</Chat>
+        ),
+      },
+    );
+
+    expect(result.current).toBe('Offline');
+  });
+
   it.each(['{{ onlineCount }}', '{{ watcherCount }}'])(
     'renders the online count through a translation that uses %s',
     async (placeholder) => {

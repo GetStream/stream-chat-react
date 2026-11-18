@@ -29,6 +29,8 @@ export const useChannelHasOtherMembersOnline = ({
   if (!enabled) return false;
 
   const ownUserId = getChannelOwnUserId(channel);
+  // Without the current user, no member can be told apart as another one.
+  if (!ownUserId) return false;
   return getOnlineMembers({ members, watchers }).some(
     (member) => member.user?.id !== ownUserId,
   );
