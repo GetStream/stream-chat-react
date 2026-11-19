@@ -1,3 +1,3 @@
-export { useDebouncedTypingActive } from './useDebouncedTypingActive';
+export { useDisplayedTypingUsers } from './useDisplayedTypingUsers';
 export { useTypingUsers } from './useTypingUsers';
-export type { TypingEntry } from './useDebouncedTypingActive';
+export type { TypingEntry } from './useTypingUsers';

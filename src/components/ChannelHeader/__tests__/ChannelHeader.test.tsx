@@ -1,5 +1,6 @@
 import React from 'react';
 import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import type { RenderResult } from '@testing-library/react';
 import { fromPartial } from '@total-typescript/shoehorn';
 
 import { ChannelHeader, ChannelHeaderSubtitle } from '../ChannelHeader';
@@ -24,6 +25,7 @@ import {
 } from '../../../mock-builders';
 import { axe } from '../../../../axe-helper';
 import { ChannelAvatar } from '../../Avatar';
+import { TypingIndicatorHeader } from '../../TypingIndicator';
 import type {
   ChannelAPIResponse,
   ChannelResponse,
@@ -50,26 +52,24 @@ const defaultChannelState = {
 // paths the display helpers read.
 const channelCustom = (custom: Record<string, unknown>) => ({ custom });
 
-const renderComponentBase = ({
-  channel,
-  client,
-  componentOverrides,
-  props,
-}: {
+type RenderOptions = {
   channel: ChannelType;
   client: StreamChat;
   componentOverrides?: Partial<ComponentContextValue>;
   props?: ChannelHeaderProps;
-}) =>
-  render(
-    <Chat client={client}>
-      <Channel channel={channel}>
-        <WithComponents overrides={componentOverrides ?? {}}>
-          <ChannelHeader {...props} />
-        </WithComponents>
-      </Channel>
-    </Chat>,
-  );
+};
+
+const headerTree = ({ channel, client, componentOverrides, props }: RenderOptions) => (
+  <Chat client={client}>
+    <Channel channel={channel}>
+      <WithComponents overrides={componentOverrides ?? {}}>
+        <ChannelHeader {...props} />
+      </WithComponents>
+    </Channel>
+  </Chat>
+);
+
+const renderComponentBase = (options: RenderOptions) => render(headerTree(options));
 
 async function renderComponent({
   channelData,
@@ -92,6 +92,24 @@ async function renderComponent({
 
   return renderComponentBase({ channel, client, props });
 }
+
+// Renders the header for another channel, named `next-channel`, in the same tree, as switching
+// channels in one slot does.
+const renderNextChannel = async (
+  rerender: RenderResult['rerender'],
+  props?: ChannelHeaderProps,
+) => {
+  const nextChannelData = generateChannel({
+    ...defaultChannelState,
+    channel: channelCustom({ name: 'next-channel' }),
+  });
+  /* eslint-disable-next-line react-hooks/rules-of-hooks */
+  useMockedApis(client, [getOrCreateChannelApi(nextChannelData)]);
+  const nextChannel = client.channel('messaging', nextChannelData.channel.id);
+  await nextChannel.query();
+
+  rerender(headerTree({ channel: nextChannel, client, props }));
+};
 
 afterEach(cleanup);
 
@@ -205,6 +223,91 @@ describe('ChannelHeader', () => {
         },
       });
 
+      expect(screen.queryByTestId('typing-indicator-header')).not.toBeInTheDocument();
+    });
+
+    // The header lingers as long as the message-list `TypingIndicator`, which hides 2s after typing
+    // stops.
+    describe('after typing stops', () => {
+      afterEach(() => {
+        vi.useRealTimers();
+      });
+
+      it('keeps the typing indicator for the hide delay, then shows the online status', async () => {
+        const { container } = await renderComponent({
+          channelData: { member_count: 5 },
+          typing: { [user2.id]: fromPartial({ type: 'typing.start', user: user2 }) },
+        });
+        expect(await screen.findByTestId('typing-indicator-header')).toBeInTheDocument();
+        const channel = client.channel('messaging', testChannel1.channel.id);
+        vi.useFakeTimers();
+
+        act(() => {
+          channel.state.typing = {};
+        });
+        act(() => {
+          vi.advanceTimersByTime(1999);
+        });
+        expect(screen.getByTestId('typing-indicator-header')).toBeInTheDocument();
+
+        act(() => {
+          vi.advanceTimersByTime(1);
+        });
+        expect(screen.queryByTestId('typing-indicator-header')).not.toBeInTheDocument();
+        expect(
+          container.querySelector('.str-chat__channel-header__data__subtitle'),
+        ).toHaveTextContent('5 members · 0 online');
+      });
+
+      it('restarts the hide delay when typing stops again', async () => {
+        const typingUser2 = {
+          [user2.id]: fromPartial<ChannelType['state']['typing'][string]>({
+            type: 'typing.start',
+            user: user2,
+          }),
+        };
+        await renderComponent({ typing: typingUser2 });
+        expect(await screen.findByTestId('typing-indicator-header')).toBeInTheDocument();
+        const channel = client.channel('messaging', testChannel1.channel.id);
+        vi.useFakeTimers();
+
+        act(() => {
+          channel.state.typing = {};
+        });
+        act(() => {
+          vi.advanceTimersByTime(1000);
+        });
+        act(() => {
+          channel.state.typing = typingUser2;
+        });
+        act(() => {
+          vi.advanceTimersByTime(500);
+        });
+        act(() => {
+          channel.state.typing = {};
+        });
+        // 3s after typing first stopped, but 1.5s after it stopped again.
+        act(() => {
+          vi.advanceTimersByTime(1500);
+        });
+        expect(screen.getByTestId('typing-indicator-header')).toBeInTheDocument();
+
+        act(() => {
+          vi.advanceTimersByTime(500);
+        });
+        expect(screen.queryByTestId('typing-indicator-header')).not.toBeInTheDocument();
+      });
+    });
+
+    it('does not carry typing over into the next channel', async () => {
+      const { rerender } = await renderComponent({
+        typing: { [user2.id]: fromPartial({ type: 'typing.start', user: user2 }) },
+      });
+      expect(await screen.findByTestId('typing-indicator-header')).toBeInTheDocument();
+
+      await renderNextChannel(rerender);
+
+      expect(screen.getByText('next-channel')).toBeInTheDocument();
       expect(screen.queryByTestId('typing-indicator-header')).not.toBeInTheDocument();
     });
   });
@@ -639,6 +742,20 @@ describe('ChannelHeader', () => {
   });
 
   describe('Subtitle prop', () => {
+    it('does not carry typing in the Subtitle over into the next channel', async () => {
+      const Subtitle = () => <TypingIndicatorHeader />;
+      const { rerender } = await renderComponent({
+        props: { Subtitle },
+        typing: { [user2.id]: fromPartial({ type: 'typing.start', user: user2 }) },
+      });
+      expect(await screen.findByTestId('typing-indicator-header')).toBeInTheDocument();
+
+      await renderNextChannel(rerender, { Subtitle });
+
+      expect(screen.getByText('next-channel')).toBeInTheDocument();
+      expect(screen.queryByTestId('typing-indicator-header')).not.toBeInTheDocument();
+    });
+
     it('renders the Subtitle passed to it in place of the default subtitle', async () => {
       const Subtitle = () => <div data-testid='custom-subtitle'>Custom subtitle</div>;
 
