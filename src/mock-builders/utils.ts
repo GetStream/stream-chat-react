@@ -2,6 +2,7 @@ import type {
   ChannelConfigWithInfo,
   ChannelResponse,
   GetDraftResponse,
+  ScheduledMessageResponse,
   StreamChat,
   UserResponse,
 } from 'stream-chat';
@@ -114,3 +115,18 @@ export const initClientWithChannels = async ({
 
   return { channels, client };
 };
+
+/** The channel's own scheduled messages list. */
+export const getScheduledMessagesPaginator = (client: StreamChat, cid: string) => {
+  const [type, id] = cid.split(':');
+  const channel = client.channelManager.get(cid) ?? client.channel(type, id);
+
+  return channel.scheduledMessagesPaginator;
+};
+
+/** Fills the channel's scheduled messages list, as a channel query with `include_scheduled_messages` does. */
+export const hydrateScheduledMessages = (
+  client: StreamChat,
+  cid: string,
+  scheduledMessages: ScheduledMessageResponse[] = [],
+) => getScheduledMessagesPaginator(client, cid).hydrate(scheduledMessages);

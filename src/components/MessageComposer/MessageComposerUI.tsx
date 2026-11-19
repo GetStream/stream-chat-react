@@ -21,6 +21,7 @@ import { useStateStore } from '../../store';
 import type { TextComposerState } from 'stream-chat';
 import { CommandChip as DefaultCommandChip } from './CommandChip';
 import { MessageComposerPreviews as DefaultMessageComposerPreviews } from './MessageComposerPreviews';
+import { ScheduledMessagesBanner as DefaultScheduledMessagesBanner } from '../ScheduledMessages/ScheduledMessagesBanner';
 
 const textComposerCommandSelector = ({ command }: TextComposerState) => ({ command });
 
@@ -40,6 +41,7 @@ export const MessageComposerUI = () => {
     AudioRecorder = DefaultAudioRecorder,
     CommandChip = DefaultCommandChip,
     MessageComposerPreviews = DefaultMessageComposerPreviews,
+    ScheduledMessagesBanner = DefaultScheduledMessagesBanner,
     SendToChannelCheckbox = DefaultSendToChannelCheckbox,
     TextareaComposer = DefaultTextareaComposer,
   } = useComponentContext();
@@ -49,6 +51,7 @@ export const MessageComposerUI = () => {
       className='str-chat__message-composer-container'
       component='div'
     >
+      {!message && ScheduledMessagesBanner && <ScheduledMessagesBanner />}
       <div
         className={clsx('str-chat__message-composer', {
           'str-chat__message-composer--command-active': !!command,

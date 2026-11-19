@@ -5,6 +5,7 @@ import {
   type AvatarWithChannelDetailProps,
   ChannelDetail,
   type ChannelDetailProps,
+  ChannelManagementView,
   ChannelMembersView,
   type ChannelMembersViewModes,
   defaultChannelDetailSections,
@@ -14,7 +15,15 @@ import {
 
 import { useAppSettingsSelector } from '../AppSettings/state';
 import { getChannelMembersHeaderActionSet } from '../AppSettings/tabs/ChannelDetail';
+import { channelManagementActionSetWithFreeze } from './ChannelFreezeAction';
 import { ChannelMembersRemoveView } from './ChannelMembersRemoveView';
+
+const ChannelManagementViewWithFreeze = (props: SectionNavigatorSectionContentProps) => (
+  <ChannelManagementView
+    {...props}
+    channelManagementActionSet={channelManagementActionSetWithFreeze}
+  />
+);
 
 const ChannelMembersRemoveTitle = () => {
   const { t } = useTranslationContext();
@@ -43,18 +52,20 @@ const ConfiguredChannelDetail = (props: ChannelDetailProps) => {
   const sections = useMemo<SectionNavigatorSection[]>(
     () => [
       ...defaultChannelDetailSections.map((section) =>
-        section.id !== 'channel-members'
-          ? section
-          : {
-              ...section,
-              SectionContent: (sectionProps: SectionNavigatorSectionContentProps) => (
-                <ChannelMembersView
-                  {...sectionProps}
-                  headerActionSet={headerActionSet}
-                  modeViews={channelMembersModeViews}
-                />
-              ),
-            },
+        section.id === 'channel-info'
+          ? { ...section, SectionContent: ChannelManagementViewWithFreeze }
+          : section.id !== 'channel-members'
+            ? section
+            : {
+                ...section,
+                SectionContent: (sectionProps: SectionNavigatorSectionContentProps) => (
+                  <ChannelMembersView
+                    {...sectionProps}
+                    headerActionSet={headerActionSet}
+                    modeViews={channelMembersModeViews}
+                  />
+                ),
+              },
       ),
     ],
     [headerActionSet],

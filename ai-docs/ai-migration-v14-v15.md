@@ -3601,7 +3601,7 @@ export const RemoveButton = ({ label }: { label: string }) => {
 };
 ```
 
-Four formatter keys carry English day words inside their `calendarFormats` (`timestamp.DateSeparator`, `timestamp.ReminderNotification`, `timestamp.ChannelPreviewTimestamp`, `timestamp.ChannelDetailPinnedMessageTimestamp`) and must be overridden to translate Today / Tomorrow / Yesterday / Last; `dayjsLocaleConfigForLanguage` does not reach them.
+Seven formatter keys carry English words inside their formats (`timestamp.DateSeparator`, `timestamp.ReminderNotification`, `timestamp.ChannelPreviewTimestamp`, `timestamp.ChannelDetailPinnedMessageTimestamp`, `timestamp.ScheduledMessageConfirmation`, `timestamp.ScheduledMessageSendTime`, `timestamp.SchedulePreset`) and must be overridden to translate Today / Tomorrow / Yesterday / Last / at; `dayjsLocaleConfigForLanguage` does not reach them.
 
 ---
 

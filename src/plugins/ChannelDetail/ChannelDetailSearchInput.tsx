@@ -1,6 +1,8 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import clsx from 'clsx';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 
 import { useComponentContextIcons, useTranslationContext } from '../../context';
+import { Button } from '../../components/Button';
 import { TextInput } from '../../components/Form';
 
 export type ChannelDetailSearchInputProps = {
@@ -11,8 +13,9 @@ export type ChannelDetailSearchInputProps = {
 
 export const ChannelDetailSearchInput = React.memo(
   ({ autoFocus, onSearchChange, resetKey }: ChannelDetailSearchInputProps) => {
-    const { IconSearch } = useComponentContextIcons();
+    const { IconSearch, IconXCircle } = useComponentContextIcons();
     const { t } = useTranslationContext();
+    const inputRef = useRef<HTMLInputElement>(null);
     const [searchInput, setSearchInput] = useState('');
 
     useEffect(() => {
@@ -28,6 +31,12 @@ export const ChannelDetailSearchInput = React.memo(
       [onSearchChange],
     );
 
+    const clearSearch = () => {
+      setSearchInput('');
+      onSearchChange('');
+      inputRef.current?.focus();
+    };
+
     return (
       <TextInput
         aria-label={t('common.search.ariaLabel', 'Search')}
@@ -37,6 +46,24 @@ export const ChannelDetailSearchInput = React.memo(
         leading={<IconSearch />}
         onChange={handleSearchChange}
         placeholder={t('common.search.ariaLabel', 'Search')}
+        ref={inputRef}
+        trailing={
+          <Button
+            appearance='ghost'
+            aria-label={t('search.bar.clearSearch.ariaLabel', 'Clear search')}
+            circular
+            className={clsx(
+              'str-chat__channel-detail__search-input-clear',
+              'str-chat__form-text-input__clear-button',
+              !searchInput && 'str-chat__form-text-input__clear-button--hidden',
+            )}
+            onClick={clearSearch}
+            size='xs'
+            variant='secondary'
+          >
+            <IconXCircle />
+          </Button>
+        }
         type='search'
         value={searchInput}
       />

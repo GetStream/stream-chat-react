@@ -289,10 +289,30 @@ export const IconCheckmark = createIcon(
   />,
 );
 
+export const IconCaretDown = createIcon(
+  'IconCaretDown',
+  <path
+    d='M15.9165 7.7097C15.8755 7.61072 15.8061 7.52612 15.7171 7.46659C15.628 7.40705 15.5233 7.37527 15.4162 7.37524H4.58356C4.47638 7.37516 4.37157 7.40688 4.28242 7.46639C4.19328 7.5259 4.12379 7.61052 4.08276 7.70954C4.04173 7.80857 4.031 7.91754 4.05193 8.02266C4.07287 8.12778 4.12452 8.22433 4.20036 8.30008L9.61667 13.7164C9.66697 13.7668 9.72671 13.8067 9.79246 13.834C9.85821 13.8612 9.92869 13.8752 9.99987 13.8752C10.0711 13.8752 10.1415 13.8612 10.2073 13.834C10.273 13.8067 10.3328 13.7668 10.3831 13.7164L15.7994 8.30008C15.8751 8.22429 15.9267 8.12775 15.9475 8.02266C15.9684 7.91757 15.9576 7.80866 15.9165 7.7097Z'
+    fill='currentColor'
+  />,
+);
+
 export const IconChevronDown = createIcon(
   'IconChevronDown',
   <path
     d='M16.25 7.5L10 13.75L3.75 7.5'
+    fill='none'
+    stroke='currentColor'
+    strokeLinecap='round'
+    strokeLinejoin='round'
+    strokeWidth='1.5'
+  />,
+);
+
+export const IconChevronUp = createIcon(
+  'IconChevronUp',
+  <path
+    d='M3.75 12.5L10 6.25L16.25 12.5'
     fill='none'
     stroke='currentColor'
     strokeLinecap='round'
@@ -363,6 +383,18 @@ export const IconXCircle = createIcon(
   'IconXCircle',
   <path
     d='M12.5 7.5L7.5 12.5M7.5 7.5L12.5 12.5M17.5 10C17.5 14.1421 14.1421 17.5 10 17.5C5.85786 17.5 2.5 14.1421 2.5 10C2.5 5.85786 5.85786 2.5 10 2.5C14.1421 2.5 17.5 5.85786 17.5 10Z'
+    fill='none'
+    stroke='currentColor'
+    strokeLinecap='round'
+    strokeLinejoin='round'
+    strokeWidth='1.5'
+  />,
+);
+
+export const IconCalendar = createIcon(
+  'IconCalendar',
+  <path
+    d='M3.125 7.5H16.875M6.25 2.5V5M13.75 2.5V5M3.75 3.75H16.25C16.5952 3.75 16.875 4.02982 16.875 4.375V16.875C16.875 17.2202 16.5952 17.5 16.25 17.5H3.75C3.40482 17.5 3.125 17.2202 3.125 16.875V4.375C3.125 4.02982 3.40482 3.75 3.75 3.75Z'
     fill='none'
     stroke='currentColor'
     strokeLinecap='round'

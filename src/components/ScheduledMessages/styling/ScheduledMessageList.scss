@@ -1,0 +1,163 @@
+@use '../../../styling/utils';
+
+// The modal's dialog wrapper is a flex item sized to its content, so without a limit of its own the
+// dialog's `max-width: 100%` measures against its own 520px and overflows a narrow screen. Top-level,
+// as in `Modal.scss`: the modal is portaled and is itself the `.str-chat` element, with no such
+// ancestor.
+.str-chat__scheduled-message-list-modal > .str-chat__modal__dialog {
+  max-width: calc(100% - 2 * var(--str-chat__spacing-md));
+}
+
+.str-chat {
+  .str-chat__scheduled-message-list-dialog {
+    width: 520px;
+    max-width: 100%;
+    // A fixed height, as ChannelDetail's: sized to its content, the dialog would grow and shrink
+    // with every search keystroke and page loaded.
+    height: min(640px, calc(100dvh - 2 * var(--str-chat__spacing-md)));
+
+    // the list scrolls, so reaching its end loads the next page
+    .str-chat__scheduled-message-list-dialog__body {
+      display: flex;
+      flex: 1;
+      flex-direction: column;
+      min-height: 0;
+      overflow: hidden;
+
+      // rows run to the dialog's edges; on the list, as its own overflow would clip them
+      .str-chat__scheduled-message-list {
+        margin-inline: calc(-1 * var(--str-chat__spacing-xl));
+      }
+    }
+  }
+
+  // the pill of the ChannelDetail search, as the design has it
+  .str-chat__scheduled-message-list-dialog__search {
+    margin-block-end: var(--str-chat__spacing-xs);
+
+    .str-chat__form-text-input__wrapper--outline {
+      border-radius: var(--str-chat__radius-max);
+    }
+  }
+
+  .str-chat__scheduled-message-list {
+    flex: 1;
+    min-height: 0;
+  }
+
+  .str-chat__scheduled-message-list-notice {
+    flex-shrink: 0;
+    margin-block-end: var(--str-chat__spacing-xs);
+  }
+
+  .str-chat__scheduled-message-list__items {
+    display: flex;
+    flex-direction: column;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .str-chat__scheduled-message-list__item {
+    padding: var(--str-chat__spacing-md) var(--str-chat__spacing-xl);
+    border-block-end: 1px solid var(--str-chat__border-core-subtle);
+
+    &:last-child {
+      border-block-end: none;
+    }
+  }
+
+  .str-chat__scheduled-message-item {
+    display: flex;
+    flex-direction: column;
+    gap: var(--str-chat__spacing-xs);
+    min-width: 0;
+
+    .str-chat__scheduled-message-item__time {
+      color: var(--str-chat__text-tertiary);
+      font: var(--str-chat__font-caption-default);
+    }
+
+    .str-chat__scheduled-message-item__body {
+      display: flex;
+      align-items: flex-start;
+      gap: var(--str-chat__spacing-sm);
+      min-width: 0;
+    }
+
+    .str-chat__scheduled-message-item__content {
+      display: flex;
+      flex: 1;
+      flex-direction: column;
+      min-width: 0;
+      color: var(--str-chat__text-primary);
+      font: var(--str-chat__font-body-default);
+    }
+
+    .str-chat__scheduled-message-item__channel-name {
+      @include utils.ellipsis-text();
+      color: var(--str-chat__text-secondary);
+      font: var(--str-chat__font-caption-emphasis);
+    }
+
+    .str-chat__summarized-message-preview {
+      min-width: 0;
+    }
+
+    .str-chat__scheduled-message-item__status {
+      display: flex;
+      align-items: center;
+      gap: var(--str-chat__spacing-xxs);
+      margin-block-start: var(--str-chat__spacing-xxs);
+      color: var(--str-chat__text-secondary);
+      font: var(--str-chat__font-metadata-default);
+    }
+
+    .str-chat__scheduled-message-item__status--failed {
+      color: var(--str-chat__accent-error);
+      font: var(--str-chat__font-caption-default);
+    }
+
+    .str-chat__scheduled-message-item__status-icon {
+      flex-shrink: 0;
+      height: var(--str-chat__icon-size-sm);
+      width: var(--str-chat__icon-size-sm);
+    }
+  }
+
+  // fills the dialog or view it is in, centred both ways
+  .str-chat__scheduled-messages-empty-list {
+    @include utils.flex-col-center;
+    @include utils.empty-theme('scheduled-messages');
+    flex: 1;
+    gap: var(--str-chat__spacing-xxs);
+    padding-block: var(--str-chat__spacing-3xl);
+    padding-inline: var(--str-chat__spacing-md);
+
+    .str-chat__scheduled-messages-empty-list__icon {
+      margin-block-end: var(--str-chat__spacing-xs);
+      color: var(--str-chat__text-tertiary);
+    }
+
+    .str-chat__scheduled-messages-empty-list__title,
+    .str-chat__scheduled-messages-empty-list__description {
+      margin: 0;
+    }
+
+    .str-chat__scheduled-messages-empty-list__title {
+      color: var(--str-chat__text-primary);
+      font: var(--str-chat__font-caption-emphasis);
+    }
+
+    .str-chat__scheduled-messages-empty-list__description {
+      color: var(--str-chat__text-secondary);
+      font: var(--str-chat__font-caption-default);
+    }
+  }
+
+  .str-chat__scheduled-message-list-loading {
+    @include utils.flex-row-center;
+    flex: 1;
+    padding-block: var(--str-chat__spacing-3xl);
+  }
+}

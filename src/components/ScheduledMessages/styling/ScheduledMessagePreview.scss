@@ -1,0 +1,38 @@
+@use '../../../styling/utils';
+
+.str-chat {
+  // above the composer while a scheduled message is edited
+  .str-chat__scheduled-message-preview {
+    display: flex;
+    align-items: center;
+    gap: var(--str-chat__spacing-xs);
+    position: relative;
+    margin: var(--str-chat__spacing-xxs);
+    padding-block: var(--str-chat__spacing-xs);
+    padding-inline: var(--str-chat__spacing-sm) var(--str-chat__spacing-xxs);
+    border-radius: var(--str-chat__message-bubble-radius-attachment);
+    background-color: color-mix(in srgb, var(--str-chat__accent-primary) 5%, transparent);
+    color: var(--str-chat__text-primary);
+
+    .str-chat__scheduled-message-preview__icon {
+      flex-shrink: 0;
+      height: var(--str-chat__icon-size-md);
+      width: var(--str-chat__icon-size-md);
+      color: var(--str-chat__accent-primary);
+    }
+
+    .str-chat__scheduled-message-preview__label {
+      @include utils.ellipsis-text();
+      flex: 1;
+      min-width: 0;
+      font: var(--str-chat__font-metadata-emphasis);
+    }
+
+    // 24px tall, as the design's compact text button
+    .str-chat__scheduled-message-preview__reschedule-button {
+      flex-shrink: 0;
+      padding-block: var(--str-chat__spacing-xxxs);
+      font: var(--str-chat__font-caption-emphasis);
+    }
+  }
+}
