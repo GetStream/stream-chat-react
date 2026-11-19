@@ -26,6 +26,7 @@ import { audioLevelInput, expressivityInput } from './math';
 import { FALLBACK_COLOR, readVoiceTheme, toHsvPalette } from './palette';
 import type { VoiceVisualizationProps } from './types';
 import { useVoiceStateLabel } from './useVoiceStateLabel';
+import { ThemeScopeProvider, useAIThemeScopeClassName } from '../themeScope';
 
 /** How often the theme is read again, so a switch to dark mode is followed. */
 const THEME_INTERVAL = 1000;
@@ -140,6 +141,7 @@ export const VoiceGlowCss = ({
   style,
   ...restProps
 }: VoiceVisualizationProps) => {
+  const themeScopeClassName = useAIThemeScopeClassName();
   const label = useVoiceStateLabel(state);
   const reduceMotion = useReducedMotionPreference();
   const rootRef = useRef<HTMLDivElement>(null);
@@ -294,52 +296,55 @@ export const VoiceGlowCss = ({
   };
 
   return (
-    <div
-      aria-label={label}
-      className={clsx(
-        'str-chat__ai-voice-visualization',
-        block,
-        `${block}--css`,
-        className,
-      )}
-      data-offscreen={onScreen ? undefined : 'true'}
-      data-rendering='css'
-      data-state={state}
-      role='img'
-      style={{ '--str-ai-glow-amp': amplitude.toFixed(3), ...style } as CSSProperties}
-      {...restProps}
-      onPointerUp={handlePointerUp}
-      ref={rootRef}
-    >
-      <Layer className='halo' />
-      <Layer className='level'>
-        <div className={`${block}__bounce`} ref={bounceRef}>
-          <Layer className='breath'>
-            <Layer className='gate'>
-              <Layer className='speech'>
-                <Layer className='pulse'>
-                  <Layer className='globe'>
-                    <div className={`${block}__body ${block}__body--still`}>
-                      <ColorField colorCount={colorCount} />
-                    </div>
-                    <RidingBody colorCount={colorCount} />
+    <ThemeScopeProvider>
+      <div
+        aria-label={label}
+        className={clsx(
+          themeScopeClassName,
+          'str-chat__ai-voice-visualization',
+          block,
+          `${block}--css`,
+          className,
+        )}
+        data-offscreen={onScreen ? undefined : 'true'}
+        data-rendering='css'
+        data-state={state}
+        role='img'
+        style={{ '--str-ai-glow-amp': amplitude.toFixed(3), ...style } as CSSProperties}
+        {...restProps}
+        onPointerUp={handlePointerUp}
+        ref={rootRef}
+      >
+        <Layer className='halo' />
+        <Layer className='level'>
+          <div className={`${block}__bounce`} ref={bounceRef}>
+            <Layer className='breath'>
+              <Layer className='gate'>
+                <Layer className='speech'>
+                  <Layer className='pulse'>
+                    <Layer className='globe'>
+                      <div className={`${block}__body ${block}__body--still`}>
+                        <ColorField colorCount={colorCount} />
+                      </div>
+                      <RidingBody colorCount={colorCount} />
+                    </Layer>
                   </Layer>
                 </Layer>
               </Layer>
             </Layer>
-          </Layer>
-        </div>
-      </Layer>
-      {/* Only the globe takes the pointer; around it, events reach what is behind. */}
-      <div aria-hidden='true' className='str-chat__ai-voice-visualization__hit' />
-      {ripples.map((ripple) => (
-        <span
-          aria-hidden='true'
-          className={`${block}__ripple`}
-          key={ripple.id}
-          style={{ left: ripple.x, top: ripple.y }}
-        />
-      ))}
-    </div>
+          </div>
+        </Layer>
+        {/* Only the globe takes the pointer; around it, events reach what is behind. */}
+        <div aria-hidden='true' className='str-chat__ai-voice-visualization__hit' />
+        {ripples.map((ripple) => (
+          <span
+            aria-hidden='true'
+            className={`${block}__ripple`}
+            key={ripple.id}
+            style={{ left: ripple.x, top: ripple.y }}
+          />
+        ))}
+      </div>
+    </ThemeScopeProvider>
   );
 };

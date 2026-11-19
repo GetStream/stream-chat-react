@@ -6,6 +6,7 @@ import { fromPartial } from '@total-typescript/shoehorn';
 
 import {
   useChatContext,
+  useComponentContext,
   useComponentContextIcons,
   useTranslationContext,
 } from '../../../../../context';
@@ -211,6 +212,9 @@ describe('ChannelFilesView', () => {
       client: { userID: 'user-1' },
     } as ReturnType<typeof useChatContext>);
 
+    // Auto-mocked module: no component overrides unless a test sets them.
+    vi.mocked(useComponentContext).mockReturnValue({});
+
     vi.mocked(useStateStore).mockReturnValue({
       isLoading: false,
       messages,
@@ -249,6 +253,26 @@ describe('ChannelFilesView', () => {
     expect(screen.getByText('sales-report-may.xlsx')).toBeInTheDocument();
     expect(screen.queryByText('screenshot')).not.toBeInTheDocument();
     expect(screen.queryByText('scraped-link-preview')).not.toBeInTheDocument();
+  });
+
+  it('renders the FileSizeIndicator from ComponentContext with the attachment file size', () => {
+    const CustomFileSizeIndicator = ({ fileSize }: { fileSize?: number | string }) => (
+      <span data-testid='custom-file-size-indicator'>{fileSize}</span>
+    );
+    vi.mocked(useComponentContext).mockReturnValue({
+      FileSizeIndicator: CustomFileSizeIndicator,
+    });
+
+    renderView();
+
+    expect(
+      screen.getAllByTestId('custom-file-size-indicator').map((node) => node.textContent),
+    ).toEqual([
+      String(4 * 1024 * 1024),
+      String(7 * 1024 * 1024),
+      String(6 * 1024 * 1024),
+    ]);
+    expect(screen.queryByTestId('file-size-indicator')).not.toBeInTheDocument();
   });
 
   it('groups attachments into descending month sections', () => {

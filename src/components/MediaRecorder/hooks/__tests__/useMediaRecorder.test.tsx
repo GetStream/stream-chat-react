@@ -5,6 +5,7 @@ import type {
   AttachmentManager,
   LocalUploadAttachment,
   LocalVoiceRecordingAttachment,
+  MessageComposer,
 } from 'stream-chat';
 import { useMediaRecorder } from '../useMediaRecorder';
 import { Chat } from '../../../Chat';
@@ -55,11 +56,22 @@ const generateLocalVoiceRecording = () =>
     },
   }) as LocalVoiceRecordingAttachment;
 
-// Stands in for a successful `uploadFile()`, which adds the attachment to the composer.
-const mockUploadFileAddingTheAttachment = (attachmentManager: AttachmentManager) =>
+// Stands in for an `uploadFile()` that has ended, which leaves the attachment in the composer with
+// `uploadState`: 'finished' by default.
+const mockUploadFileAddingTheAttachment = (
+  attachmentManager: AttachmentManager,
+  uploadState: LocalUploadAttachment['localMetadata']['uploadState'] = 'finished',
+) =>
   vi.spyOn(attachmentManager, 'uploadFile').mockImplementation((attachment) => {
-    attachmentManager.upsertAttachments([attachment as LocalUploadAttachment]);
-    return Promise.resolve(attachment as LocalUploadAttachment);
+    const uploaded = {
+      ...(attachment as LocalUploadAttachment),
+      localMetadata: {
+        ...(attachment as LocalUploadAttachment).localMetadata,
+        uploadState,
+      },
+    } as LocalUploadAttachment;
+    attachmentManager.upsertAttachments([uploaded]);
+    return Promise.resolve(uploaded);
   });
 
 const render = async (params = {}) => {
@@ -187,12 +199,12 @@ describe('useMediaRecorder', () => {
         'uploadFile',
       );
       const recorderStopSpy = vi.spyOn(recorder, 'stop').mockResolvedValue(undefined);
-      const recorderCleanUpSpy = vi
-        .spyOn(recorder, 'cleanUp')
-        .mockResolvedValue(undefined);
+      const handOverRecordingSpy = vi
+        .spyOn(recorder, 'handOverRecording')
+        .mockReturnValue(undefined);
       await completeRecording();
       expect(recorderStopSpy).toHaveBeenCalledWith();
-      expect(recorderCleanUpSpy).not.toHaveBeenCalledWith();
+      expect(handOverRecordingSpy).not.toHaveBeenCalledWith();
       expect(uploadFileSpy).not.toHaveBeenCalled();
       expect(sendSpy).not.toHaveBeenCalled();
     });
@@ -214,15 +226,15 @@ describe('useMediaRecorder', () => {
         channel.messageComposer.attachmentManager,
       );
       vi.spyOn(recorder, 'stop').mockResolvedValue(generatedVoiceRecording);
-      const recorderCleanUpSpy = vi
-        .spyOn(recorder, 'cleanUp')
-        .mockResolvedValue(undefined);
+      const handOverRecordingSpy = vi
+        .spyOn(recorder, 'handOverRecording')
+        .mockReturnValue(undefined);
       await act(() => {
         completeRecording();
       });
       expect(uploadFileSpy).toHaveBeenCalledWith(generatedVoiceRecording);
       expect(sendSpy).toHaveBeenCalledWith();
-      expect(recorderCleanUpSpy).toHaveBeenCalledWith();
+      expect(handOverRecordingSpy).toHaveBeenCalledWith();
       expect(announceInteractionMock).toHaveBeenCalledWith('voiceRecording.sent');
       expect(announceInteractionMock).not.toHaveBeenCalledWith('voiceRecording.attached');
     });
@@ -246,15 +258,15 @@ describe('useMediaRecorder', () => {
         channel.messageComposer.attachmentManager,
       );
       vi.spyOn(recorder, 'stop').mockResolvedValue(generatedVoiceRecording);
-      const recorderCleanUpSpy = vi
-        .spyOn(recorder, 'cleanUp')
-        .mockResolvedValue(undefined);
+      const handOverRecordingSpy = vi
+        .spyOn(recorder, 'handOverRecording')
+        .mockReturnValue(undefined);
       await act(() => {
         completeRecording();
       });
       expect(uploadFileSpy).toHaveBeenCalledWith(generatedVoiceRecording);
       expect(sendSpy).not.toHaveBeenCalled();
-      expect(recorderCleanUpSpy).toHaveBeenCalledWith();
+      expect(handOverRecordingSpy).toHaveBeenCalledWith();
       expect(announceInteractionMock).toHaveBeenCalledWith('voiceRecording.attached');
       expect(announceInteractionMock).not.toHaveBeenCalledWith('voiceRecording.sent');
     });
@@ -272,10 +284,167 @@ describe('useMediaRecorder', () => {
       mockUploadFileAddingTheAttachment(attachmentManager);
       sendSpy.mockResolvedValue('failed');
       vi.spyOn(recorder, 'stop').mockResolvedValue(localVoiceRecording);
-      vi.spyOn(recorder, 'cleanUp').mockResolvedValue(undefined);
+      vi.spyOn(recorder, 'handOverRecording').mockReturnValue(undefined);
       await act(() => completeRecording());
       expect(sendSpy).toHaveBeenCalledWith();
       expect(announceInteractionMock).not.toHaveBeenCalledWith('voiceRecording.sent');
+    });
+
+    // Each outcome runs the real `uploadFile()` with uploads on, then sets up how the upload ends.
+    const failingUpload = {
+      outcome: 'fails',
+      setUp: (attachmentManager: AttachmentManager) => {
+        attachmentManager.setCustomUploadFn(
+          vi.fn().mockRejectedValue(new Error('upload failed')),
+        );
+      },
+      uploadState: 'failed',
+    };
+    const blockedUpload = {
+      outcome: 'is blocked',
+      setUp: (attachmentManager: AttachmentManager) => {
+        vi.spyOn(attachmentManager, 'getUploadConfigCheck').mockResolvedValue({
+          reason: 'blocked_mime_types',
+          uploadBlocked: true,
+        });
+      },
+      uploadState: 'blocked',
+    };
+    const uploadOutcomes = [failingUpload, blockedUpload];
+
+    describe('when the upload does not finish', () => {
+      const completeWithUpload = async (
+        setUp: (attachmentManager: AttachmentManager) => void,
+        params = {},
+      ) => {
+        const localVoiceRecording = generateLocalVoiceRecording();
+        const {
+          channel,
+          result: {
+            current: { completeRecording, recorder },
+          },
+        } = await render(params);
+        const { attachmentManager } = channel.messageComposer;
+        vi.spyOn(attachmentManager, 'isUploadEnabled', 'get').mockReturnValue(true);
+        setUp(attachmentManager);
+        vi.spyOn(recorder, 'stop').mockResolvedValue(localVoiceRecording);
+        const handOverRecordingSpy = vi
+          .spyOn(recorder, 'handOverRecording')
+          .mockReturnValue(undefined);
+        await act(() => completeRecording());
+        return { attachmentManager, handOverRecordingSpy, localVoiceRecording };
+      };
+
+      it.each(uploadOutcomes)(
+        'keeps the recording in the composer and sends nothing when the upload $outcome',
+        async ({ setUp, uploadState }) => {
+          const { attachmentManager, handOverRecordingSpy, localVoiceRecording } =
+            await completeWithUpload(setUp);
+          expect(
+            attachmentManager.attachmentsById[localVoiceRecording.localMetadata.id]
+              ?.localMetadata.uploadState,
+          ).toBe(uploadState);
+          expect(sendSpy).not.toHaveBeenCalled();
+          expect(handOverRecordingSpy).toHaveBeenCalledWith();
+          expect(announceInteractionMock).not.toHaveBeenCalledWith('voiceRecording.sent');
+        },
+      );
+
+      it.each(uploadOutcomes)(
+        'keeps the recording in the composer when the upload $outcome and multiple async messages enabled',
+        async ({ setUp, uploadState }) => {
+          const { attachmentManager, handOverRecordingSpy, localVoiceRecording } =
+            await completeWithUpload(setUp, { asyncMessagesMultiSendEnabled: true });
+          expect(
+            attachmentManager.attachmentsById[localVoiceRecording.localMetadata.id]
+              ?.localMetadata.uploadState,
+          ).toBe(uploadState);
+          expect(sendSpy).not.toHaveBeenCalled();
+          expect(handOverRecordingSpy).toHaveBeenCalledWith();
+        },
+      );
+    });
+
+    describe('when pending uploads are allowed', () => {
+      const completeWithPendingUploads = async (
+        setUp: (
+          attachmentManager: AttachmentManager,
+          messageComposer: MessageComposer,
+        ) => void,
+      ) => {
+        const localVoiceRecording = generateLocalVoiceRecording();
+        const {
+          channel,
+          result: {
+            current: { completeRecording, recorder },
+          },
+        } = await render();
+        const { attachmentManager } = channel.messageComposer;
+        channel.messageComposer.updateConfig({
+          attachments: { pendingUploadsEnabled: true },
+        });
+        vi.spyOn(attachmentManager, 'isUploadEnabled', 'get').mockReturnValue(true);
+        setUp(attachmentManager, channel.messageComposer);
+        vi.spyOn(recorder, 'stop').mockResolvedValue(localVoiceRecording);
+        const handOverRecordingSpy = vi
+          .spyOn(recorder, 'handOverRecording')
+          .mockReturnValue(undefined);
+        await act(() => completeRecording());
+        const uploadStateInComposer = () =>
+          attachmentManager.attachmentsById[localVoiceRecording.localMetadata.id]
+            ?.localMetadata.uploadState;
+        return { handOverRecordingSpy, uploadStateInComposer };
+      };
+
+      it('sends the recording without waiting for its upload', async () => {
+        let finishUpload: (value: { file: string }) => void = () => undefined;
+        const { handOverRecordingSpy, uploadStateInComposer } =
+          await completeWithPendingUploads((attachmentManager) => {
+            attachmentManager.setCustomUploadFn(
+              () =>
+                new Promise((resolve) => {
+                  finishUpload = resolve;
+                }),
+            );
+          });
+        expect(uploadStateInComposer()).toBe('uploading');
+        expect(sendSpy).toHaveBeenCalledWith();
+        expect(handOverRecordingSpy).toHaveBeenCalledWith();
+        expect(announceInteractionMock).toHaveBeenCalledWith('voiceRecording.sent');
+        await act(() => finishUpload({ file: 'https://cdn.example.com/recording.aac' }));
+      });
+
+      it('sends a recording whose upload failed', async () => {
+        const { uploadStateInComposer } = await completeWithPendingUploads(
+          (attachmentManager) =>
+            mockUploadFileAddingTheAttachment(attachmentManager, 'failed'),
+        );
+        expect(uploadStateInComposer()).toBe('failed');
+        expect(sendSpy).toHaveBeenCalledWith();
+      });
+
+      it('does not send when the send keeps the composition', async () => {
+        const { handOverRecordingSpy } = await completeWithPendingUploads(
+          (attachmentManager, messageComposer) => {
+            mockUploadFileAddingTheAttachment(attachmentManager);
+            vi.spyOn(
+              messageComposer,
+              'retainsCompositionOnSubmit',
+              'get',
+            ).mockReturnValue(true);
+          },
+        );
+        expect(sendSpy).not.toHaveBeenCalled();
+        expect(handOverRecordingSpy).toHaveBeenCalledWith();
+      });
+
+      it('does not send a blocked recording', async () => {
+        const { handOverRecordingSpy, uploadStateInComposer } =
+          await completeWithPendingUploads(blockedUpload.setUp);
+        expect(uploadStateInComposer()).toBe('blocked');
+        expect(sendSpy).not.toHaveBeenCalled();
+        expect(handOverRecordingSpy).toHaveBeenCalledWith();
+      });
     });
 
     describe.each([
@@ -342,15 +511,20 @@ describe('useMediaRecorder', () => {
             setUp(attachmentManager);
             const uploadFileSpy = vi.spyOn(attachmentManager, 'uploadFile');
             vi.spyOn(recorder, 'stop').mockResolvedValue(localVoiceRecording);
-            const recorderCleanUpSpy = vi
-              .spyOn(recorder, 'cleanUp')
-              .mockResolvedValue(undefined);
+            const handOverRecordingSpy = vi
+              .spyOn(recorder, 'handOverRecording')
+              .mockReturnValue(undefined);
             const releaseMicrophoneSpy = vi.spyOn(recorder, 'releaseMicrophone');
+            const renewRecordingUriSpy = vi.spyOn(recorder, 'renewRecordingUri');
             await act(() => completeRecording());
             expect(uploadFileSpy).toHaveBeenCalledTimes(uploadsTheRecording ? 1 : 0);
             expect(sendSpy).not.toHaveBeenCalled();
-            expect(recorderCleanUpSpy).not.toHaveBeenCalled();
+            expect(handOverRecordingSpy).not.toHaveBeenCalled();
             expect(releaseMicrophoneSpy).toHaveBeenCalledWith();
+            // An upload that drops the recording may revoke its URL.
+            expect(renewRecordingUriSpy).toHaveBeenCalledTimes(
+              uploadsTheRecording ? 1 : 0,
+            );
             expect(announceInteractionMock).not.toHaveBeenCalledWith(
               'voiceRecording.sent',
             );

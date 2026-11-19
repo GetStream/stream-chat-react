@@ -217,6 +217,15 @@ export class AIUIHost {
   }
 
   /**
+   * Whether a reply's UI failed to show (`fail`), so its text shows in its place. It stops being
+   * failed as `fail` says: once the reply leaves the conversation, or, for a reply that failed
+   * while it was written, once it is written.
+   */
+  hasFailed(messageId: string) {
+    return this.failed.has(messageId);
+  }
+
+  /**
    * Shows a reply's text in place of its UI, which failed to show, and tells the app. It lasts
    * while the reply is in the conversation, or, for a reply still being written, until it is
    * written. `AIConversation` and `AIUIView` do it.

@@ -18,6 +18,7 @@ import {
 } from './hooks/VirtualizedMessageList';
 import { useMarkRead } from './hooks/useMarkRead';
 import { useScrollerViewport } from './hooks/VirtualizedMessageList/useScrollerViewport';
+import { useMessageFocusSignalViewed } from './hooks/VirtualizedMessageList/useMessageFocusSignalViewed';
 
 import {
   NotificationList as DefaultNotificationList,
@@ -47,8 +48,8 @@ import {
 } from './VirtualizedMessageListComponents';
 
 import {
+  ScrollToLatestMessageButton as DefaultScrollToLatestMessageButton,
   UnreadMessagesSeparator as DefaultUnreadMessagesSeparator,
-  ScrollToLatestMessageButton,
 } from '../MessageList';
 import { DateSeparator as DefaultDateSeparator } from '../DateSeparator';
 import { EventComponent as DefaultMessageSystem } from '../EventComponent';
@@ -83,7 +84,6 @@ import { useLastDeliveredData } from './hooks/useLastDeliveredData';
 import { useLastOwnMessage } from './hooks/useLastOwnMessage';
 
 type PropsDrilledToMessage =
-  | 'additionalMessageComposerProps'
   | 'formatDate'
   | 'onMentionsClick'
   | 'onMentionsHover'
@@ -205,7 +205,6 @@ const VirtualizedMessageListWithContext = (
   props: VirtualizedMessageListWithContextProps,
 ) => {
   const {
-    additionalMessageComposerProps,
     additionalVirtuosoProps = {},
     channel,
     closeReactionSelectorOnClick,
@@ -242,7 +241,6 @@ const VirtualizedMessageListWithContext = (
     VirtualizedMessageListProps,
     PropsDrilledToMessage | 'closeReactionSelectorOnClick'
   > = {
-    additionalMessageComposerProps,
     closeReactionSelectorOnClick,
     formatDate,
     onMentionsClick,
@@ -273,6 +271,7 @@ const VirtualizedMessageListWithContext = (
     GiphyPreviewMessage = DefaultGiphyPreviewMessage,
     MessageSystem = DefaultMessageSystem,
     NewMessageNotification = DefaultNewMessageNotification,
+    ScrollToLatestMessageButton = DefaultScrollToLatestMessageButton,
     TypingIndicator,
     UnreadMessagesNotification = DefaultUnreadMessagesNotification,
     UnreadMessagesSeparator = DefaultUnreadMessagesSeparator,
@@ -304,13 +303,17 @@ const VirtualizedMessageListWithContext = (
   const focusedMessageId = messageFocusSignal?.messageId;
 
   const virtuoso = useRef<VirtuosoHandle>(null);
+  const virtualListRef = useRef<HTMLDivElement>(null);
 
   const lastRead = useMemo(() => channel.lastRead?.(), [channel]);
 
-  const { show: showUnreadMessagesNotification, toggleShowUnreadMessagesNotification } =
-    useUnreadMessagesNotificationVirtualized({
-      showAlways: !!showUnreadNotificationAlways,
-    });
+  const {
+    show: showUnreadMessagesNotification,
+    toggleShowUnreadMessagesNotification,
+    unreadIsBelow,
+  } = useUnreadMessagesNotificationVirtualized({
+    showAlways: !!showUnreadNotificationAlways,
+  });
 
   const { giphyPreviewMessage, setGiphyPreviewMessage } =
     useGiphyPreview(separateGiphyPreview);
@@ -557,10 +560,22 @@ const VirtualizedMessageListWithContext = (
     }
   };
 
+  const focusViewedSignalRef = useMessageFocusSignalViewed({
+    containerRef: virtualListRef,
+    isMessageInList:
+      !!focusedMessageId && findMessageIndex(processedMessages, focusedMessageId) !== -1,
+    messageFocusSignal,
+    messagePaginator,
+    scrollElement: floatingDateScrollElement,
+  });
+
+  // Brings the focused message into view, again whenever the list changes (its page loads, the
+  // list remounts for the new message set), until the reader has viewed it. After that the reader
+  // may scroll away, and later changes of the list must not pull them back.
   useEffect(() => {
     let scrollTimeout: ReturnType<typeof setTimeout>;
-    if (focusedMessageId) {
-      const index = findMessageIndex(processedMessages, focusedMessageId);
+    if (messageFocusSignal && focusViewedSignalRef.current !== messageFocusSignal) {
+      const index = findMessageIndex(processedMessages, messageFocusSignal.messageId);
       if (index !== -1) {
         scrollTimeout = setTimeout(() => {
           virtuoso.current?.scrollToIndex({ align: 'center', index });
@@ -570,7 +585,7 @@ const VirtualizedMessageListWithContext = (
     return () => {
       clearTimeout(scrollTimeout);
     };
-  }, [focusedMessageId, processedMessages]);
+  }, [focusViewedSignalRef, messageFocusSignal, processedMessages]);
 
   const id = useStableId();
 
@@ -583,10 +598,14 @@ const VirtualizedMessageListWithContext = (
       <MessageTranslationViewProvider>
         <DialogManagerProvider id={dialogManagerId}>
           {!isThreadList && showUnreadMessagesNotification && (
-            <UnreadMessagesNotification unreadCount={channelUnreadUiState?.unreadCount} />
+            <UnreadMessagesNotification
+              unreadCount={channelUnreadUiState?.unreadCount}
+              unreadIsBelow={unreadIsBelow}
+            />
           )}
           <div
             className={customClasses?.virtualizedMessageList || 'str-chat__virtual-list'}
+            ref={virtualListRef}
           >
             <FloatingDateSeparator
               itemsRenderedRef={floatingDateItemsRenderedRef}

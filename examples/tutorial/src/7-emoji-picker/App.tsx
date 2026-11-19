@@ -56,14 +56,14 @@ const slotRenderers: ChatViewSlotRenderers = {
     <Channel channel={source}>
       <ChannelHeader />
       <MessageList />
-      <MessageComposer emojiSearchIndex={SearchIndex} />
+      <MessageComposer />
     </Channel>
   ),
   thread: ({ source }) => (
     <Thread thread={source}>
       <ThreadHeader />
       <MessageList />
-      <MessageComposer emojiSearchIndex={SearchIndex} />
+      <MessageComposer />
     </Thread>
   ),
 };
@@ -135,7 +135,9 @@ const App = () => {
     if (!client) return;
 
     const initChannel = async () => {
-      const channel = client.channel('messaging', 'react-tutorial', {
+      // The id includes the user's id, so each user creates a channel of their own: `members`
+      // only applies when `Channel.watch()` creates the channel, not when it already exists.
+      const channel = client.channel('messaging', `react-tutorial-${userId}`, {
         members: [userId],
         // custom channel fields live under `custom` since v10
         custom: {

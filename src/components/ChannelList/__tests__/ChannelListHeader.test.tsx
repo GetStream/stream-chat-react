@@ -1,58 +1,50 @@
 import React from 'react';
 import { cleanup, render, screen } from '@testing-library/react';
 import { fromPartial } from '@total-typescript/shoehorn';
-import { WithComponents, WorkspaceNavigationProvider } from '../../../context';
+import { WorkspaceNavigationProvider } from '../../../context';
 import { TranslationProvider } from '../../../context/TranslationContext';
 import { mockTranslationContextValue } from '../../../mock-builders';
+import type { ChannelListHeaderProps } from '../ChannelListHeader';
 import { ChannelListHeader } from '../ChannelListHeader';
 import { mockT } from '../../../mock-builders/translator';
 
 const t = vi.fn(mockT);
-const HeaderEndContent = () => <div data-testid='sidebar-toggle' />;
+const EndContent = () => <div data-testid='header-end' />;
+const StartContent = () => <div data-testid='header-start' />;
 
 afterEach(cleanup);
 
-// The header reads `openChannels` from the workspace navigation; drive it through the real
-// provider.
-const renderHeader = ({
-  openChannels,
-  withHeaderEndContent,
-}: {
-  openChannels: unknown[];
-  withHeaderEndContent: boolean;
-}) => {
-  const inner = (
-    <TranslationProvider value={mockTranslationContextValue({ t })}>
-      <ChannelListHeader />
-    </TranslationProvider>
-  );
-  return render(
-    <WorkspaceNavigationProvider value={fromPartial({ openChannels })}>
-      {withHeaderEndContent ? (
-        <WithComponents overrides={{ HeaderEndContent }}>{inner}</WithComponents>
-      ) : (
-        inner
-      )}
+// Nothing is open in the workspace navigation: the start and end content must not depend on it.
+const renderHeader = (props: ChannelListHeaderProps = {}) =>
+  render(
+    <WorkspaceNavigationProvider
+      value={fromPartial({ openChannels: [], openThreads: [] })}
+    >
+      <TranslationProvider value={mockTranslationContextValue({ t })}>
+        <ChannelListHeader {...props} />
+      </TranslationProvider>
     </WorkspaceNavigationProvider>,
   );
-};
 
 describe('ChannelListHeader', () => {
-  it('should not render HeaderEndContent when not provided via ComponentContext', () => {
-    renderHeader({ openChannels: [{}], withHeaderEndContent: false });
+  it('should render only the title by default', () => {
+    const { container } = renderHeader();
 
-    expect(screen.queryByTestId('sidebar-toggle')).not.toBeInTheDocument();
+    expect(screen.queryByTestId('header-start')).not.toBeInTheDocument();
+    expect(screen.queryByTestId('header-end')).not.toBeInTheDocument();
+    expect(
+      container.querySelector('.str-chat__channel-list__header')?.children,
+    ).toHaveLength(1);
   });
 
-  it('should render HeaderEndContent when a channel is active', () => {
-    renderHeader({ openChannels: [{}], withHeaderEndContent: true });
+  it('should render StartContent before the title and EndContent after it, without an open channel', () => {
+    const { container } = renderHeader({ EndContent, StartContent });
 
-    expect(screen.getByTestId('sidebar-toggle')).toBeInTheDocument();
-  });
-
-  it('should not render HeaderEndContent when no channel is active', () => {
-    renderHeader({ openChannels: [], withHeaderEndContent: true });
-
-    expect(screen.queryByTestId('sidebar-toggle')).not.toBeInTheDocument();
+    const children = Array.from(
+      container.querySelector('.str-chat__channel-list__header')?.children ?? [],
+    );
+    expect(
+      children.map((child) => child.getAttribute('data-testid') ?? child.className),
+    ).toEqual(['header-start', 'str-chat__channel-list__header__title', 'header-end']);
   });
 });

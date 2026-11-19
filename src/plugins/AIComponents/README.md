@@ -31,11 +31,12 @@ Load `ai-components.css` in addition to `stream-chat-react/css/index.css`.
 
 From `stream-chat-react/ai-components`:
 
-- Components: `AIMarkdown`, `AIMessageComposer` (with the static sub-components `FileInput`, `TextInput`, `SpeechToTextButton`, `SubmitButton`, `ModelSelect`, `ChatOptions`, `AttachmentPreview`, `AttachmentPreview.Item`), `StreamingMessage`, `AIStateIndicator`, `VoiceWave`, `VoiceGlow`
-- Agent conversations (see [Agent conversations](#agent-conversations)): `AIConversation`, `AIUserMessage`, `AIAssistantMessage`, `AIMessageAttachment`, `AIReplyActions`, `AITypingIndicator`, `AISuggestions`, `AIMessageParts`, `AIMessagePart`, `AIToolCall`, `AIToolApproval`, `AIToolApprovalCard`, `AIToolAuthorization`, `AIToolAuthorizationCard`, `AIReasoning`, `AIThinking`, `AIToolApproverProvider`, `ChatOptionsList`, `SelectedChatOptionChip`
+- Components: `AIMarkdown`, `AIMessageComposer` (with the static sub-components `FileInput`, `TextInput`, `SpeechToTextButton`, `SubmitButton`, `StopButton`, `Actions`, `ModelSelect`, `ChatOptions`, `AttachmentPreview`, `AttachmentPreview.Item`), `StreamingMessage`, `AIStateIndicator`, `VoiceWave`, `VoiceGlow`
+- Agent conversations (see [Agent conversations](#agent-conversations)): `AIConversation`, `AIUserMessage`, `AIAssistantMessage`, `AIMessageAttachment`, `AIReplyActions`, `AIBranchSwitcher`, `AITypingIndicator`, `AISuggestions`, `AIMessageParts`, `AIMessagePart`, `AIToolCall`, `AIToolApproval`, `AIToolApprovalCard`, `AIToolArguments`, `AIToolAuthorization`, `AIToolAuthorizationCard`, `AIReasoning`, `AIThinking`, `AIToolApproverProvider`, `ChatOptionsList`, `SelectedChatOptionChip`
+- Conversation state (see [`AIConversationController`](#aiconversationcontroller)): `AIConversationController`, `AIAgentError`, `AI_AGENT_ERROR_MESSAGE`, `AIAgentActivityStates`, `isAIConversationAnswering`, `useAIConversationState`, `createAIMessageComposerStore`, and the types `AIConversationControllerState`, `AIConversationControllerOptions`, `AIConversationSendData`, `AIConversationTransport`, `AIConversationFeed`, `AIConversationRequest`, `AIConversationRequestKind`, `AIConversationStatus`, `AIConversationActions`, `AIAgentActivity`, `AIAgentActivityState`
 - Functions: `parseMessageParts`, `parseMessagePart`, `isAwaitingApproval`, `isAwaitingAuthorization`, `isAwaitingClient`, `isDeclined`, `isToolCallFinished`, `isSupportedPart`, `isAuthorizationExpired`, `fromStreamMessage`, `createPopupAuthorizer`, `completeConnectorSignIn`, `readConnectorSignInResult`, `AIClientIdentity.installId()`
 - Hooks: `useAttachments`, `useText`, `useIsDisabled`, `useAIMessageComposerContext`, `useSpeechToText`, `useAudioLevel`, `useHeardText`, `useAIToolApprover`
-- Types: `AIMessageComposerStore`, `StreamingMessageRef`, `UseMessageTextStreamingProps`, `ToolComponentProps`, `UseSpeechToTextOptions`, `VoiceAgentState`, `VoiceGlowRendering`, `VoiceVisualizationProps`, `VoiceWaveProps`, `VoiceGlowProps`, `HeardTextProgress`, `HeardTextFunction`, `HeardTextSubscribe`, `UseHeardTextParams`, `UseHeardTextResult`, `AIMessage`, `AIMessageRole`, `AIPendingMessage`, `AIMessagePartData`, `AIReasoningPart`, `AIToolCallPart`, `AIToolApprovalData`, `AIToolAuthorizationData`, `AIToolApprover`, `AIToolAuthorizer`, `AIToolApprovalState`, `AIToolAuthorizationState`, `AIMessageAttachmentData`, `AIMessageRating`, `AIChatOption`, `PopupAuthorizerOptions`, `ConnectorSignInResult`
+- Types: `AIMessageComposerStore`, `AIMessageComposerLayout`, `StreamingMessageRef`, `UseMessageTextStreamingProps`, `ToolComponentProps`, `UseSpeechToTextOptions`, `VoiceAgentState`, `VoiceGlowRendering`, `VoiceVisualizationProps`, `VoiceWaveProps`, `VoiceGlowProps`, `HeardTextProgress`, `HeardTextFunction`, `HeardTextSubscribe`, `UseHeardTextParams`, `UseHeardTextResult`, `AIMessage`, `AIMessageRole`, `AIPendingMessage`, `AIMessagePartData`, `AIReasoningPart`, `AIToolCallPart`, `AIToolApprovalData`, `AIToolAuthorizationData`, `AIToolApprover`, `AIToolAuthorizer`, `AIToolApprovalState`, `AIToolAuthorizationState`, `AIMessageAttachmentData`, `AIMessageRating`, `AIChatOption`, `PopupAuthorizerOptions`, `ConnectorSignInResult`
 
 `useMessageTextStreaming` is not exported from here; import it from the main entry point (`stream-chat-react`).
 
@@ -74,6 +75,8 @@ The data types are named `AIMessagePartData`, `AIToolApprovalData` and `AIToolAu
 
 The conversation laid out by turn, the counterpart of `AIConversationView`. Each of the person's questions starts a turn, with the agent's reply under it.
 
+It scrolls inside itself, so it fills its parent: the space left in a flex container, such as a page-high column with the composer under it, or else the parent's height. Without a bounded ancestor it grows with its turns and the page scrolls instead, so it no longer follows the latest reply.
+
 ```tsx
 import {
   AIClientIdentity,
@@ -110,19 +113,21 @@ const approver = {
 />;
 ```
 
-| Prop                                              | Description                                                                                                                                                                                                                                                                                                            |
-| ------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `messages`                                        | `AIMessage[]`, oldest first: `{ id, role, text, isGenerating?, attachments?, parts?, reasoningText?(stepId) }`. `role` is `user` or `assistant`. `fromStreamMessage(message, options?)` makes one from a Stream message: a reply has `custom.ai_generated: true` and is being written while `custom.generating: true`. |
-| `pendingMessage`                                  | `{ id, text, attachments? }`: a message the person sent that is not in `messages` yet. It shows at once, with the agent thinking under it. Keep passing it until its reply starts; its copy takes over its row (matched by `id` when it is the id you sent it with, else by where it lands).                           |
-| `isThinking`                                      | The agent is answering and its reply shows nothing yet. The latest turn then ends with `AIThinking`, whose seconds the reply's first reasoning step takes over. Also inferred while `pendingMessage` waits and while the latest reply is generating with nothing to show.                                              |
-| `approver`                                        | Who answers tool calls' questions and sign-ins on this device. Also provided to the parts below through `AIToolApproverProvider`.                                                                                                                                                                                      |
-| `loadOlderMessages`                               | Called once a spinner above the first turn has been in view for 300 ms, and again when the first turn changes while it is. What is on screen stays in place as older messages arrive. Pass `undefined` once there are none left.                                                                                       |
-| `footer`                                          | Rendered under the latest turn's messages, such as what the agent is doing (`AITypingIndicator`) or an error with a way to retry.                                                                                                                                                                                      |
-| `emptyContent`                                    | Shown, centred, while there are no messages.                                                                                                                                                                                                                                                                           |
-| `bottomInset`                                     | Room in pixels under the latest turn for a composer floating over the conversation. The scroll-to-latest button sits above it.                                                                                                                                                                                         |
-| `UserMessage`, `AssistantMessage`, `ReplyActions` | Slots for the person's messages, the agent's replies and the actions under each finished reply (`null` for none). Default to `AIUserMessage`, `AIAssistantMessage` and `AIReplyActions`.                                                                                                                               |
-| `replyActions`                                    | `(message, { isLatestReply }) => ({ rating?, onRate?, onRegenerate? })` for the default reply actions.                                                                                                                                                                                                                 |
-| `ui`                                              | An `AIUIHost`: shows the UI the agent writes for a reply (`AIMessage.uiDocument`) in place of its text. See [Generated UI](#generated-ui).                                                                                                                                                                             |
+| Prop                                              | Description                                                                                                                                                                                                                                                                                                                                                                                         |
+| ------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `conversation`                                    | An `AIConversationController`: the conversation shows its state and offers what the person can do in it. It takes the place of `messages`, `pendingMessage`, `isThinking` and `loadOlderMessages`, and supplies `approver` and `replyActions` unless you pass them. See [`AIConversationController`](#aiconversationcontroller).                                                                    |
+| `messages`                                        | Required without `conversation`. `AIMessage[]`, oldest first: `{ id, role, text, isGenerating?, rating?, attachments?, parts?, reasoningText?(stepId), responseId?, branch?, resentFrom? }`. `role` is `user` or `assistant`. `fromStreamMessage(message, options?)` makes one from a Stream message: a reply has `custom.ai_generated: true` and is being written while `custom.generating: true`. |
+| `pendingMessage`                                  | `{ id, text, attachments? }`: a message the person sent that is not in `messages` yet. It shows at once, with the agent thinking under it. Keep passing it until its reply starts; its copy takes over its row (matched by `id` when it is the id you sent it with, else by where it lands).                                                                                                        |
+| `isThinking`                                      | The agent is answering and its reply shows nothing yet. The latest turn then ends with `AIThinking`, whose seconds the reply's first reasoning step takes over. Also inferred while `pendingMessage` waits and while the latest reply is generating with nothing to show.                                                                                                                           |
+| `approver`                                        | Who answers tool calls' questions and sign-ins on this device. Also provided to the parts below through `AIToolApproverProvider`.                                                                                                                                                                                                                                                                   |
+| `loadOlderMessages`                               | Called once a spinner above the first turn has been in view for 300 ms, and again when the first turn changes while it is. What is on screen stays in place as older messages arrive. Pass `undefined` once there are none left.                                                                                                                                                                    |
+| `footer`                                          | Rendered under the latest turn's messages, such as what the agent is doing (`AITypingIndicator`) or an error with a way to retry.                                                                                                                                                                                                                                                                   |
+| `emptyContent`                                    | Shown, centred, while there are no messages.                                                                                                                                                                                                                                                                                                                                                        |
+| `bottomInset`                                     | Room in pixels under the latest turn for a composer floating over the conversation. The scroll-to-latest button sits above it.                                                                                                                                                                                                                                                                      |
+| `UserMessage`, `AssistantMessage`, `ReplyActions` | Slots for the person's messages, the agent's replies and the actions under each finished reply (`null` for none). Default to `AIUserMessage`, `AIAssistantMessage` and `AIReplyActions`.                                                                                                                                                                                                            |
+| `replyActions`                                    | `(message, { isLatestReply }) => ({ rating?, onRate?, onRegenerate?, branch? })` for the default reply actions. `branch` (`{ index, count, onPrevious?, onNext? }`) shows a ‹ i/n › switcher between a reply's versions; see [Versions of a message](#versions-of-a-message).                                                                                                                       |
+| `userMessageActions`                              | `(message) => ({ onSaveEdit?(text), branch? })` for the default user message: `onSaveEdit` edits the message in place and gets the saved text, and `branch` shows a ‹ i/n › switcher between the versions of an edited question. A custom `UserMessage` gets them as `onSaveEdit` and `branch`.                                                                                                     |
+| `ui`                                              | An `AIUIHost`: shows the UI the agent writes for a reply (`AIMessage.uiDocument`) in place of its text. See [Generated UI](#generated-ui).                                                                                                                                                                                                                                                          |
 
 Behaviour:
 
@@ -130,6 +135,191 @@ Behaviour:
 - It opens at its end. A conversation replaced as a whole (another chat opened) opens at its end again.
 - A round button scrolls to the latest message while the end is out of view.
 - Steps render with `AIMessageParts`; the answer types out with `StreamingMessage` as it streams in, catching up with what has arrived within about 400 ms, and a reply loaded from history shows at once. `letterIntervalMs` and `renderingLetterCount` set a fixed pace instead.
+- An `AssistantMessage` of your own gets `attachments`, `isGenerating`, `message`, `parts`, `text`, `approver`, `reasoningText`, and two props about the reply's generated UI: `showsUI`, whether its UI shows in place of its words (`text` is then `''`), and `uiFailed`, whether its UI failed to show (`AIUIHost.fail`), so its words, if any, show instead. A reply that is neither generating nor showing UI, with no `text`, finished without a text reply, which your message can say. Both change when the host fails a reply, so a memoised message shows again.
+
+```tsx
+const AssistantMessage = (props: AIConversationAssistantMessageProps) => (
+  <>
+    <AIAssistantMessage {...props} />
+    {!props.isGenerating && !props.showsUI && props.text === '' && (
+      <p role='status'>
+        {props.uiFailed
+          ? 'The reply couldn’t be shown.'
+          : 'Finished without a text reply.'}
+      </p>
+    )}
+  </>
+);
+```
+
+### Versions of a message
+
+A reply written again and a question the person edited each have versions, of which one shows. A message marks which it is with `custom.support_branch`:
+
+```json
+{
+  "response_id": "resp_2",
+  "parent_response_id": "resp_1",
+  "question_response_id": "resp_2",
+  "of": "reply",
+  "index": 2,
+  "count": 3
+}
+```
+
+`fromStreamMessage` reads it as `AIMessage.branch` (`{ of, index, count }`, `index` from 1) and `AIMessage.responseId`, and a message's `custom.resent_from`, which marks a copy the backend re-sent of an earlier message, as `AIMessage.resentFrom`. A message without it, or with one that doesn't add up (an unknown `of`, an `index` that isn't a whole number from 1 to `count`), has one version and no `branch`. `of: 'reply'` puts the switcher on the reply, among the replies to one question; `of: 'question'` puts it on the person's message, among their edits of it.
+
+`AIMessage` gained `branch`, `responseId` and `resentFrom` for this. If your app's message type extends `AIMessage` and already has fields with those names but another shape, rename yours.
+
+The components show the versions; your backend switches between them. Hand the mark on with what to call:
+
+```tsx
+// A switcher for the message when its versions are of the given kind.
+const versionsOf = (message: AIMessage, of: AIMessageBranch['of']) => {
+  const { branch } = message;
+  if (branch?.of !== of) return undefined;
+  return {
+    count: branch.count,
+    index: branch.index,
+    onNext: () => backend.showVersion(message.responseId, branch.index + 1),
+    onPrevious: () => backend.showVersion(message.responseId, branch.index - 1),
+  };
+};
+
+<AIConversation
+  messages={messages.map((message) => fromStreamMessage(message))}
+  replyActions={(message) => ({
+    branch: versionsOf(message, 'reply'),
+    onRegenerate: () => backend.regenerate(message.responseId),
+  })}
+  userMessageActions={(message) => ({
+    branch: versionsOf(message, 'question'),
+    onSaveEdit: (text) => backend.editQuestion(message.responseId, text),
+  })}
+/>;
+```
+
+- `AIBranchSwitcher` (`{ index, count, onPrevious?, onNext? }`) shows `‹ index/count ›`, and nothing while `count` is 1. Each arrow is disabled at its end, and when it has nothing to call. `AIReplyActions` takes it as `branch`, in front of its other actions; `AIUserMessage` takes it as `branch`, under the bubble.
+- `AIUserMessage`'s `onSaveEdit(text)` (from `userMessageActions`' `onSaveEdit`) turns the edit button into an editor in place of the bubble, filled with the message's text. Save or Enter calls it with the new text (Shift+Enter starts a new line, and an empty or unchanged text can't be saved); Cancel or Escape closes it, and focus goes back to the edit button. Enter or Escape that ends an IME composition does neither. The editor closes when another version shows. Without `onSaveEdit`, the button calls `onEdit()` as before, such as a `conversation`'s edit in the composer; with both, `onSaveEdit` is used.
+
+### `AIConversationController`
+
+The state behind a conversation, and what the person does in it: the counterpart of `AIConversation` in StreamChatAI (iOS) and of `AIConversationController` in `stream-chat-react-native`, with the same names, state and behaviour. Without it, every app works out `messages`, `pendingMessage`, `isThinking`, ratings and retries itself; with it, `AIConversation` and `AIMessageComposer` take one `conversation` prop.
+
+It reaches the agent through an `AIConversationTransport` of yours (or one an agent SDK ships):
+
+```ts
+import {
+  type AIConversationTransport,
+  fromStreamMessage,
+} from 'stream-chat-react/ai-components';
+
+const transport: AIConversationTransport = {
+  // Tell the feed the messages each time they change, and what the agent is doing.
+  connect: (feed) => {
+    const update = () =>
+      feed.updateMessages(messagesOf(channel).map((m) => fromStreamMessage(m)));
+    update();
+    return channel.on(update).unsubscribe;
+  },
+  // Resolve once the agent has the request; its reply arrives through the feed.
+  send: (request) => agent.respond(request),
+  stop: () => agent.interrupt(),
+  // Optional:
+  loadOlderMessages: () => loadOlderPage(),
+  rate: (reply, rating) => backend.rate(reply.id, rating),
+  // Shows the previous or next version of `message`'s branch, then feeds its messages.
+  // `signal` aborts when the person sends meanwhile: feed nothing of that version then.
+  switchBranch: (message, to, signal) => agent.switchBranch(message, to, { signal }),
+};
+```
+
+Make the controller inside a `useEffect` and `dispose()` it in that effect's cleanup. React's StrictMode runs effects twice in development, so a controller made with `useState(() => new AIConversationController(…))` and disposed in an effect is disposed by the first cleanup and never connected again; one made in the effect is made again with it.
+
+```tsx
+import {
+  AIConversation,
+  AIConversationController,
+  AIMessageComposer,
+} from 'stream-chat-react/ai-components';
+
+const Chat = ({ transport }: { transport: AIConversationTransport }) => {
+  const [conversation, setConversation] = useState<AIConversationController>();
+  useEffect(() => {
+    const controller = new AIConversationController({ approver, transport });
+    setConversation(controller);
+    return () => controller.dispose();
+  }, [transport]);
+
+  if (!conversation) return null;
+  return (
+    <>
+      <AIConversation
+        conversation={conversation}
+        footer={<ErrorFooter conversation={conversation} />}
+      />
+      <AIMessageComposer conversation={conversation}>
+        <AIMessageComposer.TextInput />
+        <AIMessageComposer.Actions>
+          <AIMessageComposer.FileInput />
+          <AIMessageComposer.SubmitButton />
+        </AIMessageComposer.Actions>
+      </AIMessageComposer>
+    </>
+  );
+};
+```
+
+What it holds, in `conversation.state` (a `StateStore`; follow it with `useAIConversationState(conversation, selector)`, with the selector defined outside the component):
+
+| Field               | Description                                                                                                                                                                               |
+| ------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `messages`          | The conversation as it shows, oldest first. While a reply is written again, or an edited message is answered again, it and the messages after it are left out until the new reply starts. |
+| `pendingMessage`    | The message the person sent last that is not in `messages` yet. It stays until its reply starts, and after it was stopped or failed, while `retry()` can send it again.                   |
+| `status`            | `ready`, `submitted` (on its way, or the agent works on it and its reply shows nothing yet), `streaming` or `error`. `isAIConversationAnswering(status)` is true for the middle two.      |
+| `isSwitchingBranch` | Whether a `switchBranch` is on its way. `status` stays as it was meanwhile, and the views offer no other switch, nor regenerating or editing the message it switches.                     |
+| `error`             | Why the latest request or switch failed, or, as an `AIAgentError`, that the agent couldn't answer or didn't start its reply in time (`replyTimeout`, five minutes by default).            |
+| `activity`          | What the agent says it is doing besides its reply, such as checking sources (`AIAgentActivityStates`).                                                                                    |
+| `hasOlderMessages`  | Whether `loadOlderMessages()` has anything to load.                                                                                                                                       |
+| `ratings`           | How the person rated replies, by id: what they gave in the browser, or the reply's own `rating`.                                                                                          |
+
+What the person does: `send({ text, attachments?, chatOption?, custom? })` (a message, or the edit of the message being edited), `stop()`, `regenerate(reply)`, `edit(message)`, `editInPlace(message, text)`, `cancelEditing()`, `retry()`, `clearError()`, `rate(reply, rating | null)`, `switchBranch(message, 'previous' | 'next')` and `loadOlderMessages()`. A transport gets each as an `AIConversationRequest` with a `kind` (`message`, `regenerate`, `edit`, or one of your own), a `messageId` it can create the message with (a retry keeps it after `send` rejected, and takes a new one once the agent had the request but didn't answer it, since a backend that tells requests apart by id, such as the Stream Agents router, would take the same id for a duplicate and start nothing), the `text`, the `File`s picked, the `chatOption`, `custom`, and the `message` it is about. A generated UI's action travels as `custom.uiAction`.
+
+`actions: { edit, rate, regenerate }` turns off what the views offer (all by default): editing and regenerating the latest message only, or with `switchBranch` any with a `responseId`. `composer` takes a store of your own (`createAIMessageComposerStore()`), and `approver` is given to `AIConversation` unless it gets one of its own.
+
+With a `conversation`:
+
+- `AIConversation` shows its messages, the message on its way and the agent thinking (status `submitted`), loads older messages while `hasOlderMessages`, offers rating under replies and regenerating the latest one while the agent isn't answering, and an edit button on the person's latest message, which edits it in the composer. Passing `replyActions` replaces the controller's. `userMessageActions` replaces the controller's on the person's messages and keeps its edit button: an `onSaveEdit` of yours edits in place instead of in the composer.
+
+With the transport's optional `switchBranch(message, to)` (`conversation.canSwitchBranch`), the conversation follows [versions of a message](#versions-of-a-message) without `replyActions` or `userMessageActions` of yours:
+
+- Each message whose `branch` has two versions or more shows the ‹ i/n › switcher: on the reply for `of: 'reply'`, among its regenerated versions, and on the person's message for `of: 'question'`, among their edits. The arrows call `switchBranch(message, 'previous' | 'next')`, which shows that version and feeds its messages. Each arrow is disabled at its end, as the mark says, and both while the agent is answering or another switch is on its way. `switchBranch()` itself refuses only `'previous'` from the first version: past the last the mark knows, it leaves the transport to judge, since a version may have been added since the mark was written.
+- While a switch is on its way (`isSwitchingBranch`), the arrows are disabled and the message it switches offers neither regenerate nor edit. Sending stays open, as do the other messages' actions: a request gives up on the switch: the `AbortSignal` `switchBranch` gets as its third argument aborts, and its outcome is ignored. A transport that feeds the switch's version after that can still take the place of the request's question, so honour the signal. A switch that takes longer than the controller's `switchTimeout` (30 seconds by default; `null` waits as long as it takes) is given up on the same way, and shows as an `error` named `TimeoutError` that `retry()` switches again.
+- Regenerate is offered on every finished reply, and edit on every one of the person's messages, while the agent isn't answering (subject to `actions`). Besides the latest, only on those with a `responseId` (a `support_branch` mark), since the transport has nothing to branch from without one. The request is the same as for the latest, with `message` the one regenerated or edited, which with what follows it is left out until the new reply starts. Meanwhile a message that wasn't there, from that position on, counts as the reply, finished or not, whenever it arrives. Whatever the request, a copy a transport re-sends as it brings a version back carries `resentFrom` (`custom.resent_from`, the id of the message it copies) and never counts as the reply. Editing happens in place: the user message's `onSaveEdit` calls `editInPlace(message, text)`, which sends the `edit` request straight away and drops an edit open in the composer; it does nothing where the message isn't offered for editing in place. `edit(message)` still fills the composer for an app that edits there.
+- A `switchBranch` that rejects shows as `error` (status `error`), like a request that failed: `retry()` switches again, and `clearError()` forgets it. The next switch forgets it as it starts, as does the next request. A request that failed stays through a switch, with its `error`, its message and its retry.
+
+Without `switchBranch`, nothing changes: the latest only, and no switcher.
+
+- `AIMessageComposer` shows `conversation.composer`, and submitting sends what the person wrote, the files they picked and the chat option (which stays picked), unless `onSubmit` calls `event.preventDefault()`. While the agent answers, `SubmitButton` turns into a `StopButton` that stops it, and Enter does not send. While the person edits a message the composer says so above the text ("Editing"), with a button that cancels it (`isEditing` on the store).
+
+An `AIAgentError` without `agentMessage` carries the English `AI_AGENT_ERROR_MESSAGE`; check for that to show copy of your own:
+
+```tsx
+const errorSelector = ({ error }: AIConversationControllerState) => ({ error });
+
+const ErrorFooter = ({ conversation }: { conversation: AIConversationController }) => {
+  const { error } = useAIConversationState(conversation, errorSelector);
+  if (!error) return null;
+  return (
+    <p role='alert'>
+      {error instanceof AIAgentError && !error.agentMessage
+        ? 'The assistant is busy. Try again in a moment.'
+        : error.message}
+      <button onClick={() => conversation.retry()}>Retry</button>
+    </p>
+  );
+};
+```
 
 ### Generated UI
 
@@ -161,7 +351,7 @@ const ui = useMemo(
 - Links from a reply's UI open through `host.open`: web and email links by default, since the agent writes them. Pass `open` to decide yourself.
 - The app's tools a reply's UI can run are `AIUIClientTool`s: a `name`, a `description` and an `inputSchema` for the agent's model, `readOnly` for one that only reads, and `run`. `host.runTool(name, args, { userInitiated })` runs one that isn't read-only only when `userInitiated`, from something the person did, and rejects with an `AIUIToolError` naming the tool when it can't run, fails or gives what isn't JSON. `host.capabilities()` lists them for the agent's backend as MCP tools (`name`, `description`, `inputSchema`, `annotations.readOnlyHint`), and each renderer's instructions say how its format calls them.
 - The app's components are described once, in portable JSON shared with the iOS and Android apps (`parseAIUIComponentDefinition`: `name`, `description`, `parameters` as a JSON Schema object with `x-order`, `events`). `defineAIUIComponent(definition, Component)` gives the view `args` (camelCase keys, dates as `Date`s, once they fit the parameters) and `context.emit(event, label, payload)`. `await host.capabilities()` describes the formats and components to the agent's backend, with each renderer's instructions for its model, as on iOS.
-- `AIUIView` shows one reply's UI outside `AIConversation`; call `host.receive(messages)` as the messages change, and show the reply's text when `host.content(document, messageId)` is `null`, again whenever `host.subscribe` calls back.
+- `AIUIView` shows one reply's UI outside `AIConversation`; call `host.receive(messages)` as the messages change, and show the reply's text when `host.content(document, messageId)` is `null`, again whenever `host.subscribe` calls back. `host.hasFailed(messageId)` says whether a reply's UI failed to show.
 - A renderer of your own can load its format's packages the first time a reply shows it with `AIUIRuntimeLoader` and `AIUIRuntimeView`, as the A2UI and OpenUI renderers do. When they can't load, such as after a deploy replaced the file they are in, the replies already written show their text, and the next reply the agent writes in the format tries again.
 
 ### A2UI
@@ -184,7 +374,7 @@ const ui = new AIUIHost({
 
 - A reply's `content` is A2UI messages, one JSON object per line as the agents router passes them on (a JSON array, or JSON rather than text, reads the same). Each message shows as it completes, while the agent writes it. Messages the agent rewrites, rather than adds to, start the reply's surfaces again.
 - Each reply's surfaces are its own, kept for as long as the host is, so what the person entered survives scrolling. A finished reply whose A2UI made no surface shows its text.
-- The app's components join the catalog under their A2UI type (`place_card` is `PlaceCard`), in the catalog `getstream.io:app-catalog` (`catalogId` to name another) and in the basic catalog, as on iOS, so the same instructions serve both apps. A parameter takes the value its schema describes, or a binding (`@path`) or function (`@call`), which the component gets worked out.
+- The app's components join the catalog under their A2UI type (`place_card` is `PlaceCard`), in the catalog `stream-app-catalog` (`A2UI_DEFAULT_CATALOG_ID`; `catalogId` to name another) and in the basic catalog, as on iOS, so the same instructions serve both apps. The agent writes the catalog id in every surface it makes, so it names no domain: a domain in it, as in the former default `getstream.io:app-catalog`, became a link preview under every A2UI reply. A renderer with the default id still shows surfaces that name the former one (`A2UI_LEGACY_CATALOG_ID`), so A2UI already in a conversation's history keeps showing; pick an id of your own without a domain, too. A conversation is read on every platform its people use, so the renderers there must know the id the agent writes: until your iOS and Android apps' renderers know `stream-app-catalog`, pass `catalogId: A2UI_LEGACY_CATALOG_ID` to keep writing the former id, or give every platform the same id of your own. A parameter takes the value its schema describes, or a binding (`@path`) or function (`@call`), which the component gets worked out.
 - What the person does goes to `host.send` as an `AIUIAction`, as on iOS and Android: an A2UI event with what the tapped button says as the label (written or bound to the data model, else the event's name as words, such as "Submit form"), and `{ surfaceId, sourceComponentId, context, userMessage }` as its payload, so the agent's words never pass for the person's; with `dataModel` too when the surface was created with `sendDataModel`. What the person types in an obscured TextField, such as a password, is left out of all of it. An app component's event has its own label and payload, plus `component`. `openUrl` opens through `host.open`, from a tap only. Text renders with `AIMarkdown`, and its links open through `host.open` too, since the agent writes them.
 - The app's tools (`AIUIHostOptions.tools`, each with a `description`, an `inputSchema` and `readOnly`) are listed in the instructions, and the agent calls one as a function the catalog doesn't define, `{"@call": "<name>", "args": {…}}`. A read-only one runs wherever it is called; any other only from a tap, through a button's `functionCall`.
 - Images, videos and sounds load only what `mediaUrl` allows, before they draw: public web links and the page's own site by default (`aiUIPublicMediaURL`), not `data:` URLs or addresses on the person's network.
@@ -237,6 +427,7 @@ const instructions = await openUIInstructions([placeCard, tripMap]);
 - `AIMessageParts` / `AIMessagePart`: a reply's steps, each as `AIReasoning`, `AIToolCall` (with `AIToolApproval` and `AIToolAuthorization` under it), or a neutral line for a step this SDK can't show.
 - `AIToolCall`: the call's `displayTitle` (else its name), what it waits for or how it ended, and its duration once finished.
 - `AIToolApproval`: the question of a call that waits for this person here, sent with `approver.decide(call, allowed)`. The buttons wait until the call's step changes; a rejected `decide` shows "Your answer couldn't be sent. Try again." and lets them answer again (`AIToolApprovalState`: `isSending`, `failed`). `AIToolApprovalCard` is the same question on its own, such as on a voice call: `<AIToolApprovalCard approval={call.approval} onDecide={…} state={…} />`.
+- What the call will send shows under its question: its `arguments` as JSON (`AIToolArguments`), in full when short, else collapsed under "What it sends", which the person opens. `approver.argumentsPreview(call)` shows them your way, such as `Posts "Off to Ohrid" in #travel`; it returns `null` to show nothing, or `undefined` for the default. `AIToolApprovalCard` takes the preview as `argumentsPreview`, and `AIToolApproval`'s `children` get it as their fourth argument. A call carries `arguments` when the agents router sends them, which it always does for client tools.
 - `AIToolAuthorization`: the sign-in of a call that waits for this person, with Connect and Not now, run by `approver.authorizer`. Connect reads "Connecting…" until the call's step changes; Not now stays available meanwhile. `AIToolAuthorizationCard` also says how a sign-in ended (connected, declined, failed, expired) and stops offering Connect past `expiresAt`.
 - `AIReasoning`: a round of reasoning. While the model thinks the header counts ("Thinking… 7s") and the reasoning streams in; once done it says "Thought for 12s" with the step's summary and folds away. Clicking the header opens or folds it. Pass `part` and `reasoningText` (the live reasoning, by step id), or `text`, `isThinking`, `duration` and `summary` yourself. `AIThinking` is the thinking before a reply shows anything.
 
@@ -265,9 +456,9 @@ const instructions = await openUIInstructions([placeCard, tripMap]);
 
 ### Reply actions, suggestions and chat options
 
-- `AIReplyActions`: copy, share (`navigator.share` where the browser has it, else a copy), regenerate (with `onRegenerate`) and a thumbs up or down rating (with `onRate`; `AIMessageRating` is `positive` or `negative`, and `null` takes a rating back).
+- `AIReplyActions`: a ‹ i/n › switcher between the reply's versions (with `branch`), copy, share (`navigator.share` where the browser has it, else a copy), regenerate (with `onRegenerate`) and a thumbs up or down rating (with `onRate`; `AIMessageRating` is `positive` or `negative`, and `null` takes a rating back).
 - `AISuggestions`: starter chips for an empty conversation; picking one calls `onSelect(text)`.
-- `AIMessageComposer.ChatOptions`: a menu of ways to ask, such as "Think harder" (`AIChatOption`: `id`, `title`, `description?`, `icon?`, `shortTitle?`, `customData?`), and a chip for the one picked with a button that removes it. Controlled with `selectedId` and `onSelectedChange`, or uncontrolled with `defaultSelectedId`; with `name`, the picked id is submitted with the form. `ChatOptionsList` and `SelectedChatOptionChip` are its parts, for layouts of your own.
+- `AIMessageComposer.ChatOptions`: a menu of ways to ask, such as "Think harder" (`AIChatOption`: `id`, `title`, `description?`, `icon?`, `shortTitle?`, `customData?`), and a chip for the one picked with a button that removes it. Controlled with `selectedId` and `onSelectedChange`, or uncontrolled with `defaultSelectedId`; with `name`, the picked id is submitted with the form. The picked option is kept in the composer's store as `chatOption`, where a `conversation` finds it when the message is sent, and stays picked after a form reset. `ChatOptionsList` and `SelectedChatOptionChip` are its parts, for layouts of your own.
 - `AIUserMessage`, `AIAssistantMessage`, `AIMessageAttachment` (an image thumbnail, or a file with its name, type and size) and `AITypingIndicator` (a label with three pulsing dots) are the views `AIConversation` uses, for lists of your own.
 
 ## Migrating from `@stream-io/chat-react-ai`
@@ -403,6 +594,9 @@ Every key the components use:
 | `aiComponents.a2ui.choicePickerFilter.placeholder`            | Search                                                                | `Search`                                                                |
 | `aiComponents.attachmentPreview.deleteAttachment.ariaLabel`   | Delete attachment                                                     | `Delete attachment`                                                     |
 | `aiComponents.attachmentPreview.unknownFileName.text`         | Unknown file name                                                     | `Unknown file name`                                                     |
+| `aiComponents.branchSwitcher.next.ariaLabel`                  | Next version                                                          | `aria/Next version`                                                     |
+| `aiComponents.branchSwitcher.previous.ariaLabel`              | Previous version                                                      | `aria/Previous version`                                                 |
+| `aiComponents.branchSwitcher.versions.ariaLabel`              | Version {{ index }} of {{ total }}                                    | `aria/Version {{ index }} of {{ total }}`                               |
 | `aiComponents.chart.loading.text`                             | Loading chart...                                                      | `Loading chart...`                                                      |
 | `aiComponents.chart.unknownType.text`                         | Unknown chart type                                                    | `Unknown chart type`                                                    |
 | `aiComponents.chatOptions.chatOptions.ariaLabel`              | Chat options                                                          | `aria/Chat options`                                                     |
@@ -440,6 +634,8 @@ Every key the components use:
 | `aiComponents.suggestions.suggestions.ariaLabel`              | Suggestions                                                           | `aria/Suggestions`                                                      |
 | `aiComponents.toolApproval.allow.label`                       | Allow                                                                 | `Allow`                                                                 |
 | `aiComponents.toolApproval.answerNotSent.text`                | Your answer couldn't be sent. Try again.                              | `Your answer couldn't be sent. Try again.`                              |
+| `aiComponents.toolApproval.arguments.ariaLabel`               | What it sends                                                         | `What it sends`                                                         |
+| `aiComponents.toolApproval.arguments.label`                   | What it sends                                                         | `What it sends`                                                         |
 | `aiComponents.toolApproval.dontAllow.label`                   | Don't Allow                                                           | `Don't Allow`                                                           |
 | `aiComponents.toolAuthorization.answerNotSent.text`           | Your answer couldn't be sent. Try again.                              | `Your answer couldn't be sent. Try again.`                              |
 | `aiComponents.toolAuthorization.connect.label`                | Connect                                                               | `Connect`                                                               |
@@ -457,7 +653,10 @@ Every key the components use:
 | `aiComponents.toolCall.waitingForApproval.text`               | Waiting for approval                                                  | `Waiting for approval`                                                  |
 | `aiComponents.toolCall.waitingForDevice.text`                 | Waiting for the device                                                | `Waiting for the device`                                                |
 | `aiComponents.toolCall.waitingForSignIn.text`                 | Waiting for you to sign in                                            | `Waiting for you to sign in`                                            |
+| `aiComponents.userMessage.cancelEdit.label`                   | Cancel                                                                | `Cancel`                                                                |
 | `aiComponents.userMessage.edit.ariaLabel`                     | Edit                                                                  | `aria/Edit`                                                             |
+| `aiComponents.userMessage.editInput.ariaLabel`                | Edit message                                                          | `aria/Edit message`                                                     |
+| `aiComponents.userMessage.saveEdit.label`                     | Save                                                                  | `Save`                                                                  |
 | `aiComponents.voiceVisualization.connecting.text`             | Connecting                                                            | `Connecting`                                                            |
 | `aiComponents.voiceVisualization.listening.text`              | Listening                                                             | `Listening`                                                             |
 | `aiComponents.voiceVisualization.ready.text`                  | Ready                                                                 | `Ready`                                                                 |
@@ -480,6 +679,20 @@ v15 bundles English only. If your app runs in another language and relied on the
 
 ## Theming
 
+Each AI component carries the `str-chat` theme scope itself, as `ChannelList` does. Rendered outside `ChatView`, `Channel`, `ChannelList` or another AI component, its root element gets the `str-chat` class with `Chat`'s `theme` (and `customClasses.chat` in place of `str-chat`), so its fonts and colors follow the SDK theme without a wrapper element of your own. Inside a scope it adds none, since a nested `.str-chat` would reset the tokens you override on the outer one. Without `Chat` it gets the plain `str-chat` scope. `AIMarkdown`, `AIUIRuntimeView` and `ChatOptionsList`, which have no root element of their own, get a layout-neutral (`display: contents`) wrapper instead.
+
+Set a dark theme with `<Chat theme='str-chat__theme-dark'>`. To keep a `str-chat` element of your own instead, such as a dark container rendered without `Chat`, render `ThemeScopeProvider` inside it: an AI component can't see a class on your element, and without the provider it would scope itself again, with `Chat`'s theme or none, and reset the tokens your element sets.
+
+```tsx
+import { ThemeScopeProvider } from 'stream-chat-react/ai-components';
+
+<div className='str-chat str-chat__theme-dark'>
+  <ThemeScopeProvider>
+    <AIMessageComposer onSubmit={ask} />
+  </ThemeScopeProvider>
+</div>;
+```
+
 The library never declares the `--str-chat__ai-*` custom properties. Each rule reads them with fallbacks:
 
 ```css
@@ -488,44 +701,60 @@ var(--str-chat__ai-bg-primary, var(--str-chat__background-core-elevation-0, #fff
 
 Precedence for every token except the code palette is: your `--str-chat__ai-*` override, then the `stream-chat-react` theme token (inside `.str-chat`, so the SDK light/dark themes apply automatically), then a built-in light literal (outside `.str-chat`). The `--str-chat__ai-syntax-*` palette has no SDK theme token: it falls back directly from your override to a built-in literal. Because nothing is declared by the library, overrides work at any scope, including `:root`.
 
-| Token (`--str-chat__ai-…`) | Used for                                                | SDK theme token (`--str-chat__…`) | Literal fallback |
-| -------------------------- | ------------------------------------------------------- | --------------------------------- | ---------------- |
-| `bg-primary`               | code block background                                   | `background-core-elevation-0`     | `#ffffff`        |
-| `bg-secondary`             | not read by the built-in rules (kept for compatibility) | `background-core-surface-default` | `#f7f7f8`        |
-| `bg-tertiary`              | not read by the built-in rules (kept for compatibility) | `background-core-surface-strong`  | `#ececf1`        |
-| `text-primary`             | not read by the built-in rules (kept for compatibility) | `text-primary`                    | `#353740`        |
-| `text-secondary`           | AI state indicator text and dots                        | `text-secondary`                  | `#565869`        |
-| `border`                   | composer, model select and attachment borders           | `border-core-default`             | `#ccc`           |
-| `border-subtle`            | table row separators                                    | `border-core-subtle`              | `#e9ecef`        |
-| `surface-hover`            | composer round-button hover                             | `background-utility-hover`        | `#e8e8e8`        |
-| `surface-pressed`          | pressed (listening) speech-to-text button               | `background-utility-selected`     | `#d1eaff`        |
-| `button-bg`                | attachment delete/retry buttons                         | `background-core-surface-strong`  | `#e8e8e8`        |
-| `inline-code-bg`           | inline code in `StreamingMessage`                       | `background-core-surface-default` | `#f5f5f5`        |
-| `table-border`             | table header borders                                    | `border-core-default`             | `#dee2e6`        |
-| `table-header-bg`          | table header and row hover background                   | `background-core-surface-subtle`  | `#f8f9fa`        |
-| `table-header-text`        | table header text                                       | `text-primary`                    | `#212529`        |
-| `table-text`               | table cell text                                         | `text-secondary`                  | `#495057`        |
-| `scrollbar-track`          | attachment list scrollbar track                         | `background-core-surface-subtle`  | `#f1f1f1`        |
-| `scrollbar-thumb`          | attachment list scrollbar thumb                         | `border-core-default`             | `#ddd`           |
-| `voice-color`              | `VoiceWave` / `VoiceGlow` color when `colors` is unset  | `accent-primary`                  | `#005fff`        |
-| `voice-backdrop`           | what `VoiceWave` / `VoiceGlow` sit on (light or dark)   | `background-core-elevation-0`     | `#ffffff`        |
-| `accent`                   | tool call icons, reasoning rule while thinking, chips   | `accent-primary`                  | `#005fff`        |
-| `success`                  | completed tool calls, connected sign-ins                | `accent-success`                  | `#00a46e`        |
-| `error`                    | failed tool calls, answers that couldn't be sent        | `accent-error`                    | `#d92f26`        |
-| `text-tertiary`            | reasoning footnote                                      | `text-tertiary`                   | `#7a7d87`        |
-| `card-bg`                  | approval and sign-in cards, files, suggestions          | `background-core-surface-card`    | `#f7f7f8`        |
-| `card-border`              | approval and sign-in cards, files                       | `border-core-subtle`              | `#e9ecef`        |
-| `elevated-bg`              | scroll-to-latest button, chat options menu              | `background-core-elevation-1`     | `#ffffff`        |
-| `user-message-bg`          | the person's message bubble                             | `chat-bg-outgoing`                | `#d2e3ff`        |
-| `user-message-text`        | the person's message text                               | `chat-text-outgoing`              | `#001a4d`        |
-| `button-primary-bg`        | Allow and Connect buttons                               | `button-primary-bg`               | `#005fff`        |
-| `button-primary-text`      | Allow and Connect button text                           | `button-primary-text-on-accent`   | `#ffffff`        |
-| `button-secondary-bg`      | Don't Allow and Not now buttons                         | `background-core-elevation-1`     | `#ffffff`        |
-| `button-secondary-text`    | Don't Allow and Not now button text                     | `text-primary`                    | `#353740`        |
-| `button-secondary-border`  | Don't Allow and Not now button border                   | `button-secondary-border`         | `#ccc`           |
-| `syntax-*`                 | code palette (see below)                                | none                              | built-in palette |
+| Token (`--str-chat__ai-…`) | Used for                                                   | SDK theme token (`--str-chat__…`) | Literal fallback |
+| -------------------------- | ---------------------------------------------------------- | --------------------------------- | ---------------- |
+| `bg-primary`               | code block background                                      | `background-core-elevation-0`     | `#ffffff`        |
+| `bg-secondary`             | not read by the built-in rules (kept for compatibility)    | `background-core-surface-default` | `#f7f7f8`        |
+| `bg-tertiary`              | not read by the built-in rules (kept for compatibility)    | `background-core-surface-strong`  | `#ececf1`        |
+| `text-primary`             | not read by the built-in rules (kept for compatibility)    | `text-primary`                    | `#353740`        |
+| `text-secondary`           | AI state indicator text and dots                           | `text-secondary`                  | `#565869`        |
+| `border`                   | composer, model select and attachment borders              | `border-core-default`             | `#ccc`           |
+| `border-subtle`            | table row separators                                       | `border-core-subtle`              | `#e9ecef`        |
+| `surface-hover`            | composer round-button hover                                | `background-utility-hover`        | `#e8e8e8`        |
+| `surface-pressed`          | pressed (listening) speech-to-text button                  | `background-utility-selected`     | `#d1eaff`        |
+| `button-bg`                | attachment delete/retry buttons                            | `background-core-surface-strong`  | `#e8e8e8`        |
+| `inline-code-bg`           | inline code in `StreamingMessage`                          | `background-core-surface-default` | `#f5f5f5`        |
+| `table-border`             | table header borders                                       | `border-core-default`             | `#dee2e6`        |
+| `table-header-bg`          | table header and row hover background                      | `background-core-surface-subtle`  | `#f8f9fa`        |
+| `table-header-text`        | table header text                                          | `text-primary`                    | `#212529`        |
+| `table-text`               | table cell text                                            | `text-secondary`                  | `#495057`        |
+| `scrollbar-track`          | attachment list scrollbar track                            | `background-core-surface-subtle`  | `#f1f1f1`        |
+| `scrollbar-thumb`          | attachment list scrollbar thumb                            | `border-core-default`             | `#ddd`           |
+| `voice-color`              | `VoiceWave` / `VoiceGlow` color when `colors` is unset     | `accent-primary`                  | `#005fff`        |
+| `voice-backdrop`           | what `VoiceWave` / `VoiceGlow` sit on (light or dark)      | `background-core-elevation-0`     | `#ffffff`        |
+| `accent`                   | tool call icons, reasoning rule while thinking, chips      | `accent-primary`                  | `#005fff`        |
+| `success`                  | completed tool calls, connected sign-ins                   | `accent-success`                  | `#00a46e`        |
+| `error`                    | failed tool calls, answers that couldn't be sent           | `accent-error`                    | `#d92f26`        |
+| `text-tertiary`            | reasoning footnote                                         | `text-tertiary`                   | `#7a7d87`        |
+| `card-bg`                  | approval and sign-in cards, files, suggestions             | `background-core-surface-card`    | `#f7f7f8`        |
+| `card-border`              | approval and sign-in cards, files                          | `border-core-subtle`              | `#e9ecef`        |
+| `elevated-bg`              | scroll-to-latest button, chat options menu                 | `background-core-elevation-1`     | `#ffffff`        |
+| `user-message-bg`          | the person's message bubble                                | `chat-bg-outgoing`                | `#d2e3ff`        |
+| `user-message-text`        | the person's message text                                  | `chat-text-outgoing`              | `#001a4d`        |
+| `button-primary-bg`        | Allow and Connect buttons                                  | `button-primary-bg`               | `#005fff`        |
+| `button-primary-text`      | Allow and Connect button text                              | `button-primary-text-on-accent`   | `#ffffff`        |
+| `button-secondary-bg`      | Don't Allow and Not now buttons                            | `background-core-elevation-1`     | `#ffffff`        |
+| `button-secondary-text`    | Don't Allow and Not now button text                        | `text-primary`                    | `#353740`        |
+| `button-secondary-border`  | Don't Allow and Not now button border                      | `button-secondary-border`         | `#ccc`           |
+| `link`                     | words in the accent colour in generated UI (else `accent`) | `text-link`                       | `#005fff`        |
+| `color-scheme`             | native controls in generated UI, such as the date input    | the SDK theme (`light` / `dark`)  | `light`          |
+| `syntax-*`                 | code palette (see below)                                   | none                              | built-in palette |
 
 The code palette tokens are `--str-chat__ai-syntax-text`, `-selection-bg`, `-comment`, `-punctuation`, `-number`, `-keyword`, `-tag`, `-string`, `-function`, `-cyan`, `-error` and `-whitespace`.
+
+In the SDK's dark theme, `button-primary-bg` falls back to the SDK's primary fill drawn a fifth of the way toward black, so the white words on it reach 4.5:1 (the SDK's dark `#4586ff` gives 3.4:1). The shade is worked out on the `.str-chat__theme-dark` element, from the SDK token there, in browsers with `color-mix()`; elsewhere the fill is the SDK's as it is. An app that sets `--str-chat__ai-button-primary-bg` gets that colour as it is.
+
+An app that themes generated UI dark with these tokens alone, outside the SDK's dark theme, also sets `--str-chat__ai-color-scheme: dark`, so native controls such as the date input draw dark too.
+
+### Generated UI
+
+A2UI and OpenUI replies take every colour from these tokens, so an app that sets only `--str-chat__ai-*` themes them in both themes, inside a `.str-chat` element or outside one, where the SDK's theme tokens don't exist and the literal fallbacks apply.
+
+- `.str-chat__a2ui` sets every `--a2ui-*` colour A2UI's own elements read (text, captions, tab titles, the open tab, inputs, focus, errors, the slider, the date input, the modal), and `.str-chat__openui` every `--openui-*` colour OpenUI's components read. Without them, A2UI falls back to a light theme's literals (dark tab titles at #666, 2.6:1), and OpenUI's follow the person's system rather than the SDK's theme.
+- A2UI's buttons, chips, text fields and check marks are the SDK's own components. In a reply they take the AI tokens: `button-primary-bg` and `button-primary-text` for the main button and checked boxes, `button-secondary-*` for the others, `bg-primary` for fields (`--a2ui-color-input`), `border` and `text-*` for the rest. They're drawn in full by `ai-components.css`, so they need no `.str-chat` around the reply.
+- Words in the accent colour (follow-ups, borderless buttons, the open tab, a chosen chip) take `link`, else `accent`, else the SDK's link colour, which reads on the SDK's surfaces in both themes where its accent doesn't. Words in the error colour take `error`, else the SDK's, drawn toward the text colour.
+- `yarn validate-ai-ui-tokens`, run in CI, fails when either renderer reads a colour these leave unset, such as after an upgrade of its packages.
+- The gallery in `examples/ai-ui-gallery` shows both formats in each theme, inside and outside `.str-chat`, with the SDK's tokens and with only an app's AI tokens, and its `screenshots` script checks every text against what is under it for 4.5:1.
 
 Focus rings use the SDK focus token `--str-chat__border-utility-focused` (falling back to `#005fff` outside `.str-chat`). Icons inside the composer and attachment previews are sized and coloured (`currentColor`) by `ai-components.css` itself.
 
@@ -567,19 +796,36 @@ function ChatComposer({ attachments }: ChatComposerProps) {
 
   return (
     <AIMessageComposer onSubmit={handleSubmit}>
-      <AIMessageComposer.FileInput name='attachments' />
-      <AIMessageComposer.TextInput name='message' />
-      <AIMessageComposer.SpeechToTextButton />
-      <AIMessageComposer.ModelSelect name='model' />
-      <AIMessageComposer.SubmitButton />
       <AIMessageComposer.AttachmentPreview>
         {attachments.map((attachment) => (
           <AIMessageComposer.AttachmentPreview.Item key={attachment.id} {...attachment} />
         ))}
       </AIMessageComposer.AttachmentPreview>
+      <AIMessageComposer.TextInput name='message' />
+      <AIMessageComposer.Actions>
+        <AIMessageComposer.FileInput name='attachments' />
+        <AIMessageComposer.ModelSelect name='model' />
+        <AIMessageComposer.SpeechToTextButton />
+        <AIMessageComposer.SubmitButton />
+      </AIMessageComposer.Actions>
     </AIMessageComposer>
   );
 }
+```
+
+#### Layout
+
+By default (`layout='stacked'`) the parts are stacked, one under another: put the controls in `AIMessageComposer.Actions`, a row that lines them up at its end, under the text. With `layout='inline'` the text and the controls share one line, the controls staying at its end as the text grows, which suits a composer whose only control is the send button. Attachment previews keep a full-width row above the line.
+
+```tsx
+<AIMessageComposer layout='inline' onSubmit={handleSubmit}>
+  <AIMessageComposer.TextInput />
+  {isAnswering ? (
+    <AIMessageComposer.StopButton onClick={stop} />
+  ) : (
+    <AIMessageComposer.SubmitButton />
+  )}
+</AIMessageComposer>
 ```
 
 #### Sub-components
@@ -587,7 +833,9 @@ function ChatComposer({ attachments }: ChatComposerProps) {
 - **`AIMessageComposer.FileInput`** - File input button for attaching files. Supports multiple file selection. The native `<input type="file">` is visually hidden but stays focusable (it is the keyboard stop, labelled with the `fileUpload.uploadButton.fileUpload.ariaLabel` string, "File upload", and opens the picker on Enter/Space); the round `<label>` that follows it is the pointer target and shows its focus ring. `labelProps` are spread onto that label.
 - **`AIMessageComposer.TextInput`** - Where the message is written: a `textarea` that grows with its lines, up to 200 px, then scrolls. Enter sends, Shift+Enter starts a new line, and Enter while an input method is composing does neither. Automatically syncs with composer state.
 - **`AIMessageComposer.SpeechToTextButton`** - Button to toggle speech-to-text input using the Web Speech API.
-- **`AIMessageComposer.SubmitButton`** - Submit button for sending the message.
+- **`AIMessageComposer.SubmitButton`** - Submit button for sending the message. In a composer with a `conversation`, a `StopButton` takes its place while the agent answers.
+- **`AIMessageComposer.StopButton`** - A round button that stops a reply still being written, to show in place of `SubmitButton` meanwhile. It is `type="button"`, so it never submits, and it is named by the `messageComposer.stopAiGeneration.stopAiGeneration.ariaLabel` string ("Stop AI Generation"). Unlike the other parts it does not follow the composer's `disabled`, since the composer is often disabled exactly while a reply runs; pass `disabled` to it to disable it. Children replace its stop icon. In a composer with a `conversation` it stops the conversation's reply, unless its `onClick` calls `event.preventDefault()`.
+- **`AIMessageComposer.Actions`** - A row for the controls, lined up at its end (`str-chat__ai-message-composer__actions`). Takes any `div` prop.
 - **`AIMessageComposer.ModelSelect`** - Dropdown for selecting AI models. Customizable via `options` prop.
 - **`AIMessageComposer.AttachmentPreview`** - Preview container for attached files.
 - **`AIMessageComposer.AttachmentPreview.Item`** - Preview item component, renders a different look for file types that begin with `image/`.
@@ -596,6 +844,8 @@ function ChatComposer({ attachments }: ChatComposerProps) {
 
 | Name                       | Type                                         | Required | Description                                                                                                                                                                                               |
 | -------------------------- | -------------------------------------------- | -------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `conversation`             | `AIConversationController`                   | no       | The conversation the person writes in: the composer shows its `composer` store and sends through it. See [`AIConversationController`](#aiconversationcontroller).                                         |
+| `layout`                   | `'stacked' \| 'inline'`                      | no       | How the parts are arranged: one under another (`stacked`, the default), or the text and the controls on one line (`inline`). See [Layout](#layout).                                                       |
 | `resetAttachmentsOnSelect` | `boolean`                                    | no       | Resets file input after selection. Defaults to `true`.                                                                                                                                                    |
 | `nameMapping`              | `{ message?: string; attachments?: string }` | no       | Maps custom input names to internal state. By default, the composer expects inputs named `message` (for text) and `attachments` (for files). Use this prop to map different names to these internal keys. |
 | `onSubmit`                 | `(e: FormEvent<HTMLFormElement>) => void`    | no       | Form submission handler.                                                                                                                                                                                  |

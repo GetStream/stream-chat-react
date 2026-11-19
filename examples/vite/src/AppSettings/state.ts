@@ -57,7 +57,7 @@ export type MessageActionsSettingsState = {
   customMessageActions: Record<MessageActionSurface, CustomMessageActionToggles>;
 };
 
-export type ChannelMembersHeaderActionForm = 'menu' | 'quick';
+export type ChannelMembersHeaderActionForm = 'dropdown' | 'quick';
 export type ChannelMembersHeaderActionId = 'addMembers' | 'removeMembers';
 
 export type ChannelDetailSettingsState = {
@@ -112,6 +112,13 @@ export type LayoutSettingsState = {
 };
 
 export type ComposerSettingsState = {
+  /**
+   * Passed to every `<MessageComposer/>` as `asyncMessagesMultiSendEnabled`: a finished voice
+   * recording is attached to the message being composed instead of being sent on its own.
+   */
+  asyncMessagesMultiSendEnabled: boolean;
+  /** Passed to every `<MessageComposer/>` as `audioRecordingEnabled`: shows the voice recorder. */
+  audioRecordingEnabled: boolean;
   /** The CDN upload endpoint used while `uploadDestination` is `custom-url`. */
   customCdnUrl: string;
   /**
@@ -198,7 +205,7 @@ const defaultAppSettingsState: AppSettingsState = {
           },
           removeMembers: {
             enabled: false,
-            form: 'menu',
+            form: 'dropdown',
           },
         },
       },
@@ -208,6 +215,8 @@ const defaultAppSettingsState: AppSettingsState = {
     iconOnly: true,
   },
   composer: {
+    asyncMessagesMultiSendEnabled: true,
+    audioRecordingEnabled: true,
     customCdnUrl: '',
     disabledPreviewSections: [],
     failUploads: 'off',

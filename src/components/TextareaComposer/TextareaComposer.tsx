@@ -102,6 +102,7 @@ const TextareaComposerWithLiveAnnouncements = ({
   onBlur,
   onChange,
   onKeyDown,
+  onPaste: onPasteProp,
   onScroll,
   onSelect,
   placeholder: placeholderProp,
@@ -301,6 +302,18 @@ const TextareaComposerWithLiveAnnouncements = ({
     ],
   );
 
+  // A custom `onPaste` (the prop, else `additionalTextareaProps.onPaste`) runs first; calling
+  // `event.preventDefault()` in it skips the default handling.
+  const customOnPaste = onPasteProp ?? additionalTextareaProps?.onPaste;
+  const pasteHandler = useCallback(
+    (event: React.ClipboardEvent<HTMLTextAreaElement>) => {
+      customOnPaste?.(event);
+      if (event.isDefaultPrevented()) return;
+      onPaste(event);
+    },
+    [customOnPaste, onPaste],
+  );
+
   const scrollHandler: UIEventHandler<HTMLTextAreaElement> = useCallback(
     (event) => {
       if (onScroll) {
@@ -429,6 +442,7 @@ const TextareaComposerWithLiveAnnouncements = ({
         className={clsx(
           'rta__textarea',
           'str-chat__textarea__textarea str-chat__message-textarea',
+          additionalTextareaProps?.className,
           className,
         )}
         data-testid='message-input'
@@ -440,7 +454,7 @@ const TextareaComposerWithLiveAnnouncements = ({
         onCompositionEnd={onCompositionEnd}
         onCompositionStart={onCompositionStart}
         onKeyDown={keyDownHandler}
-        onPaste={onPaste}
+        onPaste={pasteHandler}
         onScroll={scrollHandler}
         onSelect={setSelection}
         placeholder={placeholder}

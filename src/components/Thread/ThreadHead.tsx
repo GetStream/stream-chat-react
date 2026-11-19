@@ -6,14 +6,17 @@ import { Message } from '../Message';
 import { ThreadStart as DefaultThreadStart } from './ThreadStart';
 
 import { useComponentContext } from '../../context';
-import { DateSeparator } from '../DateSeparator';
+import { DateSeparator as DefaultDateSeparator } from '../DateSeparator';
 
 export const ThreadHead = (props: MessageProps) => {
-  const { ThreadStart = DefaultThreadStart } = useComponentContext();
+  const { DateSeparator = DefaultDateSeparator, ThreadStart = DefaultThreadStart } =
+    useComponentContext();
   const parentCreatedAt = convertTimestampToDate(props.message.created_at);
   return (
     <div className='str-chat__parent-message-li'>
-      {parentCreatedAt ? <DateSeparator date={parentCreatedAt} /> : null}
+      {parentCreatedAt ? (
+        <DateSeparator date={parentCreatedAt} formatDate={props.formatDate} />
+      ) : null}
       <Message {...props} />
       <ThreadStart />
     </div>

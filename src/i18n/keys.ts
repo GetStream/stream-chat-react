@@ -44,6 +44,9 @@ export type TranslationCatalog = {
   'aiComponents.a2ui.choicePickerFilter.placeholder': 'Search';
   'aiComponents.attachmentPreview.deleteAttachment.ariaLabel': 'Delete attachment';
   'aiComponents.attachmentPreview.unknownFileName.text': 'Unknown file name';
+  'aiComponents.branchSwitcher.next.ariaLabel': 'Next version';
+  'aiComponents.branchSwitcher.previous.ariaLabel': 'Previous version';
+  'aiComponents.branchSwitcher.versions.ariaLabel': 'Version {{ index }} of {{ total }}';
   'aiComponents.chart.loading.text': 'Loading chart...';
   'aiComponents.chart.unknownType.text': 'Unknown chart type';
   'aiComponents.chatOptions.chatOptions.ariaLabel': 'Chat options';
@@ -52,6 +55,8 @@ export type TranslationCatalog = {
   'aiComponents.conversation.scrollToLatest.ariaLabel': 'Scroll to latest';
   'aiComponents.messageAttachment.file.text': 'File';
   'aiComponents.messageAttachment.image.text': 'Image';
+  'aiComponents.messageComposer.cancelEditing.ariaLabel': 'Cancel editing';
+  'aiComponents.messageComposer.editing.text': 'Editing';
   'aiComponents.messageComposer.speechToText.ariaLabel': 'Start voice input';
   'aiComponents.messageComposer.textInput.placeholder': 'Ask a question...';
   'aiComponents.messageParts.unsupportedStep.text': "A step this app version can't show";
@@ -81,6 +86,8 @@ export type TranslationCatalog = {
   'aiComponents.suggestions.suggestions.ariaLabel': 'Suggestions';
   'aiComponents.toolApproval.allow.label': 'Allow';
   'aiComponents.toolApproval.answerNotSent.text': "Your answer couldn't be sent. Try again.";
+  'aiComponents.toolApproval.arguments.ariaLabel': 'What it sends';
+  'aiComponents.toolApproval.arguments.label': 'What it sends';
   'aiComponents.toolApproval.dontAllow.label': "Don't Allow";
   'aiComponents.toolAuthorization.answerNotSent.text': "Your answer couldn't be sent. Try again.";
   'aiComponents.toolAuthorization.connect.label': 'Connect';
@@ -98,7 +105,10 @@ export type TranslationCatalog = {
   'aiComponents.toolCall.waitingForApproval.text': 'Waiting for approval';
   'aiComponents.toolCall.waitingForDevice.text': 'Waiting for the device';
   'aiComponents.toolCall.waitingForSignIn.text': 'Waiting for you to sign in';
+  'aiComponents.userMessage.cancelEdit.label': 'Cancel';
   'aiComponents.userMessage.edit.ariaLabel': 'Edit';
+  'aiComponents.userMessage.editInput.ariaLabel': 'Edit message';
+  'aiComponents.userMessage.saveEdit.label': 'Save';
   'aiComponents.voiceVisualization.connecting.text': 'Connecting';
   'aiComponents.voiceVisualization.listening.text': 'Listening';
   'aiComponents.voiceVisualization.ready.text': 'Ready';
@@ -411,6 +421,9 @@ export type TranslationCatalog = {
   'messageActions.editMessage.ariaLabel': 'Edit Message';
   'messageActions.errorAddingFlag.text': 'Error adding flag';
   'messageActions.errorMarkingMessageUnread.text': 'Error marking message unread. Cannot mark unread messages older than the newest 100 channel messages.';
+  'messageActions.errorRemovingReminder.text': 'Error removing reminder';
+  'messageActions.errorRemovingSaveLater.text': 'Error removing message from saved for later';
+  'messageActions.errorSavingLater.text': 'Error saving message for later';
   'messageActions.flag.text': 'Flag';
   'messageActions.flagMessage.ariaLabel': 'Flag Message';
   'messageActions.markMessageUnread.ariaLabel': 'Mark Message Unread';
@@ -427,6 +440,7 @@ export type TranslationCatalog = {
   'messageActions.quoteReply.text': 'Quote Reply';
   'messageActions.remindMe.text': 'Remind me';
   'messageActions.remindMeMessage.ariaLabel': 'Remind Me Message';
+  'messageActions.remindMeSubmenu.errorSettingReminder.text': 'Error setting reminder';
   'messageActions.remindMeSubmenu.remindMe.text': 'Remind Me';
   'messageActions.removeReminder.ariaLabel': 'Remove Reminder';
   'messageActions.removeReminder.text': 'Remove reminder';

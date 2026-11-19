@@ -7,7 +7,7 @@ import { useMessageContext } from '../../context/MessageContext';
 import { Attachment as DefaultAttachment } from '../Attachment';
 import { Poll } from '../Poll';
 import type { MessageBubbleContentSetItem } from './MessageBubbleContent';
-import { MessageText } from './MessageText';
+import { MessageText as DefaultMessageText } from './MessageText';
 import { QuotedMessage as DefaultQuotedMessage } from './QuotedMessage';
 import { StreamedMessageText as DefaultStreamedMessageText } from './StreamedMessageText';
 
@@ -18,10 +18,10 @@ const DefaultMessageBubbleContentComponents = {
   },
   Poll() {
     const { client } = useChatContext();
-    const { message } = useMessageContext();
+    const { message, translationView } = useMessageContext();
     const poll = message.poll_id && client.polls.fromState(message.poll_id);
 
-    return poll ? <Poll poll={poll} /> : null;
+    return poll ? <Poll poll={poll} translationView={translationView} /> : null;
   },
   Attachments() {
     const { Attachment = DefaultAttachment } = useComponentContext();
@@ -38,7 +38,10 @@ const DefaultMessageBubbleContentComponents = {
     return <Attachment actionHandler={handleAction} attachments={attachments} />;
   },
   Text() {
-    const { StreamedMessageText = DefaultStreamedMessageText } = useComponentContext();
+    const {
+      MessageText = DefaultMessageText,
+      StreamedMessageText = DefaultStreamedMessageText,
+    } = useComponentContext();
     const { isMessageAIGenerated, message, renderText } = useMessageContext();
 
     return isMessageAIGenerated?.(message) ? (

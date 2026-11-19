@@ -77,7 +77,9 @@ const expectUnreadCountToBe = async (
   expectedValue: string | number,
 ) => {
   await waitFor(() => {
-    expect(getByTestId('unread-count')).toHaveTextContent(String(expectedValue));
+    expect(getByTestId('unread-count')).toHaveTextContent(
+      new RegExp(`^${expectedValue}$`),
+    );
   });
 };
 const expectLastEventMessageToBe = async (
@@ -108,9 +110,7 @@ describe('ChannelPreview', () => {
     renderer(
       <ChatContext.Provider
         value={fromPartial<ChatContextValue>({
-          channel: props.activeChannel,
           client,
-          setActiveChannel: () => vi.fn(),
         })}
       >
         <TranslationProvider value={mockTranslationContextValue()}>
@@ -148,33 +148,10 @@ describe('ChannelPreview', () => {
     [c0, c1] = await client.queryChannelsAndHydrate({}, {});
   });
 
-  it('should mark channel as read, when set as active channel', async () => {
-    seedUnreadCount(c0, 10);
-
-    const { getByTestId, rerender } = renderComponent(
-      {
-        activeChannel: c1,
-        channel: c0,
-      },
-      render,
-    );
-    await expectUnreadCountToBe(getByTestId, 10);
-
-    renderComponent(
-      {
-        activeChannel: c0,
-        channel: c0,
-      },
-      rerender,
-    );
-
-    await expectUnreadCountToBe(getByTestId, 0);
-  });
-
   // The badge subscribes to the channel's read state, so it follows along without a forced update.
   it('follows the channel unread count with no forced update', async () => {
     seedUnreadCount(c0, 100);
-    const { getByTestId } = renderComponent({ activeChannel: c1, channel: c0 }, render);
+    const { getByTestId } = renderComponent({ channel: c0 }, render);
 
     await expectUnreadCountToBe(getByTestId, 100);
 
@@ -189,7 +166,7 @@ describe('ChannelPreview', () => {
   // trailing call. Without the throttle the intermediate value below would reach the badge.
   it('coalesces a burst of unread changes', async () => {
     seedUnreadCount(c0, 1);
-    const { getByTestId } = renderComponent({ activeChannel: c1, channel: c0 }, render);
+    const { getByTestId } = renderComponent({ channel: c0 }, render);
     await expectUnreadCountToBe(getByTestId, 1);
 
     act(() => {
@@ -198,7 +175,7 @@ describe('ChannelPreview', () => {
     });
 
     // Still the leading value: the burst has not been flushed yet.
-    expect(getByTestId('unread-count')).toHaveTextContent('1');
+    expect(getByTestId('unread-count')).toHaveTextContent(/^1$/);
 
     await expectUnreadCountToBe(getByTestId, 3);
   });
@@ -212,7 +189,6 @@ describe('ChannelPreview', () => {
 
     const { getByTestId } = renderComponent(
       {
-        activeChannel: c0,
         channel: c0,
       },
       render,
@@ -237,7 +213,6 @@ describe('ChannelPreview', () => {
     );
     const { rerender } = renderComponent(
       {
-        activeChannel: c1,
         channel: c0,
       },
       render,
@@ -250,7 +225,6 @@ describe('ChannelPreview', () => {
     renderComponent(
       {
         active: true,
-        activeChannel: c1,
         channel: c0,
       },
       rerender,
@@ -276,7 +250,6 @@ describe('ChannelPreview', () => {
 
         const { getByTestId } = renderComponent(
           {
-            activeChannel: c1,
             channel: c0,
           },
           render,
@@ -303,7 +276,6 @@ describe('ChannelPreview', () => {
 
         const { getByTestId } = renderComponent(
           {
-            activeChannel: c1,
             channel: c0,
           },
           render,
@@ -326,7 +298,6 @@ describe('ChannelPreview', () => {
         seedUnreadCount(c0, unreadCount);
         const { getByTestId } = renderComponent(
           {
-            activeChannel: c0,
             channel: c0,
           },
           render,
@@ -360,7 +331,6 @@ describe('ChannelPreview', () => {
 
         const { getByTestId } = renderComponent(
           {
-            activeChannel: c1,
             channel: c0,
           },
           render,
@@ -383,7 +353,6 @@ describe('ChannelPreview', () => {
 
     const { getByTestId } = renderComponent(
       {
-        activeChannel: c1,
         channel: c0,
       },
       render,
@@ -412,7 +381,6 @@ describe('ChannelPreview', () => {
 
       const { getByTestId } = renderComponent(
         {
-          activeChannel: c1,
           channel: c0,
         },
         render,
@@ -570,7 +538,6 @@ describe('ChannelPreview', () => {
       seedUnreadCount(c0, unreadCount);
       renderComponent(
         {
-          activeChannel: c1,
           channel: c0,
         },
         render,
@@ -587,7 +554,6 @@ describe('ChannelPreview', () => {
       seedUnreadCount(c0, unreadCount);
       renderComponent(
         {
-          activeChannel: c1,
           channel: c0,
         },
         render,
@@ -605,7 +571,6 @@ describe('ChannelPreview', () => {
       seedUnreadCount(c0, unreadCount);
       renderComponent(
         {
-          activeChannel: c1,
           channel: channelInPreview,
         },
         render,
@@ -619,19 +584,18 @@ describe('ChannelPreview', () => {
 
     it('should be ignored if not targeted for the current channel', async () => {
       const channelInPreview = c0;
-      const activeChannel = c1;
+      const otherChannel = c1;
       const unreadCount = getRandomInt(1, 10);
       seedUnreadCount(c0, unreadCount);
       renderComponent(
         {
-          activeChannel,
           channel: channelInPreview,
         },
         render,
       );
       await expectUnreadCountToBe(screen.getByTestId, unreadCount);
       await act(() => {
-        dispatchNotificationMarkRead({ channel: activeChannel, client, user });
+        dispatchNotificationMarkRead({ channel: otherChannel, client, user });
       });
       await expectUnreadCountToBe(screen.getByTestId, unreadCount);
     });
@@ -639,7 +603,7 @@ describe('ChannelPreview', () => {
     it('should be ignored if originated from another user', async () => {
       const unreadCount = getRandomInt(1, 10);
       seedUnreadCount(c0, unreadCount);
-      renderComponent({ activeChannel: c1, channel: c0 }, render);
+      renderComponent({ channel: c0 }, render);
       await expectUnreadCountToBe(screen.getByTestId, unreadCount);
 
       await act(() => {
@@ -652,7 +616,7 @@ describe('ChannelPreview', () => {
     it('should be ignored if only a thread was marked read', async () => {
       const unreadCount = getRandomInt(1, 10);
       seedUnreadCount(c0, unreadCount);
-      renderComponent({ activeChannel: c1, channel: c0 }, render);
+      renderComponent({ channel: c0 }, render);
       await expectUnreadCountToBe(screen.getByTestId, unreadCount);
 
       await act(() => {
@@ -674,7 +638,7 @@ describe('ChannelPreview', () => {
   describe('marking a channel read with another channel still unread', () => {
     const renderUnreadChannelPreview = async () => {
       seedUnreadCount(c0, 5);
-      renderComponent({ activeChannel: c1, channel: c0 }, render);
+      renderComponent({ channel: c0 }, render);
       await expectUnreadCountToBe(screen.getByTestId, 5);
     };
 
@@ -750,11 +714,9 @@ describe('ChannelPreview', () => {
     it('should be ignored if not originated from the current user', async () => {
       const unreadCount = 0;
       const channelInPreview = c0;
-      const activeChannel = c1;
       seedUnreadCount(channelInPreview, unreadCount);
       renderComponent(
         {
-          activeChannel,
           channel: channelInPreview,
         },
         render,
@@ -774,11 +736,10 @@ describe('ChannelPreview', () => {
     it('should be ignored if not targeted for the current channel', async () => {
       const unreadCount = 0;
       const channelInPreview = c0;
-      const activeChannel = c1;
+      const otherChannel = c1;
       seedUnreadCount(channelInPreview, unreadCount);
       renderComponent(
         {
-          activeChannel,
           channel: channelInPreview,
         },
         render,
@@ -786,7 +747,7 @@ describe('ChannelPreview', () => {
       await expectUnreadCountToBe(screen.getByTestId, unreadCount);
       await act(() => {
         dispatchNotificationMarkUnread({
-          channel: activeChannel,
+          channel: otherChannel,
           client,
           payload: { unread_channels: 2, unread_messages: 5 },
           user,
@@ -795,41 +756,13 @@ describe('ChannelPreview', () => {
       await expectUnreadCountToBe(screen.getByTestId, unreadCount);
     });
 
-    it("should set unread count from client's unread count state for active channel", async () => {
-      const unreadCount = 0;
-      const activeChannel = c1;
-      // `countUnread()` is not stubbed: the event updates `channel.state.unreadCount`, and this
-      // test asserts reading it back.
-      renderComponent(
-        {
-          activeChannel,
-          channel: activeChannel,
-        },
-        render,
-      );
-      await expectUnreadCountToBe(screen.getByTestId, unreadCount);
-
-      const eventPayload = { unread_channels: 2, unread_messages: 5 };
-      await act(() => {
-        dispatchNotificationMarkUnread({
-          channel: activeChannel,
-          client,
-          payload: { unread_channels: 2, unread_messages: 5 },
-          user,
-        });
-      });
-      await expectUnreadCountToBe(screen.getByTestId, eventPayload.unread_messages);
-    });
-
-    it("should set unread count from client's unread count state for non-active channel", async () => {
+    it("should set unread count from the channel's read state", async () => {
       const unreadCount = 0;
       const channelInPreview = c0;
-      const activeChannel = c1;
       // `countUnread()` is not stubbed: the event updates `channel.state.unreadCount`, and this
       // test asserts reading it back.
       renderComponent(
         {
-          activeChannel,
           channel: channelInPreview,
         },
         render,
@@ -853,7 +786,6 @@ describe('ChannelPreview', () => {
     it('should pass pinned=false when membership has no pinned_at', async () => {
       renderComponent(
         {
-          activeChannel: c1,
           channel: c0,
         },
         render,
@@ -871,7 +803,6 @@ describe('ChannelPreview', () => {
 
       renderComponent(
         {
-          activeChannel: c1,
           channel: c0,
         },
         render,

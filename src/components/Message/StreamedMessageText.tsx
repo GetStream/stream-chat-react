@@ -1,9 +1,9 @@
 import React, { useEffect } from 'react';
 
 import type { MessageTextProps } from './MessageText';
-import { MessageText } from './MessageText';
+import { MessageText as DefaultMessageText } from './MessageText';
 
-import { useChannel, useMessageContext } from '../../context';
+import { useChannel, useComponentContext, useMessageContext } from '../../context';
 import { useMessageTextStreaming } from './hooks';
 
 export type StreamedMessageTextProps = Pick<
@@ -21,6 +21,7 @@ export const StreamedMessageText = (props: StreamedMessageTextProps) => {
     renderText,
     streamingLetterIntervalMs,
   } = props;
+  const { MessageText = DefaultMessageText } = useComponentContext();
   const { message: messageFromContext } = useMessageContext();
   const channel = useChannel();
   const message = messageFromProps || messageFromContext;

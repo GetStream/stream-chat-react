@@ -19,11 +19,11 @@ const channelMembersHeaderActionIds: ChannelMembersHeaderActionId[] = [
 
 const channelMembersHeaderActionForms: ChannelMembersHeaderActionForm[] = [
   'quick',
-  'menu',
+  'dropdown',
 ];
 
 const getChannelMembersHeaderActionFormLabel = (form: ChannelMembersHeaderActionForm) =>
-  form === 'quick' ? 'Quick' : 'Menu';
+  form === 'quick' ? 'Quick' : 'Dropdown';
 
 type ChannelDetailTabProps = {
   close: () => void;

@@ -9,6 +9,7 @@ import { AIToolApproval } from './AIToolApproval';
 import { AIToolAuthorization } from './AIToolAuthorization';
 import { AIToolCall } from './AIToolCall';
 import type { AIMessagePartData } from './types';
+import { ThemeScopeProvider, useAIThemeScopeClassName } from '../themeScope';
 
 export type AIMessagePartProps = {
   part: AIMessagePartData;
@@ -69,16 +70,25 @@ export const AIMessageParts = ({
   className,
   parts,
   reasoningText,
-}: AIMessagePartsProps) => (
-  <div className={clsx('str-chat__ai-message-parts', className)}>
-    {parts.map((part) => (
-      <div className='str-chat__ai-message-part' data-kind={part.kind} key={part.id}>
-        {children ? (
-          children(part)
-        ) : (
-          <AIMessagePart approver={approver} part={part} reasoningText={reasoningText} />
-        )}
+}: AIMessagePartsProps) => {
+  const themeScopeClassName = useAIThemeScopeClassName();
+  return (
+    <ThemeScopeProvider>
+      <div className={clsx(themeScopeClassName, 'str-chat__ai-message-parts', className)}>
+        {parts.map((part) => (
+          <div className='str-chat__ai-message-part' data-kind={part.kind} key={part.id}>
+            {children ? (
+              children(part)
+            ) : (
+              <AIMessagePart
+                approver={approver}
+                part={part}
+                reasoningText={reasoningText}
+              />
+            )}
+          </div>
+        ))}
       </div>
-    ))}
-  </div>
-);
+    </ThemeScopeProvider>
+  );
+};

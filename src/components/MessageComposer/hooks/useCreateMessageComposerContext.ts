@@ -7,32 +7,26 @@ export const useCreateMessageComposerContext = (value: MessageComposerContextVal
     additionalTextareaProps,
     asyncMessagesMultiSendEnabled,
     audioRecordingEnabled,
-    emojiSearchIndex,
     focus,
     hideSendButton,
     maxRows,
     minRows,
     onPaste,
-    parent,
     recordingController,
     shouldSubmit,
     textareaRef,
   } = value;
-
-  const parentId = parent?.id;
 
   const messageComposerContext: MessageComposerContextValue = useMemo(
     () => ({
       additionalTextareaProps,
       asyncMessagesMultiSendEnabled,
       audioRecordingEnabled,
-      emojiSearchIndex,
       focus,
       hideSendButton,
       maxRows,
       minRows,
       onPaste,
-      parent,
       recordingController,
       shouldSubmit,
       textareaRef,
@@ -41,10 +35,8 @@ export const useCreateMessageComposerContext = (value: MessageComposerContextVal
     [
       asyncMessagesMultiSendEnabled,
       audioRecordingEnabled,
-      emojiSearchIndex,
       hideSendButton,
       minRows,
-      parentId,
       recordingController,
     ],
   );

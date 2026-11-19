@@ -1,5 +1,5 @@
 import React, { useRef } from 'react';
-import { act, render, screen } from '@testing-library/react';
+import { act, fireEvent, render, screen } from '@testing-library/react';
 import { fromPartial } from '@total-typescript/shoehorn';
 
 // `../../../context` must be imported before the component: they form an import cycle
@@ -12,6 +12,8 @@ import { ThreadProvider } from '../../Threads/ThreadContext';
 import { initClientWithChannels, mockChatContext } from '../../../mock-builders';
 
 import type { Channel, StreamChat, Thread } from 'stream-chat';
+import type { MessageComposerContextValue } from '../../../context/MessageComposerContext';
+import type { TextareaComposerProps } from '../TextareaComposer';
 
 const Harness = ({
   channel,
@@ -98,6 +100,86 @@ describe('TextareaComposer', () => {
       rerender(renderTextarea({ channel, client, thread: threadA }));
 
       expect(document.activeElement).not.toBe(screen.getByTestId('message-input'));
+    });
+  });
+
+  describe('additionalTextareaProps', () => {
+    const renderWithContext = async (
+      contextValue: Partial<MessageComposerContextValue>,
+      props: TextareaComposerProps = {},
+    ) => {
+      const { channel, client, threadA } = await setup();
+      const textareaRef = React.createRef<HTMLTextAreaElement>();
+      render(
+        <ChatProvider value={mockChatContext({ client })}>
+          <ChannelInstanceProvider value={{ channel }}>
+            <ThreadProvider thread={threadA}>
+              <MessageComposerContextProvider
+                value={fromPartial({ textareaRef, ...contextValue })}
+              >
+                <TextareaComposer {...props} />
+              </MessageComposerContextProvider>
+            </ThreadProvider>
+          </ChannelInstanceProvider>
+        </ChatProvider>,
+      );
+      return screen.getByTestId('message-input');
+    };
+
+    it('adds their className next to the own className', async () => {
+      const textarea = await renderWithContext(
+        { additionalTextareaProps: { className: 'from-composer' } },
+        { className: 'from-props' },
+      );
+
+      expect(textarea).toHaveClass(
+        'str-chat__message-textarea',
+        'from-composer',
+        'from-props',
+      );
+    });
+
+    it('calls their onPaste before the default paste handling', async () => {
+      const calls: string[] = [];
+      const textarea = await renderWithContext({
+        additionalTextareaProps: { onPaste: () => calls.push('custom') },
+        onPaste: () => calls.push('default'),
+      });
+
+      fireEvent.paste(textarea);
+
+      expect(calls).toEqual(['custom', 'default']);
+    });
+
+    it('skips the default paste handling when their onPaste prevents the default', async () => {
+      const defaultOnPaste = vi.fn();
+      const textarea = await renderWithContext({
+        additionalTextareaProps: { onPaste: (event) => event.preventDefault() },
+        onPaste: defaultOnPaste,
+      });
+
+      fireEvent.paste(textarea);
+
+      expect(defaultOnPaste).not.toHaveBeenCalled();
+    });
+
+    it('prefers the own onPaste prop over theirs, and still runs the default handling', async () => {
+      const composerOnPaste = vi.fn();
+      const defaultOnPaste = vi.fn();
+      const propOnPaste = vi.fn();
+      const textarea = await renderWithContext(
+        {
+          additionalTextareaProps: { onPaste: composerOnPaste },
+          onPaste: defaultOnPaste,
+        },
+        { onPaste: propOnPaste },
+      );
+
+      fireEvent.paste(textarea);
+
+      expect(propOnPaste).toHaveBeenCalledTimes(1);
+      expect(composerOnPaste).not.toHaveBeenCalled();
+      expect(defaultOnPaste).toHaveBeenCalledTimes(1);
     });
   });
 });

@@ -262,6 +262,73 @@ describe('MessageList', () => {
     // expect(results).toHaveNoViolations();
   });
 
+  describe('the scroll container', () => {
+    let scrolledElements: string[];
+    let originalScrollTo: HTMLElement['scrollTo'] | undefined;
+
+    beforeEach(() => {
+      scrolledElements = [];
+      originalScrollTo = HTMLElement.prototype.scrollTo;
+      Object.defineProperty(HTMLElement.prototype, 'scrollTo', {
+        configurable: true,
+        value: function scrollTo(this: HTMLElement) {
+          scrolledElements.push(this.className);
+        },
+      });
+    });
+
+    afterEach(() => {
+      if (originalScrollTo) {
+        Object.defineProperty(HTMLElement.prototype, 'scrollTo', {
+          configurable: true,
+          value: originalScrollTo,
+        });
+      } else {
+        // @ts-expect-error jsdom has no scrollTo on elements; the mock above added it.
+        delete HTMLElement.prototype.scrollTo;
+      }
+    });
+
+    const scrolledOnlyThePaginator = () =>
+      scrolledElements.length > 0 &&
+      scrolledElements.every((className) =>
+        className.includes('str-chat__message-list-scroll'),
+      );
+
+    // A typing indicator present on the first render makes the wrapper briefly scrollable in a
+    // browser; scrolling it then moves the paginator out of view.
+    it('scrolls only the paginator, not its wrapper, when it opens with someone typing', () => {
+      channel.state.typing = {
+        [user2.id]: fromPartial({ type: 'typing.start', user: user2 }),
+      };
+
+      const { container } = renderComponent({
+        channelProps: { channel },
+        chatClient,
+        msgListProps: { messages: [message1] },
+      });
+
+      expect(container.querySelector('.str-chat__typing-indicator')).toBeInTheDocument();
+      expect(scrolledOnlyThePaginator()).toBe(true);
+    });
+
+    it('gives the paginator element to a ref passed in internalInfiniteScrollProps', () => {
+      const paginatorRef = React.createRef<HTMLDivElement>();
+
+      renderComponent({
+        channelProps: { channel },
+        chatClient,
+        msgListProps: {
+          internalInfiniteScrollProps: { ref: paginatorRef },
+          messages: [message1],
+        },
+      });
+
+      expect(paginatorRef.current).toHaveClass('str-chat__message-list-scroll');
+      expect(scrolledOnlyThePaginator()).toBe(true);
+    });
+  });
+
   describe('older-page loading indicator', () => {
     // Scrolls the list to its top (jsdom has no layout, so `offsetParent` is stubbed) and holds
     // `toTail` open, so the list stays in the "loading an older page" state.
@@ -489,6 +556,27 @@ describe('MessageList', () => {
       expect(screen.queryByText(reply1.text)).toBeInTheDocument();
       expect(screen.queryByText(reply2.text)).toBeInTheDocument();
     });
+  });
+
+  it('should render the ScrollToLatestMessageButton override with the list state', async () => {
+    const ScrollToLatestMessageButton = vi.fn(() => (
+      <div data-testid='custom-scroll-to-latest' />
+    ));
+    renderComponent({
+      channelProps: { channel },
+      chatClient,
+      components: { ScrollToLatestMessageButton },
+      msgListProps: { messages: [message1] },
+    });
+
+    expect(await screen.findByTestId('custom-scroll-to-latest')).toBeInTheDocument();
+    expect(ScrollToLatestMessageButton).toHaveBeenCalledWith(
+      expect.objectContaining({
+        isNotAtLatestMessageSet: false,
+        onClick: expect.any(Function),
+      }),
+      undefined,
+    );
   });
 
   it('should render EmptyStateIndicator with corresponding list type in main message list', async () => {

@@ -8,8 +8,7 @@ import { useMessageComposerController } from '../MessageComposer/hooks/useMessag
 import { useThreadContext } from '../Threads/ThreadContext';
 import { useComponentContext, useTranslationContext } from '../../context';
 
-import { useDebouncedTypingActive } from './hooks/useDebouncedTypingActive';
-import { useTypingUsers } from './hooks/useTypingUsers';
+import { useDisplayedTypingUsers } from './hooks/useDisplayedTypingUsers';
 import { getTypingStatusMessage } from './utils/getTypingStatusMessage';
 
 export type TypingIndicatorProps = {
@@ -29,8 +28,7 @@ const UnMemoizedTypingIndicator = (props: TypingIndicatorProps) => {
   const messageComposer = useMessageComposerController();
   const { t } = useTranslationContext();
   const thread = useThreadContext();
-  const typingUsers = useTypingUsers(messageComposer.channel, thread?.id);
-  const { displayUsers } = useDebouncedTypingActive(typingUsers);
+  const displayUsers = useDisplayedTypingUsers(messageComposer.channel, thread?.id);
   const showIndicator = displayUsers.length > 0;
   const typingAnnouncement = useMemo(
     () => getTypingStatusMessage(displayUsers, t),

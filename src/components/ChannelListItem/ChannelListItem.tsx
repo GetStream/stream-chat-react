@@ -45,8 +45,6 @@ export type ChannelListItemProps = {
   channel: Channel;
   /** Whether the channel is the active one. Defaults to whether it is shown in the workspace. */
   active?: boolean;
-  /** Current selected channel object */
-  activeChannel?: Channel;
   /** Custom class for the row button. */
   className?: string;
   /**

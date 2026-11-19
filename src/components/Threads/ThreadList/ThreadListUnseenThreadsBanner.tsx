@@ -5,11 +5,12 @@ import type { ThreadManagerState } from 'stream-chat';
 
 import {
   useChatContext,
+  useComponentContext,
   useComponentContextIcons,
   useTranslationContext,
 } from '../../../context';
 import { useStateStore } from '../../../store';
-import { LoadingIndicator } from '../../Loading';
+import { LoadingIndicator as DefaultLoadingIndicator } from '../../Loading';
 
 const selector = (nextValue: ThreadManagerState) => ({
   unseenThreadIds: nextValue.unseenThreadIds,
@@ -17,6 +18,7 @@ const selector = (nextValue: ThreadManagerState) => ({
 
 export const ThreadListUnseenThreadsBanner = () => {
   const { IconRefresh } = useComponentContextIcons();
+  const { LoadingIndicator = DefaultLoadingIndicator } = useComponentContext();
   const { client } = useChatContext();
   const { t } = useTranslationContext();
   const { unseenThreadIds } = useStateStore(client.threads.state, selector);

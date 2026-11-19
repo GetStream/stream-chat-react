@@ -181,18 +181,20 @@ describe('useMarkRead', () => {
       expect(markRead).toHaveBeenCalledTimes(0);
     });
 
-    it('should not mark channel read when only a system message that does not count as the last message follows the last read one', async () => {
+    // An error message never becomes the channel's latest message (stream-chat rc.34). A system
+    // message does again since then, as in v9, so it is no longer the example here.
+    it('should not mark channel read when only a message that does not count as the latest one follows the last read one', async () => {
       const user = generateUser();
       const messages = [
         generateMessage({ created_at: convertDateToTimestamp(new Date(1)) }),
         generateMessage({
           created_at: convertDateToTimestamp(new Date(2)),
-          type: 'system',
+          type: 'error',
         }),
       ];
       const channelData = {
         channel: {
-          config: { read_events: true, skip_last_msg_update_for_system_msgs: true },
+          config: { read_events: true },
         },
         messages,
         read: [

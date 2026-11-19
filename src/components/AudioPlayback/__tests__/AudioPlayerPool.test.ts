@@ -180,6 +180,58 @@ describe('AudioPlayerPool', () => {
     expect(pauseSpy).not.toHaveBeenCalled();
   });
 
+  describe('rekey', () => {
+    it('registers the player under the new ID and gives it that ID', () => {
+      const pool = new AudioPlayerPool();
+      const player = makePlayer(pool, { id: 'm:blob:a', src: 'blob:a' });
+
+      pool.rekey('m:blob:a', 'm:https://example.com/a.mp3');
+
+      expect(player.id).toBe('m:https://example.com/a.mp3');
+      expect(
+        makePlayer(pool, {
+          id: 'm:https://example.com/a.mp3',
+          src: 'https://example.com/a.mp3',
+        }),
+      ).toBe(player);
+      expect(pool.players).toEqual([player]);
+    });
+
+    it('leaves both players alone when the new ID is already taken', () => {
+      const pool = new AudioPlayerPool();
+      const local = makePlayer(pool, { id: 'm:blob:a', src: 'blob:a' });
+      const uploaded = makePlayer(pool, {
+        id: 'm:https://example.com/a.mp3',
+        src: 'https://example.com/a.mp3',
+      });
+
+      pool.rekey('m:blob:a', 'm:https://example.com/a.mp3');
+
+      expect(makePlayer(pool, { id: 'm:blob:a', src: 'blob:a' })).toBe(local);
+      expect(
+        makePlayer(pool, {
+          id: 'm:https://example.com/a.mp3',
+          src: 'https://example.com/a.mp3',
+        }),
+      ).toBe(uploaded);
+    });
+
+    it('does not move a disposed player', () => {
+      const pool = new AudioPlayerPool();
+      const player = makePlayer(pool, { id: 'm:blob:a', src: 'blob:a' });
+      vi.spyOn(player, 'disposed', 'get').mockReturnValue(true);
+
+      pool.rekey('m:blob:a', 'm:https://example.com/a.mp3');
+
+      expect(
+        makePlayer(pool, {
+          id: 'm:https://example.com/a.mp3',
+          src: 'https://example.com/a.mp3',
+        }),
+      ).not.toBe(player);
+    });
+  });
+
   it('removes a player', () => {
     const pool = new AudioPlayerPool();
     const player = makePlayer(pool, { id: 'o1', src: 'https://example.com/a.mp3' });

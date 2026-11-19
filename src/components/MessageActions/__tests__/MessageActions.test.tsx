@@ -27,6 +27,7 @@ import { ResizeObserverMock } from '../../../mock-builders/browser';
 import { Message } from '../../Message';
 import { Channel } from '../../Channel';
 import { Chat } from '../../Chat';
+import { Streami18n } from '../../../i18n';
 import { ThreadProvider } from '../../Threads';
 import { convertDateToTimestamp } from '../../../mock-builders';
 
@@ -81,6 +82,7 @@ async function renderMessageActions({
   channelConfig = {},
   channelStateOpts = {},
   chatClient,
+  chatProps = {},
   customChatContext = {},
   customMessageContext = {},
   messageActionsProps = {},
@@ -106,7 +108,7 @@ async function renderMessageActions({
     : undefined;
 
   return render(
-    <Chat client={client}>
+    <Chat client={client} {...chatProps}>
       <Channel channel={channel}>
         <ThreadProvider thread={thread}>
           <DialogManagerProvider id='message-actions-dialog-provider'>
@@ -520,6 +522,92 @@ describe('<MessageActions />', () => {
       });
 
       expect(setQuotedMessageSpy).toHaveBeenCalledWith(message);
+    });
+
+    // Closing the menu returns focus to its toggle, which a hover-only toggle no longer renders, so
+    // the composer was left unfocused and the first keystrokes were lost.
+    it('focuses the composer when Edit Message is clicked', async () => {
+      const {
+        channels: [channel],
+        client,
+      } = await initClientWithChannels({
+        channelsData: [{ channel: { own_capabilities: ['update-own-message'] } }],
+      });
+      const message = generateMessage({ text: 'to edit', user: client.user });
+
+      await act(async () => {
+        await render(
+          <Chat client={client}>
+            <Channel channel={channel}>
+              <DialogManagerProvider id='message-actions-dialog-provider'>
+                <MessageProvider
+                  value={mockMessageContext({
+                    ...defaultMessageContextValue,
+                    message,
+                  })}
+                >
+                  <MessageActions />
+                </MessageProvider>
+              </DialogManagerProvider>
+              <textarea className='str-chat__textarea__textarea' data-testid='composer' />
+            </Channel>
+          </Chat>,
+        );
+      });
+
+      await toggleOpenMessageActions();
+
+      await act(async () => {
+        await fireEvent.click(screen.getByText('Edit Message'));
+      });
+
+      await waitFor(() =>
+        expect(document.activeElement).toBe(screen.getByTestId('composer')),
+      );
+    });
+
+    // Channels side by side: a channel whose composer shows no textarea (recording audio) must not
+    // send focus to the other channel's composer.
+    it('leaves focus alone when the channel of the message shows no composer textarea', async () => {
+      const {
+        channels: [channel],
+        client,
+      } = await initClientWithChannels({
+        channelsData: [{ channel: { own_capabilities: ['update-own-message'] } }],
+      });
+      const message = generateMessage({ text: 'to edit', user: client.user });
+
+      await act(async () => {
+        await render(
+          <Chat client={client}>
+            <Channel channel={channel}>
+              <DialogManagerProvider id='message-actions-dialog-provider'>
+                <MessageProvider
+                  value={mockMessageContext({
+                    ...defaultMessageContextValue,
+                    message,
+                  })}
+                >
+                  <MessageActions />
+                </MessageProvider>
+              </DialogManagerProvider>
+            </Channel>
+            <textarea
+              className='str-chat__textarea__textarea'
+              data-testid='other-composer'
+            />
+          </Chat>,
+        );
+      });
+
+      await toggleOpenMessageActions();
+
+      await act(async () => {
+        await fireEvent.click(screen.getByText('Edit Message'));
+      });
+      await act(() => new Promise((resolve) => requestAnimationFrame(resolve)));
+
+      expect(document.activeElement).not.toBe(screen.getByTestId('other-composer'));
     });
   });
 
@@ -1092,6 +1180,96 @@ describe('<MessageActions />', () => {
         }),
       );
     });
+    it('labels the action "Remind Me Message" while the message has no reminder', async () => {
+      await renderMessageActions({
+        channelConfig: { user_message_reminders: true },
+        customMessageContext: {
+          getMessageActions: getMessageActionsWithReminders,
+        },
+      });
+      await toggleOpenMessageActions();
+
+      expect(screen.getByText(ACTION_TEXT).closest('button')).toHaveAttribute(
+        'aria-label',
+        'Remind Me Message',
+      );
+    });
+
+    it('labels the action "Remove Reminder" while the message has a reminder', async () => {
+      const client = await getTestClientWithUser(alice);
+      const message = generateMessage();
+      client.reminders.hydrateState([
+        generateMessage({
+          ...message,
+          reminder: generateReminderResponse({
+            data: { message_id: message.id },
+            scheduleOffsetMs: 60 * 60 * 1000,
+          }),
+        }),
+      ]);
+
+      await renderMessageActions({
+        channelConfig: { user_message_reminders: true },
+        chatClient: client,
+        customMessageContext: {
+          getMessageActions: getMessageActionsWithReminders,
+          message,
+        },
+      });
+      await toggleOpenMessageActions();
+
+      expect(screen.getByText('Remove reminder').closest('button')).toHaveAttribute(
+        'aria-label',
+        'Remove Reminder',
+      );
+    });
+
+    it('translates the fallback copy when removing a reminder fails without an error message', async () => {
+      const client = await getTestClientWithUser(alice);
+      const message = generateMessage();
+      client.reminders.hydrateState([
+        generateMessage({
+          ...message,
+          reminder: generateReminderResponse({
+            data: { message_id: message.id },
+            scheduleOffsetMs: 60 * 60 * 1000,
+          }),
+        }),
+      ]);
+      vi.spyOn(client.reminders, 'deleteReminder').mockRejectedValueOnce({});
+      const addNotificationSpy = vi.spyOn(client.notifications, 'add');
+
+      await renderMessageActions({
+        channelConfig: { user_message_reminders: true },
+        chatClient: client,
+        chatProps: {
+          i18nInstance: new Streami18n({
+            translationsForLanguage: {
+              'messageActions.errorRemovingReminder.text': 'Translated fallback',
+            },
+          }),
+        },
+        customMessageContext: {
+          getMessageActions: getMessageActionsWithReminders,
+          message,
+        },
+      });
+      await toggleOpenMessageActions();
+
+      await act(async () => {
+        await fireEvent.click(screen.getByText('Remove reminder'));
+      });
+
+      expect(addNotificationSpy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          message: 'Translated fallback',
+          options: expect.objectContaining({
+            severity: 'error',
+            type: 'api:message:reminder:delete:failed',
+          }),
+        }),
+      );
+    });
   });
 
   describe('Save for later action', () => {
@@ -1243,6 +1421,87 @@ describe('<MessageActions />', () => {
       expect(addNotificationSpy).toHaveBeenCalledWith(
         expect.objectContaining({
           message: 'Remove failed',
+          options: expect.objectContaining({
+            severity: 'error',
+            type: 'api:message:saveForLater:delete:failed',
+          }),
+        }),
+      );
+    });
+    it('translates the fallback copy when saving for later fails without an error message', async () => {
+      const client = await getTestClientWithUser(alice);
+      vi.spyOn(client.reminders, 'createReminder').mockRejectedValueOnce({});
+      const addNotificationSpy = vi.spyOn(client.notifications, 'add');
+
+      await renderMessageActions({
+        channelConfig: { user_message_reminders: true },
+        chatClient: client,
+        chatProps: {
+          i18nInstance: new Streami18n({
+            translationsForLanguage: {
+              'messageActions.errorSavingLater.text': 'Translated fallback',
+            },
+          }),
+        },
+        customMessageContext: {
+          getMessageActions: getMessageActionsWithReminders,
+        },
+      });
+      await toggleOpenMessageActions();
+
+      await act(async () => {
+        await fireEvent.click(screen.getByText(SAVE_ACTION_TEXT));
+      });
+
+      expect(addNotificationSpy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          message: 'Translated fallback',
+          options: expect.objectContaining({
+            severity: 'error',
+            type: 'api:message:saveForLater:create:failed',
+          }),
+        }),
+      );
+    });
+
+    it('translates the fallback copy when removing save for later fails without an error message', async () => {
+      const client = await getTestClientWithUser(alice);
+      const message = generateMessage();
+      client.reminders.hydrateState([
+        generateMessage({
+          ...message,
+          reminder: generateReminderResponse({
+            data: { message_id: message.id },
+          }),
+        }),
+      ]);
+      vi.spyOn(client.reminders, 'deleteReminder').mockRejectedValueOnce({});
+      const addNotificationSpy = vi.spyOn(client.notifications, 'add');
+
+      await renderMessageActions({
+        channelConfig: { user_message_reminders: true },
+        chatClient: client,
+        chatProps: {
+          i18nInstance: new Streami18n({
+            translationsForLanguage: {
+              'messageActions.errorRemovingSaveLater.text': 'Translated fallback',
+            },
+          }),
+        },
+        customMessageContext: {
+          getMessageActions: getMessageActionsWithReminders,
+          message,
+        },
+      });
+      await toggleOpenMessageActions();
+
+      await act(async () => {
+        await fireEvent.click(screen.getByText(REMOVE_ACTION_TEXT));
+      });
+
+      expect(addNotificationSpy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          message: 'Translated fallback',
           options: expect.objectContaining({
             severity: 'error',
             type: 'api:message:saveForLater:delete:failed',
@@ -1915,7 +2174,7 @@ describe('<MessageActions />', () => {
         },
       });
       await toggleOpenMessageActions();
-      const remindMeButton = screen.getByRole('menuitem', { name: /Reminder/i });
+      const remindMeButton = screen.getByRole('menuitem', { name: 'Remind Me Message' });
       await act(async () => {
         await fireEvent.click(remindMeButton);
       });
@@ -1928,7 +2187,7 @@ describe('<MessageActions />', () => {
         );
       });
       await waitFor(() => {
-        expect(screen.getByRole('menuitem', { name: /Reminder/i })).toHaveFocus();
+        expect(screen.getByRole('menuitem', { name: 'Remind Me Message' })).toHaveFocus();
       });
       expect(screen.getByText('Thread Reply')).toBeInTheDocument();
     });
@@ -1940,6 +2199,14 @@ describe('<MessageActions />', () => {
       await renderMessageActions({
         channelConfig: { user_message_reminders: true },
         chatClient: client,
+        chatProps: {
+          i18nInstance: new Streami18n({
+            translationsForLanguage: {
+              'messageActions.remindMeSubmenu.errorSettingReminder.text':
+                'Translated fallback',
+            },
+          }),
+        },
         customMessageContext: {
           getMessageActions: () => [
             'delete',
@@ -1967,7 +2234,7 @@ describe('<MessageActions />', () => {
       });
       expect(addNotificationSpy).toHaveBeenCalledWith(
         expect.objectContaining({
-          message: 'Error setting reminder',
+          message: 'Translated fallback',
           options: expect.objectContaining({
             originalError: expect.objectContaining({ message: 'string-fail' }),
             severity: 'error',
@@ -1984,28 +2251,31 @@ describe('<MessageActions />', () => {
         channelsData: [{ channel: { own_capabilities: ['quote-message'] } }],
       });
       const message = generateMessage({ parent_id: 'parent-1', user: client.user });
-      const textarea = document.createElement('textarea');
-      textarea.className = 'str-chat__textarea__textarea';
-      const threadRoot = document.createElement('div');
-      threadRoot.className = 'str-chat__thread';
-      threadRoot.appendChild(textarea);
-      document.body.appendChild(threadRoot);
-      const focusSpy = vi.spyOn(textarea, 'focus');
 
       await act(async () => {
         await render(
           <Chat client={client}>
             <Channel channel={channel}>
-              <DialogManagerProvider id='message-actions-dialog-provider'>
-                <MessageProvider
-                  value={mockMessageContext({
-                    ...defaultMessageContextValue,
-                    message,
-                  })}
-                >
-                  <MessageActions />
-                </MessageProvider>
-              </DialogManagerProvider>
+              <textarea
+                className='str-chat__textarea__textarea'
+                data-testid='channel-composer'
+              />
+              <div className='str-chat__thread'>
+                <DialogManagerProvider id='message-actions-dialog-provider'>
+                  <MessageProvider
+                    value={mockMessageContext({
+                      ...defaultMessageContextValue,
+                      message,
+                    })}
+                  >
+                    <MessageActions />
+                  </MessageProvider>
+                </DialogManagerProvider>
+                <textarea
+                  className='str-chat__textarea__textarea'
+                  data-testid='thread-composer'
+                />
+              </div>
             </Channel>
           </Chat>,
         );
@@ -2015,8 +2285,10 @@ describe('<MessageActions />', () => {
       await act(async () => {
         await fireEvent.click(screen.getByText('Quote Reply'));
       });
-      expect(focusSpy).toHaveBeenCalled();
-      document.body.removeChild(threadRoot);
+      // Focus moves on the next frame, once the menu has started closing.
+      await waitFor(() =>
+        expect(document.activeElement).toBe(screen.getByTestId('thread-composer')),
+      );
     });
   });
 });

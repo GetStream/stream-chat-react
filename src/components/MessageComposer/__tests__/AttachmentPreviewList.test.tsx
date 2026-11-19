@@ -516,6 +516,53 @@ describe('AttachmentPreviewList', () => {
     expect(screen.getByRole('img', { name: 'image-upload-1' })).toBeInTheDocument();
   });
 
+  it('renders the Gallery from ComponentContext in the preview modal', async () => {
+    const Gallery = vi.fn<(props: { onRequestClose?: () => void }) => React.ReactElement>(
+      () => <div data-testid='custom-gallery' />,
+    );
+
+    await renderComponent({
+      attachments: [
+        generateLocalImageUploadAttachmentData(
+          { id: 'image-upload-1', uploadState: 'finished' },
+          {
+            fallback: 'image-upload-1',
+            image_url: 'https://example.com/image-upload-1.jpg',
+          },
+        ),
+        generateLocalImageUploadAttachmentData(
+          { id: 'image-upload-2', uploadState: 'finished' },
+          {
+            fallback: 'image-upload-2',
+            image_url: 'https://example.com/image-upload-2.jpg',
+          },
+        ),
+      ],
+      components: { Gallery },
+    });
+
+    fireEvent.click(screen.getAllByTestId('attachment-preview-media')[1]);
+
+    expect(screen.getByTestId('custom-gallery')).toBeInTheDocument();
+    expect(Gallery).toHaveBeenLastCalledWith(
+      expect.objectContaining({
+        initialIndex: 1,
+        items: [
+          expect.objectContaining({ imageUrl: 'https://example.com/image-upload-1.jpg' }),
+          expect.objectContaining({ imageUrl: 'https://example.com/image-upload-2.jpg' }),
+        ],
+        onRequestClose: expect.any(Function),
+      }),
+      undefined,
+    );
+
+    // A custom Gallery closes the preview through `onRequestClose`.
+    act(() => {
+      Gallery.mock.lastCall?.[0].onRequestClose?.();
+    });
+    expect(screen.queryByTestId('custom-gallery')).not.toBeInTheDocument();
+  });
+
   it('passes onCloseAttempt to prevent overlay-close handling for gallery preview modal', async () => {
     const modalProps: Array<any> = [];
     const Modal = ({ children, open, ...props }: any) => {

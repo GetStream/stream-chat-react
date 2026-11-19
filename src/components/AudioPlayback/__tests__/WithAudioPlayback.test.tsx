@@ -157,6 +157,87 @@ describe('WithAudioPlayback + useAudioPlayer', () => {
     expect(third).not.toBe(first);
   });
 
+  it('keeps the player of a local (blob:) source when its uploaded URL replaces it', () => {
+    const localProps = {
+      mimeType: 'audio/mpeg',
+      requester: 'message-1',
+      src: 'blob:local',
+    };
+    const uploadedSrc = 'https://example.com/uploaded.mp3';
+    let local: AudioPlayer | undefined;
+    let uploaded: AudioPlayer | undefined;
+
+    const { rerender } = renderWithProvider({
+      ui: <RegisterPlayer onReady={(p) => (local = p)} params={localProps} />,
+    });
+    rerender(
+      <WithAudioPlayback>
+        <RegisterPlayer
+          onReady={(p) => (uploaded = p)}
+          params={{ ...localProps, src: uploadedSrc }}
+        />
+      </WithAudioPlayback>,
+    );
+
+    expect(uploaded).toBe(local);
+    expect(uploaded?.src).toBe(uploadedSrc);
+    expect(uploaded?.id).toBe(`message-1:${uploadedSrc}`);
+  });
+
+  it('keeps the player through a local source, its upload URL and a re-signed URL', () => {
+    const params = { mimeType: 'audio/mpeg', requester: 'message-1' };
+    const sources = [
+      'blob:local',
+      'https://cdn.example.com/a.mp3?Expires=1&Signature=x',
+      'https://cdn.example.com/a.mp3?Expires=2&Signature=y',
+    ];
+    const players: AudioPlayer[] = [];
+
+    const { rerender } = renderWithProvider({
+      ui: (
+        <RegisterPlayer
+          onReady={(p) => players.push(p)}
+          params={{ ...params, src: sources[0] }}
+        />
+      ),
+    });
+    sources.slice(1).forEach((src) =>
+      rerender(
+        <WithAudioPlayback>
+          <RegisterPlayer onReady={(p) => players.push(p)} params={{ ...params, src }} />
+        </WithAudioPlayback>,
+      ),
+    );
+
+    expect(new Set(players).size).toBe(1);
+    expect(players[0].src).toBe(sources[2]);
+  });
+
+  it('gives a widget whose URL names other audio a new player', () => {
+    const params = { mimeType: 'audio/mpeg', requester: 'message-1' };
+    let first: AudioPlayer | undefined;
+    let second: AudioPlayer | undefined;
+
+    const { rerender } = renderWithProvider({
+      ui: (
+        <RegisterPlayer
+          onReady={(p) => (first = p)}
+          params={{ ...params, src: 'https://cdn.example.com/a.mp3' }}
+        />
+      ),
+    });
+    rerender(
+      <WithAudioPlayback>
+        <RegisterPlayer
+          onReady={(p) => (second = p)}
+          params={{ ...params, src: 'https://cdn.example.com/b.mp3' }}
+        />
+      </WithAudioPlayback>,
+    );
+
+    expect(second).not.toBe(first);
+  });
+
   it('subscriptions: sets secondsElapsed and progress in state on timeupdate Event ', () => {
     let player: AudioPlayer;
     renderWithProvider({

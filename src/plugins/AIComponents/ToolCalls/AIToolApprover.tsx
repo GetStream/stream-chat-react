@@ -1,4 +1,9 @@
-import React, { createContext, type PropsWithChildren, useContext } from 'react';
+import React, {
+  createContext,
+  type PropsWithChildren,
+  type ReactNode,
+  useContext,
+} from 'react';
 
 import type { AIToolCallPart } from '../MessageParts';
 
@@ -40,6 +45,12 @@ export type AIToolApprover = {
   decide: (call: AIToolCallPart, allowed: boolean) => Promise<void>;
   /** The person signed in, matched against a call's `target_user_id`. */
   userId: string;
+  /**
+   * What an approval card shows of what the call will send, under its question. Return the
+   * view of `call.arguments` the app wants, such as a sentence or a table, `null` to show
+   * nothing, or `undefined` for the default: the arguments as JSON, collapsed when long.
+   */
+  argumentsPreview?: (call: AIToolCallPart) => ReactNode | null | undefined;
   /** How this person signs in when a call waits for their account. Without one, no sign-in is offered here. */
   authorizer?: AIToolAuthorizer;
 };
