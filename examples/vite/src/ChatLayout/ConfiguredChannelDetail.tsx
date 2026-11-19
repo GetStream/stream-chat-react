@@ -1,5 +1,7 @@
-import { useMemo } from 'react';
-import { asDynamicKey, useTranslationContext } from 'stream-chat-react';
+import { type MouseEvent, useMemo } from 'react';
+import type { Channel as StreamChannel } from 'stream-chat';
+import { asDynamicKey, useChannel, useTranslationContext } from 'stream-chat-react';
+import { useChatViewNavigation } from 'stream-chat-react/slot-layout';
 import {
   AvatarWithChannelDetail,
   type AvatarWithChannelDetailProps,
@@ -15,6 +17,7 @@ import {
 import { useAppSettingsSelector } from '../AppSettings/state';
 import { getChannelMembersHeaderActionSet } from '../AppSettings/tabs/ChannelDetail';
 import { ChannelMembersRemoveView } from './ChannelMembersRemoveView';
+import { CHANNEL_THREAD_SLOT } from './constants.ts';
 
 const ChannelMembersRemoveTitle = () => {
   const { t } = useTranslationContext();
@@ -34,7 +37,7 @@ const channelMembersModeViews: ChannelMembersViewModes = {
   },
 };
 
-const ConfiguredChannelDetail = (props: ChannelDetailProps) => {
+export const ConfiguredChannelDetail = (props: ChannelDetailProps) => {
   const channelDetail = useAppSettingsSelector((state) => state.channelDetail);
   const headerActionSet = useMemo(
     () => getChannelMembersHeaderActionSet(channelDetail),
@@ -63,6 +66,38 @@ const ConfiguredChannelDetail = (props: ChannelDetailProps) => {
   return <ChannelDetail {...props} sections={sections} />;
 };
 
+/** What the secondary slot holds when it shows a channel's details: the SDK's `custom` kind. */
+export type ChannelDetailSource = { channel: StreamChannel; type: 'channelDetail' };
+
+export const isChannelDetailSource = (source: unknown): source is ChannelDetailSource =>
+  (source as ChannelDetailSource | undefined)?.type === 'channelDetail';
+
+/**
+ * The header avatar that opens the channel's details: a plain click opens them in a modal, a
+ * ⌘/ctrl-click beside the channel, in the secondary slot.
+ */
 export const ConfiguredAvatarWithChannelDetail = (
   props: AvatarWithChannelDetailProps,
-) => <AvatarWithChannelDetail {...props} ChannelDetail={ConfiguredChannelDetail} />;
+) => {
+  const channel = useChannel();
+  const { open } = useChatViewNavigation();
+
+  // Runs before the avatar's own click handler, which opens the modal, and stops it for a
+  // ⌘/ctrl-click.
+  const openBeside = (event: MouseEvent) => {
+    if (!event.metaKey && !event.ctrlKey) return;
+    event.preventDefault();
+    event.stopPropagation();
+    const source: ChannelDetailSource = { channel, type: 'channelDetail' };
+    open(
+      { key: `channelDetail:${channel.cid}`, kind: 'custom', source },
+      { slot: CHANNEL_THREAD_SLOT },
+    );
+  };
+
+  return (
+    <span onClickCapture={openBeside} style={{ display: 'contents' }}>
+      <AvatarWithChannelDetail {...props} ChannelDetail={ConfiguredChannelDetail} />
+    </span>
+  );
+};

@@ -33,11 +33,13 @@ style rules, and is shot in one frame with one cast. The runnable code lives her
   Crop each shot to the part the recipe changes, with a little surrounding UI.
 - **Side panel:** a recipe that shows content in a panel (details, a profile, info) opens it in the
   base app's one side panel (`src/base/SidePanel.tsx`), never in a column of its own: call
-  `useSidePanel().openSidePanel({ id, title, body })`, or `openUserProfile(userId)` for a profile
-  (the SDK's `userProfile` kind). The panel draws the title row and the close button; the recipe
-  writes only the body, and its section headings use `.cookbook-side-panel__section-title`. It
-  never closes the thread, and opening another panel replaces it: other content and closing
-  release the whole slot, so an earlier profile never comes back. The panel moves focus to its
+  `useSidePanel().openSidePanel({ id, title, body })`, or `openUserProfile(userId)` for a profile.
+  Both are bound in the panel's slot, content as the SDK's `custom` kind and a profile as its
+  `userProfile` kind, so picking a channel from the list closes the panel with the other panels.
+  The panel draws the title row and the close button; the recipe writes only the body, and its
+  section headings use `.cookbook-side-panel__section-title`. It never closes the thread, and
+  opening another panel replaces it: other content and closing release the whole slot, so an
+  earlier profile never comes back. The panel moves focus to its
   title on open and gives it back to the opener on close; a recipe adds no focus code of its own.
   A recipe that only changes the message lists or the profile body sets `RecipeConfig.MessageList`
   and `RecipeConfig.sidePanelProps` instead of copying the channels view. The Overview shows its
