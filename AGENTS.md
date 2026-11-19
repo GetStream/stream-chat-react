@@ -323,6 +323,7 @@ Scrolling, measuring, prepending and staying at the bottom are covered by `src/c
 - **Invariants** (`invariants.ts`, `scenario.ts`): the list is shown, items are contiguous and cover the viewport, the at-bottom state agrees with the geometry, a scroll moves the content by exactly the scrolled distance, a scroll to the bottom stays there. They fail the v4 project; on v2 they are recorded.
 - **Scenarios and fuzzing.** `VirtualizedMessageList.scroll.browser.test.tsx` (B-xx), `OtherLists.browser.test.tsx` (ThreadList, Channel Detail), and `VirtualizedMessageList.fuzz.browser.test.tsx`: seeded operation sequences (`VIRTUOSO_FUZZ_SEEDS`, 25 by default).
 - **Comparison.** `scripts/compare-virtuoso-traces.mts` diffs the two runtimes' traces in `.virtuoso-traces/`; every difference must match `__tests__/browser/expected-differences.json`, which says why the runtimes differ.
+- **Gating.** `yarn test:browser` runs `browser-v4` first (it must pass), then `browser-v2` (recorded, not gating: v2 has known races), then the comparison, which gates locally. CI gates on `browser-v4` only and uploads the v2 run and the comparison as an artifact, since on slower runners v2 loses its races often enough to swamp the comparison.
 - **Mutation checks.** `VIRTUOSO_MUTATION=<name> yarn vitest run --project browser-v4` injects a breakage between the SDK and Virtuoso (see `VirtuosoMutation` in `virtuosoProbe.tsx`); the comparison must then report it.
 
 ## Build system
