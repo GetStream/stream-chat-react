@@ -146,7 +146,8 @@ const resolveOpenPlacement = ({
   // open (neither `additive` nor `layer`) of what it holds anywhere moves that to the top.
   if (isSecondarySlot && binding.key !== undefined) {
     if (additive) {
-      if (getChatViewEntityBinding(topOfStack(stack))?.key === binding.key) {
+      const top = getChatViewEntityBinding(topOfStack(stack));
+      if (top?.kind === binding.kind && top.key === binding.key) {
         return { type: 'alreadyShown' };
       }
     } else if (!layer) {
@@ -264,11 +265,16 @@ export class ChatViewNavigator implements ChatViewNavigation {
     const runtime = toViewSlotRuntime(getLayoutViewState(state, targetView));
 
     if (options?.exclusive && !options.additive) {
+      // A requested slot that holds a persistent list is not replaced: the primary slot is.
+      const requestedSlot = this.declaredSlot(runtime, options.slot);
       const slot =
-        this.materializeTargetSlot(runtime, options.slot) ?? this.primarySlot(runtime);
+        requestedSlot && !this.isPersistentSlot(runtime.slotBindings, requestedSlot)
+          ? requestedSlot
+          : this.primarySlot(runtime);
       if (!slot) return { reason: 'no-available-slot', status: 'rejected' };
       if (kindView) this.openView(targetView, options);
-      return this.openAlone(binding, slot, targetView);
+      this.makeAvailable(slot);
+      return this.openAlone(binding, slot);
     }
 
     const targetSlot = this.resolveTargetSlot({
@@ -283,11 +289,14 @@ export class ChatViewNavigator implements ChatViewNavigation {
     // Kinds that declare a target view switch to it on open (e.g. channel -> channels);
     // view-agnostic kinds (thread) open in the active view.
     if (kindView) this.openView(targetView, options);
+    this.makeAvailable(targetSlot);
 
-    const stack = readSlotStack(runtime, targetSlot);
+    // Read after the view switch, which a custom controller may use to restore the view's layers.
+    const current = toViewSlotRuntime(this.readActiveView());
+    const stack = readSlotStack(current, targetSlot);
     const placement = resolveOpenPlacement({
       binding,
-      isSecondarySlot: targetSlot !== this.primarySlot(runtime),
+      isSecondarySlot: targetSlot !== this.primarySlot(current),
       options,
       stack,
     });
@@ -349,7 +358,7 @@ export class ChatViewNavigator implements ChatViewNavigation {
     // "prefer a free or secondary slot" logic.
     const action = additive ? undefined : VIEW_ACTION_BY_KIND[kind];
     if (action) {
-      const customTargetSlot = this.materializeTargetSlot(
+      const customTargetSlot = this.declaredSlot(
         runtime,
         this.resolveActionTargetSlot(view, {
           action,
@@ -363,7 +372,7 @@ export class ChatViewNavigator implements ChatViewNavigation {
       if (customTargetSlot) return customTargetSlot;
     }
 
-    return this.materializeTargetSlot(
+    return this.declaredSlot(
       runtime,
       resolveDefaultTargetSlot({
         additive,
@@ -382,17 +391,17 @@ export class ChatViewNavigator implements ChatViewNavigation {
     );
   }
 
-  // Leaves `binding` as the only content of `view`: every other non-persistent slot is released,
-  // and `slot` keeps no layers, with `binding` as its base.
-  private openAlone(
-    binding: ChatViewEntityBinding,
-    slot: SlotName,
-    view: ChatView,
-  ): OpenResult {
-    const runtime = toViewSlotRuntime(
-      getLayoutViewState(this.layoutController.state.getLatestValue(), view),
-    );
-    runtime.availableSlots.forEach((other) => {
+  // Leaves `binding` as the only content of the active view: every other non-persistent slot is
+  // released, including one its layout has made unavailable for now, and `slot` keeps no layers,
+  // with `binding` as its base.
+  private openAlone(binding: ChatViewEntityBinding, slot: SlotName): OpenResult {
+    const runtime = toViewSlotRuntime(this.readActiveView());
+    const occupiedSlots = new Set([
+      ...runtime.availableSlots,
+      ...Object.keys(runtime.slotBindings),
+      ...Object.keys(runtime.slotLayers),
+    ]);
+    occupiedSlots.forEach((other) => {
       if (
         other !== slot &&
         !isStackEmpty(readSlotStack(runtime, other)) &&
@@ -417,17 +426,24 @@ export class ChatViewNavigator implements ChatViewNavigation {
     });
   }
 
-  // Makes a slot the view's layout declares available, so a binding can go into it.
-  private materializeTargetSlot(runtime: ViewSlotRuntime, slot?: SlotName) {
+  // `slot`, when the view's layout declares it, available or not. Changes nothing.
+  private declaredSlot(runtime: ViewSlotRuntime, slot?: SlotName) {
     if (!slot) return undefined;
-    if (runtime.availableSlots.includes(slot)) return slot;
-    if (!runtime.orderedSlots.includes(slot)) return undefined;
+    return runtime.availableSlots.includes(slot) || runtime.orderedSlots.includes(slot)
+      ? slot
+      : undefined;
+  }
 
-    const nextAvailableSlots = runtime.orderedSlots.filter(
-      (candidate) => runtime.availableSlots.includes(candidate) || candidate === slot,
+  // Makes a slot the active view's layout declares available, so a binding can go into it. Runs
+  // after the view switch, so it changes the view the binding opens in.
+  private makeAvailable(slot: SlotName) {
+    const runtime = toViewSlotRuntime(this.readActiveView());
+    if (runtime.availableSlots.includes(slot)) return;
+    this.layoutController.setAvailableSlots(
+      runtime.orderedSlots.filter(
+        (candidate) => runtime.availableSlots.includes(candidate) || candidate === slot,
+      ),
     );
-    this.layoutController.setAvailableSlots(nextAvailableSlots);
-    return slot;
   }
 
   private readActiveView() {

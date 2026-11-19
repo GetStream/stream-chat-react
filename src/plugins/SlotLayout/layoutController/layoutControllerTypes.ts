@@ -130,8 +130,10 @@ export type CreateLayoutControllerOptions = {
 
 /**
  * Holds a `ChatView`'s layout state (views, slot bindings, layers, history) and changes it on
- * request. Each method acts on the slot it is given; choosing the slot for an entity, and what to
- * close around it, is up to the navigation layer (`useChatViewNavigation()`).
+ * request. Slot methods such as `bind` and `pushLayer` act on the slot they are given;
+ * `openInLayout` also applies the duplicate-entity policy, which can clear the slot already
+ * holding the entity. Choosing the slot for an entity, and what to close around it, is up to the
+ * navigation layer (`useChatViewNavigation()`).
  */
 export type LayoutController = {
   bind: (slot: SlotName, binding: LayoutSlotBinding) => void;

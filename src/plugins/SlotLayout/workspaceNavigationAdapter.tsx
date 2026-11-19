@@ -117,11 +117,13 @@ export const WorkspaceNavigationAdapter = ({
 
     const isThreadsView = activeView === 'threads';
 
-    // Only a list or search selection carries `event`. Unless it opens beside the current content,
-    // it shows the selected item alone; other opens leave the other panels as they are.
+    // Only a list or search selection carries `event`. Unless it opens beside the current content
+    // or over it as a layer, it shows the selected item alone; other opens leave the other panels
+    // as they are.
     const withExclusiveDefault = (options?: WorkspaceNavigationOptions) => ({
       ...options,
-      exclusive: options?.exclusive ?? (!!options?.event && !options.additive),
+      exclusive:
+        options?.exclusive ?? (!!options?.event && !options.additive && !options.layer),
     });
 
     return {

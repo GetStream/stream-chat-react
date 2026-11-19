@@ -65,9 +65,9 @@ export type WorkspaceNavigationOptions = {
    * before. Ignored with `additive`.
    *
    * Left unset, the slot layout decides. A plain click in the channel list, thread list or search
-   * results (a call that carries `event`) shows the selection alone. A ⌘/ctrl-click (`additive`)
-   * or an open with no `event`, such as a message's reply count opening its thread, leaves the
-   * other panels as they are.
+   * results (a call that carries `event`) shows the selection alone. A ⌘/ctrl-click (`additive`),
+   * an open as a `layer`, or an open with no `event`, such as a message's reply count opening its
+   * thread, leaves the other panels as they are.
    */
   exclusive?: boolean;
   /**

@@ -73,6 +73,20 @@ describe('slotStack', () => {
     );
   });
 
+  it('never finds an entity without a key', () => {
+    const unkeyed = createChatViewSlotBinding({
+      kind: 'userProfile',
+      source: { userId: 'alice' },
+    });
+
+    expect(
+      findInStack(
+        { base: unkeyed, layers: [] },
+        { kind: 'userProfile', source: { userId: 'bob' } },
+      ),
+    ).toBe(-1);
+  });
+
   describe('moveToTop', () => {
     it('moves a layer to the top, keeping the others in order', () => {
       const stack = { base: channel, layers: [primaryThread, profile] };

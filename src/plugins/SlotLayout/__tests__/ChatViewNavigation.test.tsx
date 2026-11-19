@@ -2418,6 +2418,41 @@ describe('the navigation object', () => {
     expect(getChatViewEntityBinding(state?.slotBindings.slot2)?.key).toBe(profile.key);
   });
 
+  it('opens beside content of another kind that shares the key', () => {
+    let capturedController: LayoutController | undefined;
+    let navigation: ReturnType<typeof useChatViewNavigation> | undefined;
+    const Harness = () => {
+      navigation = useChatViewNavigation();
+      capturedController = useChatViewContext().layoutController;
+      return null;
+    };
+    renderWithProviders(
+      <ChatView layouts={twoSlotLayouts}>
+        <Harness />
+      </ChatView>,
+    );
+    act(() => {
+      navigation?.open({
+        key: primaryChannel.cid,
+        kind: 'channel',
+        source: primaryChannel,
+      });
+      navigation?.open(
+        { key: profile.key, kind: 'custom', source: {} },
+        { slot: 'slot2' },
+      );
+    });
+
+    let result: ReturnType<NonNullable<typeof navigation>['open']> | undefined;
+    act(() => {
+      result = navigation?.open(profile, { additive: true, slot: 'slot2' });
+    });
+
+    expect(result?.status).toBe('layered');
+    const layers = viewState(capturedController)?.slotLayers?.slot2 ?? [];
+    expect(getChatViewEntityBinding(layers[layers.length - 1])?.kind).toBe('userProfile');
+  });
+
   it('ignores a requested slot the layout does not declare', () => {
     let capturedController: LayoutController | undefined;
     let navigation: ReturnType<typeof useChatViewNavigation> | undefined;
@@ -2735,6 +2770,66 @@ describe('exclusive opens', () => {
     expectOnly(reloaded);
   });
 
+  it('opens into the primary slot when the requested slot holds a persistent list', () => {
+    renderFullLayout();
+
+    act(() => {
+      navigation.open(channelBinding(otherChannel), { exclusive: true, slot: 'nav' });
+    });
+
+    expectOnly(otherChannel);
+  });
+
+  it('clears an occupied slot the layout has made unavailable', () => {
+    renderFullLayout();
+    act(() => {
+      capturedController?.setAvailableSlots(['nav', 'slot1']);
+    });
+
+    act(() => {
+      navigation.open(channelBinding(otherChannel), { exclusive: true });
+    });
+
+    const state = viewState(capturedController);
+    expect(state?.slotBindings.slot2).toBeUndefined();
+    expect(state?.slotLayers?.slot2 ?? []).toHaveLength(0);
+  });
+
+  it('makes a declared slot available in the view it switches to', () => {
+    renderWithProviders(
+      <ChatView
+        layouts={[
+          { id: 'channels', slots: ['nav', 'slot1', 'slot2'] },
+          { id: 'threads', slots: ['thread'] },
+        ]}
+      >
+        <Harness />
+      </ChatView>,
+    );
+    act(() => {
+      navigation.openView('channels');
+      capturedController?.setSlotNames(['nav', 'slot1', 'slot2']);
+      capturedController?.setAvailableSlots(['nav', 'slot1']);
+      navigation.openView('threads');
+    });
+    const threadsSlotsBefore = viewState(capturedController)?.availableSlots;
+
+    act(() => {
+      navigation.open(channelBinding(otherChannel), { exclusive: true, slot: 'slot2' });
+    });
+
+    const latest = capturedController?.state.getLatestValue();
+    const channels = latest && getLayoutViewState(latest, 'channels');
+    expect(latest?.activeView).toBe('channels');
+    expect(channels?.availableSlots).toContain('slot2');
+    expect(getChatViewEntityBinding(channels?.slotBindings.slot2)?.source).toBe(
+      otherChannel,
+    );
+    expect(latest && getLayoutViewState(latest, 'threads').availableSlots).toEqual(
+      threadsSlotsBefore,
+    );
+  });
+
   it('is ignored with additive', () => {
     renderFullLayout();
 
@@ -2816,6 +2911,19 @@ describe('exclusive opens', () => {
 
       act(() => {
         workspaceNavigation.openChannel(otherChannel);
+      });
+
+      expectBesideKept();
+    });
+
+    it('keeps the other panels for a selection opened as a layer', () => {
+      renderFullLayout();
+
+      act(() => {
+        workspaceNavigation.openChannel(otherChannel, {
+          event: clickEvent,
+          layer: true,
+        });
       });
 
       expectBesideKept();

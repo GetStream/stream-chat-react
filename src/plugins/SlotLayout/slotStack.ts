@@ -36,12 +36,15 @@ export const topOfStack = (stack: SlotStack) => stack.layers.at(-1) ?? stack.bas
 
 /**
  * Where the stack holds `entity` (same kind and key), counting the base as 0 and layers from 1.
- * -1 when it is not held.
+ * -1 when it is not held, and always for an entity without a key.
  */
 export const findInStack = (stack: SlotStack, entity: ChatViewEntityBinding) =>
   [stack.base, ...stack.layers].findIndex((binding) => {
     const held = getChatViewEntityBinding(binding);
-    return held?.kind === entity.kind && held.key === entity.key;
+    // Unkeyed entities are never the same one.
+    return (
+      held?.kind === entity.kind && held.key !== undefined && held.key === entity.key
+    );
   });
 
 /**

@@ -36,11 +36,14 @@ export type ChatViewEntityBinding =
   | { key?: string; kind: 'pinnedMessagesList'; source: StreamChannel }
   | { key?: string; kind: 'userProfile'; source: UserProfileEntitySource }
   /**
-   * App-defined content, such as a details panel. `key` names it, so opening it again finds it
-   * where it is, and `source` holds whatever the app renders it from. The SDK renders nothing for
-   * it: read it with `useSlotEntity({ kind: 'custom' })`, or render it with
-   * `slotRenderers.custom`. It belongs to no view and is not persistent, so navigation opens,
-   * closes and releases it like any other panel.
+   * App-defined content, such as a details panel. `key` names it, so opening it again into the slot
+   * that holds it keeps it or moves it to the top instead of adding a copy; other slots are not
+   * searched for it. `source` holds whatever the app renders it from. The SDK renders nothing for
+   * it: render it with `slotRenderers.custom`, or read it with
+   * `useSlotEntity({ kind: 'custom', slot })` when it is the slot's base and
+   * `useSlotTopLayerEntity({ kind: 'custom', slot })` when it is opened as a layer. It belongs to
+   * no view and is not persistent, so navigation opens, closes and releases it like any other
+   * panel.
    */
   | { key: string; kind: 'custom'; source: unknown };
 
