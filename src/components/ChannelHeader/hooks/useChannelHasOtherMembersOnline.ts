@@ -1,8 +1,8 @@
 import type { Channel, ChannelStateData } from 'stream-chat';
 
+import { useChatContext } from '../../../context/ChatContext';
 import { useResolvedChannel } from '../../../context/useContextChannel';
 import { useStateStore } from '../../../store';
-import { getChannelOwnUserId } from '../../../utils/getChannelOwnUserId';
 import { getOnlineMembers } from './onlineMembers';
 
 export type UseChannelHasOtherMembersOnlineParams = {
@@ -24,13 +24,12 @@ export const useChannelHasOtherMembersOnline = ({
   enabled = true,
 }: UseChannelHasOtherMembersOnlineParams = {}) => {
   const channel = useResolvedChannel(channelOverride);
+  const { client } = useChatContext();
   const { members, watchers } = useStateStore(channel.state, membersSelector);
 
   if (!enabled) return false;
 
-  const ownUserId = getChannelOwnUserId(channel);
-  // Without the current user, no member can be told apart as another one.
-  if (!ownUserId) return false;
+  const ownUserId = client.user?.id;
   return getOnlineMembers({ members, watchers }).some(
     (member) => member.user?.id !== ownUserId,
   );

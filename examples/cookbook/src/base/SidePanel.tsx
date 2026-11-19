@@ -62,20 +62,6 @@ export const SidePanelProvider = ({ children }: PropsWithChildren) => {
 /** The `id` the panel gives a user's profile, so a button can tell whether that profile is open. */
 const userProfileId = (userId: string) => `user-profile:${userId}`;
 
-/** Matches base.css: below 768px the panel covers the channels view. */
-const COVERS_CHANNELS_QUERY = '(max-width: 767px)';
-
-/** Makes everything beside the panel inert, or interactive again, so focus stays in the panel. */
-const setCoveredInert = (
-  container: HTMLElement | null | undefined,
-  panel: HTMLElement | null,
-  inert: boolean,
-) => {
-  for (const sibling of container?.children ?? []) {
-    if (sibling !== panel && sibling instanceof HTMLElement) sibling.inert = inert;
-  }
-};
-
 /**
  * Where focus goes when the panel closes: the element that opened it, or, when that one is gone
  * (an item of a menu that has closed, say), the open channel's composer.
@@ -142,8 +128,6 @@ export const useSidePanel = () => {
     const active = document.activeElement;
     const hadFocus =
       active === document.body || !!(active && panelRef.current?.contains(active));
-    // The opener sits beside the panel, which on a phone is inert until the panel unmounts.
-    setCoveredInert(panelRef.current?.parentElement, panelRef.current, false);
     release(SIDE_PANEL_SLOT);
     setContent(undefined);
     if (hadFocus) focusTargetAfterClose(openerRef.current)?.focus();
@@ -200,25 +184,6 @@ const SidePanelFrame = ({ body, ownHeader, title }: SidePanelContent) => {
   useEffect(() => {
     (ownHeader ? panelRef.current : headingRef.current)?.focus();
   }, [ownHeader, panelRef]);
-
-  // While the panel covers the channel and the thread, keyboard focus can't reach them, including
-  // a channel or thread that opens beside it later.
-  useEffect(() => {
-    const panel = panelRef.current;
-    // Kept from the start: the cleanup can run after the panel has left the page.
-    const container = panel?.parentElement;
-    const coversChannels = window.matchMedia(COVERS_CHANNELS_QUERY);
-    const update = () => setCoveredInert(container, panel, coversChannels.matches);
-    const siblingsObserver = new MutationObserver(update);
-    update();
-    coversChannels.addEventListener('change', update);
-    if (container) siblingsObserver.observe(container, { childList: true });
-    return () => {
-      coversChannels.removeEventListener('change', update);
-      siblingsObserver.disconnect();
-      setCoveredInert(container, panel, false);
-    };
-  }, [panelRef]);
 
   return (
     <aside
