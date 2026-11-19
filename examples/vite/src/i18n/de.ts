@@ -282,6 +282,7 @@ export const deTranslations = {
     'Kanalmitglieder durchsuchen',
   'channelDetail.channelMembersView.members.title_one': '{{ count }} Mitglied',
   'channelDetail.channelMembersView.members.title_other': '{{ count }} Mitglieder',
+  'channelDetail.listLoaded.text': 'Liste geladen',
   'channelDetail.pinnedMessagesEmpty.noPinnedMessages.text':
     'Keine angepinnten Nachrichten',
   'channelDetail.pinnedMessagesEmpty.pinMessageSee.text':
@@ -494,6 +495,7 @@ export const deTranslations = {
   'language.vi': 'Vietnamesisch',
   'language.zh': 'Chinesisch (vereinfacht)',
   'language.zh-TW': 'Chinesisch (traditionell)',
+  'listStates.loadError.text': 'Die Liste konnte nicht geladen werden',
   'loadMore.button.loadMore.label': 'Mehr laden',
   'loading.errorIndicator.error.text': 'Fehler: {{ errorMessage }}',
   'loading.progressIndicators.percentComplete.ariaLabel':
@@ -718,6 +720,8 @@ export const deTranslations = {
   'poll.addCommentPrompt.updateCommentAttachedPoll.label':
     'Aktualisiere den Kommentar zu deiner Umfrageantwort',
   'poll.answerList.description': 'Kommentare zu den Umfrageantworten ansehen',
+  'poll.answerList.empty.text': 'Noch keine Kommentare',
+  'poll.answerList.loaded.text': 'Kommentare geladen',
   'poll.answerList.pollComments.title': 'Umfragekommentare',
   'poll.creationDialog.allowOthersAddComments.description':
     'Anderen erlauben, Kommentare hinzuzufügen',
@@ -767,6 +771,7 @@ export const deTranslations = {
   'poll.optionReorder.reorderOption.ariaLabel': 'Option {{ position }} neu anordnen',
   'poll.optionReorder.reorderPosition.ariaLabel':
     '„{{ option }}“ an Position {{ position }} von {{ total }} neu anordnen',
+  'poll.optionVotes.loaded.text': 'Stimmen geladen',
   'poll.optionVotes.question.text': 'Frage {{ optionOrderNumber}}',
   'poll.optionVotes.view.text': 'Alle ansehen',
   'poll.optionVotes.votes.text_one': '{{count}} Stimme',
