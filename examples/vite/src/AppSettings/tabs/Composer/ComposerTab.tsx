@@ -25,6 +25,8 @@ export const ComposerTab = ({ close }: ComposerTabProps) => {
   const {
     composer,
     composer: {
+      asyncMessagesMultiSendEnabled,
+      audioRecordingEnabled,
       customCdnUrl,
       eventInvites,
       failUploads,
@@ -102,6 +104,43 @@ export const ComposerTab = ({ close }: ComposerTabProps) => {
             in flight; the message is added to the list immediately with a live progress
             bar and the request is made once the upload settles. Applies to already-open
             composers — no reload needed — and to both the channel and thread composers.
+          </div>
+        </div>
+
+        <div className='app__settings-modal__field'>
+          <div className='app__settings-modal__field-label'>Voice recording</div>
+          <SwitchField
+            checked={audioRecordingEnabled}
+            id='audio-recording-enabled-switch'
+            onChange={(event) =>
+              appSettingsStore.partialNext({
+                composer: { ...composer, audioRecordingEnabled: event.target.checked },
+              })
+            }
+            title='Voice recording enabled'
+          />
+          <SwitchField
+            checked={asyncMessagesMultiSendEnabled}
+            disabled={!audioRecordingEnabled}
+            id='async-messages-multi-send-switch'
+            onChange={(event) =>
+              appSettingsStore.partialNext({
+                composer: {
+                  ...composer,
+                  asyncMessagesMultiSendEnabled: event.target.checked,
+                },
+              })
+            }
+            title='Attach recordings instead of sending them'
+          />
+          <div className='app__settings-modal__field-comment'>
+            Sets <code>audioRecordingEnabled</code> and{' '}
+            <code>asyncMessagesMultiSendEnabled</code> on every{' '}
+            <code>MessageComposer</code>. With the second switch on, a finished recording
+            is attached to the message being composed and sent with it. With it off, the
+            recording is sent as a message of its own as soon as it is complete: once its
+            upload finishes, or right away while <strong>Pending uploads</strong> is on. A
+            recording whose upload fails stays in the composer, where it can be retried.
           </div>
         </div>
 

@@ -112,6 +112,13 @@ export type LayoutSettingsState = {
 };
 
 export type ComposerSettingsState = {
+  /**
+   * Passed to every `<MessageComposer/>` as `asyncMessagesMultiSendEnabled`: a finished voice
+   * recording is attached to the message being composed instead of being sent on its own.
+   */
+  asyncMessagesMultiSendEnabled: boolean;
+  /** Passed to every `<MessageComposer/>` as `audioRecordingEnabled`: shows the voice recorder. */
+  audioRecordingEnabled: boolean;
   /** The CDN upload endpoint used while `uploadDestination` is `custom-url`. */
   customCdnUrl: string;
   /**
@@ -213,6 +220,8 @@ const defaultAppSettingsState: AppSettingsState = {
     iconOnly: true,
   },
   composer: {
+    asyncMessagesMultiSendEnabled: true,
+    audioRecordingEnabled: true,
     customCdnUrl: '',
     disabledPreviewSections: [],
     eventInvites: false,

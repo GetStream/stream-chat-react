@@ -36,9 +36,11 @@
     }
   }
 
+  // Grows to fit the file size shown in place of a missing duration, on one line.
   .str-chat__message-attachment__voice-recording-widget__timer {
+    flex-shrink: 0;
     min-width: var(--str-chat__size-40);
-    width: var(--str-chat__size-40);
+    white-space: nowrap;
     font: var(--str-chat__font-metadata-emphasis);
   }
 }

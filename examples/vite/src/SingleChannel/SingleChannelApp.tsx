@@ -7,7 +7,6 @@ import type {
 } from 'stream-chat';
 import {
   Channel,
-  MessageComposer,
   MessageList,
   useChatContext,
   useDialogIsOpen,
@@ -22,6 +21,7 @@ import {
   type SearchableSelectOption,
 } from '../AppSettings/SearchableSelect';
 import { appSettingsStore } from '../AppSettings/state';
+import { ConfigurableMessageComposer } from '../ConfigurableMessageComposer';
 
 export const SINGLE_CHANNEL_DEFAULT_ID = 'general';
 const SINGLE_CHANNEL_DIALOG_ID = 'app-single-channel-modal';
@@ -154,7 +154,7 @@ export const SingleChannelModal = ({
         <WithDragAndDropUpload>
           <div className='app-single-channel-modal__body'>
             <MessageList returnAllReadData />
-            <MessageComposer asyncMessagesMultiSendEnabled audioRecordingEnabled />
+            <ConfigurableMessageComposer />
           </div>
         </WithDragAndDropUpload>
       </Channel>

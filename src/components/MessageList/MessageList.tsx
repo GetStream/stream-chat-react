@@ -92,6 +92,7 @@ const MessageListWithContext = (props: MessageListWithContextProps) => {
     hideNewMessageSeparator = false,
     internalInfiniteScrollProps: {
       element: internalListElement = 'div',
+      ref: paginatorRef,
       threshold: loadMoreScrollThreshold = DEFAULT_LOAD_PAGE_SCROLL_THRESHOLD,
       ...restInternalInfiniteScrollProps
     } = {},
@@ -127,6 +128,16 @@ const MessageListWithContext = (props: MessageListWithContextProps) => {
   const loadingOlderRef = React.useRef(false);
 
   const [listElement, setListElement] = React.useState<HTMLDivElement | null>(null);
+  // The paginator is the list element, and also reaches a `ref` passed in
+  // `internalInfiniteScrollProps`.
+  const setPaginatorElement = React.useCallback(
+    (element: HTMLDivElement | null) => {
+      setListElement(element);
+      if (typeof paginatorRef === 'function') paginatorRef(element);
+      else if (paginatorRef) paginatorRef.current = element;
+    },
+    [paginatorRef],
+  );
 
   const { customClasses } = useChatContext();
 
@@ -359,7 +370,10 @@ const MessageListWithContext = (props: MessageListWithContextProps) => {
           <div
             className={clsx(messageListClass, customClasses?.threadList)}
             onScroll={onScroll}
-            ref={setListElement}
+            // The list element is the scroll container: this wrapper only while it holds the
+            // empty state, otherwise the paginator below. Scrolling the wrapper to the bottom
+            // would move the paginator out of view.
+            ref={showEmptyStateIndicator ? setListElement : undefined}
             tabIndex={0}
           >
             {showEmptyStateIndicator ? (
@@ -374,9 +388,9 @@ const MessageListWithContext = (props: MessageListWithContextProps) => {
                 }
                 loadNextOnScrollToTop={canPaginateReplies ? loadOlderMessages : undefined}
                 onScroll={onScroll}
-                ref={setListElement}
-                threshold={loadMoreScrollThreshold}
                 {...restInternalInfiniteScrollProps}
+                ref={setPaginatorElement}
+                threshold={loadMoreScrollThreshold}
               >
                 {threadHead}
                 {isLoading && (
