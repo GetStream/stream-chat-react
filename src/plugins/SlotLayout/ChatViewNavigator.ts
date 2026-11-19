@@ -402,11 +402,15 @@ export class ChatViewNavigator implements ChatViewNavigation {
       ...Object.keys(runtime.slotLayers),
     ]);
     occupiedSlots.forEach((other) => {
-      if (
-        other !== slot &&
-        !isStackEmpty(readSlotStack(runtime, other)) &&
-        !this.isPersistentSlot(runtime.slotBindings, other)
-      ) {
+      const otherStack = readSlotStack(runtime, other);
+      if (other === slot || isStackEmpty(otherStack)) return;
+      // A persistent list stays, without what is stacked over it.
+      if (this.isPersistentSlot(runtime.slotBindings, other)) {
+        applySlotStack(this.layoutController, other, otherStack, {
+          ...otherStack,
+          layers: [],
+        });
+      } else {
         this.layoutController.release(other);
       }
     });
@@ -437,13 +441,21 @@ export class ChatViewNavigator implements ChatViewNavigation {
   // Makes a slot the active view's layout declares available, so a binding can go into it. Runs
   // after the view switch, so it changes the view the binding opens in.
   private makeAvailable(slot: SlotName) {
-    const runtime = toViewSlotRuntime(this.readActiveView());
-    if (runtime.availableSlots.includes(slot)) return;
-    this.layoutController.setAvailableSlots(
-      runtime.orderedSlots.filter(
-        (candidate) => runtime.availableSlots.includes(candidate) || candidate === slot,
-      ),
+    const { availableSlots, orderedSlots } = toViewSlotRuntime(this.readActiveView());
+    if (availableSlots.includes(slot)) return;
+    // Every available slot stays, including ones the layout's order doesn't list. `slot` goes
+    // before the first of them that comes after it in that order.
+    const position = orderedSlots.indexOf(slot);
+    const before = availableSlots.findIndex(
+      (candidate) => orderedSlots.indexOf(candidate) > position,
     );
+    const nextAvailableSlots = [...availableSlots];
+    nextAvailableSlots.splice(
+      before === -1 ? nextAvailableSlots.length : before,
+      0,
+      slot,
+    );
+    this.layoutController.setAvailableSlots(nextAvailableSlots);
   }
 
   private readActiveView() {

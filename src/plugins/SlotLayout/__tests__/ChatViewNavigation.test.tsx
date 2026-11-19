@@ -2780,6 +2780,39 @@ describe('exclusive opens', () => {
     expectOnly(otherChannel);
   });
 
+  it('keeps a persistent list but closes what is stacked over it', () => {
+    renderFullLayout();
+    act(() => {
+      navigation.pushLayer('nav', { key: 'details', kind: 'custom', source: {} });
+    });
+
+    act(() => {
+      navigation.open(channelBinding(otherChannel), { exclusive: true });
+    });
+
+    expectOnly(otherChannel);
+    expect(viewState(capturedController)?.slotLayers?.nav ?? []).toHaveLength(0);
+  });
+
+  it('keeps available slots the layout order does not list when it adds one', () => {
+    renderFullLayout();
+    act(() => {
+      capturedController?.setSlotNames(['slot1', 'slot2']);
+      capturedController?.setAvailableSlots(['nav', 'slot1']);
+    });
+
+    act(() => {
+      navigation.open(channelBinding(otherChannel), { exclusive: true, slot: 'slot2' });
+    });
+
+    const state = viewState(capturedController);
+    expect(state?.availableSlots).toEqual(['nav', 'slot1', 'slot2']);
+    expect(getChatViewEntityBinding(state?.slotBindings.nav)?.kind).toBe('channelList');
+    expect(getChatViewEntityBinding(state?.slotBindings.slot2)?.source).toBe(
+      otherChannel,
+    );
+  });
+
   it('clears an occupied slot the layout has made unavailable', () => {
     renderFullLayout();
     act(() => {
