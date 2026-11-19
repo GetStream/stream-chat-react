@@ -1,6 +1,6 @@
 import { getTypingStatusMessage } from '../getTypingStatusMessage';
 
-import type { TypingEntry } from '../../hooks/useDebouncedTypingActive';
+import type { TypingEntry } from '../../hooks/useTypingUsers';
 import { mockT } from '../../../../mock-builders/translator';
 
 const translate = mockT as unknown as Parameters<typeof getTypingStatusMessage>[1];
