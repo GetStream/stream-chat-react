@@ -1,14 +1,14 @@
 import React from 'react';
 import type { TranslationContextValue } from '../../../context/TranslationContext';
 import { StateStore } from '@stream-io/state-store';
-import { fireEvent, render, screen } from '@testing-library/react';
+import { act, fireEvent, render, screen } from '@testing-library/react';
 import '@testing-library/jest-dom';
 
 import { ChatView, useChatViewContext } from '../ChatView';
 import { getChatViewEntityBinding } from '../ChatView';
 import { createChatViewSlotBinding } from '../slotBinding';
 import { useChatViewNavigation } from '../ChatViewNavigationContext';
-import { getLayoutViewState } from '../hooks';
+import { getLayoutViewState, useLayoutViewState } from '../hooks';
 import {
   useWorkspaceNavigation,
   useWorkspacePanel,
@@ -18,6 +18,7 @@ import { Slot } from '../layout/Slot';
 import { ChatProvider } from '../../../context/ChatContext';
 import { TranslationProvider } from '../../../context/TranslationContext';
 
+import { Thread as StreamThreadClass } from 'stream-chat';
 import type { Channel as StreamChannel, Thread as StreamThread } from 'stream-chat';
 import type { ChatContextValue } from '../../../context/ChatContext';
 import type { LayoutController } from '../layoutController/layoutControllerTypes';
@@ -1146,6 +1147,28 @@ describe('useChatViewNavigation', () => {
             go-back
           </button>
           <button
+            onClick={() =>
+              navigation.pushLayer('slot2', {
+                key: 'user-1',
+                kind: 'userProfile',
+                source: { userId: 'user-1' },
+              })
+            }
+            type='button'
+          >
+            push-profile
+          </button>
+          <button
+            onClick={() => {
+              workspaceNavigation.goBack(thread.id);
+              // The thread is gone, but this handler has not re-rendered yet.
+              workspaceNavigation.goBack(thread.id);
+            }}
+            type='button'
+          >
+            go-back-from-closed-thread
+          </button>
+          <button
             onClick={() => workspaceNavigation.closeThread(thread.id)}
             type='button'
           >
@@ -1180,6 +1203,45 @@ describe('useChatViewNavigation', () => {
       );
       expect(getChatViewEntityBinding(state?.slotBindings.slot1)?.source).toBe(
         primaryChannel,
+      );
+    });
+
+    it('does nothing for a thread that is no longer shown', () => {
+      openThreadOverSecondary();
+
+      fireEvent.click(screen.getByText('go-back-from-closed-thread'));
+
+      const state = viewState(capturedController);
+      expect(state?.slotLayers?.slot2 ?? []).toHaveLength(0);
+      expect(getChatViewEntityBinding(state?.slotBindings.slot2)?.source).toBe(
+        secondaryChannel,
+      );
+    });
+
+    it('keeps the layer revealed beneath a thread that is no longer shown', () => {
+      renderWithProviders(
+        <ChatView layouts={twoSlotLayouts}>
+          <Harness />
+        </ChatView>,
+      );
+      fireEvent.click(screen.getByText('open-primary'));
+      fireEvent.click(screen.getByText('open-secondary'));
+      fireEvent.click(screen.getByText('push-profile'));
+      fireEvent.click(screen.getByText('open-thread'));
+      expect(
+        viewState(capturedController)?.slotLayers?.slot2?.map(
+          (layer) => getChatViewEntityBinding(layer)?.kind,
+        ),
+      ).toEqual(['userProfile', 'thread']);
+
+      fireEvent.click(screen.getByText('go-back-from-closed-thread'));
+
+      const state = viewState(capturedController);
+      expect(
+        state?.slotLayers?.slot2?.map((layer) => getChatViewEntityBinding(layer)?.kind),
+      ).toEqual(['userProfile']);
+      expect(getChatViewEntityBinding(state?.slotBindings.slot2)?.source).toBe(
+        secondaryChannel,
       );
     });
 
@@ -2280,5 +2342,440 @@ describe('stacked panels', () => {
     expect(
       getChatViewEntityBinding(viewState(capturedController)?.slotBindings.slot1)?.kind,
     ).toBe('channelList');
+  });
+});
+
+describe('the navigation object', () => {
+  const primaryChannel = makeChannel('messaging:primary');
+  const profile = {
+    key: 'user-1',
+    kind: 'userProfile' as const,
+    source: { userId: 'user-1' },
+  };
+
+  it('stays the same object across layout changes', () => {
+    const seen: ReturnType<typeof useChatViewNavigation>[] = [];
+
+    const Harness = () => {
+      const navigation = useChatViewNavigation();
+      // Re-renders on every layout change, so each one is seen.
+      useLayoutViewState();
+      seen.push(navigation);
+      return (
+        <button
+          onClick={() =>
+            navigation.open({
+              key: primaryChannel.cid,
+              kind: 'channel',
+              source: primaryChannel,
+            })
+          }
+          type='button'
+        >
+          open-primary
+        </button>
+      );
+    };
+
+    renderWithProviders(
+      <ChatView layouts={twoSlotLayouts}>
+        <Harness />
+      </ChatView>,
+    );
+    const rendersBefore = seen.length;
+    fireEvent.click(screen.getByText('open-primary'));
+
+    expect(seen.length).toBeGreaterThan(rendersBefore);
+    expect(new Set(seen).size).toBe(1);
+  });
+
+  it('resolves the slot of a thread in the view switched to just before', () => {
+    const thread = makeThread('thread-1');
+    let capturedController: LayoutController | undefined;
+
+    const Harness = () => {
+      const { open, openView } = useChatViewNavigation();
+      capturedController = useChatViewContext().layoutController;
+      return (
+        <>
+          <button
+            onClick={() =>
+              open({ key: primaryChannel.cid, kind: 'channel', source: primaryChannel })
+            }
+            type='button'
+          >
+            open-primary
+          </button>
+          <button
+            onClick={() => {
+              openView('threads');
+              open({ key: thread.id, kind: 'thread', source: thread });
+            }}
+            type='button'
+          >
+            open-thread-in-threads-view
+          </button>
+        </>
+      );
+    };
+
+    renderWithProviders(
+      <ChatView
+        layouts={[
+          { id: 'channels', slots: ['slot1', 'slot2'] },
+          { id: 'threads', slots: ['slot1', 'slot2'] },
+        ]}
+      >
+        <Harness />
+      </ChatView>,
+    );
+    // The channels view's first slot is taken; the threads view is empty.
+    fireEvent.click(screen.getByText('open-primary'));
+
+    fireEvent.click(screen.getByText('open-thread-in-threads-view'));
+
+    // The thread takes the threads view's first free slot, not the one free in the channels view.
+    const state = capturedController?.state.getLatestValue();
+    const threadsView = state && getLayoutViewState(state, 'threads');
+    expect(state?.activeView).toBe('threads');
+    expect(getChatViewEntityBinding(threadsView?.slotBindings.slot1)?.source).toBe(
+      thread,
+    );
+  });
+
+  it('acts on the latest layout in calls made one after another', () => {
+    let capturedController: LayoutController | undefined;
+
+    const Harness = () => {
+      // Destructured: the methods do not depend on being called on the object.
+      const { close, open, pushLayer } = useChatViewNavigation();
+      capturedController = useChatViewContext().layoutController;
+      return (
+        <>
+          <button
+            onClick={() =>
+              open({ key: primaryChannel.cid, kind: 'channel', source: primaryChannel })
+            }
+            type='button'
+          >
+            open-primary
+          </button>
+          <button
+            onClick={() => {
+              pushLayer('slot1', profile);
+              close('slot1');
+            }}
+            type='button'
+          >
+            push-and-close-profile
+          </button>
+        </>
+      );
+    };
+
+    renderWithProviders(
+      <ChatView layouts={twoSlotLayouts}>
+        <Harness />
+      </ChatView>,
+    );
+    fireEvent.click(screen.getByText('open-primary'));
+
+    fireEvent.click(screen.getByText('push-and-close-profile'));
+
+    // `close` pops the profile pushed just before it instead of releasing the channel beneath.
+    const state = viewState(capturedController);
+    expect(getChatViewEntityBinding(state?.slotBindings.slot1)?.source).toBe(
+      primaryChannel,
+    );
+    expect(state?.slotLayers?.slot1 ?? []).toHaveLength(0);
+  });
+});
+
+// An exclusive open leaves the opened entity as the only content of its view, apart from the
+// nav-rail list. The workspace navigation makes a list or search selection exclusive unless it opens
+// beside the current content.
+describe('exclusive opens', () => {
+  const listChannel = makeChannel('messaging:primary');
+  const besideChannel = makeChannel('messaging:beside');
+  const otherChannel = makeChannel('messaging:other');
+  const thread = makeThread('thread-1');
+  const profile = {
+    key: 'user-1',
+    kind: 'userProfile' as const,
+    source: { userId: 'user-1' },
+  };
+  const channelBinding = (channel: StreamChannel) => ({
+    key: channel.cid,
+    kind: 'channel' as const,
+    source: channel,
+  });
+  let capturedController: LayoutController | undefined;
+  let navigation: ReturnType<typeof useChatViewNavigation>;
+  let workspaceNavigation: ReturnType<typeof useWorkspaceNavigation>;
+
+  const Harness = () => {
+    navigation = useChatViewNavigation();
+    workspaceNavigation = useWorkspaceNavigation();
+    capturedController = useChatViewContext().layoutController;
+    return null;
+  };
+
+  // A list in `nav`, a channel in `slot1` with a profile over it, and a thread over another
+  // channel in `slot2`.
+  const renderFullLayout = () => {
+    renderWithProviders(
+      <ChatView layouts={[{ id: 'channels', slots: ['nav', 'slot1', 'slot2'] }]}>
+        <Harness />
+      </ChatView>,
+    );
+    act(() => {
+      capturedController?.bind(
+        'nav',
+        createChatViewSlotBinding({ key: 'list', kind: 'channelList', source: {} }),
+      );
+      navigation.open(channelBinding(listChannel));
+      navigation.open(channelBinding(besideChannel), { slot: 'slot2' });
+      navigation.pushLayer('slot2', { key: thread.id, kind: 'thread', source: thread });
+      navigation.pushLayer('slot1', profile);
+    });
+    const state = viewState(capturedController);
+    expect(getChatViewEntityBinding(state?.slotBindings.slot2)?.source).toBe(
+      besideChannel,
+    );
+    expect(state?.slotLayers?.slot1).toHaveLength(1);
+    expect(state?.slotLayers?.slot2).toHaveLength(1);
+  };
+
+  const expectOnly = (channel: StreamChannel) => {
+    const state = viewState(capturedController);
+    expect(getChatViewEntityBinding(state?.slotBindings.slot1)?.source).toBe(channel);
+    expect(state?.slotLayers?.slot1 ?? []).toHaveLength(0);
+    expect(state?.slotBindings.slot2).toBeUndefined();
+    expect(state?.slotLayers?.slot2 ?? []).toHaveLength(0);
+    expect(getChatViewEntityBinding(state?.slotBindings.nav)?.kind).toBe('channelList');
+  };
+
+  const expectBesideKept = () => {
+    expect(
+      getChatViewEntityBinding(viewState(capturedController)?.slotBindings.slot2)?.source,
+    ).toBe(besideChannel);
+  };
+
+  it('shows only the opened channel, keeping the list', () => {
+    renderFullLayout();
+
+    act(() => {
+      navigation.open(channelBinding(otherChannel), { exclusive: true });
+    });
+
+    expectOnly(otherChannel);
+  });
+
+  it('closes the rest when the channel shown is selected again', () => {
+    renderFullLayout();
+
+    act(() => {
+      navigation.open(channelBinding(listChannel), { exclusive: true });
+    });
+
+    expectOnly(listChannel);
+  });
+
+  it('shows an entity of any kind alone in the primary slot', () => {
+    renderFullLayout();
+
+    act(() => {
+      navigation.open(
+        { key: 'details', kind: 'custom', source: { title: 'Details' } },
+        { exclusive: true },
+      );
+    });
+
+    const state = viewState(capturedController);
+    expect(getChatViewEntityBinding(state?.slotBindings.slot1)?.key).toBe('details');
+    expect(state?.slotLayers?.slot1 ?? []).toHaveLength(0);
+    expect(state?.slotBindings.slot2).toBeUndefined();
+    expect(state?.slotLayers?.slot2 ?? []).toHaveLength(0);
+    expect(getChatViewEntityBinding(state?.slotBindings.nav)?.kind).toBe('channelList');
+  });
+
+  it('releases custom content in another panel', () => {
+    renderFullLayout();
+    const details = { key: 'details', kind: 'custom' as const, source: {} };
+    act(() => {
+      navigation.release('slot2');
+      navigation.open(details, { slot: 'slot2' });
+    });
+    expect(viewState(capturedController)?.slotBindings.slot2).toBeDefined();
+
+    act(() => {
+      navigation.open(channelBinding(otherChannel), { exclusive: true });
+    });
+
+    expectOnly(otherChannel);
+  });
+
+  it('keeps custom content opened again under the same key', () => {
+    renderFullLayout();
+    const source = { title: 'Details' };
+    act(() => {
+      navigation.release('slot2');
+      navigation.open({ key: 'details', kind: 'custom', source }, { slot: 'slot2' });
+      navigation.open({ key: 'details', kind: 'custom', source }, { slot: 'slot2' });
+    });
+
+    const state = viewState(capturedController);
+    expect(getChatViewEntityBinding(state?.slotBindings.slot2)?.source).toBe(source);
+    expect(state?.slotLayers?.slot2 ?? []).toHaveLength(0);
+  });
+
+  it('puts a thread in the primary slot, not in the slot holding threads', () => {
+    renderFullLayout();
+    act(() => {
+      navigation.release('slot2');
+      navigation.open(
+        { key: thread.id, kind: 'thread', source: thread },
+        { slot: 'slot2' },
+      );
+    });
+    const selected = makeThread('thread-2');
+
+    act(() => {
+      navigation.open(
+        { key: selected.id, kind: 'thread', source: selected },
+        { exclusive: true },
+      );
+    });
+
+    const state = viewState(capturedController);
+    expect(getChatViewEntityBinding(state?.slotBindings.slot1)?.source).toBe(selected);
+    expect(state?.slotBindings.slot2).toBeUndefined();
+  });
+
+  it('opens into `slot` when set, emptying the others', () => {
+    renderFullLayout();
+
+    act(() => {
+      navigation.open(channelBinding(otherChannel), { exclusive: true, slot: 'slot2' });
+    });
+
+    const state = viewState(capturedController);
+    expect(getChatViewEntityBinding(state?.slotBindings.slot2)?.source).toBe(
+      otherChannel,
+    );
+    expect(state?.slotLayers?.slot2 ?? []).toHaveLength(0);
+    expect(state?.slotBindings.slot1).toBeUndefined();
+    expect(getChatViewEntityBinding(state?.slotBindings.nav)?.kind).toBe('channelList');
+  });
+
+  it('takes a new instance of the entity shown in place', () => {
+    renderFullLayout();
+    const reloaded = makeChannel('messaging:primary');
+
+    act(() => {
+      navigation.open(channelBinding(reloaded), { exclusive: true });
+    });
+
+    expectOnly(reloaded);
+  });
+
+  it('is ignored with additive', () => {
+    renderFullLayout();
+
+    act(() => {
+      navigation.open(channelBinding(otherChannel), { additive: true, exclusive: true });
+    });
+
+    expectBesideKept();
+  });
+
+  describe('from the workspace navigation', () => {
+    const clickEvent = {
+      ctrlKey: false,
+      metaKey: false,
+    } as unknown as React.MouseEvent;
+
+    it('shows a channel selected from a list alone', () => {
+      renderFullLayout();
+
+      act(() => {
+        workspaceNavigation.openChannel(otherChannel, { event: clickEvent });
+      });
+
+      expectOnly(otherChannel);
+    });
+
+    it('shows a thread selected from a list alone', () => {
+      const makeThreadInstance = (id: string) =>
+        Object.assign(Object.create(StreamThreadClass.prototype), { id }) as StreamThread;
+      const [first, second, selected] = ['thread-a', 'thread-b', 'thread-c'].map(
+        makeThreadInstance,
+      );
+      const threadBinding = (target: StreamThread) => ({
+        key: target.id,
+        kind: 'thread' as const,
+        source: target,
+      });
+      renderWithProviders(
+        <ChatView layouts={[{ id: 'threads', slots: ['nav', 'slot1', 'slot2'] }]}>
+          <Harness />
+        </ChatView>,
+      );
+      act(() => {
+        navigation.openView('threads');
+        capturedController?.bind(
+          'nav',
+          createChatViewSlotBinding({ key: 'list', kind: 'threadList', source: {} }),
+        );
+        navigation.open(threadBinding(first));
+        navigation.open(threadBinding(second), { slot: 'slot2' });
+      });
+      expect(viewState(capturedController)?.slotBindings.slot2).toBeDefined();
+
+      act(() => {
+        workspaceNavigation.openThread(selected, { event: clickEvent });
+      });
+
+      const state = viewState(capturedController);
+      expect(getChatViewEntityBinding(state?.slotBindings.slot1)?.source).toBe(selected);
+      expect(state?.slotBindings.slot2).toBeUndefined();
+      expect(getChatViewEntityBinding(state?.slotBindings.nav)?.kind).toBe('threadList');
+    });
+
+    it('keeps the other panels for a selection opened beside', () => {
+      renderFullLayout();
+
+      act(() => {
+        workspaceNavigation.openChannel(otherChannel, {
+          additive: true,
+          event: clickEvent,
+        });
+      });
+
+      expectBesideKept();
+    });
+
+    it('keeps the other panels for an open without an event', () => {
+      renderFullLayout();
+
+      act(() => {
+        workspaceNavigation.openChannel(otherChannel);
+      });
+
+      expectBesideKept();
+    });
+
+    it('keeps the other panels when the caller passes exclusive: false', () => {
+      renderFullLayout();
+
+      act(() => {
+        workspaceNavigation.openChannel(otherChannel, {
+          event: clickEvent,
+          exclusive: false,
+        });
+      });
+
+      expectBesideKept();
+    });
   });
 });

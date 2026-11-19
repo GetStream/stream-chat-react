@@ -206,8 +206,9 @@ export const ThreadListItemUI = ({
         })}
         data-thread-id={thread.id}
         onClick={(event) => {
-          // ⌘/ctrl-click opens the thread beside the current one; a plain click replaces it.
-          void openThread(thread, { additive: event.ctrlKey || event.metaKey });
+          // ⌘/ctrl-click opens the thread beside the current one. The event is forwarded so the
+          // navigation can tell a list selection from other opens.
+          void openThread(thread, { additive: event.ctrlKey || event.metaKey, event });
           // Delayed by the registry so the announcement lands after the thread composer's focus
           // announcement. Skipped when the row is already the active thread.
           if (!isSelected && channelDisplayTitle) {

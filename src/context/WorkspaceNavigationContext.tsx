@@ -60,6 +60,17 @@ export type WorkspaceNavigationOptions = {
    */
   event?: WorkspaceNavigationTriggerEvent;
   /**
+   * Show this channel or thread on its own in the main panel, closing every other panel. Picking a
+   * conversation from a list is a fresh start, so it should not open next to whatever was there
+   * before. Ignored with `additive`.
+   *
+   * Left unset, the slot layout decides. A plain click in the channel list, thread list or search
+   * results (a call that carries `event`) shows the selection alone. A ⌘/ctrl-click (`additive`)
+   * or an open with no `event`, such as a message's reply count opening its thread, leaves the
+   * other panels as they are.
+   */
+  exclusive?: boolean;
+  /**
    * Open over the current content as a transient layer instead of replacing it; dismissing the
    * entity restores what was beneath. Ignored by layouts that do not support layering.
    */

@@ -34,7 +34,15 @@ export type ChatViewEntityBinding =
   | { key?: string; kind: 'userList'; source: UserListEntitySource }
   | { key?: string; kind: 'searchResults'; source: SearchResultsEntitySource }
   | { key?: string; kind: 'pinnedMessagesList'; source: StreamChannel }
-  | { key?: string; kind: 'userProfile'; source: UserProfileEntitySource };
+  | { key?: string; kind: 'userProfile'; source: UserProfileEntitySource }
+  /**
+   * App-defined content, such as a details panel. `key` names it, so opening it again finds it
+   * where it is, and `source` holds whatever the app renders it from. The SDK renders nothing for
+   * it: read it with `useSlotEntity({ kind: 'custom' })`, or render it with
+   * `slotRenderers.custom`. It belongs to no view and is not persistent, so navigation opens,
+   * closes and releases it like any other panel.
+   */
+  | { key: string; kind: 'custom'; source: unknown };
 
 export type ChatViewEntityKind = ChatViewEntityBinding['kind'];
 
