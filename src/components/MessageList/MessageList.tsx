@@ -371,7 +371,7 @@ const MessageListWithContext = (props: MessageListWithContextProps) => {
             // The list element is the scroll container: this wrapper only while it holds the
             // empty state, otherwise the paginator below. Scrolling the wrapper to the bottom
             // would move the paginator out of view.
-            ref={showEmptyStateIndicator ? setListElement : undefined}
+            ref={showEmptyListIndicator ? setListElement : undefined}
             tabIndex={0}
           >
             {showEmptyListIndicator ? (
