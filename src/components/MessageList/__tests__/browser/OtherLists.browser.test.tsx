@@ -131,6 +131,29 @@ describe('other virtualized lists in a real browser', () => {
       box.top - 1,
     );
     expect(focused.bottom).toBeLessThanOrEqual(box.bottom + 1);
+
+    // End and Home jump past the rendered window: the focused row unmounts before the target row
+    // renders, and focus must stay in the list (on the scroller) meanwhile, never falling to <body>.
+    const focusedThreadId = () =>
+      (document.activeElement as HTMLElement | null)
+        ?.closest('[data-thread-id]')
+        ?.getAttribute('data-thread-id');
+    let framesFocusOutsideList = 0;
+    const pressAndReach = async (key: string, index: number) => {
+      await userEvent.keyboard(key);
+      for (let frames = 0; frames < 240; frames += 1) {
+        if (focusedThreadId() === threads[index].id) return;
+        if (!scroller!.contains(document.activeElement)) framesFocusOutsideList += 1;
+        await nextFrame();
+      }
+      throw new Error(`${key}: focus never reached thread ${index}`);
+    };
+    await pressAndReach('{End}', threads.length - 1);
+    await settle(frame);
+    await pressAndReach('{Home}', 0);
+    await settle(frame);
+    expect(framesFocusOutsideList, 'frames with focus outside the list').toBe(0);
+
     await writeTrace('B-15-thread-list-keyboard', frame, {
       toTailCalls: toTail.mock.calls.length,
     });
