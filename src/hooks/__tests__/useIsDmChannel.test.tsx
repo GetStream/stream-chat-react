@@ -78,4 +78,34 @@ describe('useIsDmChannel', () => {
 
     expect(result.current).toBe(true);
   });
+
+  it('reads the given channel without a channel provider', () => {
+    const client = fromPartial<StreamChat>({ user: { id: 'user-1' } });
+    const { channel } = makeChannel(1);
+    const wrapper = ({ children }: React.PropsWithChildren) => (
+      <ChatProvider value={mockChatContext({ client })}>{children}</ChatProvider>
+    );
+
+    const { result } = renderHook(() => useIsDmChannel({ channel }), { wrapper });
+
+    expect(result.current).toBe(true);
+  });
+
+  it('reads the given channel instead of the context channel', () => {
+    const client = fromPartial<StreamChat>({ user: { id: 'user-1' } });
+    const wrapper = ({ children }: React.PropsWithChildren) => (
+      <ChatProvider value={mockChatContext({ client })}>
+        <ChannelInstanceProvider value={{ channel: makeChannel(3).channel }}>
+          {children}
+        </ChannelInstanceProvider>
+      </ChatProvider>
+    );
+
+    const { result } = renderHook(
+      () => useIsDmChannel({ channel: makeChannel(1).channel }),
+      { wrapper },
+    );
+
+    expect(result.current).toBe(true);
+  });
 });

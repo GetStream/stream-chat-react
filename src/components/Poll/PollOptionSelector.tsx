@@ -68,7 +68,7 @@ export const PollOptionSelector = ({
 }: PollOptionSelectorProps) => {
   const channel = useChannel();
   const { t } = useTranslationContext();
-  const channelCapabilities = useChannelCapabilities({ cid: channel.cid });
+  const channelCapabilities = useChannelCapabilities({ channel });
   const { message } = useMessageContext();
   const translate = usePollTextTranslation();
   const {
