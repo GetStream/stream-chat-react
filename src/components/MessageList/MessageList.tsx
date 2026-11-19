@@ -28,8 +28,7 @@ import { useChatContext } from '../../context/ChatContext';
 import { useComponentContext } from '../../context/ComponentContext';
 import { MessageListContextProvider } from '../../context/MessageListContext';
 import { MessageTranslationViewProvider } from '../../context/MessageTranslationViewContext';
-import { EmptyStateIndicator as DefaultEmptyStateIndicator } from '../EmptyStateIndicator';
-import { LoadingIndicator as DefaultLoadingIndicator } from '../Loading';
+import { MessageListEmptyUI, MessageListLoadingNextPageUI } from './ListStates';
 import { TypingIndicator as DefaultTypingIndicator } from '../TypingIndicator';
 import { MessageListMainPanel as DefaultMessageListMainPanel } from './MessageListMainPanel';
 
@@ -43,9 +42,11 @@ import { useThreadHead } from './hooks/useThreadHead';
 import type {
   MessageFocusSignalState,
   MessagePaginatorState,
+  PaginationDirection,
   TimestampNS,
   UnreadSnapshotState,
 } from 'stream-chat';
+import type { ListEdge } from '../ListStates';
 import type { GetGroupStyles, ProcessMessagesParams } from './utils';
 import type { MessageProps } from '../Message/types';
 
@@ -60,9 +61,17 @@ import { useCanPaginateReplies } from './hooks/useCanPaginateReplies';
 
 type MessageListWithContextProps = MessageListProps;
 
+/** The edge of the list where a page loads: older messages at the top, newer at the bottom. */
+const loadingEdgeByDirection: Record<PaginationDirection, ListEdge> = {
+  headward: 'bottom',
+  tailward: 'top',
+};
+
 const messagePaginatorStateSelector = (state: MessagePaginatorState) => ({
   hasMoreNewer: state.hasMoreHead,
   isLoading: state.isLoading,
+  // A jump to a message, a first page or a reload loads at no edge.
+  loadingEdge: state.loadingDirection && loadingEdgeByDirection[state.loadingDirection],
   messages: state.items ?? [],
 });
 
@@ -123,9 +132,6 @@ const MessageListWithContext = (props: MessageListWithContextProps) => {
   const threadHead = useThreadHead(messageProps);
   const thread = useThreadContext();
   const isThreadList = !!thread;
-  const [isLoadingOlder, setIsLoadingOlder] = React.useState(false);
-  const suppressAutoscroll = suppressAutoscrollFromProps || isLoadingOlder;
-  const loadingOlderRef = React.useRef(false);
 
   const [listElement, setListElement] = React.useState<HTMLDivElement | null>(null);
   // The paginator is the list element, and also reaches a `ref` passed in
@@ -142,8 +148,6 @@ const MessageListWithContext = (props: MessageListWithContextProps) => {
   const { customClasses } = useChatContext();
 
   const {
-    EmptyStateIndicator = DefaultEmptyStateIndicator,
-    LoadingIndicator = DefaultLoadingIndicator,
     MessageListWrapper = 'ul',
     NewMessageNotification = DefaultNewMessageNotification,
     ScrollToLatestMessageButton = DefaultScrollToLatestMessageButton,
@@ -152,9 +156,19 @@ const MessageListWithContext = (props: MessageListWithContextProps) => {
   } = useComponentContext();
   const messagePaginator = useMessagePaginator();
 
-  const { hasMoreNewer, isLoading, messages } = useStateStore(
+  const { hasMoreNewer, isLoading, loadingEdge, messages } = useStateStore(
     messagePaginator.state,
     messagePaginatorStateSelector,
+  );
+  const isLoadingOlder = loadingEdge === 'top';
+  const suppressAutoscroll = suppressAutoscrollFromProps || isLoadingOlder;
+  const loadOlderMessages = React.useCallback(
+    () => messagePaginator.toTail(),
+    [messagePaginator],
+  );
+  const loadNewerMessages = React.useCallback(
+    () => messagePaginator.toHead(),
+    [messagePaginator],
   );
 
   const channelUnreadUiState = useStateStore(
@@ -238,26 +252,6 @@ const MessageListWithContext = (props: MessageListWithContextProps) => {
   // Stops a short thread from paging at both ends as soon as the scroller mounts.
   const canPaginateReplies = useCanPaginateReplies();
 
-  const loadOlderMessages = React.useCallback(async () => {
-    // Mirrors the paginator's gate for a tailward page, so `isLoadingOlder` (the older-page
-    // indicator) is not raised while another load holds `isLoading` and `toTail()` would not query.
-    if (
-      loadingOlderRef.current ||
-      messagePaginator.isLoading ||
-      !messagePaginator.hasMoreTail
-    ) {
-      return;
-    }
-    loadingOlderRef.current = true;
-    setIsLoadingOlder(true);
-    try {
-      await messagePaginator.toTail();
-    } finally {
-      loadingOlderRef.current = false;
-      setIsLoadingOlder(false);
-    }
-  }, [messagePaginator]);
-
   const scrollToBottomFromNotification = React.useCallback(() => {
     if (messagePaginator.hasMoreHead) {
       // The latest page is not loaded: load it, and the message-focus signal then drives the
@@ -332,7 +326,11 @@ const MessageListWithContext = (props: MessageListWithContextProps) => {
 
   const id = useStableId();
 
-  const showEmptyStateIndicator = elements.length === 0 && !isThreadList;
+  // A channel's list shows its empty state while it renders no messages; hidden ones
+  // (`hideDeletedMessages`) count as none. A thread's list always shows its parent message, so it is
+  // never an empty view.
+  const showEmptyListIndicator = !isThreadList && elements.length === 0;
+
   const dialogManagerId = isThreadList
     ? `message-list-dialog-manager-thread-${id}`
     : `message-list-dialog-manager-${id}`;
@@ -373,18 +371,18 @@ const MessageListWithContext = (props: MessageListWithContextProps) => {
             // The list element is the scroll container: this wrapper only while it holds the
             // empty state, otherwise the paginator below. Scrolling the wrapper to the bottom
             // would move the paginator out of view.
-            ref={showEmptyStateIndicator ? setListElement : undefined}
+            ref={showEmptyListIndicator ? setListElement : undefined}
             tabIndex={0}
           >
-            {showEmptyStateIndicator ? (
-              <EmptyStateIndicator listType={isThreadList ? 'thread' : 'message'} />
+            {showEmptyListIndicator ? (
+              <MessageListEmptyUI />
             ) : (
               <InfiniteScrollPaginator
                 className='str-chat__message-list-scroll'
                 data-testid='reverse-infinite-scroll'
                 element={internalListElement}
                 loadNextOnScrollToBottom={
-                  canPaginateReplies ? messagePaginator.toHead : undefined
+                  canPaginateReplies ? loadNewerMessages : undefined
                 }
                 loadNextOnScrollToTop={canPaginateReplies ? loadOlderMessages : undefined}
                 onScroll={onScroll}
@@ -394,13 +392,22 @@ const MessageListWithContext = (props: MessageListWithContextProps) => {
               >
                 {threadHead}
                 {isLoading && (
-                  <div className='str-chat__list__loading' key='loading-indicator'>
-                    {(props.loadingMore ?? isLoadingOlder) && <LoadingIndicator />}
-                  </div>
+                  <MessageListLoadingNextPageUI
+                    isLoading={props.loadingMore ?? isLoadingOlder}
+                    key='loading-indicator'
+                    position='top'
+                  />
                 )}
                 <MessageListWrapper className='str-chat__ul'>
                   {elements}
                 </MessageListWrapper>
+                {loadingEdge === 'bottom' && (
+                  <MessageListLoadingNextPageUI
+                    isLoading
+                    key='loading-newer-indicator'
+                    position='bottom'
+                  />
+                )}
                 <TypingIndicator
                   isMessageListScrolledToBottom={isMessageListScrolledToBottom}
                   scrollToBottom={scrollToBottom}
@@ -471,8 +478,8 @@ export type MessageListProps = Partial<Pick<MessageProps, PropsDrilledToMessage>
   /** Overrides the default props passed to [InfiniteScrollPaginator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/InfiniteScrollPaginator/InfiniteScrollPaginator.tsx) */
   internalInfiniteScrollProps?: InternalPaginatorProps;
   /**
-   * Whether to show the `LoadingIndicator` above the messages while the paginator is loading.
-   * Defaults to showing it while an older page loads.
+   * Whether the next-page indicator above the messages (`ListLoadingNextPageUI`) shows while
+   * the paginator is loading. Defaults to `true` while an older page loads.
    */
   loadingMore?: boolean;
   /** Maximum time (ms) between two messages for them to stay in the same group. */

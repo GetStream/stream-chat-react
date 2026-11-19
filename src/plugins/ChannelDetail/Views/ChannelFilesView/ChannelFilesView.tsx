@@ -14,8 +14,13 @@ import {
   type SectionNavigatorSectionContentProps,
 } from '../../SectionNavigator';
 import { useChannelDetailContext } from '../../ChannelDetailContext';
-import { ChannelDetailListLoadingIndicator } from '../../ChannelDetailListLoadingIndicator';
-import { ChannelFilesEmptyList } from './ChannelFilesEmptyList';
+import { ChannelFilesEmpty } from './ListStates';
+import {
+  ChannelDetailListLoadErrorUI,
+  ChannelDetailListLoadingNextPageUI,
+} from '../../ListStates';
+import { useChannelDetailEmptyPlaceholder } from '../../hooks/useChannelDetailEmptyPlaceholder';
+import { useChannelDetailFirstPageLoadRetry } from '../../hooks/useChannelDetailFirstPageLoadRetry';
 import type { ChannelFileItem } from './ChannelFilesView.utils';
 import { useChannelFilesSearch } from './useChannelFilesSearch';
 
@@ -129,6 +134,12 @@ export const ChannelFilesView: React.ComponentType<ChannelFilesViewProps> = () =
   const { close } = useChannelDetailContext();
   const { channelFilesSearchSource, fileItems, groupCounts, hasResultsLoaded, sections } =
     useChannelFilesSearch();
+  const firstPageLoadRetry = useChannelDetailFirstPageLoadRetry(
+    channelFilesSearchSource,
+    {
+      hasItemsToShow: fileItems.length > 0,
+    },
+  );
 
   const groupContent = useCallback(
     (groupIndex: number) => (
@@ -152,19 +163,17 @@ export const ChannelFilesView: React.ComponentType<ChannelFilesViewProps> = () =
     [channelFilesSearchSource],
   );
 
-  const EmptyPlaceholder = useMemo(
-    () =>
-      function ChannelFilesEmptyPlaceholder() {
-        return hasResultsLoaded ? <ChannelFilesEmptyList /> : null;
-      },
-    [hasResultsLoaded],
+  // The empty state shows once the first page has loaded, also while a later query runs.
+  const EmptyPlaceholder = useChannelDetailEmptyPlaceholder(
+    ChannelFilesEmpty,
+    hasResultsLoaded,
   );
 
   const Footer = useMemo(
     () =>
       function ChannelFilesListFooter() {
         return (
-          <ChannelDetailListLoadingIndicator searchSource={channelFilesSearchSource} />
+          <ChannelDetailListLoadingNextPageUI searchSource={channelFilesSearchSource} />
         );
       },
     [channelFilesSearchSource],
@@ -187,14 +196,22 @@ export const ChannelFilesView: React.ComponentType<ChannelFilesViewProps> = () =
         title={t('channelDetail.channelFilesView.files.title', 'Files')}
       />
       <Prompt.Body className='str-chat__channel-detail__files-view__body'>
-        <GroupedVirtuoso
-          atBottomStateChange={atBottomStateChange}
-          className='str-chat__virtualized-list str-chat__channel-detail__files-view__list'
-          components={components}
-          groupContent={groupContent}
-          groupCounts={groupCounts}
-          itemContent={itemContent}
-        />
+        {firstPageLoadRetry.error ? (
+          <ChannelDetailListLoadErrorUI
+            error={firstPageLoadRetry.error}
+            isRetrying={firstPageLoadRetry.isRetrying}
+            retry={firstPageLoadRetry.retry}
+          />
+        ) : (
+          <GroupedVirtuoso
+            atBottomStateChange={atBottomStateChange}
+            className='str-chat__virtualized-list str-chat__channel-detail__files-view__list'
+            components={components}
+            groupContent={groupContent}
+            groupCounts={groupCounts}
+            itemContent={itemContent}
+          />
+        )}
       </Prompt.Body>
     </div>
   );

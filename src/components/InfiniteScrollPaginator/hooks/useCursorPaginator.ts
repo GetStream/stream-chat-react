@@ -38,8 +38,10 @@ export const useCursorPaginator = <T>(
 
     try {
       const { items, next } = await paginationFn(currentNext);
+      // A page that loads clears the error of a failed query before it.
       cursorPaginatorState.next((prev) => ({
         ...prev,
+        error: undefined,
         hasNextPage: !!next,
         items: uniqBy(prev.items.concat(items), 'id'),
         latestPageItems: items,

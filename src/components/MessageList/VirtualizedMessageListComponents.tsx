@@ -3,17 +3,14 @@ import throttle from 'lodash.throttle';
 import React from 'react';
 import type { ItemProps, ListItem } from 'react-virtuoso';
 
-import { EmptyStateIndicator as DefaultEmptyStateIndicator } from '../EmptyStateIndicator';
-import { LoadingIndicator as DefaultLoadingIndicator } from '../Loading';
+import { VirtualizedMessageListLoadingNextPageUI } from './ListStates';
 import { Message } from '../Message';
 
-import { useComponentContext } from '../../context';
 import type { GroupStyle, RenderedMessage } from './utils';
 import { getIsFirstUnreadMessage, isDateSeparatorMessage, isIntroMessage } from './utils';
 import { omitUndefinedProps } from './omitUndefinedProps';
 import type { VirtuosoContext } from './VirtualizedMessageList';
 import type { UnknownType } from '../../types/types';
-import { useThreadContext } from '../Threads';
 
 const PREPEND_OFFSET = 10 ** 7;
 
@@ -41,7 +38,7 @@ export const makeItemsRenderedHandler = (
     );
   }, 200);
 
-type CommonVirtuosoComponentProps = {
+export type CommonVirtuosoComponentProps = {
   context?: VirtuosoContext;
 };
 // `display: inline-block` traps the items' CSS margins, preventing incorrect item measurements.
@@ -68,40 +65,21 @@ export const Item = ({ context, ...props }: ItemProps & CommonVirtuosoComponentP
     />
   );
 };
-export const Header = ({ context }: CommonVirtuosoComponentProps) => {
-  const { LoadingIndicator = DefaultLoadingIndicator } = useComponentContext();
+/** Above the messages: the thread's parent message and the older-page indicator. */
+export const Header = ({ context }: CommonVirtuosoComponentProps) => (
+  <>
+    {context?.head}
+    {context?.loadingEdge === 'top' && (
+      <VirtualizedMessageListLoadingNextPageUI position='top' />
+    )}
+  </>
+);
 
-  return (
-    <>
-      {context?.head}
-      {context?.loadingMore && LoadingIndicator && (
-        <div className='str-chat__virtual-list__loading'>
-          <LoadingIndicator />
-        </div>
-      )}
-    </>
-  );
-};
-export const EmptyPlaceholder = ({ context }: CommonVirtuosoComponentProps) => {
-  const thread = useThreadContext();
-  const isThreadList = !!thread;
-  const { EmptyStateIndicator = DefaultEmptyStateIndicator } = useComponentContext();
-  // Virtuoso can render the empty placeholder first even when `totalCount` > 0, so hide it while
-  // there are messages.
-  if (
-    typeof context?.processedMessages !== 'undefined' &&
-    context.processedMessages.length > 0
-  )
-    return null;
-
-  return (
-    <>
-      {EmptyStateIndicator && (
-        <EmptyStateIndicator listType={isThreadList ? 'thread' : 'message'} />
-      )}
-    </>
-  );
-};
+/** Below the messages: the newer-page indicator. */
+export const Footer = ({ context }: CommonVirtuosoComponentProps) =>
+  context?.loadingEdge === 'bottom' ? (
+    <VirtualizedMessageListLoadingNextPageUI position='bottom' />
+  ) : null;
 
 export const messageRenderer = (
   virtuosoIndex: number,

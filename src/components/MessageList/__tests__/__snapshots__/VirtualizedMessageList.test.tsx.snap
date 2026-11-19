@@ -50,6 +50,7 @@ exports[`VirtualizedMessageList > should render the list without any message 1`]
                 Send a message to start the conversation
               </p>
             </div>
+            <div />
           </div>
         </div>
       </div>
