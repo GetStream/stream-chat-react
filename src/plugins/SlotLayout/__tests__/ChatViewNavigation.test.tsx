@@ -2389,6 +2389,62 @@ describe('the navigation object', () => {
     expect(new Set(seen).size).toBe(1);
   });
 
+  it('makes a declared slot available for an exclusive open into it', () => {
+    let capturedController: LayoutController | undefined;
+    let navigation: ReturnType<typeof useChatViewNavigation> | undefined;
+    const Harness = () => {
+      navigation = useChatViewNavigation();
+      capturedController = useChatViewContext().layoutController;
+      return null;
+    };
+    renderWithProviders(
+      <ChatView layouts={twoSlotLayouts}>
+        <Harness />
+      </ChatView>,
+    );
+    // The layout declares two slots and makes only the first available.
+    act(() => {
+      capturedController?.setSlotNames(['slot1', 'slot2']);
+      capturedController?.setAvailableSlots(['slot1']);
+    });
+    expect(viewState(capturedController)?.availableSlots).toEqual(['slot1']);
+
+    act(() => {
+      navigation?.open(profile, { exclusive: true, slot: 'slot2' });
+    });
+
+    const state = viewState(capturedController);
+    expect(state?.availableSlots).toEqual(['slot1', 'slot2']);
+    expect(getChatViewEntityBinding(state?.slotBindings.slot2)?.key).toBe(profile.key);
+  });
+
+  it('ignores a requested slot the layout does not declare', () => {
+    let capturedController: LayoutController | undefined;
+    let navigation: ReturnType<typeof useChatViewNavigation> | undefined;
+    const Harness = () => {
+      navigation = useChatViewNavigation();
+      capturedController = useChatViewContext().layoutController;
+      return null;
+    };
+    renderWithProviders(
+      <ChatView layouts={twoSlotLayouts}>
+        <Harness />
+      </ChatView>,
+    );
+
+    act(() => {
+      navigation?.open(profile, { exclusive: true, slot: 'elsewhere' });
+    });
+
+    const state = viewState(capturedController);
+    expect(state?.availableSlots).not.toContain('elsewhere');
+    expect(
+      Object.values(state?.slotBindings ?? {}).map(
+        (binding) => getChatViewEntityBinding(binding)?.key,
+      ),
+    ).toContain(profile.key);
+  });
+
   it('resolves the slot of a thread in the view switched to just before', () => {
     const thread = makeThread('thread-1');
     let capturedController: LayoutController | undefined;
