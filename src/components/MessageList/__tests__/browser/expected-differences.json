@@ -53,28 +53,28 @@
       "reason": "v2 sometimes opens this 30-message channel at its top instead of its end (initialTopMostItemIndex `align: 'end'` loses a race with v2's initial scroll; it varies between runs); v4 opens it at the bottom, so every later step starts from a different place."
     },
     {
-      "scenario": "F-1001",
-      "checkpoint": "15 scroll to bottom",
-      "field": "itemsRendered|rendered|firstVisible|requests",
-      "reason": "At the bottom of an older window: v2 reaches the bottom in this step and loads the next newer page at once; v4 ends this step 352px short (the revealed messages measure taller) and loads the same page in the next step. Same request, one step apart."
-    },
-    {
-      "scenario": "F-1013",
-      "checkpoint": "27 scroll to bottom",
-      "field": "itemsRendered|rendered|firstVisible|requests",
-      "reason": "At the bottom of an older window, as in F-1001: v2 reports at-bottom in this step and loads the next newer page at once; on v4 the revealed messages re-measure (the list shrinks from 7072 to 6936px), it ends this step 204px short and loads nothing, and the next step jumps to the latest messages."
-    },
-    {
-      "scenario": "F-1021",
-      "checkpoint": "17 scroll to bottom",
-      "field": "events|state\\.atBottomStateChange|itemsRendered|geometry\\.atBottom|rendered|firstVisible|requests",
-      "reason": "At the bottom of an older window, as in F-1001: the revealed messages re-measure and the list shrinks; v2 still reaches the bottom and loads the next newer page (then follows the new messages to the end), v4 ends this step 328px short (6536px list) and loads nothing."
-    },
-    {
       "scenario": "F-1024",
       "checkpoint": "7 scroll by",
       "field": "requests",
       "reason": "Scrolling up to the top of the window: in some runs v2 stops about 175px short of the top (scrolling into messages not measured yet, as in B-20) and loads no older page; v4 reaches the top and loads it. Varies between runs, also without the focus-signal fix (1 in 3), so the entry is stale in runs where the two agree."
+    },
+    {
+      "scenario": "B-31-jump-overlapping-window",
+      "checkpoint": "jump to the message above the page",
+      "field": "state\\.atBottomStateChange|itemsRendered|geometry\\.atBottom|rendered|firstVisible|remounted|frames\\.framesUntilVisible|frames\\.finalDistanceFromBottom",
+      "reason": "The jump remounts the list (a page overlapping the loaded one). v2 loses it to its remount race (see B-08): the remounted list reports itself at the bottom, loads the next newer page and stays at the latest messages. v4 keeps the list hidden while it positions it (19 frames here) and opens it on the jumped-to message, with no blank frame (v2 shows one)."
+    },
+    {
+      "scenario": "F-.*",
+      "checkpoint": "\\d+ jump to a message",
+      "field": "requests|itemsRendered|rendered|firstVisible|state\\.atBottomStateChange|geometry\\.atBottom|events",
+      "reason": "In some runs v2 loses a jump to its remount race (see B-08, B-31): the remounted list reports itself at the bottom and loads the next newer page, ending elsewhere. v4 must land on the target (the fuzz step waits until it was viewed). Varies between runs, so the entry is stale in runs where v2 keeps its jumps."
+    },
+    {
+      "scenario": "F-1023",
+      "checkpoint": "16 jump to latest",
+      "field": "itemsRendered",
+      "reason": "Both runtimes end at the bottom with the same messages rendered (live-291 to live-293). v4's last itemsRendered report comes while it still positions the remounted list and lists only the last message; v2 reports all three."
     }
   ]
 }

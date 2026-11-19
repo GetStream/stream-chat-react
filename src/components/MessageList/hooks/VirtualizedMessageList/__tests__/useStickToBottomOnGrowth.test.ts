@@ -32,10 +32,10 @@ const flushFrame = () => new Promise((resolve) => requestAnimationFrame(resolve)
 
 const setup = (
   scroller: HTMLElement | Window | null,
-  { followNewItems = true, itemCount = 10, threshold = 50 } = {},
+  { followNewItems = true, itemCount = 10, listKey = 0, threshold = 50 } = {},
 ) =>
   renderHook((props) => useStickToBottomOnGrowth(props), {
-    initialProps: { followNewItems, itemCount, scroller, threshold },
+    initialProps: { followNewItems, itemCount, listKey, scroller, threshold },
   });
 
 describe('useStickToBottomOnGrowth', () => {
@@ -96,7 +96,13 @@ describe('useStickToBottomOnGrowth', () => {
     result.current(2300);
     await flushFrame();
     expect(scroller.scrollTop).toBe(2300);
-    rerender({ followNewItems: true, itemCount: 30, scroller, threshold: 50 });
+    rerender({
+      followNewItems: true,
+      itemCount: 30,
+      listKey: 0,
+      scroller,
+      threshold: 50,
+    });
     grow(1500);
     result.current(3800);
     await flushFrame();
@@ -114,6 +120,7 @@ describe('useStickToBottomOnGrowth', () => {
     rerender({
       followNewItems: false,
       itemCount: 11,
+      listKey: 0,
       scroller,
       threshold: 50,
     });
@@ -155,6 +162,7 @@ describe('useStickToBottomOnGrowth', () => {
     rerender({
       followNewItems: false,
       itemCount: 11,
+      listKey: 0,
       scroller,
       threshold: 50,
     });
@@ -176,6 +184,7 @@ describe('useStickToBottomOnGrowth', () => {
     rerender({
       followNewItems: false,
       itemCount: 11,
+      listKey: 0,
       scroller,
       threshold: 50,
     });
@@ -236,14 +245,22 @@ describe('useStickToBottomOnGrowth', () => {
   });
 
   describe('with new items not followed', () => {
+    type Props = {
+      followNewItems: boolean;
+      itemCount: number;
+      listKey: number;
+      scroller: HTMLElement | Window | null;
+      threshold: number;
+    };
     const arrive = (
-      rerender: (props: Parameters<typeof useStickToBottomOnGrowth>[0]) => void,
+      rerender: (props: Props) => void,
       scroller: HTMLElement,
       itemCount = 11,
     ) =>
       rerender({
         followNewItems: false,
         itemCount,
+        listKey: 0,
         scroller,
         threshold: 50,
       });
@@ -350,6 +367,28 @@ describe('useStickToBottomOnGrowth', () => {
     await flushFrame();
     expect(foreign.scrollTop).toBe(2300);
     iframe.remove();
+  });
+
+  it('starts over when the list is remounted (a jump), pinning nothing for the new list', async () => {
+    const { grow, scroller } = makeScroller();
+    const { rerender, result } = setup(scroller);
+    result.current(2000);
+    await flushFrame();
+    // The jump remounts the list, which positions itself on the target; its first heights must not
+    // pull it to the bottom because the previous list was there.
+    rerender({
+      followNewItems: true,
+      itemCount: 10,
+      listKey: 1,
+      scroller,
+      threshold: 50,
+    });
+    scroller.scrollTop = 600;
+    result.current(3000);
+    grow(400);
+    result.current(3400);
+    await flushFrame();
+    expect(scroller.scrollTop).toBe(600);
   });
 
   it('leaves a window scroller alone', () => {

@@ -453,11 +453,20 @@ const VirtualizedMessageListWithContext = (
   // measure taller; the page that loads is not followed. Neither are new messages with
   // `suppressAutoscroll`, nor with an integrator's `followOutput`: Virtuoso applies that one, and
   // the SDK cannot know what a callback would answer. A custom scroll parent is the integrator's.
+  // Whether Virtuoso keeps the item list hidden while it positions it, as the list reports it.
+  const listHiddenRef = useRef(false);
+  const { messageSetKey } = useMessageSetKey({
+    focusSignal: messageFocusSignal,
+    messages,
+  });
+
   const followOutputFromProps = additionalVirtuosoProps.followOutput;
   const stickToBottomOnGrowth = useStickToBottomOnGrowth({
     followNewItems:
       !hasMoreNewer && !suppressAutoscroll && followOutputFromProps === undefined,
     itemCount: processedMessages.length,
+    listHiddenRef,
+    listKey: messageSetKey,
     scroller: customScrollParent ? null : scrollerElement,
     threshold,
   });
@@ -520,11 +529,6 @@ const VirtualizedMessageListWithContext = (
     withDateSeparator,
   );
 
-  const { messageSetKey } = useMessageSetKey({
-    focusSignal: messageFocusSignal,
-    messages,
-  });
-
   const shouldForceScrollToBottom = useShouldForceScrollToBottom(
     processedMessages,
     client.userID,
@@ -572,8 +576,6 @@ const VirtualizedMessageListWithContext = (
   // wrong page: these run once the list is shown (see useAfterInitialLocation), against the edge
   // state Virtuoso reported last.
   const atTopRef = useRef(false);
-  // Whether Virtuoso keeps the item list hidden while it positions it, as the list reports it.
-  const listHiddenRef = useRef(false);
   const reportListHidden = useCallback((hidden: boolean) => {
     listHiddenRef.current = hidden;
   }, []);

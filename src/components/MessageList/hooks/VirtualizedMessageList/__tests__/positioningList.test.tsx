@@ -29,7 +29,11 @@ describe('makePositioningReportingList', () => {
     visibility?: 'hidden',
   ) => (
     <ListPositioningReporterContext.Provider value={report}>
-      <List data-testid='virtuoso-item-list' style={visibility ? { visibility } : {}}>
+      <List
+        context={undefined}
+        data-testid='virtuoso-item-list'
+        style={visibility ? { visibility } : {}}
+      >
         <div>item</div>
       </List>
     </ListPositioningReporterContext.Provider>
