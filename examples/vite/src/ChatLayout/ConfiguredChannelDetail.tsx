@@ -1,6 +1,12 @@
 import { type MouseEvent, useMemo } from 'react';
 import type { Channel as StreamChannel } from 'stream-chat';
-import { asDynamicKey, useChannel, useTranslationContext } from 'stream-chat-react';
+import {
+  asDynamicKey,
+  ChannelAvatar,
+  type ChannelAvatarProps,
+  useChannel,
+  useTranslationContext,
+} from 'stream-chat-react';
 import { useChatViewNavigation } from 'stream-chat-react/slot-layout';
 import {
   AvatarWithChannelDetail,
@@ -72,18 +78,14 @@ export type ChannelDetailSource = { channel: StreamChannel; type: 'channelDetail
 export const isChannelDetailSource = (source: unknown): source is ChannelDetailSource =>
   (source as ChannelDetailSource | undefined)?.type === 'channelDetail';
 
-/**
- * The header avatar that opens the channel's details: a plain click opens them in a modal, a
- * ⌘/ctrl-click beside the channel, in the secondary slot.
- */
-export const ConfiguredAvatarWithChannelDetail = (
-  props: AvatarWithChannelDetailProps,
-) => {
+// The avatar inside the header's channel-details button. A ⌘/ctrl-click on it opens the details
+// beside the channel, in the secondary slot; it is stopped here, so the button's own click handler,
+// which opens the details in a modal, runs only for a plain click. The modal renders outside the
+// avatar, so clicks inside it are not affected.
+const AvatarOpeningDetailBeside = (avatarProps: ChannelAvatarProps) => {
   const channel = useChannel();
   const { open } = useChatViewNavigation();
 
-  // Runs before the avatar's own click handler, which opens the modal, and stops it for a
-  // ⌘/ctrl-click.
   const openBeside = (event: MouseEvent) => {
     if (!event.metaKey && !event.ctrlKey) return;
     event.preventDefault();
@@ -97,7 +99,21 @@ export const ConfiguredAvatarWithChannelDetail = (
 
   return (
     <span onClickCapture={openBeside} style={{ display: 'contents' }}>
-      <AvatarWithChannelDetail {...props} ChannelDetail={ConfiguredChannelDetail} />
+      <ChannelAvatar {...avatarProps} />
     </span>
   );
 };
+
+/**
+ * The header avatar that opens the channel's details: a plain click opens them in a modal, a
+ * ⌘/ctrl-click beside the channel, in the secondary slot.
+ */
+export const ConfiguredAvatarWithChannelDetail = (
+  props: AvatarWithChannelDetailProps,
+) => (
+  <AvatarWithChannelDetail
+    {...props}
+    Avatar={AvatarOpeningDetailBeside}
+    ChannelDetail={ConfiguredChannelDetail}
+  />
+);

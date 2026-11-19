@@ -220,16 +220,24 @@ const SidePanelFrame = ({ body, ownHeader, title }: SidePanelContent) => {
     const container = panel?.parentElement;
     const coversChannels = window.matchMedia(COVERS_CHANNELS_QUERY);
     const update = () => setCoveredInert(container, panel, coversChannels.matches);
+    // When the window narrows until the panel covers the channel, focus left beside it would sit
+    // in inert content, so it moves into the panel, as on open. Focus already inside stays.
+    const onCoverChange = () => {
+      update();
+      if (coversChannels.matches && !panel?.contains(document.activeElement)) {
+        (ownHeader ? panel : headingRef.current)?.focus();
+      }
+    };
     const siblingsObserver = new MutationObserver(update);
     update();
-    coversChannels.addEventListener('change', update);
+    coversChannels.addEventListener('change', onCoverChange);
     if (container) siblingsObserver.observe(container, { childList: true });
     return () => {
-      coversChannels.removeEventListener('change', update);
+      coversChannels.removeEventListener('change', onCoverChange);
       siblingsObserver.disconnect();
       setCoveredInert(container, panel, false);
     };
-  }, [panelRef]);
+  }, [ownHeader, panelRef]);
 
   return (
     <aside

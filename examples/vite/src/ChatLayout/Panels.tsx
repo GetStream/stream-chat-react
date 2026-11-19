@@ -199,7 +199,11 @@ const ChannelThreadPanel = ({
   thread,
 }: {
   // Clicking an avatar/mention in the thread opens the member profile (see `openMemberDetail`).
-  onOpenMemberDetail: (userId: string | undefined, event: BaseSyntheticEvent) => void;
+  onOpenMemberDetail: (
+    userId: string | undefined,
+    event: BaseSyntheticEvent,
+    channel: StreamChannel,
+  ) => void;
   thread?: ThreadType;
 }) => {
   const isOpen = !!thread;
@@ -224,9 +228,15 @@ const ChannelThreadPanel = ({
           <ThreadHeader />
           <ThreadMessageList
             onMentionsClick={(event, message) =>
-              onOpenMemberDetail(getMentionedUserId(event, message), event)
+              onOpenMemberDetail(
+                getMentionedUserId(event, message),
+                event,
+                thread.channel,
+              )
             }
-            onUserClick={(event, user) => onOpenMemberDetail(user.id, event)}
+            onUserClick={(event, user) =>
+              onOpenMemberDetail(user.id, event, thread.channel)
+            }
           />
           <ConfigurableMessageComposer />
         </WithDragAndDropUpload>
@@ -535,8 +545,11 @@ const ResponsiveChannelPanels = ({ mainChannel }: { mainChannel?: StreamChannel 
     !!layerThread;
   const virtualized = useVirtualizedMessageList();
   const { close, open } = useChatViewNavigation();
-  // A member whose profile is open in a modal.
-  const [modalMemberId, setModalMemberId] = useState<string>();
+  // A member whose profile is open in a modal, with the channel the click came from.
+  const [modalMember, setModalMember] = useState<{
+    channel: StreamChannel;
+    userId: string;
+  }>();
 
   // Coverage-driven "reveal": when a navigation asked to reveal the channel (e.g. "Also sent in
   // channel → View" from the threads view — see AlsoSentInChannelIndicator), release the covering
@@ -556,10 +569,10 @@ const ResponsiveChannelPanels = ({ mainChannel }: { mainChannel?: StreamChannel 
   // There it's the `userProfile` kind, whose `{ userId }` source `ChannelMemberDetailOverlay`
   // resolves back to a channel member.
   const openMemberDetail = useCallback(
-    (userId: string | undefined, event: BaseSyntheticEvent) => {
+    (userId: string | undefined, event: BaseSyntheticEvent, channel: StreamChannel) => {
       if (!userId) return;
       if (!isOpenBesideClick(event)) {
-        setModalMemberId(userId);
+        setModalMember({ channel, userId });
         return;
       }
       open(
@@ -599,9 +612,15 @@ const ResponsiveChannelPanels = ({ mainChannel }: { mainChannel?: StreamChannel 
                   ) : (
                     <MessageList
                       onMentionsClick={(event, message) =>
-                        openMemberDetail(getMentionedUserId(event, message), event)
+                        openMemberDetail(
+                          getMentionedUserId(event, message),
+                          event,
+                          mainChannel,
+                        )
                       }
-                      onUserClick={(event, user) => openMemberDetail(user.id, event)}
+                      onUserClick={(event, user) =>
+                        openMemberDetail(user.id, event, mainChannel)
+                      }
                       returnAllReadData
                     />
                   )}
@@ -657,11 +676,11 @@ const ResponsiveChannelPanels = ({ mainChannel }: { mainChannel?: StreamChannel 
           the slot) covers it; its header's back reveals the channel beneath. */}
         {layerThread && <ChannelThreadOverlay thread={layerThread} />}
       </WorkspacePanelProvider>
-      {modalMemberId && mainChannel && (
+      {modalMember && (
         <ChannelMemberDetailModal
-          channel={mainChannel}
-          onClose={() => setModalMemberId(undefined)}
-          userId={modalMemberId}
+          channel={modalMember.channel}
+          onClose={() => setModalMember(undefined)}
+          userId={modalMember.userId}
         />
       )}
     </div>
