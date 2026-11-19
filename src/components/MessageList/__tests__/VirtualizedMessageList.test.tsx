@@ -20,11 +20,18 @@ import { VirtualizedMessageList } from '../VirtualizedMessageList';
 import { Chat } from '../../Chat';
 import { Channel } from '../../Channel';
 import { useComponentContext, WithComponents } from '../../../context';
+import { Thread as ThreadComponent } from '../../Thread';
 import { ThreadProvider } from '../../Threads';
 
 import { StateStore } from '@stream-io/state-store';
 import { fromPartial } from '@total-typescript/shoehorn';
-import type { LocalMessage, Thread, ThreadState } from 'stream-chat';
+import type {
+  LocalMessage,
+  Channel as StreamChannel,
+  StreamChat,
+  Thread,
+  ThreadState,
+} from 'stream-chat';
 import type { MessageProps } from '../../Message';
 import type { ComponentContextValue } from '../../../context';
 import type { VirtualizedMessageListProps } from '../VirtualizedMessageList';
@@ -796,6 +803,220 @@ describe('VirtualizedMessageList', () => {
       expect(scrollToIndexSpy).not.toHaveBeenCalledWith(
         expect.objectContaining({ align: 'center' }),
       );
+    });
+  });
+
+  describe('list states', () => {
+    const createDeferred = () => {
+      let resolve!: (value: void | PromiseLike<void>) => void;
+      const promise = new Promise<void>((res) => {
+        resolve = res;
+      });
+      return { promise, resolve };
+    };
+
+    const renderList = async (
+      channel: StreamChannel,
+      client: StreamChat,
+      overrides: Partial<ComponentContextValue> = {},
+      thread?: Thread,
+    ) => {
+      const list = (
+        <WithComponents overrides={overrides}>
+          <VirtualizedMessageList />
+        </WithComponents>
+      );
+      let result!: RenderResult;
+      await act(() => {
+        result = render(
+          <Chat client={client}>
+            <Channel channel={channel}>
+              {thread ? <ThreadComponent thread={thread}>{list}</ThreadComponent> : list}
+            </Channel>
+          </Chat>,
+        );
+      });
+      return result;
+    };
+
+    const lastVirtuosoProps = () => virtuosoProps[virtuosoProps.length - 1];
+
+    beforeEach(() => {
+      virtuosoProps.length = 0;
+    });
+
+    it('renders ListEmptyUI for an empty channel', async () => {
+      const { channel, client } = await createChannel(true);
+      const ListEmptyUI = vi.fn(() => <div data-testid='empty-list' />);
+
+      await renderList(channel, client, { ListEmptyUI });
+
+      expect(screen.getByTestId('empty-list')).toBeInTheDocument();
+      expect(ListEmptyUI).toHaveBeenCalledWith({}, undefined);
+    });
+
+    it('renders the deprecated EmptyStateIndicator instead of ListEmptyUI while set', async () => {
+      const { channel, client } = await createChannel(true);
+      const ListEmptyUI = vi.fn(() => null);
+      const EmptyStateIndicator = vi.fn(() => <div data-testid='deprecated-empty' />);
+
+      await renderList(channel, client, { EmptyStateIndicator, ListEmptyUI });
+
+      expect(screen.getByTestId('deprecated-empty')).toBeInTheDocument();
+      expect(EmptyStateIndicator).toHaveBeenCalledWith(
+        { listType: 'message' },
+        undefined,
+      );
+      expect(ListEmptyUI).not.toHaveBeenCalled();
+    });
+
+    it('renders no empty state while the deprecated EmptyStateIndicator is null', async () => {
+      const { channel, client } = await createChannel(true);
+      const ListEmptyUI = vi.fn(() => <div data-testid='empty-list' />);
+
+      await renderList(channel, client, {
+        // Apps turn the empty state off with `null`, which the key's type does not name.
+        EmptyStateIndicator: null as unknown as undefined,
+        ListEmptyUI,
+      });
+
+      expect(screen.queryByTestId('empty-list')).not.toBeInTheDocument();
+      expect(ListEmptyUI).not.toHaveBeenCalled();
+    });
+
+    it('keeps the empty state while a page loads into the empty list', async () => {
+      const { channel, client } = await createChannel(true);
+      const ListEmptyUI = vi.fn(() => <div data-testid='empty-list' />);
+      await renderList(channel, client, { ListEmptyUI });
+      expect(screen.getByTestId('empty-list')).toBeInTheDocument();
+
+      await act(() => {
+        channel.messagePaginator.state.partialNext({ isLoading: true });
+      });
+
+      expect(screen.getByTestId('empty-list')).toBeInTheDocument();
+    });
+
+    it('renders ListLoadingNextPageUI at the top while an older page loads', async () => {
+      const { channel, client } = await createChannel();
+      const ListLoadingNextPageUI = vi.fn(() => null);
+      const page = createDeferred();
+      const toTail = vi
+        .spyOn(channel.messagePaginator, 'toTail')
+        .mockImplementation(async () => {
+          channel.messagePaginator.state.partialNext({
+            isLoading: true,
+            loadingDirection: 'tailward',
+          });
+          await page.promise;
+          channel.messagePaginator.state.partialNext({ isLoading: false });
+        });
+      channel.messagePaginator.state.partialNext({
+        hasMoreHead: false,
+        hasMoreTail: true,
+      });
+      const { container } = await renderList(channel, client, {
+        ListLoadingNextPageUI,
+      });
+
+      await act(() => {
+        lastVirtuosoProps().atTopStateChange(true);
+      });
+
+      expect(toTail).toHaveBeenCalledTimes(1);
+      expect(ListLoadingNextPageUI).toHaveBeenLastCalledWith(
+        { isLoading: true, position: 'top' },
+        undefined,
+      );
+      expect(ListLoadingNextPageUI).not.toHaveBeenCalledWith(
+        expect.objectContaining({ position: 'bottom' }),
+        undefined,
+      );
+
+      expect(
+        container.querySelector('.str-chat__virtual-list__loading'),
+      ).toBeInTheDocument();
+
+      await act(async () => {
+        page.resolve();
+        await page.promise;
+      });
+      expect(container.querySelector('.str-chat__virtual-list__loading')).toBeNull();
+    });
+
+    it('renders ListLoadingNextPageUI at the bottom while a newer page loads', async () => {
+      const { channel, client } = await createChannel();
+      const ListLoadingNextPageUI = vi.fn(() => null);
+      const page = createDeferred();
+      const toHead = vi
+        .spyOn(channel.messagePaginator, 'toHead')
+        .mockImplementation(async () => {
+          channel.messagePaginator.state.partialNext({
+            isLoading: true,
+            loadingDirection: 'headward',
+          });
+          await page.promise;
+          channel.messagePaginator.state.partialNext({ isLoading: false });
+        });
+      channel.messagePaginator.state.partialNext({
+        hasMoreHead: true,
+        hasMoreTail: false,
+      });
+      await renderList(channel, client, { ListLoadingNextPageUI });
+
+      await act(() => {
+        lastVirtuosoProps().atBottomStateChange(true);
+      });
+
+      expect(toHead).toHaveBeenCalledTimes(1);
+      expect(ListLoadingNextPageUI).toHaveBeenLastCalledWith(
+        { isLoading: true, position: 'bottom' },
+        undefined,
+      );
+      expect(ListLoadingNextPageUI).not.toHaveBeenCalledWith(
+        expect.objectContaining({ position: 'top' }),
+        undefined,
+      );
+
+      await act(async () => {
+        page.resolve();
+        await page.promise;
+      });
+    });
+
+    describe('in a thread', () => {
+      it('renders no first-page state and no empty state while the replies load', async () => {
+        const ListFirstPageLoadingUI = vi.fn(() => (
+          <div data-testid='first-page-loading' />
+        ));
+        const ListEmptyUI = vi.fn(() => null);
+        const { channel, client } = await createChannel();
+        // A thread opened the way the SDK opens one: stale, with replies on the server and none
+        // loaded, so `Thread` loads it on mount. The load never settles.
+        const thread = client.threads.ensure({
+          channel,
+          parentMessage: generateMessage({
+            cid: channel.cid,
+            id: 'vml-loading-parent',
+            reply_count: 2,
+          }) as unknown as LocalMessage,
+        });
+        const reload = vi.spyOn(thread, 'reload').mockImplementation(() => {
+          thread.state.partialNext({ isLoading: true });
+          return createDeferred<void>().promise;
+        });
+
+        await renderList(
+          channel,
+          client,
+          { ListEmptyUI, ListFirstPageLoadingUI },
+          thread,
+        );
+
+        expect(reload).toHaveBeenCalledTimes(1);
+        expect(screen.queryByTestId('first-page-loading')).not.toBeInTheDocument();
+        expect(ListEmptyUI).not.toHaveBeenCalled();
+      });
     });
   });
 

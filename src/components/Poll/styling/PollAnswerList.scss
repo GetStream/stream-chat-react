@@ -1,4 +1,28 @@
 .str-chat__modal__poll-answer-list {
+  // The empty look of the channel and thread lists: a muted icon over a caption.
+  .str-chat__poll-answer-list-empty {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: var(--str-chat__spacing-xs);
+    padding: var(--str-chat__spacing-xl);
+    text-align: center;
+    color: var(--str-chat__text-secondary);
+
+    svg {
+      width: 32px;
+      height: 32px;
+      color: var(--str-chat__text-tertiary);
+    }
+
+    p {
+      margin: 0;
+      font: var(--str-chat__font-caption-default);
+    }
+  }
+
   .str-chat__poll-answer-list {
     height: 100%;
 

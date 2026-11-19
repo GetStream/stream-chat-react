@@ -1,3 +1,4 @@
+import uniqBy from 'lodash.uniqby';
 import { useEffect, useState } from 'react';
 import { isVoteAnswer } from 'stream-chat';
 import { useChatContext } from '../../../context';
@@ -21,8 +22,9 @@ export function useManagePollVotesRealtime<
     () =>
       cursorPaginatorState?.subscribeWithSelector(
         (state) => [state.latestPageItems],
+        // A vote that arrived in realtime before its page loaded is listed once.
         ([latestPageItems]) =>
-          setVotesInRealtime((prev) => [...prev, ...latestPageItems]),
+          setVotesInRealtime((prev) => uniqBy([...prev, ...latestPageItems], 'id')),
       ),
     [cursorPaginatorState],
   );

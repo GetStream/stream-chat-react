@@ -33,7 +33,9 @@
   }
 }
 
-// The label is sentence case ("Try again"), not the capitalized label of other SDK buttons.
+// The label is sentence case ("Try again"), not the capitalized label of other SDK buttons. The
+// spinner of a running retry sits before the label.
 .str-chat .str-chat__button.str-chat__list-load-error__retry-button {
+  gap: var(--str-chat__spacing-xs);
   text-transform: none;
 }

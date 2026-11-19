@@ -16,7 +16,10 @@ const membersSearchSourceItemsStateSelector = (
   state: SearchSourceState<ChannelMemberResponse>,
 ) => ({
   members: state.items,
+  searchQuery: state.searchQuery,
 });
+
+const NO_MEMBERS: ChannelMemberResponse[] = [];
 
 export const useChannelMembersSearch = () => {
   const { channel } = useChannelDetailContext();
@@ -39,7 +42,7 @@ export const useChannelMembersSearch = () => {
       }),
     [channel],
   );
-  const { members } = useStateStore(
+  const { members, searchQuery } = useStateStore(
     membersSearchSource.state,
     membersSearchSourceItemsStateSelector,
   );
@@ -74,7 +77,9 @@ export const useChannelMembersSearch = () => {
   );
 
   return {
-    displayedMembers: members ?? fallbackMembers,
+    // The channel state's members stand in for the list until a page loads, but never for the
+    // results of a typed search query.
+    displayedMembers: members ?? (searchQuery ? NO_MEMBERS : fallbackMembers),
     handleSearchChange,
     hasMembers,
     membersSearchSource,

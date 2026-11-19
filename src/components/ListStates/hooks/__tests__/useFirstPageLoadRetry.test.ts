@@ -9,7 +9,7 @@ vi.mock('../../../Accessibility/useAriaLiveAnnouncer', () => ({
   useAriaLiveAnnouncer: () => mockAnnounce,
 }));
 
-type Paginator = { items: unknown[] | undefined };
+type Paginator = { isLoading: boolean; lastQueryError: Error | undefined };
 
 const deferred = () => {
   let resolve: () => void = () => undefined;
@@ -28,9 +28,9 @@ describe('useFirstPageLoadRetry', () => {
   });
 
   it('keeps showing the retried error while the retry runs, then the paginator state', async () => {
-    const paginator: Paginator = { items: undefined };
-    const reload = deferred();
     const error = new Error('first page failed');
+    const paginator: Paginator = { isLoading: false, lastQueryError: error };
+    const reload = deferred();
     const params = {
       firstPageLoadError: error,
       loadedMessage: 'Loaded',
@@ -44,7 +44,7 @@ describe('useFirstPageLoadRetry', () => {
     rerender({ ...params, firstPageLoadError: undefined });
     expect(result.current).toMatchObject({ error, isRetrying: true });
 
-    paginator.items = [];
+    paginator.lastQueryError = undefined;
     await act(async () => {
       reload.resolve();
       await reload.promise;
@@ -54,12 +54,61 @@ describe('useFirstPageLoadRetry', () => {
     expect(mockAnnounce).toHaveBeenCalledWith('Loaded');
   });
 
+  it('announces nothing when the retry fails too', async () => {
+    const error = new Error('first page failed');
+    const paginator: Paginator = { isLoading: false, lastQueryError: error };
+    const reload = deferred();
+    const params = {
+      firstPageLoadError: error,
+      loadedMessage: 'Loaded',
+      paginator,
+      reload: vi.fn(() => reload.promise),
+    };
+    const { rerender, result } = renderRetry(params);
+
+    act(() => result.current.retry());
+    const retryError = new Error('retry failed');
+    paginator.lastQueryError = retryError;
+    rerender({ ...params, firstPageLoadError: retryError });
+    await act(async () => {
+      reload.resolve();
+      await reload.promise;
+    });
+
+    expect(mockAnnounce).not.toHaveBeenCalled();
+    expect(result.current).toMatchObject({ error: retryError, isRetrying: false });
+  });
+
+  it('announces nothing while a newer query that replaced the retry loads', async () => {
+    const error = new Error('first page failed');
+    const paginator: Paginator = { isLoading: false, lastQueryError: error };
+    const reload = deferred();
+    const params = {
+      firstPageLoadError: error,
+      loadedMessage: 'Loaded',
+      paginator,
+      reload: vi.fn(() => reload.promise),
+    };
+    const { result } = renderRetry(params);
+
+    act(() => result.current.retry());
+    // A typed search query aborts the retry: its error is cleared and it loads.
+    paginator.isLoading = true;
+    paginator.lastQueryError = undefined;
+    await act(async () => {
+      reload.resolve();
+      await reload.promise;
+    });
+
+    expect(mockAnnounce).not.toHaveBeenCalled();
+  });
+
   it('starts one retry at a time', () => {
     const reload = vi.fn(() => new Promise<void>(() => undefined));
     const { result } = renderRetry({
       firstPageLoadError: new Error('first page failed'),
       loadedMessage: 'Loaded',
-      paginator: { items: undefined },
+      paginator: { isLoading: false, lastQueryError: new Error('first page failed') },
       reload,
     });
 
@@ -72,11 +121,11 @@ describe('useFirstPageLoadRetry', () => {
   });
 
   it('shows another paginator’s own state, and announces nothing for the old retry', async () => {
-    const paginatorA: Paginator = { items: undefined };
-    const paginatorB: Paginator = { items: undefined };
-    const reloadA = deferred();
     const errorA = new Error('A failed');
     const errorB = new Error('B failed');
+    const paginatorA: Paginator = { isLoading: false, lastQueryError: errorA };
+    const paginatorB: Paginator = { isLoading: false, lastQueryError: errorB };
+    const reloadA = deferred();
     const reloadB = vi.fn(() => new Promise<void>(() => undefined));
     const { rerender, result } = renderRetry({
       firstPageLoadError: errorA,
@@ -97,7 +146,7 @@ describe('useFirstPageLoadRetry', () => {
     act(() => result.current.retry());
     expect(reloadB).toHaveBeenCalledTimes(1);
 
-    paginatorA.items = [];
+    paginatorA.lastQueryError = undefined;
     await act(async () => {
       reloadA.resolve();
       await reloadA.promise;

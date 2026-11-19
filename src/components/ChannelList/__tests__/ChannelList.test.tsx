@@ -8,7 +8,8 @@ import { Chat } from '../../Chat';
 import { ChannelList } from '../ChannelList';
 import { ThemeScopeProvider } from '../../../context/ThemeScopeContext';
 import { WithComponents } from '../../../context/WithComponents';
-import type { ListLoadErrorIndicatorProps } from '../../Loading';
+import type { ComponentContextValue } from '../../../context/ComponentContext';
+import type { ListLoadErrorUIProps } from '../../ListStates';
 import { getTestClientWithUser } from '../../../mock-builders';
 import { axe } from '../../../../axe-helper';
 
@@ -58,6 +59,16 @@ describe('ChannelList', () => {
     );
 
     expect(container.querySelector('.str-chat')).not.toBeInTheDocument();
+  });
+
+  it('renders the channel skeleton while the first page loads', async () => {
+    const { client, queryChannels } = await setupClient();
+    queryChannels.mockReturnValue(new Promise(() => undefined) as never);
+    const paginator = new ChannelPaginator({ client, id: 'channels:a' });
+
+    const { container } = renderList(client, paginator);
+
+    expect(container.querySelector('.str-chat__loading-channels')).toBeInTheDocument();
   });
 
   it('queries the first page of a list that has never been queried', async () => {
@@ -377,12 +388,9 @@ describe('ChannelList', () => {
       expect(queryChannels).toHaveBeenCalledTimes(2);
     });
 
-    it('renders the ListLoadErrorIndicator override with the error and the retry', async () => {
+    it('renders the ListLoadErrorUI override with the error and the retry', async () => {
       const { client, paginator, queryChannels } = await createFailingList();
-      const CustomLoadErrorIndicator = ({
-        error,
-        retry,
-      }: ListLoadErrorIndicatorProps) => (
+      const CustomLoadErrorIndicator = ({ error, retry }: ListLoadErrorUIProps) => (
         <button onClick={retry} type='button'>
           {`Custom: ${error.message}`}
         </button>
@@ -391,9 +399,7 @@ describe('ChannelList', () => {
 
       render(
         <Chat client={client}>
-          <WithComponents
-            overrides={{ ListLoadErrorIndicator: CustomLoadErrorIndicator }}
-          >
+          <WithComponents overrides={{ ListLoadErrorUI: CustomLoadErrorIndicator }}>
             <ChannelList paginator={paginator} />
           </WithComponents>
         </Chat>,
@@ -404,6 +410,27 @@ describe('ChannelList', () => {
       );
 
       await waitFor(() => expect(queryChannels).toHaveBeenCalledTimes(2));
+    });
+
+    it('renders the deprecated ListLoadErrorIndicator over ListLoadErrorUI while set', async () => {
+      const { client, paginator } = await createFailingList();
+      client.channelManager.insertPaginator({ paginator });
+
+      render(
+        <Chat client={client}>
+          <WithComponents
+            overrides={{
+              ListLoadErrorIndicator: () => <div>Deprecated error</div>,
+              ListLoadErrorUI: () => <div>New error</div>,
+            }}
+          >
+            <ChannelList paginator={paginator} />
+          </WithComponents>
+        </Chat>,
+      );
+
+      expect(await screen.findByText('Deprecated error')).toBeInTheDocument();
+      expect(screen.queryByText('New error')).not.toBeInTheDocument();
     });
 
     it('queries again when the list is reset after the failure', async () => {
@@ -448,6 +475,174 @@ describe('ChannelList', () => {
       renderList(client, paginator);
       await screen.findByText("Couldn't load conversations");
       expect(addNotification).toHaveBeenCalledTimes(1);
+    });
+  });
+  describe('end-reached indicator', () => {
+    const ListItem = () => <div />;
+
+    const renderLoadedList = async (overrides: ComponentContextValue) => {
+      const { client } = await setupClient();
+      const paginator = new ChannelPaginator({ client, id: 'channels:a' });
+      paginator.setItems({
+        isLastPage: true,
+        valueOrFactory: [client.channel('messaging', 'channels-a')],
+      });
+      client.channelManager.insertPaginator({ paginator });
+      return render(
+        <Chat client={client}>
+          <WithComponents overrides={{ ListItem, ...overrides }}>
+            <ChannelList paginator={paginator} />
+          </WithComponents>
+        </Chat>,
+      );
+    };
+
+    it('renders ListEndReachedUI at both edges', async () => {
+      const ListEndReachedUI = vi.fn(() => null);
+
+      await renderLoadedList({ ListEndReachedUI });
+
+      expect(ListEndReachedUI).toHaveBeenCalledWith(
+        expect.objectContaining({ reached: 'top' }),
+        undefined,
+      );
+      expect(ListEndReachedUI).toHaveBeenCalledWith(
+        { hasEnded: true, reached: 'bottom' },
+        undefined,
+      );
+    });
+
+    it('renders the deprecated EndReachedIndicator over ListEndReachedUI while set', async () => {
+      const EndReachedIndicator = vi.fn(() => null);
+      const ListEndReachedUI = vi.fn(() => null);
+
+      await renderLoadedList({ EndReachedIndicator, ListEndReachedUI });
+
+      expect(EndReachedIndicator).toHaveBeenCalledWith(
+        expect.objectContaining({ hasEnded: true, reached: 'bottom' }),
+        undefined,
+      );
+      expect(ListEndReachedUI).not.toHaveBeenCalled();
+    });
+
+    it('renders a 15.0 EndReachedIndicator at both edges with its 15.0 props', async () => {
+      const EndReachedIndicator = vi.fn(() => null);
+
+      await renderLoadedList({ EndReachedIndicator });
+
+      expect(EndReachedIndicator).toHaveBeenCalledWith(
+        { hasEnded: expect.any(Boolean), reached: 'top' },
+        undefined,
+      );
+      expect(EndReachedIndicator).toHaveBeenCalledWith(
+        { hasEnded: true, reached: 'bottom' },
+        undefined,
+      );
+    });
+
+    it('renders no end-reached indicator when the deprecated EndReachedIndicator is null', async () => {
+      const ListEndReachedUI = vi.fn(() => null);
+
+      await renderLoadedList({
+        // Apps turn the indicator off with `null`, which the key's type does not name.
+        EndReachedIndicator: null as unknown as undefined,
+        ListEndReachedUI,
+      });
+
+      expect(screen.getByRole('listbox')).toBeInTheDocument();
+      expect(ListEndReachedUI).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('deprecated list-state keys', () => {
+    const ListItem = () => <div />;
+
+    const renderList = async (
+      overrides: ComponentContextValue,
+      { items, loaded = true }: { items: 'none' | 'one'; loaded?: boolean },
+    ) => {
+      const { client, queryChannels } = await setupClient();
+      // A first query that never settles keeps an unloaded list on its first-page state.
+      queryChannels.mockReturnValue(new Promise(() => undefined) as never);
+      const paginator = new ChannelPaginator({ client, id: 'channels:a' });
+      if (loaded) {
+        paginator.setItems({
+          isLastPage: false,
+          valueOrFactory:
+            items === 'one' ? [client.channel('messaging', 'channels-a')] : [],
+        });
+      }
+      client.channelManager.insertPaginator({ paginator });
+      render(
+        <Chat client={client}>
+          <WithComponents overrides={{ ListItem, ...overrides }}>
+            <ChannelList paginator={paginator} />
+          </WithComponents>
+        </Chat>,
+      );
+      return paginator;
+    };
+
+    const Deprecated = () => <div data-testid='deprecated' />;
+    const Shared = () => <div data-testid='shared' />;
+
+    it('renders the deprecated FirstPageLoadingIndicator over ListFirstPageLoadingUI while set', async () => {
+      await renderList(
+        { FirstPageLoadingIndicator: Deprecated, ListFirstPageLoadingUI: Shared },
+        { items: 'none', loaded: false },
+      );
+      expect(screen.getByTestId('deprecated')).toBeInTheDocument();
+      expect(screen.queryByTestId('shared')).not.toBeInTheDocument();
+    });
+
+    it('renders the deprecated EmptyListIndicator over ListEmptyUI while set', async () => {
+      await renderList(
+        { EmptyListIndicator: Deprecated, ListEmptyUI: Shared },
+        { items: 'none' },
+      );
+      expect(screen.getByTestId('deprecated')).toBeInTheDocument();
+      expect(screen.queryByTestId('shared')).not.toBeInTheDocument();
+    });
+
+    it('renders the deprecated LoadingNextPageIndicator over ListLoadingNextPageUI while set', async () => {
+      const LoadingNextPageIndicator = vi.fn(() => <div data-testid='deprecated' />);
+      const ListLoadingNextPageUI = vi.fn(() => <div data-testid='shared' />);
+      await renderList(
+        { ListLoadingNextPageUI, LoadingNextPageIndicator },
+        { items: 'one' },
+      );
+      expect(LoadingNextPageIndicator).toHaveBeenCalled();
+      expect(ListLoadingNextPageUI).not.toHaveBeenCalled();
+    });
+
+    it.each([
+      ['FirstPageLoadingIndicator', 'ListFirstPageLoadingUI', false],
+      ['EmptyListIndicator', 'ListEmptyUI', true],
+    ] as const)(
+      'renders nothing in place of %s when it is null',
+      async (deprecatedKey, sharedKey, loaded) => {
+        await renderList(
+          // Apps turn a deprecated key off with `null`, which its type does not name.
+          { [deprecatedKey]: null as unknown as undefined, [sharedKey]: Shared },
+          { items: 'none', loaded },
+        );
+        expect(screen.queryByTestId('shared')).not.toBeInTheDocument();
+        expect(
+          document.querySelector('.str-chat__loading-channels'),
+        ).not.toBeInTheDocument();
+      },
+    );
+
+    it('renders no next-page indicator when the deprecated LoadingNextPageIndicator is null', async () => {
+      const ListLoadingNextPageUI = vi.fn(() => null);
+      await renderList(
+        {
+          ListLoadingNextPageUI,
+          LoadingNextPageIndicator: null as unknown as undefined,
+        },
+        { items: 'one' },
+      );
+      expect(ListLoadingNextPageUI).not.toHaveBeenCalled();
     });
   });
 });

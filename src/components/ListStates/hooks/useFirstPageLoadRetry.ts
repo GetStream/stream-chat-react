@@ -3,14 +3,18 @@ import { useEffect, useRef, useState } from 'react';
 import { useAriaLiveAnnouncer } from '../../Accessibility/useAriaLiveAnnouncer';
 import { useStableCallback } from '../../../utils/useStableCallback';
 
-type RetriedPaginator = { items: unknown[] | undefined };
+/** A paginator or a search source: its last query's error clears once a query succeeds. */
+type RetriedPaginator = { isLoading: boolean; lastQueryError: Error | undefined };
 
 export type UseFirstPageLoadRetryParams = {
-  /** The error of the failed first page, while there is one (see `getFirstPageLoadError`). */
+  /**
+   * The error of the failed first page, while the list shows one (see `getFirstPageLoadError` and
+   * `getErrorShownInPlaceOfList`).
+   */
   firstPageLoadError: Error | undefined;
-  /** Announced when a retry loads the first page. */
-  loadedMessage: string;
-  /** The paginator the retry loads the first page into. */
+  /** Announced when a retry loads the first page. None for a list that announces what it loads. */
+  loadedMessage?: string;
+  /** The paginator or search source the retry loads the first page into. */
   paginator: RetriedPaginator;
   /** Queries the first page again. */
   reload: () => Promise<unknown>;
@@ -20,7 +24,7 @@ export type UseFirstPageLoadRetryParams = {
  * Retries a paginated list's failed first page. While the retry runs, the failure it retries stays
  * the error to show, so the component showing it stays mounted and its focused retry button keeps
  * focus, also when the retry fails and its error replaces the old one. A retry that loads the first
- * page is announced.
+ * page is announced with `loadedMessage`.
  *
  * @returns `error`, the error to show (`undefined` once the first page loads), `isRetrying`, and
  *   `retry`, which starts a retry unless one is running or no first-page error is shown.
@@ -67,7 +71,10 @@ export const useFirstPageLoadRetry = ({
           current?.paginator === retriedPaginator ? undefined : current,
         );
         const showsRetriedPaginator = paginatorRef.current === retriedPaginator;
-        if (showsRetriedPaginator && retriedPaginator.items !== undefined) {
+        // The retry loaded the first page: it did not fail, and no newer query that replaced it is
+        // still loading.
+        const hasLoaded = !retriedPaginator.isLoading && !retriedPaginator.lastQueryError;
+        if (loadedMessage && showsRetriedPaginator && hasLoaded) {
           announce(loadedMessage);
         }
       });

@@ -9,6 +9,7 @@ import {
   type CalloutDialogProps,
   type ChannelAvatarProps,
   type ChannelListItemUIProps,
+  type ChannelListProps,
   type ContextMenuContentProps,
   type ContextMenuProps,
   type DateSeparatorProps,
@@ -18,7 +19,9 @@ import {
   type GalleryProps,
   type GiphyPreviewMessageProps,
   type ImagePlaceholderProps,
-  type ListLoadErrorIndicatorProps,
+  type ListEndReachedUIProps,
+  type ListLoadErrorUIProps,
+  type ListLoadingNextPageUIProps,
   type LoadingIndicatorProps,
   type MessageBouncePromptProps,
   type MessageDeletedProps,
@@ -82,21 +85,77 @@ import type { IconSlots } from '../components/Icons/slots';
 export type ComponentContextValue = {
   /** Progress of an attachment whose upload is still in flight. */
   AttachmentUploadProgressIndicator?: React.ComponentType<AttachmentUploadProgressIndicatorProps>;
-  /** Custom UI component rendered when a paginated list (e.g. the channel list) is empty. */
+  /**
+   * One channel list, rendered by `ChannelLists` once per paginator. To give one list its own
+   * list-state keys, wrap the SDK's `ChannelList` (imported, not read from here) in
+   * `WithComponents`, picking the keys by `paginator.id`.
+   * See [the list slots](https://github.com/GetStream/stream-chat-react/blob/master/ai-docs/ai-migration-v14-v15.md#channellistui-is-removed-use-the-list-slots).
+   */
+  ChannelList?: React.ComponentType<ChannelListProps>;
+  /**
+   * @deprecated Use `ListEmptyUI`. Only the channel list reads it, and there it wins while
+   * set. Removed in the next major.
+   * See [the list slots](https://github.com/GetStream/stream-chat-react/blob/master/ai-docs/ai-migration-v14-v15.md#channellistui-is-removed-use-the-list-slots).
+   */
   EmptyListIndicator?: React.ComponentType;
-  /** Custom UI component rendered at the top/bottom edge of a paginated list. */
-  EndReachedIndicator?: React.ComponentType<{
-    hasEnded: boolean;
-    reached: 'top' | 'bottom';
-  }>;
-  /** Custom UI component rendered while a paginated list loads its first page. */
+  /**
+   * @deprecated Use `ListEndReachedUI`. Only the channel list reads it, and there it wins
+   * while set. Removed in the next major.
+   * See [the list slots](https://github.com/GetStream/stream-chat-react/blob/master/ai-docs/ai-migration-v14-v15.md#channellistui-is-removed-use-the-list-slots).
+   */
+  EndReachedIndicator?: React.ComponentType<ListEndReachedUIProps>;
+  /**
+   * @deprecated Use `ListFirstPageLoadingUI`. Only the channel and thread lists read it, and
+   * there it wins while set. Removed in the next major.
+   * See [the list slots](https://github.com/GetStream/stream-chat-react/blob/master/ai-docs/ai-migration-v14-v15.md#channellistui-is-removed-use-the-list-slots).
+   */
   FirstPageLoadingIndicator?: React.ComponentType;
+  /**
+   * Shown in place of a paged list that loaded no items.
+   * Reaches the lists below its `WithComponents` that have this state; each has its own default.
+   * See [the list slots](https://github.com/GetStream/stream-chat-react/blob/master/ai-docs/ai-migration-v14-v15.md#channellistui-is-removed-use-the-list-slots).
+   */
+  ListEmptyUI?: React.ComponentType;
+  /**
+   * Rendered at an edge of a paged list, with `hasEnded` once no further page exists there.
+   * Reaches the lists below its `WithComponents` that have this state; each has its own default.
+   * See [the list slots](https://github.com/GetStream/stream-chat-react/blob/master/ai-docs/ai-migration-v14-v15.md#channellistui-is-removed-use-the-list-slots).
+   */
+  ListEndReachedUI?: React.ComponentType<ListEndReachedUIProps>;
+  /**
+   * Shown while a paged list loads its first page.
+   * Reaches the lists below its `WithComponents` that have this state; each has its own default.
+   * See [the list slots](https://github.com/GetStream/stream-chat-react/blob/master/ai-docs/ai-migration-v14-v15.md#channellistui-is-removed-use-the-list-slots).
+   */
+  ListFirstPageLoadingUI?: React.ComponentType;
   /** Custom UI component rendered per item of a paginated list. */
   ListItem?: ComponentType<{ item: unknown }>;
-  /** Custom UI component rendered in place of a paginated list whose first page failed to load. */
-  ListLoadErrorIndicator?: React.ComponentType<ListLoadErrorIndicatorProps>;
-  /** Custom UI component rendered while a paginated list loads its next page. */
-  LoadingNextPageIndicator?: React.ComponentType<{ isLoading?: boolean }>;
+  /**
+   * Shown in place of a list whose first page failed to load, with a retry: the channel list, the
+   * thread list, each search source's results, the poll comment and vote lists and the channel
+   * detail views. Reaches the lists below its `WithComponents`; the channel and thread lists have
+   * their own default.
+   * See [the list slots](https://github.com/GetStream/stream-chat-react/blob/master/ai-docs/ai-migration-v14-v15.md#channellistui-is-removed-use-the-list-slots).
+   */
+  ListLoadErrorUI?: React.ComponentType<ListLoadErrorUIProps>;
+  /**
+   * @deprecated Use `ListLoadErrorUI`. The channel list and the thread list read it, and there it
+   * wins while set. Removed in the next major.
+   * See [the list slots](https://github.com/GetStream/stream-chat-react/blob/master/ai-docs/ai-migration-v14-v15.md#channellistui-is-removed-use-the-list-slots).
+   */
+  ListLoadErrorIndicator?: React.ComponentType<ListLoadErrorUIProps>;
+  /**
+   * Rendered at the edge of a paged list where further pages load, with `isLoading` while one does.
+   * Reaches the lists below its `WithComponents` that have this state; each has its own default.
+   * See [the list slots](https://github.com/GetStream/stream-chat-react/blob/master/ai-docs/ai-migration-v14-v15.md#channellistui-is-removed-use-the-list-slots).
+   */
+  ListLoadingNextPageUI?: React.ComponentType<ListLoadingNextPageUIProps>;
+  /**
+   * @deprecated Use `ListLoadingNextPageUI`. Only the channel list reads it, and there it
+   * wins while set. Removed in the next major.
+   * See [the list slots](https://github.com/GetStream/stream-chat-react/blob/master/ai-docs/ai-migration-v14-v15.md#channellistui-is-removed-use-the-list-slots).
+   */
+  LoadingNextPageIndicator?: React.ComponentType<ListLoadingNextPageUIProps>;
   /** Actions between the textarea and the send actions. The default renders the `EmojiPicker`. */
   AdditionalMessageComposerActions?: React.ComponentType;
   /** Renders a message attachment. */
@@ -171,7 +230,12 @@ export type ComponentContextValue = {
   EditedMessagePreview?: React.ComponentType<EditedMessagePreviewProps>;
   /** Emoji picker button in the composer. No default; `stream-chat-react/emojis` exports one. */
   EmojiPicker?: React.ComponentType;
-  /** Shown when a message list is empty. */
+  /**
+   * Shown when a message list renders no messages.
+   * @deprecated Use `ListEmptyUI`. The message lists read it, and there it wins while set.
+   * Removed in the next major.
+   * See [the list slots](https://github.com/GetStream/stream-chat-react/blob/master/ai-docs/ai-migration-v14-v15.md#channellistui-is-removed-use-the-list-slots).
+   */
   EmptyStateIndicator?: React.ComponentType<EmptyStateIndicatorProps>;
   /**
    * Provides gallery state (current index, navigation) through `GalleryContext` and renders
@@ -204,7 +268,11 @@ export type ComponentContextValue = {
   MessageComposerUI?: React.ComponentType;
   /** Link previews in the message composer. */
   LinkPreviewList?: React.ComponentType;
-  /** Loading indicator, e.g. while a message list loads older messages. */
+  /**
+   * Spinner, e.g. on a button that waits, and in the paged lists' default loading states: the
+   * default `ListLoadingNextPageUI` renders it, so a set `ListLoadingNextPageUI`
+   * replaces it at the edges of those lists.
+   */
   LoadingIndicator?: React.ComponentType<LoadingIndicatorProps>;
   /** Determinate progress from 0 to 100. */
   ProgressIndicator?: React.ComponentType<ProgressIndicatorProps>;
@@ -328,15 +396,28 @@ export type ComponentContextValue = {
    * render `SearchSourceResultList` with your own `SearchSourceResultListProps`.
    */
   SearchSourceResultList?: React.ComponentType;
-  /** Marks the end of the last page of results for a searched source. */
+  /**
+   * @deprecated Use `ListFirstPageLoadingUI`, `ListLoadingNextPageUI` and
+   * `ListEndReachedUI`. While set, it replaces all three in search results. Removed in the
+   * next major.
+   * See [the list slots](https://github.com/GetStream/stream-chat-react/blob/master/ai-docs/ai-migration-v14-v15.md#channellistui-is-removed-use-the-list-slots).
+   */
   SearchSourceResultListFooter?: React.ComponentType;
   /** Result items of a search source pane. */
   SearchSourceResults?: React.ComponentType<SearchSourceResultsProps>;
-  /** Results UI of a search source with 0 items found. */
+  /**
+   * @deprecated Use `ListEmptyUI`. While set, it wins in search results. Removed in the next
+   * major.
+   * See [the list slots](https://github.com/GetStream/stream-chat-react/blob/master/ai-docs/ai-migration-v14-v15.md#channellistui-is-removed-use-the-list-slots).
+   */
   SearchSourceResultsEmpty?: React.ComponentType;
   /** Header content of a search source's results. The default renders nothing. */
   SearchSourceResultsHeader?: React.ComponentType;
-  /** Results UI of a search source while its query is running. */
+  /**
+   * @deprecated Use `ListFirstPageLoadingUI` and `ListLoadingNextPageUI`. While set,
+   * it wins over both in search results. Removed in the next major.
+   * See [the list slots](https://github.com/GetStream/stream-chat-react/blob/master/ai-docs/ai-migration-v14-v15.md#channellistui-is-removed-use-the-list-slots).
+   */
   SearchSourceResultsLoadingIndicator?: React.ComponentType;
   SendButton?: React.ComponentType<SendButtonProps>;
   /** Checkbox that sends a thread reply to the main channel too. */
@@ -354,6 +435,11 @@ export type ComponentContextValue = {
   TextareaComposer?: React.ComponentType;
   /** The thread's parent message, rendered above the replies in a thread's message list. */
   ThreadHead?: React.ComponentType<MessageProps>;
+  /**
+   * @deprecated Use `ListEmptyUI`. While set, it wins in the thread list. Removed in the next
+   * major.
+   * See [the list slots](https://github.com/GetStream/stream-chat-react/blob/master/ai-docs/ai-migration-v14-v15.md#channellistui-is-removed-use-the-list-slots).
+   */
   ThreadListEmptyPlaceholder?: React.ComponentType;
   /**
    * Header of the `ThreadList`, rendered without props. To add start or end content, register a
@@ -362,6 +448,11 @@ export type ComponentContextValue = {
   ThreadListHeader?: React.ComponentType;
   ThreadListItem?: React.ComponentType<ThreadListItemProps>;
   ThreadListItemUI?: React.ComponentType<ThreadListItemUIProps>;
+  /**
+   * @deprecated Use `ListLoadingNextPageUI`. While set, it wins in the thread list. Removed
+   * in the next major.
+   * See [the list slots](https://github.com/GetStream/stream-chat-react/blob/master/ai-docs/ai-migration-v14-v15.md#channellistui-is-removed-use-the-list-slots).
+   */
   ThreadListLoadingIndicator?: React.ComponentType;
   ThreadListUnseenThreadsBanner?: React.ComponentType;
   /** Reply count below the parent message in the default `ThreadHead`. */

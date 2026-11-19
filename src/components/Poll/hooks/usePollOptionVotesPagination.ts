@@ -5,8 +5,9 @@ import type {
   PaginationFn,
 } from '../../InfiniteScrollPaginator/hooks/useCursorPaginator';
 import { useCursorPaginator } from '../../InfiniteScrollPaginator/hooks/useCursorPaginator';
+import { usePollVotesFirstPageLoadRetry } from './usePollVotesFirstPageLoadRetry';
 import { useStateStore } from '../../../store';
-import { usePollContext } from '../../../context';
+import { usePollContext, useTranslationContext } from '../../../context';
 
 import type { PollOptionVotesQueryParams, PollVoteResponseData } from 'stream-chat';
 
@@ -26,6 +27,7 @@ export const usePollOptionVotesPagination = ({
   paginationParams,
 }: UsePollOptionVotesPaginationParams) => {
   const { poll } = usePollContext();
+  const { t } = useTranslationContext();
 
   const paginationFn = useCallback<PaginationFn<PollVoteResponseData>>(
     async (next) => {
@@ -51,9 +53,15 @@ export const usePollOptionVotesPagination = ({
     cursorPaginatorState,
     paginationStateSelector,
   );
+  const firstPageLoadRetry = usePollVotesFirstPageLoadRetry({
+    cursorPaginatorState,
+    loadedMessage: t('poll.optionVotes.loaded.text', 'Votes loaded'),
+    loadMore,
+  });
 
   return {
     error,
+    firstPageLoadRetry,
     hasNextPage,
     loading,
     loadMore,

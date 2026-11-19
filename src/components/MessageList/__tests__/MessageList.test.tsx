@@ -30,11 +30,12 @@ import { Channel } from '../../Channel';
 import { Message } from '../../Message';
 import { CHANNEL_CONTAINER_ID } from '../../Channel/constants';
 import { MESSAGE_LIST_MAIN_PANEL_CLASS } from '../MessageListMainPanel';
+import { Thread as ThreadComponent } from '../../Thread';
 import { ThreadProvider } from '../../Threads';
 import { useChannel, useMessageContext, WithComponents } from '../../../context';
-import { EmptyStateIndicator as EmptyStateIndicatorMock } from '../../EmptyStateIndicator';
 import { EventComponent } from '../../EventComponent';
 import type { EventComponentProps } from '../../EventComponent';
+import type { ListLoadingNextPageUIProps } from '../../ListStates';
 import { mockedApiResponse } from '../../../mock-builders/api/utils';
 import { nanoid } from 'nanoid';
 import { StateStore } from '@stream-io/state-store';
@@ -141,10 +142,6 @@ const mockReducedMotionPreference = (matches: boolean) => {
     }),
   });
 };
-
-vi.mock('../../EmptyStateIndicator', () => ({
-  EmptyStateIndicator: vi.fn(),
-}));
 
 vi.mock('../../ChatView', async (importOriginal) => {
   const actual = await importOriginal<typeof import('../../ChatView')>();
@@ -265,18 +262,25 @@ describe('MessageList', () => {
   describe('older-page loading indicator', () => {
     // Scrolls the list to its top (jsdom has no layout, so `offsetParent` is stubbed) and holds
     // `toTail` open, so the list stays in the "loading an older page" state.
-    const startLoadingOlder = async (msgListProps?: Partial<MessageListProps>) => {
+    const startLoadingOlder = async (
+      msgListProps?: Partial<MessageListProps>,
+      components?: Partial<ComponentContextValue>,
+    ) => {
       const pageDeferred = createDeferred();
       const toTail = vi
         .spyOn(channel.messagePaginator, 'toTail')
         .mockImplementation(async () => {
-          channel.messagePaginator.state.partialNext({ isLoading: true });
+          channel.messagePaginator.state.partialNext({
+            isLoading: true,
+            loadingDirection: 'tailward',
+          });
           await pageDeferred.promise;
           channel.messagePaginator.state.partialNext({ isLoading: false });
         });
       const { container } = renderComponent({
         channelProps: { channel },
         chatClient,
+        components,
         msgListProps: {
           ...msgListProps,
           internalInfiniteScrollProps: { loadNextDebounceMs: 0 },
@@ -331,8 +335,8 @@ describe('MessageList', () => {
       });
     });
 
-    it('does not request an older page while another load is in flight', async () => {
-      const toTail = vi.spyOn(channel.messagePaginator, 'toTail');
+    // The paginator itself declines the older page while it loads (see `BasePaginator.canExecuteQuery`).
+    it('shows no older-page indicator while another load is in flight', async () => {
       const { container } = renderComponent({
         channelProps: { channel },
         chatClient,
@@ -354,7 +358,7 @@ describe('MessageList', () => {
       fireEvent.scroll(scroller);
       await new Promise((resolve) => setTimeout(resolve, 10));
 
-      expect(toTail).not.toHaveBeenCalled();
+      expect(channel.messagePaginator.loadingDirection).toBeUndefined();
       expect(
         container.querySelector('.str-chat__list__loading .str-chat__loading-indicator'),
       ).not.toBeInTheDocument();
@@ -372,6 +376,341 @@ describe('MessageList', () => {
       expect(
         container.querySelector('.str-chat__list__loading .str-chat__loading-indicator'),
       ).not.toBeInTheDocument();
+    });
+    it('renders ListLoadingNextPageUI at the top while an older page loads', async () => {
+      const ListLoadingNextPageUI = vi.fn(() => null);
+      const { pageDeferred } = await startLoadingOlder(undefined, {
+        ListLoadingNextPageUI,
+      });
+
+      await waitFor(() => {
+        expect(ListLoadingNextPageUI).toHaveBeenLastCalledWith(
+          { isLoading: true, position: 'top' },
+          undefined,
+        );
+      });
+      expect(ListLoadingNextPageUI).not.toHaveBeenCalledWith(
+        expect.objectContaining({ position: 'bottom' }),
+        undefined,
+      );
+
+      await act(() => {
+        pageDeferred.resolve();
+      });
+    });
+
+    it('renders ListLoadingNextPageUI at the bottom while a newer page loads', async () => {
+      const ListLoadingNextPageUI = vi.fn(() => null);
+      const pageDeferred = createDeferred();
+      const toHead = vi
+        .spyOn(channel.messagePaginator, 'toHead')
+        .mockImplementation(async () => {
+          channel.messagePaginator.state.partialNext({
+            isLoading: true,
+            loadingDirection: 'headward',
+          });
+          await pageDeferred.promise;
+          channel.messagePaginator.state.partialNext({ isLoading: false });
+        });
+      const { container } = renderComponent({
+        channelProps: { channel },
+        chatClient,
+        components: { ListLoadingNextPageUI },
+        msgListProps: { internalInfiniteScrollProps: { loadNextDebounceMs: 0 } },
+      });
+      act(() => {
+        channel.messagePaginator.state.partialNext({
+          hasMoreHead: true,
+          hasMoreTail: false,
+        });
+      });
+      const scroller = await screen.findByTestId('reverse-infinite-scroll');
+      Object.defineProperty(scroller, 'offsetParent', {
+        configurable: true,
+        get: () => document.body,
+      });
+
+      fireEvent.scroll(scroller);
+      await waitFor(() => expect(toHead).toHaveBeenCalled());
+
+      await waitFor(() => {
+        expect(ListLoadingNextPageUI).toHaveBeenCalledWith(
+          { isLoading: true, position: 'bottom' },
+          undefined,
+        );
+      });
+      // The older-page edge stays idle while the newer page loads.
+      expect(ListLoadingNextPageUI).not.toHaveBeenCalledWith(
+        expect.objectContaining({ isLoading: true, position: 'top' }),
+        undefined,
+      );
+
+      await act(() => {
+        pageDeferred.resolve();
+      });
+      await waitFor(() => {
+        expect(container.querySelector('.str-chat__list__loading')).toBeNull();
+      });
+    });
+
+    it('renders ListLoadingNextPageUI over the LoadingIndicator at the top', async () => {
+      const ListLoadingNextPageUI = ({
+        isLoading,
+        position,
+      }: ListLoadingNextPageUIProps) =>
+        isLoading ? <div data-position={position} data-testid='app-next-page' /> : null;
+      const LoadingIndicator = () => <div data-testid='app-loading-indicator' />;
+      const { container, pageDeferred } = await startLoadingOlder(undefined, {
+        ListLoadingNextPageUI,
+        LoadingIndicator,
+      });
+
+      await waitFor(() => {
+        expect(
+          container.querySelector(
+            '.str-chat__list__loading [data-testid="app-next-page"]',
+          ),
+        ).toBeInTheDocument();
+      });
+      expect(screen.queryByTestId('app-loading-indicator')).not.toBeInTheDocument();
+
+      await act(() => {
+        pageDeferred.resolve();
+      });
+    });
+
+    it('renders no spinner at the top while LoadingIndicator is set to null', async () => {
+      const { container, pageDeferred } = await startLoadingOlder(undefined, {
+        // Apps turn the spinners off with `null`, which the key's type does not name.
+        LoadingIndicator: null as unknown as undefined,
+      });
+
+      await waitFor(() => {
+        expect(container.querySelector('.str-chat__list__loading')).toBeInTheDocument();
+      });
+      expect(container.querySelector('.str-chat__list__loading')).toBeEmptyDOMElement();
+
+      await act(() => {
+        pageDeferred.resolve();
+      });
+    });
+
+    it('renders ListLoadingNextPageUI over the LoadingIndicator at the bottom', async () => {
+      const ListLoadingNextPageUI = ({
+        isLoading,
+        position,
+      }: ListLoadingNextPageUIProps) =>
+        isLoading ? <div data-position={position} data-testid='app-next-page' /> : null;
+      const LoadingIndicator = () => <div data-testid='app-loading-indicator' />;
+      const pageDeferred = createDeferred();
+      const toHead = vi
+        .spyOn(channel.messagePaginator, 'toHead')
+        .mockImplementation(async () => {
+          channel.messagePaginator.state.partialNext({
+            isLoading: true,
+            loadingDirection: 'headward',
+          });
+          await pageDeferred.promise;
+          channel.messagePaginator.state.partialNext({ isLoading: false });
+        });
+      const { container } = renderComponent({
+        channelProps: { channel },
+        chatClient,
+        components: { ListLoadingNextPageUI, LoadingIndicator },
+        msgListProps: { internalInfiniteScrollProps: { loadNextDebounceMs: 0 } },
+      });
+      act(() => {
+        channel.messagePaginator.state.partialNext({
+          hasMoreHead: true,
+          hasMoreTail: false,
+        });
+      });
+      const scroller = await screen.findByTestId('reverse-infinite-scroll');
+      Object.defineProperty(scroller, 'offsetParent', {
+        configurable: true,
+        get: () => document.body,
+      });
+
+      fireEvent.scroll(scroller);
+      await waitFor(() => expect(toHead).toHaveBeenCalled());
+
+      await waitFor(() => {
+        expect(
+          container.querySelectorAll(
+            '.str-chat__list__loading [data-testid="app-next-page"]',
+          ),
+        ).toHaveLength(1);
+      });
+      expect(screen.queryByTestId('app-loading-indicator')).not.toBeInTheDocument();
+
+      await act(() => {
+        pageDeferred.resolve();
+      });
+    });
+  });
+
+  describe('list states', () => {
+    it('renders ListEmptyUI for an empty channel', async () => {
+      const ListEmptyUI = vi.fn(() => <div data-testid='empty-list' />);
+      renderComponent({
+        channelProps: { channel },
+        chatClient,
+        components: { ListEmptyUI },
+        msgListProps: { messages: [] },
+      });
+
+      expect(await screen.findByTestId('empty-list')).toBeInTheDocument();
+      expect(ListEmptyUI).toHaveBeenCalledWith({}, undefined);
+    });
+
+    it('renders ListEmptyUI for a channel whose messages never loaded', async () => {
+      const ListEmptyUI = vi.fn(() => <div data-testid='empty-list' />);
+      renderComponent({
+        channelProps: { channel },
+        chatClient,
+        components: { ListEmptyUI },
+        msgListProps: { messages: [] },
+      });
+      // A channel whose `watch()` failed or has not run holds no page and loads none.
+      await act(() => {
+        channel.messagePaginator.state.partialNext({
+          isLoading: false,
+          items: undefined,
+        });
+      });
+
+      expect(await screen.findByTestId('empty-list')).toBeInTheDocument();
+    });
+
+    it('renders the deprecated EmptyStateIndicator instead of ListEmptyUI while set', async () => {
+      const ListEmptyUI = vi.fn(() => null);
+      const EmptyStateIndicator = vi.fn(() => <div data-testid='deprecated-empty' />);
+      renderComponent({
+        channelProps: { channel },
+        chatClient,
+        components: { EmptyStateIndicator, ListEmptyUI },
+        msgListProps: { messages: [] },
+      });
+
+      expect(await screen.findByTestId('deprecated-empty')).toBeInTheDocument();
+      expect(EmptyStateIndicator).toHaveBeenCalledWith(
+        { listType: 'message' },
+        undefined,
+      );
+      expect(ListEmptyUI).not.toHaveBeenCalled();
+    });
+
+    it('renders no empty state while the deprecated EmptyStateIndicator is null', async () => {
+      const ListEmptyUI = vi.fn(() => <div data-testid='empty-list' />);
+      renderComponent({
+        channelProps: { channel },
+        chatClient,
+        // Apps turn the empty state off with `null`, which the key's type does not name.
+        components: {
+          EmptyStateIndicator: null as unknown as undefined,
+          ListEmptyUI,
+        },
+        msgListProps: { messages: [] },
+      });
+
+      await act(() => Promise.resolve());
+      expect(screen.queryByTestId('empty-list')).not.toBeInTheDocument();
+      expect(ListEmptyUI).not.toHaveBeenCalled();
+    });
+
+    it('keeps the empty state while a page loads into the empty list', async () => {
+      const ListEmptyUI = vi.fn(() => <div data-testid='empty-list' />);
+      renderComponent({
+        channelProps: { channel },
+        chatClient,
+        components: { ListEmptyUI },
+        msgListProps: { messages: [] },
+      });
+      expect(await screen.findByTestId('empty-list')).toBeInTheDocument();
+
+      act(() => {
+        channel.messagePaginator.state.partialNext({ isLoading: true });
+      });
+
+      expect(screen.getByTestId('empty-list')).toBeInTheDocument();
+    });
+
+    it('renders no ListEndReachedUI, as the message lists have no end-reached state', async () => {
+      const ListEndReachedUI = vi.fn(() => null);
+      renderComponent({
+        channelProps: { channel },
+        chatClient,
+        components: { ListEndReachedUI },
+      });
+      await screen.findByTestId('reverse-infinite-scroll');
+
+      act(() => {
+        channel.messagePaginator.state.partialNext({ hasMoreTail: false });
+      });
+      expect(ListEndReachedUI).not.toHaveBeenCalled();
+    });
+
+    describe('in a thread', () => {
+      const renderThreadList = (
+        thread: Thread,
+        components: Partial<ComponentContextValue> = {},
+      ) =>
+        render(
+          <Chat client={chatClient}>
+            <Channel channel={channel}>
+              <ThreadComponent thread={thread}>
+                <WithComponents overrides={components}>
+                  <MessageList />
+                </WithComponents>
+              </ThreadComponent>
+            </Channel>
+          </Chat>,
+        );
+
+      // A thread opened the way the SDK opens one: stale, with replies on the server and none
+      // loaded, so `Thread` loads it on mount. The load never settles.
+      const openThread = (id: string) => {
+        const thread = chatClient.threads.ensure({
+          channel,
+          parentMessage: generateMessage({
+            cid: channel.cid,
+            id,
+            reply_count: 2,
+            user: user1,
+          }) as unknown as LocalMessage,
+        });
+        const reload = vi.spyOn(thread, 'reload').mockImplementation(() => {
+          thread.state.partialNext({ isLoading: true });
+          return createDeferred<void>().promise;
+        });
+        return { reload, thread };
+      };
+
+      it('renders the parent message and no first-page state while the replies load', async () => {
+        const ListFirstPageLoadingUI = vi.fn(() => (
+          <div data-testid='first-page-loading' />
+        ));
+        const { reload, thread } = openThread('loading-replies-parent');
+
+        renderThreadList(thread, { ListFirstPageLoadingUI });
+
+        expect(
+          await screen.findByText(thread.state.getLatestValue().parentMessage.text!),
+        ).toBeInTheDocument();
+        expect(reload).toHaveBeenCalledTimes(1);
+        expect(screen.queryByTestId('first-page-loading')).not.toBeInTheDocument();
+      });
+
+      it('never renders the empty state', async () => {
+        const ListEmptyUI = vi.fn(() => null);
+        const { thread } = openThread('empty-replies-parent');
+        thread.messagePaginator.state.partialNext({ isLoading: false, items: [] });
+
+        renderThreadList(thread, { ListEmptyUI });
+        await screen.findByTestId('reverse-infinite-scroll');
+
+        expect(ListEmptyUI).not.toHaveBeenCalled();
+      });
     });
   });
 
@@ -512,22 +851,19 @@ describe('MessageList', () => {
     );
   });
 
-  it('should render EmptyStateIndicator with corresponding list type in main message list', async () => {
+  it('should render the message list empty state in the main message list', async () => {
     renderComponent({
       channelProps: { channel },
       chatClient,
       msgListProps: { messages: [] },
     });
 
-    await waitFor(() => {
-      expect(EmptyStateIndicatorMock).toHaveBeenCalledWith(
-        expect.objectContaining({ listType: 'message' }),
-        undefined,
-      );
-    });
+    expect(
+      await screen.findByText('Send a message to start the conversation'),
+    ).toBeInTheDocument();
   });
 
-  it('should not render EmptyStateIndicator with corresponding list type in thread', async () => {
+  it('should not render the message list empty state in a thread', async () => {
     renderComponent({
       channelProps: { channel },
       chatClient,
@@ -535,9 +871,10 @@ describe('MessageList', () => {
       thread: makeThreadStub(channel),
     });
 
-    await waitFor(() => {
-      expect(EmptyStateIndicatorMock).toHaveBeenCalledTimes(0);
-    });
+    await screen.findByTestId('reverse-infinite-scroll');
+    expect(
+      screen.queryByText('Send a message to start the conversation'),
+    ).not.toBeInTheDocument();
   });
 
   it('Message UI components should render `Avatar` when the custom prop is provided', async () => {

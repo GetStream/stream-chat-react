@@ -80,7 +80,8 @@ export const Thread = ({ children, thread }: ThreadProps) => {
     const last = loadedFor.current;
     if (last?.thread === thread && last.hasReplies === hasReplies) return;
     loadedFor.current = { hasReplies, thread };
-    void thread.reload();
+    // `reload()` rethrows a failed load; the thread keeps its state, so nothing handles it here.
+    thread.reload().catch(() => undefined);
   }, [hasReplies, isLoading, isStateStale, thread]);
 
   if (!parentMessage || repliesEnabled === false) return null;
