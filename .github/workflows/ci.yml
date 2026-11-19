@@ -100,7 +100,9 @@ jobs:
           token: ${{ secrets.CODECOV_TOKEN }}
 
   browser-test:
-    runs-on: ubuntu-latest
+    # Pinned: Playwright installs Chromium only on the Ubuntu releases it supports, and
+    # `ubuntu-latest` can move to one it does not support yet (26.04 did).
+    runs-on: ubuntu-24.04
     name: Browser tests (virtualized lists)
     steps:
       - uses: actions/checkout@v6
