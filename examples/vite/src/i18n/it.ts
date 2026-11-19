@@ -562,6 +562,12 @@ export const itTranslations = {
   'messageActions.errorAddingFlag.text': 'Errore durante la segnalazione',
   'messageActions.errorMarkingMessageUnread.text':
     'Errore durante la marcatura come non letto. Non è possibile marcare come non letti i messaggi più vecchi dei 100 più recenti del canale.',
+  'messageActions.errorRemovingReminder.text':
+    'Errore durante la rimozione del promemoria',
+  'messageActions.errorRemovingSaveLater.text':
+    'Errore durante la rimozione del messaggio dai salvati per dopo',
+  'messageActions.errorSavingLater.text':
+    'Errore durante il salvataggio del messaggio per dopo',
   'messageActions.flag.text': 'Segnala',
   'messageActions.flagMessage.ariaLabel': 'Segnala messaggio',
   'messageActions.markMessageUnread.ariaLabel': 'Segna il messaggio come non letto',
@@ -580,6 +586,8 @@ export const itTranslations = {
   'messageActions.quoteReply.text': 'Rispondi citando',
   'messageActions.remindMe.text': 'Ricordami',
   'messageActions.remindMeMessage.ariaLabel': 'Ricordami questo messaggio',
+  'messageActions.remindMeSubmenu.errorSettingReminder.text':
+    'Errore durante l’impostazione del promemoria',
   'messageActions.remindMeSubmenu.remindMe.text': 'Ricordami',
   'messageActions.removeReminder.ariaLabel': 'Rimuovi promemoria',
   'messageActions.removeReminder.text': 'Rimuovi promemoria',

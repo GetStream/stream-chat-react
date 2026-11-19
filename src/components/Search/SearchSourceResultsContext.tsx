@@ -29,5 +29,5 @@ export const useSearchSourceResultsContext = () =>
   requireContext(
     useContext(SearchSourceResultsContext),
     'useSearchSourceResultsContext',
-    'SearchSourceResultsProvider',
+    'SearchSourceResultsContextProvider',
   );

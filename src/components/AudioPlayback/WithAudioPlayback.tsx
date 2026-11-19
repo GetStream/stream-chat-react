@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useEffect, useRef, useState } from 'react';
 import type { AudioPlayerOptions } from './AudioPlayer';
 import type { AudioPlayerPoolState } from './AudioPlayerPool';
 import { AudioPlayerPool } from './AudioPlayerPool';
@@ -79,6 +79,34 @@ export type UseAudioPlayerProps = {
 const makeAudioPlayerId = ({ requester, src }: { src: string; requester?: string }) =>
   `${requester ?? 'requester-unknown'}:${src}`;
 
+/**
+ * Whether `src` is `previousSrc` re-signed: the same origin and path, only the query differs (e.g. a
+ * CDN URL with a new expiry and signature).
+ */
+const isResignedUrl = (previousSrc: string, src: string) => {
+  try {
+    const previous = new URL(previousSrc);
+    const next = new URL(src);
+    return previous.origin === next.origin && previous.pathname === next.pathname;
+  } catch {
+    return false;
+  }
+};
+
+/**
+ * Whether `src` gives the audio `previousSrc` played a new address rather than naming other audio:
+ * an upload's URL replacing the local object URL (`blob:`) of the file being uploaded, or a
+ * re-signed URL of the same file.
+ */
+const isSameAudioAtNewSource = (
+  previousSrc: string | undefined,
+  src: string | undefined,
+): previousSrc is string =>
+  !!previousSrc &&
+  !!src &&
+  previousSrc !== src &&
+  (previousSrc.startsWith('blob:') || isResignedUrl(previousSrc, src));
+
 export const useAudioPlayer = ({
   durationSeconds,
   fileSize,
@@ -94,6 +122,21 @@ export const useAudioPlayer = ({
   const panel = useNotificationTarget();
   const { t } = useTranslationContext();
   const { audioPlayers } = useContext(AudioPlayerContext);
+  const previousSrc = useRef(src);
+
+  // A widget whose audio moves to a new address keeps its player, so playback carries on rather
+  // than a second, idle player taking its place in the widget.
+  const replacedSrc = previousSrc.current;
+  if (src && audioPlayers && isSameAudioAtNewSource(replacedSrc, src)) {
+    audioPlayers.rekey(
+      makeAudioPlayerId({ requester, src: replacedSrc }),
+      makeAudioPlayerId({ requester, src }),
+    );
+  }
+
+  useEffect(() => {
+    previousSrc.current = src;
+  }, [src]);
 
   const audioPlayer =
     src && audioPlayers

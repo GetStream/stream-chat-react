@@ -5,7 +5,7 @@ import { useTranslationContext } from '../../context/TranslationContext';
 import { useStateStore } from '../../store';
 import { useChannelPreviewInfo } from '../ChannelListItem/hooks/useChannelPreviewInfo';
 import { TypingIndicatorHeader } from '../TypingIndicator/TypingIndicatorHeader';
-import { useTypingUsers } from '../TypingIndicator/hooks/useTypingUsers';
+import { useDisplayedTypingUsers } from '../TypingIndicator/hooks/useDisplayedTypingUsers';
 import { useThreadContext } from '../Threads';
 
 import type { LocalMessage, ThreadState } from 'stream-chat';
@@ -20,20 +20,21 @@ const threadStateSelector = ({ parentMessage, replyCount }: ThreadState) => ({
 const displayNameFromParentMessage = (message: LocalMessage): string | undefined =>
   message.user?.name ?? undefined;
 
-/** Shows the reply count after the thread name; typing activity in the thread replaces it. */
+/**
+ * Shows the reply count after the thread name. Typing activity in the thread replaces it, and keeps
+ * replacing it for the same hide delay as `TypingIndicator` after the typing stops.
+ */
 const ThreadHeaderSubtitle = ({
   replyCount,
   threadDisplayName,
-  threadList,
 }: {
   replyCount: number | undefined;
   threadDisplayName: string | undefined;
-  threadList: boolean;
 }) => {
   const { t } = useTranslationContext();
   const channel = useChannel();
   const threadInstance = useThreadContext();
-  const hasTyping = useTypingUsers(channel, threadInstance?.id).length > 0;
+  const hasTyping = useDisplayedTypingUsers(channel, threadInstance?.id).length > 0;
   const replyCountText = t('common.replyCount.label', {
     count: replyCount ?? 0,
     defaultValue_one: '1 reply',
@@ -48,11 +49,7 @@ const ThreadHeaderSubtitle = ({
         className='str-chat__subtitle-content-transition'
         key={hasTyping ? 'typing' : 'default'}
       >
-        {hasTyping ? (
-          <TypingIndicatorHeader threadList={threadList} />
-        ) : (
-          <>{defaultSubtitle}</>
-        )}
+        {hasTyping ? <TypingIndicatorHeader threadList /> : <>{defaultSubtitle}</>}
       </span>
     </div>
   );
@@ -107,7 +104,6 @@ export const ThreadHeader = ({
         <ThreadHeaderSubtitle
           replyCount={replyCount}
           threadDisplayName={threadDisplayName}
-          threadList
         />
       </div>
       <div className='str-chat__thread-header__end'>

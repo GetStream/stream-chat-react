@@ -2193,7 +2193,7 @@ In v14 these hooks logged a `console.warn` (or nothing) and returned `{}` or `un
 | `usePollContext`                   | `PollProvider`                                              |
 | `useDialogManager`                 | `DialogManagerProvider` (its own message)                   |
 | `useSearchContext`                 | `SearchContextProvider`                                     |
-| `useSearchSourceResultsContext`    | `SearchSourceResultsProvider`                               |
+| `useSearchSourceResultsContext`    | `SearchSourceResultsContextProvider`                        |
 | `useContextMenuContext`            | `ContextMenu`                                               |
 | `useChannelListItemContext`        | `ChannelListItemUI`                                         |
 | `useGalleryContext`                | `Gallery`                                                   |
