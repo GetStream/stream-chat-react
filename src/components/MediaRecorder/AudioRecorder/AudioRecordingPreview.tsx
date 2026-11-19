@@ -1,18 +1,18 @@
 import React, { useEffect, useState } from 'react';
+import { useAmplitudeBarCapacity } from './hooks/useAmplitudeBarCapacity';
 import { useTimeElapsed } from './hooks/useTimeElapsed';
 import { useComponentContextIcons, useMessageComposerContext } from '../../../context';
 import { RecordingTimer } from './RecordingTimer';
 
-type WaveformProps = {
-  maxDataPointsDrawn?: number;
-};
-
-const AudioRecordingWaveform = ({ maxDataPointsDrawn = 200 }: WaveformProps) => {
+/** The latest amplitudes of the recording in progress, as many as fill the track. */
+const AudioRecordingWaveform = () => {
   const {
     recordingController: { recorder },
   } = useMessageComposerContext();
 
   const [amplitudes, setAmplitudes] = useState<number[]>([]);
+  const [track, setTrack] = useState<HTMLDivElement | null>(null);
+  const barCapacity = useAmplitudeBarCapacity(track, amplitudes.length > 0);
 
   useEffect(() => {
     if (!recorder?.amplitudeRecorder) return;
@@ -27,8 +27,8 @@ const AudioRecordingWaveform = ({ maxDataPointsDrawn = 200 }: WaveformProps) => 
 
   return (
     <div className='str-chat__waveform-box-container'>
-      <div className='str-chat__wave-progress-bar__track'>
-        {amplitudes.slice(-maxDataPointsDrawn).map((amplitude, i) => (
+      <div className='str-chat__wave-progress-bar__track' ref={setTrack}>
+        {amplitudes.slice(-barCapacity).map((amplitude, i) => (
           <div
             className='str-chat__wave-progress-bar__amplitude-bar'
             key={`amplitude-${i}-voice-recording`}

@@ -183,9 +183,12 @@ export class MediaRecorderController {
           this.amplitudeRecorderConfig.sampleCount,
         ),
       },
+      // The attachment's upload lifecycle revokes `previewUri` once the upload replaces it or the
+      // attachment is removed.
       localMetadata: {
         file,
         id: nanoid(),
+        previewUri: this.recordingUri,
         uploadState: 'pending',
       },
       title: file.name,
@@ -257,6 +260,33 @@ export class MediaRecorderController {
   cleanUp = () => {
     this.resetRecordingState();
     if (this.recordingUri) URL.revokeObjectURL(this.recordingUri);
+    this.releaseMicrophone();
+  };
+
+  /**
+   * Gives the recording a new object URL. An attachment lifecycle that took the recording and then
+   * dropped it (e.g. an upload discarding it) revokes the URL it was handed as `previewUri`.
+   */
+  renewRecordingUri = () => {
+    const recording = this.recording.value;
+    const file = recording?.localMetadata.file;
+    if (!recording || !(file instanceof Blob)) return;
+    if (this.recordingUri) URL.revokeObjectURL(this.recordingUri);
+    this.recordingUri = URL.createObjectURL(file);
+    this.recording.next({
+      ...recording,
+      asset_url: this.recordingUri,
+      localMetadata: { ...recording.localMetadata, previewUri: this.recordingUri },
+    });
+  };
+
+  /**
+   * Releases the microphone and drops the recording, but leaves its object URL alive for whoever took
+   * the recording over, as the recording keeps playing from it.
+   */
+  handOverRecording = () => {
+    this.recordingUri = undefined;
+    this.resetRecordingState();
     this.releaseMicrophone();
   };
 

@@ -22,7 +22,6 @@ import {
   ChannelListItem,
   MessageComposerUI as DefaultMessageComposerUI,
   getRenderTextMentionEntities,
-  MessageComposer,
   MessageList,
   type MessageListProps,
   Thread,
@@ -72,6 +71,7 @@ import { ReturnToSkipNavigation } from '../AccessibilityNavigation/ReturnToSkipN
 import { ChannelPreviewOverlay } from '../ChannelPreviewOverlay/ChannelPreviewOverlay.tsx';
 import { useSidebar } from './SidebarContext.tsx';
 import { SwitchableChannelNavigation } from './SwitchableChannelNavigation.tsx';
+import { ConfigurableMessageComposer } from '../ConfigurableMessageComposer';
 
 export const CHANNEL_MESSAGE_COMPOSER_TEXTAREA_TARGET_ID =
   'app-channel-message-composer-textarea';
@@ -213,7 +213,7 @@ const ChannelThreadPanel = ({
             }
             onUserClick={(_event, user) => onOpenMemberDetail(user.id)}
           />
-          <MessageComposer asyncMessagesMultiSendEnabled audioRecordingEnabled />
+          <ConfigurableMessageComposer />
         </WithDragAndDropUpload>
       </Thread>
     </div>
@@ -244,12 +244,10 @@ const SecondChannelContent = ({ channel }: { channel: StreamChannel }) => {
           )}
           <ReturnToSkipNavigation />
           <AIStateIndicator />
-          <MessageComposer
+          <ConfigurableMessageComposer
             additionalTextareaProps={{
               id: CHANNEL_MESSAGE_COMPOSER_TEXTAREA_TARGET_ID,
             }}
-            asyncMessagesMultiSendEnabled
-            audioRecordingEnabled
             maxRows={10}
             focus
           />
@@ -310,7 +308,7 @@ const ChannelThreadOverlay = ({ thread }: { thread: ThreadType }) => {
             secondary panel. */}
         <ThreadHeader />
         <ThreadMessageList />
-        <MessageComposer asyncMessagesMultiSendEnabled audioRecordingEnabled />
+        <ConfigurableMessageComposer />
       </Thread>
     </SecondarySlotOverlay>
   );
@@ -480,12 +478,10 @@ const ResponsiveChannelPanels = ({ mainChannel }: { mainChannel?: StreamChannel 
                   )}
                   <ReturnToSkipNavigation />
                   <AIStateIndicator />
-                  <MessageComposer
+                  <ConfigurableMessageComposer
                     additionalTextareaProps={{
                       id: CHANNEL_MESSAGE_COMPOSER_TEXTAREA_TARGET_ID,
                     }}
-                    asyncMessagesMultiSendEnabled
-                    audioRecordingEnabled
                     maxRows={10}
                   />
                   <ChannelPreviewOverlay />
@@ -614,12 +610,10 @@ const ThreadPanel = ({ thread }: { thread: ThreadType }) => {
         >
           <ThreadHeader StartContent={HeaderStartWithSidebarToggle} />
           <ThreadMessageList />
-          <MessageComposer
+          <ConfigurableMessageComposer
             additionalTextareaProps={{
               id: THREAD_MESSAGE_COMPOSER_TEXTAREA_TARGET_ID,
             }}
-            asyncMessagesMultiSendEnabled
-            audioRecordingEnabled
             // Auto-focus the thread composer on mount, matching the channels-view composer.
             focus
           />
@@ -650,7 +644,7 @@ const SecondaryThreadPanel = ({ thread }: { thread: ThreadType }) => {
           >
             <ThreadHeader StartContent={HeaderStartWithSidebarToggle} />
             <ThreadMessageList />
-            <MessageComposer asyncMessagesMultiSendEnabled audioRecordingEnabled />
+            <ConfigurableMessageComposer />
           </WithComponents>
         </WithDragAndDropUpload>
       </ThreadSlot>
