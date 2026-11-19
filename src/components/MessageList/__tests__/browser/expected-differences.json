@@ -75,12 +75,6 @@
       "checkpoint": "7 scroll by",
       "field": "requests",
       "reason": "Scrolling up to the top of the window: in some runs v2 stops about 175px short of the top (scrolling into messages not measured yet, as in B-20) and loads no older page; v4 reaches the top and loads it. Varies between runs, also without the focus-signal fix (1 in 3), so the entry is stale in runs where the two agree."
-    },
-    {
-      "scenario": "F-1002",
-      "checkpoint": "19 append from other",
-      "field": "firstVisible",
-      "reason": "OPEN, shared: in this seed's state both runtimes move the reading position when two messages arrive with suppressAutoscroll on (v2 by 20px, v4 by 80px, one message); not reproduced in isolation (B-29, B-29b keep it within 2px on both). Listed as a follow-up."
     }
   ]
 }

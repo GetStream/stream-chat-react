@@ -60,6 +60,8 @@ export const Item = ({
     context.processedMessages[
       calculateItemIndex(props['data-item-index'], context.numItemsPrepended)
     ];
+  // Virtuoso can render an index the list no longer has for one pass (see computeItemKey).
+  if (!message) return <div {...props} />;
   const groupStyles: GroupStyle = context.messageGroupStyles[message.id];
 
   return (

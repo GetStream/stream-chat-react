@@ -12,6 +12,7 @@ import {
 import type { Mounted } from './harness';
 import type { Rng } from './prng';
 import { SCROLL_TARGET_RETRY_WINDOW_MS } from './scenario';
+import { RUNTIME } from './trace';
 
 /** The operations the fuzzer draws from, weighted. Shared with replays of a single seed. */
 export type Operation = {
@@ -135,12 +136,23 @@ export const OPERATIONS: Operation[] = [
       // VML clears the jump's focus signal (and its highlight) once the target was viewed; waiting
       // for that keeps later steps' renders the same across runtimes and fails a list that never
       // clears it. Then past the window in which the scroll target is re-applied.
-      await waitUntil(
+      const signalCleared = waitUntil(
         () =>
           !mounted.channel.messagePaginator.messageFocusSignal.getLatestValue().signal,
         6000,
         'focus signal to clear',
       );
+      // v2 can lose a jump to its remount race (see B-08), and the target is then never viewed:
+      // recorded for the comparison, not failed on.
+      if (RUNTIME === 'browser-v2') {
+        const cleared = await signalCleared.then(
+          () => true,
+          () => false,
+        );
+        await wait(SCROLL_TARGET_RETRY_WINDOW_MS);
+        return cleared ? target.id : `${target.id} (lost)`;
+      }
+      await signalCleared;
       await wait(SCROLL_TARGET_RETRY_WINDOW_MS);
       return target.id;
     },

@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { forwardRef, useState } from 'react';
+import type { ListProps } from 'react-virtuoso';
 import { commands } from 'vitest/browser';
 
 import {
@@ -11,6 +12,7 @@ import {
   readVisibleItems,
   receiveMessage,
   scrollBy,
+  scrollToBottom,
   scrollToTop,
   setMessageHeight,
   settle,
@@ -707,6 +709,123 @@ describe('VirtualizedMessageList in a real browser', () => {
           } as never),
         );
         expect(point.remounted, 'messages remounted').toEqual([]);
+      },
+    );
+  });
+
+  it('B-31 jumps to a message just above the loaded page, whose window overlaps it', async () => {
+    // The "N unread" pill: the first unread message sits just above the loaded page (m-0150 to
+    // m-0199), so the page around it (m-0115 to m-0164) overlaps it and the paginator shows the two
+    // merged. To the list that looks like 35 prepended messages, but it is a jump: on
+    // react-virtuoso 4 the scroll to the target was dropped while it compensated for the prepend,
+    // and when the newest messages fell off the end instead, it asked for items past the end of
+    // the list (a crash).
+    await runScenario('B-31-jump-overlapping-window', {}, async ({ mounted, step }) => {
+      const errors: string[] = [];
+      const onError = (event: ErrorEvent) => errors.push(event.message);
+      window.addEventListener('error', onError);
+      try {
+        await step(
+          'jump to the message above the page',
+          () => mounted.channel.messagePaginator.jumpToMessage('m-0140'),
+          { sample: true },
+        );
+      } finally {
+        window.removeEventListener('error', onError);
+      }
+      expect(errors, 'uncaught errors').toEqual([]);
+      expect(isListVisible(mounted.frame), 'list visible').toBe(true);
+      // v2 can lose the jump to its remount race (see B-08): recorded for the comparison only.
+      if (RUNTIME !== 'browser-v2') {
+        const visible = readVisibleItems(mounted.frame).map((item) => item.id);
+        expect(visible, 'the jumped-to message is in view').toContain('m-0140');
+      }
+    });
+  });
+
+  it('B-32 loads the next newer page with one scroll to the end of an older window', async () => {
+    // The messages revealed near the end measure other than estimated, and react-virtuoso 4
+    // re-measures them after the scroll: kept at the end through that, the list reports it and loads
+    // the next newer page; left short of it, it loads nothing and the reader must scroll again.
+    await runScenario('B-32-older-window-end', {}, async ({ mounted, step }) => {
+      await step('jump to an older message', () =>
+        mounted.channel.messagePaginator.jumpToMessage('m-0060'),
+      );
+      await wait(SCROLL_TARGET_RETRY_WINDOW_MS);
+      const point = await step('scroll to the end', () => scrollToBottom(mounted.frame), {
+        sample: true,
+      });
+      const loadedNewer = point.requests.some(
+        (request) => !!(request as { messages?: { id_gt?: string } }).messages?.id_gt,
+      );
+      if (RUNTIME !== 'browser-v2') {
+        expect(loadedNewer, 'the next newer page requested').toBe(true);
+      }
+    });
+  });
+
+  it("B-33 does not follow new messages an integrator's followOutput callback declines", async () => {
+    // Virtuoso applies the integrator's `followOutput`; the SDK's own growth correction must not
+    // pin the list to the new bottom behind its back.
+    await runScenario(
+      'B-33-integrator-follow-output',
+      { listProps: { additionalVirtuosoProps: { followOutput: () => false } } },
+      async ({ mounted, step }) => {
+        const scrollTop = readGeometry(mounted.frame)?.scrollTop ?? 0;
+        await step(
+          'other user, at bottom',
+          () => receiveMessage(mounted, mounted.other, 300),
+          // The list stays put by design, short of its new bottom.
+          { skipInvariants: true },
+        );
+        expect(readGeometry(mounted.frame)?.scrollTop, 'scroll position').toBeCloseTo(
+          scrollTop,
+          0,
+        );
+      },
+    );
+  });
+
+  it('B-34 does not paginate while positioning a custom list that renders no test IDs', async () => {
+    // The guard against paging while Virtuoso positions the hidden list must not depend on the
+    // markup of Virtuoso's own list: an integrator's `components.List` may drop its test ID.
+    const BareList = forwardRef<HTMLDivElement, ListProps>(function BareList(
+      { children, style },
+      ref,
+    ) {
+      return (
+        <div className='bare-list' ref={ref} style={style}>
+          {children}
+        </div>
+      );
+    });
+    await runScenario(
+      'B-34-custom-list-positioning',
+      { listProps: { additionalVirtuosoProps: { components: { List: BareList } } } },
+      async ({ checkpoint, mounted, step }) => {
+        expect(
+          mounted.frame.querySelector('[data-testid="virtuoso-item-list"]'),
+          'no test ID on the list',
+        ).toBeNull();
+        await wait(500);
+        const mountedPoint = checkpoint('after 500ms');
+        expect(
+          mountedPoint.requests.filter((request) => request.messages?.id_lt),
+        ).toEqual([]);
+        const jump = await step('jump to an older message', () =>
+          mounted.channel.messagePaginator.jumpToMessage('m-0060'),
+        );
+        // v2 can lose a jump to its remount race (see B-08): recorded for the comparison only.
+        if (RUNTIME !== 'browser-v2') {
+          expect(
+            jump.requests.filter(
+              (request) => request.messages?.id_gt || request.messages?.id_lt,
+            ),
+            'pages loaded while the jump was positioned',
+          ).toEqual([]);
+          const visible = readVisibleItems(mounted.frame).map((item) => item.id);
+          expect(visible, 'the jumped-to message is in view').toContain('m-0060');
+        }
       },
     );
   });

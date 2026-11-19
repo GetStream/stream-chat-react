@@ -60,16 +60,20 @@ const checkScrollExpectation = (
 ) => {
   if (!expectation) return;
   if (expectation.kind === 'bottom') {
-    // The bottom of an older window loads the next newer page below it: staying put is right there,
-    // and so it is for the step whose scroll just loaded that page.
+    // The end of an older window loads the next newer page below it, and the reader then stays
+    // put above it: that step passes. Otherwise the scroll must end at the end, in an older window
+    // too, where ending short of it loads nothing and leaves the reader to scroll again.
     const loadedNewer = point.requests.some(
       (request) => !!(request as { messages?: { id_gt?: string } }).messages?.id_gt,
     );
-    if (mounted.channel.messagePaginator.hasMoreHead || loadedNewer) return;
+    if (loadedNewer) return;
     const distance = readGeometry(mounted.frame)?.distanceFromBottom ?? 0;
     if (distance > SCROLL_TOLERANCE_PX) {
+      const where = mounted.channel.messagePaginator.hasMoreHead
+        ? 'the end of an older window, loading no newer page,'
+        : 'the bottom';
       violations.push(
-        `${point.label}: ${Math.round(distance)}px short of the bottom after scrolling to it`,
+        `${point.label}: ${Math.round(distance)}px short of ${where} after scrolling to it`,
       );
     }
     return;

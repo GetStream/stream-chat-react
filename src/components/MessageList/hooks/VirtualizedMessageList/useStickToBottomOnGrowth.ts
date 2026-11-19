@@ -5,18 +5,48 @@ type ScrollSnapshot = { atBottom: boolean; scrollHeight: number; scrollTop: numb
 /** Frames after a height change in which the list is kept at its bottom. */
 const PIN_CHECK_FRAMES = 3;
 
+/** Input with which a reader scrolls a list (or starts to). */
+const READER_INPUT_EVENTS = [
+  'wheel',
+  'touchstart',
+  'touchmove',
+  'keydown',
+  'pointerdown',
+] as const;
+
+/** How long after reader input a scroll counts as the reader's. */
+const READER_INPUT_SCROLL_WINDOW_MS = 1000;
+
+// Whether a scroll moved the list in the direction its height changed, by no more than that: the
+// list compensating for content that grew (or shrank) above the viewport, not a reader.
+const isCompensatingScroll = (previous: ScrollSnapshot, next: ScrollSnapshot) => {
+  const moved = next.scrollTop - previous.scrollTop;
+  const grew = next.scrollHeight - previous.scrollHeight;
+  return (
+    grew !== 0 &&
+    Math.sign(moved) === Math.sign(grew) &&
+    Math.abs(moved) <= Math.abs(grew) + 1
+  );
+};
+
+// The list's own scroll element; a window has no `scrollTop` and is left alone. Duck-typed, as a
+// scroller from another window (a popout) is no instance of this window's `HTMLElement`, and a
+// server render has no `HTMLElement` at all.
+const asScrollElement = (scroller: HTMLElement | Window | null) =>
+  scroller && 'scrollTop' in scroller ? scroller : null;
+
 export type UseStickToBottomOnGrowthParams = {
-  /** False while the list must not move on its own, e.g. an older window, whose bottom loads newer pages. */
-  enabled: boolean;
   /**
-   * False while new messages must not scroll the list (`suppressAutoscroll`): growth that comes
-   * with a change of `itemCount` is then left alone. Growth of the messages already shown (one
-   * measuring taller, an image loading) still keeps the reader at the bottom.
+   * False while new items must not scroll the list: an older window (a page of newer messages
+   * loads at its bottom, below the reader), `suppressAutoscroll`. Growth that comes with a change
+   * of `itemCount` is then left alone, as it is when this turns true with that change (the last
+   * newer page of an older window). Growth of the items already shown (one measuring taller, an
+   * image loading) still keeps the reader at the bottom.
    */
   followNewItems: boolean;
   /** Number of items in the list, to tell new items from items that grew. */
   itemCount: number;
-  /** The element Virtuoso scrolls; a window scroller is left alone. */
+  /** The element Virtuoso scrolls; a window scroller is left alone, and so is `null`. */
   scroller: HTMLElement | Window | null;
   /** Distance from the bottom, in pixels, that still counts as being at the bottom. */
   threshold: number;
@@ -34,50 +64,73 @@ export type UseStickToBottomOnGrowthParams = {
  * the list does not own.
  */
 export const useStickToBottomOnGrowth = ({
-  enabled,
   followNewItems,
   itemCount,
   scroller,
   threshold,
 }: UseStickToBottomOnGrowthParams) => {
-  const element = scroller instanceof HTMLElement ? scroller : null;
+  const element = asScrollElement(scroller);
   const atBottomRef = useRef(false);
   // The geometry at the last two scroll events, to tell the list's own compensation from a reader.
   const lastScrollRef = useRef<ScrollSnapshot | null>(null);
   const previousScrollRef = useRef<ScrollSnapshot | null>(null);
   const lastHeightRef = useRef(0);
   const frameRef = useRef<number | null>(null);
-  const enabledRef = useRef(enabled);
-  enabledRef.current = enabled;
   // New items arrived while they are not to be followed: the growth that follows (those items
-  // measuring in) is theirs, so the list keeps still until the reader scrolls again. Noted while
+  // measuring in) is theirs, so the list keeps still until the reader scrolls again. Input alone (a
+  // click on a message action) is no scroll, and a scroll the list makes to compensate for that
+  // growth is not the reader's. Noted while
   // rendering, as Virtuoso (a child) reports the new height from its layout effects, before any of
   // this component's effects run; repeating it in a StrictMode double render changes nothing.
   const holdUntilScrollRef = useRef(false);
   const itemCountRef = useRef(itemCount);
-  if (itemCount > itemCountRef.current && !followNewItems)
+  const followNewItemsRef = useRef(followNewItems);
+  // When the reader last gave input that may scroll the list.
+  const readerInputAtRef = useRef(Number.NEGATIVE_INFINITY);
+  if (itemCount > itemCountRef.current && !(followNewItems && followNewItemsRef.current))
     holdUntilScrollRef.current = true;
   itemCountRef.current = itemCount;
+  followNewItemsRef.current = followNewItems;
 
   useEffect(() => {
     if (!element) return;
     const onScroll = () => {
-      holdUntilScrollRef.current = false;
       atBottomRef.current =
         element.scrollHeight - element.scrollTop - element.clientHeight <= threshold;
-      previousScrollRef.current = lastScrollRef.current;
-      lastScrollRef.current = {
+      const next = {
         atBottom: atBottomRef.current,
         scrollHeight: element.scrollHeight,
         scrollTop: element.scrollTop,
       };
+      const last = lastScrollRef.current;
+      const byReader =
+        performance.now() - readerInputAtRef.current <= READER_INPUT_SCROLL_WINDOW_MS;
+      if (byReader || !last || !isCompensatingScroll(last, next)) {
+        holdUntilScrollRef.current = false;
+      }
+      previousScrollRef.current = last;
+      lastScrollRef.current = next;
+    };
+    // A reader scrolling takes over: a pin scheduled for an earlier growth must not pull them back,
+    // even when their first scroll is still within what that growth could explain. The hold on new
+    // items is released only by the scroll that follows (see onScroll).
+    const onReaderInput = () => {
+      readerInputAtRef.current = performance.now();
+      if (frameRef.current !== null) cancelAnimationFrame(frameRef.current);
+      frameRef.current = null;
     };
     onScroll();
     // Capture: runs before Virtuoso's own scroll listener, which renders the newly revealed items at
     // once and so changes the height this reads. What counts is where the reader scrolled to.
     element.addEventListener('scroll', onScroll, { capture: true, passive: true });
+    READER_INPUT_EVENTS.forEach((type) =>
+      element.addEventListener(type, onReaderInput, { capture: true, passive: true }),
+    );
     return () => {
       element.removeEventListener('scroll', onScroll, { capture: true });
+      READER_INPUT_EVENTS.forEach((type) =>
+        element.removeEventListener(type, onReaderInput, { capture: true }),
+      );
       if (frameRef.current !== null) cancelAnimationFrame(frameRef.current);
       frameRef.current = null;
     };
@@ -91,13 +144,7 @@ export const useStickToBottomOnGrowth = ({
     const previous = previousScrollRef.current;
     const last = lastScrollRef.current;
     if (!previous?.atBottom || !last) return false;
-    const moved = last.scrollTop - previous.scrollTop;
-    const grew = last.scrollHeight - previous.scrollHeight;
-    return (
-      grew !== 0 &&
-      Math.sign(moved) === Math.sign(grew) &&
-      Math.abs(moved) <= Math.abs(grew) + 1
-    );
+    return isCompensatingScroll(previous, last);
   };
 
   return useCallback(
@@ -107,7 +154,7 @@ export const useStickToBottomOnGrowth = ({
       // The first report is the list's own initial layout, which Virtuoso positions itself.
       if (previousHeight === 0) return;
       const change = height - previousHeight;
-      if (change === 0 || !element || !enabledRef.current) return;
+      if (change === 0 || !element) return;
       if (!atBottomRef.current && !isLayoutCompensation()) return;
       if (holdUntilScrollRef.current) return;
       if (frameRef.current !== null) cancelAnimationFrame(frameRef.current);
@@ -122,7 +169,8 @@ export const useStickToBottomOnGrowth = ({
       let framesLeft = PIN_CHECK_FRAMES;
       const check = () => {
         frameRef.current = null;
-        if (!enabledRef.current) return;
+        // New items that are not to be followed may have arrived since this was scheduled.
+        if (holdUntilScrollRef.current) return;
         if (scrollTopAtReport - element.scrollTop > explainedMove) return;
         if (element.scrollHeight - element.scrollTop - element.clientHeight > 1) {
           element.scrollTop = element.scrollHeight;

@@ -32,10 +32,10 @@ const flushFrame = () => new Promise((resolve) => requestAnimationFrame(resolve)
 
 const setup = (
   scroller: HTMLElement | Window | null,
-  { enabled = true, followNewItems = true, itemCount = 10, threshold = 50 } = {},
+  { followNewItems = true, itemCount = 10, threshold = 50 } = {},
 ) =>
   renderHook((props) => useStickToBottomOnGrowth(props), {
-    initialProps: { enabled, followNewItems, itemCount, scroller, threshold },
+    initialProps: { followNewItems, itemCount, scroller, threshold },
   });
 
 describe('useStickToBottomOnGrowth', () => {
@@ -84,14 +84,23 @@ describe('useStickToBottomOnGrowth', () => {
     expect(scroller.scrollTop).toBe(2200);
   });
 
-  it('does nothing while disabled', async () => {
+  it('in an older window, reaches the end on growth but does not follow the newer page', async () => {
+    // Scrolled to the end of an older window, the revealed messages measure taller: the reader is
+    // kept at the end, which is what loads the next newer page. That page then arrives below the
+    // reader (the last one turns following back on), and the list must not follow it.
     const { grow, scroller } = makeScroller();
-    const { result } = setup(scroller, { enabled: false });
+    const { rerender, result } = setup(scroller, { followNewItems: false });
     result.current(2000);
+    await flushFrame();
     grow(300);
     result.current(2300);
     await flushFrame();
-    expect(scroller.scrollTop).toBe(1500);
+    expect(scroller.scrollTop).toBe(2300);
+    rerender({ followNewItems: true, itemCount: 30, scroller, threshold: 50 });
+    grow(1500);
+    result.current(3800);
+    await flushFrame();
+    expect(scroller.scrollTop).toBe(2300);
   });
 
   it('with new items not followed, keeps still for new items but not for growth', async () => {
@@ -103,7 +112,6 @@ describe('useStickToBottomOnGrowth', () => {
 
     // A new message arrives: the list must not move.
     rerender({
-      enabled: true,
       followNewItems: false,
       itemCount: 11,
       scroller,
@@ -114,7 +122,9 @@ describe('useStickToBottomOnGrowth', () => {
     await flushFrame();
     expect(scroller.scrollTop).toBe(settled);
 
-    // A message already shown grows (an image loads): the reader stays at the bottom.
+    // The reader scrolls to the bottom, then a message already shown grows (an image loads): the
+    // reader stays at the bottom.
+    scroller.dispatchEvent(new WheelEvent('wheel', { deltaY: 100 }));
     scroller.scrollTop = 1600;
     scroller.dispatchEvent(new Event('scroll'));
     grow(200);
@@ -143,7 +153,6 @@ describe('useStickToBottomOnGrowth', () => {
     await flushFrame();
     const settled = scroller.scrollTop;
     rerender({
-      enabled: true,
       followNewItems: false,
       itemCount: 11,
       scroller,
@@ -165,7 +174,6 @@ describe('useStickToBottomOnGrowth', () => {
     await flushFrame();
     // A message arrives (not followed) and measures in; the list keeps still.
     rerender({
-      enabled: true,
       followNewItems: false,
       itemCount: 11,
       scroller,
@@ -175,6 +183,7 @@ describe('useStickToBottomOnGrowth', () => {
     result.current(2100);
     await flushFrame();
     // Later the reader scrolls to the bottom, and what it reveals measures taller.
+    scroller.dispatchEvent(new WheelEvent('wheel', { deltaY: 100 }));
     scroller.scrollTop = 1600;
     scroller.dispatchEvent(new Event('scroll'));
     grow(200);
@@ -224,6 +233,123 @@ describe('useStickToBottomOnGrowth', () => {
     scroller.scrollTop = 200;
     await flushFrame();
     expect(scroller.scrollTop).toBe(200);
+  });
+
+  describe('with new items not followed', () => {
+    const arrive = (
+      rerender: (props: Parameters<typeof useStickToBottomOnGrowth>[0]) => void,
+      scroller: HTMLElement,
+      itemCount = 11,
+    ) =>
+      rerender({
+        followNewItems: false,
+        itemCount,
+        scroller,
+        threshold: 50,
+      });
+
+    it("keeps still when the list's own compensating scroll comes between", async () => {
+      // A new message arrives; the list compensates a growth above the viewport (a scroll event in
+      // the direction of the growth, no further), then the message measures shorter than estimated.
+      // The compensation is no reader scroll: the list must not be pinned (pulling the reader).
+      const { grow, scroller } = makeScroller();
+      const { rerender, result } = setup(scroller, { followNewItems: false });
+      result.current(2000);
+      await flushFrame();
+      arrive(rerender, scroller);
+      grow(120);
+      result.current(2120);
+      scroller.scrollTop = 1560;
+      scroller.dispatchEvent(new Event('scroll'));
+      grow(-76);
+      result.current(2044);
+      await flushFrame();
+      expect(scroller.scrollTop).toBe(1560);
+    });
+
+    it('lets the reader take over with input, and then keeps them at the bottom', async () => {
+      const { grow, scroller } = makeScroller();
+      const { rerender, result } = setup(scroller, { followNewItems: false });
+      result.current(2000);
+      await flushFrame();
+      arrive(rerender, scroller);
+      grow(100);
+      result.current(2100);
+      await flushFrame();
+      // The reader turns the wheel at the bottom; then a message already shown grows.
+      scroller.dispatchEvent(new WheelEvent('wheel', { deltaY: 100 }));
+      scroller.scrollTop = 1600;
+      scroller.dispatchEvent(new Event('scroll'));
+      grow(200);
+      result.current(2300);
+      await flushFrame();
+      expect(scroller.scrollTop).toBe(2300);
+    });
+
+    it('keeps still when the reader clicks in the list without scrolling', async () => {
+      // A click on a message action is input, but no scroll: the new message is still not followed.
+      const { grow, scroller } = makeScroller();
+      const { rerender, result } = setup(scroller, { followNewItems: false });
+      result.current(2000);
+      await flushFrame();
+      arrive(rerender, scroller);
+      const button = document.createElement('button');
+      scroller.appendChild(button);
+      button.dispatchEvent(new Event('pointerdown', { bubbles: true }));
+      grow(300);
+      result.current(2300);
+      await flushFrame();
+      expect(scroller.scrollTop).toBe(1500);
+    });
+
+    it('drops a pin scheduled before new items arrived', async () => {
+      const { grow, scroller } = makeScroller();
+      const { rerender, result } = setup(scroller, { followNewItems: false });
+      result.current(2000);
+      await flushFrame();
+      // A message already shown grows (a pin is scheduled), then a new one arrives before it runs.
+      grow(100);
+      result.current(2100);
+      arrive(rerender, scroller);
+      await flushFrame();
+      expect(scroller.scrollTop).toBe(1500);
+    });
+  });
+
+  it('drops a scheduled pin when the reader starts scrolling', async () => {
+    // The reader scrolls up 40px before the pin runs: less than the growth could explain, but input
+    // shows it is the reader.
+    const { grow, scroller } = makeScroller();
+    const { result } = setup(scroller);
+    result.current(2000);
+    await flushFrame();
+    grow(100);
+    result.current(2100);
+    scroller.dispatchEvent(new WheelEvent('wheel', { deltaY: -40 }));
+    scroller.scrollTop = 1460;
+    await flushFrame();
+    expect(scroller.scrollTop).toBe(1460);
+  });
+
+  it('keeps a scroller from another window at its bottom', async () => {
+    // e.g. a popout rendered through a portal: no instance of this window's HTMLElement.
+    const iframe = document.createElement('iframe');
+    document.body.appendChild(iframe);
+    const foreign = iframe.contentDocument!.createElement('div');
+    let height = 2000;
+    Object.defineProperty(foreign, 'clientHeight', { configurable: true, value: 500 });
+    Object.defineProperty(foreign, 'scrollHeight', {
+      configurable: true,
+      get: () => height,
+    });
+    foreign.scrollTop = 1500;
+    const { result } = setup(foreign);
+    result.current(2000);
+    height = 2300;
+    result.current(2300);
+    await flushFrame();
+    expect(foreign.scrollTop).toBe(2300);
+    iframe.remove();
   });
 
   it('leaves a window scroller alone', () => {

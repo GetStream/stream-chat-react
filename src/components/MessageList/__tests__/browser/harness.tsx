@@ -293,10 +293,19 @@ export const takeScrollExpectation = () => {
 
 const isMessageId = (id: string) => id.startsWith('m-') || id.startsWith('live-');
 
+// A reader's scroll starts with input (a wheel turn, a key, a touch, a scrollbar press), which the
+// list may react to before the scroll event; a scroll set from script has none.
+const readerInput = (scroller: HTMLElement, deltaY: number) =>
+  scroller.dispatchEvent(
+    new WheelEvent('wheel', { bubbles: true, cancelable: true, deltaY }),
+  );
+
 /** Scrolls by `delta` pixels the way a wheel does: the browser fires the scroll event. */
+
 export const scrollBy = async (frame: HTMLElement, delta: number) => {
   const scroller = getScroller(frame);
   if (!scroller) throw new Error('no scroller');
+  readerInput(scroller, delta);
   const anchor = readVisibleItems(frame).find((item) => isMessageId(item.id));
   const before = scroller.scrollTop;
   scroller.scrollTop += delta;
@@ -323,6 +332,7 @@ export const scrollBy = async (frame: HTMLElement, delta: number) => {
 export const scrollToTop = async (frame: HTMLElement) => {
   const scroller = getScroller(frame);
   if (!scroller) throw new Error('no scroller');
+  readerInput(scroller, -scroller.scrollTop);
   scroller.scrollTop = 0;
   pendingExpectation = null;
   await nextFrame();
@@ -338,6 +348,7 @@ export const scrollToBottom = async (
 ) => {
   const scroller = getScroller(frame);
   if (!scroller) throw new Error('no scroller');
+  readerInput(scroller, scroller.scrollHeight - scroller.scrollTop);
   scroller.scrollTop = scroller.scrollHeight;
   pendingExpectation = expectStaysAtBottom ? { kind: 'bottom' } : null;
   await nextFrame();
@@ -461,9 +472,11 @@ export const readVisibleItems = (frame: HTMLElement) => {
 export const isListVisible = (frame: HTMLElement) => {
   const scroller = getScroller(frame);
   if (!scroller) return false;
-  const list = scroller.querySelector<HTMLElement>(
-    '[data-testid="virtuoso-item-list"], [data-test-id="virtuoso-item-list"]',
-  );
+  // A custom `components.List` may render no test ID: the item list is then the viewport's child.
+  const list =
+    scroller.querySelector<HTMLElement>(
+      '[data-testid="virtuoso-item-list"], [data-test-id="virtuoso-item-list"]',
+    ) ?? scroller.querySelector<HTMLElement>('[data-viewport-type] > :first-child');
   // An empty list renders the empty placeholder instead of the item list.
   if (!list) return true;
   return getComputedStyle(list).visibility !== 'hidden';

@@ -20,6 +20,10 @@ import { useMarkRead } from './hooks/useMarkRead';
 import { useScrollerViewport } from './hooks/VirtualizedMessageList/useScrollerViewport';
 import { useAfterInitialLocation } from './hooks/VirtualizedMessageList/useAfterInitialLocation';
 import { useStickToBottomOnGrowth } from './hooks/VirtualizedMessageList/useStickToBottomOnGrowth';
+import {
+  ListPositioningReporterContext,
+  makePositioningReportingList,
+} from './hooks/VirtualizedMessageList/positioningList';
 import { useMessageFocusSignalViewed } from './hooks/VirtualizedMessageList/useMessageFocusSignalViewed';
 
 import {
@@ -444,13 +448,17 @@ const VirtualizedMessageListWithContext = (
   // Content can grow without the scroller resizing or scrolling (e.g. an avatar or image loading
   // late), which moves the true bottom without firing either event the hook observes.
   // A reader at the bottom stays there while the content grows (an image loading, a reply
-  // streaming in, messages measuring taller than estimated), except in an older window, whose
-  // bottom loads newer pages. `suppressAutoscroll` keeps new messages from moving the list.
+  // streaming in, messages measuring taller than estimated). In an older window that is what lets
+  // a scroll to its end reach the end, and so load the next newer page, when the revealed messages
+  // measure taller; the page that loads is not followed. Neither are new messages with
+  // `suppressAutoscroll`, nor with an integrator's `followOutput`: Virtuoso applies that one, and
+  // the SDK cannot know what a callback would answer. A custom scroll parent is the integrator's.
+  const followOutputFromProps = additionalVirtuosoProps.followOutput;
   const stickToBottomOnGrowth = useStickToBottomOnGrowth({
-    enabled: !hasMoreNewer,
-    followNewItems: !suppressAutoscroll,
+    followNewItems:
+      !hasMoreNewer && !suppressAutoscroll && followOutputFromProps === undefined,
     itemCount: processedMessages.length,
-    scroller: scrollerElement,
+    scroller: customScrollParent ? null : scrollerElement,
     threshold,
   });
 
@@ -512,7 +520,10 @@ const VirtualizedMessageListWithContext = (
     withDateSeparator,
   );
 
-  const { messageSetKey } = useMessageSetKey({ messages });
+  const { messageSetKey } = useMessageSetKey({
+    focusSignal: messageFocusSignal,
+    messages,
+  });
 
   const shouldForceScrollToBottom = useShouldForceScrollToBottom(
     processedMessages,
@@ -547,8 +558,11 @@ const VirtualizedMessageListWithContext = (
   };
 
   const computeItemKey = useCallback<ComputeItemKey<UnknownType, VirtuosoContext>>(
+    // While the messages change under it, Virtuoso can ask for an index the list no longer has for
+    // one pass; the index stands in until it catches up.
     (index, _, { numItemsPrepended, processedMessages }) =>
-      processedMessages[calculateItemIndex(index, numItemsPrepended)].id,
+      processedMessages[calculateItemIndex(index, numItemsPrepended)]?.id ??
+      `missing-${index}`,
     [],
   );
 
@@ -558,8 +572,21 @@ const VirtualizedMessageListWithContext = (
   // wrong page: these run once the list is shown (see useAfterInitialLocation), against the edge
   // state Virtuoso reported last.
   const atTopRef = useRef(false);
-  const afterInitialLocationAtTop = useAfterInitialLocation(virtualListRef);
-  const afterInitialLocationAtBottom = useAfterInitialLocation(virtualListRef);
+  // Whether Virtuoso keeps the item list hidden while it positions it, as the list reports it.
+  const listHiddenRef = useRef(false);
+  const reportListHidden = useCallback((hidden: boolean) => {
+    listHiddenRef.current = hidden;
+  }, []);
+  const ListFromProps = virtuosoComponentsFromProps?.List;
+  const List = useMemo(
+    () => makePositioningReportingList(ListFromProps),
+    [ListFromProps],
+  );
+  const afterInitialLocationAtTop = useAfterInitialLocation(listHiddenRef, messageSetKey);
+  const afterInitialLocationAtBottom = useAfterInitialLocation(
+    listHiddenRef,
+    messageSetKey,
+  );
 
   const atBottomStateChange = (isAtBottom: boolean) => {
     atBottom.current = isAtBottom;
@@ -643,63 +670,66 @@ const VirtualizedMessageListWithContext = (
               scrollElement={floatingDateScrollElement}
               withDateSeparator={withDateSeparator}
             />
-            <Virtuoso<UnknownType, VirtuosoContext>
-              atBottomStateChange={atBottomStateChange}
-              atBottomThreshold={threshold}
-              atTopStateChange={atTopStateChange}
-              atTopThreshold={threshold}
-              className='str-chat__message-list-scroll'
-              components={{
-                EmptyPlaceholder,
-                Header,
-                Item,
-                ...virtuosoComponentsFromProps,
-              }}
-              computeItemKey={computeItemKey}
-              context={{
-                ...messageProps,
-                channel,
-                customClasses,
-                customMessageRenderer,
-                DateSeparator,
-                firstUnreadMessageId: channelUnreadUiState?.firstUnreadMessageId,
-                focusedMessageId,
-                groupByUser,
-                head: threadHead,
-                lastOwnMessage,
-                lastReadDate: channelUnreadUiState?.lastReadAt,
-                lastReadMessageId: channelUnreadUiState?.lastReadMessageId,
-                lastReceivedMessageId,
-                loadingMore: isLoading,
-                messageGroupStyles,
-                MessageSystem,
-                numItemsPrepended,
-                ownMessagesDeliveredToOthers,
-                ownMessagesReadByOthers,
-                processedMessages,
-                returnAllReadData,
-                unreadMessageCount: channelUnreadUiState?.unreadCount,
-                UnreadMessagesSeparator,
-                virtuosoRef: virtuoso,
-              }}
-              firstItemIndex={calculateFirstItemIndex(numItemsPrepended)}
-              followOutput={isFollowingOutput ? followOutput : false}
-              increaseViewportBy={{ bottom: 200, top: 0 }}
-              initialTopMostItemIndex={calculateInitialTopMostItemIndex(
-                processedMessages,
-                focusedMessageId,
-              )}
-              itemContent={messageRenderer}
-              itemSize={fractionalItemSize}
-              itemsRendered={handleItemsRendered}
-              key={messageSetKey}
-              ref={virtuoso}
-              style={{ overflowX: 'hidden' }}
-              totalCount={processedMessages.length}
-              {...overridingVirtuosoProps}
-              scrollerRef={scrollerRef}
-              totalListHeightChanged={totalListHeightChanged}
-            />
+            <ListPositioningReporterContext.Provider value={reportListHidden}>
+              <Virtuoso<UnknownType, VirtuosoContext>
+                atBottomStateChange={atBottomStateChange}
+                atBottomThreshold={threshold}
+                atTopStateChange={atTopStateChange}
+                atTopThreshold={threshold}
+                className='str-chat__message-list-scroll'
+                components={{
+                  EmptyPlaceholder,
+                  Header,
+                  Item,
+                  ...virtuosoComponentsFromProps,
+                  List,
+                }}
+                computeItemKey={computeItemKey}
+                context={{
+                  ...messageProps,
+                  channel,
+                  customClasses,
+                  customMessageRenderer,
+                  DateSeparator,
+                  firstUnreadMessageId: channelUnreadUiState?.firstUnreadMessageId,
+                  focusedMessageId,
+                  groupByUser,
+                  head: threadHead,
+                  lastOwnMessage,
+                  lastReadDate: channelUnreadUiState?.lastReadAt,
+                  lastReadMessageId: channelUnreadUiState?.lastReadMessageId,
+                  lastReceivedMessageId,
+                  loadingMore: isLoading,
+                  messageGroupStyles,
+                  MessageSystem,
+                  numItemsPrepended,
+                  ownMessagesDeliveredToOthers,
+                  ownMessagesReadByOthers,
+                  processedMessages,
+                  returnAllReadData,
+                  unreadMessageCount: channelUnreadUiState?.unreadCount,
+                  UnreadMessagesSeparator,
+                  virtuosoRef: virtuoso,
+                }}
+                firstItemIndex={calculateFirstItemIndex(numItemsPrepended)}
+                followOutput={isFollowingOutput ? followOutput : false}
+                increaseViewportBy={{ bottom: 200, top: 0 }}
+                initialTopMostItemIndex={calculateInitialTopMostItemIndex(
+                  processedMessages,
+                  focusedMessageId,
+                )}
+                itemContent={messageRenderer}
+                itemSize={fractionalItemSize}
+                itemsRendered={handleItemsRendered}
+                key={messageSetKey}
+                ref={virtuoso}
+                style={{ overflowX: 'hidden' }}
+                totalCount={processedMessages.length}
+                {...overridingVirtuosoProps}
+                scrollerRef={scrollerRef}
+                totalListHeightChanged={totalListHeightChanged}
+              />
+            </ListPositioningReporterContext.Provider>
             {/* Only for messages that arrived while the reader was scrolled up. Reading an older
                   window (e.g. after a jump) is signalled by ScrollToLatestMessageButton instead. */}
             <NewMessageNotification
