@@ -3,6 +3,7 @@ import type { SearchSource, SearchSourceState } from 'stream-chat';
 
 import { useFirstPageLoadRetry } from '../../ListStates/hooks';
 import { getErrorShownInPlaceOfList } from '../../ListStates/utils';
+import { useTranslationContext } from '../../../context';
 import { useStateStore } from '../../../store';
 
 /** A search source that runs a query at once, without the debounce of `search()`. */
@@ -31,6 +32,7 @@ const searchSourceQueryStateSelector = ({
  *   runs the search query that failed again.
  */
 export const useSearchSourceFirstPageLoadRetry = (searchSource: SearchSource) => {
+  const { t } = useTranslationContext();
   const { hasItems, isLoading, lastQueryError } = useStateStore(
     searchSource.state,
     searchSourceQueryStateSelector,
@@ -49,6 +51,7 @@ export const useSearchSourceFirstPageLoadRetry = (searchSource: SearchSource) =>
   }, [searchSource]);
 
   return useFirstPageLoadRetry({
+    failedMessage: t('listStates.loadError.text', "Couldn't load the list"),
     firstPageLoadError: getErrorShownInPlaceOfList({
       hasItemsToShow: hasItems,
       isLoading,

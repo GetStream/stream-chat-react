@@ -143,7 +143,7 @@ export type ComponentContextValue = {
    * wins while set. Removed in the next major.
    * See [the list slots](https://github.com/GetStream/stream-chat-react/blob/master/ai-docs/ai-migration-v14-v15.md#channellistui-is-removed-use-the-list-slots).
    */
-  ListLoadErrorIndicator?: React.ComponentType<ListLoadErrorUIProps>;
+  ListLoadErrorIndicator?: React.ComponentType<ListLoadErrorUIProps> | null;
   /**
    * Rendered at the edge of a paged list where further pages load, with `isLoading` while one does.
    * Reaches the lists below its `WithComponents` that have this state; each has its own default.
@@ -402,7 +402,7 @@ export type ComponentContextValue = {
    * next major.
    * See [the list slots](https://github.com/GetStream/stream-chat-react/blob/master/ai-docs/ai-migration-v14-v15.md#channellistui-is-removed-use-the-list-slots).
    */
-  SearchSourceResultListFooter?: React.ComponentType;
+  SearchSourceResultListFooter?: React.ComponentType | null;
   /** Result items of a search source pane. */
   SearchSourceResults?: React.ComponentType<SearchSourceResultsProps>;
   /**

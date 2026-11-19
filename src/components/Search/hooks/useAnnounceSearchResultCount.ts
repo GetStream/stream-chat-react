@@ -18,6 +18,12 @@ const showsFirstPageLoadError = (source: SearchSource) => {
   });
 };
 
+/** The source has no results yet: its first page is loading, or failed (also while it retries). */
+const hasNoResultsYet = (source: SearchSource) => {
+  const { isLoading, items } = source.state.getLatestValue();
+  return (isLoading && !items?.length) || showsFirstPageLoadError(source);
+};
+
 /** The source has loaded every result: none is left to load and its first page did not fail. */
 const hasLoadedAllResults = (source: SearchSource) => {
   const { hasNext, isLoading } = source.state.getLatestValue();
@@ -31,8 +37,8 @@ const hasLoadedAllResults = (source: SearchSource) => {
  *
  * The announcement goes through the debounced `search.resultCount` interaction and is made only
  * when the count or the loaded status changes, so an in-place update of a result row is not
- * repeated. No results are not announced while a source shows that its first page failed: the
- * search did not find nothing. Becoming inactive cancels a pending announcement.
+ * repeated. No results are not announced while a source loads its first page or shows that it
+ * failed: the search has not found nothing. Becoming inactive cancels a pending announcement.
  *
  * @param containerRef - Element that contains the result options.
  * @param active - Whether to observe and announce, e.g. only while a search query is present.
@@ -51,9 +57,9 @@ export const useAnnounceSearchResultCount = (
     () => {
       if (!active) return;
       const count = containerRef.current?.querySelectorAll(OPTION_SELECTOR).length ?? 0;
-      if (count === 0 && activeSources.some(showsFirstPageLoadError)) {
-        // The search did not find nothing: drop a count scheduled while the query ran, and let the
-        // next settled state announce.
+      if (count === 0 && activeSources.some(hasNoResultsYet)) {
+        // The search has not found nothing (yet): drop a count scheduled earlier, and let the next
+        // settled state announce.
         lastSignatureRef.current = null;
         cancelInteraction('search.resultCount');
         return;

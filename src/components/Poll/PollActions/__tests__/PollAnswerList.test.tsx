@@ -21,6 +21,9 @@ import {
 } from '../../../../mock-builders';
 import { mockT } from '../../../../mock-builders/translator';
 
+// The error's title; the live region announcing the error holds the same text.
+const LOAD_ERROR_TITLE = '.str-chat__list-load-error__title';
+
 type QueryAnswersResult = Awaited<ReturnType<Poll['queryAnswers']>>;
 
 const answer = {
@@ -104,7 +107,9 @@ describe('PollAnswerList', () => {
       queryAnswers: () => Promise.reject(new Error('answers failed')),
     });
 
-    expect(await screen.findByText("Couldn't load the list")).toBeInTheDocument();
+    expect(
+      await screen.findByText("Couldn't load the list", { selector: LOAD_ERROR_TITLE }),
+    ).toBeInTheDocument();
     expect(screen.queryByText('answers failed')).not.toBeInTheDocument();
     expect(screen.queryByText('No comments yet')).not.toBeInTheDocument();
   });
@@ -120,7 +125,9 @@ describe('PollAnswerList', () => {
     fireEvent.click(retryButton);
 
     expect(await screen.findByText('Pizza, obviously')).toBeInTheDocument();
-    expect(screen.queryByText("Couldn't load the list")).not.toBeInTheDocument();
+    expect(
+      screen.queryByText("Couldn't load the list", { selector: LOAD_ERROR_TITLE }),
+    ).not.toBeInTheDocument();
     expect(queryAnswersSpy).toHaveBeenCalledTimes(2);
     expect(queryAnswersSpy.mock.calls[1][0]?.options).toBeUndefined();
   });
@@ -170,13 +177,15 @@ describe('PollAnswerList', () => {
     const { client } = await renderAnswerList({
       queryAnswers: () => Promise.reject(new Error('answers failed')),
     });
-    await screen.findByText("Couldn't load the list");
+    await screen.findByText("Couldn't load the list", { selector: LOAD_ERROR_TITLE });
 
     act(() => {
       client.dispatchEvent({ poll_vote: answer, type: 'poll.vote_casted' });
     });
 
-    expect(screen.getByText("Couldn't load the list")).toBeInTheDocument();
+    expect(
+      screen.getByText("Couldn't load the list", { selector: LOAD_ERROR_TITLE }),
+    ).toBeInTheDocument();
     expect(screen.queryByText('Pizza, obviously')).not.toBeInTheDocument();
   });
 
@@ -252,7 +261,9 @@ describe('PollAnswerList', () => {
     await act(() => Promise.resolve());
     expect(screen.getByText('Pizza, obviously')).toBeInTheDocument();
     expect(screen.queryByText('next page failed')).not.toBeInTheDocument();
-    expect(screen.queryByText("Couldn't load the list")).not.toBeInTheDocument();
+    expect(
+      screen.queryByText("Couldn't load the list", { selector: LOAD_ERROR_TITLE }),
+    ).not.toBeInTheDocument();
   });
 
   it('shows the empty state when the poll has no comments', async () => {

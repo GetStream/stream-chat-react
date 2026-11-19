@@ -909,7 +909,10 @@ describe('VirtualizedMessageList', () => {
             loadingDirection: 'tailward',
           });
           await page.promise;
-          channel.messagePaginator.state.partialNext({ isLoading: false });
+          channel.messagePaginator.state.partialNext({
+            isLoading: false,
+            loadingDirection: undefined,
+          });
         });
       channel.messagePaginator.state.partialNext({
         hasMoreHead: false,
@@ -956,7 +959,10 @@ describe('VirtualizedMessageList', () => {
             loadingDirection: 'headward',
           });
           await page.promise;
-          channel.messagePaginator.state.partialNext({ isLoading: false });
+          channel.messagePaginator.state.partialNext({
+            isLoading: false,
+            loadingDirection: undefined,
+          });
         });
       channel.messagePaginator.state.partialNext({
         hasMoreHead: true,
@@ -1003,7 +1009,7 @@ describe('VirtualizedMessageList', () => {
         });
         const reload = vi.spyOn(thread, 'reload').mockImplementation(() => {
           thread.state.partialNext({ isLoading: true });
-          return createDeferred<void>().promise;
+          return createDeferred().promise;
         });
 
         await renderList(

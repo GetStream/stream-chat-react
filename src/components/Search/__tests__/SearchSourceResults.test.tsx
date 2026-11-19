@@ -102,7 +102,7 @@ describe('SearchSourceResults', () => {
     });
 
     it('renders ListEmptyUI', () => {
-      const ListEmptyUI = vi.fn(() => <div>Custom empty</div>);
+      const ListEmptyUI = vi.fn((props: object) => <div {...props}>Custom empty</div>);
       searchSource.state.partialNext({ isLoading: false, items: [] });
 
       renderResults({ ListEmptyUI });

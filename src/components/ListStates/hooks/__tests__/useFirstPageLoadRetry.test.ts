@@ -54,6 +54,38 @@ describe('useFirstPageLoadRetry', () => {
     expect(mockAnnounce).toHaveBeenCalledWith('Loaded');
   });
 
+  it('announces failedMessage when the error appears, not while a retry runs, and again when it fails', async () => {
+    const error = new Error('first page failed');
+    const paginator: Paginator = { isLoading: false, lastQueryError: undefined };
+    const reload = deferred();
+    const params = {
+      failedMessage: 'Failed',
+      firstPageLoadError: undefined as Error | undefined,
+      paginator,
+      reload: vi.fn(() => reload.promise),
+    };
+    const { rerender, result } = renderRetry(params);
+    expect(mockAnnounce).not.toHaveBeenCalled();
+
+    paginator.lastQueryError = error;
+    rerender({ ...params, firstPageLoadError: error });
+    expect(mockAnnounce).toHaveBeenCalledTimes(1);
+    expect(mockAnnounce).toHaveBeenCalledWith('Failed');
+
+    act(() => result.current.retry());
+    rerender({ ...params, firstPageLoadError: undefined });
+    expect(mockAnnounce).toHaveBeenCalledTimes(1);
+
+    const retryError = new Error('retry failed');
+    paginator.lastQueryError = retryError;
+    rerender({ ...params, firstPageLoadError: retryError });
+    await act(async () => {
+      reload.resolve();
+      await reload.promise;
+    });
+    expect(mockAnnounce).toHaveBeenCalledTimes(2);
+  });
+
   it('announces nothing when the retry fails too', async () => {
     const error = new Error('first page failed');
     const paginator: Paginator = { isLoading: false, lastQueryError: error };

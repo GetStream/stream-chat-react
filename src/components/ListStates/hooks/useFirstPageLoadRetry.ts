@@ -12,6 +12,11 @@ export type UseFirstPageLoadRetryParams = {
    * `getErrorShownInPlaceOfList`).
    */
   firstPageLoadError: Error | undefined;
+  /**
+   * Announced when the list starts showing a first-page error, also after a retry that failed
+   * again. None for a list that reports its errors another way, such as a notification.
+   */
+  failedMessage?: string;
   /** Announced when a retry loads the first page. None for a list that announces what it loads. */
   loadedMessage?: string;
   /** The paginator or search source the retry loads the first page into. */
@@ -23,13 +28,14 @@ export type UseFirstPageLoadRetryParams = {
 /**
  * Retries a paginated list's failed first page. While the retry runs, the failure it retries stays
  * the error to show, so the component showing it stays mounted and its focused retry button keeps
- * focus, also when the retry fails and its error replaces the old one. A retry that loads the first
- * page is announced with `loadedMessage`.
+ * focus, also when the retry fails and its error replaces the old one. An error that appears is
+ * announced with `failedMessage`, and a retry that loads the first page with `loadedMessage`.
  *
  * @returns `error`, the error to show (`undefined` once the first page loads), `isRetrying`, and
  *   `retry`, which starts a retry unless one is running or no first-page error is shown.
  */
 export const useFirstPageLoadRetry = ({
+  failedMessage,
   firstPageLoadError,
   loadedMessage,
   paginator,
@@ -80,8 +86,18 @@ export const useFirstPageLoadRetry = ({
       });
   });
 
+  const error = retriedError ?? firstPageLoadError;
+
+  // A new error object: the first page failed, or a retry failed again. While a retry runs, the
+  // error it retries stays the same object, so the running retry announces nothing.
+  useEffect(() => {
+    if (error && failedMessage) announce(failedMessage);
+    // Only a new error announces; a changed message alone does not.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [error]);
+
   return {
-    error: retriedError ?? firstPageLoadError,
+    error,
     isRetrying: !!retriedError,
     retry,
   };

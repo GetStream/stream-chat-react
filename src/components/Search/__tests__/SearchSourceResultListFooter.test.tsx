@@ -7,6 +7,7 @@ import { SearchSourceResultListFooter } from '../SearchResults';
 import { SearchSourceResultsContextProvider } from '../SearchSourceResultsContext';
 import { ComponentProvider, TranslationProvider } from '../../../context';
 import type { ComponentContextValue } from '../../../context';
+import type { ListEndReachedUIProps, ListLoadingNextPageUIProps } from '../../ListStates';
 import {
   getTestClientWithUser,
   mockComponentContext,
@@ -135,8 +136,10 @@ describe('SearchSourceResultListFooter', () => {
   });
 
   it('passes the bottom edge to the shared indicators', () => {
-    const ListEndReachedUI = vi.fn(() => null);
-    const ListLoadingNextPageUI = vi.fn(() => null);
+    const ListEndReachedUI = vi.fn<(props: ListEndReachedUIProps) => null>(() => null);
+    const ListLoadingNextPageUI = vi.fn<(props: ListLoadingNextPageUIProps) => null>(
+      () => null,
+    );
     searchSource.state.partialNext({ hasNext: false });
 
     renderFooter({ ListEndReachedUI, ListLoadingNextPageUI });

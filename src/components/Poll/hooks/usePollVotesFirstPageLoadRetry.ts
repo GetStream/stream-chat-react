@@ -7,6 +7,7 @@ import type {
 } from '../../InfiniteScrollPaginator/hooks/useCursorPaginator';
 import { useFirstPageLoadRetry } from '../../ListStates/hooks';
 import { getErrorShownInPlaceOfList } from '../../ListStates/utils';
+import { useTranslationContext } from '../../../context';
 import { useStateStore } from '../../../store';
 
 const queryStateSelector = ({
@@ -41,6 +42,7 @@ export const usePollVotesFirstPageLoadRetry = ({
   loadedMessage,
   loadMore,
 }: UsePollVotesFirstPageLoadRetryParams) => {
+  const { t } = useTranslationContext();
   const { error, hasLoadedItems, loading } = useStateStore(
     cursorPaginatorState,
     queryStateSelector,
@@ -61,6 +63,7 @@ export const usePollVotesFirstPageLoadRetry = ({
   );
 
   return useFirstPageLoadRetry({
+    failedMessage: t('listStates.loadError.text', "Couldn't load the list"),
     firstPageLoadError: getErrorShownInPlaceOfList({
       hasItemsToShow: hasLoadedItems,
       isLoading: loading,

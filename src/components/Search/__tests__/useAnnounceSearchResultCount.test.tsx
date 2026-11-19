@@ -77,7 +77,7 @@ describe('useAnnounceSearchResultCount', () => {
     expect(announceInteraction).not.toHaveBeenCalled();
   });
 
-  it('drops the no-results count scheduled while the query ran once the source fails', async () => {
+  it('announces no results while the first page loads, nor once it fails, and cancels a pending count', async () => {
     const container = makeContainer(0);
     let sourceState: Record<string, unknown> = { hasNext: true, isLoading: true };
     const source = {
@@ -86,10 +86,8 @@ describe('useAnnounceSearchResultCount', () => {
     renderHook(() =>
       useAnnounceSearchResultCount({ current: container }, true, [source]),
     );
-    expect(announceInteraction).toHaveBeenCalledWith('search.resultCount', {
-      allResultsLoaded: false,
-      count: 0,
-    });
+    expect(announceInteraction).not.toHaveBeenCalled();
+    expect(cancelInteraction).toHaveBeenCalledWith('search.resultCount');
 
     sourceState = {
       hasNext: false,
@@ -99,10 +97,29 @@ describe('useAnnounceSearchResultCount', () => {
     };
     container.appendChild(document.createElement('div'));
 
-    await waitFor(() =>
-      expect(cancelInteraction).toHaveBeenCalledWith('search.resultCount'),
+    await waitFor(() => expect(cancelInteraction).toHaveBeenCalledTimes(2));
+    expect(announceInteraction).not.toHaveBeenCalled();
+  });
+
+  it('announces no results once the first page loads empty', async () => {
+    const container = makeContainer(0);
+    let sourceState: Record<string, unknown> = { hasNext: true, isLoading: true };
+    const source = {
+      state: { getLatestValue: () => sourceState },
+    } as unknown as SearchSource;
+    renderHook(() =>
+      useAnnounceSearchResultCount({ current: container }, true, [source]),
     );
-    expect(announceInteraction).toHaveBeenCalledTimes(1);
+
+    sourceState = { hasNext: false, isLoading: false, items: [] };
+    container.appendChild(document.createElement('div'));
+
+    await waitFor(() =>
+      expect(announceInteraction).toHaveBeenCalledWith('search.resultCount', {
+        allResultsLoaded: true,
+        count: 0,
+      }),
+    );
   });
 
   it('does not report allResultsLoaded while a source shows that its first page failed', () => {

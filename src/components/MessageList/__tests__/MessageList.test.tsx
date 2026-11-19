@@ -342,7 +342,10 @@ describe('MessageList', () => {
             loadingDirection: 'tailward',
           });
           await pageDeferred.promise;
-          channel.messagePaginator.state.partialNext({ isLoading: false });
+          channel.messagePaginator.state.partialNext({
+            isLoading: false,
+            loadingDirection: undefined,
+          });
         });
       const { container } = renderComponent({
         channelProps: { channel },
@@ -477,7 +480,10 @@ describe('MessageList', () => {
             loadingDirection: 'headward',
           });
           await pageDeferred.promise;
-          channel.messagePaginator.state.partialNext({ isLoading: false });
+          channel.messagePaginator.state.partialNext({
+            isLoading: false,
+            loadingDirection: undefined,
+          });
         });
       const { container } = renderComponent({
         channelProps: { channel },
@@ -578,7 +584,10 @@ describe('MessageList', () => {
             loadingDirection: 'headward',
           });
           await pageDeferred.promise;
-          channel.messagePaginator.state.partialNext({ isLoading: false });
+          channel.messagePaginator.state.partialNext({
+            isLoading: false,
+            loadingDirection: undefined,
+          });
         });
       const { container } = renderComponent({
         channelProps: { channel },

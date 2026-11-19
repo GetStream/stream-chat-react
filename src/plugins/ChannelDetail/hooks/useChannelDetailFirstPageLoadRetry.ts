@@ -42,6 +42,7 @@ export const useChannelDetailFirstPageLoadRetry = <T>(
   }, [searchSource]);
 
   return useFirstPageLoadRetry({
+    failedMessage: t('listStates.loadError.text', "Couldn't load the list"),
     firstPageLoadError: getErrorShownInPlaceOfList({
       hasItemsToShow,
       isLoading,
