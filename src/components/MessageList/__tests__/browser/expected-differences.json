@@ -1,0 +1,80 @@
+{
+  "$comment": "Differences between the react-virtuoso 2 and 4 traces that are understood. Each names what differs and why; scenario, checkpoint and field are anchored regular expressions. Read by scripts/compare-virtuoso-traces.mts; an entry that matches nothing is reported as stale.",
+  "differences": [
+    {
+      "scenario": "[BF]-.*",
+      "field": "framesUntilFirstItem",
+      "reason": "v4 hides a freshly mounted list until it reaches initialTopMostItemIndex: about 25 frames to the first visible item against v2's 1-2, where v2 shows the list at once and moves it into place over its first ~6 frames. Kept as is (decision for the upgrade), documented in ai-docs/ai-migration-v14-v15.md.",
+      "upstream": "react-virtuoso 4.7.4"
+    },
+    {
+      "scenario": "B-20-render-cost",
+      "checkpoint": "scroll up \\d+",
+      "field": "itemsRendered|rendered|firstVisible|remounted",
+      "reason": "Scrolling up into messages not rendered yet, v2 jumps by the difference between their estimated and real heights (5-7 messages further per 400px here); v4 compensates and moves by the scrolled distance. The scroll invariant (content moves by exactly the scrolled distance) holds on v4 and fails on v2 in the fuzz runs.",
+      "upstream": "react-virtuoso 4.3.6, 4.12.7"
+    },
+    {
+      "scenario": "B-26-early-scroll",
+      "field": ".*",
+      "reason": "v2 re-applies its initial scroll target for ~1.2s and undoes a scroll made meanwhile; v4 keeps the reader's scroll, so the next scroll reaches the top and loads an older page."
+    },
+    {
+      "scenario": "B-27-focus-signal-recenter",
+      "field": "remounted|totals\\.messageRenders",
+      "reason": "Both runtimes show the same messages at every step and keep the reader where they scrolled. On the first scroll after the jump the messages revealed at the top measure taller than v4 estimated, so for one pass its rendered range ends at m-0169 and the jumped-to message and the two after it (m-0170 to m-0172) leave it and remount; v4 renders messages more often around the jump for the same reason (more re-measuring passes). Every sampled frame of that scroll keeps the viewport covered on v4 (v2 shows one partly uncovered frame)."
+    },
+    {
+      "scenario": "B-23-visible-zero-height-last-item",
+      "checkpoint": "mounted",
+      "field": "geometry.atBottom|firstVisible",
+      "reason": "With a zero-height last item, v2 opens 8px short of the bottom; v4 opens at the bottom."
+    },
+    {
+      "scenario": "B-16-files-sticky-groups",
+      "field": "dom.firstItem",
+      "reason": "v4 marks GroupedVirtuoso group wrappers with data-index / data-item-index as it does items (v2 left them unmarked), so the first such element is now a month header. No SDK selector relies on it for grouped lists.",
+      "upstream": "react-virtuoso 4.x"
+    },
+    {
+      "scenario": "B-24-message-during-mount",
+      "field": "totals\\.commits",
+      "reason": "This scenario skips the mount measurement, so its one checkpoint spans the mount, where v4 commits a few more times while it positions the hidden list. Message renders fall (19 to 9) at the same time."
+    },
+    {
+      "scenario": "B-28-suppressed-autoscroll",
+      "field": "totals\\.messageRenders",
+      "reason": "While it applies a prepend, v4 renders the items around the reader once more (before and after the same-paint scroll compensation): +7 message renders for the one older page this scenario loads, with the same final position and items. Across all scripted scenarios v4 renders fewer messages than v2.",
+      "upstream": "react-virtuoso 4.12.7, 4.18.13"
+    },
+    {
+      "scenario": "B-12-first-item-at-top",
+      "field": ".*",
+      "reason": "v2 sometimes opens this 30-message channel at its top instead of its end (initialTopMostItemIndex `align: 'end'` loses a race with v2's initial scroll; it varies between runs); v4 opens it at the bottom, so every later step starts from a different place."
+    },
+    {
+      "scenario": "F-1024",
+      "checkpoint": "7 scroll by",
+      "field": "requests",
+      "reason": "Scrolling up to the top of the window: in some runs v2 stops about 175px short of the top (scrolling into messages not measured yet, as in B-20) and loads no older page; v4 reaches the top and loads it. Varies between runs, also without the focus-signal fix (1 in 3), so the entry is stale in runs where the two agree."
+    },
+    {
+      "scenario": "B-31-jump-overlapping-window",
+      "checkpoint": "jump to the message above the page",
+      "field": "state\\.atBottomStateChange|itemsRendered|geometry\\.atBottom|rendered|firstVisible|remounted|frames\\.framesUntilVisible|frames\\.finalDistanceFromBottom",
+      "reason": "The jump remounts the list (a page overlapping the loaded one). v2 loses it to its remount race (see B-08): the remounted list reports itself at the bottom, loads the next newer page and stays at the latest messages. v4 keeps the list hidden while it positions it (19 frames here) and opens it on the jumped-to message, with no blank frame (v2 shows one)."
+    },
+    {
+      "scenario": "F-.*",
+      "checkpoint": "\\d+ jump to a message",
+      "field": "requests|itemsRendered|rendered|firstVisible|state\\.atBottomStateChange|geometry\\.atBottom|events",
+      "reason": "In some runs v2 loses a jump to its remount race (see B-08, B-31): the remounted list reports itself at the bottom and loads the next newer page, ending elsewhere. v4 must land on the target (the fuzz step waits until it was viewed). Varies between runs, so the entry is stale in runs where v2 keeps its jumps."
+    },
+    {
+      "scenario": "F-1023",
+      "checkpoint": "16 jump to latest",
+      "field": "itemsRendered",
+      "reason": "Both runtimes end at the bottom with the same messages rendered (live-291 to live-293). v4's last itemsRendered report comes while it still positions the remounted list and lists only the last message; v2 reports all three."
+    }
+  ]
+}

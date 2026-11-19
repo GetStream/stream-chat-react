@@ -24,6 +24,7 @@ import {
   useTranslationContext,
 } from '../../../context';
 import { useStateStore } from '../../../store';
+import { asVirtuosoSlot } from '../../../utils/virtuosoSlot';
 import { ThreadListHeader as DefaultThreadListHeader } from './ThreadListHeader';
 
 const noThreads: Thread[] = [];
@@ -137,8 +138,8 @@ export const ThreadList = ({ virtuosoProps }: ThreadListProps) => {
         atBottomStateChange={(atBottom) => atBottom && client.threads.paginator.toTail()}
         className='str-chat__thread-list'
         components={{
-          EmptyPlaceholder: ThreadListEmptyPlaceholder,
-          Footer: ThreadListLoadingIndicator,
+          EmptyPlaceholder: asVirtuosoSlot(ThreadListEmptyPlaceholder),
+          Footer: asVirtuosoSlot(ThreadListLoadingIndicator),
         }}
         computeItemKey={computeItemKey}
         data={threads}

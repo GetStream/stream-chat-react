@@ -19,7 +19,7 @@ This is the **v15** line, developed on `master` and published under npm `latest`
 - **Package manager:** Yarn 4 (Berry). The binary is committed under `.yarn/releases/` and activated via `yarnPath` in `.yarnrc.yml`. Any globally installed `yarn` (even classic 1.x) acts only as a launcher — no Corepack required.
 - **Workspaces:** Yarn workspaces monorepo (`examples/*`)
 - **Dependency versions:** read them from `package.json` (`peerDependencies`, `dependencies`, `devDependencies`). They change with every release, so they are not repeated here.
-- **Testing:** Vitest + React Testing Library (+ `vitest-axe` for a11y). There is no Jest and no Playwright/e2e suite in this repo.
+- **Testing:** Vitest + React Testing Library (+ `vitest-axe` for a11y), in jsdom; a real-browser suite for the virtualized lists runs in Vitest Browser Mode on Playwright Chromium (see Testing). There is no Jest and no end-to-end suite.
 - **Bundler:** Vite 8 / Rolldown (library mode); `tsc` emits declarations only
 - **Styles:** Sass compiled to `dist/css/`. Consumers override via CSS layers (see README) — never edit compiled CSS.
 - **i18n:** the runtime is `@stream-io/i18n` (a regular dependency); this package owns only its key catalog and bindings
@@ -55,7 +55,8 @@ yarn start                # tsc -p tsconfig.lib.json --watch (emit .d.ts on chan
 yarn start:css            # watch + recompile SCSS
 
 # Tests
-yarn test                 # vitest run (single pass)
+yarn test                 # vitest run --project jsdom (single pass)
+yarn test:browser         # real-browser suites on react-virtuoso 2 and 4, then compares their traces
 yarn test MessageList     # filter by file path substring
 yarn test -t 'marks read' # filter by test name
 yarn test:watch           # watch mode
@@ -271,7 +272,7 @@ useMemo(
 
 **Policy:** add or extend tests in the matching module's `__tests__/` folder. Cover React components, hooks, and utility functions. Reuse the repo's fakes/mocks instead of hand-rolling new ones.
 
-**Runner:** Vitest (`vitest.config.ts`) — `globals: true` (no imports needed for `describe`/`it`/`expect`/`vi`), `jsdom`, `pool: 'forks'`, `testTimeout: 15000`, `css: false`, tests matched at `src/**/*.test.{js,jsx,ts,tsx}`. `resolve.dedupe` collapses `@stream-io/state-store`, `@stream-io/i18n`, `stream-chat`, `react` and `react-dom` onto one copy each. `vitest.setup.ts` forces `TZ=UTC`, registers `@testing-library/jest-dom/vitest` + `vitest-axe` matchers, and polyfills `crypto.getRandomValues`, `structuredClone`, `File`, `FileReader`, `URL.createObjectURL`, `matchMedia`, and canvas `getContext`.
+**Runner:** Vitest (`vitest.config.ts`), project `jsdom` — `globals: true` (no imports needed for `describe`/`it`/`expect`/`vi`), `jsdom`, `pool: 'forks'`, `testTimeout: 15000`, `css: false`, tests matched at `src/**/*.test.{js,jsx,ts,tsx}`. `resolve.dedupe` collapses `@stream-io/state-store`, `@stream-io/i18n`, `stream-chat`, `react` and `react-dom` onto one copy each. `vitest.setup.ts` forces `TZ=UTC`, registers `@testing-library/jest-dom/vitest` + `vitest-axe` matchers, and polyfills `crypto.getRandomValues`, `structuredClone`, `File`, `FileReader`, `URL.createObjectURL`, `matchMedia`, and canvas `getContext`.
 
 Import test helpers from `src/mock-builders` (also aliased as `mock-builders`):
 
@@ -309,6 +310,21 @@ render(
 ```
 
 Mock modules with `vi.mock('../../EmptyStateIndicator', () => ({ … }))`; use `importOriginal<typeof import('…')>()` to partially mock. Mock methods on the channel/client, never replace the whole object.
+
+### Virtualized lists: jsdom contract tests and the real-browser suite
+
+jsdom lays nothing out, so react-virtuoso renders no items there. For the parts of its contract the SDK relies on (item indexes, keys across a prepend, `scrollerRef`, `scrollIntoView`'s `done`, the DOM attributes the styles target), render the real component inside `VirtuosoMockContext.Provider value={{ itemHeight, viewportHeight }}` — see `src/components/MessageList/__tests__/virtuosoContract.test.tsx`.
+
+Scrolling, measuring, prepending and staying at the bottom are covered by `src/components/MessageList/__tests__/browser/*.browser.test.tsx`, run by `yarn test:browser` in headless Chromium (`npx playwright install chromium` once; install scripts are disabled) with the SDK's real styles:
+
+- **Projects.** `browser-v4` runs the suites on the shipped react-virtuoso; `browser-v2` runs the same suites with `react-virtuoso` aliased to `react-virtuoso-v2` (2.19.1), kept while the v4 upgrade is verified. Same SDK source, different runtime.
+- **Harness** (`harness.tsx`, `fakeBackend.ts`). A mocked client whose requests a seeded, in-memory history answers, so pages, jumps and sends go through the real `MessagePaginator`; a synthetic message UI of known heights; helpers to scroll, receive messages, grow a message and wait for the list to settle.
+- **Probe and traces** (`virtuosoProbe.tsx`, `trace.ts`). `vi.mock('react-virtuoso')` wraps `Virtuoso` to record every callback between the SDK and Virtuoso (with `followOutput`'s answers); each settled step records geometry, the rendered items, DOM nodes replaced, requests, paginator calls and render counts.
+- **Invariants** (`invariants.ts`, `scenario.ts`): the list is shown, items are contiguous and cover the viewport, the at-bottom state agrees with the geometry, a scroll moves the content by exactly the scrolled distance, a scroll to the bottom stays there. They fail the v4 project; on v2 they are recorded.
+- **Scenarios and fuzzing.** `VirtualizedMessageList.scroll.browser.test.tsx` (B-xx), `OtherLists.browser.test.tsx` (ThreadList, Channel Detail), and `VirtualizedMessageList.fuzz.browser.test.tsx`: seeded operation sequences (`VIRTUOSO_FUZZ_SEEDS`, 25 by default).
+- **Comparison.** `scripts/compare-virtuoso-traces.mts` diffs the two runtimes' traces in `.virtuoso-traces/`; every difference must match `__tests__/browser/expected-differences.json`, which says why the runtimes differ.
+- **Gating.** `yarn test:browser` runs `browser-v4` first (it must pass), then `browser-v2` (recorded, not gating: v2 has known races), then the comparison, which gates locally. CI gates on `browser-v4` only and uploads the v2 run and the comparison as an artifact, since on slower runners v2 loses its races often enough to swamp the comparison.
+- **Mutation checks.** `VIRTUOSO_MUTATION=<name> yarn vitest run --project browser-v4` injects a breakage between the SDK and Virtuoso (see `VirtuosoMutation` in `virtuosoProbe.tsx`); the comparison must then report it.
 
 ## Build system
 

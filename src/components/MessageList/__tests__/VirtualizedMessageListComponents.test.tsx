@@ -120,6 +120,8 @@ describe('VirtualizedMessageComponents', () => {
           'data-index': PREPEND_OFFSET,
           'data-item-index': PREPEND_OFFSET,
           'data-known-size': 0,
+          // react-virtuoso 4 passes the row's data; this list renders by `totalCount`, so none.
+          item: undefined as never,
         };
         const virtuosoContext = {
           customClasses,

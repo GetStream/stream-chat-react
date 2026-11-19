@@ -32,8 +32,9 @@ export const makeItemsRenderedHandler = (
   throttle((items: ListItem<UnknownType>[]) => {
     const renderedMessages = items
       .map((item) => {
-        if (!item.originalIndex) return undefined;
-        return processedMessages[calculateItemIndex(item.originalIndex, PREPEND_OFFSET)];
+        // `originalIndex` is the 0-based position in the data, so 0 is the first loaded message.
+        if (item.originalIndex === undefined) return undefined;
+        return processedMessages[item.originalIndex];
       })
       .filter((msg) => !!msg);
     renderedItemsActions.forEach((action) =>
@@ -45,13 +46,22 @@ type CommonVirtuosoComponentProps = {
   context?: VirtuosoContext;
 };
 // `display: inline-block` traps the items' CSS margins, preventing incorrect item measurements.
-export const Item = ({ context, ...props }: ItemProps & CommonVirtuosoComponentProps) => {
+// `item` is the row's data, which Virtuoso passes since v4; this list has none (it renders by
+// `totalCount`), and spreading it onto the <div> would leak it into the DOM.
+export const Item = ({
+  context,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars -- strip `item` so it is not forwarded to the <div>
+  item: _item,
+  ...props
+}: ItemProps<UnknownType> & CommonVirtuosoComponentProps) => {
   if (!context) return <></>;
 
   const message =
     context.processedMessages[
       calculateItemIndex(props['data-item-index'], context.numItemsPrepended)
     ];
+  // Virtuoso can render an index the list no longer has for one pass (see computeItemKey).
+  if (!message) return <div {...props} />;
   const groupStyles: GroupStyle = context.messageGroupStyles[message.id];
 
   return (
