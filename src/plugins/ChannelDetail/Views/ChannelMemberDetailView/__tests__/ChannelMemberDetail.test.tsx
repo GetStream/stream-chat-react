@@ -15,7 +15,10 @@ import * as DEFAULT_ICONS from '../../../../../components/Icons/icons';
 import { ChannelDetailProvider } from '../../../ChannelDetailContext';
 import { ChannelMemberDetail } from '../ChannelMemberDetail';
 import { mockT } from '../../../../../mock-builders/translator';
-import { convertDateToTimestamp } from '../../../../../mock-builders';
+import {
+  convertDateToTimestamp,
+  generateChannelState,
+} from '../../../../../mock-builders';
 
 vi.mock('../../../../../context');
 
@@ -38,15 +41,17 @@ vi.mock('../../../../../components/Dialog', () => ({
 const createChannel = ({
   members,
   ownCapabilities = ['update-channel-members', 'ban-channel-members'],
+  watchers = {},
 }: {
   members?: Channel['state']['members'];
   ownCapabilities?: string[];
+  watchers?: Channel['state']['watchers'];
 } = {}) =>
   fromPartial<Channel>({
     data: {
       own_capabilities: ownCapabilities,
     },
-    state: {
+    state: generateChannelState({
       members: members ?? {
         me: {
           user: { id: 'user-me', name: 'Me' },
@@ -61,7 +66,8 @@ const createChannel = ({
           user_id: 'user-2',
         },
       },
-    },
+      watchers,
+    }),
   });
 
 const renderWithChannel = (ui: React.ReactElement, channel: Channel = createChannel()) =>
@@ -113,6 +119,23 @@ describe('ChannelMemberDetail', () => {
 
     expect(screen.getByText('Bob')).toBeInTheDocument();
     expect(screen.getByText('Member detail')).toBeInTheDocument();
+  });
+
+  it('shows a member who watches the channel as online, like the channel header', () => {
+    renderWithChannel(
+      <ChannelMemberDetail
+        channelMemberActionSet={[]}
+        layout='inline'
+        member={otherMember}
+      />,
+      createChannel({
+        watchers: fromPartial<Channel['state']['watchers']>({
+          'user-2': { id: 'user-2' },
+        }),
+      }),
+    );
+
+    expect(screen.getByText('Online')).toBeInTheDocument();
   });
 
   it('filters actions by capabilities for another member', () => {

@@ -18,6 +18,8 @@ import { ChannelDetailEmptyList } from '../../ChannelDetailEmptyList';
 import { ChannelDetailListLoadingIndicator } from '../../ChannelDetailListLoadingIndicator';
 import { ChannelDetailSearchInput } from '../../ChannelDetailSearchInput';
 import { useChannelMembersSearch } from './useChannelMembersSearch';
+import { useIsUserOnline } from '../../../../components/ChannelHeader/hooks/useIsUserOnline';
+import { useChannelDetailContext } from '../../ChannelDetailContext';
 
 const getMemberRoleTranslation = (
   member: ChannelMemberResponse,
@@ -35,9 +37,10 @@ const getMemberRoleTranslation = (
 
 const getPresenceStatusText = (
   user: ChannelMemberResponse['user'],
+  isOnline: boolean,
   t: ReturnType<typeof useTranslationContext>['t'],
 ) => {
-  if (user?.online) return t('common.online.label', 'Online');
+  if (isOnline) return t('common.online.label', 'Online');
 
   if (user?.last_active != null) {
     return t(
@@ -66,7 +69,9 @@ const ChannelMembersBrowseViewItem = ({
   const { t } = useTranslationContext();
   const { Avatar = DefaultAvatar, extractDisplayInfo = defaultExtractDisplayInfo } =
     useComponentContext();
+  const { channel } = useChannelDetailContext();
   const user = member.user;
+  const isOnline = useIsUserOnline(channel, user);
   const displayName = getMemberDisplayName(member);
   const roleTranslation = getMemberRoleTranslation(member, t);
 
@@ -75,9 +80,9 @@ const ChannelMembersBrowseViewItem = ({
       function MemberAvatar() {
         const displayInfo = extractDisplayInfo({ user: user ?? undefined });
 
-        return <Avatar {...displayInfo} isOnline={user?.online} size='md' />;
+        return <Avatar {...displayInfo} isOnline={isOnline} size='md' />;
       },
-    [Avatar, extractDisplayInfo, user],
+    [Avatar, extractDisplayInfo, isOnline, user],
   );
 
   const TrailingSlot = useMemo(
@@ -120,7 +125,7 @@ const ChannelMembersBrowseViewItem = ({
       LeadingSlot={LeadingSlot}
       RootElement='button'
       rootProps={rootProps}
-      subtitle={getPresenceStatusText(user, t)}
+      subtitle={getPresenceStatusText(user, isOnline, t)}
       title={displayName}
       TrailingSlot={TrailingSlot}
     />

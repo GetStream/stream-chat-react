@@ -18,6 +18,7 @@ import {
   useChannelMemberActionContext,
 } from './ChannelMemberActions.defaults';
 import { getMemberDisplayName } from '../ChannelMembersView/ChannelMembersView.utils';
+import { useIsUserOnline } from '../../../../components/ChannelHeader/hooks/useIsUserOnline';
 
 export type ChannelMemberDetailProps = SectionNavigatorSectionContentProps & {
   /** The member whose details are shown. */
@@ -28,9 +29,10 @@ export type ChannelMemberDetailProps = SectionNavigatorSectionContentProps & {
 
 const getPresenceStatusText = (
   user: ChannelMemberResponse['user'],
+  isOnline: boolean,
   t: ReturnType<typeof useTranslationContext>['t'],
 ) => {
-  if (user?.online) return t('common.online.label', 'Online');
+  if (isOnline) return t('common.online.label', 'Online');
 
   if (user?.last_active != null) {
     return t(
@@ -53,9 +55,11 @@ export const ChannelMemberDetail = ({
   onBack,
 }: ChannelMemberDetailProps) => {
   const { t } = useTranslationContext();
+  const { channel } = useChannelDetailContext();
+  const isOnline = useIsUserOnline(channel, member.user);
 
   const memberDisplayName = getMemberDisplayName(member);
-  const memberStatusText = getPresenceStatusText(member.user, t);
+  const memberStatusText = getPresenceStatusText(member.user, isOnline, t);
 
   const actionContextValue = useMemo(
     () => ({
@@ -91,12 +95,13 @@ const ChannelMemberDetailContent = ({
   memberStatusText,
   onBack,
 }: ChannelMemberDetailContentProps) => {
-  const { close } = useChannelDetailContext();
+  const { channel, close } = useChannelDetailContext();
   const { t } = useTranslationContext();
   const { Avatar = DefaultChannelAvatar } = useComponentContext();
   const { member } = useChannelMemberActionContext();
 
   const filteredActions = useBaseChannelMemberActionSetFilter(channelMemberActionSet);
+  const isOnline = useIsUserOnline(channel, member.user);
 
   return (
     <div className='str-chat__channel-detail__channel-member-detail-view'>
@@ -109,7 +114,7 @@ const ChannelMemberDetailContent = ({
         <div className='str-chat__channel-detail__channel-member-detail-view__profile'>
           <Avatar
             imageUrl={member.user?.image}
-            isOnline={member.user?.online}
+            isOnline={isOnline}
             size='2xl'
             userName={memberDisplayName}
           />
