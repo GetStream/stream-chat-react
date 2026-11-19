@@ -218,7 +218,10 @@ describe('ThreadListItemUI', () => {
     render(<ThreadListItemUI />);
     fireEvent.click(screen.getByRole('option'));
 
-    expect(mockOpenThread).toHaveBeenCalledWith(thread, { additive: false });
+    expect(mockOpenThread).toHaveBeenCalledWith(thread, {
+      additive: false,
+      event: expect.objectContaining({ type: 'click' }),
+    });
     expect(announceInteraction).toHaveBeenCalledWith('thread.opened', {
       name: 'General',
     });
@@ -231,7 +234,10 @@ describe('ThreadListItemUI', () => {
     fireEvent.click(screen.getByRole('option'));
 
     // Re-selecting still calls openThread (idempotent) but must not re-announce.
-    expect(mockOpenThread).toHaveBeenCalledWith(thread, { additive: false });
+    expect(mockOpenThread).toHaveBeenCalledWith(thread, {
+      additive: false,
+      event: expect.objectContaining({ type: 'click' }),
+    });
     expect(announceInteraction).not.toHaveBeenCalled();
   });
 

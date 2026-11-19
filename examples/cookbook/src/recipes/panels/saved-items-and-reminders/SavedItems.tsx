@@ -101,7 +101,8 @@ const useOpenSavedMessage = () => {
     // The channel the client holds, or a new instance for one it hasn't loaded yet. It replaces a
     // channel that is being disposed, so the one it returns can always be opened.
     const channel = client.channel(item.channel.type, item.channel.id);
-    openChannel(channel, { event });
+    // Picked in the side panel, which stays open. `event` lets a ⌘/ctrl-click open it beside.
+    openChannel(channel, { event, exclusive: false });
     channelManager.ingestChannel(channel);
     // Highlights the message, loading the page around it and watching the channel when needed.
     channel.messagePaginator

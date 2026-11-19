@@ -14,8 +14,9 @@ type ChannelDetailsProps = {
 };
 
 /**
- * The SDK's `ChannelDetail` for the channel open in the `channel` slot, so it follows the user to
- * another channel.
+ * The SDK's `ChannelDetail` for the channel open in the `channel` slot. Picking a channel from the
+ * list closes the panel; a channel opened any other way while it's open, such as from a link, shows
+ * its own details.
  */
 const ChannelDetails = ({ sections }: ChannelDetailsProps) => {
   const channel = useSlotChannel({ slot: 'channel' });

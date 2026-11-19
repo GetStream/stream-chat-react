@@ -1,16 +1,9 @@
 import React, { createContext, useContext, useMemo } from 'react';
 
-import { useStateStore } from '../../store';
-import {
-  createChatViewSlotBinding,
-  getChatViewEntityBinding,
-  useChatViewContext,
-} from './ChatView';
-import {
-  isPersistentSlotKind,
-  resolveSlotKindView,
-  useSlotRegistry,
-} from './slotRegistry';
+import { getChatViewEntityBinding, useChatViewContext } from './ChatView';
+import { ChatViewNavigator } from './ChatViewNavigator';
+import { useLayoutViewState } from './hooks/useLayoutViewState';
+import { useSlotRegistry } from './slotRegistry';
 
 import type { PropsWithChildren } from 'react';
 import type {
@@ -19,76 +12,8 @@ import type {
   StreamChat,
   Thread as StreamThread,
 } from 'stream-chat';
-import type {
-  ChatView,
-  ChatViewEntityBinding,
-  ResolveViewActionTargetSlotArgs,
-} from './ChatView';
-import { getLayoutViewState, useLayoutViewState } from './hooks/useLayoutViewState';
-import type {
-  ChatViewLayoutState,
-  ChatViewLayoutViewState,
-  LayoutSlotBinding,
-  OpenResult,
-  SlotName,
-} from './layoutController/layoutControllerTypes';
-
-type ViewSlotRuntime = {
-  activeViewState: ChatViewLayoutViewState;
-  availableSlots: SlotName[];
-  orderedSlots: SlotName[];
-  slotBindings: Record<SlotName, LayoutSlotBinding | undefined>;
-  slotLayers: Record<SlotName, LayoutSlotBinding[] | undefined>;
-};
-
-// Picks the slot for a binding: the requested slot when available, one already holding the same
-// kind, the first free non-persistent slot, the first free slot, then the last non-persistent slot.
-// That last fallback skips persistent (list) slots, so when only persistent slots remain it returns
-// undefined and `open` rejects instead of evicting a list.
-const resolveDefaultTargetSlot = ({
-  additive,
-  isPersistentSlot,
-  kind,
-  requestedSlot,
-  runtime,
-}: {
-  additive?: boolean;
-  isPersistentSlot: (slot: SlotName) => boolean;
-  kind: ChatViewEntityBinding['kind'];
-  requestedSlot?: SlotName;
-  runtime: ViewSlotRuntime;
-}): SlotName | undefined => {
-  if (requestedSlot && runtime.availableSlots.includes(requestedSlot)) {
-    return requestedSlot;
-  }
-
-  const readSlotKind = (slot: SlotName) =>
-    getChatViewEntityBinding(runtime.slotBindings[slot])?.kind;
-  // A slot is free only with neither a base binding nor a covering layer stack: binding into the
-  // base beneath a layer would render invisibly.
-  const isFree = (slot: SlotName) =>
-    !runtime.slotBindings[slot] && !runtime.slotLayers[slot]?.length;
-  const sameKind = runtime.availableSlots.find((slot) => readSlotKind(slot) === kind);
-  const firstFreeNonPersistent = runtime.availableSlots.find(
-    (slot) => isFree(slot) && !isPersistentSlot(slot),
-  );
-  const firstFree = runtime.availableSlots.find((slot) => isFree(slot));
-  // When every slot is occupied, target the last non-persistent slot rather than the first. Slots
-  // run primary to secondary and the first holds the anchor content (e.g. the main channel), so a
-  // new panel lands on the latest secondary panel rather than on the primary.
-  const lastNonPersistent = [...runtime.availableSlots]
-    .reverse()
-    .find((slot) => !isPersistentSlot(slot));
-
-  // `additive` opens beside existing content (ctrl/⌘-click): skip the same-kind slot, which would
-  // replace what it shows, and prefer a free or secondary slot. A single-slot layout falls
-  // through to that slot, so it opens normally.
-  if (additive) {
-    return firstFreeNonPersistent ?? firstFree ?? lastNonPersistent;
-  }
-
-  return sameKind ?? firstFreeNonPersistent ?? firstFree ?? lastNonPersistent;
-};
+import type { ChatView, ChatViewEntityBinding } from './ChatView';
+import type { OpenResult, SlotName } from './layoutController/layoutControllerTypes';
 
 export type OpenThreadTarget =
   | StreamThread
@@ -126,6 +51,15 @@ export type ChatViewOpenOptions = {
    * @default false
    */
   additive?: boolean;
+  /**
+   * Shows the binding on its own, whatever its kind: every slot of the target view is emptied, and
+   * the binding becomes the only content of the primary slot (the first one not holding a
+   * persistent list), or of `slot` when set. Persistent slots (nav-rail lists) stay. Skips the
+   * kind-based slot resolution and `viewActionSlotResolvers`. Ignored with `additive`.
+   *
+   * @default false
+   */
+  exclusive?: boolean;
   /**
    * Pushes the binding as a layer over the target slot's current content instead of replacing it,
    * without closing dependent slots; `close`/`popLayer` later reveals what was underneath. Combine
@@ -176,7 +110,13 @@ export type ChatViewNavigation = {
    * 5. the last non-persistent slot, so a secondary panel is targeted before the primary one.
    *
    * On an occupied secondary slot the binding is pushed as a layer over the current content, unless
-   * the slot's base already holds this kind; a channel opened with `additive` is layered even then.
+   * the slot's base already holds this kind; a channel opened with `additive` is layered even then,
+   * and so is a thread whose slot's base is covered by a layer. Without `additive` or `layer`,
+   * opening what the secondary slot already holds moves it to the top of the slot's stack instead
+   * of stacking a copy; the rest of the stack keeps its order.
+   *
+   * A channel closes reply threads in the slot it opens into only: the replaced channel's threads
+   * layered over it, or the thread it replaces. Reply threads in other slots stay open.
    *
    * @param binding - Entity to open.
    * @param options - See {@link ChatViewOpenOptions}.
@@ -192,10 +132,6 @@ export type ChatViewNavigation = {
   /** Reveals a previously hidden `slot`. */
   unhide: (slot: SlotName) => void;
 };
-
-const chatViewNavigationStateSelector = (state: ChatViewLayoutState) => ({
-  activeView: state.activeView,
-});
 
 const ChatViewNavigationContext = createContext<ChatViewNavigation>({
   close: () => undefined,
@@ -241,246 +177,13 @@ export const useSlotForKey = (key?: string): SlotName | undefined => {
 export const ChatViewNavigationProvider = ({ children }: PropsWithChildren) => {
   const { layoutController, resolveActionTargetSlot } = useChatViewContext();
   const registry = useSlotRegistry();
-  const { availableSlots, slotBindings, slotLayers } = useLayoutViewState();
-  const { activeView } =
-    useStateStore(layoutController.state, chatViewNavigationStateSelector) ??
-    chatViewNavigationStateSelector(layoutController.state.getLatestValue());
 
-  const value = useMemo<ChatViewNavigation>(() => {
-    const slotKind = (slot: SlotName) =>
-      getChatViewEntityBinding(slotBindings[slot])?.kind;
-
-    const buildRuntimeForView = (view: ChatView): ViewSlotRuntime => {
-      const state = layoutController.state.getLatestValue();
-      const viewState = getLayoutViewState(state, view);
-
-      return {
-        activeViewState: viewState,
-        availableSlots: viewState.availableSlots,
-        orderedSlots: viewState.slotNames?.length
-          ? viewState.slotNames
-          : viewState.availableSlots,
-        slotBindings: viewState.slotBindings,
-        slotLayers: viewState.slotLayers ?? {},
-      };
-    };
-
-    const makeIsPersistentSlot = (runtime: ViewSlotRuntime) => (slot: SlotName) =>
-      isPersistentSlotKind(
-        registry,
-        getChatViewEntityBinding(runtime.slotBindings[slot])?.kind,
-      );
-
-    const materializeTargetSlot = (runtime: ViewSlotRuntime, slot?: SlotName) => {
-      if (!slot) return undefined;
-      if (runtime.availableSlots.includes(slot)) return slot;
-      if (!runtime.orderedSlots.includes(slot)) return undefined;
-
-      const nextAvailableSlots = runtime.orderedSlots.filter(
-        (candidate) => runtime.availableSlots.includes(candidate) || candidate === slot,
-      );
-      layoutController.setAvailableSlots(nextAvailableSlots);
-      return slot;
-    };
-
-    const resolveTargetSlot = ({
-      additive,
-      kind,
-      requestedSlot,
-      runtime,
-      view,
-    }: {
-      additive?: boolean;
-      kind: ChatViewEntityBinding['kind'];
-      requestedSlot?: SlotName;
-      runtime: ViewSlotRuntime;
-      view: ChatView;
-    }) => {
-      // Per-view action resolvers (`viewActionSlotResolvers`) run first for channel and thread
-      // opens. `additive` skips them: the default resolver holds the "prefer a free or secondary
-      // slot" logic.
-      const action =
-        !additive && kind === 'channel'
-          ? 'openChannel'
-          : !additive && kind === 'thread'
-            ? 'openThread'
-            : undefined;
-      if (action) {
-        const args: ResolveViewActionTargetSlotArgs = {
-          action,
-          activeView: view,
-          availableSlots: runtime.availableSlots,
-          requestedSlot,
-          slotBindings: runtime.slotBindings,
-          slotNames: runtime.orderedSlots,
-        };
-        const customTargetSlot = resolveActionTargetSlot(view, args);
-        if (customTargetSlot) {
-          const materialized = materializeTargetSlot(runtime, customTargetSlot);
-          if (materialized) return materialized;
-        }
-      }
-
-      return materializeTargetSlot(
-        runtime,
-        resolveDefaultTargetSlot({
-          additive,
-          isPersistentSlot: makeIsPersistentSlot(runtime),
-          kind,
-          requestedSlot,
-          runtime,
-        }),
-      );
-    };
-
-    const openView: ChatViewNavigation['openView'] = (view, options) => {
-      layoutController.openView(view, { slot: options?.slot });
-    };
-
-    // Replacing a channel closes the reply threads opened from it. A thread slot is released, but
-    // content stacked over the thread (a channel opened beside it) stays, its top layer becoming
-    // the slot's base. A reply thread of `replacedChannel` stacked over another panel is popped,
-    // revealing that panel. With a known `replacedChannel`, threads of other channels stay; without
-    // one, every thread slot is released. A thread is matched by `cid`, its conversation.
-    const closeReplyThreads = (replacedChannel?: StreamChannel) => {
-      const isReplyThread = (entity: ReturnType<typeof getChatViewEntityBinding>) =>
-        entity?.kind === 'thread' &&
-        (!replacedChannel || entity.source.channel?.cid === replacedChannel.cid);
-
-      availableSlots.forEach((slot) => {
-        const layers = slotLayers?.[slot] ?? [];
-        const top = layers[layers.length - 1];
-        if (replacedChannel && isReplyThread(getChatViewEntityBinding(top))) {
-          layoutController.popLayer(slot);
-          return;
-        }
-        if (!isReplyThread(getChatViewEntityBinding(slotBindings[slot]))) return;
-        if (!top) {
-          layoutController.release(slot);
-          return;
-        }
-        layoutController.bind(slot, top);
-        layoutController.popLayer(slot);
-      });
-    };
-
-    const open: ChatViewNavigation['open'] = (binding, options) => {
-      // Resolve the target slot before any mutation, so a rejected open is a no-op: no view switch
-      // and no dependent-slot teardown.
-      const kindView = resolveSlotKindView(registry, binding.kind);
-      const targetView = kindView ?? activeView;
-      const runtime = buildRuntimeForView(targetView);
-      const targetSlot = resolveTargetSlot({
-        additive: options?.additive,
-        kind: binding.kind,
-        requestedSlot: options?.slot,
-        runtime,
-        view: targetView,
-      });
-
-      if (!targetSlot) {
-        return { reason: 'no-available-slot', status: 'rejected' };
-      }
-
-      // Kinds that declare a target view switch to it on open (e.g. channel ->
-      // channels); view-agnostic kinds (thread) open in the active view.
-      if (kindView) openView(targetView, options);
-
-      // Push a layer when `options.layer` asks for it, or when the target is an occupied secondary
-      // slot (a base binding or a covering layer) and this is not a same-kind replace. Otherwise
-      // the primary slot (first non-persistent) base-binds, so selecting a channel replaces it and
-      // single-slot layouts do not layer. A same-kind base (thread over thread in its own slot)
-      // replaces too, except a channel opened beside another (`additive`), which stacks so that
-      // stepping back returns to the previous channel.
-      const isPersistentSlot = makeIsPersistentSlot(runtime);
-      const anchorSlot = runtime.availableSlots.find((slot) => !isPersistentSlot(slot));
-      const targetBase = runtime.slotBindings[targetSlot];
-      const targetBaseKind = getChatViewEntityBinding(targetBase)?.kind;
-      const targetOccupied = !!targetBase || !!runtime.slotLayers[targetSlot]?.length;
-      const isSecondaryTarget = targetSlot !== anchorSlot;
-      // Opening beside what the target slot already shows on top changes nothing. Anything else (a
-      // channel lower in its stack, or open in another slot) is stacked on top so it is shown.
-      const shownInTarget = getChatViewEntityBinding(
-        runtime.slotLayers[targetSlot]?.at(-1) ?? targetBase,
-      );
-      if (
-        options?.additive &&
-        isSecondaryTarget &&
-        binding.key !== undefined &&
-        shownInTarget?.key === binding.key
-      ) {
-        return { slot: targetSlot, status: 'opened' };
-      }
-      const stacksBesideSameKind = !!options?.additive && binding.kind === 'channel';
-      const sameKindBaseReplace =
-        !!targetBase && targetBaseKind === binding.kind && !stacksBesideSameKind;
-
-      if (
-        options?.layer ||
-        (isSecondaryTarget && targetOccupied && !sameKindBaseReplace)
-      ) {
-        layoutController.pushLayer(targetSlot, createChatViewSlotBinding(binding));
-        return { slot: targetSlot, status: 'layered' };
-      }
-
-      // Replacing a channel closes the threads bound to the previous one. Layered opens returned
-      // above and skip this.
-      if (binding.kind === 'channel') {
-        const replaced = getChatViewEntityBinding(targetBase);
-        closeReplyThreads(replaced?.kind === 'channel' ? replaced.source : undefined);
-      }
-
-      return layoutController.openInLayout(createChatViewSlotBinding(binding), {
-        targetSlot,
-      });
-    };
-
-    const close: ChatViewNavigation['close'] = (slot) => {
-      if (!availableSlots.includes(slot)) return;
-      // Layers dismiss top-down: pop the topmost layer first and only release the base binding
-      // once no layers remain.
-      if (slotLayers?.[slot]?.length) {
-        layoutController.popLayer(slot);
-        return;
-      }
-      // Persistent kinds (nav-rail lists) are hide-only; close never releases them.
-      if (isPersistentSlotKind(registry, slotKind(slot))) return;
-      layoutController.release(slot);
-    };
-
-    const release: ChatViewNavigation['release'] = (slot) => {
-      if (!availableSlots.includes(slot)) return;
-      if (isPersistentSlotKind(registry, slotKind(slot))) return;
-      layoutController.release(slot);
-    };
-
-    const hide: ChatViewNavigation['hide'] = (slot) => {
-      if (availableSlots.includes(slot)) layoutController.hide(slot);
-    };
-
-    const pushLayer: ChatViewNavigation['pushLayer'] = (slot, binding) => {
-      if (!availableSlots.includes(slot)) return;
-      layoutController.pushLayer(slot, createChatViewSlotBinding(binding));
-    };
-
-    const popLayer: ChatViewNavigation['popLayer'] = (slot) => {
-      if (availableSlots.includes(slot)) layoutController.popLayer(slot);
-    };
-
-    const unhide: ChatViewNavigation['unhide'] = (slot) => {
-      if (availableSlots.includes(slot)) layoutController.unhide(slot);
-    };
-
-    return { close, hide, open, openView, popLayer, pushLayer, release, unhide };
-  }, [
-    activeView,
-    availableSlots,
-    layoutController,
-    registry,
-    resolveActionTargetSlot,
-    slotBindings,
-    slotLayers,
-  ]);
+  // The navigator reads the layout's latest state on every call, so it is created once per layout
+  // controller, slot registry and action resolver, not on every layout change.
+  const value = useMemo<ChatViewNavigation>(
+    () => new ChatViewNavigator({ layoutController, registry, resolveActionTargetSlot }),
+    [layoutController, registry, resolveActionTargetSlot],
+  );
 
   return (
     <ChatViewNavigationContext.Provider value={value}>
