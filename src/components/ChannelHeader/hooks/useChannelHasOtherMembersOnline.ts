@@ -10,13 +10,10 @@ export type UseChannelHasOtherMembersOnlineParams = {
   enabled?: boolean;
 };
 
-// Disposal and the membership change who the current user is (see `getChannelOwnUserId`).
-const membersSelector = ({
+const membersSelector = ({ members, watchers }: ChannelStateData) => ({
   members,
-  membership,
-  pendingDisposal,
   watchers,
-}: ChannelStateData) => ({ members, membership, pendingDisposal, watchers });
+});
 
 /**
  * Whether a member other than the current user is online (see `isMemberOnline`). `channel`

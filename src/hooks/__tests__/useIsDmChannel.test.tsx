@@ -1,19 +1,10 @@
 import React from 'react';
 import { act, renderHook } from '@testing-library/react';
 import { fromPartial } from '@total-typescript/shoehorn';
-import type {
-  Channel,
-  ChannelMemberResponse,
-  ChannelState,
-  StreamChat,
-} from 'stream-chat';
+import type { Channel, ChannelState, StreamChat } from 'stream-chat';
 
 import { ChannelInstanceProvider, ChatProvider } from '../../context';
-import {
-  generateChannelState,
-  getTestClientWithUser,
-  mockChatContext,
-} from '../../mock-builders';
+import { generateChannelState, mockChatContext } from '../../mock-builders';
 import { useIsDmChannel } from '../useIsDmChannel';
 
 // The `isDmChannel` util has its own tests. These cover the hook wiring: it returns that result
@@ -141,76 +132,27 @@ describe('useIsDmChannel', () => {
     expect(result.current).toBe(true);
   });
 
-  describe('for a channel pending disposal, whose client throws', () => {
-    const makeDisposedDm = (membership: Partial<ChannelMemberResponse> = {}) => {
-      const members = fromPartial<ChannelState['members']>({
-        'user-a': { user: { id: 'user-a' } },
-        'user-b': { user: { id: 'user-b' } },
-      });
-      const state = generateChannelState({
-        memberCount: 2,
-        members,
-        membership: fromPartial<ChannelMemberResponse>(membership),
-      });
-      return fromPartial<Channel>({
-        data: { member_count: 2 },
-        getClient: () => {
-          throw new Error('pending disposal');
-        },
-        pendingDisposal: true,
-        state,
-      });
-    };
-    const wrapperFor = (chatUserId: string) => {
-      const ChatWithUser = ({ children }: React.PropsWithChildren) => (
-        <ChatProvider
-          value={mockChatContext({
-            client: fromPartial<StreamChat>({ user: { id: chatUserId } }),
-          })}
-        >
-          {children}
-        </ChatProvider>
-      );
-      return ChatWithUser;
-    };
-
-    // The Chat user is not a member, so only the membership can make this a DM.
-    it.each([
-      ['user', { user: { id: 'user-a' } }],
-      ['user_id', { user_id: 'user-a' }],
-    ])("reads the current user from the channel's own membership %s", (_, membership) => {
-      const { result } = renderHook(
-        () => useIsDmChannel({ channel: makeDisposedDm(membership) }),
-        { wrapper: wrapperFor('user-outside') },
-      );
-
-      expect(result.current).toBe(true);
+  // A channel pending disposal is not meant to be rendered; a lingering render must not throw.
+  it('renders a channel pending disposal, whose client throws, without the user in Chat', () => {
+    const chatClient = fromPartial<StreamChat>({ user: { id: 'user-b' } });
+    const members = fromPartial<ChannelState['members']>({
+      'user-a': { user: { id: 'user-a' } },
+      'user-b': { user: { id: 'user-b' } },
     });
-
-    // The Chat user is a member, so reading it would make this look like their DM.
-    it('does not fall back to the user in Chat without a membership', () => {
-      const { result } = renderHook(() => useIsDmChannel({ channel: makeDisposedDm() }), {
-        wrapper: wrapperFor('user-b'),
-      });
-
-      expect(result.current).toBe(false);
+    const { channel } = makeChannel(2, members);
+    Object.assign(channel, {
+      getClient: () => {
+        throw new Error('pending disposal');
+      },
+      pendingDisposal: true,
     });
-  });
+    const wrapper = ({ children }: React.PropsWithChildren) => (
+      <ChatProvider value={mockChatContext({ client: chatClient })}>
+        {children}
+      </ChatProvider>
+    );
 
-  it('recomputes when the channel enters disposal', async () => {
-    const client = await getTestClientWithUser({ id: 'own-user' });
-    const channel = client.channel('messaging', 'dm');
-    channel.data = { member_count: 2 };
-    channel.state.members = fromPartial<ChannelState['members']>({
-      'other-user': { user: { id: 'other-user' } },
-      'own-user': { user: { id: 'own-user' } },
-    });
-
-    const { result } = renderHook(() => useIsDmChannel({ channel }));
-    expect(result.current).toBe(true);
-
-    // Without a membership, a disposed channel no longer names its current user.
-    act(() => channel.state.partialNext({ pendingDisposal: true }));
+    const { result } = renderHook(() => useIsDmChannel({ channel }), { wrapper });
 
     expect(result.current).toBe(false);
   });

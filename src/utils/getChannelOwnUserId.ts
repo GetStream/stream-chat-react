@@ -2,10 +2,8 @@ import type { Channel } from 'stream-chat';
 
 /**
  * The current user of the channel's own client, which can differ from the one in `Chat`. A channel
- * pending disposal no longer gives out its client, so its own membership names the user; without
- * one, the user is unknown rather than another client's.
+ * pending disposal is not meant to be rendered and its `getClient()` throws, so a lingering render
+ * gets no user instead.
  */
 export const getChannelOwnUserId = (channel: Channel) =>
-  channel.pendingDisposal
-    ? (channel.state.membership?.user?.id ?? channel.state.membership?.user_id)
-    : channel.getClient().user?.id;
+  channel.pendingDisposal ? undefined : channel.getClient().user?.id;

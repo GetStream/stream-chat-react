@@ -1,4 +1,4 @@
-import type { Channel, ChannelStateData } from 'stream-chat';
+import type { Channel, MembersState } from 'stream-chat';
 
 import { useResolvedChannel } from '../context/useContextChannel';
 import { useStateStore } from '../store';
@@ -9,12 +9,9 @@ export type UseIsDmChannelParams = {
   channel?: Channel;
 };
 
-// Disposal and the membership change who the current user is (see `getChannelOwnUserId`).
-const membersSelector = (nextValue: ChannelStateData) => ({
+const membersSelector = (nextValue: MembersState) => ({
   memberCount: nextValue.memberCount,
   members: nextValue.members,
-  membership: nextValue.membership,
-  pendingDisposal: nextValue.pendingDisposal,
 });
 
 /**

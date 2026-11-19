@@ -1,7 +1,6 @@
 import React from 'react';
 import { act, renderHook } from '@testing-library/react';
-import { fromPartial } from '@total-typescript/shoehorn';
-import type { Channel, ChannelMemberResponse, Event, StreamChat } from 'stream-chat';
+import type { Channel, Event, StreamChat } from 'stream-chat';
 
 import { Chat } from '../../../Chat';
 import { ChannelInstanceProvider } from '../../../../context';
@@ -147,20 +146,6 @@ describe('useChannelHasOtherMembersOnline', () => {
     expect(result.current).toBe(true);
 
     dispatchPresence(client, false);
-    expect(result.current).toBe(false);
-  });
-
-  it('becomes false when the channel enters disposal without a membership', async () => {
-    const { channel, client } = await setupChannel({ otherOnline: true });
-    act(() =>
-      channel.state.partialNext({ membership: fromPartial<ChannelMemberResponse>({}) }),
-    );
-
-    const { result } = renderForChannel(client, channel);
-    expect(result.current).toBe(true);
-
-    act(() => channel.state.partialNext({ pendingDisposal: true }));
-
     expect(result.current).toBe(false);
   });
 
