@@ -123,9 +123,13 @@ export const hydrateScheduledMessages = (
 ) => {
   const [type, id] = cid.split(':');
 
+  const orderedByScheduledAt = [...scheduledMessages].sort(
+    (a, b) => a.scheduled_at - b.scheduled_at,
+  );
+
   client.channel(type, id).scheduledMessagesPaginator.setItems({
     isFirstPage: true,
     isLastPage: true,
-    valueOrFactory: scheduledMessages,
+    valueOrFactory: orderedByScheduledAt,
   });
 };

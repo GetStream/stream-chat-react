@@ -1,5 +1,6 @@
 import React, { StrictMode } from 'react';
 import { act, cleanup, render, waitFor } from '@testing-library/react';
+import { ScheduledMessagePaginator } from 'stream-chat';
 import type { StreamChat } from 'stream-chat';
 
 import { Chat } from '..';
@@ -27,6 +28,12 @@ const reconnect = async (client: StreamChat) => {
   });
 };
 
+const registerScheduledMessageList = (client: StreamChat, cid: string) => {
+  const paginator = new ScheduledMessagePaginator({ client, filter: { cid } });
+  client.scheduledMessagePaginators.insertPaginator({ paginator });
+  return paginator;
+};
+
 describe('Chat scheduled messages wiring', () => {
   afterEach(() => {
     cleanup();
@@ -37,7 +44,7 @@ describe('Chat scheduled messages wiring', () => {
 
     await renderChat(client);
 
-    expect(client.scheduledMessages.hasSubscriptions).toBe(true);
+    expect(client.scheduledMessagePaginators.hasSubscriptions).toBe(true);
   });
 
   it('does not query the scheduled messages on its own', async () => {
@@ -52,7 +59,7 @@ describe('Chat scheduled messages wiring', () => {
   it('subscribes once under StrictMode', async () => {
     const client = await getTestClientWithUser({ id: 'user-1' });
     const scheduledMessage = generateScheduledMessage();
-    const upsertToState = vi.spyOn(client.scheduledMessages, 'upsertToState');
+    const ingest = vi.spyOn(client.scheduledMessagePaginators, 'ingest');
 
     await renderChat(client, { strict: true });
     act(() => {
@@ -63,12 +70,13 @@ describe('Chat scheduled messages wiring', () => {
       });
     });
 
-    await waitFor(() => expect(upsertToState).toHaveBeenCalledTimes(1));
+    await waitFor(() => expect(ingest).toHaveBeenCalledTimes(1));
   });
 
   it('keeps the store in sync from events while mounted', async () => {
     const client = await getTestClientWithUser({ id: 'user-1' });
     const scheduledMessage = generateScheduledMessage();
+    registerScheduledMessageList(client, scheduledMessage.cid);
     await renderChat(client);
 
     act(() => {
@@ -80,7 +88,7 @@ describe('Chat scheduled messages wiring', () => {
     });
 
     await waitFor(() =>
-      expect(client.scheduledMessages.getFromState(scheduledMessage.id)).toEqual(
+      expect(client.scheduledMessageStore.get(scheduledMessage.id)).toEqual(
         scheduledMessage,
       ),
     );
@@ -130,6 +138,7 @@ describe('Chat scheduled messages wiring', () => {
   it('unsubscribes on unmount', async () => {
     const client = await getTestClientWithUser({ id: 'user-1' });
     const scheduledMessage = generateScheduledMessage();
+    registerScheduledMessageList(client, scheduledMessage.cid);
     const { unmount } = await renderChat(client);
 
     unmount();
@@ -140,9 +149,11 @@ describe('Chat scheduled messages wiring', () => {
         type: 'scheduled_message.created',
       });
     });
-    await client.scheduledMessages.pipelines.get('scheduled_message.created')?.drain();
+    await client.scheduledMessagePaginators.pipelines
+      .get('scheduled_message.created')
+      ?.drain();
 
-    expect(client.scheduledMessages.hasSubscriptions).toBe(false);
-    expect(client.scheduledMessages.getFromState(scheduledMessage.id)).toBeUndefined();
+    expect(client.scheduledMessagePaginators.hasSubscriptions).toBe(false);
+    expect(client.scheduledMessageStore.get(scheduledMessage.id)).toBeUndefined();
   });
 });

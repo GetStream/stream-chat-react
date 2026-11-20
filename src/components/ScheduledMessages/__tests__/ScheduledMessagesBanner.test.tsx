@@ -25,6 +25,7 @@ import {
   generateMessage,
   generateScheduledMessage,
   generateUser,
+  hydrateScheduledMessages,
   initClientWithChannels,
 } from '../../../mock-builders';
 
@@ -99,7 +100,9 @@ const renderComposer = async ({
 
   if (awaitsScheduledMessages) {
     await waitFor(() =>
-      expect(client.scheduledMessages.getChannelPaginator(cid).hasLoadedPage).toBe(true),
+      expect(
+        client.channel('messaging', 'general').scheduledMessagesPaginator.hasLoadedPage,
+      ).toBe(true),
     );
   }
 
@@ -163,7 +166,9 @@ describe('ScheduledMessagesBanner', () => {
       scheduledMessages: [generateScheduledMessage({ cid })],
     });
 
-    act(() => client.scheduledMessages.resetState());
+    act(() =>
+      client.channel('messaging', 'general').scheduledMessagesPaginator.resetState(),
+    );
 
     expect(queryBanner()).not.toBeInTheDocument();
   });
@@ -173,9 +178,11 @@ describe('ScheduledMessagesBanner', () => {
       scheduledMessages: [generateScheduledMessage({ cid })],
     });
 
-    act(() => client.scheduledMessages.resetState());
     act(() =>
-      client.scheduledMessages.hydrateChannelState(cid, [
+      client.channel('messaging', 'general').scheduledMessagesPaginator.resetState(),
+    );
+    act(() =>
+      hydrateScheduledMessages(client, cid, [
         generateScheduledMessage({ cid }),
         generateScheduledMessage({ cid }),
       ]),

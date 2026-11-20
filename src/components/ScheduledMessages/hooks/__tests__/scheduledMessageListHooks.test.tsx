@@ -82,7 +82,7 @@ describe('useScheduledMessageGroups', () => {
 
   it('regroups when a scheduled message event arrives', async () => {
     const client = await getTestClientWithUser({ id: 'user-id' });
-    client.scheduledMessages.registerSubscriptions();
+    client.scheduledMessagePaginators.registerSubscriptions();
     hydrateScheduledMessages(client, cid);
     const scheduledMessage = generateScheduledMessage({ cid });
 
@@ -102,7 +102,7 @@ describe('useScheduledMessageGroups', () => {
 
     await waitFor(() => expect(result.current.groups).toHaveLength(1));
 
-    client.scheduledMessages.unregisterSubscriptions();
+    client.scheduledMessagePaginators.unregisterSubscriptions();
   });
 
   it('keeps the same groups when another channel changes', async () => {
@@ -115,9 +115,11 @@ describe('useScheduledMessageGroups', () => {
     const initialGroups = result.current.groups;
 
     act(() =>
-      client.scheduledMessages.upsertToState(
-        generateScheduledMessage({ cid: 'messaging:random' }),
-      ),
+      client
+        .channel('messaging', 'random')
+        .scheduledMessagesPaginator.ingestItem(
+          generateScheduledMessage({ cid: 'messaging:random' }),
+        ),
     );
 
     expect(result.current.groups).toBe(initialGroups);
@@ -156,7 +158,7 @@ describe('useScheduledMessagesPagination', () => {
     const client = await getTestClientWithUser({ id: 'user-id' });
     hydrateScheduledMessages(client, cid);
     const toTail = vi
-      .spyOn(client.scheduledMessages.getChannelPaginator(cid), 'toTail')
+      .spyOn(client.channel('messaging', 'general').scheduledMessagesPaginator, 'toTail')
       .mockResolvedValue(undefined);
 
     const { result } = renderHook(() => useScheduledMessagesPagination({ cid }), {
@@ -173,7 +175,7 @@ describe('useScheduledMessagesPagination', () => {
     const error = new Error('Network Error');
     mockScheduledMessagePage(client, 'cursor');
     vi.mocked(client.queryScheduledMessages).mockRejectedValueOnce(error);
-    const paginator = client.scheduledMessages.getChannelPaginator(cid);
+    const paginator = client.channel('messaging', 'general').scheduledMessagesPaginator;
 
     const { result } = renderHook(() => useScheduledMessagesPagination({ cid }), {
       wrapper: createWrapper(client),

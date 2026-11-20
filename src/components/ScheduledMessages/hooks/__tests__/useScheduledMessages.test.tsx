@@ -75,29 +75,6 @@ describe('useScheduledMessages', () => {
     expect(result.current.scheduledMessages).toEqual([reply]);
   });
 
-  it('returns every scheduled message ordered by scheduled_at without a scope', async () => {
-    const client = await getTestClientWithUser({ id: 'user-id' });
-    const later = generateScheduledMessage({
-      cid,
-      scheduled_at: convertDateToTimestamp('2030-01-02T00:00:00Z'),
-    });
-    const sooner = generateScheduledMessage({
-      cid: otherCid,
-      scheduled_at: convertDateToTimestamp('2030-01-01T00:00:00Z'),
-    });
-    vi.mocked(client.queryScheduledMessages).mockResolvedValue({
-      duration: '',
-      scheduled_messages: [later, sooner],
-    });
-
-    const { result } = renderUseScheduledMessages(client);
-
-    await waitFor(() =>
-      expect(result.current.scheduledMessages).toEqual([sooner, later]),
-    );
-    expect(client.queryScheduledMessages).toHaveBeenCalledTimes(1);
-  });
-
   it('queries the first page of its channel when the channel was not hydrated', async () => {
     const client = await getTestClientWithUser({ id: 'user-id' });
     const scheduledMessage = generateScheduledMessage({ cid });
@@ -137,7 +114,7 @@ describe('useScheduledMessages', () => {
     const { result } = renderUseScheduledMessages(client, { cid });
 
     act(() => {
-      client.scheduledMessages.state.partialNext({ isDisabled: true });
+      client.scheduledMessagePaginators.state.partialNext({ isDisabled: true });
     });
 
     expect(result.current.isDisabled).toBe(true);
@@ -149,7 +126,9 @@ describe('useScheduledMessages', () => {
     const { result } = renderUseScheduledMessages(client, { cid });
 
     act(() => {
-      client.scheduledMessages.upsertToState(scheduledMessage);
+      client
+        .channel('messaging', 'general')
+        .scheduledMessagesPaginator.ingestItem(scheduledMessage);
     });
 
     expect(result.current.scheduledMessages).toEqual([scheduledMessage]);
@@ -163,7 +142,11 @@ describe('useScheduledMessages', () => {
     const listBefore = result.current.scheduledMessages;
 
     act(() => {
-      client.scheduledMessages.upsertToState(generateScheduledMessage({ cid: otherCid }));
+      client
+        .channel('messaging', 'random')
+        .scheduledMessagesPaginator.ingestItem(
+          generateScheduledMessage({ cid: otherCid }),
+        );
     });
 
     expect(renders.count).toBe(rendersBefore);

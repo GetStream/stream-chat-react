@@ -64,8 +64,10 @@ const renderList = async ({
 const getGroupHeaders = () =>
   screen.getAllByRole('heading', { level: 3 }).map(({ textContent }) => textContent);
 
-const getPaginator = (client: StreamChat) =>
-  client.scheduledMessages.getChannelPaginator(cid);
+const getPaginator = (client: StreamChat) => {
+  const [type, id] = cid.split(':');
+  return client.channel(type, id).scheduledMessagesPaginator;
+};
 
 const setPaginatorState = (
   client: StreamChat,

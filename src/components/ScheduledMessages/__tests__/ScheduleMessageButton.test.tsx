@@ -105,7 +105,7 @@ const getNotifications = (client: StreamChat) =>
   client.notifications.store.getLatestValue().notifications;
 
 const mockSchedule = (channel: ChannelType) =>
-  vi.spyOn(channel.messageComposer, 'schedule');
+  vi.spyOn(channel.messageComposer.scheduledMessageComposition, 'schedule');
 
 const scheduledResult = (
   scheduledMessage: ScheduledMessageResponse,

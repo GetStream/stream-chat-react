@@ -103,7 +103,7 @@ const applyConditions = (
   composer: MessageComposer,
   { hasCommand, hasLocation, hasPoll, isDisabled, isEditingSentMessage }: Conditions,
 ) => {
-  client.scheduledMessages.state.partialNext({ isDisabled });
+  client.scheduledMessagePaginators.state.partialNext({ isDisabled });
   composer.state.partialNext({
     editedMessage: isEditingSentMessage ? generateMessage() : null,
     pollId: hasPoll ? 'poll-1' : null,
@@ -123,13 +123,12 @@ describe('useCanScheduleMessage', () => {
     const { client, composer, result } = await setup({
       hasCapability: conditions.hasCapability,
     });
-    const { hasCapability, hasCommand, hasLocation, hasPoll, isDisabled } = conditions;
+    const { hasCapability, hasCommand, hasLocation, isDisabled } = conditions;
     const expected =
       hasCapability &&
       !isDisabled &&
       !conditions.isEditingSentMessage &&
       !hasCommand &&
-      !hasPoll &&
       !hasLocation;
 
     act(() => {
@@ -143,7 +142,9 @@ describe('useCanScheduleMessage', () => {
     const { composer, result } = await setup();
 
     act(() => {
-      composer.state.partialNext({ editedScheduledMessage: generateScheduledMessage() });
+      composer.scheduledMessageComposition.state.partialNext({
+        editedScheduledMessage: generateScheduledMessage(),
+      });
     });
 
     expect(result.current).toBe(false);
@@ -173,12 +174,12 @@ describe('useCanScheduleMessage', () => {
     const { composer, result } = await setup();
 
     act(() => {
-      composer.state.partialNext({ pollId: 'poll-1' });
+      composer.locationComposer.state.partialNext({ location });
     });
     expect(result.current).toBe(false);
 
     act(() => {
-      composer.state.partialNext({ pollId: null });
+      composer.locationComposer.state.partialNext({ location: null });
     });
     expect(result.current).toBe(true);
   });

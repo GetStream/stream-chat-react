@@ -142,7 +142,7 @@ describe('scheduled message hooks', () => {
   describe('useScheduleMessageSubmit', () => {
     it('calls onScheduled after a successful schedule', async () => {
       const { composer, wrapper } = await setup();
-      vi.spyOn(composer, 'schedule').mockResolvedValue({
+      vi.spyOn(composer.scheduledMessageComposition, 'schedule').mockResolvedValue({
         scheduledMessage: generateScheduledMessage(),
         status: 'scheduled',
       });
@@ -160,7 +160,7 @@ describe('scheduled message hooks', () => {
 
     it('reports a failure and allows another attempt', async () => {
       const { composer, wrapper } = await setup();
-      vi.spyOn(composer, 'schedule').mockResolvedValue({
+      vi.spyOn(composer.scheduledMessageComposition, 'schedule').mockResolvedValue({
         error: new Error('failed'),
         status: 'failed',
       });
@@ -179,7 +179,9 @@ describe('scheduled message hooks', () => {
     it('does not call onScheduled after unmount when the request succeeds late', async () => {
       const { composer, wrapper } = await setup();
       const pendingSchedule = deferred<ScheduledMessageSubmitResult>();
-      vi.spyOn(composer, 'schedule').mockReturnValue(pendingSchedule.promise);
+      vi.spyOn(composer.scheduledMessageComposition, 'schedule').mockReturnValue(
+        pendingSchedule.promise,
+      );
       const onScheduled = vi.fn();
       const consoleError = vi.spyOn(console, 'error');
 

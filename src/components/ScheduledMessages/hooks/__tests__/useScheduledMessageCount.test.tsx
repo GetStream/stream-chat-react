@@ -103,12 +103,16 @@ describe('useScheduledMessageCount', () => {
     const { result } = renderUseScheduledMessageCount(client, { cid });
 
     act(() => {
-      client.scheduledMessages.upsertToState(scheduledMessage);
+      client
+        .channel('messaging', 'general')
+        .scheduledMessagesPaginator.ingestItem(scheduledMessage);
     });
     expect(result.current).toBe(1);
 
     act(() => {
-      client.scheduledMessages.removeFromState(scheduledMessage.id);
+      client.channel('messaging', 'general').scheduledMessagesPaginator.removeItem({
+        id: scheduledMessage.id,
+      });
     });
     expect(result.current).toBe(0);
   });
@@ -121,11 +125,15 @@ describe('useScheduledMessageCount', () => {
     const rendersBefore = renders.count;
 
     act(() => {
-      client.scheduledMessages.upsertToState({
+      client.channel('messaging', 'general').scheduledMessagesPaginator.ingestItem({
         ...scheduledMessage,
         message: { text: 'edited' },
       });
-      client.scheduledMessages.upsertToState(generateScheduledMessage({ cid: otherCid }));
+      client
+        .channel('messaging', 'random')
+        .scheduledMessagesPaginator.ingestItem(
+          generateScheduledMessage({ cid: otherCid }),
+        );
     });
 
     expect(renders.count).toBe(rendersBefore);

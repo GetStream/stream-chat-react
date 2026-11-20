@@ -55,10 +55,14 @@ const renderComposer = async () => {
   });
 
   const startEditing = () =>
-    act(() => messageComposer.editScheduledMessage(scheduledMessage));
+    act(() =>
+      messageComposer.scheduledMessageComposition.editScheduledMessage(scheduledMessage),
+    );
 
   const startSchedulingAgain = () =>
-    act(() => messageComposer.rescheduleFailedMessage(failedMessage));
+    act(() =>
+      messageComposer.scheduledMessageComposition.editScheduledMessage(failedMessage),
+    );
 
   return {
     channel,
@@ -90,7 +94,7 @@ describe('editing a scheduled message in the composer', () => {
     const { channel, messageComposer, scheduledMessage, startEditing } =
       await renderComposer();
     const updateScheduledMessage = vi
-      .spyOn(messageComposer, 'updateScheduledMessage')
+      .spyOn(messageComposer.scheduledMessageComposition, 'update')
       .mockResolvedValue({ scheduledMessage, status: 'scheduled' });
     const sendMessage = vi.spyOn(channel, 'sendMessage');
 
@@ -138,13 +142,12 @@ describe('editing a scheduled message in the composer', () => {
     });
 
     it('deletes the failed message after sending it now', async () => {
-      const { channel, client, failedMessage, startSchedulingAgain } =
-        await renderComposer();
+      const { channel, failedMessage, startSchedulingAgain } = await renderComposer();
       vi.spyOn(channel, 'sendMessage').mockResolvedValue(
         fromPartial({ message: { id: 'sent-id', text: 'Launch moved to Monday' } }),
       );
       const deleteScheduledMessage = vi
-        .spyOn(client.scheduledMessages, 'deleteScheduledMessage')
+        .spyOn(channel, 'deleteScheduledMessage')
         .mockResolvedValue(failedMessage);
 
       await startSchedulingAgain();
