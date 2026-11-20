@@ -172,10 +172,6 @@ export const translateScheduledMessageBlocked: Translator<
     );
   }
 
-  if (reason === ScheduledMessageBlockReason.Poll) {
-    return t('scheduledMessages.notification.pollBlocked', "Polls can't be scheduled");
-  }
-
   if (reason === ScheduledMessageBlockReason.SharedLocation) {
     return t(
       'scheduledMessages.notification.locationBlocked',

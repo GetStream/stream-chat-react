@@ -39,7 +39,8 @@ export const useScheduleMessage = () => {
 
   const scheduleMessage = useCallback(
     async (scheduledAt: Date) => {
-      const result = await messageComposer.schedule(scheduledAt);
+      const result =
+        await messageComposer.scheduledMessageComposition.schedule(scheduledAt);
       const { error, scheduledMessage, status } = result;
 
       if (scheduledMessage) notifyScheduled(scheduledMessage);

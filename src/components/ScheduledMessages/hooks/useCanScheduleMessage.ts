@@ -2,28 +2,30 @@ import { useMemo } from 'react';
 import type {
   MessageComposer,
   MessageComposerState,
-  ScheduledMessageManagerState,
+  ScheduledMessagePaginatorsManagerState,
 } from 'stream-chat';
 
 import { useChatContext } from '../../../context';
 import { useStateStore } from '../../../store';
 import { useChannelCapabilities } from '../../Channel/hooks/useChannelCapabilities';
-import { useMessageComposerController } from '../../MessageComposer/hooks/useMessageComposerController';
+import {
+  useMessageComposerController,
+  useScheduledMessageCompositionState,
+} from '../../MessageComposer/hooks';
 import { SCHEDULE_MESSAGE_CAPABILITY } from '../constants';
 
-const scheduledMessagesSelector = ({ isDisabled }: ScheduledMessageManagerState) => ({
+const scheduledMessagesSelector = ({
+  isDisabled,
+}: ScheduledMessagePaginatorsManagerState) => ({
   isDisabled,
 });
 
-const messageComposerSelector = ({
+const messageComposerSelector = ({ editedMessage }: MessageComposerState) => ({
   editedMessage,
-  editedScheduledMessage,
-}: MessageComposerState) => ({
-  isEditing: !!editedMessage || !!editedScheduledMessage,
 });
 
 const createScheduleBlockReasonSelector = (messageComposer: MessageComposer) => () => ({
-  scheduleBlockReason: messageComposer.scheduleBlockReason,
+  scheduleBlockReason: messageComposer.scheduledMessageComposition.scheduleBlockReason,
 });
 
 export const useCanScheduleMessage = () => {
@@ -33,7 +35,7 @@ export const useCanScheduleMessage = () => {
   const channelCapabilities = useChannelCapabilities({ cid: channel.cid });
 
   const { isDisabled } = useStateStore(
-    client.scheduledMessages.state,
+    client.scheduledMessagePaginators.state,
     scheduledMessagesSelector,
   );
   const scheduleBlockReasonSelector = useMemo(
@@ -41,7 +43,9 @@ export const useCanScheduleMessage = () => {
     [messageComposer],
   );
 
-  const { isEditing } = useStateStore(messageComposer.state, messageComposerSelector);
+  const { editedMessage } = useStateStore(messageComposer.state, messageComposerSelector);
+  const { editedScheduledMessage } = useScheduledMessageCompositionState();
+  const isEditing = !!editedMessage || !!editedScheduledMessage;
   const { scheduleBlockReason: blockReasonFromComposer } = useStateStore(
     messageComposer.state,
     scheduleBlockReasonSelector,

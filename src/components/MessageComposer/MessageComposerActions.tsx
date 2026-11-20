@@ -13,6 +13,7 @@ import {
   useMessageComposerController,
   useMessageComposerSubmitFn,
   useMessageContentIsEmpty,
+  useScheduledMessageCompositionState,
 } from './hooks';
 import { AudioRecordingButtonWithNotification } from '../MediaRecorder/AudioRecorder/AudioRecordingButtonWithNotification';
 import { useIsCooldownActive } from './hooks/useIsCooldownActive';
@@ -27,11 +28,8 @@ import { ScheduleMessageButton as DefaultScheduleMessageButton } from '../Schedu
 // reject the wide `AIState` that `useAIState` returns.
 const STOPPABLE_AI_STATES: readonly AIState[] = [AIStates.Thinking, AIStates.Generating];
 
-const messageComposerStateSelector = ({
+const messageComposerStateSelector = ({ editedMessage }: MessageComposerState) => ({
   editedMessage,
-  editedScheduledMessage,
-}: MessageComposerState) => ({
-  isEditing: !!editedMessage || !!editedScheduledMessage,
 });
 
 const textComposerStateSelector = ({ command, text }: TextComposerState) => ({
@@ -52,10 +50,12 @@ export const MessageComposerActions = () => {
   } = useComponentContext();
 
   const canScheduleMessage = useCanScheduleMessage();
-  const { isEditing } = useStateStore(
+  const { editedMessage } = useStateStore(
     messageComposer.state,
     messageComposerStateSelector,
   );
+  const { editedScheduledMessage } = useScheduledMessageCompositionState();
+  const isEditing = !!editedMessage || !!editedScheduledMessage;
 
   const { command } = useStateStore(
     messageComposer.textComposer.state,

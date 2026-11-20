@@ -11,3 +11,4 @@ export * from './useMessageComposerSubmitFn';
 export * from './useMessageContentIsEmpty';
 export * from './useMessageComposerPreviewSetFilter';
 export * from './useMessageComposerPreviewState';
+export * from './useScheduledMessageCompositionState';

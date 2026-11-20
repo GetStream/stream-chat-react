@@ -6,22 +6,20 @@ import type {
   LinkPreviewsManagerState,
   LocationComposerState,
   MessageComposerState,
+  ScheduledMessageResponse,
 } from 'stream-chat';
 import { LinkPreviewsManager } from 'stream-chat';
 
 import { useStateStore } from '../../../store';
 import { useMessageComposerController } from './useMessageComposerController';
+import { useScheduledMessageCompositionState } from './useScheduledMessageCompositionState';
 
 const messageComposerStateSelector = ({
   editedMessage,
-  editedScheduledMessage,
-  failedScheduledMessage,
   pollId,
   quotedMessage,
 }: MessageComposerState) => ({
   editedMessage,
-  editedScheduledMessage,
-  failedScheduledMessage,
   pollId,
   quotedMessage,
 });
@@ -52,9 +50,9 @@ export type MessageComposerPreviewVisibilityFilterParams = {
   customData: CustomDataManagerState['custom'];
   editedMessage: MessageComposerState['editedMessage'];
   /** The scheduled message being edited. */
-  editedScheduledMessage: MessageComposerState['editedScheduledMessage'];
+  editedScheduledMessage: ScheduledMessageResponse | undefined;
   /** The failed scheduled message loaded to be scheduled or sent again. */
-  failedScheduledMessage: MessageComposerState['failedScheduledMessage'];
+  failedScheduledMessage: ScheduledMessageResponse | undefined;
   /** Link previews that are loading or loaded. */
   linkPreviews: LinkPreview[];
   location: LocationComposerState['location'];
@@ -73,13 +71,12 @@ export type MessageComposerPreviewVisibilityFilterParams = {
 export const useMessageComposerPreviewState =
   (): MessageComposerPreviewVisibilityFilterParams => {
     const messageComposer = useMessageComposerController();
-    const {
-      editedMessage,
-      editedScheduledMessage,
-      failedScheduledMessage,
-      pollId,
-      quotedMessage,
-    } = useStateStore(messageComposer.state, messageComposerStateSelector);
+    const { editedMessage, pollId, quotedMessage } = useStateStore(
+      messageComposer.state,
+      messageComposerStateSelector,
+    );
+    const { editedScheduledMessage, failedScheduledMessage } =
+      useScheduledMessageCompositionState();
     const { attachments } = useStateStore(
       messageComposer.attachmentManager.state,
       attachmentManagerStateSelector,

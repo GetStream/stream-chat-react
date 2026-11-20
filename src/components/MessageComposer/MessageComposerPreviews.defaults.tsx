@@ -15,7 +15,10 @@ import {
 } from './AttachmentPreviewList';
 import { GeolocationPreview } from './AttachmentPreviewList/GeolocationPreview';
 import { EditedMessagePreview as DefaultEditedMessagePreview } from './EditedMessagePreview';
-import { useMessageComposerController } from './hooks';
+import {
+  useMessageComposerController,
+  useScheduledMessageCompositionState,
+} from './hooks';
 import { LinkPreviewList as DefaultLinkPreviewList } from './LinkPreviewList';
 import type { MessageComposerPreviewSetItem } from './MessageComposerPreviews';
 import { restorePreEditSnapshot } from './preEditSnapshot';
@@ -25,14 +28,6 @@ import { FailedScheduledMessagePreview as DefaultFailedScheduledMessagePreview }
 
 const editedMessageSelector = ({ editedMessage }: MessageComposerState) => ({
   editedMessage,
-});
-
-const scheduledMessageSelector = ({
-  editedScheduledMessage,
-  failedScheduledMessage,
-}: MessageComposerState) => ({
-  editedScheduledMessage,
-  failedScheduledMessage,
 });
 
 const locationSelector = ({ location }: LocationComposerState) => ({ location });
@@ -58,16 +53,13 @@ const DefaultMessageComposerPreviewComponents = {
     const { EditedScheduledMessagePreview = DefaultEditedScheduledMessagePreview } =
       useComponentContext();
     const messageComposer = useMessageComposerController();
-    const { editedScheduledMessage } = useStateStore(
-      messageComposer.state,
-      scheduledMessageSelector,
-    );
+    const { editedScheduledMessage } = useScheduledMessageCompositionState();
 
     if (!editedScheduledMessage) return null;
 
     return (
       <EditedScheduledMessagePreview
-        onCancel={messageComposer.cancelEditScheduledMessage}
+        onCancel={messageComposer.scheduledMessageComposition.cancelEdit}
         scheduledMessage={editedScheduledMessage}
       />
     );
@@ -76,16 +68,13 @@ const DefaultMessageComposerPreviewComponents = {
     const { FailedScheduledMessagePreview = DefaultFailedScheduledMessagePreview } =
       useComponentContext();
     const messageComposer = useMessageComposerController();
-    const { failedScheduledMessage } = useStateStore(
-      messageComposer.state,
-      scheduledMessageSelector,
-    );
+    const { failedScheduledMessage } = useScheduledMessageCompositionState();
 
     if (!failedScheduledMessage) return null;
 
     return (
       <FailedScheduledMessagePreview
-        onCancel={messageComposer.cancelRescheduleFailedMessage}
+        onCancel={messageComposer.scheduledMessageComposition.cancelEdit}
         scheduledMessage={failedScheduledMessage}
       />
     );

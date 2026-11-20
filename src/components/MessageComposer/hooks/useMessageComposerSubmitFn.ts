@@ -1,6 +1,5 @@
 import { useCallback } from 'react';
 
-import { useChatContext } from '../../../context';
 import { reloadOnScheduledMessageConflict } from '../../ScheduledMessages/utils/scheduledMessageErrors';
 import { useMessageComposerController } from './useMessageComposerController';
 
@@ -12,21 +11,25 @@ import { useMessageComposerController } from './useMessageComposerController';
  * @returns Submit callback, stable while the composer is the same.
  */
 export const useMessageComposerSubmitFn = () => {
-  const { client } = useChatContext();
   const messageComposer = useMessageComposerController();
 
   const updateScheduledMessage = useCallback(async () => {
-    const result = await messageComposer.updateScheduledMessage();
+    const result = await messageComposer.scheduledMessageComposition.update();
 
     if (result.status === 'failed') {
-      reloadOnScheduledMessageConflict(client.scheduledMessages, result.error);
+      reloadOnScheduledMessageConflict(
+        messageComposer.channel.scheduledMessagesPaginator,
+        result.error,
+      );
     }
 
     return result;
-  }, [client, messageComposer]);
+  }, [messageComposer]);
 
   return useCallback(() => {
-    if (messageComposer.editedScheduledMessage) return updateScheduledMessage();
+    if (messageComposer.scheduledMessageComposition.blocksNewComposition) {
+      return updateScheduledMessage();
+    }
 
     return messageComposer.editedMessage
       ? messageComposer.update()
