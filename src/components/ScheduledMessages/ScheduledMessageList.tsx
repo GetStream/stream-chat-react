@@ -2,6 +2,11 @@ import React from 'react';
 
 import { useComponentContext, useTranslationContext } from '../../context';
 import { Button } from '../Button';
+import { EmptyStateIndicator } from '../EmptyStateIndicator';
+import {
+  ListLoadErrorIndicator as BaseListLoadErrorIndicator,
+  type ListLoadErrorIndicatorProps,
+} from '../Loading';
 import {
   useScheduledMessageGroups,
   useScheduledMessagesLoadState,
@@ -10,8 +15,6 @@ import {
 import { ScheduledMessageGroupHeader } from './ScheduledMessageGroupHeader';
 import { ScheduledMessageItem as DefaultScheduledMessageItem } from './ScheduledMessageItem';
 import { ScheduledMessageListLoading } from './ScheduledMessageListLoading';
-import { ScheduledMessagesEmptyList } from './ScheduledMessagesEmptyList';
-import { ScheduledMessagesLoadError } from './ScheduledMessagesLoadError';
 import { ScheduledMessagesNoResults } from './ScheduledMessagesNoResults';
 import type { ScheduledMessageListProps } from './types';
 
@@ -22,7 +25,12 @@ export const ScheduledMessageList = ({
   searchQuery,
 }: ScheduledMessageListProps) => {
   const { t } = useTranslationContext();
-  const { ScheduledMessageItem = DefaultScheduledMessageItem } = useComponentContext();
+  const {
+    EmptyListIndicator = DefaultScheduledMessagesEmptyList,
+    FirstPageLoadingIndicator = ScheduledMessageListLoading,
+    ListLoadErrorIndicator = DefaultListLoadErrorIndicator,
+    ScheduledMessageItem = DefaultScheduledMessageItem,
+  } = useComponentContext();
 
   const { groups, hasScheduledMessages } = useScheduledMessageGroups({
     cid,
@@ -30,16 +38,21 @@ export const ScheduledMessageList = ({
     searchQuery,
   });
   const { canLoadMore, isLoading, loadMore } = useScheduledMessagesPagination({ cid });
-  const { hasLoadFailed, isFirstLoad, reload } = useScheduledMessagesLoadState({ cid });
+  const { error, isFirstLoad, isRetrying, retry } = useScheduledMessagesLoadState({
+    cid,
+  });
 
   if (!groups.length) {
     if (hasScheduledMessages) return <ScheduledMessagesNoResults />;
 
-    if (isFirstLoad) return <ScheduledMessageListLoading />;
+    if (isFirstLoad) return <FirstPageLoadingIndicator />;
 
-    if (hasLoadFailed) return <ScheduledMessagesLoadError onRetry={reload} />;
+    if (error)
+      return (
+        <ListLoadErrorIndicator error={error} isRetrying={isRetrying} retry={retry} />
+      );
 
-    return <ScheduledMessagesEmptyList />;
+    return <EmptyListIndicator />;
   }
 
   return (
@@ -80,3 +93,11 @@ export const ScheduledMessageList = ({
     </div>
   );
 };
+
+const DefaultListLoadErrorIndicator = (props: ListLoadErrorIndicatorProps) => (
+  <BaseListLoadErrorIndicator {...props} listType='scheduled' />
+);
+
+const DefaultScheduledMessagesEmptyList = () => (
+  <EmptyStateIndicator listType='scheduled' />
+);

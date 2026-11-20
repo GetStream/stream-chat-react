@@ -645,6 +645,7 @@ export type TranslationCatalog = {
   'scheduledMessages.editScheduledMessage': 'Edit scheduled message';
   'scheduledMessages.failed': 'Failed';
   'scheduledMessages.loadMore': 'Load more';
+  'scheduledMessages.loaded': 'Scheduled messages loaded';
   'scheduledMessages.loadingScheduledMessages': 'Loading scheduled messages';
   'scheduledMessages.messageScheduledForTime': 'Message scheduled for {{ time }}';
   'scheduledMessages.messageToName': 'Message to {{ name }}';
@@ -697,7 +698,6 @@ export type TranslationCatalog = {
   'scheduledMessages.thisMessageToNameWontBeSentThis': "This message to {{ name }} won't be sent. This can't be undone.";
   'scheduledMessages.thisMessageWontBeSentThisCantBe': "This message won't be sent. This can't be undone.";
   'scheduledMessages.time': 'Time';
-  'scheduledMessages.tryAgain': 'Try again';
   'scheduledMessages.viewAll': 'View all';
   'scheduledMessages.youCantSendMessagesInThisChannel': "You can't send messages in this channel";
   'scheduledMessages.youreNoLongerAllowedToPostHere': "You're no longer allowed to post here";

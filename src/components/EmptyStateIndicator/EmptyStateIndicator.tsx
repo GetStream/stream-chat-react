@@ -6,7 +6,7 @@ import { asDynamicKey } from '../../i18n/utils';
 
 export type EmptyStateIndicatorProps = {
   /** Which list is empty. A 'thread' list renders nothing. */
-  listType?: 'channel' | 'message' | 'thread';
+  listType?: 'channel' | 'message' | 'scheduled' | 'thread';
   messageText?: string;
 };
 
@@ -14,9 +14,26 @@ const UnMemoizedEmptyStateIndicator = (props: EmptyStateIndicatorProps) => {
   const { listType, messageText } = props;
 
   const { t } = useTranslationContext();
-  const { IconMessageBubble, IconMessageBubbles } = useComponentContextIcons();
+  const { IconClock, IconMessageBubble, IconMessageBubbles } = useComponentContextIcons();
 
   if (listType === 'thread') return null;
+
+  if (listType === 'scheduled') {
+    return (
+      <div className='str-chat__scheduled-messages-empty-list'>
+        <IconClock className='str-chat__scheduled-messages-empty-list__icon' />
+        <p className='str-chat__scheduled-messages-empty-list__title'>
+          {t('scheduledMessages.noScheduledMessages', 'No scheduled messages')}
+        </p>
+        <p className='str-chat__scheduled-messages-empty-list__description'>
+          {t(
+            'scheduledMessages.clickTheArrowNextToTheSendButton',
+            'Click the arrow next to the send button in a channel to schedule a message.',
+          )}
+        </p>
+      </div>
+    );
+  }
 
   if (listType === 'channel') {
     const text = t(

@@ -9,7 +9,7 @@ import { axe } from '../../../../axe-helper';
 afterEach(cleanup);
 
 const renderIndicator = async (
-  listType: 'channel' | 'thread',
+  listType: 'channel' | 'scheduled' | 'thread',
   { isRetrying = false, retry = vi.fn() } = {},
 ) => {
   const client = await getTestClientWithUser({ id: 'user_x' });
@@ -29,6 +29,7 @@ const renderIndicator = async (
 describe('ListLoadErrorIndicator', () => {
   it.each([
     ['channel', "Couldn't load conversations"],
+    ['scheduled', "Couldn't load scheduled messages"],
     ['thread', "Couldn't load threads"],
   ] as const)('explains that the %s list failed to load', async (listType, text) => {
     await renderIndicator(listType);

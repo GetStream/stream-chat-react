@@ -1,8 +1,9 @@
-import { useCallback } from 'react';
 import type { PaginatorState, ScheduledMessageResponse } from 'stream-chat';
 
+import { useTranslationContext } from '../../../context';
 import { useStateStore } from '../../../store';
 import { getFirstPageLoadError } from '../../Loading/getFirstPageLoadError';
+import { useFirstPageLoadRetry } from '../../Loading/hooks/useFirstPageLoadRetry';
 import type {
   ScheduledMessagesLoadState,
   UseScheduledMessagePaginatorParams,
@@ -10,30 +11,33 @@ import type {
 import { useScheduledMessagePaginator } from './useScheduledMessagePaginator';
 
 const loadStateSelector = (state: PaginatorState<ScheduledMessageResponse>) => ({
-  hasLoadFailed: !!getFirstPageLoadError(state),
+  firstPageLoadError: getFirstPageLoadError(state),
   isFirstLoad: state.items === undefined && !state.lastQueryError,
 });
-
-const ignoreErrorKeptInState = () => undefined;
 
 export const useScheduledMessagesLoadState = ({
   cid,
 }: UseScheduledMessagePaginatorParams) => {
+  const { t } = useTranslationContext();
   const paginator = useScheduledMessagePaginator({ cid });
 
-  const { hasLoadFailed, isFirstLoad } = useStateStore(
+  const { firstPageLoadError, isFirstLoad } = useStateStore(
     paginator.state,
     loadStateSelector,
   );
 
-  const reload = useCallback(() => {
-    paginator.reload().catch(ignoreErrorKeptInState);
-  }, [paginator]);
+  const { error, isRetrying, retry } = useFirstPageLoadRetry({
+    firstPageLoadError,
+    loadedMessage: t('scheduledMessages.loaded', 'Scheduled messages loaded'),
+    paginator,
+    reload: paginator.reload,
+  });
 
   const scheduledMessagesLoadState: ScheduledMessagesLoadState = {
-    hasLoadFailed,
+    error,
     isFirstLoad,
-    reload,
+    isRetrying,
+    retry,
   };
 
   return scheduledMessagesLoadState;

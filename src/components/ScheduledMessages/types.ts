@@ -64,9 +64,10 @@ export type ScheduledMessageGroups = {
 };
 
 export type ScheduledMessagesLoadState = {
-  hasLoadFailed: boolean;
+  error: Error | undefined;
   isFirstLoad: boolean;
-  reload: () => void;
+  isRetrying: boolean;
+  retry: () => void;
 };
 
 export type ScheduledMessagesPagination = {
@@ -161,10 +162,6 @@ export type ScheduledMessagesEmptyStateProps = {
   title: string;
   children?: ReactNode;
   description?: string;
-};
-
-export type ScheduledMessagesLoadErrorProps = {
-  onRetry: () => void;
 };
 
 export type ScheduledMessageListDialogProps = Omit<

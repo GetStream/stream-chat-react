@@ -155,10 +155,6 @@
       color: var(--str-chat__text-secondary);
       font: var(--str-chat__font-caption-default);
     }
-
-    .str-chat__scheduled-messages-empty-list__action {
-      margin-block-start: var(--str-chat__spacing-sm);
-    }
   }
 
   .str-chat__scheduled-message-list-loading {
