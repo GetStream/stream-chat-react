@@ -1,7 +1,6 @@
 import { useEffect, useMemo } from 'react';
 import type {
   PaginatorState,
-  ScheduledMessageManager,
   ScheduledMessagePaginator,
   ScheduledMessageResponse,
 } from 'stream-chat';
@@ -9,11 +8,7 @@ import type {
 import { useChatContext } from '../../../context';
 import { useStateStore } from '../../../store';
 import type { UseScheduledMessagePaginatorParams } from '../types';
-
-const createPaginatorSelector =
-  (manager: ScheduledMessageManager, cid?: string) => () => ({
-    paginator: cid ? manager.getChannelPaginator(cid) : manager.paginator,
-  });
+import { getChannelByCid } from '../utils';
 
 const createAwaitsFirstPageSelector =
   (paginator: ScheduledMessagePaginator) =>
@@ -23,15 +18,12 @@ const createAwaitsFirstPageSelector =
 
 export const useScheduledMessagePaginator = ({
   cid,
-}: UseScheduledMessagePaginatorParams = {}) => {
+}: UseScheduledMessagePaginatorParams) => {
   const { client } = useChatContext();
-  const { scheduledMessages: manager } = client;
-
-  const paginatorSelector = useMemo(
-    () => createPaginatorSelector(manager, cid),
-    [cid, manager],
+  const paginator = useMemo(
+    () => getChannelByCid(client, cid).scheduledMessagesPaginator,
+    [cid, client],
   );
-  const { paginator } = useStateStore(manager.state, paginatorSelector);
 
   const awaitsFirstPageSelector = useMemo(
     () => createAwaitsFirstPageSelector(paginator),

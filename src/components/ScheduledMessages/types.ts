@@ -16,7 +16,7 @@ import type {
 } from './constants';
 
 export type UseScheduledMessagesParams = {
-  cid?: string;
+  cid: string;
   parentId?: string;
 };
 

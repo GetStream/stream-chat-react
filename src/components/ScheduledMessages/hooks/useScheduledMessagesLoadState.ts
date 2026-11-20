@@ -18,7 +18,7 @@ const ignoreErrorKeptInState = () => undefined;
 
 export const useScheduledMessagesLoadState = ({
   cid,
-}: UseScheduledMessagePaginatorParams = {}) => {
+}: UseScheduledMessagePaginatorParams) => {
   const paginator = useScheduledMessagePaginator({ cid });
 
   const { hasLoadFailed, isFirstLoad } = useStateStore(

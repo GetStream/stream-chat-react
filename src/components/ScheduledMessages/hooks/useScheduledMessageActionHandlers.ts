@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import type { ScheduledMessageResponse } from 'stream-chat';
 
 import { useChatContext, useTranslationContext } from '../../../context';
@@ -9,7 +9,7 @@ import {
   ScheduledMessageNotificationType,
 } from '../constants';
 import type { ScheduledMessageActionHandlers } from '../types';
-import { reloadOnScheduledMessageConflict } from '../utils';
+import { getScheduledMessageChannel, reloadOnScheduledMessageConflict } from '../utils';
 
 export const useScheduledMessageActionHandlers = (
   scheduledMessage: ScheduledMessageResponse,
@@ -21,13 +21,16 @@ export const useScheduledMessageActionHandlers = (
 
   const [isPending, setIsPending] = useState(false);
 
-  const { scheduledMessages: manager } = client;
+  const channel = useMemo(
+    () => getScheduledMessageChannel(client, scheduledMessage),
+    [client, scheduledMessage],
+  );
   const { id, message } = scheduledMessage;
   const { text = '' } = message;
 
   const notifyFailure = useCallback(
     (error: Error, type: ScheduledMessageNotificationType, fallbackMessage: string) => {
-      reloadOnScheduledMessageConflict(manager, error);
+      reloadOnScheduledMessageConflict(channel.scheduledMessagesPaginator, error);
 
       addNotification({
         emitter: SCHEDULED_MESSAGE_ACTIONS_EMITTER,
@@ -37,14 +40,14 @@ export const useScheduledMessageActionHandlers = (
         type,
       });
     },
-    [addNotification, manager],
+    [addNotification, channel],
   );
 
   const sendNow = useCallback(async () => {
     setIsPending(true);
 
     try {
-      await manager.sendScheduledMessageNow(id);
+      await channel.sendScheduledMessageNow(id);
 
       addNotification({
         emitter: SCHEDULED_MESSAGE_ACTIONS_EMITTER,
@@ -64,13 +67,13 @@ export const useScheduledMessageActionHandlers = (
     } finally {
       if (isMounted.current) setIsPending(false);
     }
-  }, [addNotification, id, isMounted, manager, notifyFailure, t]);
+  }, [addNotification, channel, id, isMounted, notifyFailure, t]);
 
   const deleteScheduledMessage = useCallback(async () => {
     setIsPending(true);
 
     try {
-      await manager.deleteScheduledMessage(id);
+      await channel.deleteScheduledMessage(id);
     } catch (error) {
       notifyFailure(
         error as Error,
@@ -83,7 +86,7 @@ export const useScheduledMessageActionHandlers = (
     } finally {
       if (isMounted.current) setIsPending(false);
     }
-  }, [id, isMounted, manager, notifyFailure, t]);
+  }, [channel, id, isMounted, notifyFailure, t]);
 
   const copyText = useCallback(() => {
     if (!text) return;

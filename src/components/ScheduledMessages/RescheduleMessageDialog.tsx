@@ -24,7 +24,6 @@ export const RescheduleMessageDialog = ({
   const { addNotification } = useNotificationApi();
 
   const { id, scheduled_at } = scheduledMessage;
-  const { scheduledMessages: manager } = client;
 
   const channel = useMemo(
     () => getScheduledMessageChannel(client, scheduledMessage),
@@ -46,11 +45,11 @@ export const RescheduleMessageDialog = ({
   const reschedule = useCallback(
     async (scheduledAt: Date) => {
       try {
-        await manager.updateScheduledMessage(id, {
+        await channel.updateScheduledMessage(id, {
           scheduled_at: scheduledAt,
         });
       } catch (error) {
-        reloadOnScheduledMessageConflict(manager, error);
+        reloadOnScheduledMessageConflict(channel.scheduledMessagesPaginator, error);
         addNotification({
           emitter: SCHEDULED_MESSAGE_ACTIONS_EMITTER,
           error: error as Error,
@@ -62,7 +61,7 @@ export const RescheduleMessageDialog = ({
         throw error;
       }
     },
-    [addNotification, errorMessage, id, manager],
+    [addNotification, channel, errorMessage, id],
   );
 
   return (

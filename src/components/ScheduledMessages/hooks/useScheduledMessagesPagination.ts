@@ -21,7 +21,7 @@ const ignoreErrorKeptInState = () => undefined;
 
 export const useScheduledMessagesPagination = ({
   cid,
-}: UseScheduledMessagePaginatorParams = {}) => {
+}: UseScheduledMessagePaginatorParams) => {
   const paginator = useScheduledMessagePaginator({ cid });
 
   const { canLoadMore, isLoading } = useStateStore(paginator.state, paginationSelector);

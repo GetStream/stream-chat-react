@@ -120,4 +120,12 @@ export const hydrateScheduledMessages = (
   client: StreamChat,
   cid: string,
   scheduledMessages: ScheduledMessageResponse[] = [],
-) => client.scheduledMessages.hydrateChannelState(cid, scheduledMessages);
+) => {
+  const [type, id] = cid.split(':');
+
+  client.channel(type, id).scheduledMessagesPaginator.setItems({
+    isFirstPage: true,
+    isLastPage: true,
+    valueOrFactory: scheduledMessages,
+  });
+};

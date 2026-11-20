@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import type {
   PaginatorState,
-  ScheduledMessageManagerState,
+  ScheduledMessagePaginatorsManagerState,
   ScheduledMessageResponse,
 } from 'stream-chat';
 
@@ -12,7 +12,9 @@ import type { ScheduledMessagesSnapshot, UseScheduledMessagesParams } from '../t
 import { getScopedScheduledMessages } from '../utils';
 import { useScheduledMessagePaginator } from './useScheduledMessagePaginator';
 
-const managerStateSelector = ({ isDisabled }: ScheduledMessageManagerState) => ({
+const managerStateSelector = ({
+  isDisabled,
+}: ScheduledMessagePaginatorsManagerState) => ({
   isDisabled,
 });
 
@@ -21,15 +23,12 @@ const paginatorStateSelector = ({
   items,
 }: PaginatorState<ScheduledMessageResponse>) => ({ isLoading, items });
 
-export const useScheduledMessages = ({
-  cid,
-  parentId,
-}: UseScheduledMessagesParams = {}) => {
+export const useScheduledMessages = ({ cid, parentId }: UseScheduledMessagesParams) => {
   const { client } = useChatContext();
 
   const paginator = useScheduledMessagePaginator({ cid });
   const { isDisabled } = useStateStore(
-    client.scheduledMessages.state,
+    client.scheduledMessagePaginators.state,
     managerStateSelector,
   );
   const { isLoading, items } = useStateStore(paginator.state, paginatorStateSelector);
