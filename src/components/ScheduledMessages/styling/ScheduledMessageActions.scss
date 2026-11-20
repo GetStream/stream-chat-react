@@ -1,0 +1,40 @@
+@use '../../../styling/utils';
+
+.str-chat {
+  .str-chat__scheduled-message-group__item {
+    position: relative;
+
+    &:hover,
+    &:focus-within,
+    &:has(.str-chat__scheduled-message-actions--active) {
+      background-color: var(--str-chat__background-utility-hover);
+
+      .str-chat__scheduled-message-actions {
+        opacity: 1;
+        pointer-events: auto;
+      }
+    }
+  }
+
+  .str-chat__scheduled-message-actions {
+    display: flex;
+    position: absolute;
+    inset-block-start: var(--str-chat__spacing-xs);
+    inset-inline-end: var(--str-chat__spacing-md);
+    padding: var(--str-chat__spacing-xxs);
+    border-radius: var(--str-chat__radius-md);
+    background-color: var(--str-chat__background-core-elevation-3);
+    box-shadow: var(--str-chat__box-shadow-2);
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .str-chat__scheduled-message-actions-menu {
+    .str-chat__scheduled-message-actions-menu__separator {
+      height: 1px;
+      margin-block: var(--str-chat__spacing-xxs);
+      margin-inline: calc(-1 * var(--str-chat__spacing-xxs));
+      background-color: var(--str-chat__border-core-subtle);
+    }
+  }
+}

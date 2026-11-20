@@ -20,8 +20,9 @@ import { ChannelManagementView } from './Views/ChannelManagementView';
 import { ChannelMediaView } from './Views/ChannelMediaView';
 import { ChannelMembersView } from './Views/ChannelMembersView';
 import { PinnedMessagesView } from './Views/PinnedMessagesView';
+import { ScheduledMessagesView } from './Views/ScheduledMessagesView';
 import { Prompt } from '../../components/Dialog';
-import { useComponentContextIcons } from '../../context';
+import { useComponentContextIcons, useTranslationContext } from '../../context';
 import { useStableCallback } from '../../utils';
 
 const ChannelManagementNavButtonIcon = () => {
@@ -48,51 +49,88 @@ const ChannelMediaNavButtonIcon = () => {
   return <IconImage className='str-chat__channel-detail__action-icon' />;
 };
 
+const ScheduledMessagesNavButtonIcon = () => {
+  const { IconClock } = useComponentContextIcons();
+  return <IconClock className='str-chat__channel-detail__action-icon' />;
+};
+
 const ChannelFilesNavButtonIcon = () => {
   const { IconFolder } = useComponentContextIcons();
 
   return <IconFolder className='str-chat__channel-detail__action-icon' />;
 };
 
-export const ChannelManagementNavButton = (props: SectionNavigatorNavButtonProps) => (
-  <ChannelDetailNavButton
-    {...props}
-    LeadingIcon={ChannelManagementNavButtonIcon}
-    title='Channel info'
-  />
-);
+export const ChannelManagementNavButton = (props: SectionNavigatorNavButtonProps) => {
+  const { t } = useTranslationContext();
 
-export const ChannelMembersNavButton = (props: SectionNavigatorNavButtonProps) => (
-  <ChannelDetailNavButton
-    {...props}
-    LeadingIcon={ChannelMembersNavButtonIcon}
-    title='Members'
-  />
-);
+  return (
+    <ChannelDetailNavButton
+      {...props}
+      LeadingIcon={ChannelManagementNavButtonIcon}
+      title={t('channelDetail.navButton.channelInfo.label', 'Channel info')}
+    />
+  );
+};
 
-export const PinnedMessagesNavButton = (props: SectionNavigatorNavButtonProps) => (
-  <ChannelDetailNavButton
-    {...props}
-    LeadingIcon={PinnedMessagesNavButtonIcon}
-    title='Pinned messages'
-  />
-);
+export const ChannelMembersNavButton = (props: SectionNavigatorNavButtonProps) => {
+  const { t } = useTranslationContext();
 
-export const ChannelMediaNavButton = (props: SectionNavigatorNavButtonProps) => (
-  <ChannelDetailNavButton
-    {...props}
-    LeadingIcon={ChannelMediaNavButtonIcon}
-    title='Photos & videos'
-  />
-);
+  return (
+    <ChannelDetailNavButton
+      {...props}
+      LeadingIcon={ChannelMembersNavButtonIcon}
+      title={t('channelDetail.navButton.members.label', 'Members')}
+    />
+  );
+};
 
-export const ChannelFilesNavButton = (props: SectionNavigatorNavButtonProps) => (
-  <ChannelDetailNavButton
-    {...props}
-    LeadingIcon={ChannelFilesNavButtonIcon}
-    title='Files'
-  />
-);
+export const PinnedMessagesNavButton = (props: SectionNavigatorNavButtonProps) => {
+  const { t } = useTranslationContext();
+
+  return (
+    <ChannelDetailNavButton
+      {...props}
+      LeadingIcon={PinnedMessagesNavButtonIcon}
+      title={t('channelDetail.navButton.pinnedMessages.label', 'Pinned messages')}
+    />
+  );
+};
+
+export const ScheduledMessagesNavButton = (props: SectionNavigatorNavButtonProps) => {
+  const { t } = useTranslationContext();
+
+  return (
+    <ChannelDetailNavButton
+      {...props}
+      LeadingIcon={ScheduledMessagesNavButtonIcon}
+      title={t('channelDetail.navButton.scheduledMessages.label', 'Scheduled')}
+    />
+  );
+};
+
+export const ChannelMediaNavButton = (props: SectionNavigatorNavButtonProps) => {
+  const { t } = useTranslationContext();
+
+  return (
+    <ChannelDetailNavButton
+      {...props}
+      LeadingIcon={ChannelMediaNavButtonIcon}
+      title={t('channelDetail.navButton.channelMedia.label', 'Photos & videos')}
+    />
+  );
+};
+
+export const ChannelFilesNavButton = (props: SectionNavigatorNavButtonProps) => {
+  const { t } = useTranslationContext();
+
+  return (
+    <ChannelDetailNavButton
+      {...props}
+      LeadingIcon={ChannelFilesNavButtonIcon}
+      title={t('channelDetail.navButton.channelFiles.label', 'Files')}
+    />
+  );
+};
 
 export const defaultChannelDetailSections: SectionNavigatorSection[] = [
   {
@@ -109,6 +147,11 @@ export const defaultChannelDetailSections: SectionNavigatorSection[] = [
     id: 'pinned-messages',
     NavButton: PinnedMessagesNavButton,
     SectionContent: PinnedMessagesView,
+  },
+  {
+    id: 'scheduled-messages',
+    NavButton: ScheduledMessagesNavButton,
+    SectionContent: ScheduledMessagesView,
   },
   {
     id: 'channel-media',

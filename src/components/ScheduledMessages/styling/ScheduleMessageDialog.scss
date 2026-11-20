@@ -1,0 +1,122 @@
+@use '../../../styling/utils';
+
+.str-chat {
+  --str-chat__schedule-message-dialog-max-width: 504px;
+  --str-chat__schedule-message-dialog-notice-info-bg: color-mix(
+    in srgb,
+    var(--str-chat__accent-primary) 5%,
+    transparent
+  );
+  --str-chat__schedule-message-dialog-notice-error-bg: color-mix(
+    in srgb,
+    var(--str-chat__accent-error) 5%,
+    transparent
+  );
+
+  .str-chat__schedule-message-dialog {
+    width: 100%;
+    max-width: var(--str-chat__schedule-message-dialog-max-width);
+
+    .str-chat__schedule-message-dialog__body {
+      display: flex;
+      flex-direction: column;
+      gap: var(--str-chat__spacing-md);
+    }
+
+    .str-chat__schedule-message-dialog__preview {
+      background-color: var(--str-chat__chat-bg-outgoing);
+
+      .str-chat__quoted-message-indicator {
+        background-color: var(--str-chat__chat-reply-indicator-outgoing);
+      }
+    }
+
+    .str-chat__schedule-message-dialog__fields {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: var(--str-chat__spacing-sm);
+
+      input[type='date'],
+      input[type='time'] {
+        cursor: pointer;
+      }
+
+      .str-chat__form-text-input__wrapper {
+        box-sizing: border-box;
+        justify-content: center;
+        min-height: var(--str-chat__button-visual-height-md);
+      }
+
+      .str-chat__form-text-input__input {
+        font: var(--str-chat__font-caption-default);
+      }
+
+      .str-chat__form-text-input__trailing {
+        pointer-events: none;
+      }
+
+      input::-webkit-calendar-picker-indicator {
+        display: none;
+      }
+    }
+
+    .str-chat__schedule-message-dialog__date {
+      .str-chat__form-text-input__wrapper {
+        position: relative;
+      }
+
+      .str-chat__form-text-input__leading {
+        display: flex;
+        flex: 1;
+        align-items: center;
+        justify-content: flex-start;
+        gap: var(--str-chat__spacing-xs);
+        min-width: 0;
+      }
+
+      .str-chat__form-text-input__input {
+        position: absolute;
+        inset: 0;
+        opacity: 0;
+      }
+    }
+
+    .str-chat__schedule-message-dialog__date-value {
+      @include utils.ellipsis-text();
+      font: var(--str-chat__font-caption-default);
+      color: var(--str-chat__input-text-default);
+    }
+
+    .str-chat__schedule-message-dialog__notice {
+      display: flex;
+      align-items: center;
+      gap: var(--str-chat__spacing-xs);
+      padding: var(--str-chat__spacing-sm) var(--str-chat__spacing-sm);
+      border-radius: var(--str-chat__radius-md);
+      color: var(--str-chat__text-primary);
+      font: var(--str-chat__font-metadata-emphasis);
+
+      .str-chat__schedule-message-dialog__notice-icon {
+        flex-shrink: 0;
+        height: var(--str-chat__icon-size-sm);
+        width: var(--str-chat__icon-size-sm);
+      }
+    }
+
+    .str-chat__schedule-message-dialog__notice--info {
+      background-color: var(--str-chat__schedule-message-dialog-notice-info-bg);
+
+      .str-chat__schedule-message-dialog__notice-icon {
+        color: var(--str-chat__accent-primary);
+      }
+    }
+
+    .str-chat__schedule-message-dialog__notice--error {
+      background-color: var(--str-chat__schedule-message-dialog-notice-error-bg);
+
+      .str-chat__schedule-message-dialog__notice-icon {
+        color: var(--str-chat__accent-error);
+      }
+    }
+  }
+}

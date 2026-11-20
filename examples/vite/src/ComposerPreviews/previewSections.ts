@@ -25,11 +25,20 @@ export const PREVIEW_SECTION_INFO: Record<PreviewSectionType, PreviewSectionInfo
   attachments: {
     label: 'Files',
     removes:
-      'The File option in the attachment selector; dropped and pasted files are rejected.',
+      'The File option in the attachment selector, and the Event option while Event invites is on; dropped and pasted files are rejected.',
   },
   editedMessage: {
     label: 'Edited message',
     removes: 'The Edit and Edit inline message actions.',
+  },
+  editedScheduledMessage: {
+    label: 'Edited scheduled message',
+    removes: 'Nothing else; only the banner shown while editing a scheduled message.',
+  },
+  failedScheduledMessage: {
+    label: 'Failed scheduled message',
+    removes:
+      'Nothing else; only the banner shown while retrying a failed scheduled message.',
   },
   linkPreviews: {
     label: 'Link previews',

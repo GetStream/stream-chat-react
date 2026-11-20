@@ -6,11 +6,13 @@ import type {
   LinkPreviewsManagerState,
   LocationComposerState,
   MessageComposerState,
+  ScheduledMessageResponse,
 } from 'stream-chat';
 import { LinkPreviewsManager } from 'stream-chat';
 
 import { useStateStore } from '../../../store';
 import { useMessageComposerController } from './useMessageComposerController';
+import { useScheduledMessageCompositionState } from './useScheduledMessageCompositionState';
 
 const messageComposerStateSelector = ({
   editedMessage,
@@ -47,6 +49,10 @@ export type MessageComposerPreviewVisibilityFilterParams = {
   /** The composer's custom data (`messageComposer.customDataManager`). */
   customData: CustomDataManagerState['custom'];
   editedMessage: MessageComposerState['editedMessage'];
+  /** The scheduled message being edited. */
+  editedScheduledMessage: ScheduledMessageResponse | undefined;
+  /** The failed scheduled message loaded to be scheduled or sent again. */
+  failedScheduledMessage: ScheduledMessageResponse | undefined;
   /** Link previews that are loading or loaded. */
   linkPreviews: LinkPreview[];
   location: LocationComposerState['location'];
@@ -69,6 +75,8 @@ export const useMessageComposerPreviewState =
       messageComposer.state,
       messageComposerStateSelector,
     );
+    const { editedScheduledMessage, failedScheduledMessage } =
+      useScheduledMessageCompositionState();
     const { attachments } = useStateStore(
       messageComposer.attachmentManager.state,
       attachmentManagerStateSelector,
@@ -101,6 +109,8 @@ export const useMessageComposerPreviewState =
         attachments,
         customData,
         editedMessage,
+        editedScheduledMessage,
+        failedScheduledMessage,
         linkPreviews,
         location,
         pollId,
@@ -110,6 +120,8 @@ export const useMessageComposerPreviewState =
         attachments,
         customData,
         editedMessage,
+        editedScheduledMessage,
+        failedScheduledMessage,
         linkPreviews,
         location,
         pollId,

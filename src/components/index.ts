@@ -10,6 +10,7 @@ export * from './Channel';
 export * from './ChannelHeader';
 export * from './ChannelList';
 export * from './ChannelListItem';
+export * from './ScheduledMessages';
 export * from './Search';
 export * from './SkipNavigation';
 export * from './Chat';

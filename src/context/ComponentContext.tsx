@@ -78,10 +78,24 @@ import type { SummarizedMessagePreviewProps } from '../components/SummarizedMess
 import type { TypingIndicatorProps } from '../components/TypingIndicator';
 import type { AttachmentUploadProgressIndicatorProps } from '../components/Attachment/components/AttachmentUploadProgressIndicator';
 import type { IconSlots } from '../components/Icons/slots';
+import type {
+  DeleteScheduledMessageAlertProps,
+  EditedScheduledMessagePreviewProps,
+  FailedScheduledMessagePreviewProps,
+  RescheduleMessageDialogProps,
+  ScheduledMessageActionsProps,
+  ScheduledMessageItemProps,
+  ScheduledMessageListProps,
+  ScheduleMessageDialogProps,
+} from '../components/ScheduledMessages';
 
 export type ComponentContextValue = {
   /** Progress of an attachment whose upload is still in flight. */
   AttachmentUploadProgressIndicator?: React.ComponentType<AttachmentUploadProgressIndicatorProps>;
+  /** Confirmation before a scheduled message is deleted. */
+  DeleteScheduledMessageAlert?: React.ComponentType<DeleteScheduledMessageAlertProps>;
+  /** Composer preview while a scheduled message is edited. */
+  EditedScheduledMessagePreview?: React.ComponentType<EditedScheduledMessagePreviewProps>;
   /** Custom UI component rendered when a paginated list (e.g. the channel list) is empty. */
   EmptyListIndicator?: React.ComponentType;
   /** Custom UI component rendered at the top/bottom edge of a paginated list. */
@@ -89,6 +103,8 @@ export type ComponentContextValue = {
     hasEnded: boolean;
     reached: 'top' | 'bottom';
   }>;
+  /** Composer preview while a failed scheduled message is scheduled again. */
+  FailedScheduledMessagePreview?: React.ComponentType<FailedScheduledMessagePreviewProps>;
   /** Custom UI component rendered while a paginated list loads its first page. */
   FirstPageLoadingIndicator?: React.ComponentType;
   /** Custom UI component rendered per item of a paginated list. */
@@ -113,6 +129,20 @@ export type ComponentContextValue = {
   AttachmentPreviewList?: React.ComponentType;
   /** Control for adding attachments to the `MessageComposer`. */
   AttachmentSelector?: React.ComponentType;
+  /** Dialog that picks a new time for a scheduled message. */
+  RescheduleMessageDialog?: React.ComponentType<RescheduleMessageDialogProps>;
+  /** Actions of a scheduled message list item; `null` hides them. */
+  ScheduledMessageActions?: React.ComponentType<ScheduledMessageActionsProps> | null;
+  /** One item of the scheduled message list. */
+  ScheduledMessageItem?: React.ComponentType<ScheduledMessageItemProps>;
+  /** Scheduled message list in the banner dialog and the Channel Detail section. */
+  ScheduledMessageList?: React.ComponentType<ScheduledMessageListProps>;
+  /** Scheduled messages banner above the composer; `null` hides it. */
+  ScheduledMessagesBanner?: React.ComponentType | null;
+  /** Schedule button next to the send button; `null` hides it. */
+  ScheduleMessageButton?: React.ComponentType | null;
+  /** Custom-time dialog for scheduling a message. */
+  ScheduleMessageDialog?: React.ComponentType<ScheduleMessageDialogProps>;
   /**
    * Voice recording preview above the composer attachments, rendered without props. To change the
    * preview, render `VoiceRecordingPreviewSlot` with your own `VoiceRecordingPreview`.

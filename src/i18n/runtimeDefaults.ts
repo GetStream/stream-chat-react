@@ -4,9 +4,10 @@
  * `translationBuilderTopic.*` (an i18next postProcessor directive). The `language.*` names come
  * from `stream-chat`.
  *
- * Four `timestamp.*` entries (`DateSeparator`, `ReminderNotification`, `ChannelPreviewTimestamp`,
- * `ChannelDetailPinnedMessageTimestamp`) hold English day words in `calendarFormats`, which
- * `dayjsLocaleConfigForLanguage` does not reach, so integrators override the key. Adding a fifth
+ * Eight `timestamp.*` entries (`DateSeparator`, `ReminderNotification`, `ChannelPreviewTimestamp`,
+ * `ChannelDetailPinnedMessageTimestamp`, `ScheduledMessageConfirmation`, `ScheduledMessageGroup`,
+ * `ScheduledMessageSendTime`, `SchedulePreset`) hold English words in their formats, which
+ * `dayjsLocaleConfigForLanguage` does not reach, so integrators override the key. Adding a ninth
  * fails a guard in `__tests__/Streami18n.test.ts` that keeps the migration guide's list in sync.
  */
 export const runtimeDefaults = {
@@ -32,6 +33,16 @@ export const runtimeDefaults = {
   'timestamp.PollVoteTooltip': '{{ timestamp | timestampFormatter(calendar: true) }}',
   'timestamp.ReminderNotification':
     '{{ timestamp | timestampFormatter(calendar: true; calendarFormats: { "sameDay": "[Today] [at] HH:mm", "nextDay": "[Tomorrow] [at] HH:mm", "lastDay": "[Yesterday] [at] HH:mm", "nextWeek": "dddd [at] HH:mm", "lastWeek": "[Last] dddd [at] HH:mm", "sameElse": "ddd, D MMM [at] HH:mm" }) }}',
+  'timestamp.ScheduleDate':
+    '{{ timestamp | timestampFormatter(format: ddd, MMM D, YYYY) }}',
+  'timestamp.ScheduledMessageConfirmation':
+    '{{ timestamp | timestampFormatter(calendar: true; calendarFormats: { "sameDay": "HH:mm", "nextDay": "ddd, MMM D [at] HH:mm", "lastDay": "ddd, MMM D [at] HH:mm", "nextWeek": "ddd, MMM D [at] HH:mm", "lastWeek": "ddd, MMM D [at] HH:mm", "sameElse": "ddd, MMM D [at] HH:mm" }) }}',
+  'timestamp.ScheduledMessageGroup':
+    '{{ timestamp | timestampFormatter(calendar: true; calendarFormats: { "sameDay": "[Today]", "nextDay": "[Tomorrow]", "lastDay": "[Yesterday]", "nextWeek": "dddd", "lastWeek": "[Last] dddd", "sameElse": "ddd, D MMM" }) }}',
+  'timestamp.ScheduledMessageSendTime':
+    '{{ timestamp | timestampFormatter(format: ddd, MMM D [at] HH:mm) }}',
+  'timestamp.SchedulePreset':
+    '{{ timestamp | timestampFormatter(calendar: true; calendarFormats: { "sameDay": "[Today] [at] HH:mm", "nextDay": "[Tomorrow] [at] HH:mm", "lastDay": "[Yesterday] [at] HH:mm", "nextWeek": "dddd [at] HH:mm", "lastWeek": "[Last] dddd [at] HH:mm", "sameElse": "dddd [at] HH:mm" }) }}',
   'timestamp.SystemMessage': '{{ timestamp | timestampFormatter(format: dddd L) }}',
   'translationBuilderTopic.notification': '{{value, notification}}',
 };

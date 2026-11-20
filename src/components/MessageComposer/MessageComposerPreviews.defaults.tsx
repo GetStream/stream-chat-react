@@ -15,11 +15,16 @@ import {
 } from './AttachmentPreviewList';
 import { GeolocationPreview } from './AttachmentPreviewList/GeolocationPreview';
 import { EditedMessagePreview as DefaultEditedMessagePreview } from './EditedMessagePreview';
-import { useMessageComposerController } from './hooks';
+import {
+  useMessageComposerController,
+  useScheduledMessageCompositionState,
+} from './hooks';
 import { LinkPreviewList as DefaultLinkPreviewList } from './LinkPreviewList';
 import type { MessageComposerPreviewSetItem } from './MessageComposerPreviews';
 import { restorePreEditSnapshot } from './preEditSnapshot';
 import { QuotedMessagePreview as DefaultQuotedMessagePreview } from './QuotedMessagePreview';
+import { EditedScheduledMessagePreview as DefaultEditedScheduledMessagePreview } from '../ScheduledMessages/EditedScheduledMessagePreview';
+import { FailedScheduledMessagePreview as DefaultFailedScheduledMessagePreview } from '../ScheduledMessages/FailedScheduledMessagePreview';
 
 const editedMessageSelector = ({ editedMessage }: MessageComposerState) => ({
   editedMessage,
@@ -41,6 +46,36 @@ const DefaultMessageComposerPreviewComponents = {
         onCancel={() => {
           restorePreEditSnapshot(messageComposer);
         }}
+      />
+    );
+  },
+  EditedScheduledMessage() {
+    const { EditedScheduledMessagePreview = DefaultEditedScheduledMessagePreview } =
+      useComponentContext();
+    const messageComposer = useMessageComposerController();
+    const { editedScheduledMessage } = useScheduledMessageCompositionState();
+
+    if (!editedScheduledMessage) return null;
+
+    return (
+      <EditedScheduledMessagePreview
+        onCancel={messageComposer.scheduledMessageComposition.cancelEdit}
+        scheduledMessage={editedScheduledMessage}
+      />
+    );
+  },
+  FailedScheduledMessage() {
+    const { FailedScheduledMessagePreview = DefaultFailedScheduledMessagePreview } =
+      useComponentContext();
+    const messageComposer = useMessageComposerController();
+    const { failedScheduledMessage } = useScheduledMessageCompositionState();
+
+    if (!failedScheduledMessage) return null;
+
+    return (
+      <FailedScheduledMessagePreview
+        onCancel={messageComposer.scheduledMessageComposition.cancelEdit}
+        scheduledMessage={failedScheduledMessage}
       />
     );
   },
@@ -93,9 +128,28 @@ export const defaultMessageComposerPreviewSet: MessageComposerPreviewSetItem[] =
     type: 'editedMessage',
   },
   {
+    Component: DefaultMessageComposerPreviewComponents.EditedScheduledMessage,
+    isVisible: ({ editedScheduledMessage }) => !!editedScheduledMessage,
+    type: 'editedScheduledMessage',
+  },
+  {
+    Component: DefaultMessageComposerPreviewComponents.FailedScheduledMessage,
+    isVisible: ({ failedScheduledMessage }) => !!failedScheduledMessage,
+    type: 'failedScheduledMessage',
+  },
+  {
     Component: DefaultMessageComposerPreviewComponents.QuotedMessage,
     // The edited message preview takes the quoted message's place while editing.
-    isVisible: ({ editedMessage, quotedMessage }) => !editedMessage && !!quotedMessage,
+    isVisible: ({
+      editedMessage,
+      editedScheduledMessage,
+      failedScheduledMessage,
+      quotedMessage,
+    }) =>
+      !editedMessage &&
+      !editedScheduledMessage &&
+      !failedScheduledMessage &&
+      !!quotedMessage,
     type: 'quotedMessage',
   },
   {

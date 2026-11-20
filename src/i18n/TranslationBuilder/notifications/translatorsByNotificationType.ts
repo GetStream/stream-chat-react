@@ -9,7 +9,13 @@ import {
   translateCommandDisabled,
   translatePollCreateFailed,
   translatePollEndFailed,
+  translateScheduledMessageActionFailed,
+  translateScheduledMessageBlocked,
+  translateScheduledMessageCompositionEnded,
+  translateScheduledMessageCreateFailed,
+  translateScheduledMessageSendFailed,
 } from './translators';
+import { ScheduledMessageNotificationType } from '../../../components/ScheduledMessages/constants';
 import type { Translator } from '../../index';
 
 type NotificationTranslator = Translator<NotificationTranslatorOptions>;
@@ -51,6 +57,13 @@ const coreNotificationTranslators: Record<CoreNotificationType, NotificationTran
         'Reached the vote limit. Remove an existing vote first.',
       ),
     [CORE_NOTIFICATION_TYPE.pollCreateFailed]: translatePollCreateFailed,
+    [CORE_NOTIFICATION_TYPE.scheduledMessageBlocked]: translateScheduledMessageBlocked,
+    [CORE_NOTIFICATION_TYPE.scheduledMessageCompositionEnded]:
+      translateScheduledMessageCompositionEnded,
+    [CORE_NOTIFICATION_TYPE.scheduledMessageCreateFailed]:
+      translateScheduledMessageCreateFailed,
+    [CORE_NOTIFICATION_TYPE.scheduledMessageUpdateFailed]:
+      translateScheduledMessageActionFailed,
   };
 
 /**
@@ -65,6 +78,11 @@ const sdkNotificationTranslators: Record<string, NotificationTranslator> = {
   'browser:audio:playback:error': translateBrowserAudioPlaybackError,
   'browser:location:get:failed': ({ t }) =>
     t('notification.locationGetFailed', 'Failed to retrieve location'),
+  [ScheduledMessageNotificationType.DeleteFailed]: translateScheduledMessageActionFailed,
+  [ScheduledMessageNotificationType.RescheduleFailed]:
+    translateScheduledMessageActionFailed,
+  [ScheduledMessageNotificationType.SendFailed]: translateScheduledMessageSendFailed,
+  [ScheduledMessageNotificationType.SendNowFailed]: translateScheduledMessageActionFailed,
 };
 
 export const translatorsByNotificationType: Record<string, NotificationTranslator> = {

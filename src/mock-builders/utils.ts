@@ -2,6 +2,7 @@ import type {
   ChannelConfigWithInfo,
   ChannelResponse,
   GetDraftResponse,
+  ScheduledMessageResponse,
   StreamChat,
   UserResponse,
 } from 'stream-chat';
@@ -113,4 +114,22 @@ export const initClientWithChannels = async ({
   }
 
   return { channels, client };
+};
+
+export const hydrateScheduledMessages = (
+  client: StreamChat,
+  cid: string,
+  scheduledMessages: ScheduledMessageResponse[] = [],
+) => {
+  const [type, id] = cid.split(':');
+
+  const orderedByScheduledAt = [...scheduledMessages].sort(
+    (a, b) => a.scheduled_at - b.scheduled_at,
+  );
+
+  client.channel(type, id).scheduledMessagesPaginator.setItems({
+    isFirstPage: true,
+    isLastPage: true,
+    valueOrFactory: orderedByScheduledAt,
+  });
 };

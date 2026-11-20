@@ -9,6 +9,7 @@ import {
 } from 'stream-chat-react';
 
 import { useAppSettingsSelector } from './AppSettings';
+import { withEventInviteAction } from './EventInvite';
 
 const textComposerCommandSelector = ({ command }: TextComposerState) => ({ command });
 
@@ -18,18 +19,20 @@ export const CommandModeAttachmentSelector = (props: AttachmentSelectorProps) =>
     messageComposer.textComposer.state,
     textComposerCommandSelector,
   );
-  const { disabledPreviewSections } = useAppSettingsSelector((state) => state.composer);
+  const { disabledPreviewSections, eventInvites } = useAppSettingsSelector(
+    (state) => state.composer,
+  );
   const filesDisabled = disabledPreviewSections.includes('attachments');
   const attachmentSelectorActionSet = useMemo(() => {
     const actionSet =
       props.attachmentSelectorActionSet ?? defaultAttachmentSelectorActionSet;
-    // A composer without the Files preview offers no File option. Polls and location are gated
-    // through the composer config instead (see the setup function in App.tsx), which the SDK's
-    // own selector filter already reads.
-    return filesDisabled
-      ? actionSet.filter(({ type }) => type !== 'uploadFile')
-      : actionSet;
-  }, [filesDisabled, props.attachmentSelectorActionSet]);
+    // A composer without the Files preview offers no File option, and no Event option either,
+    // since that preview is where the invite shows. Polls and location are gated through the
+    // composer config instead (see the setup function in App.tsx), which the SDK's own selector
+    // filter already reads.
+    if (filesDisabled) return actionSet.filter(({ type }) => type !== 'uploadFile');
+    return eventInvites ? withEventInviteAction(actionSet) : actionSet;
+  }, [eventInvites, filesDisabled, props.attachmentSelectorActionSet]);
 
   return (
     <DefaultAttachmentSelector

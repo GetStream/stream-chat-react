@@ -97,6 +97,10 @@ import { InlineEditableMessage } from './InlineEditMessage';
 import { ThreadListHeaderWithSidebarToggle } from './Sidebar/HeaderContent.tsx';
 import { CommandModeAttachmentSelector } from './CommandModeAttachmentSelector.tsx';
 import {
+  EventInviteAwareAttachmentPreviewList,
+  EventInviteMessageAttachment,
+} from './EventInvite';
+import {
   ConfigurableComposerPreviews,
   ConfigurableStartRecordingAudioButton,
 } from './ComposerPreviews/ConfigurableComposerPreviews.tsx';
@@ -274,8 +278,14 @@ const chatViewLayouts = [
   { id: 'threads' as const, slots: [MAIN_THREAD_SLOT, OPTIONAL_THREAD_SLOT] },
 ];
 
+// The SDK renders every attachment type it does not know with `UnsupportedAttachment`, which is
+// where this app's `event` attachments (EventInvite/) get their UI.
+const AppAttachment = (props: AttachmentProps) => (
+  <Attachment UnsupportedAttachment={EventInviteMessageAttachment} {...props} />
+);
+
 const CustomAttachmentWithActions = (props: AttachmentProps) => (
-  <Attachment {...props} AttachmentActions={CustomAttachmentActions} />
+  <AppAttachment {...props} AttachmentActions={CustomAttachmentActions} />
 );
 
 const APP_TITLE = 'Stream Chat React';
@@ -695,6 +705,8 @@ const App = () => {
         Search: CustomChannelSearch,
         ThreadListHeader: ThreadListHeaderWithSidebarToggle,
         MessageActions: ConfigurableMessageActions,
+        Attachment: AppAttachment,
+        AttachmentPreviewList: EventInviteAwareAttachmentPreviewList,
         AttachmentSelector: CommandModeAttachmentSelector,
         MessageBubbleContent: ConfigurableMessageBubbleContent,
         MessageComposerPreviews: ConfigurableComposerPreviews,
