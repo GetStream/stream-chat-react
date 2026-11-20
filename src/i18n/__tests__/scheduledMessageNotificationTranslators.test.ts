@@ -86,7 +86,6 @@ const translateBlocked = (reason?: string) =>
 describe('translateScheduledMessageBlocked', () => {
   it.each([
     [ScheduledMessageBlockReason.Command, "Slash commands can't be scheduled"],
-    [ScheduledMessageBlockReason.Poll, "Polls can't be scheduled"],
     [ScheduledMessageBlockReason.SharedLocation, "Locations can't be scheduled"],
   ])('translates the %s reason', (reason, expected) => {
     expect(translateBlocked(reason)).toBe(expected);

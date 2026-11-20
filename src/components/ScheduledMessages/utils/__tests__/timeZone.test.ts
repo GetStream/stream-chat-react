@@ -4,7 +4,8 @@ describe('formatTimeZoneOffset', () => {
   const originalTimeZone = process.env.TZ;
 
   afterEach(() => {
-    process.env.TZ = originalTimeZone;
+    if (originalTimeZone === undefined) delete process.env.TZ;
+    else process.env.TZ = originalTimeZone;
   });
 
   it.each([

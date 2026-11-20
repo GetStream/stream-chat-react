@@ -216,6 +216,12 @@ export type TranslationCatalog = {
   'channelDetail.channelMembersView.browseChannelMembers.description': 'Browse channel members';
   'channelDetail.channelMembersView.members.title_one': '{{ count }} member';
   'channelDetail.channelMembersView.members.title_other': '{{ count }} members';
+  'channelDetail.navButton.channelFiles.label': 'Files';
+  'channelDetail.navButton.channelInfo.label': 'Channel info';
+  'channelDetail.navButton.channelMedia.label': 'Photos & videos';
+  'channelDetail.navButton.members.label': 'Members';
+  'channelDetail.navButton.pinnedMessages.label': 'Pinned messages';
+  'channelDetail.navButton.scheduledMessages.label': 'Scheduled';
   'channelDetail.pinnedMessagesEmpty.noPinnedMessages.text': 'No pinned messages';
   'channelDetail.pinnedMessagesEmpty.pinMessageSee.text': 'Pin a message to see it here';
   'channelDetail.pinnedMessagesView.browsePinnedMessages.description': 'Browse pinned messages';
@@ -661,7 +667,6 @@ export type TranslationCatalog = {
   'scheduledMessages.notification.notEditable': "Failed messages can't be edited";
   'scheduledMessages.notification.notSent': 'Scheduled message not sent';
   'scheduledMessages.notification.notSentWithReason': 'Scheduled message not sent: {{ reason }}';
-  'scheduledMessages.notification.pollBlocked': "Polls can't be scheduled";
   'scheduledMessages.notification.sendNowFailed': "Couldn't send the message. Try again";
   'scheduledMessages.notification.sending': 'This message is being sent';
   'scheduledMessages.notification.updateFailed': "Couldn't update the scheduled message. Try again";

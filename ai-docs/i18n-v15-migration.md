@@ -174,11 +174,11 @@ These v14 keys (from `src/i18n/en.json` at `v14.10.0`, plural suffixes folded) h
   yarn i18n:export
   ```
 
-  That writes `en.json` in the repo root with the 619 translatable keys. The 14 `timestamp.*`,
+  That writes `en.json` in the repo root with the 734 translatable keys. The 20 `timestamp.*`,
   `duration.*` and `translationBuilderTopic.*` entries are left out on purpose — they are dayjs and
   i18next expressions, and a TMS that "translates" `{{value, notification}}` breaks notifications
   outright. Eight of them do carry English words; those are handled by overriding the key, see
-  [Date and time](#date-and-time). Pass `--all` for the complete 633-key catalog.
+  [Date and time](#date-and-time). Pass `--all` for the complete 754-key catalog.
 
   [`ai-docs/i18n-v15-key-map.json`](https://github.com/GetStream/stream-chat-react/blob/master/ai-docs/i18n-v15-key-map.json) also lists every key, alongside the v14 string it replaced.
 
