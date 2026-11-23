@@ -38,7 +38,7 @@ export const ChatContainer = ({ onToggleSidebar }: ChatContainerProps) => {
     <div className='ai-demo-chat-container'>
       <WithComponents
         overrides={{
-          EmptyStateIndicator: EmptyState,
+          ListEmptyUI: EmptyState,
           MessageUI: MessageBubble,
           UnreadMessagesNotification: NoOp,
           UnreadMessagesSeparator: NoOp,
