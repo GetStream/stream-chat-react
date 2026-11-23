@@ -22,7 +22,6 @@ export const useStreami18n = ({
   i18nInstance,
 }: UseStreami18nParams): TranslationContextValue => {
   const i18n = useMemo(() => i18nInstance ?? new Streami18n(), [i18nInstance]);
-  // `||`, not `??`: a user who never set a language has `language: ""`, which `Intl` rejects.
   const [userLanguage, setUserLanguage] = useState(() => client.user?.language || 'en');
 
   useEffect(() => {
