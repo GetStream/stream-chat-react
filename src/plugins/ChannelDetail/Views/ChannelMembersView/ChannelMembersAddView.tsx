@@ -17,6 +17,7 @@ import { Prompt } from '../../../../components/Dialog';
 import { useChannelDetailContext } from '../../ChannelDetailContext';
 import { canUpdateChannelMembers, getUserDisplayName } from './ChannelMembersView.utils';
 import { useChannelMemberIds } from './useChannelMemberIds';
+import { useIsUserOnline } from '../../../../components/ChannelHeader/hooks/useIsUserOnline';
 import type { ChannelMembersModeViewProps } from './ChannelMembersView';
 import { useNotificationApi } from '../../../../components/Notifications';
 import { ChannelDetailSearchInput } from '../../ChannelDetailSearchInput';
@@ -68,6 +69,8 @@ const ChannelMembersAddViewItem = ({
   const { t } = useTranslationContext();
   const { Avatar = DefaultAvatar, extractDisplayInfo = defaultExtractDisplayInfo } =
     useComponentContext();
+  const { channel } = useChannelDetailContext();
+  const isOnline = useIsUserOnline(channel, user);
   const displayName = getUserDisplayName(user);
 
   const LeadingSlot = useMemo(
@@ -75,9 +78,9 @@ const ChannelMembersAddViewItem = ({
       function MemberAvatar() {
         const displayInfo = extractDisplayInfo({ user });
 
-        return <Avatar {...displayInfo} isOnline={user.online} size='md' />;
+        return <Avatar {...displayInfo} isOnline={isOnline} size='md' />;
       },
-    [Avatar, extractDisplayInfo, user],
+    [Avatar, extractDisplayInfo, isOnline, user],
   );
 
   const SelectableTrailingSlot = useMemo(

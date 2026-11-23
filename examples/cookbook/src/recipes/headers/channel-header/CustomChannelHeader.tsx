@@ -11,17 +11,24 @@ import {
 } from 'stream-chat-react';
 import './CustomChannelHeader.css';
 
-const channelStateSelector = ({ memberCount, watcherCount }: ChannelStateData) => ({
+const channelStateSelector = ({ memberCount, members, watchers }: ChannelStateData) => ({
   memberCount,
-  watcherCount,
+  members,
+  watchers,
 });
 
 export const CustomChannelHeader = () => {
   const channel = useChannel();
-  const { memberCount, watcherCount } = useStateStore(
+  const { memberCount, members, watchers } = useStateStore(
     channel.state,
     channelStateSelector,
   );
+  // Members who are online or watch the channel, as the default header counts them.
+  const onlineCount = Object.values(members).filter(
+    (member) =>
+      member.user?.online ||
+      (member.user?.id && Object.prototype.hasOwnProperty.call(watchers, member.user.id)),
+  ).length;
   const { displayImage, displayTitle, groupChannelDisplayInfo } = useChannelPreviewInfo({
     channel,
   });
@@ -45,7 +52,7 @@ export const CustomChannelHeader = () => {
           {someoneIsTyping ? (
             <TypingIndicatorHeader />
           ) : (
-            `${memberCount} members · ${watcherCount} online`
+            `${memberCount} members · ${onlineCount} online`
           )}
         </div>
       </div>

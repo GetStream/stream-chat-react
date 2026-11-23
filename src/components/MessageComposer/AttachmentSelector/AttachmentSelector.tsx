@@ -69,7 +69,7 @@ const useAttachmentSelectorActionAvailabilityContext =
       useAttachmentManagerState();
     const messageComposer = useMessageComposerController();
     const channelCapabilities = useChannelCapabilities({
-      cid: messageComposer.channel.cid,
+      channel: messageComposer.channel,
     });
     const { availableCommands } = useStateStore(
       messageComposer.channel.configState,

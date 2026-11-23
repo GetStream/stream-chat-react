@@ -60,7 +60,7 @@ export const PollActions = ({
   const channel = useChannel();
   const { client } = useChatContext();
   const { t } = useTranslationContext();
-  const channelCapabilities = useChannelCapabilities({ cid: channel.cid });
+  const channelCapabilities = useChannelCapabilities({ channel });
   const { message } = useMessageContext();
   const { poll } = usePollContext();
   const {

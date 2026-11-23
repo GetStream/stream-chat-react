@@ -14,9 +14,9 @@ export const getUserDisplayName = (user?: UserResponse) =>
   user?.id ||
   '';
 
-export const getChannelMemberUserIds = (channel: Channel) =>
-  Object.values(channel.state?.members ?? {})
-    .map((member) => member.user?.id || member.user_id)
+export const getMemberUserIds = (members: Record<string, ChannelMemberResponse>) =>
+  Object.values(members)
+    .map(getMemberUserId)
     .filter((userId): userId is string => !!userId);
 
 export const canUpdateChannelMembers = (channel: Channel) =>

@@ -15,7 +15,10 @@ import * as DEFAULT_ICONS from '../../../../../components/Icons/icons';
 import { ChannelDetailProvider } from '../../../ChannelDetailContext';
 import { ChannelMemberDetail } from '../ChannelMemberDetail';
 import { mockT } from '../../../../../mock-builders/translator';
-import { convertDateToTimestamp } from '../../../../../mock-builders';
+import {
+  convertDateToTimestamp,
+  generateChannelState,
+} from '../../../../../mock-builders';
 
 vi.mock('../../../../../context');
 
@@ -38,15 +41,17 @@ vi.mock('../../../../../components/Dialog', () => ({
 const createChannel = ({
   members,
   ownCapabilities = ['update-channel-members', 'ban-channel-members'],
+  watchers = {},
 }: {
   members?: Channel['state']['members'];
   ownCapabilities?: string[];
+  watchers?: Channel['state']['watchers'];
 } = {}) =>
   fromPartial<Channel>({
     data: {
       own_capabilities: ownCapabilities,
     },
-    state: {
+    state: generateChannelState({
       members: members ?? {
         me: {
           user: { id: 'user-me', name: 'Me' },
@@ -61,7 +66,8 @@ const createChannel = ({
           user_id: 'user-2',
         },
       },
-    },
+      watchers,
+    }),
   });
 
 const renderWithChannel = (ui: React.ReactElement, channel: Channel = createChannel()) =>
@@ -115,6 +121,23 @@ describe('ChannelMemberDetail', () => {
     expect(screen.getByText('Member detail')).toBeInTheDocument();
   });
 
+  it('shows a member who watches the channel as online, like the channel header', () => {
+    renderWithChannel(
+      <ChannelMemberDetail
+        channelMemberActionSet={[]}
+        layout='inline'
+        member={otherMember}
+      />,
+      createChannel({
+        watchers: fromPartial<Channel['state']['watchers']>({
+          'user-2': { id: 'user-2' },
+        }),
+      }),
+    );
+
+    expect(screen.getByText('Online')).toBeInTheDocument();
+  });
+
   it('filters actions by capabilities for another member', () => {
     const actionSet = [
       createAction('sendMessage', 'Send'),
@@ -163,7 +186,7 @@ describe('ChannelMemberDetail', () => {
     expect(screen.queryByText('Remove')).not.toBeInTheDocument();
   });
 
-  it('hides member actions when viewing current user details', () => {
+  it('renders no actions container when viewing current user details', () => {
     const ownMember = fromPartial<ChannelMemberResponse>({
       user: { id: 'user-me', name: 'Me' },
       user_id: 'user-me',
@@ -187,6 +210,11 @@ describe('ChannelMemberDetail', () => {
     expect(screen.queryByText('Mute')).not.toBeInTheDocument();
     expect(screen.queryByText('Block')).not.toBeInTheDocument();
     expect(screen.queryByText('Remove')).not.toBeInTheDocument();
+    expect(
+      document.querySelector(
+        '.str-chat__channel-detail__channel-member-detail-view__actions',
+      ),
+    ).not.toBeInTheDocument();
   });
 
   it('closes through a modal context provided inside ChannelDetailProvider', () => {

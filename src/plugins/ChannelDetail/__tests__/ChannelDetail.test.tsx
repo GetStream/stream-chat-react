@@ -1,7 +1,7 @@
 import React from 'react';
-import { fireEvent, render, screen } from '@testing-library/react';
+import { act, fireEvent, render, screen } from '@testing-library/react';
 import { afterEach, beforeEach, vi } from 'vitest';
-import type { Channel } from 'stream-chat';
+import type { Event, Channel as StreamChannel, StreamChat } from 'stream-chat';
 
 import { ChannelDetail } from '../ChannelDetail';
 import { ChannelDetailProvider, useChannelDetailContext } from '../ChannelDetailContext';
@@ -11,6 +11,14 @@ import {
   type SectionNavigatorSection,
 } from '../SectionNavigator';
 import { ModalContextProvider, useModalContext } from '../../../context';
+import { Channel } from '../../../components/Channel';
+import { Chat } from '../../../components/Chat';
+import { ThreadProvider } from '../../../components/Threads';
+import {
+  generateMember,
+  generateUser,
+  initClientWithChannels,
+} from '../../../mock-builders';
 
 const sections: SectionNavigatorSection[] = [
   {
@@ -37,7 +45,7 @@ const closeableSections: SectionNavigatorSection[] = [
 
 const channel = {
   cid: 'messaging:test-channel',
-} as Channel;
+} as StreamChannel;
 
 const queryCloseButton = () => screen.queryByRole('button', { name: 'Close' });
 
@@ -321,5 +329,141 @@ describe('useChannelDetailContext', () => {
     );
 
     expect(queryCloseButton()).not.toBeInTheDocument();
+  });
+});
+
+const ownUser = generateUser({ id: 'own-user', online: true });
+
+/** A group channel of `memberCount` members, the first `onlineCount` of them online. */
+const groupChannelData = (id: string, memberCount: number, onlineCount: number) => ({
+  channel: { id, member_count: memberCount },
+  members: Array.from({ length: memberCount }, (_, index) =>
+    generateMember({
+      user: index === 0 ? ownUser : generateUser({ online: index < onlineCount }),
+    }),
+  ),
+});
+
+describe('ChannelDetail channel', () => {
+  const OriginalResizeObserver = globalThis.ResizeObserver;
+  let client: StreamChat;
+  let detailChannel: StreamChannel;
+  let otherChannel: StreamChannel;
+
+  beforeEach(async () => {
+    globalThis.ResizeObserver = class MockResizeObserver implements ResizeObserver {
+      disconnect = vi.fn();
+      observe = vi.fn();
+      unobserve = vi.fn();
+    };
+    ({
+      channels: [detailChannel, otherChannel],
+      client,
+    } = await initClientWithChannels({
+      channelsData: [groupChannelData('detail', 3, 2), groupChannelData('other', 7, 5)],
+      customUser: ownUser,
+    }));
+  });
+
+  afterEach(() => {
+    globalThis.ResizeObserver = OriginalResizeObserver;
+  });
+
+  const detailStatus = '3 members · 2 online';
+  const otherStatus = '7 members · 5 online';
+
+  it("renders without a channel provider and shows the detail channel's online status", () => {
+    render(
+      <Chat client={client}>
+        <ChannelDetail channel={detailChannel} />
+      </Chat>,
+    );
+
+    expect(screen.getByText(detailStatus)).toBeInTheDocument();
+  });
+
+  it("shows the detail channel's online status inside a different Channel", () => {
+    render(
+      <Chat client={client}>
+        <Channel channel={otherChannel}>
+          <ChannelDetail channel={detailChannel} />
+        </Channel>
+      </Chat>,
+    );
+
+    expect(screen.getByText(detailStatus)).toBeInTheDocument();
+    expect(screen.queryByText(otherStatus)).not.toBeInTheDocument();
+  });
+
+  it("shows the detail channel's online status inside a thread of a different channel", () => {
+    const thread = { channel: otherChannel } as React.ComponentProps<
+      typeof ThreadProvider
+    >['thread'];
+
+    render(
+      <Chat client={client}>
+        <ThreadProvider thread={thread}>
+          <ChannelDetail channel={detailChannel} />
+        </ThreadProvider>
+      </Chat>,
+    );
+
+    expect(screen.getByText(detailStatus)).toBeInTheDocument();
+    expect(screen.queryByText(otherStatus)).not.toBeInTheDocument();
+  });
+});
+
+describe('ChannelDetail online status', () => {
+  const OriginalResizeObserver = globalThis.ResizeObserver;
+
+  beforeEach(() => {
+    globalThis.ResizeObserver = class MockResizeObserver implements ResizeObserver {
+      disconnect = vi.fn();
+      observe = vi.fn();
+      unobserve = vi.fn();
+    };
+  });
+
+  afterEach(() => {
+    globalThis.ResizeObserver = OriginalResizeObserver;
+  });
+
+  it("shows a direct message's status from the other member's user.online, live", async () => {
+    const ownUser = generateUser({ id: 'own-user', online: true });
+    const otherUser = generateUser({ id: 'other-user', online: true });
+    const {
+      channels: [channel],
+      client,
+    } = await initClientWithChannels({
+      channelsData: [
+        {
+          channel: { member_count: 2 },
+          members: [
+            generateMember({ user: ownUser }),
+            generateMember({ user: otherUser }),
+          ],
+          // The other member is online but not watching this channel.
+          watchers: [],
+        },
+      ],
+      customUser: ownUser,
+    });
+
+    render(
+      <Chat client={client}>
+        <ChannelDetail channel={channel} />
+      </Chat>,
+    );
+
+    expect(screen.getByText('Online')).toBeInTheDocument();
+
+    act(() => {
+      client.dispatchEvent({
+        type: 'user.presence.changed',
+        user: { ...otherUser, online: false },
+      } as Event);
+    });
+
+    expect(screen.getByText('Offline')).toBeInTheDocument();
   });
 });

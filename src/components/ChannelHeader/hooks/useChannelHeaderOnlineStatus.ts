@@ -1,40 +1,58 @@
-import type { ChannelWatchState, MembersState } from 'stream-chat';
+import { useMemo } from 'react';
+import type { Channel, ChannelStateData } from 'stream-chat';
 
-import { useChannel, useTranslationContext } from '../../../context';
+import { useTranslationContext } from '../../../context';
+import { useResolvedChannel } from '../../../context/useContextChannel';
 import { useStateStore } from '../../../store';
 import { useIsDmChannel } from '../../../hooks';
-import { useChannelHasMembersOnline } from './useChannelHasMembersOnline';
+import { getOnlineMembers } from './onlineMembers';
+import { useChannelHasOtherMembersOnline } from './useChannelHasOtherMembersOnline';
 
-const memberCountSelector = (nextValue: MembersState) => ({
-  memberCount: nextValue.memberCount,
+const membersSelector = ({ memberCount, members, watchers }: ChannelStateData) => ({
+  memberCount,
+  members,
+  watchers,
 });
 
-const watcherCountSelector = (nextValue: ChannelWatchState) => ({
-  watcherCount: nextValue.watcherCount,
-});
+export type UseChannelHeaderOnlineStatusParams = {
+  channel?: Channel;
+};
 
 /**
- * Online status text for the channel in context, as the channel header shows it: "Online" or
- * "Offline" for a direct message, otherwise "N members · M online", translated. Returns null when
- * the channel has no members. `ChannelHeaderSubtitle` renders it when nobody is typing.
+ * The channel header's online status, translated: "Online" or "Offline" for a DM (the other
+ * member), otherwise "N members · M online", where M counts the loaded members whose `user.online`
+ * is true or who watch the channel. Null when the channel has no members. `channel` defaults to the
+ * channel in context.
+ *
+ * `user.online` stays current only on channels queried or watched with `presence: true`. The copy
+ * gets the count as both `{{ onlineCount }}` and `{{ watcherCount }}`.
  */
-export function useChannelHeaderOnlineStatus(): string | null {
+export function useChannelHeaderOnlineStatus({
+  channel: channelOverride,
+}: UseChannelHeaderOnlineStatusParams = {}): string | null {
   const { t } = useTranslationContext();
-  const channel = useChannel();
-  const { memberCount } = useStateStore(channel.state, memberCountSelector);
-  const { watcherCount } = useStateStore(channel.state, watcherCountSelector);
-  const isDirectMessagingChannel = useIsDmChannel();
-  const hasMembersOnline = useChannelHasMembersOnline({
+  const channel = useResolvedChannel(channelOverride);
+  const { memberCount, members, watchers } = useStateStore(
+    channel.state,
+    membersSelector,
+  );
+  const onlineCount = useMemo(
+    () => getOnlineMembers({ members, watchers }).length,
+    [members, watchers],
+  );
+  const isDirectMessagingChannel = useIsDmChannel({ channel });
+  const hasOtherMembersOnline = useChannelHasOtherMembersOnline({
+    channel,
     enabled: isDirectMessagingChannel,
   });
 
   if (!memberCount) return null;
 
   if (isDirectMessagingChannel) {
-    return hasMembersOnline
+    return hasOtherMembersOnline
       ? t('common.online.label', 'Online')
       : t('common.offline.label', 'Offline');
   }
 
-  return `${t('channelHeader.online.members.label', '{{ memberCount }} members', { memberCount })} · ${t('channelHeader.online.online.label', '{{ watcherCount }} online', { watcherCount })}`;
+  return `${t('channelHeader.online.members.label', '{{ memberCount }} members', { memberCount })} · ${t('channelHeader.online.online.label', '{{ onlineCount }} online', { onlineCount, watcherCount: onlineCount })}`;
 }

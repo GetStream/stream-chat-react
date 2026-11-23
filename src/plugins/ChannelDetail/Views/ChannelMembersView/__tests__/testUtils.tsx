@@ -1,24 +1,46 @@
 import { act, render, screen } from '@testing-library/react';
 import React from 'react';
-import type { Channel, UserSearchSource } from 'stream-chat';
+import type { Channel, MembersState, UserSearchSource } from 'stream-chat';
 import { fromPartial } from '@total-typescript/shoehorn';
+import { StateStore } from '@stream-io/state-store';
 
 import { ChannelDetailProvider } from '../../../ChannelDetailContext';
 
-type ChannelEventHandler = (event?: unknown) => void;
+type ChannelMembersTestState = Pick<MembersState, 'memberCount' | 'members'>;
 
-// Maps a mock channel to the handlers registered via `channel.on(...)`, so tests
-// can simulate membership events with `emitChannelEvent` without leaking the
-// registry onto the typed Channel shape.
-const channelEventHandlers = new WeakMap<
-  Channel,
-  Record<string, ChannelEventHandler[]>
->();
+// The parts of `ChannelState` the members views read: a store, plus the `members` getter.
+class ChannelMembersTestStateStore extends StateStore<ChannelMembersTestState> {
+  get members() {
+    return this.getLatestValue().members;
+  }
+}
 
-export const emitChannelEvent = (channel: Channel, event: string) =>
+/** Changes the channel's members state the way the SDK does on membership events. */
+export const updateChannelMembersState = (
+  channel: Channel,
+  next: Partial<ChannelMembersTestState>,
+) =>
   act(() => {
-    channelEventHandlers.get(channel)?.[event]?.forEach((handler) => handler());
+    (channel.state as unknown as ChannelMembersTestStateStore).partialNext(next);
   });
+
+/**
+ * For test files that auto-mock the `store` module: `useStateStore` reads a channel's state store
+ * for real, so membership changes re-render, and returns `otherStoresValue` for any other store.
+ */
+export const mockUseStateStoreForChannel = async (otherStoresValue: unknown) => {
+  const store =
+    await vi.importActual<typeof import('../../../../../store')>('../../../../../store');
+  const { useStateStore } = await import('../../../../../store');
+
+  vi.mocked(useStateStore).mockImplementation(((
+    stateStore: unknown,
+    selector: (value: unknown) => unknown,
+  ) =>
+    stateStore instanceof ChannelMembersTestStateStore
+      ? store.useStateStore(stateStore, selector as never)
+      : otherStoresValue) as typeof useStateStore);
+};
 
 const MEMBER_LIST_ITEM_CLASS =
   'str-chat__channel-detail__channel-members-view__list-item';
@@ -43,36 +65,34 @@ export const querySelectableMemberButton = (displayName: string) =>
 export const createChannel = (
   overrides: {
     memberCount?: number;
-    members?: Channel['state']['members'];
+    members?: MembersState['members'];
     ownCapabilities?: string[];
   } = {},
 ) => {
-  const handlers: Record<string, ChannelEventHandler[]> = {};
-
-  const channel = fromPartial<Channel>({
-    addMembers: vi.fn().mockResolvedValue({}),
-    data: {
-      member_count: overrides.memberCount ?? 2,
-      own_capabilities: overrides.ownCapabilities ?? ['update-channel-members'],
-    },
-    on: vi.fn((event: string, handler: ChannelEventHandler) => {
-      (handlers[event] = handlers[event] ?? []).push(handler);
-      return { unsubscribe: vi.fn() };
-    }),
-    removeMembers: vi.fn().mockResolvedValue({}),
-    state: {
-      members: overrides.members ?? {
+  const state = new ChannelMembersTestStateStore({
+    memberCount: overrides.memberCount ?? 2,
+    members:
+      overrides.members ??
+      fromPartial<MembersState['members']>({
         'user-1': {
           user: { id: 'user-1', name: 'Alice' },
           user_id: 'user-1',
         },
-      },
-    },
+      }),
   });
 
-  channelEventHandlers.set(channel, handlers);
-
-  return channel;
+  return fromPartial<Channel>({
+    addMembers: vi.fn().mockResolvedValue({}),
+    data: {
+      // Mirrors the state, as `channel.data` does in the SDK.
+      get member_count() {
+        return state.getLatestValue().memberCount;
+      },
+      own_capabilities: overrides.ownCapabilities ?? ['update-channel-members'],
+    },
+    removeMembers: vi.fn().mockResolvedValue({}),
+    state: state as unknown as Channel['state'],
+  });
 };
 
 export const renderWithChannel = (
