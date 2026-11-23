@@ -12112,8 +12112,8 @@ __metadata:
   linkType: soft
 
 "stream-chat@npm:^10.1.1":
-  version: 10.1.1
-  resolution: "stream-chat@npm:10.1.1"
+  version: 10.2.0
+  resolution: "stream-chat@npm:10.2.0"
   dependencies:
     "@stream-io/logger": "npm:^2.1.0"
     "@stream-io/state-store": "npm:^1.2.0"
@@ -12124,7 +12124,7 @@ __metadata:
       built: true
     husky:
       built: true
-  checksum: 10c0/17fdf65790a448ed90a809d1cd4ab385d2b222975396b4bfb28533d4dbfb2c9746730c7a8698c08056dd78c1626ecc905cacc532e01e8ce4e256a944b7766860
+  checksum: 10c0/4b8e0a850f785b7ef74dcc0ae11c722500ff0a9a01e0b41ecc8c643c2ff77c9967392c82277edae18a33b1988cf11942ecb1bd318e1e32e30b3c0fe6ccba56d0
   languageName: node
   linkType: hard
 
