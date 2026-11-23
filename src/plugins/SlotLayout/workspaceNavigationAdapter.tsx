@@ -7,13 +7,17 @@ import {
   useChatViewNavigation,
 } from './ChatViewNavigationContext';
 import { getChatViewEntityBinding, useChatViewContext } from './ChatView';
-import { useLayoutViewState } from './hooks/useLayoutViewState';
+import { getLayoutViewState, useLayoutViewState } from './hooks/useLayoutViewState';
 import { isPersistentSlotKind, useSlotRegistry } from './slotRegistry';
+import { readSlotStack, topOfStack } from './slotStack';
 
 import type { PropsWithChildren } from 'react';
 import type { Channel as StreamChannel, Thread as StreamThread } from 'stream-chat';
 import { Thread as StreamThreadClass } from 'stream-chat';
-import type { WorkspaceNavigation } from '../../context/WorkspaceNavigationContext';
+import type {
+  WorkspaceNavigation,
+  WorkspaceNavigationOptions,
+} from '../../context/WorkspaceNavigationContext';
 import type { ChatViewEntityBinding } from './ChatView';
 
 /**
@@ -43,7 +47,7 @@ export const WorkspaceNavigationAdapter = ({
 }: PropsWithChildren<WorkspaceNavigationAdapterProps>) => {
   const { close, open, release } = useChatViewNavigation();
   const registry = useSlotRegistry();
-  const { activeView } = useChatViewContext();
+  const { activeView, layoutController } = useChatViewContext();
   const { client } = useChatContext();
   const { availableSlots, slotBindings, slotLayers } = useLayoutViewState();
 
@@ -113,6 +117,15 @@ export const WorkspaceNavigationAdapter = ({
 
     const isThreadsView = activeView === 'threads';
 
+    // Only a list or search selection carries `event`. Unless it opens beside the current content
+    // or over it as a layer, it shows the selected item alone; other opens leave the other panels
+    // as they are.
+    const withExclusiveDefault = (options?: WorkspaceNavigationOptions) => ({
+      ...options,
+      exclusive:
+        options?.exclusive ?? (!!options?.event && !options.additive && !options.layer),
+    });
+
     return {
       canGoBack: (key, panel) => hasContentBeneath(slotShowing(key, panel)),
       closeChannel: (cid, options) => {
@@ -134,8 +147,19 @@ export const WorkspaceNavigationAdapter = ({
       },
       goBack: (key, options) => {
         const slot = slotShowing(key, options?.panel);
-        // `close` pops the top layer (the entity shown), revealing what it is stacked over.
-        if (hasContentBeneath(slot)) close(slot as string);
+        if (!slot) return;
+        // `close` pops the top layer, revealing what it is stacked over. It acts on the layout as
+        // it is now, so the slot is checked the same way: `key` must still be its top layer, or
+        // going back from something no longer shown would close what replaced it.
+        const stack = readSlotStack(
+          getLayoutViewState(layoutController.state.getLatestValue()),
+          slot,
+        );
+        // A layer, so something is beneath to go back to, and the one shown on top.
+        const isShownTopLayer =
+          stack.layers.length > 0 &&
+          getChatViewEntityBinding(topOfStack(stack))?.key === key;
+        if (isShownTopLayer) close(slot);
       },
       // Active = shown: a channel covered by another panel stacked in its slot is not.
       isChannelActive: (cid) => cid !== undefined && !!slotShowingKey(cid),
@@ -164,7 +188,7 @@ export const WorkspaceNavigationAdapter = ({
       openChannel: (channel, options) => {
         void open(
           { key: channel.cid ?? undefined, kind: 'channel', source: channel },
-          options,
+          withExclusiveDefault(options),
         );
       },
       openChannels,
@@ -173,7 +197,7 @@ export const WorkspaceNavigationAdapter = ({
           target instanceof StreamThreadClass
             ? { key: target.id ?? undefined, kind: 'thread', source: target }
             : createThreadEntityBinding(client, target);
-        void open(binding, options);
+        void open(binding, withExclusiveDefault(options));
       },
       openThreads,
     };
@@ -182,6 +206,7 @@ export const WorkspaceNavigationAdapter = ({
     availableSlots,
     client,
     close,
+    layoutController,
     open,
     registry,
     release,
