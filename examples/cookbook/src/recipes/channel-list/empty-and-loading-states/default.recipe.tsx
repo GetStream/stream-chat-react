@@ -4,7 +4,6 @@ import { WithNewConversation } from '../starting-a-conversation/NewConversationB
 import { SimulateChannelListState } from './SimulateChannelListState';
 import { WithChannelListStates } from './WithChannelListStates';
 
-// `ThreadList` reads the same slots, so the states wrap only the channel navigation.
 const Navigation = () => (
   <WithChannelListStates>
     <ChannelNavigation />
