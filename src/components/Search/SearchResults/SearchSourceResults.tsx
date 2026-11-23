@@ -2,9 +2,12 @@ import React from 'react';
 import type { SearchSource, SearchSourceState } from 'stream-chat';
 
 import { SearchSourceResultList as DefaultSearchSourceResultList } from './SearchSourceResultList';
-import { SearchSourceResultsEmpty as DefaultSearchSourceResultsEmpty } from './SearchSourceResultsEmpty';
+import { SearchSourceResultsEmpty as DefaultSearchSourceResultsEmpty } from './ListStates';
 import { SearchSourceResultsHeader as DefaultSearchSourceResultsHeader } from './SearchSourceResultsHeader';
 import { SearchSourceResultsContextProvider } from '../SearchSourceResultsContext';
+import { useSearchSourceFirstPageLoadRetry } from '../hooks/useSearchSourceFirstPageLoadRetry';
+import { ListLoadErrorUI as DefaultListLoadErrorUI } from '../../ListStates';
+import { renderWithDeprecatedKey } from '../../ListStates/utils';
 import { useComponentContext } from '../../../context';
 import { useStateStore } from '../../../store';
 
@@ -17,8 +20,10 @@ export type SearchSourceResultsProps = { searchSource: SearchSource };
 
 export const SearchSourceResults = ({ searchSource }: SearchSourceResultsProps) => {
   const {
+    ListEmptyUI = DefaultSearchSourceResultsEmpty,
+    ListLoadErrorUI = DefaultListLoadErrorUI,
     SearchSourceResultList = DefaultSearchSourceResultList,
-    SearchSourceResultsEmpty = DefaultSearchSourceResultsEmpty,
+    SearchSourceResultsEmpty,
     SearchSourceResultsHeader = DefaultSearchSourceResultsHeader,
   } = useComponentContext();
   const { isLoading, items } = useStateStore(
@@ -26,7 +31,10 @@ export const SearchSourceResults = ({ searchSource }: SearchSourceResultsProps) 
     searchSourceStateSelector,
   );
 
-  if (!items && !isLoading) return null;
+  const firstPageLoadRetry = useSearchSourceFirstPageLoadRetry(searchSource);
+
+  // A source that has not searched yet shows nothing.
+  if (!items && !isLoading && !firstPageLoadRetry.error) return null;
 
   return (
     <SearchSourceResultsContextProvider value={{ searchSource }}>
@@ -35,10 +43,18 @@ export const SearchSourceResults = ({ searchSource }: SearchSourceResultsProps) 
         data-testid='search-source-results'
       >
         <SearchSourceResultsHeader />
-        {items?.length || isLoading ? (
+        {/* A failed first page shows its error in place of the results. The list shows a running
+            query in its footer; the deprecated empty key wins while set. */}
+        {firstPageLoadRetry.error ? (
+          <ListLoadErrorUI
+            error={firstPageLoadRetry.error}
+            isRetrying={firstPageLoadRetry.isRetrying}
+            retry={firstPageLoadRetry.retry}
+          />
+        ) : items?.length || isLoading ? (
           <SearchSourceResultList />
         ) : (
-          <SearchSourceResultsEmpty />
+          renderWithDeprecatedKey(SearchSourceResultsEmpty, {}, <ListEmptyUI />)
         )}
       </div>
     </SearchSourceResultsContextProvider>

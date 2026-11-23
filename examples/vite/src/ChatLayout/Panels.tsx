@@ -11,25 +11,31 @@ import {
   type PropsWithChildren,
   useCallback,
   useEffect,
+  useMemo,
   useRef,
   useState,
 } from 'react';
 import {
   AIStateIndicator,
+  asDynamicKey,
   Channel,
   ChannelAvatar,
   ChannelHeader,
+  ChannelInstanceProvider,
   ChannelListItem,
   MessageComposerUI as DefaultMessageComposerUI,
   getRenderTextMentionEntities,
-  MessageComposer,
+  GlobalModal,
   MessageList,
   type MessageListProps,
+  Prompt,
   Thread,
   ThreadHeader,
   ThreadList,
   TypingIndicator,
   useChatContext,
+  useComponentContext,
+  useTranslationContext,
   VirtualizedMessageList,
   WithComponents,
   WithDragAndDropUpload,
@@ -39,9 +45,11 @@ import {
   ChatView,
   ChatViewEmptyPlaceholder,
   type ChatViewSelectorEntry,
+  getChatViewEntityBinding,
   ThreadSlot,
   useActiveThread,
   useChatViewNavigation,
+  useLayoutViewState,
   useSlotChannel,
   useSlotThread,
   useSlotTopLayerEntity,
@@ -52,8 +60,13 @@ import {
 } from 'stream-chat-react/channel-detail';
 
 import { useAppSettingsSelector } from '../AppSettings/state';
+import { isOwnProfileSource, useOwnUser, UserDetailDialog } from '../UserProfile';
 import { ChannelListItemUIWithPresence } from './ChannelListItemPresence';
-import { ConfiguredAvatarWithChannelDetail } from './ConfiguredChannelDetail.tsx';
+import {
+  ConfiguredAvatarWithChannelDetail,
+  ConfiguredChannelDetail,
+  isChannelDetailSource,
+} from './ConfiguredChannelDetail.tsx';
 import {
   resolveRevealAction,
   useRegisterSlotGeometry,
@@ -72,6 +85,7 @@ import { ReturnToSkipNavigation } from '../AccessibilityNavigation/ReturnToSkipN
 import { ChannelPreviewOverlay } from '../ChannelPreviewOverlay/ChannelPreviewOverlay.tsx';
 import { useSidebar } from './SidebarContext.tsx';
 import { SwitchableChannelNavigation } from './SwitchableChannelNavigation.tsx';
+import { ConfigurableMessageComposer } from '../ConfigurableMessageComposer';
 
 export const CHANNEL_MESSAGE_COMPOSER_TEXTAREA_TARGET_ID =
   'app-channel-message-composer-textarea';
@@ -163,13 +177,14 @@ const CustomChannelListItem = ({ item }: { item: unknown }) => {
       source: channel,
     };
     // ctrl/⌘-click opens the channel beside the current one (secondary slot); a plain click
-    // opens it in place. `additive` lets the navigation layer pick the secondary slot rather
-    // than hard-coding its name here.
+    // shows it alone, closing the other panels. `additive` lets the navigation layer pick the
+    // secondary slot rather than hard-coding its name here.
+    const additive = event.ctrlKey || event.metaKey;
     open(binding, {
-      // ⌘/ctrl-click opens beside the current channel (secondary slot). The SDK base policy
-      // binds it there if free, or stacks a layer if the slot is occupied (e.g. an open reply
-      // thread) — no explicit `layer` needed.
-      additive: event.ctrlKey || event.metaKey,
+      // The SDK base policy binds an additive channel into the secondary slot if free, or stacks
+      // a layer if the slot is occupied (e.g. an open reply thread) — no explicit `layer` needed.
+      additive,
+      exclusive: !additive,
     });
   };
   return <ChannelListItem channel={channel} onSelect={openChannel} />;
@@ -183,8 +198,12 @@ const ChannelThreadPanel = ({
   onOpenMemberDetail,
   thread,
 }: {
-  // Clicking an avatar/mention in the thread opens the member profile as a layer over this panel.
-  onOpenMemberDetail: (userId?: string) => void;
+  // Clicking an avatar/mention in the thread opens the member profile (see `openMemberDetail`).
+  onOpenMemberDetail: (
+    userId: string | undefined,
+    event: BaseSyntheticEvent,
+    channel: StreamChannel,
+  ) => void;
   thread?: ThreadType;
 }) => {
   const isOpen = !!thread;
@@ -209,11 +228,17 @@ const ChannelThreadPanel = ({
           <ThreadHeader />
           <ThreadMessageList
             onMentionsClick={(event, message) =>
-              onOpenMemberDetail(getMentionedUserId(event, message))
+              onOpenMemberDetail(
+                getMentionedUserId(event, message),
+                event,
+                thread.channel,
+              )
             }
-            onUserClick={(_event, user) => onOpenMemberDetail(user.id)}
+            onUserClick={(event, user) =>
+              onOpenMemberDetail(user.id, event, thread.channel)
+            }
           />
-          <MessageComposer asyncMessagesMultiSendEnabled audioRecordingEnabled />
+          <ConfigurableMessageComposer />
         </WithDragAndDropUpload>
       </Thread>
     </div>
@@ -244,12 +269,10 @@ const SecondChannelContent = ({ channel }: { channel: StreamChannel }) => {
           )}
           <ReturnToSkipNavigation />
           <AIStateIndicator />
-          <MessageComposer
+          <ConfigurableMessageComposer
             additionalTextareaProps={{
               id: CHANNEL_MESSAGE_COMPOSER_TEXTAREA_TARGET_ID,
             }}
-            asyncMessagesMultiSendEnabled
-            audioRecordingEnabled
             maxRows={10}
             focus
           />
@@ -310,35 +333,21 @@ const ChannelThreadOverlay = ({ thread }: { thread: ThreadType }) => {
             secondary panel. */}
         <ThreadHeader />
         <ThreadMessageList />
-        <MessageComposer asyncMessagesMultiSendEnabled audioRecordingEnabled />
+        <ConfigurableMessageComposer />
       </Thread>
     </SecondarySlotOverlay>
   );
 };
 
-// A member profile shown over the secondary slot — opened by clicking a message avatar or a mention
-// in either the primary channel or the reply thread (see `ResponsiveChannelPanels` /
-// `ChannelThreadPanel`). It's a `pushLayer` overlay, not a slot replacement: it renders absolutely
-// over the secondary column (`.app-chat-secondary-overlay`) while the base panel stays mounted
-// beneath, so `close`/back (which pop the layer) reveal the thread exactly where it was.
-//
-// We reuse the `userProfile` slot kind (source `{ userId }`) rather than adding a new SDK kind; the
-// member is resolved here from the channel it belongs to. `ChannelMemberDetail` is built for the
-// ChannelDetail navigator, so we render it inside the `ChannelDetailProvider` it expects: its member
-// actions read the channel from it, and its `onClose` pops the layer (the detail header's close
-// button calls it).
-const ChannelMemberDetailOverlay = ({
-  channel,
-  hasBaseBeneath,
-  userId,
-}: {
-  channel: StreamChannel;
-  /** Whether a thread / 2nd channel sits under this overlay — if so, offer a "back" affordance
-   *  (both back and close pop this single layer to reveal it). */
-  hasBaseBeneath: boolean;
-  userId: string;
-}) => {
-  const { close } = useChatViewNavigation();
+// Whether a click asks to open beside the current content: ⌘ on macOS, ctrl elsewhere.
+const isOpenBesideClick = (event: BaseSyntheticEvent) => {
+  const nativeEvent = event.nativeEvent as globalThis.MouseEvent | undefined;
+  return !!nativeEvent && (nativeEvent.metaKey || nativeEvent.ctrlKey);
+};
+
+// The channel member with `userId`: the cached one, or, for a member not loaded yet (a large
+// channel, say), the one fetched for it.
+const useChannelMember = (channel: StreamChannel, userId: string) => {
   const [member, setMember] = useState<ChannelMemberResponse | undefined>(
     () => channel.state.members[userId],
   );
@@ -349,7 +358,6 @@ const ChannelMemberDetailOverlay = ({
       setMember(existing);
       return;
     }
-    // Not a cached member (e.g. large channel) — fetch just this one.
     let cancelled = false;
     channel
       .queryMembers({ payload: { filter_conditions: { id: { $in: [userId] } } } })
@@ -362,7 +370,31 @@ const ChannelMemberDetailOverlay = ({
     };
   }, [channel, userId]);
 
-  // Pops the member-profile layer (per the layer-aware `close`), revealing the base beneath.
+  return member;
+};
+
+// A member's profile in the secondary slot, opened with a ⌘/ctrl-click on a message avatar or a
+// mention in either the primary channel or the reply thread. It renders absolutely over the
+// secondary column (`.app-chat-secondary-overlay`), so whatever it covers stays mounted beneath, and
+// `close`/back reveal it exactly where it was.
+//
+// It's the SDK's `userProfile` kind (source `{ userId }`); the member is resolved here from the
+// channel it belongs to. `ChannelMemberDetail` is built for the ChannelDetail navigator, so we
+// render it inside the `ChannelDetailProvider` it expects: its member actions read the channel from
+// it, and its `onClose` closes the profile (the detail header's close button calls it).
+const ChannelMemberDetailOverlay = ({
+  channel,
+  hasContentBeneath,
+  userId,
+}: {
+  channel: StreamChannel;
+  /** Whether something sits under the profile in the slot: if so, offer a "back" affordance (both
+   *  back and close reveal it). */
+  hasContentBeneath: boolean;
+  userId: string;
+}) => {
+  const { close } = useChatViewNavigation();
+  const member = useChannelMember(channel, userId);
   const closeOverlay = useCallback(() => close(CHANNEL_THREAD_SLOT), [close]);
 
   return (
@@ -372,12 +404,101 @@ const ChannelMemberDetailOverlay = ({
           <ChannelMemberDetail
             layout='inline'
             member={member}
-            onBack={hasBaseBeneath ? closeOverlay : undefined}
+            onBack={hasContentBeneath ? closeOverlay : undefined}
           />
         </ChannelDetailProvider>
       ) : null}
     </SecondarySlotOverlay>
   );
+};
+
+// A member's profile in a modal, opened with a plain click on a message avatar or a mention.
+const ChannelMemberDetailModal = ({
+  channel,
+  onClose,
+  userId,
+}: {
+  channel: StreamChannel;
+  onClose: () => void;
+  userId: string;
+}) => {
+  const { t } = useTranslationContext();
+  const { Modal = GlobalModal } = useComponentContext();
+  const member = useChannelMember(channel, userId);
+
+  return (
+    <Modal
+      aria-label={t(asDynamicKey('viteExample.memberDetail.ariaLabel'), 'Member details')}
+      dialogRootProps={{ className: 'str-chat__channel-detail-modal' }}
+      onClose={onClose}
+      open
+    >
+      {/* The prompt is the modal's surface, styled as the channel details but sized as the user's
+          own profile modal. */}
+      <Prompt.Root className='str-chat__channel-detail app-member-detail-modal'>
+        {member ? (
+          <ChannelDetailProvider channel={channel} onClose={onClose}>
+            <ChannelMemberDetail layout='tabs' member={member} />
+          </ChannelDetailProvider>
+        ) : null}
+      </Prompt.Root>
+    </Modal>
+  );
+};
+
+// A channel's details in the secondary slot, opened with a ⌘/ctrl-click on the channel header's
+// avatar (a plain click opens them in a modal). They are the SDK's `custom` kind, rendered over the
+// secondary column like the member profile; closing them reveals what they cover.
+const ChannelDetailOverlay = ({ channel }: { channel: StreamChannel }) => {
+  const { close } = useChatViewNavigation();
+  const closeOverlay = useCallback(() => close(CHANNEL_THREAD_SLOT), [close]);
+  // The channel's online status reads the channel from the channel context, which this overlay is
+  // outside of.
+  const channelContext = useMemo(() => ({ channel }), [channel]);
+
+  return (
+    <SecondarySlotOverlay>
+      <ChannelInstanceProvider value={channelContext}>
+        {/* The secondary column is narrow, so the sections open one at a time. */}
+        <ConfiguredChannelDetail
+          channel={channel}
+          defaultLayout='inline'
+          key={channel.cid}
+          onClose={closeOverlay}
+        />
+      </ChannelInstanceProvider>
+    </SecondarySlotOverlay>
+  );
+};
+
+// The user's own profile in the secondary slot, opened with a ⌘/ctrl-click on the sidebar's profile
+// button (a plain click opens it in a modal). It's the SDK's `custom` kind, rendered over the
+// secondary column like the member profile; closing it reveals what it covers.
+const OwnProfileOverlay = () => {
+  const { client } = useChatContext();
+  const { close } = useChatViewNavigation();
+  const [user, setUser] = useOwnUser(client);
+  const closeOverlay = useCallback(() => close(CHANNEL_THREAD_SLOT), [close]);
+
+  return (
+    <SecondarySlotOverlay>
+      {user && (
+        <UserDetailDialog onClose={closeOverlay} onUserChange={setUser} user={user} />
+      )}
+    </SecondarySlotOverlay>
+  );
+};
+
+// What the secondary slot shows on top, its top layer or else its base, and whether anything sits
+// beneath it.
+const useSecondarySlotTop = () => {
+  const { slotBindings, slotLayers } = useLayoutViewState();
+  const base = slotBindings[CHANNEL_THREAD_SLOT];
+  const layers = slotLayers?.[CHANNEL_THREAD_SLOT] ?? [];
+  return {
+    hasContentBeneath: layers.length + (base ? 1 : 0) > 1,
+    top: getChatViewEntityBinding(layers.length ? layers[layers.length - 1] : base),
+  };
 };
 
 const ResponsiveChannelPanels = ({ mainChannel }: { mainChannel?: StreamChannel }) => {
@@ -390,14 +511,18 @@ const ResponsiveChannelPanels = ({ mainChannel }: { mainChannel?: StreamChannel 
   // Thread carries its own channel, so it no longer depends on an ambient <Channel>.
   const sideChannel = useSlotChannel({ slot: CHANNEL_THREAD_SLOT });
   const replyThread = useSlotThread({ slot: CHANNEL_THREAD_SLOT });
-  // A member profile can also occupy the secondary slot — but as a *layer* on top of whatever is
-  // there (a reply thread, a 2nd channel, or nothing), not by replacing it. Reading the top layer
-  // (not the base binding) is what lets the thread beneath stay mounted so closing the profile
-  // returns to it at its exact scroll position. We reuse the `userProfile` kind (source `{ userId }`).
-  const memberProfile = useSlotTopLayerEntity({
-    kind: 'userProfile',
-    slot: CHANNEL_THREAD_SLOT,
-  });
+  // A member profile or a channel's details can also occupy the secondary slot: as its base when
+  // it's empty, or as a layer over a reply thread or a 2nd channel, which stays mounted beneath so
+  // closing them returns to it at its exact scroll position. Either shows while it's on top.
+  const { hasContentBeneath, top: secondaryTop } = useSecondarySlotTop();
+  const memberProfile =
+    secondaryTop?.kind === 'userProfile' ? secondaryTop.source : undefined;
+  const channelDetail =
+    secondaryTop?.kind === 'custom' && isChannelDetailSource(secondaryTop.source)
+      ? secondaryTop.source.channel
+      : undefined;
+  const ownProfile =
+    secondaryTop?.kind === 'custom' && isOwnProfileSource(secondaryTop.source);
   // A channel opened as a layer (⌘/ctrl-click a channel while the secondary slot is occupied) — the
   // top layer's `channel` source. Covers the base (e.g. a reply thread) without closing it.
   const layerChannel = useSlotTopLayerEntity({
@@ -411,9 +536,20 @@ const ResponsiveChannelPanels = ({ mainChannel }: { mainChannel?: StreamChannel 
     slot: CHANNEL_THREAD_SLOT,
   });
   const isSideOpen =
-    !!sideChannel || !!replyThread || !!memberProfile || !!layerChannel || !!layerThread;
+    !!sideChannel ||
+    !!replyThread ||
+    !!memberProfile ||
+    !!channelDetail ||
+    ownProfile ||
+    !!layerChannel ||
+    !!layerThread;
   const virtualized = useVirtualizedMessageList();
-  const { close, pushLayer } = useChatViewNavigation();
+  const { close, open } = useChatViewNavigation();
+  // A member whose profile is open in a modal, with the channel the click came from.
+  const [modalMember, setModalMember] = useState<{
+    channel: StreamChannel;
+    userId: string;
+  }>();
 
   // Coverage-driven "reveal": when a navigation asked to reveal the channel (e.g. "Also sent in
   // channel → View" from the threads view — see AlsoSentInChannelIndicator), release the covering
@@ -429,18 +565,22 @@ const ResponsiveChannelPanels = ({ mainChannel }: { mainChannel?: StreamChannel 
     clearReveal();
   }, [clearReveal, close, coverage, revealSlot]);
 
-  // Open a member's detail as a layer covering the secondary slot. The clicked user's id becomes the
-  // `userProfile` source, which `ChannelMemberDetailOverlay` resolves back to a channel member.
+  // Opens a member's profile: in a modal on a plain click, in the secondary slot on a ⌘/ctrl-click.
+  // There it's the `userProfile` kind, whose `{ userId }` source `ChannelMemberDetailOverlay`
+  // resolves back to a channel member.
   const openMemberDetail = useCallback(
-    (userId?: string) => {
+    (userId: string | undefined, event: BaseSyntheticEvent, channel: StreamChannel) => {
       if (!userId) return;
-      pushLayer(CHANNEL_THREAD_SLOT, {
-        key: userId,
-        kind: 'userProfile',
-        source: { userId },
-      });
+      if (!isOpenBesideClick(event)) {
+        setModalMember({ channel, userId });
+        return;
+      }
+      open(
+        { key: userId, kind: 'userProfile', source: { userId } },
+        { slot: CHANNEL_THREAD_SLOT },
+      );
     },
-    [pushLayer],
+    [open],
   );
 
   return (
@@ -472,20 +612,24 @@ const ResponsiveChannelPanels = ({ mainChannel }: { mainChannel?: StreamChannel 
                   ) : (
                     <MessageList
                       onMentionsClick={(event, message) =>
-                        openMemberDetail(getMentionedUserId(event, message))
+                        openMemberDetail(
+                          getMentionedUserId(event, message),
+                          event,
+                          mainChannel,
+                        )
                       }
-                      onUserClick={(_event, user) => openMemberDetail(user.id)}
+                      onUserClick={(event, user) =>
+                        openMemberDetail(user.id, event, mainChannel)
+                      }
                       returnAllReadData
                     />
                   )}
                   <ReturnToSkipNavigation />
                   <AIStateIndicator />
-                  <MessageComposer
+                  <ConfigurableMessageComposer
                     additionalTextareaProps={{
                       id: CHANNEL_MESSAGE_COMPOSER_TEXTAREA_TARGET_ID,
                     }}
-                    asyncMessagesMultiSendEnabled
-                    audioRecordingEnabled
                     maxRows={10}
                   />
                   <ChannelPreviewOverlay />
@@ -519,10 +663,12 @@ const ResponsiveChannelPanels = ({ mainChannel }: { mainChannel?: StreamChannel 
         {memberProfile && mainChannel && (
           <ChannelMemberDetailOverlay
             channel={mainChannel}
-            hasBaseBeneath={!!sideChannel || !!replyThread}
+            hasContentBeneath={hasContentBeneath}
             userId={memberProfile.userId}
           />
         )}
+        {channelDetail && <ChannelDetailOverlay channel={channelDetail} />}
+        {ownProfile && <OwnProfileOverlay />}
         {/* A ⌘/ctrl-clicked channel opened as a layer covers the secondary slot; its header's back
           reveals what is beneath, its close dismisses the whole secondary panel. */}
         {layerChannel && <SecondChannelOverlay channel={layerChannel} />}
@@ -530,6 +676,13 @@ const ResponsiveChannelPanels = ({ mainChannel }: { mainChannel?: StreamChannel 
           the slot) covers it; its header's back reveals the channel beneath. */}
         {layerThread && <ChannelThreadOverlay thread={layerThread} />}
       </WorkspacePanelProvider>
+      {modalMember && (
+        <ChannelMemberDetailModal
+          channel={modalMember.channel}
+          onClose={() => setModalMember(undefined)}
+          userId={modalMember.userId}
+        />
+      )}
     </div>
   );
 };
@@ -614,12 +767,10 @@ const ThreadPanel = ({ thread }: { thread: ThreadType }) => {
         >
           <ThreadHeader StartContent={HeaderStartWithSidebarToggle} />
           <ThreadMessageList />
-          <MessageComposer
+          <ConfigurableMessageComposer
             additionalTextareaProps={{
               id: THREAD_MESSAGE_COMPOSER_TEXTAREA_TARGET_ID,
             }}
-            asyncMessagesMultiSendEnabled
-            audioRecordingEnabled
             // Auto-focus the thread composer on mount, matching the channels-view composer.
             focus
           />
@@ -650,7 +801,7 @@ const SecondaryThreadPanel = ({ thread }: { thread: ThreadType }) => {
           >
             <ThreadHeader StartContent={HeaderStartWithSidebarToggle} />
             <ThreadMessageList />
-            <MessageComposer asyncMessagesMultiSendEnabled audioRecordingEnabled />
+            <ConfigurableMessageComposer />
           </WithComponents>
         </WithDragAndDropUpload>
       </ThreadSlot>

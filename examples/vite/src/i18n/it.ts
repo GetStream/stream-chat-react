@@ -49,6 +49,9 @@ export const itTranslations = {
   'aiComponents.a2ui.choicePickerFilter.placeholder': 'Cerca',
   'aiComponents.attachmentPreview.deleteAttachment.ariaLabel': 'Elimina allegato',
   'aiComponents.attachmentPreview.unknownFileName.text': 'Nome file sconosciuto',
+  'aiComponents.branchSwitcher.next.ariaLabel': 'Versione successiva',
+  'aiComponents.branchSwitcher.previous.ariaLabel': 'Versione precedente',
+  'aiComponents.branchSwitcher.versions.ariaLabel': 'Versione {{ index }} di {{ total }}',
   'aiComponents.chart.loading.text': 'Caricamento del grafico...',
   'aiComponents.chart.unknownType.text': 'Tipo di grafico sconosciuto',
   'aiComponents.chatOptions.chatOptions.ariaLabel': 'Opzioni della chat',
@@ -58,6 +61,8 @@ export const itTranslations = {
   'aiComponents.conversation.scrollToLatest.ariaLabel': "Vai all'ultimo messaggio",
   'aiComponents.messageAttachment.file.text': 'File',
   'aiComponents.messageAttachment.image.text': 'Immagine',
+  'aiComponents.messageComposer.cancelEditing.ariaLabel': 'Annulla modifica',
+  'aiComponents.messageComposer.editing.text': 'In modifica',
   'aiComponents.messageComposer.speechToText.ariaLabel': 'Avvia input vocale',
   'aiComponents.messageComposer.textInput.placeholder': 'Fai una domanda...',
   'aiComponents.messageParts.unsupportedStep.text':
@@ -117,7 +122,10 @@ export const itTranslations = {
   'aiComponents.toolCall.waitingForApproval.text': 'In attesa di approvazione',
   'aiComponents.toolCall.waitingForDevice.text': 'In attesa del dispositivo',
   'aiComponents.toolCall.waitingForSignIn.text': 'In attesa del tuo accesso',
+  'aiComponents.userMessage.cancelEdit.label': 'Annulla',
   'aiComponents.userMessage.edit.ariaLabel': 'Modifica',
+  'aiComponents.userMessage.editInput.ariaLabel': 'Modifica messaggio',
+  'aiComponents.userMessage.saveEdit.label': 'Salva',
   'aiComponents.voiceVisualization.connecting.text': 'Connessione',
   'aiComponents.voiceVisualization.listening.text': 'In ascolto',
   'aiComponents.voiceVisualization.ready.text': 'Pronto',
@@ -263,6 +271,7 @@ export const itTranslations = {
     'Sfoglia i membri del canale',
   'channelDetail.channelMembersView.members.title_one': '{{ count }} membro',
   'channelDetail.channelMembersView.members.title_other': '{{ count }} membri',
+  'channelDetail.listLoaded.text': 'Elenco caricato',
   'channelDetail.navButton.channelInfo.title': 'Info canale',
   'channelDetail.navButton.files.title': 'File',
   'channelDetail.navButton.media.title': 'Foto e video',
@@ -280,7 +289,7 @@ export const itTranslations = {
   'channelDetail.sectionNavigatorHeader.openMenu.ariaLabel': 'Apri menu',
   'channelHeader.closeChannel.ariaLabel': 'Chiudi canale',
   'channelHeader.online.members.label': '{{ memberCount }} membri',
-  'channelHeader.online.online.label': '{{ watcherCount }} online',
+  'channelHeader.online.online.label': '{{ onlineCount }} online',
   'channelList.channelList.ariaLabel': 'Elenco canali',
   'channelList.header.chats.text': 'Chat',
   'channelList.loadError.text': 'Impossibile caricare le conversazioni',
@@ -482,6 +491,7 @@ export const itTranslations = {
   'language.vi': 'Vietnamita',
   'language.zh': 'Cinese (semplificato)',
   'language.zh-TW': 'Cinese (tradizionale)',
+  'listStates.loadError.text': "Impossibile caricare l'elenco",
   'loadMore.button.loadMore.label': 'Carica altri',
   'loading.errorIndicator.error.text': 'Errore: {{ errorMessage }}',
   'loading.progressIndicators.percentComplete.ariaLabel':
@@ -558,6 +568,12 @@ export const itTranslations = {
   'messageActions.errorAddingFlag.text': 'Errore durante la segnalazione',
   'messageActions.errorMarkingMessageUnread.text':
     'Errore durante la marcatura come non letto. Non è possibile marcare come non letti i messaggi più vecchi dei 100 più recenti del canale.',
+  'messageActions.errorRemovingReminder.text':
+    'Errore durante la rimozione del promemoria',
+  'messageActions.errorRemovingSaveLater.text':
+    'Errore durante la rimozione del messaggio dai salvati per dopo',
+  'messageActions.errorSavingLater.text':
+    'Errore durante il salvataggio del messaggio per dopo',
   'messageActions.flag.text': 'Segnala',
   'messageActions.flagMessage.ariaLabel': 'Segnala messaggio',
   'messageActions.markMessageUnread.ariaLabel': 'Segna il messaggio come non letto',
@@ -576,6 +592,8 @@ export const itTranslations = {
   'messageActions.quoteReply.text': 'Rispondi citando',
   'messageActions.remindMe.text': 'Ricordami',
   'messageActions.remindMeMessage.ariaLabel': 'Ricordami questo messaggio',
+  'messageActions.remindMeSubmenu.errorSettingReminder.text':
+    'Errore durante l’impostazione del promemoria',
   'messageActions.remindMeSubmenu.remindMe.text': 'Ricordami',
   'messageActions.removeReminder.ariaLabel': 'Rimuovi promemoria',
   'messageActions.removeReminder.text': 'Rimuovi promemoria',
@@ -714,6 +732,8 @@ export const itTranslations = {
   'poll.addCommentPrompt.updateCommentAttachedPoll.label':
     'Aggiorna il commento allegato alla tua risposta al sondaggio',
   'poll.answerList.description': 'Rivedi i commenti inviati con le risposte al sondaggio',
+  'poll.answerList.empty.text': 'Ancora nessun commento',
+  'poll.answerList.loaded.text': 'Commenti caricati',
   'poll.answerList.pollComments.title': 'Commenti del sondaggio',
   'poll.creationDialog.allowOthersAddComments.description':
     'Consenti ad altri di aggiungere commenti',
@@ -761,6 +781,7 @@ export const itTranslations = {
   'poll.optionReorder.reorderOption.ariaLabel': 'Riordina l’opzione {{ position }}',
   'poll.optionReorder.reorderPosition.ariaLabel':
     'Riordina "{{ option }}" alla posizione {{ position }} di {{ total }}',
+  'poll.optionVotes.loaded.text': 'Voti caricati',
   'poll.optionVotes.question.text': 'Domanda {{ optionOrderNumber}}',
   'poll.optionVotes.view.text': 'Vedi tutti',
   'poll.optionVotes.votes.text_one': '{{count}} voto',

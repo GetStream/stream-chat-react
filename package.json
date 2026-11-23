@@ -163,7 +163,7 @@
     "modern-normalize": "^3.0.1",
     "react": "^19.0.0 || ^18.0.0 || ^17.0.0",
     "react-dom": "^19.0.0 || ^18.0.0 || ^17.0.0",
-    "stream-chat": "^10.0.0"
+    "stream-chat": "^10.2.0"
   },
   "peerDependenciesMeta": {
     "@a2ui/react": {
@@ -246,7 +246,7 @@
     "react-dom": "^19.2.6",
     "sass": "^1.100.0",
     "semantic-release": "^25.0.3",
-    "stream-chat": "^10.0.0",
+    "stream-chat": "^10.2.0",
     "typescript": "^6.0.3",
     "typescript-eslint": "^8.59.4",
     "vite": "^8.1.3",
@@ -257,7 +257,7 @@
   "scripts": {
     "clean": "rm -rf dist",
     "build": "yarn clean && concurrently 'yarn build-translations' 'vite build' 'tsc --project tsconfig.lib.json' 'yarn build-styling'",
-    "build-styling": "sass src/styling/index.scss:dist/css/index.css src/styling/_emoji-replacement.scss:dist/css/emoji-replacement.css src/plugins/Emojis/styling/index.scss:dist/css/emoji-picker.css src/plugins/ChannelDetail/styling/index.scss:dist/css/channel-detail.css src/plugins/AIComponents/styling/index.scss:dist/css/ai-components.css; cp -r src/styling/assets dist/css/assets",
+    "build-styling": "sass --no-charset src/styling/index.scss:dist/css/index.css src/styling/_emoji-replacement.scss:dist/css/emoji-replacement.css src/plugins/Emojis/styling/index.scss:dist/css/emoji-picker.css src/plugins/ChannelDetail/styling/index.scss:dist/css/channel-detail.css src/plugins/AIComponents/styling/index.scss:dist/css/ai-components.css; cp -r src/styling/assets dist/css/assets",
     "build-translations": "node scripts/generate-i18n-keys.mts && prettier --write --log-level warn src/i18n/keys.ts",
     "coverage": "vitest run --coverage",
     "i18n:export": "node scripts/generate-i18n-keys.mts --json en.json",

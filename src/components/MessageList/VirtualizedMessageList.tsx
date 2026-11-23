@@ -40,12 +40,13 @@ import { UnreadMessagesNotification as DefaultUnreadMessagesNotification } from 
 import {
   calculateFirstItemIndex,
   calculateItemIndex,
-  EmptyPlaceholder,
+  Footer,
   Header,
   Item,
   makeItemsRenderedHandler,
   messageRenderer,
 } from './VirtualizedMessageListComponents';
+import { VirtualizedMessageListEmptyUI } from './ListStates';
 
 import {
   ScrollToLatestMessageButton as DefaultScrollToLatestMessageButton,
@@ -72,6 +73,7 @@ import type {
   LocalMessage,
   MessageFocusSignalState,
   MessagePaginatorState,
+  PaginationDirection,
   ChannelState as StreamChannelState,
   TimestampNS,
   UnreadSnapshotState,
@@ -79,6 +81,7 @@ import type {
 } from 'stream-chat';
 import type { UnknownType } from '../../types/types';
 import { useCanPaginateReplies } from './hooks/useCanPaginateReplies';
+import type { ListEdge } from '../ListStates';
 import { useStableId } from '../UtilityComponents/useStableId';
 import { useLastDeliveredData } from './hooks/useLastDeliveredData';
 import { useLastOwnMessage } from './hooks/useLastOwnMessage';
@@ -115,6 +118,12 @@ export type VirtuosoContext = Required<
     /** The thread parent message rendered above the replies, or null outside a thread. */
     head: React.ReactElement | null;
     lastReceivedMessageId: string | null | undefined;
+    /** The edge where a page loads, if one does. The SDK's list always sets it. */
+    loadingEdge?: ListEdge;
+    /**
+     * The paginator is loading: a page at either edge, or a jump to a message. The SDK's own
+     * components read `loadingEdge` instead.
+     */
     loadingMore: boolean;
     /** Maps a message ID to its position in a group of consecutive messages from one user. */
     messageGroupStyles: Record<string, GroupStyle>;
@@ -195,9 +204,17 @@ const messageFocusSignalSelector = (state: MessageFocusSignalState) => ({
   messageFocusSignal: state.signal,
 });
 
+/** The edge of the list where a page loads: older messages at the top, newer at the bottom. */
+const loadingEdgeByDirection: Record<PaginationDirection, ListEdge> = {
+  headward: 'bottom',
+  tailward: 'top',
+};
+
 const messagePaginatorStateSelector = (state: MessagePaginatorState) => ({
   hasMoreNewer: state.hasMoreHead,
   isLoading: state.isLoading,
+  // A jump to a message, a first page or a reload loads at no edge.
+  loadingEdge: state.loadingDirection && loadingEdgeByDirection[state.loadingDirection],
   messages: state.items ?? [],
 });
 
@@ -254,11 +271,6 @@ const VirtualizedMessageListWithContext = (
     unsafeHTML,
   };
   const threadHead = useThreadHead(messageProps);
-  const [suppressAutoscrollWhileLoadingOlder, setSuppressAutoscrollWhileLoadingOlder] =
-    React.useState(false);
-  const suppressAutoscroll =
-    suppressAutoscrollFromProps || suppressAutoscrollWhileLoadingOlder;
-  const loadingOlderRef = useRef(false);
 
   const { components: virtuosoComponentsFromProps, ...overridingVirtuosoProps } =
     additionalVirtuosoProps;
@@ -287,10 +299,11 @@ const VirtualizedMessageListWithContext = (
   const { client, customClasses } = useChatContext();
   const messagePaginator = useMessagePaginator();
 
-  const { hasMoreNewer, isLoading, messages } = useStateStore(
+  const { hasMoreNewer, isLoading, loadingEdge, messages } = useStateStore(
     messagePaginator.state,
     messagePaginatorStateSelector,
   );
+  const suppressAutoscroll = suppressAutoscrollFromProps || loadingEdge === 'top';
   const { messageFocusSignal } = useStateStore(
     messagePaginator.messageFocusSignal,
     messageFocusSignalSelector,
@@ -543,20 +556,14 @@ const VirtualizedMessageListWithContext = (
     if (isAtBottom) {
       // An empty thread is at both ends at once, so Virtuoso reports both on mount;
       // `canPaginateReplies` keeps that from becoming a request.
-      if (canPaginateReplies) messagePaginator.toHead();
+      if (canPaginateReplies) void messagePaginator.toHead();
       setNewMessagesNotification?.(false);
     }
   };
   const atTopStateChange = (isAtTop: boolean) => {
     if (isAtTop) {
       if (!canPaginateReplies) return;
-      if (loadingOlderRef.current) return;
-      loadingOlderRef.current = true;
-      setSuppressAutoscrollWhileLoadingOlder(true);
-      void messagePaginator.toTail().finally(() => {
-        loadingOlderRef.current = false;
-        setSuppressAutoscrollWhileLoadingOlder(false);
-      });
+      void messagePaginator.toTail();
     }
   };
 
@@ -620,7 +627,8 @@ const VirtualizedMessageListWithContext = (
               atTopThreshold={threshold}
               className='str-chat__message-list-scroll'
               components={{
-                EmptyPlaceholder,
+                EmptyPlaceholder: VirtualizedMessageListEmptyUI,
+                Footer,
                 Header,
                 Item,
                 ...virtuosoComponentsFromProps,
@@ -640,6 +648,7 @@ const VirtualizedMessageListWithContext = (
                 lastReadDate: channelUnreadUiState?.lastReadAt,
                 lastReadMessageId: channelUnreadUiState?.lastReadMessageId,
                 lastReceivedMessageId,
+                loadingEdge,
                 loadingMore: isLoading,
                 messageGroupStyles,
                 MessageSystem,

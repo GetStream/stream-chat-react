@@ -1,0 +1,104 @@
+import { useEffect, useRef, useState } from 'react';
+
+import { useAriaLiveAnnouncer } from '../../Accessibility/useAriaLiveAnnouncer';
+import { useStableCallback } from '../../../utils/useStableCallback';
+
+/** A paginator or a search source: its last query's error clears once a query succeeds. */
+type RetriedPaginator = { isLoading: boolean; lastQueryError: Error | undefined };
+
+export type UseFirstPageLoadRetryParams = {
+  /**
+   * The error of the failed first page, while the list shows one (see `getFirstPageLoadError` and
+   * `getErrorShownInPlaceOfList`).
+   */
+  firstPageLoadError: Error | undefined;
+  /**
+   * Announced when the list starts showing a first-page error, also after a retry that failed
+   * again. None for a list that reports its errors another way, such as a notification.
+   */
+  failedMessage?: string;
+  /** Announced when a retry loads the first page. None for a list that announces what it loads. */
+  loadedMessage?: string;
+  /** The paginator or search source the retry loads the first page into. */
+  paginator: RetriedPaginator;
+  /** Queries the first page again. */
+  reload: () => Promise<unknown>;
+};
+
+/**
+ * Retries a paginated list's failed first page. While the retry runs, the failure it retries stays
+ * the error to show, so the component showing it stays mounted and its focused retry button keeps
+ * focus, also when the retry fails and its error replaces the old one. An error that appears is
+ * announced with `failedMessage`, and a retry that loads the first page with `loadedMessage`.
+ *
+ * @returns `error`, the error to show (`undefined` once the first page loads), `isRetrying`, and
+ *   `retry`, which starts a retry unless one is running or no first-page error is shown.
+ */
+export const useFirstPageLoadRetry = ({
+  failedMessage,
+  firstPageLoadError,
+  loadedMessage,
+  paginator,
+  reload,
+}: UseFirstPageLoadRetryParams) => {
+  const announce = useAriaLiveAnnouncer();
+  // The paginator is kept with the error, so a list given another paginator shows that one's state.
+  const [retried, setRetried] = useState<{ error: Error; paginator: RetriedPaginator }>();
+  const retriedError = retried?.paginator === paginator ? retried.error : undefined;
+  // A second click before the busy state renders must not start a second retry of that paginator.
+  const retryingPaginatorRef = useRef<RetriedPaginator>(undefined);
+  // A retry that settles after the list unmounted updates and announces nothing, and one that
+  // settles after the list moved to another paginator announces nothing either.
+  const isMountedRef = useRef(false);
+  const paginatorRef = useRef(paginator);
+  paginatorRef.current = paginator;
+
+  useEffect(() => {
+    isMountedRef.current = true;
+    return () => {
+      isMountedRef.current = false;
+    };
+  }, []);
+
+  const retry = useStableCallback(() => {
+    if (retryingPaginatorRef.current === paginator || !firstPageLoadError) return;
+    const retriedPaginator = paginator;
+    retryingPaginatorRef.current = retriedPaginator;
+    setRetried({ error: firstPageLoadError, paginator: retriedPaginator });
+    // With `throwErrors` set, the reload rejects too; the error is in the paginator state either way.
+    reload()
+      .catch(() => undefined)
+      .finally(() => {
+        if (retryingPaginatorRef.current === retriedPaginator) {
+          retryingPaginatorRef.current = undefined;
+        }
+        if (!isMountedRef.current) return;
+        setRetried((current) =>
+          current?.paginator === retriedPaginator ? undefined : current,
+        );
+        const showsRetriedPaginator = paginatorRef.current === retriedPaginator;
+        // The retry loaded the first page: it did not fail, and no newer query that replaced it is
+        // still loading.
+        const hasLoaded = !retriedPaginator.isLoading && !retriedPaginator.lastQueryError;
+        if (loadedMessage && showsRetriedPaginator && hasLoaded) {
+          announce(loadedMessage);
+        }
+      });
+  });
+
+  const error = retriedError ?? firstPageLoadError;
+
+  // A new error object: the first page failed, or a retry failed again. While a retry runs, the
+  // error it retries stays the same object, so the running retry announces nothing.
+  useEffect(() => {
+    if (error && failedMessage) announce(failedMessage);
+    // Only a new error announces; a changed message alone does not.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [error]);
+
+  return {
+    error,
+    isRetrying: !!retriedError,
+    retry,
+  };
+};

@@ -381,6 +381,25 @@ describe('Thread', () => {
     expect(reload).toHaveBeenCalledTimes(1);
   });
 
+  it('should handle a rejected load', () => {
+    const { reload, thread } = makeThread({
+      isStateStale: true,
+      parentMessage: generateMessage({
+        id: 'load-failed-parent',
+        reply_count: 2,
+        user: alice,
+      }),
+    });
+    const rejectedLoad = Promise.reject(new Error('replies failed'));
+    const handleRejection = vi.spyOn(rejectedLoad, 'catch');
+    reload.mockReturnValueOnce(rejectedLoad);
+
+    renderComponent({ threadInstance: thread });
+
+    expect(reload).toHaveBeenCalledTimes(1);
+    expect(handleRejection).toHaveBeenCalledTimes(1);
+  });
+
   it('should render null if replies is disabled', () => {
     const { thread } = makeThread({ replies: false });
     const { container } = renderComponent({ threadInstance: thread });

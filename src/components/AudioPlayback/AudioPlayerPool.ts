@@ -54,6 +54,21 @@ export class AudioPlayerPool {
     return player;
   };
 
+  /**
+   * Registers the player under `fromId` as `toId`, so it keeps its playback and state when the
+   * source it plays moves to a new address. Does nothing when `fromId` has no live player or
+   * `toId` already has one.
+   * @param fromId - ID the player is registered under.
+   * @param toId - ID to register it under instead.
+   */
+  rekey = (fromId: string, toId: string) => {
+    const player = this.pool.get(fromId);
+    if (!player || player.disposed || this.pool.has(toId)) return;
+    this.pool.delete(fromId);
+    this.pool.set(toId, player);
+    player.setDescriptor({ id: toId, src: player.src });
+  };
+
   /** @see {@link AudioPlaybackArbiter.acquire} */
   acquireElement = ({ owner, src }: { owner: AudioPlayer; src: string }) =>
     this.arbiter.acquire({ owner, src });

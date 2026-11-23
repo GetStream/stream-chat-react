@@ -51,6 +51,13 @@
     margin: var(--str-chat__space-8) 0;
   }
 
+  // The next-page spinner below the channels.
+  .str-chat__channel-list__loading {
+    display: flex;
+    justify-content: center;
+    padding-block: var(--str-chat__space-8);
+  }
+
   .str-chat__channel-list-empty {
     @include utils.empty-theme('channel-list');
     height: 100%;

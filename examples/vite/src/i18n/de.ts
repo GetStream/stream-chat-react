@@ -58,6 +58,9 @@ export const deTranslations = {
   'aiComponents.a2ui.choicePickerFilter.placeholder': 'Suchen',
   'aiComponents.attachmentPreview.deleteAttachment.ariaLabel': 'Anhang löschen',
   'aiComponents.attachmentPreview.unknownFileName.text': 'Unbekannter Dateiname',
+  'aiComponents.branchSwitcher.next.ariaLabel': 'Nächste Version',
+  'aiComponents.branchSwitcher.previous.ariaLabel': 'Vorherige Version',
+  'aiComponents.branchSwitcher.versions.ariaLabel': 'Version {{ index }} von {{ total }}',
   'aiComponents.chart.loading.text': 'Diagramm wird geladen...',
   'aiComponents.chart.unknownType.text': 'Unbekannter Diagrammtyp',
   'aiComponents.chatOptions.chatOptions.ariaLabel': 'Chat-Optionen',
@@ -67,6 +70,8 @@ export const deTranslations = {
   'aiComponents.conversation.scrollToLatest.ariaLabel': 'Zur neuesten Nachricht scrollen',
   'aiComponents.messageAttachment.file.text': 'Datei',
   'aiComponents.messageAttachment.image.text': 'Bild',
+  'aiComponents.messageComposer.cancelEditing.ariaLabel': 'Bearbeiten abbrechen',
+  'aiComponents.messageComposer.editing.text': 'Wird bearbeitet',
   'aiComponents.messageComposer.speechToText.ariaLabel': 'Spracheingabe starten',
   'aiComponents.messageComposer.textInput.placeholder': 'Stelle eine Frage...',
   'aiComponents.messageParts.unsupportedStep.text':
@@ -126,7 +131,10 @@ export const deTranslations = {
   'aiComponents.toolCall.waitingForApproval.text': 'Wartet auf Bestätigung',
   'aiComponents.toolCall.waitingForDevice.text': 'Wartet auf das Gerät',
   'aiComponents.toolCall.waitingForSignIn.text': 'Wartet auf deine Anmeldung',
+  'aiComponents.userMessage.cancelEdit.label': 'Abbrechen',
   'aiComponents.userMessage.edit.ariaLabel': 'Bearbeiten',
+  'aiComponents.userMessage.editInput.ariaLabel': 'Nachricht bearbeiten',
+  'aiComponents.userMessage.saveEdit.label': 'Speichern',
   'aiComponents.voiceVisualization.connecting.text': 'Verbinde',
   'aiComponents.voiceVisualization.listening.text': 'Hört zu',
   'aiComponents.voiceVisualization.ready.text': 'Bereit',
@@ -274,6 +282,7 @@ export const deTranslations = {
     'Kanalmitglieder durchsuchen',
   'channelDetail.channelMembersView.members.title_one': '{{ count }} Mitglied',
   'channelDetail.channelMembersView.members.title_other': '{{ count }} Mitglieder',
+  'channelDetail.listLoaded.text': 'Liste geladen',
   'channelDetail.navButton.channelInfo.title': 'Kanalinfo',
   'channelDetail.navButton.files.title': 'Dateien',
   'channelDetail.navButton.media.title': 'Fotos & Videos',
@@ -292,7 +301,7 @@ export const deTranslations = {
   'channelDetail.sectionNavigatorHeader.openMenu.ariaLabel': 'Menü öffnen',
   'channelHeader.closeChannel.ariaLabel': 'Kanal schließen',
   'channelHeader.online.members.label': '{{ memberCount }} Mitglieder',
-  'channelHeader.online.online.label': '{{ watcherCount }} online',
+  'channelHeader.online.online.label': '{{ onlineCount }} online',
   'channelList.channelList.ariaLabel': 'Kanalliste',
   'channelList.header.chats.text': 'Chats',
   'channelList.loadError.text': 'Unterhaltungen konnten nicht geladen werden',
@@ -492,6 +501,7 @@ export const deTranslations = {
   'language.vi': 'Vietnamesisch',
   'language.zh': 'Chinesisch (vereinfacht)',
   'language.zh-TW': 'Chinesisch (traditionell)',
+  'listStates.loadError.text': 'Die Liste konnte nicht geladen werden',
   'loadMore.button.loadMore.label': 'Mehr laden',
   'loading.errorIndicator.error.text': 'Fehler: {{ errorMessage }}',
   'loading.progressIndicators.percentComplete.ariaLabel':
@@ -565,6 +575,11 @@ export const deTranslations = {
   'messageActions.errorAddingFlag.text': 'Fehler beim Melden',
   'messageActions.errorMarkingMessageUnread.text':
     'Fehler beim Markieren als ungelesen. Nachrichten, die älter als die neuesten 100 Kanalnachrichten sind, können nicht als ungelesen markiert werden.',
+  'messageActions.errorRemovingReminder.text': 'Fehler beim Entfernen der Erinnerung',
+  'messageActions.errorRemovingSaveLater.text':
+    'Fehler beim Entfernen der Nachricht aus „Für später gespeichert“',
+  'messageActions.errorSavingLater.text':
+    'Fehler beim Speichern der Nachricht für später',
   'messageActions.flag.text': 'Melden',
   'messageActions.flagMessage.ariaLabel': 'Nachricht melden',
   'messageActions.markMessageUnread.ariaLabel': 'Nachricht als ungelesen markieren',
@@ -583,6 +598,8 @@ export const deTranslations = {
   'messageActions.quoteReply.text': 'Zitiert antworten',
   'messageActions.remindMe.text': 'Erinnere mich',
   'messageActions.remindMeMessage.ariaLabel': 'An Nachricht erinnern',
+  'messageActions.remindMeSubmenu.errorSettingReminder.text':
+    'Fehler beim Setzen der Erinnerung',
   'messageActions.remindMeSubmenu.remindMe.text': 'Erinnere mich',
   'messageActions.removeReminder.ariaLabel': 'Erinnerung entfernen',
   'messageActions.removeReminder.text': 'Erinnerung entfernen',
@@ -716,6 +733,8 @@ export const deTranslations = {
   'poll.addCommentPrompt.updateCommentAttachedPoll.label':
     'Aktualisiere den Kommentar zu deiner Umfrageantwort',
   'poll.answerList.description': 'Kommentare zu den Umfrageantworten ansehen',
+  'poll.answerList.empty.text': 'Noch keine Kommentare',
+  'poll.answerList.loaded.text': 'Kommentare geladen',
   'poll.answerList.pollComments.title': 'Umfragekommentare',
   'poll.creationDialog.allowOthersAddComments.description':
     'Anderen erlauben, Kommentare hinzuzufügen',
@@ -765,6 +784,7 @@ export const deTranslations = {
   'poll.optionReorder.reorderOption.ariaLabel': 'Option {{ position }} neu anordnen',
   'poll.optionReorder.reorderPosition.ariaLabel':
     '„{{ option }}“ an Position {{ position }} von {{ total }} neu anordnen',
+  'poll.optionVotes.loaded.text': 'Stimmen geladen',
   'poll.optionVotes.question.text': 'Frage {{ optionOrderNumber}}',
   'poll.optionVotes.view.text': 'Alle ansehen',
   'poll.optionVotes.votes.text_one': '{{count}} Stimme',

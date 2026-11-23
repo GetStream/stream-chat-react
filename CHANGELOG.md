@@ -1,3 +1,18 @@
+## [15.0.2](https://github.com/GetStream/stream-chat-react/compare/v15.0.1...v15.0.2) (2026-11-16)
+
+### Bug Fixes
+
+* **LoadingChannel:** lay out the header skeleton like ChannelHeader and pad the message rows ([#3432](https://github.com/GetStream/stream-chat-react/issues/3432)) ([ad4a2b9](https://github.com/GetStream/stream-chat-react/commit/ad4a2b9c48d84e828bf086781430a926ca596a25))
+
+## [15.0.1](https://github.com/GetStream/stream-chat-react/compare/v15.0.0...v15.0.1) (2026-11-11)
+
+### Bug Fixes
+
+* **AIComponents:** add AIConversationController for agent conversations ([#3428](https://github.com/GetStream/stream-chat-react/issues/3428)) ([b6793a2](https://github.com/GetStream/stream-chat-react/commit/b6793a2bd43c909716b78c85e29cc6e557a8ed5e)), closes [GetStream/stream-chat-react-native#3974](https://github.com/GetStream/stream-chat-react-native/issues/3974)
+* **AIMessageComposer:** add Actions, StopButton and an inline layout ([#3424](https://github.com/GetStream/stream-chat-react/issues/3424)) ([b65bfa6](https://github.com/GetStream/stream-chat-react/commit/b65bfa614996ab7cb43458eafc551185db33880e)), closes [GetStream/getstream.io#1034](https://github.com/GetStream/getstream.io/issues/1034)
+* **styling:** drop [@charset](https://github.com/charset) from the published CSS ([#3430](https://github.com/GetStream/stream-chat-react/issues/3430)) ([be9a3aa](https://github.com/GetStream/stream-chat-react/commit/be9a3aab94992e3575e9ce6ef523b9af3106c551)), closes [#3423](https://github.com/GetStream/stream-chat-react/issues/3423)
+* **VirtualizedMessageList:** clear a jump's highlight once the message was viewed ([#3420](https://github.com/GetStream/stream-chat-react/issues/3420)) ([d2c1796](https://github.com/GetStream/stream-chat-react/commit/d2c1796f9055c5afbfc73078e4b1ba9a5fff6f6f))
+
 ## [15.0.0](https://github.com/GetStream/stream-chat-react/compare/v14.12.0...v15.0.0) (2026-11-06)
 
 ### ⚠ BREAKING CHANGES

@@ -7,6 +7,7 @@ import React, {
   useState,
 } from 'react';
 import clsx from 'clsx';
+import { ThemeScopeProvider, useAIThemeScopeClassName } from '../themeScope';
 
 /**
  * Spaces out the parts of a reply's UI that come in together, so they come in one after another
@@ -170,10 +171,13 @@ export const AIUIEntrance = ({
   children: ReactNode;
   className?: string;
 }) => {
+  const themeScopeClassName = useAIThemeScopeClassName();
   const { props, scope } = useAIUIEntrance();
   return (
-    <div {...props} className={clsx(props.className, className)}>
-      {scope(children)}
-    </div>
+    <ThemeScopeProvider>
+      <div {...props} className={clsx(themeScopeClassName, props.className, className)}>
+        {scope(children)}
+      </div>
+    </ThemeScopeProvider>
   );
 };

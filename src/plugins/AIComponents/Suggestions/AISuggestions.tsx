@@ -2,6 +2,7 @@ import React from 'react';
 import clsx from 'clsx';
 
 import { useTranslationContext } from '../../../context/TranslationContext';
+import { ThemeScopeProvider, useAIThemeScopeClassName } from '../themeScope';
 
 export type AISuggestionsProps = {
   /** Called with the suggestion the person picked, such as to send it. */
@@ -20,24 +21,27 @@ export const AISuggestions = ({
   onSelect,
   suggestions,
 }: AISuggestionsProps) => {
+  const themeScopeClassName = useAIThemeScopeClassName();
   const { t } = useTranslationContext();
   if (suggestions.length === 0) return null;
   return (
-    <div
-      aria-label={t('aiComponents.suggestions.suggestions.ariaLabel', 'Suggestions')}
-      className={clsx('str-chat__ai-suggestions', className)}
-      role='group'
-    >
-      {suggestions.map((suggestion) => (
-        <button
-          className='str-chat__ai-suggestions__item'
-          key={suggestion}
-          onClick={() => onSelect(suggestion)}
-          type='button'
-        >
-          {suggestion}
-        </button>
-      ))}
-    </div>
+    <ThemeScopeProvider>
+      <div
+        aria-label={t('aiComponents.suggestions.suggestions.ariaLabel', 'Suggestions')}
+        className={clsx(themeScopeClassName, 'str-chat__ai-suggestions', className)}
+        role='group'
+      >
+        {suggestions.map((suggestion) => (
+          <button
+            className='str-chat__ai-suggestions__item'
+            key={suggestion}
+            onClick={() => onSelect(suggestion)}
+            type='button'
+          >
+            {suggestion}
+          </button>
+        ))}
+      </div>
+    </ThemeScopeProvider>
   );
 };

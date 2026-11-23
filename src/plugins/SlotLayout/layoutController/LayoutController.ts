@@ -358,6 +358,7 @@ const resolveOpenTargetSlot = (
     : undefined;
 };
 
+/** The default {@link LayoutControllerApi}, backed by a `StateStore`. */
 export class LayoutController implements LayoutControllerApi {
   private readonly duplicateEntityPolicy: DuplicateEntityPolicy;
   private readonly resolveDuplicateEntity?: CreateLayoutControllerOptions['resolveDuplicateEntity'];

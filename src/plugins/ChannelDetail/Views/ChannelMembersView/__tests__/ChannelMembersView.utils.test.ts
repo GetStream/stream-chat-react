@@ -3,8 +3,8 @@ import type { Channel, ChannelMemberResponse, UserResponse } from 'stream-chat';
 
 import {
   canUpdateChannelMembers,
-  getChannelMemberUserIds,
   getMemberDisplayName,
+  getMemberUserIds,
   getUserDisplayName,
 } from '../ChannelMembersView.utils';
 
@@ -82,31 +82,23 @@ describe('ChannelMembersView.utils', () => {
     });
   });
 
-  describe('getChannelMemberUserIds', () => {
-    it('collects user ids from channel members', () => {
-      const channel = fromPartial<Channel>({
-        state: {
-          members: {
-            'user-1': { user: { id: 'user-1' }, user_id: 'user-1' },
-            'user-2': { user_id: 'user-2' },
-          },
-        },
+  describe('getMemberUserIds', () => {
+    it('collects user ids from members', () => {
+      const members = fromPartial<Record<string, ChannelMemberResponse>>({
+        'user-1': { user: { id: 'user-1' }, user_id: 'user-1' },
+        'user-2': { user_id: 'user-2' },
       });
 
-      expect(getChannelMemberUserIds(channel)).toEqual(['user-1', 'user-2']);
+      expect(getMemberUserIds(members)).toEqual(['user-1', 'user-2']);
     });
 
     it('filters out members without ids', () => {
-      const channel = fromPartial<Channel>({
-        state: {
-          members: {
-            invalid: {},
-            'user-1': { user: { id: 'user-1' }, user_id: 'user-1' },
-          },
-        },
+      const members = fromPartial<Record<string, ChannelMemberResponse>>({
+        invalid: {},
+        'user-1': { user: { id: 'user-1' }, user_id: 'user-1' },
       });
 
-      expect(getChannelMemberUserIds(channel)).toEqual(['user-1']);
+      expect(getMemberUserIds(members)).toEqual(['user-1']);
     });
   });
 });

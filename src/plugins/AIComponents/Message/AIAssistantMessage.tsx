@@ -6,6 +6,7 @@ import type { AIMessagePartData } from '../MessageParts/types';
 import { StreamingMessage } from '../StreamingMessage/StreamingMessage';
 import type { AIToolApprover } from '../ToolCalls/AIToolApprover';
 import { AIMessageAttachment, type AIMessageAttachmentData } from './AIMessageAttachment';
+import { ThemeScopeProvider, useAIThemeScopeClassName } from '../themeScope';
 
 export type AIAssistantMessageProps = {
   /** The answer, in Markdown. */
@@ -39,26 +40,36 @@ export const AIAssistantMessage = ({
   parts = [],
   reasoningText,
   text,
-}: AIAssistantMessageProps) => (
-  <div
-    aria-busy={isGenerating}
-    className={clsx(
-      'str-chat__ai-assistant-message',
-      isGenerating && 'str-chat__ai-assistant-message--generating',
-      className,
-    )}
-  >
-    {parts.length > 0 && (
-      <AIMessageParts approver={approver} parts={parts} reasoningText={reasoningText} />
-    )}
-    {/* What arrives after mount is typed out; a reply loaded from history shows at once. */}
-    {text !== '' && <StreamingMessage text={text} />}
-    {attachments.length > 0 && (
-      <div className='str-chat__ai-assistant-message__attachments'>
-        {attachments.map((attachment, index) => (
-          <AIMessageAttachment attachment={attachment} key={index} role='assistant' />
-        ))}
+}: AIAssistantMessageProps) => {
+  const themeScopeClassName = useAIThemeScopeClassName();
+  return (
+    <ThemeScopeProvider>
+      <div
+        aria-busy={isGenerating}
+        className={clsx(
+          themeScopeClassName,
+          'str-chat__ai-assistant-message',
+          isGenerating && 'str-chat__ai-assistant-message--generating',
+          className,
+        )}
+      >
+        {parts.length > 0 && (
+          <AIMessageParts
+            approver={approver}
+            parts={parts}
+            reasoningText={reasoningText}
+          />
+        )}
+        {/* What arrives after mount is typed out; a reply loaded from history shows at once. */}
+        {text !== '' && <StreamingMessage text={text} />}
+        {attachments.length > 0 && (
+          <div className='str-chat__ai-assistant-message__attachments'>
+            {attachments.map((attachment, index) => (
+              <AIMessageAttachment attachment={attachment} key={index} role='assistant' />
+            ))}
+          </div>
+        )}
       </div>
-    )}
-  </div>
-);
+    </ThemeScopeProvider>
+  );
+};

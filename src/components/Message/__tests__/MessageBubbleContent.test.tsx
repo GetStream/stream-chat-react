@@ -1,5 +1,5 @@
 import React from 'react';
-import { act, cleanup, render } from '@testing-library/react';
+import { act, cleanup, fireEvent, render } from '@testing-library/react';
 import { fromPartial } from '@total-typescript/shoehorn';
 import type { Channel as ChannelType, LocalMessage, StreamChat } from 'stream-chat';
 
@@ -13,7 +13,7 @@ import {
 } from '../../../mock-builders';
 import { Chat } from '../../Chat';
 import { Channel } from '../../Channel';
-import { WithComponents } from '../../../context';
+import { MessageTranslationViewProvider, WithComponents } from '../../../context';
 import { Message } from '../Message';
 import {
   MessageBubbleContent,
@@ -83,9 +83,11 @@ const renderMessage = async ({
     result = render(
       <Chat client={client} isMessageAIGenerated={isMessageAIGenerated}>
         <Channel channel={channel}>
-          <WithComponents overrides={components}>
-            <Message {...fromPartial<MessageProps>({ message })} />
-          </WithComponents>
+          <MessageTranslationViewProvider>
+            <WithComponents overrides={components}>
+              <Message {...fromPartial<MessageProps>({ message })} />
+            </WithComponents>
+          </MessageTranslationViewProvider>
         </Channel>
       </Chat>,
     );
@@ -198,6 +200,34 @@ describe('MessageBubbleContent', () => {
       expect.objectContaining({ id: message.id }),
     );
     expect(getByTestId('custom-message-text')).toBeInTheDocument();
+  });
+
+  it("switches the poll with the message's translation view", async () => {
+    const {
+      channels: [channel],
+      client,
+    } = await initClientWithChannels({ customUser: user });
+    const poll = generatePoll({
+      id: 'translated-poll',
+      name: 'Welcher Ort?',
+      name_i18n: { en_text: 'Which venue?', language: 'de' },
+    });
+    client.polls.hydratePollCache([fromPartial({ poll })]);
+    const message = generateMessage({
+      poll,
+      poll_id: poll.id,
+      text: '',
+      user,
+    }) as unknown as LocalMessage;
+
+    const { container, getByText } = await renderMessage({ channel, client, message });
+    const pollTitle = () => container.querySelector('.str-chat__poll-title');
+
+    expect(pollTitle()).toHaveTextContent('Which venue?');
+
+    await act(() => fireEvent.click(getByText('View original')));
+
+    expect(pollTitle()).toHaveTextContent('Welcher Ort?');
   });
 
   it('has no accessibility violations', async () => {

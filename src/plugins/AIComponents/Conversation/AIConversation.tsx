@@ -14,6 +14,7 @@ import { useComponentContextIcons } from '../../../context/useComponentContextIc
 import type { AIUIHost } from '../GenerativeUI/AIUIHost';
 import { AIUIGenerated, useAIUIHostRefresh } from '../GenerativeUI/AIUIView';
 import { AIAssistantMessage } from '../Message/AIAssistantMessage';
+import type { AIBranchSwitch } from '../Message/AIBranchSwitcher';
 import type { AIMessageAttachmentData } from '../Message/AIMessageAttachment';
 import { AIReplyActions, type AIReplyActionsProps } from '../Message/AIReplyActions';
 import { AIUserMessage } from '../Message/AIUserMessage';
@@ -29,6 +30,18 @@ import {
   turnsOf,
 } from './entries';
 import type { AIMessage, AIPendingMessage } from './types';
+import { ThemeScopeProvider, useAIThemeScopeClassName } from '../themeScope';
+import type {
+  AIConversationController,
+  AIConversationControllerState,
+} from './controller/AIConversationController';
+import {
+  editActionOf,
+  latestUserMessageIdOf,
+  replyActionsOf,
+  userMessageActionsOf,
+} from './controller/offers';
+import { useAIConversationState } from './controller/useAIConversationState';
 
 // How far from the end still counts as at the end, in pixels.
 const END_SLACK = 32;
@@ -45,6 +58,34 @@ export type AIConversationUserMessageProps = {
   text: string;
   /** The message, or `undefined` for one on its way. */
   message?: AIMessage;
+  /**
+   * Which of the question's versions shows, when the person edited it, from
+   * `userMessageActions`, or from a `conversation` whose transport switches versions.
+   * `AIUserMessage` shows a ‹ i/n › switcher while `count` is 2 or more.
+   */
+  branch?: AIBranchSwitch;
+  /**
+   * Edits the message in the composer: a `conversation` offers it on the person's latest
+   * message, or on any of theirs when its transport switches versions.
+   */
+  onEdit?: () => void;
+  /**
+   * Saves the person's edit of the message, made in place, from `userMessageActions`, or from a
+   * `conversation` whose transport switches versions. `AIUserMessage` uses it in place of
+   * `onEdit` when both are passed.
+   */
+  onSaveEdit?: (text: string) => void;
+};
+
+/** What the default `AIUserMessage` offers for a message of the person's, from `userMessageActions`. */
+export type AIUserMessageActions = {
+  /** Which of the question's versions shows, with how to show the others. */
+  branch?: AIBranchSwitch;
+  /**
+   * Saves the person's edit of the message, which they make in place, with its new text. Without
+   * it, no in-place edit.
+   */
+  onSaveEdit?: (text: string) => void;
 };
 
 export type AIConversationAssistantMessageProps = {
@@ -79,8 +120,19 @@ export type AIConversationReplyActionsProps = {
 };
 
 export type AIConversationProps = {
-  /** The conversation, oldest message first. */
-  messages: AIMessage[];
+  /**
+   * The conversation's state and what the person does in it, such as an
+   * `AIConversationController`. The conversation shows its messages, the message on its way and
+   * whether the agent thinks, loads its older messages, and offers rating and regenerating
+   * replies and editing the person's latest message, or any reply and message of theirs, with a
+   * ‹ i/n › switcher between versions, when its transport has `switchBranch`. It takes the place
+   * of `messages`, `pendingMessage`, `isThinking` and `loadOlderMessages`, its reply and
+   * user-message actions are used unless `replyActions` or `userMessageActions` is passed, and
+   * its `approver` unless one is passed.
+   */
+  conversation?: AIConversationController;
+  /** The conversation, oldest message first. Required without `conversation`. */
+  messages?: AIMessage[];
   /** Who answers tool calls' questions and sign-ins on this device, to ask them. */
   approver?: AIToolApprover;
   /** The view of the agent's replies. Defaults to `AIAssistantMessage`. */
@@ -117,7 +169,7 @@ export type AIConversationProps = {
   ReplyActions?: ComponentType<AIConversationReplyActionsProps> | null;
   /**
    * What the default `AIReplyActions` offers for a reply besides copy and share, such as its
-   * rating and how to rate or regenerate it.
+   * rating, how to rate or regenerate it, and which of its versions shows (`branch`).
    */
   replyActions?: (
     message: AIMessage,
@@ -129,13 +181,37 @@ export type AIConversationProps = {
    * them shows shows its text. Keep one host per conversation, for as long as it shows.
    */
   ui?: AIUIHost;
+  /**
+   * What the person's messages offer besides what a `conversation` does: editing in place
+   * (`onSaveEdit(text)`) and a ‹ i/n › switcher between the versions of an edited question
+   * (`branch`). Passed to `UserMessage` as `onSaveEdit` and `branch`. Takes the place of a
+   * `conversation`'s own, which, when its transport switches versions, offer the switcher and
+   * editing in place.
+   */
+  userMessageActions?: (message: AIMessage) => AIUserMessageActions | undefined;
   /** The view of the person's messages. Defaults to `AIUserMessage`. */
   UserMessage?: ComponentType<AIConversationUserMessageProps>;
 };
 
-const DefaultUserMessage = ({ attachments, text }: AIConversationUserMessageProps) => (
-  <AIUserMessage attachments={attachments} text={text} />
+const DefaultUserMessage = ({
+  attachments,
+  branch,
+  onEdit,
+  onSaveEdit,
+  text,
+}: AIConversationUserMessageProps) => (
+  <AIUserMessage
+    attachments={attachments}
+    branch={branch}
+    onEdit={onEdit}
+    onSaveEdit={onSaveEdit}
+    text={text}
+  />
 );
+
+const NO_MESSAGES: AIMessage[] = [];
+
+type EditAction = (message: AIMessage) => (() => void) | undefined;
 
 const DefaultAssistantMessage = ({
   approver,
@@ -157,11 +233,13 @@ const DefaultAssistantMessage = ({
 
 type EntryViewProps = {
   AssistantMessage: ComponentType<AIConversationAssistantMessageProps>;
+  editAction?: EditAction;
   entry: AIConversationEntry;
   ReplyActions: ComponentType<AIConversationReplyActionsProps> | null;
   UserMessage: ComponentType<AIConversationUserMessageProps>;
   approver?: AIToolApprover;
   ui?: AIUIHost;
+  userMessageActions?: AIConversationProps['userMessageActions'];
 };
 
 // Not memoised: an app's messages are new objects on every update while a reply streams, and a
@@ -169,10 +247,12 @@ type EntryViewProps = {
 const EntryView = ({
   approver,
   AssistantMessage,
+  editAction,
   entry,
   ReplyActions,
   ui,
   UserMessage,
+  userMessageActions,
 }: EntryViewProps) => {
   const { message, pending } = entry;
   if (!message) {
@@ -181,6 +261,7 @@ const EntryView = ({
     ) : null;
   }
   if (message.role === 'user') {
+    const actions = userMessageActions?.(message);
     return (
       <UserMessage
         attachments={
@@ -188,7 +269,10 @@ const EntryView = ({
             ? entry.sentAttachments
             : (message.attachments ?? [])
         }
+        branch={actions?.branch}
         message={message}
+        onEdit={editAction?.(message)}
+        onSaveEdit={actions?.onSaveEdit}
         text={message.text}
       />
     );
@@ -269,23 +353,130 @@ const scrollScroller = (scroller: HTMLElement, top: number, smooth: boolean) => 
  * - A button scrolls back to the latest message when the end is out of view.
  * - A message the person sent shows at once (`pendingMessage`) and the agent thinks under it
  *   (`AIThinking`) until its reply shows something.
+ *
+ * With a `conversation`, such as an `AIConversationController`, it shows the conversation's
+ * state and offers what the person can do in it. Without one, pass its `messages` and the rest.
  */
-export const AIConversation = ({
+export const AIConversation = (props: AIConversationProps) =>
+  props.conversation ? (
+    <ControlledConversation {...props} conversation={props.conversation} />
+  ) : (
+    <ConversationView {...props} />
+  );
+
+const controlledSelector = ({
+  hasOlderMessages,
+  isSwitchingBranch,
+  messages,
+  pendingMessage,
+  ratings,
+  status,
+}: AIConversationControllerState) => ({
+  hasOlderMessages,
+  isSwitchingBranch,
+  messages,
+  pendingMessage,
+  ratings,
+  status,
+});
+
+// The conversation as its controller has it. The controller knows when its agent is thinking,
+// including after a stop or a failure that leaves the person's message on its way.
+const ControlledConversation = ({
+  conversation,
+  ...props
+}: AIConversationProps & { conversation: AIConversationController }) => {
+  const {
+    hasOlderMessages,
+    isSwitchingBranch,
+    messages,
+    pendingMessage,
+    ratings,
+    status,
+  } = useAIConversationState(conversation, controlledSelector);
+  const replyActions = useMemo(
+    () =>
+      (message: AIMessage, { isLatestReply }: { isLatestReply: boolean }) =>
+        replyActionsOf(
+          conversation,
+          { isSwitchingBranch, ratings, status },
+          message,
+          isLatestReply,
+        ),
+    [conversation, isSwitchingBranch, ratings, status],
+  );
+  const latestUserMessageId = latestUserMessageIdOf(messages);
+  const editAction = useMemo<EditAction>(
+    () => (message) =>
+      editActionOf(
+        conversation,
+        { isSwitchingBranch, latestUserMessageId, status },
+        message,
+      ),
+    [conversation, isSwitchingBranch, latestUserMessageId, status],
+  );
+  // The switcher between the versions of a question the person edited, and editing in place,
+  // while the transport switches versions.
+  const userMessageActions = useMemo(
+    () =>
+      conversation.canSwitchBranch
+        ? (message: AIMessage) =>
+            userMessageActionsOf(
+              conversation,
+              { isSwitchingBranch, latestUserMessageId, status },
+              message,
+            )
+        : undefined,
+    [conversation, isSwitchingBranch, latestUserMessageId, status],
+  );
+  const { ui } = props;
+  // A reply that shows only its UI has started, which the controller can't tell without the
+  // host that reads it.
+  const last = messages[messages.length - 1];
+  const showsReply =
+    !!last && last.role !== 'user' && !!last.uiDocument && !!ui?.canShow(last.uiDocument);
+  return (
+    <ConversationView
+      {...props}
+      approver={props.approver ?? conversation.approver}
+      editAction={editAction}
+      isThinking={status === 'submitted' && !showsReply}
+      isThinkingKnown
+      loadOlderMessages={hasOlderMessages ? conversation.loadOlderMessages : undefined}
+      messages={messages as AIMessage[]}
+      pendingMessage={pendingMessage}
+      replyActions={props.replyActions ?? replyActions}
+      userMessageActions={props.userMessageActions ?? userMessageActions}
+    />
+  );
+};
+
+type ConversationViewProps = Omit<AIConversationProps, 'conversation'> & {
+  editAction?: EditAction;
+  // Whether `isThinking` alone says whether the agent is thinking.
+  isThinkingKnown?: boolean;
+};
+
+const ConversationView = ({
   approver,
   AssistantMessage = DefaultAssistantMessage,
   bottomInset = 0,
   className,
+  editAction,
   emptyContent,
   footer,
   isThinking = false,
+  isThinkingKnown = false,
   loadOlderMessages,
-  messages,
+  messages = NO_MESSAGES,
   pendingMessage,
   ReplyActions: ReplyActionsProp,
   replyActions,
   ui,
   UserMessage = DefaultUserMessage,
-}: AIConversationProps) => {
+  userMessageActions,
+}: ConversationViewProps) => {
+  const themeScopeClassName = useAIThemeScopeClassName();
   const { t } = useTranslationContext();
   const { IconArrowDown, IconLoading } = useComponentContextIcons();
 
@@ -303,9 +494,13 @@ export const AIConversation = ({
     [canShowUI, messages, pendingMessage, tracker],
   );
   // after `entries`, which matched the copies
-  const thinking =
-    isThinking || tracker.isAwaitingReply(messages, pendingMessage, canShowUI);
-  const turns = useMemo(() => turnsOf(entries), [entries]);
+  const thinking = isThinkingKnown
+    ? isThinking
+    : isThinking || tracker.isAwaitingReply(messages, pendingMessage, canShowUI);
+  // The rows that started a turn keep starting one, so a turn keeps its key as older messages
+  // load above it.
+  const turnStarts = useRef(new Set<string>());
+  const turns = useMemo(() => turnsOf(entries, turnStarts.current), [entries]);
   const latest = turns[turns.length - 1];
   const latestHasReplies = (latest?.entries.length ?? 0) > 1;
   const latestHasFirstStep = firstStepOf(latest) !== undefined;
@@ -549,11 +744,13 @@ export const AIConversation = ({
             <EntryView
               approver={approver}
               AssistantMessage={AssistantMessage}
+              editAction={editAction}
               entry={entry}
               key={entry.id}
               ReplyActions={ReplyActions}
               ui={ui}
               UserMessage={UserMessage}
+              userMessageActions={userMessageActions}
             />
           ))}
           {isLatest && thinking && <AIThinking />}
@@ -564,63 +761,67 @@ export const AIConversation = ({
   };
 
   return (
-    <AIToolApproverProvider approver={approver}>
-      <div className={clsx('str-chat__ai-conversation', className)}>
+    <ThemeScopeProvider>
+      <AIToolApproverProvider approver={approver}>
         <div
-          className='str-chat__ai-conversation__scroller'
-          onScroll={onScroll}
-          ref={scrollerRef}
+          className={clsx(themeScopeClassName, 'str-chat__ai-conversation', className)}
         >
-          {turns.length === 0 ? (
-            <div
-              className='str-chat__ai-conversation__empty'
-              ref={contentRef}
-              style={{ paddingBottom: bottomInset }}
-            >
-              {emptyContent}
-            </div>
-          ) : (
-            <div
-              className='str-chat__ai-conversation__turns'
-              ref={contentRef}
-              style={{ paddingBottom: bottomInset }}
-            >
-              {loadsOlder && (
-                <div
-                  aria-label={t(
-                    'aiComponents.conversation.loadingOlderMessages.ariaLabel',
-                    'Loading older messages',
-                  )}
-                  className='str-chat__ai-conversation__loading-older'
-                  ref={spinnerRef}
-                  role='progressbar'
-                >
-                  <IconLoading />
-                </div>
+          <div
+            className='str-chat__ai-conversation__scroller'
+            onScroll={onScroll}
+            ref={scrollerRef}
+          >
+            {turns.length === 0 ? (
+              <div
+                className='str-chat__ai-conversation__empty'
+                ref={contentRef}
+                style={{ paddingBottom: bottomInset }}
+              >
+                {emptyContent}
+              </div>
+            ) : (
+              <div
+                className='str-chat__ai-conversation__turns'
+                ref={contentRef}
+                style={{ paddingBottom: bottomInset }}
+              >
+                {loadsOlder && (
+                  <div
+                    aria-label={t(
+                      'aiComponents.conversation.loadingOlderMessages.ariaLabel',
+                      'Loading older messages',
+                    )}
+                    className='str-chat__ai-conversation__loading-older'
+                    ref={spinnerRef}
+                    role='progressbar'
+                  >
+                    <IconLoading />
+                  </div>
+                )}
+                {turns.map(renderTurn)}
+              </div>
+            )}
+          </div>
+          {!isEndInView && turns.length > 0 && (
+            <button
+              aria-label={t(
+                'aiComponents.conversation.scrollToLatest.ariaLabel',
+                'Scroll to latest',
               )}
-              {turns.map(renderTurn)}
-            </div>
+              className='str-chat__ai-conversation__scroll-to-latest'
+              onClick={() => scrollToEnd(true)}
+              style={{ bottom: bottomInset }}
+              title={t(
+                'aiComponents.conversation.scrollToLatest.ariaLabel',
+                'Scroll to latest',
+              )}
+              type='button'
+            >
+              <IconArrowDown />
+            </button>
           )}
         </div>
-        {!isEndInView && turns.length > 0 && (
-          <button
-            aria-label={t(
-              'aiComponents.conversation.scrollToLatest.ariaLabel',
-              'Scroll to latest',
-            )}
-            className='str-chat__ai-conversation__scroll-to-latest'
-            onClick={() => scrollToEnd(true)}
-            style={{ bottom: bottomInset }}
-            title={t(
-              'aiComponents.conversation.scrollToLatest.ariaLabel',
-              'Scroll to latest',
-            )}
-            type='button'
-          >
-            <IconArrowDown />
-          </button>
-        )}
-      </div>
-    </AIToolApproverProvider>
+      </AIToolApproverProvider>
+    </ThemeScopeProvider>
   );
 };

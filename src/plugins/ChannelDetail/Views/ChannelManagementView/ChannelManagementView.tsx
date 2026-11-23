@@ -25,7 +25,7 @@ import {
 } from '../../../../components/ChannelListItem';
 import { useChannelMembershipState } from '../../../../components/ChannelList';
 import { useIsChannelMuted } from '../../../../components/ChannelListItem/hooks/useIsChannelMuted';
-import { useChannelHasMembersOnline } from '../../../../components/ChannelHeader/hooks/useChannelHasMembersOnline';
+import { useChannelHasOtherMembersOnline } from '../../../../components/ChannelHeader/hooks/useChannelHasOtherMembersOnline';
 import { Prompt } from '../../../../components/Dialog';
 import {
   type ChannelManagementActionItem,
@@ -72,12 +72,11 @@ export const ChannelManagementInfoBody = ({
       (member) => member.user?.id && member.user.id !== client.user?.id,
     )?.user?.id;
   }, [channel, client.user?.id, resolvedIsDmChannel]);
-  const isOnline = useChannelHasMembersOnline({ channel });
+  const isOnline = useChannelHasOtherMembersOnline({ channel });
   const { muted: channelMuted } = useIsChannelMuted(channel);
   const userMuted = useIsUserMuted(otherMemberUserId);
   const membership = useChannelMembershipState(channel);
-  // Reads its channel through `useChannel()`, which must match the `ChannelDetailContext` channel.
-  const onlineStatusText = useChannelHeaderOnlineStatus();
+  const onlineStatusText = useChannelHeaderOnlineStatus({ channel });
   const pinned = membership.pinned_at != null;
 
   return (
@@ -169,8 +168,8 @@ const useChannelManagementEditForm = ({
   const { addNotification } = useNotificationApi();
 
   const resolvedIsDmChannel = isDmChannel({ channel, ownUserId: client.user?.id });
-  const hasMembersOnline = useChannelHasMembersOnline({ channel });
-  const isOnline = resolvedIsDmChannel ? hasMembersOnline : undefined;
+  const hasOtherMembersOnline = useChannelHasOtherMembersOnline({ channel });
+  const isOnline = resolvedIsDmChannel ? hasOtherMembersOnline : undefined;
   const nameLabel = resolvedIsDmChannel
     ? t('channelDetail.channelManagementView.contactName.label', 'Contact name')
     : t('channelDetail.channelManagementView.groupName.label', 'Group name');

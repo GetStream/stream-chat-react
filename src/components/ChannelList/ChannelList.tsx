@@ -3,21 +3,21 @@ import React, { useEffect, useMemo, useRef } from 'react';
 import type { Channel, ChannelPaginator, ChannelPaginatorState } from 'stream-chat';
 
 import { ChannelListItem } from '../ChannelListItem';
-import { EmptyStateIndicator } from '../EmptyStateIndicator';
 import { InfiniteScrollWithComponents } from '../InfiniteScrollPaginator/InfiniteScrollWithComponents';
-import {
-  ListLoadErrorIndicator as BaseListLoadErrorIndicator,
-  type ListLoadErrorIndicatorProps,
-  LoadingChannels,
-  LoadingIndicator,
-} from '../Loading';
-import { getFirstPageLoadError } from '../Loading/getFirstPageLoadError';
-import { useFirstPageLoadRetry } from '../Loading/hooks/useFirstPageLoadRetry';
+import { getFirstPageLoadError } from '../ListStates/utils';
+import { useFirstPageLoadRetry } from '../ListStates/hooks';
 import { useAddNotificationOnError } from '../Notifications/hooks/useAddNotificationOnError';
 import { useChatContext } from '../../context/ChatContext';
 import { useComponentContext } from '../../context/ComponentContext';
 import { useTranslationContext } from '../../context/TranslationContext';
 import { ThemeScope } from '../../context/ThemeScopeContext';
+import {
+  ChannelListEmptyUI,
+  ChannelListEndReachedUI,
+  ChannelListFirstPageLoadingUI,
+  ChannelListLoadErrorUI,
+  ChannelListLoadingNextPageUI,
+} from './ListStates';
 import { useChannelListKeyboardNavigation } from './hooks/useChannelListKeyboardNavigation';
 import { useStateStore } from '../../store';
 
@@ -84,14 +84,7 @@ export const ChannelList = ({
     paginator.state,
     channelPaginatorStateSelector,
   );
-  const {
-    EmptyListIndicator = DefaultEmptyChannelList,
-    EndReachedIndicator = DefaultEndReachedIndicator,
-    FirstPageLoadingIndicator = LoadingChannels,
-    ListItem = DefaultListItem,
-    ListLoadErrorIndicator = DefaultListLoadErrorIndicator,
-    LoadingNextPageIndicator = DefaultLoadingNextPageIndicator,
-  } = useComponentContext();
+  const { ListItem = DefaultListItem } = useComponentContext();
 
   // The scroll container (the `InfiniteScrollPaginator` root, reached via `listboxRef`) is the
   // `role="listbox"` that owns the `role="option"` rows, so the hook needs no extra wrapper.
@@ -129,7 +122,7 @@ export const ChannelList = ({
   if (firstPageLoadRetry.error) {
     return (
       <ThemeScope>
-        <ListLoadErrorIndicator
+        <ChannelListLoadErrorUI
           error={firstPageLoadRetry.error}
           isRetrying={firstPageLoadRetry.isRetrying}
           retry={firstPageLoadRetry.retry}
@@ -150,11 +143,11 @@ export const ChannelList = ({
         }
         aria-labelledby={listboxProps?.['aria-labelledby']}
         contentProps={{ role: 'presentation' }}
-        EmptyListIndicator={EmptyListIndicator}
-        EndReachedIndicator={EndReachedIndicator}
-        FirstPageLoadingIndicator={FirstPageLoadingIndicator}
+        ListEmptyUI={ChannelListEmptyUI}
+        ListEndReachedUI={ChannelListEndReachedUI}
+        ListFirstPageLoadingUI={ChannelListFirstPageLoadingUI}
         ListItem={ListItem as ComponentType<{ item: Channel }>}
-        LoadingNextPageIndicator={LoadingNextPageIndicator}
+        ListLoadingNextPageUI={ChannelListLoadingNextPageUI}
         loadNextDebounceMs={loadMoreDebounceMs}
         loadNextOnScrollToBottom={paginator.toTail}
         onClickCapture={onClickCapture}
@@ -168,17 +161,6 @@ export const ChannelList = ({
   );
 };
 
-const DefaultListLoadErrorIndicator = (props: ListLoadErrorIndicatorProps) => (
-  <BaseListLoadErrorIndicator {...props} listType='channel' />
-);
-
-const DefaultEmptyChannelList = () => <EmptyStateIndicator listType='channel' />;
-
-const DefaultEndReachedIndicator = () => null;
-
 const DefaultListItem = ({ item }: { item: unknown }) => (
   <ChannelListItem channel={item as Channel} />
 );
-
-const DefaultLoadingNextPageIndicator = ({ isLoading }: { isLoading?: boolean }) =>
-  isLoading ? <LoadingIndicator /> : null;

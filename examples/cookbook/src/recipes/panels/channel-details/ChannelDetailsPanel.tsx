@@ -1,5 +1,3 @@
-import { useMemo } from 'react';
-import { ChannelInstanceProvider } from 'stream-chat-react';
 import { ChannelDetail } from 'stream-chat-react/channel-detail';
 import type { SectionNavigatorSection } from 'stream-chat-react/channel-detail';
 import { useSlotChannel } from 'stream-chat-react/slot-layout';
@@ -14,31 +12,27 @@ type ChannelDetailsProps = {
 };
 
 /**
- * The SDK's `ChannelDetail` for the channel open in the `channel` slot, so it follows the user to
- * another channel.
+ * The SDK's `ChannelDetail` for the channel open in the `channel` slot. Picking a channel from the
+ * list closes the panel; a channel opened any other way while it's open, such as from a link, shows
+ * its own details.
  */
 const ChannelDetails = ({ sections }: ChannelDetailsProps) => {
   const channel = useSlotChannel({ slot: 'channel' });
   const { closeSidePanel } = useSidePanel();
-  const channelContext = useMemo(() => (channel ? { channel } : undefined), [channel]);
 
-  if (!channelContext) return null;
+  if (!channel) return null;
 
   return (
-    // Channel info reads the channel from the channel context for its online status, and the
-    // side panel sits outside the channel's `Channel`.
-    <ChannelInstanceProvider value={channelContext}>
-      <div className='cookbook-channel-details'>
-        {/* A new channel starts the panel again on its first section. The sections' close
-            button, and actions such as opening a pinned message, close the side panel. */}
-        <ChannelDetail
-          channel={channelContext.channel}
-          key={channelContext.channel.cid}
-          onClose={closeSidePanel}
-          sections={sections}
-        />
-      </div>
-    </ChannelInstanceProvider>
+    <div className='cookbook-channel-details'>
+      {/* A new channel starts the panel again on its first section. The sections' close
+          button, and actions such as opening a pinned message, close the side panel. */}
+      <ChannelDetail
+        channel={channel}
+        key={channel.cid}
+        onClose={closeSidePanel}
+        sections={sections}
+      />
+    </div>
   );
 };
 
