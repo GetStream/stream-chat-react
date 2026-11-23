@@ -1,6 +1,11 @@
+import React from 'react';
+
 import { useComponentContextIcons, useTranslationContext } from '../../../../context';
 
-export const ChannelFilesEmptyList = () => {
+// The files view's empty state.
+
+/** A channel without files: the folder icon, "No files" and how to share one. */
+export const ChannelFilesEmpty = () => {
   const { IconFolder } = useComponentContextIcons();
   const { t } = useTranslationContext();
 

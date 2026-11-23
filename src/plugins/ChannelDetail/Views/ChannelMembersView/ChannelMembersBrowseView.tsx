@@ -14,8 +14,13 @@ import { ListItemLayout } from '../../../../components/ListItemLayout';
 import { VirtualizedList } from '../../VirtualizedList';
 import { Prompt } from '../../../../components/Dialog';
 import { getMemberDisplayName, getMemberUserId } from './ChannelMembersView.utils';
-import { ChannelDetailEmptyList } from '../../ChannelDetailEmptyList';
-import { ChannelDetailListLoadingIndicator } from '../../ChannelDetailListLoadingIndicator';
+import {
+  ChannelDetailListLoadErrorUI,
+  ChannelDetailListLoadingNextPageUI,
+} from '../../ListStates';
+import { useChannelDetailEmptyPlaceholder } from '../../hooks/useChannelDetailEmptyPlaceholder';
+import { useChannelDetailFirstPageLoadRetry } from '../../hooks/useChannelDetailFirstPageLoadRetry';
+import { ChannelMembersEmpty } from './ListStates';
 import { ChannelDetailSearchInput } from '../../ChannelDetailSearchInput';
 import { useChannelMembersSearch } from './useChannelMembersSearch';
 import { useIsUserOnline } from '../../../../components/ChannelHeader/hooks/useIsUserOnline';
@@ -143,7 +148,6 @@ export const ChannelMembersBrowseView = ({
   onMemberSelect,
 }: ChannelMembersBrowseViewProps) => {
   const { mutes } = useChatContext();
-  const { t } = useTranslationContext();
   const {
     displayedMembers,
     handleSearchChange,
@@ -163,6 +167,10 @@ export const ChannelMembersBrowseView = ({
     [displayedMembers],
   );
 
+  const firstPageLoadRetry = useChannelDetailFirstPageLoadRetry(membersSearchSource, {
+    hasItemsToShow: renderableMembers.length > 0,
+  });
+
   const renderItem = useCallback(
     (_: number, member: ChannelMemberResponse) => (
       <ChannelMembersBrowseViewItem
@@ -174,25 +182,13 @@ export const ChannelMembersBrowseView = ({
     [mutedUserIdSet, onMemberSelect],
   );
 
-  const EmptyPlaceholder = useMemo(
-    () =>
-      function ChannelMembersEmptyPlaceholder() {
-        return (
-          <ChannelDetailEmptyList>
-            {t(
-              'channelDetail.channelMembersBrowse.noMemberFound.text',
-              'No member found',
-            )}
-          </ChannelDetailEmptyList>
-        );
-      },
-    [t],
-  );
+  // The members list shows its empty state whenever it has no members to show.
+  const EmptyPlaceholder = useChannelDetailEmptyPlaceholder(ChannelMembersEmpty, true);
 
   const Footer = useMemo(
     () =>
       function ChannelMembersListFooter() {
-        return <ChannelDetailListLoadingIndicator searchSource={membersSearchSource} />;
+        return <ChannelDetailListLoadingNextPageUI searchSource={membersSearchSource} />;
       },
     [membersSearchSource],
   );
@@ -205,15 +201,23 @@ export const ChannelMembersBrowseView = ({
           resetKey={searchInputResetKey}
         />
       )}
-      <VirtualizedList
-        className='str-chat__channel-detail__channel-members-view__list'
-        computeItemKey={computeMemberItemKey}
-        data={renderableMembers}
-        EmptyPlaceholder={EmptyPlaceholder}
-        Footer={Footer}
-        itemContent={renderItem}
-        loadNext={hasMembers ? membersSearchSource.search : undefined}
-      />
+      {firstPageLoadRetry.error ? (
+        <ChannelDetailListLoadErrorUI
+          error={firstPageLoadRetry.error}
+          isRetrying={firstPageLoadRetry.isRetrying}
+          retry={firstPageLoadRetry.retry}
+        />
+      ) : (
+        <VirtualizedList
+          className='str-chat__channel-detail__channel-members-view__list'
+          computeItemKey={computeMemberItemKey}
+          data={renderableMembers}
+          EmptyPlaceholder={EmptyPlaceholder}
+          Footer={Footer}
+          itemContent={renderItem}
+          loadNext={hasMembers ? membersSearchSource.search : undefined}
+        />
+      )}
     </Prompt.Body>
   );
 };

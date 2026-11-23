@@ -1,6 +1,13 @@
+import React from 'react';
+
 import { useComponentContextIcons, useTranslationContext } from '../../../../context';
 
-export const ChannelMediaEmptyList = () => {
+// The photos and videos view's empty state.
+
+/**
+ * A channel without photos or videos: the image icon, "No photos or videos" and how to share one.
+ */
+export const ChannelMediaEmpty = () => {
   const { IconImage } = useComponentContextIcons();
   const { t } = useTranslationContext();
 
