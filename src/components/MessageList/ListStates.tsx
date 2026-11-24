@@ -6,6 +6,7 @@ import {
   type ListLoadingNextPageUIProps,
 } from '../ListStates';
 import { renderWithDeprecatedKey } from '../ListStates/utils';
+import { LoadingIndicator as DefaultLoadingIndicator } from '../Loading/LoadingIndicator';
 import { useComponentContext } from '../../context/ComponentContext';
 import { useComponentContextIcons } from '../../context/useComponentContextIcons';
 import { useTranslationContext } from '../../context/TranslationContext';
@@ -84,6 +85,22 @@ export const VirtualizedMessageListLoadingNextPageUI = ({
   return (
     <div className='str-chat__virtual-list__loading'>
       <Indicator isLoading position={position} />
+    </div>
+  );
+};
+
+/**
+ * Shown over `VirtualizedMessageList` while react-virtuoso keeps the list hidden to position it
+ * (opening the list, a jump): the `LoadingIndicator`, centered. A `LoadingIndicator` set to `null`
+ * turns it off.
+ */
+export const VirtualizedMessageListPositioningUI = () => {
+  // The default applies only to an unset key, so `null` stays `null` and hides the spinner.
+  const { LoadingIndicator = DefaultLoadingIndicator } = useComponentContext();
+  if (!LoadingIndicator) return null;
+  return (
+    <div className='str-chat__virtual-list__positioning'>
+      <LoadingIndicator />
     </div>
   );
 };

@@ -52,7 +52,10 @@ import {
   makeItemsRenderedHandler,
   messageRenderer,
 } from './VirtualizedMessageListComponents';
-import { VirtualizedMessageListEmptyUI } from './ListStates';
+import {
+  VirtualizedMessageListEmptyUI,
+  VirtualizedMessageListPositioningUI,
+} from './ListStates';
 
 import {
   ScrollToLatestMessageButton as DefaultScrollToLatestMessageButton,
@@ -249,6 +252,7 @@ const VirtualizedMessageListWithContext = (
     scrollToLatestMessageOnFocus = false,
     separateGiphyPreview = false,
     showAvatar,
+    showLoadingIndicatorWhilePositioning = true,
     showUnreadNotificationAlways,
     sortReactions,
     stickToBottomScrollBehavior = 'smooth',
@@ -589,8 +593,11 @@ const VirtualizedMessageListWithContext = (
   // wrong page: these run once the list is shown (see useAfterInitialLocation), against the edge
   // state Virtuoso reported last.
   const atTopRef = useRef(false);
+  // The same, as state, for what renders while the list is hidden.
+  const [isListHidden, setIsListHidden] = useState(false);
   const reportListHidden = useCallback((hidden: boolean) => {
     listHiddenRef.current = hidden;
+    setIsListHidden(hidden);
   }, []);
   const ListFromProps = virtuosoComponentsFromProps?.List;
   const List = useMemo(
@@ -670,6 +677,7 @@ const VirtualizedMessageListWithContext = (
             />
           )}
           <div
+            aria-busy={isListHidden || undefined}
             className={customClasses?.virtualizedMessageList || 'str-chat__virtual-list'}
             ref={virtualListRef}
           >
@@ -741,6 +749,10 @@ const VirtualizedMessageListWithContext = (
                 totalListHeightChanged={totalListHeightChanged}
               />
             </ListPositioningReporterContext.Provider>
+            {/* Virtuoso keeps the list hidden while it positions it (opening the list, a jump). */}
+            {showLoadingIndicatorWhilePositioning && isListHidden && (
+              <VirtualizedMessageListPositioningUI />
+            )}
             {/* Only for messages that arrived while the reader was scrolled up. Reading an older
                   window (e.g. after a jump) is signalled by ScrollToLatestMessageButton instead. */}
             <NewMessageNotification
@@ -830,6 +842,13 @@ export type VirtualizedMessageListProps = Partial<
    * channels, `'auto'` (instant) for high throughput. Defaults to `'smooth'`.
    */
   stickToBottomScrollBehavior?: 'smooth' | 'auto';
+  /**
+   * Shows the `LoadingIndicator` over the list while react-virtuoso keeps it hidden to position it:
+   * when the list opens (a channel or thread, a channel switch) and after a jump to a message or to
+   * the latest messages, for about a quarter of a second. Defaults to `true`. A `LoadingIndicator`
+   * set to `null` in `WithComponents` hides it as well.
+   */
+  showLoadingIndicatorWhilePositioning?: boolean;
   /** Prevents autoscrolling to the bottom on new messages. */
   suppressAutoscroll?: boolean;
   /** Injects date separators into the list. Defaults to `false`. */

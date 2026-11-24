@@ -7,7 +7,10 @@ import {
   Item,
   messageRenderer,
 } from '../VirtualizedMessageListComponents';
-import { VirtualizedMessageListEmptyUI } from '../ListStates';
+import {
+  VirtualizedMessageListEmptyUI,
+  VirtualizedMessageListPositioningUI,
+} from '../ListStates';
 import type { VirtuosoContext } from '../VirtualizedMessageList';
 import {
   generateMessage,
@@ -289,6 +292,24 @@ describe('VirtualizedMessageComponents', () => {
       );
       expect(container).toHaveTextContent('Custom head');
       expect(container.querySelector('.str-chat__loading-indicator')).toBeNull();
+    });
+  });
+
+  describe('VirtualizedMessageListPositioningUI', () => {
+    it('should render the LoadingIndicator over the list', () => {
+      const { container } = renderElements(<VirtualizedMessageListPositioningUI />, {
+        LoadingIndicator: () => <div>Custom Loading Indicator</div>,
+      });
+      expect(
+        container.querySelector('.str-chat__virtual-list__positioning'),
+      ).toHaveTextContent('Custom Loading Indicator');
+    });
+
+    it('should render nothing while LoadingIndicator is set to null', () => {
+      const { container } = renderElements(<VirtualizedMessageListPositioningUI />, {
+        LoadingIndicator: null as unknown as undefined,
+      });
+      expect(container).toBeEmptyDOMElement();
     });
   });
 
