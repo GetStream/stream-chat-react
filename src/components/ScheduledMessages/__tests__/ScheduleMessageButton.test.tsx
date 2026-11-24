@@ -23,7 +23,6 @@ import { Channel } from '../../Channel';
 import { Chat } from '../../Chat';
 import { WithComponents } from '../../../context/WithComponents';
 import { MessageComposer } from '../../MessageComposer';
-import { ScheduleTimeDialog } from '../ScheduleTimeDialog';
 import { enterDate, enterTime, getDateField, getTimeField } from './scheduleTimeFields';
 import type {
   ScheduleDateInputProps,
@@ -586,7 +585,7 @@ describe('ScheduleMessageButton', () => {
       expect(screen.getByTestId('schedule-message-dialog')).toBeInTheDocument();
     });
 
-    it('takes custom date and time fields', async () => {
+    it('takes date and time fields from their slots', async () => {
       const DateInput = ({ onChange, value }: ScheduleDateInputProps) => (
         <input
           aria-label='Custom date'
@@ -602,11 +601,7 @@ describe('ScheduleMessageButton', () => {
         />
       );
       const { channel } = await renderComposer({
-        components: {
-          ScheduleTimeDialog: (props) => (
-            <ScheduleTimeDialog {...props} DateInput={DateInput} TimeInput={TimeInput} />
-          ),
-        },
+        components: { ScheduleDateInput: DateInput, ScheduleTimeInput: TimeInput },
       });
       const schedule = mockSchedule(channel).mockResolvedValue(
         scheduledResult(generateScheduledMessage({ cid: channel.cid })),

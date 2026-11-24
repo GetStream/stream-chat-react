@@ -1,14 +1,15 @@
-import React, { type ComponentType, type MouseEvent, useEffect, useState } from 'react';
+import React, { type MouseEvent, useEffect, useState } from 'react';
 import type { Channel, LocalMessage } from 'stream-chat';
 
-import { useComponentContextIcons, useTranslationContext } from '../../context';
+import { useComponentContext, useTranslationContext } from '../../context';
 import { useIsMounted } from '../Channel/hooks/useIsMounted';
 import { useWSConnectionState } from '../Chat/hooks/useWSConnectionState';
 import { useChannelDisplayName } from '../ChannelListItem/hooks/useChannelDisplayName';
 import { Prompt } from '../Dialog';
-import { TextInput } from '../Form';
 import { QuotedMessagePreviewUI } from '../MessageComposer/QuotedMessagePreview';
+import { ScheduleDateInput as DefaultScheduleDateInput } from './ScheduleDateInput';
 import { ScheduledMessagesNotice } from './ScheduledMessagesNotice';
+import { ScheduleTimeInput as DefaultScheduleTimeInput } from './ScheduleTimeInput';
 import {
   formatTimeZoneOffset,
   fromInputValues,
@@ -47,14 +48,10 @@ export type ScheduleTimeDialogProps = {
   /** Closes the dialog once it resolves. */
   submit: (scheduledAt: Date) => Promise<unknown>;
   title: string;
-  /** Replaces the date field. */
-  DateInput?: ComponentType<ScheduleDateInputProps>;
   initialScheduledAt?: Date;
   /** Above the preview; "Message to {{ name }}" by default. */
   previewLabel?: string;
   submitLabel?: string;
-  /** Replaces the time field. */
-  TimeInput?: ComponentType<ScheduleTimeInputProps>;
   /** Why an earlier time is refused; "Choose a later time" by default. */
   tooSoonMessage?: string;
 };
@@ -71,64 +68,16 @@ const useMinuteClock = () => {
   return [now, setNow] as const;
 };
 
-const DefaultScheduleDateInput = ({
-  label,
-  max,
-  min,
-  onChange,
-  value,
-}: ScheduleDateInputProps) => {
-  const { t } = useTranslationContext();
-  const { IconCalendar, IconCaretDown } = useComponentContextIcons();
-  const selectedDate = fromInputValues(value);
-  return (
-    <TextInput
-      className='str-chat__schedule-message-dialog__date'
-      label={label}
-      leading={
-        <>
-          <IconCalendar />
-          <span aria-hidden className='str-chat__schedule-message-dialog__date-value'>
-            {selectedDate && t('timestamp.ScheduleDate', { timestamp: selectedDate })}
-          </span>
-        </>
-      }
-      max={max}
-      min={min}
-      onChange={({ target }) => onChange(target.value)}
-      required
-      trailing={<IconCaretDown />}
-      type='date'
-      value={value}
-    />
-  );
-};
+const NATIVE_PICKER_INPUT_SELECTOR = 'input[type="date"], input[type="time"]';
 
-const DefaultScheduleTimeInput = ({ label, onChange, value }: ScheduleTimeInputProps) => {
-  const { IconCaretDown, IconClock } = useComponentContextIcons();
-  return (
-    <TextInput
-      className='str-chat__schedule-message-dialog__time'
-      label={label}
-      leading={<IconClock />}
-      onChange={({ target }) => onChange(target.value)}
-      required
-      trailing={<IconCaretDown />}
-      type='time'
-      value={value}
-    />
-  );
-};
-
-/** A click anywhere in a field, its icons included, opens the field's picker. */
 const openNativePicker = ({ target }: MouseEvent<HTMLElement>) => {
   const input = (target as Element)
     .closest('.str-chat__form-text-input__wrapper')
-    ?.querySelector('input');
+    ?.querySelector<HTMLInputElement>(NATIVE_PICKER_INPUT_SELECTOR);
   try {
     input?.showPicker?.();
   } catch {
-    // not allowed outside a user gesture in some browsers
+    return;
   }
 };
 
@@ -136,18 +85,20 @@ const openNativePicker = ({ target }: MouseEvent<HTMLElement>) => {
 export const ScheduleTimeDialog = ({
   channel,
   close,
-  DateInput = DefaultScheduleDateInput,
   errorMessage,
   initialScheduledAt,
   previewLabel,
   previewMessage,
   submit,
   submitLabel,
-  TimeInput = DefaultScheduleTimeInput,
   title,
   tooSoonMessage,
 }: ScheduleTimeDialogProps) => {
   const { t } = useTranslationContext();
+  const {
+    ScheduleDateInput = DefaultScheduleDateInput,
+    ScheduleTimeInput = DefaultScheduleTimeInput,
+  } = useComponentContext();
   const channelDisplayName = useChannelDisplayName(channel);
   const isOnline = useWSConnectionState()?.isHealthy ?? false;
   const isMounted = useIsMounted();
@@ -225,14 +176,14 @@ export const ScheduleTimeDialog = ({
           className='str-chat__schedule-message-dialog__fields'
           onClick={openNativePicker}
         >
-          <DateInput
+          <ScheduleDateInput
             label={t('scheduledMessages.date', 'Date')}
             max={bounds.latest && toDateInputValue(bounds.latest)}
             min={toDateInputValue(bounds.earliest)}
             onChange={changeField(setDateValue)}
             value={dateValue}
           />
-          <TimeInput
+          <ScheduleTimeInput
             label={t('scheduledMessages.time', 'Time')}
             onChange={changeField(setTimeValue)}
             value={timeValue}

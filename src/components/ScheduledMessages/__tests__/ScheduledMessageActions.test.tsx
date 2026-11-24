@@ -38,6 +38,7 @@ import { ScheduledMessageItem } from '../ScheduledMessageItem';
 import type { ScheduledMessageItemProps } from '../ScheduledMessageItem';
 import { defaultScheduledMessageActionSet } from '../ScheduledMessageActions';
 import type { ScheduledMessageActionSetItem } from '../ScheduledMessageActions';
+import type { ScheduledMessageDeleteAlertProps } from '../ScheduledMessageDeleteAlert';
 import { enterDate, enterTime, getDateField, getTimeField } from './scheduleTimeFields';
 
 type OpenInComposer = NonNullable<ScheduledMessageItemProps['openInComposer']>;
@@ -305,6 +306,31 @@ describe('ScheduledMessageActions', () => {
 
     await act(() => fireEvent.click(screen.getByRole('button', { name: 'Delete' })));
 
+    expect(deleteScheduledMessage).toHaveBeenCalledWith(scheduledMessage.id);
+  });
+
+  it('asks with the ScheduledMessageDeleteAlert slot', async () => {
+    const CustomDeleteAlert = ({
+      channelName,
+      onDelete,
+    }: ScheduledMessageDeleteAlertProps) => (
+      <button onClick={onDelete} type='button'>
+        Remove from {channelName ?? 'channel'}
+      </button>
+    );
+    const { client, scheduledMessage } = await renderActions({
+      components: { ScheduledMessageDeleteAlert: CustomDeleteAlert },
+    });
+    const deleteScheduledMessage = vi
+      .spyOn(getChannel(client), 'deleteScheduledMessage')
+      .mockResolvedValue(scheduledMessage);
+
+    await selectAction('delete');
+    await act(() => fireEvent.click(screen.getByRole('button', { name: /Remove from/ })));
+
+    expect(
+      screen.queryByTestId('delete-scheduled-message-alert'),
+    ).not.toBeInTheDocument();
     expect(deleteScheduledMessage).toHaveBeenCalledWith(scheduledMessage.id);
   });
 

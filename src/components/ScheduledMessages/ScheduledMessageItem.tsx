@@ -10,15 +10,9 @@ import {
   useTranslationContext,
 } from '../../context';
 import { ChannelAvatar } from '../Avatar';
-import { Button } from '../Button';
 import { useIsMounted } from '../Channel/hooks/useIsMounted';
 import { useChannelPreviewInfo } from '../ChannelListItem/hooks/useChannelPreviewInfo';
-import {
-  Alert,
-  ContextMenu,
-  useDialogIsOpen,
-  useDialogOnNearestManager,
-} from '../Dialog';
+import { ContextMenu, useDialogIsOpen, useDialogOnNearestManager } from '../Dialog';
 import { useSplitActionSet } from '../Chat/hooks/useSplitActionSet';
 import { GlobalModal } from '../Modal';
 import { useNotificationApi } from '../Notifications';
@@ -29,6 +23,7 @@ import { VisuallyHidden } from '../VisuallyHidden';
 import { SCHEDULE_MESSAGE_CAPABILITY } from './hooks';
 import { useScheduledMessagePreview } from './hooks/useScheduledMessagePreview';
 import { useRescheduleDialogProps } from './hooks/useRescheduleDialogProps';
+import { ScheduledMessageDeleteAlert as DefaultScheduledMessageDeleteAlert } from './ScheduledMessageDeleteAlert';
 import { ScheduleTimeDialog as DefaultScheduleTimeDialog } from './ScheduleTimeDialog';
 import {
   defaultScheduledMessageActionSet,
@@ -75,8 +70,11 @@ export const ScheduledMessageItem = ({
   const { t } = useTranslationContext();
   const { client } = useChatContext();
   const { IconExclamationTriangleFill, IconLoading } = useComponentContextIcons();
-  const { Modal = GlobalModal, ScheduleTimeDialog = DefaultScheduleTimeDialog } =
-    useComponentContext();
+  const {
+    Modal = GlobalModal,
+    ScheduledMessageDeleteAlert = DefaultScheduledMessageDeleteAlert,
+    ScheduleTimeDialog = DefaultScheduleTimeDialog,
+  } = useComponentContext();
   const { addNotification } = useNotificationApi();
   const isMounted = useIsMounted();
 
@@ -243,48 +241,12 @@ export const ScheduledMessageItem = ({
         role='alertdialog'
       >
         {openDialog === 'delete' && (
-          <Alert.Root
-            className='str-chat__delete-scheduled-message-alert'
-            data-testid='delete-scheduled-message-alert'
-          >
-            <Alert.Header
-              description={
-                displayTitle
-                  ? t(
-                      'scheduledMessages.thisMessageToNameWontBeSentThis',
-                      "This message to {{ name }} won't be sent. This can't be undone.",
-                      { name: displayTitle },
-                    )
-                  : t(
-                      'scheduledMessages.thisMessageWontBeSentThisCantBe',
-                      "This message won't be sent. This can't be undone.",
-                    )
-              }
-              title={t(
-                'scheduledMessages.deleteScheduledMessage',
-                'Delete scheduled message?',
-              )}
-            />
-            <Alert.Actions>
-              <Button
-                appearance='solid'
-                onClick={deleteScheduledMessage}
-                size='md'
-                variant='danger'
-              >
-                {t('scheduledMessages.delete', 'Delete')}
-              </Button>
-              <Button
-                appearance='outline'
-                autoFocus
-                onClick={closeDialog}
-                size='md'
-                variant='secondary'
-              >
-                {t('scheduledMessages.cancel', 'Cancel')}
-              </Button>
-            </Alert.Actions>
-          </Alert.Root>
+          <ScheduledMessageDeleteAlert
+            channelName={displayTitle}
+            onCancel={closeDialog}
+            onDelete={deleteScheduledMessage}
+            scheduledMessage={scheduledMessage}
+          />
         )}
       </Modal>
     </div>

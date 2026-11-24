@@ -82,11 +82,14 @@ import type { TypingIndicatorProps } from '../components/TypingIndicator';
 import type { AttachmentUploadProgressIndicatorProps } from '../components/Attachment/components/AttachmentUploadProgressIndicator';
 import type { IconSlots } from '../components/Icons/slots';
 import type {
+  ScheduleDateInputProps,
+  ScheduledMessageDeleteAlertProps,
   ScheduledMessageItemProps,
   ScheduledMessageListDialogProps,
   ScheduledMessageListProps,
   ScheduledMessagePreviewProps,
   ScheduleTimeDialogProps,
+  ScheduleTimeInputProps,
 } from '../components/ScheduledMessages';
 
 export type ComponentContextValue = {
@@ -382,6 +385,8 @@ export type ComponentContextValue = {
   RecordingPermissionDeniedNotification?: React.ComponentType<RecordingPermissionDeniedNotificationProps>;
   /** Message reminder information in the message UI. */
   ReminderNotification?: React.ComponentType<ReminderNotificationProps>;
+  /** Asks before a scheduled message is deleted, from its list item. */
+  ScheduledMessageDeleteAlert?: React.ComponentType<ScheduledMessageDeleteAlertProps>;
   /** One item of `ScheduledMessageList`. */
   ScheduledMessageItem?: React.ComponentType<ScheduledMessageItemProps>;
   /** Scheduled messages in the banner's dialog and the Channel Detail section. */
@@ -397,11 +402,15 @@ export type ComponentContextValue = {
   ScheduledMessagesBanner?: React.ComponentType | null;
   /** Schedule button next to the send button; `null` hides it. */
   ScheduleMessageButton?: React.ComponentType | null;
+  /** The date field of `ScheduleTimeDialog`; the browser's date picker by default. */
+  ScheduleDateInput?: React.ComponentType<ScheduleDateInputProps>;
   /**
-   * The dialog for picking a custom time, opened by the schedule button and by rescheduling. To
-   * replace only its date or time field, render the default with `DateInput` or `TimeInput`.
+   * The dialog for picking a custom time, opened by the schedule button and by rescheduling. Its
+   * date and time fields are the `ScheduleDateInput` and `ScheduleTimeInput` slots.
    */
   ScheduleTimeDialog?: React.ComponentType<ScheduleTimeDialogProps>;
+  /** The time field of `ScheduleTimeDialog`; the browser's time picker by default. */
+  ScheduleTimeInput?: React.ComponentType<ScheduleTimeInputProps>;
   /** Translation indicator, shown when the message has `i18n`. */
   MessageTranslationIndicator?: React.ComponentType<TranslationIndicatorProps>;
   /**
