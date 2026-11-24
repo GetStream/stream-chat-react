@@ -18,24 +18,27 @@ import { useChannelCapabilities } from '../Channel/hooks/useChannelCapabilities'
 import { useMessageComposerController } from '../MessageComposer/hooks/useMessageComposerController';
 import { SCHEDULE_MESSAGE_CAPABILITY, useChannelScheduledMessages } from './hooks';
 import { ScheduledMessageListDialog as DefaultScheduledMessageListDialog } from './ScheduledMessageListDialog';
+import { useChannelScheduledMessageLimit } from './hooks/useChannelScheduledMessageLimit';
 import { isFailedScheduledMessage } from './utils';
 
 const selectIsLoaded = ({ items }: PaginatorState<ScheduledMessageResponse>) => ({
   isLoaded: items !== undefined,
 });
 
-// hidden for a failed scheduled message open in the composer too
 const selectIsEditing = ({
   editedMessage,
   editedScheduledMessage,
 }: MessageComposerState) => ({
-  isEditing: !!editedMessage || !!editedScheduledMessage,
+  isEditing:
+    !!editedMessage ||
+    (!!editedScheduledMessage && isFailedScheduledMessage(editedScheduledMessage)),
 });
 
 /**
  * Above the composer: when the only scheduled message in the channel (or thread) is sent, how many
  * are scheduled, or how many failed. "View all" opens the `ScheduledMessageListDialog` slot. Hidden
- * while the composer edits a message; its changes are announced to screen readers.
+ * while the composer edits a sent message or a failed scheduled one; its changes are announced to
+ * screen readers.
  */
 export const ScheduledMessagesBanner = () => {
   const { t } = useTranslationContext();
@@ -54,6 +57,7 @@ export const ScheduledMessagesBanner = () => {
     SCHEDULE_MESSAGE_CAPABILITY,
   );
   const { scheduledMessages } = useChannelScheduledMessages(view);
+  const { pendingCount, reachedLimit } = useChannelScheduledMessageLimit(channel);
   const { isLoaded } = useStateStore(view.paginator.state, selectIsLoaded);
   const { isEditing } = useStateStore(messageComposer.state, selectIsEditing);
   const announce = useAriaLiveAnnouncer();
@@ -71,23 +75,30 @@ export const ScheduledMessagesBanner = () => {
         defaultValue_one: '{{ count }} failed to send',
         defaultValue_other: '{{ count }} failed to send',
       })
-    : onlyScheduledMessage
-      ? t('scheduledMessages.banner.scheduledFor', 'Scheduled for {{ time }}', {
-          time: t('timestamp.ScheduledMessageConfirmation', {
-            timestamp: nsToDate(onlyScheduledMessage.scheduled_at),
-          }),
+    : reachedLimit !== undefined && !parentId
+      ? t('scheduledMessages.banner.limitReached', {
+          count: reachedLimit,
+          defaultValue_one: '{{ scheduled }} of {{ count }} scheduled message',
+          defaultValue_other: '{{ scheduled }} of {{ count }} scheduled messages',
+          scheduled: pendingCount,
         })
-      : parentId
-        ? t('scheduledMessages.banner.scheduledReplies', {
-            count: scheduledMessages.length,
-            defaultValue_one: '{{ count }} scheduled reply',
-            defaultValue_other: '{{ count }} scheduled replies',
+      : onlyScheduledMessage
+        ? t('scheduledMessages.banner.scheduledFor', 'Scheduled for {{ time }}', {
+            time: t('timestamp.ScheduledMessageConfirmation', {
+              timestamp: nsToDate(onlyScheduledMessage.scheduled_at),
+            }),
           })
-        : t('scheduledMessages.banner.scheduledMessages', {
-            count: scheduledMessages.length,
-            defaultValue_one: '{{ count }} scheduled message',
-            defaultValue_other: '{{ count }} scheduled messages',
-          });
+        : parentId
+          ? t('scheduledMessages.banner.scheduledReplies', {
+              count: scheduledMessages.length,
+              defaultValue_one: '{{ count }} scheduled reply',
+              defaultValue_other: '{{ count }} scheduled replies',
+            })
+          : t('scheduledMessages.banner.scheduledMessages', {
+              count: scheduledMessages.length,
+              defaultValue_one: '{{ count }} scheduled message',
+              defaultValue_other: '{{ count }} scheduled messages',
+            });
   const announcedLabel = isVisible ? label : undefined;
 
   // a change, such as a message just scheduled or failed; not the banner the list loaded with

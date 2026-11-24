@@ -30,6 +30,7 @@ export const SCHEDULED_MESSAGE_NOTIFICATION_TYPE = {
   deleteFailed: 'api:scheduled-message:delete:failed',
   sendNowFailed: 'api:scheduled-message:send-now:failed',
   sendNowSucceeded: 'api:scheduled-message:send-now:success',
+  sentNow: 'api:scheduled-message:create:sent-now',
 } as const;
 
 export const SCHEDULED_MESSAGES_EMITTER = 'ScheduledMessages';
@@ -50,6 +51,20 @@ export const getScheduleTimeDialogId = ({
 
 export const isFailedScheduledMessage = ({ status }: ScheduledMessageResponse) =>
   status === SCHEDULED_MESSAGE_STATUS.Failed;
+
+export const countPendingScheduledMessages = (
+  scheduledMessages: ScheduledMessageResponse[] = [],
+) => {
+  const pendingCount = scheduledMessages.filter(
+    ({ status }) => status === SCHEDULED_MESSAGE_STATUS.Scheduled,
+  ).length;
+  return pendingCount;
+};
+
+export const isScheduledMessageLimitReached = (
+  pendingCount: number,
+  maxPerChannel?: number,
+) => maxPerChannel !== undefined && pendingCount >= maxPerChannel;
 
 /** A channel's list holds its replies too: a thread keeps its own, a channel its top-level ones. */
 /** The default search: the text contains the query, ignoring case; a blank query matches all. */

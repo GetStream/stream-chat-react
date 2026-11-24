@@ -95,6 +95,26 @@ const DefaultEmptyListIndicator = () => {
   );
 };
 
+const FIRST_PAGE_LOADING_ROW_COUNT = 6;
+
+const loadingRowKeys = Array.from(
+  { length: FIRST_PAGE_LOADING_ROW_COUNT },
+  (_, index) => `scheduled-message-loading-row-${index}`,
+);
+
+const ScheduledMessageLoadingRow = () => (
+  <div className='str-chat__scheduled-message-list-loading__row'>
+    <div className='str-chat__scheduled-message-list-loading__time' />
+    <div className='str-chat__scheduled-message-list-loading__body'>
+      <div className='str-chat__scheduled-message-list-loading__avatar' />
+      <div className='str-chat__scheduled-message-list-loading__lines'>
+        <div className='str-chat__scheduled-message-list-loading__channel-name' />
+        <div className='str-chat__scheduled-message-list-loading__text' />
+      </div>
+    </div>
+  </div>
+);
+
 const DefaultFirstPageLoadingIndicator = () => {
   const { t } = useTranslationContext();
   return (
@@ -106,7 +126,9 @@ const DefaultFirstPageLoadingIndicator = () => {
       className='str-chat__scheduled-message-list-loading'
       role='status'
     >
-      <LoadingIndicator />
+      {loadingRowKeys.map((key) => (
+        <ScheduledMessageLoadingRow key={key} />
+      ))}
     </div>
   );
 };

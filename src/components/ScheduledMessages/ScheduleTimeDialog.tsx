@@ -216,14 +216,6 @@ export const ScheduleTimeDialog = ({
           className='str-chat__schedule-message-dialog__preview'
           quotedMessage={previewMessage}
         />
-        {!isOnline && (
-          <ScheduledMessagesNotice>
-            {t(
-              'scheduledMessages.youreOfflineReconnectToScheduleThisMessage',
-              "You're offline. Reconnect to schedule this message.",
-            )}
-          </ScheduledMessagesNotice>
-        )}
         {status === 'failed' && (
           <ScheduledMessagesNotice isError>
             {translateScheduledMessageError(t, submitError) ?? errorMessage}

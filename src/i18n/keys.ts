@@ -625,6 +625,8 @@ export type TranslationCatalog = {
   'reactions.messageReactionsDetail.tapRemove.text': 'Tap to remove';
   'scheduledMessages.banner.failedToSend_one': '{{ count }} failed to send';
   'scheduledMessages.banner.failedToSend_other': '{{ count }} failed to send';
+  'scheduledMessages.banner.limitReached_one': '{{ scheduled }} of {{ count }} scheduled message';
+  'scheduledMessages.banner.limitReached_other': '{{ scheduled }} of {{ count }} scheduled messages';
   'scheduledMessages.banner.scheduledFor': 'Scheduled for {{ time }}';
   'scheduledMessages.banner.scheduledMessages_one': '{{ count }} scheduled message';
   'scheduledMessages.banner.scheduledMessages_other': '{{ count }} scheduled messages';
@@ -632,7 +634,6 @@ export type TranslationCatalog = {
   'scheduledMessages.banner.scheduledReplies_other': '{{ count }} scheduled replies';
   'scheduledMessages.blockedByModeration': 'Blocked by moderation';
   'scheduledMessages.cancel': 'Cancel';
-  'scheduledMessages.cancelEditing.ariaLabel': 'Cancel editing';
   'scheduledMessages.cantSendInThisChannel': "Unavailable: you can't send messages in this channel";
   'scheduledMessages.channelFrozenNotice': "This channel is frozen. Scheduled messages won't be sent";
   'scheduledMessages.chooseALaterTime': 'Choose a later time';
@@ -652,6 +653,8 @@ export type TranslationCatalog = {
   'scheduledMessages.deleteScheduledMessage': 'Delete scheduled message?';
   'scheduledMessages.edit': 'Edit';
   'scheduledMessages.editReschedule': 'Edit & reschedule';
+  'scheduledMessages.editScheduledMessage': 'Edit scheduled message';
+  'scheduledMessages.limitReachedMax': 'Limit reached ({{ max }} max)';
   'scheduledMessages.loaded': 'Scheduled messages loaded';
   'scheduledMessages.loadingScheduledMessages': 'Loading scheduled messages';
   'scheduledMessages.messageToName': 'Message to {{ name }}';
@@ -668,6 +671,7 @@ export type TranslationCatalog = {
   'scheduledMessages.notification.forbidden': "You can't schedule messages here";
   'scheduledMessages.notification.notEditable': "Failed messages can't be edited";
   'scheduledMessages.notification.sending': 'This message is being sent';
+  'scheduledMessages.notification.sentNow': 'Time passed. Message sent now';
   'scheduledMessages.notification.updateFailed': "Couldn't update the scheduled message. Try again";
   'scheduledMessages.notification.userLimit': "You've reached the limit of scheduled messages";
   'scheduledMessages.openScheduleMessageMenu.ariaLabel': 'Open schedule message menu';
@@ -697,14 +701,12 @@ export type TranslationCatalog = {
   'scheduledMessages.thisChannelNowNeedsApprovalScheduleItAgain': 'This channel now needs approval. Schedule it again';
   'scheduledMessages.thisChannelWasDeleted': 'This channel was deleted';
   'scheduledMessages.thisMessageToNameWontBeSentThis': "This message to {{ name }} won't be sent. This can't be undone.";
-  'scheduledMessages.thisMessageWillBeSentTime': 'This message will be sent {{ time }}';
   'scheduledMessages.thisMessageWontBeSentThisCantBe': "This message won't be sent. This can't be undone.";
   'scheduledMessages.time': 'Time';
   'scheduledMessages.view': 'View';
   'scheduledMessages.viewAll': 'View all';
   'scheduledMessages.youCantSendMessagesInThisChannel': "You can't send messages in this channel";
   'scheduledMessages.youreNoLongerAllowedToPostHere': "You're no longer allowed to post here";
-  'scheduledMessages.youreOfflineReconnectToScheduleThisMessage': "You're offline. Reconnect to schedule this message.";
   'search.bar.clearSearch.ariaLabel': 'Clear search';
   'search.bar.exitSearch.ariaLabel': 'Exit search';
   'search.resultItem.selectUserChannel.ariaLabel': 'Select User Channel: {{ name }}';

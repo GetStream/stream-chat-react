@@ -38,6 +38,7 @@ import { ScheduledMessageItem } from '../ScheduledMessageItem';
 import type { ScheduledMessageItemProps } from '../ScheduledMessageItem';
 import { defaultScheduledMessageActionSet } from '../ScheduledMessageActions';
 import type { ScheduledMessageActionSetItem } from '../ScheduledMessageActions';
+import { enterDate, enterTime, getDateField, getTimeField } from './scheduleTimeFields';
 
 type OpenInComposer = NonNullable<ScheduledMessageItemProps['openInComposer']>;
 
@@ -332,10 +333,10 @@ describe('ScheduledMessageActions', () => {
 
     expect(dialog).toHaveTextContent('Reschedule message');
     expect(dialog).toHaveTextContent('Scheduled for Thu, Oct 29 at 09:00');
-    expect(screen.getByLabelText('Date')).toHaveValue('2026-10-29');
-    expect(screen.getByLabelText('Time')).toHaveValue('09:00');
+    expect(getDateField()).toHaveValue('2026-10-29');
+    expect(getTimeField()).toHaveValue('09:00');
 
-    fireEvent.change(screen.getByLabelText('Time'), { target: { value: '14:30' } });
+    enterTime('14:30');
     await act(() => fireEvent.click(screen.getByRole('button', { name: 'Save' })));
 
     expect(updateScheduledMessage).toHaveBeenCalledWith(scheduledMessage.id, {
@@ -373,7 +374,7 @@ describe('ScheduledMessageActions', () => {
     await act(() => fireEvent.click(screen.getByRole('button', { name: 'Save' })));
     expect(await screen.findByText('Already sent')).toBeInTheDocument();
 
-    fireEvent.change(screen.getByLabelText('Time'), { target: { value: '14:30' } });
+    enterTime('14:30');
 
     expect(screen.queryByText('Already sent')).not.toBeInTheDocument();
   });
@@ -418,8 +419,8 @@ describe('ScheduledMessageActions', () => {
 
     await selectAction('reschedule');
     const dialog = await screen.findByTestId('schedule-message-dialog');
-    fireEvent.change(screen.getByLabelText('Time'), { target: { value: '00:00' } });
-    fireEvent.change(screen.getByLabelText('Date'), { target: { value: '2020-01-01' } });
+    enterDate('2026-10-28');
+    enterTime('00:00');
 
     expect(within(dialog).getByRole('alert')).toHaveTextContent(
       "Pick a later time. Editing can't send a message right away.",

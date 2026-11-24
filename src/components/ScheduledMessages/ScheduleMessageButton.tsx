@@ -6,7 +6,7 @@ import {
   ScheduledMessageErrorReason,
   toScheduledMessagePreview,
 } from 'stream-chat';
-import type { LocalMessage, UserResponse } from 'stream-chat';
+import type { LocalMessage, MessageComposer, UserResponse } from 'stream-chat';
 
 import {
   useChatContext,
@@ -26,12 +26,16 @@ import {
 import { useMessageComposerHasSendableData } from '../MessageComposer/hooks';
 import { useMessageComposerController } from '../MessageComposer/hooks/useMessageComposerController';
 import { GlobalModal } from '../Modal';
+import { useNotificationApi } from '../Notifications';
 import { Portal } from '../Portal/Portal';
+import { useChannelScheduledMessageLimit } from './hooks/useChannelScheduledMessageLimit';
 import { ScheduleTimeDialog as DefaultScheduleTimeDialog } from './ScheduleTimeDialog';
 import {
   getSchedulePresets,
   getScheduleTimeBounds,
   getScheduleTimeDialogId,
+  SCHEDULED_MESSAGE_NOTIFICATION_TYPE,
+  SCHEDULED_MESSAGES_EMITTER,
 } from './utils';
 
 const getChannelContainer = () => document.getElementById(CHANNEL_CONTAINER_ID);
@@ -42,11 +46,31 @@ const SCHEDULING_FAILURE_NOTIFICATION_TYPES: ReadonlySet<string> = new Set([
   CORE_NOTIFICATION_TYPE.scheduledMessageCreateFailed,
 ]);
 
+const getScheduleMessageMenuId = ({ threadId }: Pick<MessageComposer, 'threadId'>) =>
+  `schedule-message-menu${threadId ? '-thread' : ''}`;
+
+const getScheduleMessageMenuHeaderId = (
+  messageComposer: Pick<MessageComposer, 'threadId'>,
+) => `${getScheduleMessageMenuId(messageComposer)}-header`;
+
 const ScheduleMessageMenuHeader = () => {
   const { t } = useTranslationContext();
+  const messageComposer = useMessageComposerController();
+  const { reachedLimit } = useChannelScheduledMessageLimit(messageComposer.channel);
+
+  const title =
+    reachedLimit !== undefined
+      ? t('scheduledMessages.limitReachedMax', 'Limit reached ({{ max }} max)', {
+          max: reachedLimit,
+        })
+      : t('scheduledMessages.scheduleMessage', 'Schedule message');
+
   return (
-    <ContextMenuHeader className='str-chat__schedule-message-menu__header'>
-      {t('scheduledMessages.scheduleMessage', 'Schedule message')}
+    <ContextMenuHeader
+      className='str-chat__schedule-message-menu__header'
+      id={getScheduleMessageMenuHeaderId(messageComposer)}
+    >
+      {title}
     </ContextMenuHeader>
   );
 };
@@ -64,10 +88,19 @@ export const ScheduleMessageButton = () => {
     Modal = GlobalModal,
     ScheduleTimeDialog = DefaultScheduleTimeDialog,
   } = useComponentContext();
+  const { addNotification } = useNotificationApi();
   const messageComposer = useMessageComposerController();
   const hasSendableData = useMessageComposerHasSendableData();
 
-  const menuId = `schedule-message-menu${messageComposer.threadId ? '-thread' : ''}`;
+  const { reachedLimit } = useChannelScheduledMessageLimit(messageComposer.channel);
+  const isLimitReached = reachedLimit !== undefined;
+  const menuId = getScheduleMessageMenuId(messageComposer);
+  const limitReachedProps = isLimitReached
+    ? {
+        'aria-describedby': getScheduleMessageMenuHeaderId(messageComposer),
+        'aria-disabled': true as const,
+      }
+    : undefined;
   const { dialog: menu, dialogManager } = useDialogOnNearestManager({ id: menuId });
   const isMenuOpen = useDialogIsOpen(menuId, dialogManager?.id);
   const buttonRef = useRef<HTMLButtonElement>(null);
@@ -77,14 +110,26 @@ export const ScheduleMessageButton = () => {
   const scheduleMessage = useCallback(
     async (scheduledAt: Date) => {
       const { error, status } = await messageComposer.scheduleMessage(scheduledAt);
-      if (status === 'scheduled' || status === 'sent') return;
+      if (status === 'sent') {
+        addNotification({
+          emitter: SCHEDULED_MESSAGES_EMITTER,
+          message: t(
+            'scheduledMessages.notification.sentNow',
+            'Time passed. Message sent now',
+          ),
+          severity: 'success',
+          type: SCHEDULED_MESSAGE_NOTIFICATION_TYPE.sentNow,
+        });
+        return;
+      }
+      if (status === 'scheduled') return;
       // the server keeps the ID of a message it scheduled; the next attempt needs a new one
       if (getScheduledMessageErrorReason(error) === ScheduledMessageErrorReason.IdTaken) {
         messageComposer.refreshId();
       }
       throw error ?? new Error(`Message not scheduled: ${status}`);
     },
-    [messageComposer],
+    [addNotification, messageComposer, t],
   );
 
   // the dialog shows the failure itself, so the composer's notification of it is dropped
@@ -185,7 +230,9 @@ export const ScheduleMessageButton = () => {
               className='str-chat__schedule-message-menu__preset'
               Icon={IconClock}
               key={scheduledAt.getTime()}
+              {...limitReachedProps}
               onClick={() => {
+                if (isLimitReached) return;
                 menu.close();
                 scheduleMessage(scheduledAt).catch(() => undefined);
               }}
@@ -199,7 +246,10 @@ export const ScheduleMessageButton = () => {
           className='str-chat__schedule-message-menu__custom-time'
           hasSubMenu
           Icon={IconClock}
-          onClick={openDialog}
+          {...limitReachedProps}
+          onClick={() => {
+            if (!isLimitReached) openDialog();
+          }}
         >
           {t('scheduledMessages.customTime', 'Custom time')}
         </ContextMenuButton>

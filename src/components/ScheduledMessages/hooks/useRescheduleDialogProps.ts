@@ -8,8 +8,6 @@ import { splitCid } from '../utils';
 export type UseRescheduleDialogPropsParams = {
   previewMessage: LocalMessage;
   scheduledMessage: ScheduledMessageResponse;
-  /** Called with the server's copy once the new time is saved. */
-  onRescheduled?: (scheduledMessage: ScheduledMessageResponse) => void;
 };
 
 /**
@@ -17,7 +15,6 @@ export type UseRescheduleDialogPropsParams = {
  * time. The caller adds `channel` and `close`.
  */
 export const useRescheduleDialogProps = ({
-  onRescheduled,
   previewMessage,
   scheduledMessage,
 }: UseRescheduleDialogPropsParams): Omit<
@@ -40,10 +37,9 @@ export const useRescheduleDialogProps = ({
     previewMessage,
     // a failure keeps the dialog open, showing it
     submit: async (scheduledAt: Date) => {
-      const updated = await client
+      await client
         .channel(...splitCid(scheduledMessage.cid))
         .updateScheduledMessage(scheduledMessage.id, { scheduled_at: scheduledAt });
-      onRescheduled?.(updated);
     },
     submitLabel: t('scheduledMessages.save', 'Save'),
     title: t('scheduledMessages.rescheduleMessage', 'Reschedule message'),

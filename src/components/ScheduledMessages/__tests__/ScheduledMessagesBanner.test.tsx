@@ -157,6 +157,29 @@ describe('ScheduledMessagesBanner', () => {
     expect(queryBanner()).toHaveTextContent('2 scheduled messages');
   });
 
+  it('shows the limit once the channel holds as many as it allows, replies included', async () => {
+    await renderComposer({
+      scheduledMessages: [
+        ...Array.from({ length: 9 }, () => generateScheduledMessage({ cid })),
+        threadReply(),
+      ],
+    });
+
+    expect(queryBanner()).toHaveTextContent('10 of 10 scheduled messages');
+  });
+
+  it('keeps counting replies in a thread when the channel is at its limit', async () => {
+    await renderComposer({
+      inThread: true,
+      scheduledMessages: [
+        ...Array.from({ length: 9 }, () => generateScheduledMessage({ cid })),
+        threadReply(),
+      ],
+    });
+
+    expect(queryBanner()).toHaveTextContent('Scheduled for');
+  });
+
   it('shows when the only scheduled message is sent, with View', async () => {
     await renderComposer({
       scheduledMessages: [generateScheduledMessage({ cid, scheduled_at: ON_JANUARY_15 })],
@@ -166,11 +189,20 @@ describe('ScheduledMessagesBanner', () => {
     expect(screen.getByRole('button', { name: 'View' })).toBeInTheDocument();
   });
 
-  it('is hidden while the composer edits a scheduled message', async () => {
+  it('stays while the composer edits a scheduled message', async () => {
     const scheduledMessage = generateScheduledMessage({ cid });
     const { channel } = await renderComposer({ scheduledMessages: [scheduledMessage] });
 
     await act(() => channel.messageComposer.editScheduledMessage(scheduledMessage));
+
+    expect(queryBanner()).toBeInTheDocument();
+  });
+
+  it('is hidden while the composer schedules a failed message again', async () => {
+    const failedMessage = generateScheduledMessage({ cid, status: 'failed' });
+    const { channel } = await renderComposer({ scheduledMessages: [failedMessage] });
+
+    await act(() => channel.messageComposer.editScheduledMessage(failedMessage));
 
     expect(queryBanner()).not.toBeInTheDocument();
   });

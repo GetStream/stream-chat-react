@@ -202,9 +202,12 @@ describe('ScheduledMessageList', () => {
     setPaginatorState(client, { isLoading: true, items: undefined });
 
     expect(screen.queryByText('No scheduled messages')).not.toBeInTheDocument();
+    const loadingState = screen.getByRole('status', {
+      name: 'Loading scheduled messages',
+    });
     expect(
-      screen.getByRole('status', { name: 'Loading scheduled messages' }),
-    ).toBeInTheDocument();
+      loadingState.querySelectorAll('.str-chat__scheduled-message-list-loading__row'),
+    ).toHaveLength(6);
   });
 
   it('shows the empty state while a later reload runs', async () => {

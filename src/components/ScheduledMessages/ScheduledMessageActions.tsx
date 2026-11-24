@@ -266,14 +266,14 @@ const QuickEdit = () => {
 
 const DropdownEdit = () => {
   const { t } = useTranslationContext();
-  const { IconEdit } = useComponentContextIcons();
+  const { IconClock } = useComponentContextIcons();
   const { closeMenu } = useContextMenuContext();
   const { canEdit } = useScheduledMessageActionsContext();
   const { edit, unavailableProps } = useEditActionProps();
   return (
     <ContextMenuButton
       data-testid='scheduled-message-action-edit'
-      Icon={IconEdit}
+      Icon={IconClock}
       {...unavailableProps}
       onClick={() => {
         if (!canEdit) return;

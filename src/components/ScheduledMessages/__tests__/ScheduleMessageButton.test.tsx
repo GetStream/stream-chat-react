@@ -24,6 +24,7 @@ import { Chat } from '../../Chat';
 import { WithComponents } from '../../../context/WithComponents';
 import { MessageComposer } from '../../MessageComposer';
 import { ScheduleTimeDialog } from '../ScheduleTimeDialog';
+import { enterDate, enterTime, getDateField, getTimeField } from './scheduleTimeFields';
 import type {
   ScheduleDateInputProps,
   ScheduleTimeInputProps,
@@ -33,6 +34,7 @@ import {
   erroredScheduledMessageApi,
   generateScheduledMessage,
   generateUser,
+  hydrateScheduledMessages,
   initClientWithChannels,
   sendScheduledMessageApi,
   setWSConnectionStatus,
@@ -250,6 +252,24 @@ describe('ScheduleMessageButton', () => {
       expect(getNotifications(client)).toEqual([]);
     });
 
+    it('says so when the server sent the message at once, its time having passed', async () => {
+      const { channel, client } = await renderComposer();
+      mockSchedule(channel).mockResolvedValue({ status: 'sent' });
+
+      await openMenu();
+      await act(() => fireEvent.click(screen.getByText('Tomorrow at 09:00')));
+
+      await waitFor(() =>
+        expect(getNotifications(client)).toEqual([
+          expect.objectContaining({
+            message: 'Time passed. Message sent now',
+            severity: 'success',
+            type: 'api:scheduled-message:create:sent-now',
+          }),
+        ]),
+      );
+    });
+
     it('sends the composition with scheduled_at to the API', async () => {
       const { channel, client } = await renderComposer();
       const scheduledMessage = generateScheduledMessage({ cid: channel.cid });
@@ -317,6 +337,51 @@ describe('ScheduleMessageButton', () => {
       expect(channel.messageComposer.textComposer.text).toBe('Launch moved to Monday');
     });
 
+    it('disables every time once the channel holds as many as it allows', async () => {
+      const { channel, client } = await renderComposer();
+      const schedule = mockSchedule(channel);
+      await act(() =>
+        hydrateScheduledMessages(
+          client,
+          channel.cid,
+          Array.from({ length: 10 }, () =>
+            generateScheduledMessage({ cid: channel.cid }),
+          ),
+        ),
+      );
+
+      const menu = await openMenu();
+
+      expect(menu).toHaveTextContent('Limit reached (10 max)');
+      const items = within(menu).getAllByRole('menuitem');
+      expect(items).toHaveLength(4);
+      items.forEach((item) => expect(item).toHaveAttribute('aria-disabled', 'true'));
+      await act(() => fireEvent.click(screen.getByText('Tomorrow at 09:00')));
+      await act(() => fireEvent.click(screen.getByText('Custom time')));
+
+      expect(schedule).not.toHaveBeenCalled();
+      expect(screen.queryByTestId('schedule-message-dialog')).not.toBeInTheDocument();
+    });
+
+    it('does not count failed messages towards the limit', async () => {
+      const { channel, client } = await renderComposer();
+      await act(() =>
+        hydrateScheduledMessages(client, channel.cid, [
+          ...Array.from({ length: 9 }, () =>
+            generateScheduledMessage({ cid: channel.cid }),
+          ),
+          generateScheduledMessage({ cid: channel.cid, status: 'failed' }),
+        ]),
+      );
+
+      const menu = await openMenu();
+
+      expect(menu).toHaveTextContent('Schedule message');
+      within(menu)
+        .getAllByRole('menuitem')
+        .forEach((item) => expect(item).not.toHaveAttribute('aria-disabled'));
+    });
+
     it('has no axe violations', async () => {
       await renderComposer();
 
@@ -334,8 +399,8 @@ describe('ScheduleMessageButton', () => {
 
       expect(dialog).toHaveTextContent('Schedule message');
       expect(dialog).toHaveTextContent('Launch moved to Monday');
-      expect(screen.getByLabelText('Date')).toHaveValue('2026-10-28');
-      expect(screen.getByLabelText('Time')).toHaveValue('11:00');
+      expect(getDateField()).toHaveValue('2026-10-28');
+      expect(getTimeField()).toHaveValue('11:00');
       expect(dialog).toHaveTextContent('Sent in your time zone (GMT)');
       expect(screen.getByRole('button', { name: 'Schedule' })).toBeEnabled();
     });
@@ -344,9 +409,7 @@ describe('ScheduleMessageButton', () => {
       await renderComposer();
 
       const dialog = await openDialog();
-      fireEvent.change(screen.getByLabelText('Date'), {
-        target: { value: '2026-11-03' },
-      });
+      enterDate('2026-11-03');
 
       expect(
         dialog.querySelector('.str-chat__schedule-message-dialog__date-value'),
@@ -360,10 +423,8 @@ describe('ScheduleMessageButton', () => {
       );
 
       await openDialog();
-      fireEvent.change(screen.getByLabelText('Date'), {
-        target: { value: '2026-11-03' },
-      });
-      fireEvent.change(screen.getByLabelText('Time'), { target: { value: '16:45' } });
+      enterDate('2026-11-03');
+      enterTime('16:45');
       await act(() => fireEvent.click(screen.getByRole('button', { name: 'Schedule' })));
 
       expect(schedule).toHaveBeenCalledWith(new Date(2026, 10, 3, 16, 45));
@@ -376,7 +437,7 @@ describe('ScheduleMessageButton', () => {
       await renderComposer();
 
       await openDialog();
-      fireEvent.change(screen.getByLabelText('Time'), { target: { value: '10:31' } });
+      enterTime('10:31');
 
       expect(screen.getByText('Choose a later time')).toBeInTheDocument();
       expect(screen.getByRole('button', { name: 'Schedule' })).toBeDisabled();
@@ -386,12 +447,25 @@ describe('ScheduleMessageButton', () => {
       await renderComposer();
 
       await openDialog();
-      fireEvent.change(screen.getByLabelText('Date'), {
-        target: { value: '2027-06-01' },
-      });
+      enterDate('2027-06-01');
 
       expect(screen.getByText('Choose an earlier time')).toBeInTheDocument();
       expect(screen.getByRole('button', { name: 'Schedule' })).toBeDisabled();
+    });
+
+    it('opens the picker from anywhere in the field, its icons included', async () => {
+      await renderComposer();
+
+      const dialog = await openDialog();
+      const time = getTimeField() as HTMLInputElement;
+      const showPicker = vi.fn();
+      time.showPicker = showPicker;
+      const caret = time
+        .closest('.str-chat__form-text-input__wrapper')
+        ?.querySelector('.str-chat__form-text-input__trailing');
+      fireEvent.click(caret ?? dialog);
+
+      expect(showPicker).toHaveBeenCalledTimes(1);
     });
 
     it('keeps the dialog open and shows the error when scheduling fails', async () => {
@@ -483,37 +557,16 @@ describe('ScheduleMessageButton', () => {
       },
     );
 
-    it('opens the picker from anywhere in the field, its icons included', async () => {
-      await renderComposer();
-
-      const dialog = await openDialog();
-      const time = screen.getByLabelText('Time') as HTMLInputElement;
-      const showPicker = vi.fn();
-      time.showPicker = showPicker;
-      const caret = time
-        .closest('.str-chat__form-text-input__wrapper')
-        ?.querySelector('.str-chat__form-text-input__trailing');
-      fireEvent.click(caret ?? dialog);
-
-      expect(showPicker).toHaveBeenCalledTimes(1);
-    });
-
     it('disables Schedule while offline and enables it again on reconnect', async () => {
       const { client } = await renderComposer();
 
       await openDialog();
       await act(() => setWSConnectionStatus(client, false));
 
-      expect(
-        screen.getByText("You're offline. Reconnect to schedule this message."),
-      ).toBeInTheDocument();
       expect(screen.getByRole('button', { name: 'Schedule' })).toBeDisabled();
 
       await act(() => setWSConnectionStatus(client, true));
 
-      expect(
-        screen.queryByText("You're offline. Reconnect to schedule this message."),
-      ).not.toBeInTheDocument();
       expect(screen.getByRole('button', { name: 'Schedule' })).toBeEnabled();
     });
 
@@ -522,7 +575,7 @@ describe('ScheduleMessageButton', () => {
       const schedule = mockSchedule(channel);
 
       await openDialog();
-      fireEvent.change(screen.getByLabelText('Time'), { target: { value: '10:35' } });
+      enterTime('10:35');
       expect(screen.getByRole('button', { name: 'Schedule' })).toBeEnabled();
       // the dialog stayed open: 10:35 is now in the past and would be sent at once
       vi.setSystemTime(new Date(2026, 9, 28, 10, 40));

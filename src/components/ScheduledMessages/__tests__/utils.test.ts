@@ -3,6 +3,7 @@ import type { Channel, MessageComposer } from 'stream-chat';
 
 import { generateScheduledMessage } from '../../../mock-builders';
 import {
+  countPendingScheduledMessages,
   formatTimeZoneOffset,
   fromInputValues,
   getDefaultScheduledAt,
@@ -10,6 +11,7 @@ import {
   getScheduleTimeBounds,
   getScheduleTimeDialogId,
   getScheduleTimeError,
+  isScheduledMessageLimitReached,
   matchesScheduledMessageText,
   translateScheduledMessageFailureReason,
 } from '../utils';
@@ -35,6 +37,24 @@ describe('scheduled message utils', () => {
     expect(matchesScheduledMessageText(lunch, ' LUNCH ')).toBe(true);
     expect(matchesScheduledMessageText(launch, ' LUNCH ')).toBe(false);
     expect(matchesScheduledMessageText(launch, '  ')).toBe(true);
+  });
+
+  it('counts only the messages still waiting to be sent', () => {
+    const messages = [
+      generateScheduledMessage({ status: 'scheduled' }),
+      generateScheduledMessage({ status: 'scheduled' }),
+      generateScheduledMessage({ status: 'failed' }),
+      generateScheduledMessage({ status: 'sending' }),
+    ];
+
+    expect(countPendingScheduledMessages(messages)).toBe(2);
+    expect(countPendingScheduledMessages()).toBe(0);
+  });
+
+  it('reaches the limit at the channel maximum, and never without one', () => {
+    expect(isScheduledMessageLimitReached(10, 10)).toBe(true);
+    expect(isScheduledMessageLimitReached(9, 10)).toBe(false);
+    expect(isScheduledMessageLimitReached(100)).toBe(false);
   });
 
   describe('time bounds', () => {
