@@ -19,7 +19,7 @@ permissions:
 
 jobs:
   lint:
-    runs-on: ubuntu-latest
+    runs-on: { group: github-public-amd64 }
     name: ESLint, Prettier & Types
     steps:
       - uses: actions/checkout@v6
@@ -37,7 +37,7 @@ jobs:
         run: yarn types:scripts
 
   build:
-    runs-on: ubuntu-latest
+    runs-on: { group: github-public-amd64 }
     permissions:
       actions: write
       contents: read
@@ -83,7 +83,7 @@ jobs:
           key: '${{ env.BUILD_CACHE_KEY }}'
 
   test:
-    runs-on: ubuntu-latest
+    runs-on: { group: github-public-amd64 }
     name: Test
     permissions:
       contents: read
@@ -117,7 +117,7 @@ jobs:
           - name: Vite Example Public
             project-id: prj_yBYBe1AJV0tbpTqxCMzcyRfFWXxP
             stream-api-key: xzwhhgtazy6h
-    runs-on: ubuntu-latest
+    runs-on: { group: github-public-amd64 }
     environment:
       name: "${{ matrix.projects.name }} (${{ github.ref_name == 'master' && 'Production' || 'Preview' }})"
       deployment: true
