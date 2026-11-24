@@ -30,6 +30,9 @@ export type UseChannelHeaderOnlineStatusParams = {
  * is true or who watch the channel. Null when the channel has no members. `channel` defaults to the
  * channel in context.
  *
+ * N is the channel's active member count (members who are not deactivated or deleted) when the
+ * channel was queried with `include_active_member_count: true`, otherwise its total member count.
+ *
  * `user.online` stays current only on channels queried or watched with `presence: true`. The copy
  * gets the count as both `{{ onlineCount }}` and `{{ watcherCount }}`.
  */
