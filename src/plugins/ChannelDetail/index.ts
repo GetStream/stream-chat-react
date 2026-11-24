@@ -9,6 +9,7 @@ export {
 export * from './ListStates.deprecated';
 export * from './ChannelDetailNavButton';
 export * from './ChannelDetailSearchInput';
+export * from './ScheduledMessagesChannelDetailDialog';
 export * from './SectionNavigator';
 export * from './Views/ChannelManagementView/ChannelManagementView';
 export * from './Views/ChannelManagementView/ChannelManagementActions.defaults';
