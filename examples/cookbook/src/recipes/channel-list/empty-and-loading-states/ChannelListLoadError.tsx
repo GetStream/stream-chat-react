@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import type { ListLoadErrorIndicatorProps } from 'stream-chat-react';
+import type { ListLoadErrorUIProps } from 'stream-chat-react';
 import {
   Button,
   IconExclamationCircleFill,
@@ -15,10 +15,7 @@ const title = 'Couldn’t load your conversations';
  * page again. The list keeps this view on screen while the retry runs, so the Retry button keeps
  * focus: it turns busy, and reads Retry again if the retry fails.
  */
-export const ChannelListLoadError = ({
-  isRetrying,
-  retry,
-}: ListLoadErrorIndicatorProps) => {
+export const ChannelListLoadError = ({ isRetrying, retry }: ListLoadErrorUIProps) => {
   const announce = useAriaLiveAnnouncer();
 
   // Announced when the error first shows and again whenever a retry fails. Polite, so it follows

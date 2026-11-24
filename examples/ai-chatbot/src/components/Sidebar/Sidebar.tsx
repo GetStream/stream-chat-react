@@ -21,7 +21,7 @@ export const Sidebar = ({ isOpen, onClose }: SidebarProps) => (
       <SidebarHeader />
       <div className='ai-demo-sidebar__list'>
         <WithComponents
-          overrides={{ ChannelListItemUI: ChannelPreviewItem, EmptyListIndicator: NoOp }}
+          overrides={{ ChannelListItemUI: ChannelPreviewItem, ListEmptyUI: NoOp }}
         >
           {/* Renders the conversation list `AIChatApp` registers on the channel manager. */}
           <ChannelLists />
