@@ -8,7 +8,13 @@ import { useIsDmChannel } from '../../../hooks';
 import { getOnlineMembers } from './onlineMembers';
 import { useChannelHasOtherMembersOnline } from './useChannelHasOtherMembersOnline';
 
-const membersSelector = ({ memberCount, members, watchers }: ChannelStateData) => ({
+const membersSelector = ({
+  activeMemberCount,
+  memberCount,
+  members,
+  watchers,
+}: ChannelStateData) => ({
+  activeMemberCount,
   memberCount,
   members,
   watchers,
@@ -24,6 +30,9 @@ export type UseChannelHeaderOnlineStatusParams = {
  * is true or who watch the channel. Null when the channel has no members. `channel` defaults to the
  * channel in context.
  *
+ * N is the channel's active member count (members who are not deactivated or deleted) when the
+ * channel was queried with `include_active_member_count: true`, otherwise its total member count.
+ *
  * `user.online` stays current only on channels queried or watched with `presence: true`. The copy
  * gets the count as both `{{ onlineCount }}` and `{{ watcherCount }}`.
  */
@@ -32,10 +41,11 @@ export function useChannelHeaderOnlineStatus({
 }: UseChannelHeaderOnlineStatusParams = {}): string | null {
   const { t } = useTranslationContext();
   const channel = useResolvedChannel(channelOverride);
-  const { memberCount, members, watchers } = useStateStore(
+  const { activeMemberCount, memberCount, members, watchers } = useStateStore(
     channel.state,
     membersSelector,
   );
+  const displayedMemberCount = activeMemberCount ?? memberCount;
   const onlineCount = useMemo(
     () => getOnlineMembers({ members, watchers }).length,
     [members, watchers],
@@ -54,5 +64,5 @@ export function useChannelHeaderOnlineStatus({
       : t('common.offline.label', 'Offline');
   }
 
-  return `${t('channelHeader.online.members.label', '{{ memberCount }} members', { memberCount })} · ${t('channelHeader.online.online.label', '{{ onlineCount }} online', { onlineCount, watcherCount: onlineCount })}`;
+  return `${t('channelHeader.online.members.label', '{{ memberCount }} members', { memberCount: displayedMemberCount })} · ${t('channelHeader.online.online.label', '{{ onlineCount }} online', { onlineCount, watcherCount: onlineCount })}`;
 }
