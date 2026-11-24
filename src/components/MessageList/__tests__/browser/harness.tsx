@@ -1,3 +1,4 @@
+import type { ComponentContextValue } from '../../../../context';
 import React, { Profiler, StrictMode, useEffect, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import type { Root } from 'react-dom/client';
@@ -86,6 +87,8 @@ export type MountOptions = {
   heightFor?: (index: number, rng: Rng) => number;
   /** Renders the SDK's own message UI instead of the synthetic boxes. */
   realMessageUI?: boolean;
+  /** Further `WithComponents` overrides, over the message UI's. */
+  componentOverrides?: Partial<ComponentContextValue>;
   strictMode?: boolean;
   /** Wraps the list, e.g. in a custom scroll parent. */
   wrap?: (list: React.ReactElement) => React.ReactElement;
@@ -104,6 +107,7 @@ export const OWN_USER: UserResponse = {
 
 export const mountList = async ({
   beforeRender,
+  componentOverrides,
   gapMinutes,
   heightFor = (_index, rng) => rng.pick([40, 48, 64, 96, 140, 220]),
   historySize = 200,
@@ -162,7 +166,12 @@ export const mountList = async ({
     );
     const tree = (
       <Chat client={client}>
-        <WithComponents overrides={realMessageUI ? NO_OVERRIDES : SYNTHETIC_OVERRIDES}>
+        <WithComponents
+          overrides={{
+            ...(realMessageUI ? NO_OVERRIDES : SYNTHETIC_OVERRIDES),
+            ...componentOverrides,
+          }}
+        >
           <Channel channel={channel}>
             <div
               className='str-chat__channel'

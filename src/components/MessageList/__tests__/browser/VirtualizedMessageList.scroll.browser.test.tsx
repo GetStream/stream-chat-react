@@ -25,6 +25,8 @@ import { expectAtBottom } from './invariants';
 import { runScenario, SCROLL_TARGET_RETRY_WINDOW_MS } from './scenario';
 import { createTrace, RUNTIME } from './trace';
 import { VirtualizedMessageList } from '../../VirtualizedMessageList';
+import type { MessageListPositioningUIProps } from '../../MessageListPositioningUI';
+import type { ComponentContextValue } from '../../../../context';
 
 // Every Virtuoso the SDK renders goes through the probe, which records the calls crossing the
 // SDK ↔ Virtuoso boundary. The same file runs against both runtimes (see vitest.config.ts).
@@ -830,34 +832,42 @@ describe('VirtualizedMessageList in a real browser', () => {
     );
   });
 
-  it('B-35 shows the loading indicator while the list is hidden to be positioned, unless turned off', async () => {
-    // Frame by frame from mount until the list shows: the indicator must be over the list on every
-    // frame it is hidden (react-virtuoso 4 positioning it), and gone once it shows.
-    const watchMount = async (showLoadingIndicatorWhilePositioning?: boolean) => {
-      const mounted = await mountList({
-        listProps:
-          showLoadingIndicatorWhilePositioning === undefined
-            ? undefined
-            : { showLoadingIndicatorWhilePositioning },
-        measureMount: false,
-      });
-      const counts = { hidden: 0, hiddenWithIndicator: 0, shownWithIndicator: 0 };
-      for (let frames = 0; frames < 240; frames += 1) {
-        const indicator = !!mounted.frame.querySelector(
-          '.str-chat__virtual-list__positioning',
-        );
-        const busy = mounted.frame
+  it('B-35 renders MessageListPositioningUI while the list is hidden to be positioned', async () => {
+    // Frame by frame from mount until the list shows: the slot must say the list is positioning on
+    // every frame it is hidden (react-virtuoso 4 positioning it), and stop once it shows.
+    const MARKER = 'positioning-marker';
+    const CustomPositioningUI = ({ isPositioning }: MessageListPositioningUIProps) => (
+      <div data-is-positioning={String(isPositioning)} data-testid={MARKER} />
+    );
+    const watchMount = async (componentOverrides?: Partial<ComponentContextValue>) => {
+      const mounted = await mountList({ componentOverrides, measureMount: false });
+      const counts = {
+        customFalseAfter: false,
+        customTrue: 0,
+        hidden: 0,
+        hiddenWithIndicator: 0,
+        shownWithIndicator: 0,
+      };
+      const read = () => ({
+        busy: mounted.frame
           .querySelector('.str-chat__virtual-list')
-          ?.getAttribute('aria-busy');
+          ?.getAttribute('aria-busy'),
+        custom: mounted.frame
+          .querySelector(`[data-testid="${MARKER}"]`)
+          ?.getAttribute('data-is-positioning'),
+        indicator: !!mounted.frame.querySelector('.str-chat__virtual-list__positioning'),
+      });
+      for (let frames = 0; frames < 240; frames += 1) {
+        const state = read();
         if (!isListVisible(mounted.frame)) {
           counts.hidden += 1;
-          if (indicator && busy === 'true') counts.hiddenWithIndicator += 1;
+          if (state.indicator && state.busy === 'true') counts.hiddenWithIndicator += 1;
+          if (state.custom === 'true') counts.customTrue += 1;
         } else if (readVisibleItems(mounted.frame).length) {
-          if (indicator) counts.shownWithIndicator += 1;
           await settle(mounted.frame);
-          if (mounted.frame.querySelector('.str-chat__virtual-list__positioning')) {
-            counts.shownWithIndicator += 1;
-          }
+          const after = read();
+          if (state.indicator || after.indicator) counts.shownWithIndicator += 1;
+          counts.customFalseAfter = after.custom === 'false';
           break;
         }
         await nextFrame();
@@ -866,20 +876,31 @@ describe('VirtualizedMessageList in a real browser', () => {
       return counts;
     };
 
-    const shown = await watchMount();
-    const off = await watchMount(false);
+    const byDefault = await watchMount();
+    const off = await watchMount({ MessageListPositioningUI: null });
+    const custom = await watchMount({ MessageListPositioningUI: CustomPositioningUI });
     if (RUNTIME !== 'browser-v2') {
-      expect(shown.hidden, 'frames hidden while positioned').toBeGreaterThan(0);
+      expect(byDefault.hidden, 'frames hidden while positioned').toBeGreaterThan(0);
     }
-    // The list reports itself hidden from its first commit, and the indicator renders in the next
-    // one: the first frame after mount may still be without it.
+    // The list reports itself hidden from its first commit, and the slot learns it in the next one:
+    // the first frame after mount may still be without it.
     expect(
-      shown.hiddenWithIndicator,
+      byDefault.hiddenWithIndicator,
       'hidden frames with the indicator',
-    ).toBeGreaterThanOrEqual(shown.hidden - 1);
-    expect(shown.shownWithIndicator, 'indicator after the list shows').toBe(0);
-    expect(off.hiddenWithIndicator, 'indicator when turned off').toBe(0);
-    expect(off.shownWithIndicator, 'indicator when turned off').toBe(0);
+    ).toBeGreaterThanOrEqual(byDefault.hidden - 1);
+    expect(byDefault.shownWithIndicator, 'indicator after the list shows').toBe(0);
+    expect(
+      off.hiddenWithIndicator + off.shownWithIndicator,
+      'indicator when set to null',
+    ).toBe(0);
+    expect(
+      custom.customTrue,
+      'custom slot told it is positioning',
+    ).toBeGreaterThanOrEqual(custom.hidden - 1);
+    expect(custom.customFalseAfter, 'custom slot told it is no longer positioning').toBe(
+      true,
+    );
+    expect(custom.hiddenWithIndicator, 'default indicator with a custom slot').toBe(0);
   });
 
   it('B-25 releases everything after repeated mounting', async () => {

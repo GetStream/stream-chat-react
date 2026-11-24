@@ -1,5 +1,6 @@
 export * from './GiphyPreviewMessage';
 export * from './MessageList';
+export * from './MessageListPositioningUI';
 export * from './NewMessageNotification';
 export * from './ScrollToLatestMessageButton';
 export * from './UnreadMessagesNotification';

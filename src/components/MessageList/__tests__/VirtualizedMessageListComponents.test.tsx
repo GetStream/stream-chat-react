@@ -7,10 +7,8 @@ import {
   Item,
   messageRenderer,
 } from '../VirtualizedMessageListComponents';
-import {
-  VirtualizedMessageListEmptyUI,
-  VirtualizedMessageListPositioningUI,
-} from '../ListStates';
+import { VirtualizedMessageListEmptyUI } from '../ListStates';
+import { MessageListPositioningUI } from '../MessageListPositioningUI';
 import type { VirtuosoContext } from '../VirtualizedMessageList';
 import {
   generateMessage,
@@ -295,9 +293,9 @@ describe('VirtualizedMessageComponents', () => {
     });
   });
 
-  describe('VirtualizedMessageListPositioningUI', () => {
-    it('should render the LoadingIndicator over the list', () => {
-      const { container } = renderElements(<VirtualizedMessageListPositioningUI />, {
+  describe('MessageListPositioningUI', () => {
+    it('should render the LoadingIndicator over the list while it is positioned', () => {
+      const { container } = renderElements(<MessageListPositioningUI isPositioning />, {
         LoadingIndicator: () => <div>Custom Loading Indicator</div>,
       });
       expect(
@@ -305,8 +303,16 @@ describe('VirtualizedMessageComponents', () => {
       ).toHaveTextContent('Custom Loading Indicator');
     });
 
+    it('should render nothing once the list is positioned', () => {
+      const { container } = renderElements(
+        <MessageListPositioningUI isPositioning={false} />,
+        { LoadingIndicator: () => <div>Custom Loading Indicator</div> },
+      );
+      expect(container).toBeEmptyDOMElement();
+    });
+
     it('should render nothing while LoadingIndicator is set to null', () => {
-      const { container } = renderElements(<VirtualizedMessageListPositioningUI />, {
+      const { container } = renderElements(<MessageListPositioningUI isPositioning />, {
         LoadingIndicator: null as unknown as undefined,
       });
       expect(container).toBeEmptyDOMElement();
