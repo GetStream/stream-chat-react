@@ -82,15 +82,19 @@ const chatClient = getTestClient();
 const mockTranslation = mockT;
 
 const renderComponent = ({
+  componentOverrides,
   handleFetchReactions,
   ...props
 }: {
+  componentOverrides?: Partial<ComponentContextValue>;
   handleFetchReactions?: MessageReactionsDetailProps['handleFetchReactions'];
 } & Record<string, unknown>) =>
   render(
     <ChatProvider value={mockChatContext({ client: chatClient })}>
       <DialogManagerProvider>
-        <WithComponents overrides={{ reactionOptions: defaultReactionOptions }}>
+        <WithComponents
+          overrides={{ reactionOptions: defaultReactionOptions, ...componentOverrides }}
+        >
           <MessageProvider value={mockMessageContext()}>
             <MessageReactionsDetailWrapper
               handleFetchReactions={handleFetchReactions}
@@ -281,6 +285,73 @@ describe('MessageReactionsDetail', () => {
           origin: expect.objectContaining({ emitter: 'Reactions' }),
         }),
       );
+    });
+  });
+
+  describe('list states', () => {
+    const reactionGroups = { haha: { count: 1 } };
+    const reactions = generateReactionsFromReactionGroups(reactionGroups);
+    const pending = () => new Promise<ReactionResponse[]>(() => undefined);
+
+    it('shows the reactions skeleton while the reactions load', () => {
+      const { container } = renderComponent({
+        handleFetchReactions: vi.fn(pending),
+        reaction_groups: reactionGroups,
+        reactions,
+        selectedReactionType: 'haha',
+      });
+
+      expect(
+        container.querySelectorAll('.str-chat__message-reactions-detail__skeleton-item'),
+      ).toHaveLength(3);
+    });
+
+    it('shows the LoadingIndicator from ComponentContext instead of the skeleton while set', () => {
+      const LoadingIndicator = () => <div data-testid='custom-loading-indicator' />;
+      const { container, getByTestId } = renderComponent({
+        componentOverrides: { LoadingIndicator },
+        handleFetchReactions: vi.fn(pending),
+        reaction_groups: reactionGroups,
+        reactions,
+        selectedReactionType: 'haha',
+      });
+
+      expect(getByTestId('custom-loading-indicator')).toBeInTheDocument();
+      expect(
+        container.querySelector('.str-chat__message-reactions-detail__skeleton-item'),
+      ).not.toBeInTheDocument();
+    });
+
+    it('shows no loading state while LoadingIndicator is set to null', () => {
+      const { container } = renderComponent({
+        // Apps turn the spinners off with `null`, which the key's type does not name.
+        componentOverrides: { LoadingIndicator: null as unknown as undefined },
+        handleFetchReactions: vi.fn(pending),
+        reaction_groups: reactionGroups,
+        reactions,
+        selectedReactionType: 'haha',
+      });
+
+      expect(
+        container.querySelector('.str-chat__message-reactions-detail__skeleton-item'),
+      ).not.toBeInTheDocument();
+      expect(
+        container.querySelector('.str-chat__message-reactions-detail__user-list'),
+      ).toBeEmptyDOMElement();
+    });
+
+    it('renders the shared ListFirstPageLoadingUI while the reactions load', () => {
+      const ListFirstPageLoadingUI = () => <div data-testid='first-page' />;
+
+      const { getByTestId } = renderComponent({
+        componentOverrides: { ListFirstPageLoadingUI },
+        handleFetchReactions: vi.fn(pending),
+        reaction_groups: reactionGroups,
+        reactions,
+        selectedReactionType: 'haha',
+      });
+
+      expect(getByTestId('first-page')).toBeInTheDocument();
     });
   });
 

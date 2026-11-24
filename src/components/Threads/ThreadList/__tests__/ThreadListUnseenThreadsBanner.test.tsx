@@ -1,29 +1,20 @@
 import React from 'react';
 import { act, cleanup, fireEvent, render, screen } from '@testing-library/react';
-import type { Channel, StreamChat, Thread } from 'stream-chat';
+import type { StreamChat } from 'stream-chat';
 
 import { ChatProvider, WithComponents } from '../../../../context';
 import { TranslationProvider } from '../../../../context/TranslationContext';
 import {
-  generateMessage,
   initClientWithChannels,
   mockChatContext,
   mockTranslationContextValue,
 } from '../../../../mock-builders';
 import { mockT } from '../../../../mock-builders/translator';
 import { ThreadListUnseenThreadsBanner } from '../ThreadListUnseenThreadsBanner';
-import { ThreadListLoadingIndicator } from '../ThreadListLoadingIndicator';
 
 const LoadingIndicator = () => <div data-testid='loading-indicator' />;
 
-let channel: Channel;
 let client: StreamChat;
-
-const listedThread = (): Thread =>
-  client.threads.ensure({
-    channel,
-    parentMessage: generateMessage({ cid: channel.cid, reply_count: 1 }),
-  });
 
 const renderWithClient = (ui: React.ReactElement) =>
   render(
@@ -45,10 +36,7 @@ const deferred = () => {
 };
 
 beforeEach(async () => {
-  ({
-    channels: [channel],
-    client,
-  } = await initClientWithChannels());
+  ({ client } = await initClientWithChannels());
 });
 
 afterEach(() => {
@@ -119,38 +107,5 @@ describe('ThreadListUnseenThreadsBanner', () => {
     expect(banner).not.toBeDisabled();
     expect(banner).not.toHaveClass('str-chat__unseen-threads-banner--loading');
     expect(banner).not.toHaveTextContent('Loading...');
-  });
-});
-
-describe('ThreadListLoadingIndicator', () => {
-  it('does not show during the first load', () => {
-    client.threads.paginator.state.partialNext({ isLoading: true, items: undefined });
-
-    const { container } = renderWithClient(<ThreadListLoadingIndicator />);
-
-    expect(container).toBeEmptyDOMElement();
-  });
-
-  it('shows while the next page loads', () => {
-    client.threads.paginator.state.partialNext({
-      isLoading: true,
-      items: [listedThread()],
-    });
-
-    renderWithClient(<ThreadListLoadingIndicator />);
-
-    expect(screen.getByTestId('loading-indicator')).toBeInTheDocument();
-  });
-
-  it('hides once the page has loaded', () => {
-    client.threads.paginator.state.partialNext({
-      isLoading: true,
-      items: [listedThread()],
-    });
-    renderWithClient(<ThreadListLoadingIndicator />);
-
-    act(() => client.threads.paginator.state.partialNext({ isLoading: false }));
-
-    expect(screen.queryByTestId('loading-indicator')).not.toBeInTheDocument();
   });
 });

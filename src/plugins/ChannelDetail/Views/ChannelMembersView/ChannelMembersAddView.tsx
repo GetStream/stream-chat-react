@@ -17,11 +17,17 @@ import { Prompt } from '../../../../components/Dialog';
 import { useChannelDetailContext } from '../../ChannelDetailContext';
 import { canUpdateChannelMembers, getUserDisplayName } from './ChannelMembersView.utils';
 import { useChannelMemberIds } from './useChannelMemberIds';
+import { useIsUserOnline } from '../../../../components/ChannelHeader/hooks/useIsUserOnline';
 import type { ChannelMembersModeViewProps } from './ChannelMembersView';
 import { useNotificationApi } from '../../../../components/Notifications';
 import { ChannelDetailSearchInput } from '../../ChannelDetailSearchInput';
-import { ChannelDetailEmptyList } from '../../ChannelDetailEmptyList';
-import { ChannelDetailListLoadingIndicator } from '../../ChannelDetailListLoadingIndicator';
+import {
+  ChannelDetailListLoadErrorUI,
+  ChannelDetailListLoadingNextPageUI,
+} from '../../ListStates';
+import { useChannelDetailEmptyPlaceholder } from '../../hooks/useChannelDetailEmptyPlaceholder';
+import { useChannelDetailFirstPageLoadRetry } from '../../hooks/useChannelDetailFirstPageLoadRetry';
+import { ChannelMembersAddEmpty } from './ListStates';
 
 export type ChannelMembersAddViewProps = ChannelMembersModeViewProps & {
   searchSource?: UserSearchSource;
@@ -68,6 +74,8 @@ const ChannelMembersAddViewItem = ({
   const { t } = useTranslationContext();
   const { Avatar = DefaultAvatar, extractDisplayInfo = defaultExtractDisplayInfo } =
     useComponentContext();
+  const { channel } = useChannelDetailContext();
+  const isOnline = useIsUserOnline(channel, user);
   const displayName = getUserDisplayName(user);
 
   const LeadingSlot = useMemo(
@@ -75,9 +83,9 @@ const ChannelMembersAddViewItem = ({
       function MemberAvatar() {
         const displayInfo = extractDisplayInfo({ user });
 
-        return <Avatar {...displayInfo} isOnline={user.online} size='md' />;
+        return <Avatar {...displayInfo} isOnline={isOnline} size='md' />;
       },
-    [Avatar, extractDisplayInfo, user],
+    [Avatar, extractDisplayInfo, isOnline, user],
   );
 
   const SelectableTrailingSlot = useMemo(
@@ -155,6 +163,9 @@ export const ChannelMembersAddView = ({
     searchSourceItemsStateSelector,
   );
 
+  const firstPageLoadRetry = useChannelDetailFirstPageLoadRetry(userSearchSource, {
+    hasItemsToShow: !!users?.length,
+  });
   const [isSaving, setIsSaving] = useState(false);
   const [selectedUserIds, setSelectedUserIds] = useState<string[]>([]);
 
@@ -209,23 +220,15 @@ export const ChannelMembersAddView = ({
   );
 
   // `users` is undefined until the first page resolves, so "no results" shows only after a query.
-  const EmptyPlaceholder = useMemo(
-    () =>
-      function ChannelMembersAddEmptyPlaceholder() {
-        if (isLoading || !users) return null;
-        return (
-          <ChannelDetailEmptyList>
-            {t('channelDetail.channelMembersAdd.noUserFound.text', 'No user found')}
-          </ChannelDetailEmptyList>
-        );
-      },
-    [isLoading, t, users],
+  const EmptyPlaceholder = useChannelDetailEmptyPlaceholder(
+    ChannelMembersAddEmpty,
+    !isLoading && !!users,
   );
 
   const Footer = useMemo(
     () =>
       function ChannelMembersAddListFooter() {
-        return <ChannelDetailListLoadingIndicator searchSource={userSearchSource} />;
+        return <ChannelDetailListLoadingNextPageUI searchSource={userSearchSource} />;
       },
     [userSearchSource],
   );
@@ -270,15 +273,23 @@ export const ChannelMembersAddView = ({
     <>
       <Prompt.Body className='str-chat__channel-members-view__body'>
         <ChannelDetailSearchInput autoFocus onSearchChange={handleSearchChange} />
-        <VirtualizedList
-          className='str-chat__channel-detail__channel-members-view__list'
-          computeItemKey={computeUserItemKey}
-          data={users ?? EMPTY_USERS}
-          EmptyPlaceholder={EmptyPlaceholder}
-          Footer={Footer}
-          itemContent={renderItem}
-          loadNext={userSearchSource.search}
-        />
+        {firstPageLoadRetry.error ? (
+          <ChannelDetailListLoadErrorUI
+            error={firstPageLoadRetry.error}
+            isRetrying={firstPageLoadRetry.isRetrying}
+            retry={firstPageLoadRetry.retry}
+          />
+        ) : (
+          <VirtualizedList
+            className='str-chat__channel-detail__channel-members-view__list'
+            computeItemKey={computeUserItemKey}
+            data={users ?? EMPTY_USERS}
+            EmptyPlaceholder={EmptyPlaceholder}
+            Footer={Footer}
+            itemContent={renderItem}
+            loadNext={userSearchSource.search}
+          />
+        )}
       </Prompt.Body>
       {canManageChannelMembers && selectedUserIds.length > 0 && (
         <Prompt.Footer>

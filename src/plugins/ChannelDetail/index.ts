@@ -2,7 +2,11 @@ export * from './AvatarWithChannelDetail';
 export * from './ChannelDetail';
 export * from './ChannelDetailContext';
 export * from './ChannelDetailEmptyList';
-export * from './ChannelDetailListLoadingIndicator';
+export {
+  ChannelDetailListLoadingNextPageUI,
+  type ChannelDetailListLoadingNextPageUIProps,
+} from './ListStates';
+export * from './ListStates.deprecated';
 export * from './ChannelDetailNavButton';
 export * from './ChannelDetailSearchInput';
 export * from './SectionNavigator';

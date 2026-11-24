@@ -15,11 +15,11 @@ const renderList = (
 ) =>
   render(
     <InfiniteScrollWithComponents<Item>
-      EmptyListIndicator={Nothing}
-      EndReachedIndicator={Nothing}
-      FirstPageLoadingIndicator={Nothing}
+      ListEmptyUI={Nothing}
+      ListEndReachedUI={Nothing}
+      ListFirstPageLoadingUI={Nothing}
       ListItem={({ item }) => <div data-testid='row'>{item.name}</div>}
-      LoadingNextPageIndicator={Nothing}
+      ListLoadingNextPageUI={Nothing}
       paginator={{ getItemId, hasMoreHead: false, hasMoreTail: false, state }}
     />,
   );
@@ -69,5 +69,27 @@ describe('InfiniteScrollWithComponents', () => {
     renderList(state);
 
     expect(screen.getAllByTestId('row').map((row) => row.textContent)).toEqual(['one']);
+  });
+
+  it('keeps the empty state while a loaded empty page reloads', () => {
+    const state = new StateStore<PaginatorState<Item>>({
+      hasMoreHead: false,
+      hasMoreTail: false,
+      isLoading: true,
+      items: [],
+    } as PaginatorState<Item>);
+
+    render(
+      <InfiniteScrollWithComponents<Item>
+        ListEmptyUI={() => <div data-testid='empty' />}
+        ListEndReachedUI={Nothing}
+        ListFirstPageLoadingUI={Nothing}
+        ListItem={({ item }) => <div data-testid='row'>{item.name}</div>}
+        ListLoadingNextPageUI={Nothing}
+        paginator={{ hasMoreHead: false, hasMoreTail: false, state }}
+      />,
+    );
+
+    expect(screen.getByTestId('empty')).toBeInTheDocument();
   });
 });

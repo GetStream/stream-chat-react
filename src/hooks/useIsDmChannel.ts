@@ -1,6 +1,7 @@
 import type { Channel, MembersState } from 'stream-chat';
 
-import { useChannel, useChatContext } from '../context';
+import { useChatContext } from '../context';
+import { useResolvedChannel } from '../context/useContextChannel';
 import { useStateStore } from '../store';
 import { isDmChannel } from '../utils';
 
@@ -23,8 +24,7 @@ const membersSelector = (nextValue: MembersState) => ({
 export const useIsDmChannel = ({
   channel: channelOverride,
 }: UseIsDmChannelParams = {}) => {
-  const contextChannel = useChannel();
-  const channel = channelOverride ?? contextChannel;
+  const channel = useResolvedChannel(channelOverride);
   const { client } = useChatContext();
   // Subscribes so `isDmChannel` re-runs whenever the members change.
   useStateStore(channel.state, membersSelector);

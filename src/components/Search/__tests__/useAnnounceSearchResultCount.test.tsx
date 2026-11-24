@@ -1,4 +1,4 @@
-import { renderHook } from '@testing-library/react';
+import { renderHook, waitFor } from '@testing-library/react';
 
 import type { SearchSource } from 'stream-chat';
 import { useAnnounceSearchResultCount } from '../hooks/useAnnounceSearchResultCount';
@@ -55,6 +55,95 @@ describe('useAnnounceSearchResultCount', () => {
     expect(announceInteraction).toHaveBeenCalledWith('search.resultCount', {
       allResultsLoaded: false,
       count: 0,
+    });
+  });
+
+  it('does not announce no results while a source shows that its first page failed', () => {
+    const container = makeContainer(0);
+    const failedSource = {
+      state: {
+        getLatestValue: () => ({
+          hasNext: false,
+          isLoading: false,
+          items: undefined,
+          lastQueryError: new Error('search failed'),
+        }),
+      },
+    } as unknown as SearchSource;
+    renderHook(() =>
+      useAnnounceSearchResultCount({ current: container }, true, [failedSource]),
+    );
+
+    expect(announceInteraction).not.toHaveBeenCalled();
+  });
+
+  it('announces no results while the first page loads, nor once it fails, and cancels a pending count', async () => {
+    const container = makeContainer(0);
+    let sourceState: Record<string, unknown> = { hasNext: true, isLoading: true };
+    const source = {
+      state: { getLatestValue: () => sourceState },
+    } as unknown as SearchSource;
+    renderHook(() =>
+      useAnnounceSearchResultCount({ current: container }, true, [source]),
+    );
+    expect(announceInteraction).not.toHaveBeenCalled();
+    expect(cancelInteraction).toHaveBeenCalledWith('search.resultCount');
+
+    sourceState = {
+      hasNext: false,
+      isLoading: false,
+      items: undefined,
+      lastQueryError: new Error('search failed'),
+    };
+    container.appendChild(document.createElement('div'));
+
+    await waitFor(() => expect(cancelInteraction).toHaveBeenCalledTimes(2));
+    expect(announceInteraction).not.toHaveBeenCalled();
+  });
+
+  it('announces no results once the first page loads empty', async () => {
+    const container = makeContainer(0);
+    let sourceState: Record<string, unknown> = { hasNext: true, isLoading: true };
+    const source = {
+      state: { getLatestValue: () => sourceState },
+    } as unknown as SearchSource;
+    renderHook(() =>
+      useAnnounceSearchResultCount({ current: container }, true, [source]),
+    );
+
+    sourceState = { hasNext: false, isLoading: false, items: [] };
+    container.appendChild(document.createElement('div'));
+
+    await waitFor(() =>
+      expect(announceInteraction).toHaveBeenCalledWith('search.resultCount', {
+        allResultsLoaded: true,
+        count: 0,
+      }),
+    );
+  });
+
+  it('does not report allResultsLoaded while a source shows that its first page failed', () => {
+    const container = makeContainer(3);
+    const failedSource = {
+      state: {
+        getLatestValue: () => ({
+          hasNext: false,
+          isLoading: false,
+          items: undefined,
+          lastQueryError: new Error('search failed'),
+        }),
+      },
+    } as unknown as SearchSource;
+    renderHook(() =>
+      useAnnounceSearchResultCount({ current: container }, true, [
+        makeSource(false),
+        failedSource,
+      ]),
+    );
+
+    expect(announceInteraction).toHaveBeenCalledWith('search.resultCount', {
+      allResultsLoaded: false,
+      count: 3,
     });
   });
 

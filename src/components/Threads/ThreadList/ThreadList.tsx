@@ -5,18 +5,17 @@ import type { PaginatorState, Thread } from 'stream-chat';
 
 import { useVirtualizedListboxKeyboardNavigation } from '../../../a11y/hooks/useVirtualizedListboxKeyboardNavigation';
 import { ThreadListItem as DefaultThreadListItem } from './ThreadListItem';
-import { ThreadListEmptyPlaceholder as DefaultThreadListEmptyPlaceholder } from './ThreadListEmptyPlaceholder';
 import { ThreadListUnseenThreadsBanner as DefaultThreadListUnseenThreadsBanner } from './ThreadListUnseenThreadsBanner';
 import { useThreadHighlighting } from './useThreadHighlighting';
-import { ThreadListLoadingIndicator as DefaultThreadListLoadingIndicator } from './ThreadListLoadingIndicator';
 import {
-  ListLoadErrorIndicator as BaseListLoadErrorIndicator,
-  type ListLoadErrorIndicatorProps,
-  LoadingChannels,
-} from '../../Loading';
+  ThreadListEmptyUI,
+  ThreadListFirstPageLoadingUI,
+  ThreadListLoadErrorUI,
+  ThreadListLoadingNextPageUI,
+} from './ListStates';
+import { getFirstPageLoadError } from '../../ListStates/utils';
+import { useFirstPageLoadRetry } from '../../ListStates/hooks';
 import { NotificationList } from '../../Notifications';
-import { getFirstPageLoadError } from '../../Loading/getFirstPageLoadError';
-import { useFirstPageLoadRetry } from '../../Loading/hooks/useFirstPageLoadRetry';
 import { useAddNotificationOnError } from '../../Notifications/hooks/useAddNotificationOnError';
 import {
   useChatContext,
@@ -35,10 +34,6 @@ const selector = (nextValue: PaginatorState<Thread>) => ({
   lastQueryError: nextValue.lastQueryError,
   threads: nextValue.items ?? noThreads,
 });
-
-const DefaultListLoadErrorIndicator = (props: ListLoadErrorIndicatorProps) => (
-  <BaseListLoadErrorIndicator {...props} listType='thread' />
-);
 
 const computeItemKey: ComputeItemKey<Thread, unknown> = (_, item) => item.id;
 
@@ -76,13 +71,9 @@ export const ThreadList = ({ virtuosoProps }: ThreadListProps) => {
   const { client } = useChatContext();
   const { t } = useTranslationContext();
   const {
-    FirstPageLoadingIndicator = LoadingChannels,
-    ListLoadErrorIndicator = DefaultListLoadErrorIndicator,
     NotificationList: NotificationListFromContext = NotificationList,
-    ThreadListEmptyPlaceholder = DefaultThreadListEmptyPlaceholder,
     ThreadListHeader = DefaultThreadListHeader,
     ThreadListItem = DefaultThreadListItem,
-    ThreadListLoadingIndicator = DefaultThreadListLoadingIndicator,
     ThreadListUnseenThreadsBanner = DefaultThreadListUnseenThreadsBanner,
   } = useComponentContext();
   const { firstPageLoadError, isLoading, lastQueryError, threads } = useStateStore(
@@ -125,7 +116,8 @@ export const ThreadList = ({ virtuosoProps }: ThreadListProps) => {
     reload: () => client.threads.reload({ force: true }),
   });
 
-  // Only the first load shows the skeleton; a reload keeps the loaded threads until new ones land.
+  // Only a load without threads shows the first-page state; a reload keeps the loaded threads
+  // until new ones land.
   const isLoadingFirstPage = isLoading && !threads.length;
 
   const renderList = () => (
@@ -137,8 +129,8 @@ export const ThreadList = ({ virtuosoProps }: ThreadListProps) => {
         atBottomStateChange={(atBottom) => atBottom && client.threads.paginator.toTail()}
         className='str-chat__thread-list'
         components={{
-          EmptyPlaceholder: ThreadListEmptyPlaceholder,
-          Footer: ThreadListLoadingIndicator,
+          EmptyPlaceholder: ThreadListEmptyUI,
+          Footer: ThreadListLoadingNextPageUI,
         }}
         computeItemKey={computeItemKey}
         data={threads}
@@ -168,7 +160,7 @@ export const ThreadList = ({ virtuosoProps }: ThreadListProps) => {
   // A failed first load shows the error instead of the empty placeholder, which would read as
   // "no threads".
   const renderFirstPageLoadError = (error: Error) => (
-    <ListLoadErrorIndicator
+    <ThreadListLoadErrorUI
       error={error}
       isRetrying={firstPageLoadRetry.isRetrying}
       retry={firstPageLoadRetry.retry}
@@ -177,7 +169,7 @@ export const ThreadList = ({ virtuosoProps }: ThreadListProps) => {
 
   const renderFirstPageLoading = () => (
     <div className='str-chat__thread-list str-chat__thread-list--loading'>
-      <FirstPageLoadingIndicator />
+      <ThreadListFirstPageLoadingUI />
     </div>
   );
 

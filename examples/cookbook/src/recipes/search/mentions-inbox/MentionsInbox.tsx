@@ -62,7 +62,8 @@ const useOpenMention = () => {
     // Message search stores every result's channel.
     const channel = message.cid ? channelManager.get(message.cid) : undefined;
     if (!channel || channel.pendingDisposal) return;
-    openChannel(channel, { event });
+    // Picked in the side panel, which stays open. `event` lets a ⌘/ctrl-click open it beside.
+    openChannel(channel, { event, exclusive: false });
     channelManager.ingestChannel(channel);
     // Highlights the message, loading the page around it and watching the channel when needed.
     channel.messagePaginator

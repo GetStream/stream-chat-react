@@ -22,7 +22,8 @@ const searchControllerStateSelector = (state: SearchControllerState) => ({
 /**
  * Channel navigation region: `ChannelListHeader`, `Search` (the bar always, results while active),
  * `ChannelLists` while search is inactive, and the channel-list `NotificationList`. All but
- * `ChannelLists` are `ComponentContext` slots.
+ * `ChannelLists` are `ComponentContext` slots; `ChannelLists` renders the `ChannelList` slot once
+ * per paginator.
  *
  * Outside `ChatView` the root applies the `str-chat <theme>` scope itself; inside one it inherits
  * `ChatView`'s, since a nested scope would reset overridden design tokens. `customClasses.chat` and

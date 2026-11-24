@@ -14,10 +14,17 @@ import { ListItemLayout } from '../../../../components/ListItemLayout';
 import { VirtualizedList } from '../../VirtualizedList';
 import { Prompt } from '../../../../components/Dialog';
 import { getMemberDisplayName, getMemberUserId } from './ChannelMembersView.utils';
-import { ChannelDetailEmptyList } from '../../ChannelDetailEmptyList';
-import { ChannelDetailListLoadingIndicator } from '../../ChannelDetailListLoadingIndicator';
+import {
+  ChannelDetailListLoadErrorUI,
+  ChannelDetailListLoadingNextPageUI,
+} from '../../ListStates';
+import { useChannelDetailEmptyPlaceholder } from '../../hooks/useChannelDetailEmptyPlaceholder';
+import { useChannelDetailFirstPageLoadRetry } from '../../hooks/useChannelDetailFirstPageLoadRetry';
+import { ChannelMembersEmpty } from './ListStates';
 import { ChannelDetailSearchInput } from '../../ChannelDetailSearchInput';
 import { useChannelMembersSearch } from './useChannelMembersSearch';
+import { useIsUserOnline } from '../../../../components/ChannelHeader/hooks/useIsUserOnline';
+import { useChannelDetailContext } from '../../ChannelDetailContext';
 
 const getMemberRoleTranslation = (
   member: ChannelMemberResponse,
@@ -35,9 +42,10 @@ const getMemberRoleTranslation = (
 
 const getPresenceStatusText = (
   user: ChannelMemberResponse['user'],
+  isOnline: boolean,
   t: ReturnType<typeof useTranslationContext>['t'],
 ) => {
-  if (user?.online) return t('common.online.label', 'Online');
+  if (isOnline) return t('common.online.label', 'Online');
 
   if (user?.last_active != null) {
     return t(
@@ -66,7 +74,9 @@ const ChannelMembersBrowseViewItem = ({
   const { t } = useTranslationContext();
   const { Avatar = DefaultAvatar, extractDisplayInfo = defaultExtractDisplayInfo } =
     useComponentContext();
+  const { channel } = useChannelDetailContext();
   const user = member.user;
+  const isOnline = useIsUserOnline(channel, user);
   const displayName = getMemberDisplayName(member);
   const roleTranslation = getMemberRoleTranslation(member, t);
 
@@ -75,9 +85,9 @@ const ChannelMembersBrowseViewItem = ({
       function MemberAvatar() {
         const displayInfo = extractDisplayInfo({ user: user ?? undefined });
 
-        return <Avatar {...displayInfo} isOnline={user?.online} size='md' />;
+        return <Avatar {...displayInfo} isOnline={isOnline} size='md' />;
       },
-    [Avatar, extractDisplayInfo, user],
+    [Avatar, extractDisplayInfo, isOnline, user],
   );
 
   const TrailingSlot = useMemo(
@@ -120,7 +130,7 @@ const ChannelMembersBrowseViewItem = ({
       LeadingSlot={LeadingSlot}
       RootElement='button'
       rootProps={rootProps}
-      subtitle={getPresenceStatusText(user, t)}
+      subtitle={getPresenceStatusText(user, isOnline, t)}
       title={displayName}
       TrailingSlot={TrailingSlot}
     />
@@ -138,7 +148,6 @@ export const ChannelMembersBrowseView = ({
   onMemberSelect,
 }: ChannelMembersBrowseViewProps) => {
   const { mutes } = useChatContext();
-  const { t } = useTranslationContext();
   const {
     displayedMembers,
     handleSearchChange,
@@ -158,6 +167,10 @@ export const ChannelMembersBrowseView = ({
     [displayedMembers],
   );
 
+  const firstPageLoadRetry = useChannelDetailFirstPageLoadRetry(membersSearchSource, {
+    hasItemsToShow: renderableMembers.length > 0,
+  });
+
   const renderItem = useCallback(
     (_: number, member: ChannelMemberResponse) => (
       <ChannelMembersBrowseViewItem
@@ -169,25 +182,13 @@ export const ChannelMembersBrowseView = ({
     [mutedUserIdSet, onMemberSelect],
   );
 
-  const EmptyPlaceholder = useMemo(
-    () =>
-      function ChannelMembersEmptyPlaceholder() {
-        return (
-          <ChannelDetailEmptyList>
-            {t(
-              'channelDetail.channelMembersBrowse.noMemberFound.text',
-              'No member found',
-            )}
-          </ChannelDetailEmptyList>
-        );
-      },
-    [t],
-  );
+  // The members list shows its empty state whenever it has no members to show.
+  const EmptyPlaceholder = useChannelDetailEmptyPlaceholder(ChannelMembersEmpty, true);
 
   const Footer = useMemo(
     () =>
       function ChannelMembersListFooter() {
-        return <ChannelDetailListLoadingIndicator searchSource={membersSearchSource} />;
+        return <ChannelDetailListLoadingNextPageUI searchSource={membersSearchSource} />;
       },
     [membersSearchSource],
   );
@@ -200,15 +201,23 @@ export const ChannelMembersBrowseView = ({
           resetKey={searchInputResetKey}
         />
       )}
-      <VirtualizedList
-        className='str-chat__channel-detail__channel-members-view__list'
-        computeItemKey={computeMemberItemKey}
-        data={renderableMembers}
-        EmptyPlaceholder={EmptyPlaceholder}
-        Footer={Footer}
-        itemContent={renderItem}
-        loadNext={hasMembers ? membersSearchSource.search : undefined}
-      />
+      {firstPageLoadRetry.error ? (
+        <ChannelDetailListLoadErrorUI
+          error={firstPageLoadRetry.error}
+          isRetrying={firstPageLoadRetry.isRetrying}
+          retry={firstPageLoadRetry.retry}
+        />
+      ) : (
+        <VirtualizedList
+          className='str-chat__channel-detail__channel-members-view__list'
+          computeItemKey={computeMemberItemKey}
+          data={renderableMembers}
+          EmptyPlaceholder={EmptyPlaceholder}
+          Footer={Footer}
+          itemContent={renderItem}
+          loadNext={hasMembers ? membersSearchSource.search : undefined}
+        />
+      )}
     </Prompt.Body>
   );
 };

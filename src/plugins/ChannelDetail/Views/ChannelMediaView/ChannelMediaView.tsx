@@ -22,9 +22,13 @@ import {
   type SectionNavigatorSectionContentProps,
 } from '../../SectionNavigator';
 import { useChannelDetailContext } from '../../ChannelDetailContext';
-import { ChannelDetailListLoadingIndicator } from '../../ChannelDetailListLoadingIndicator';
+import {
+  ChannelDetailListLoadErrorUI,
+  ChannelDetailListLoadingNextPageUI,
+} from '../../ListStates';
+import { useChannelDetailFirstPageLoadRetry } from '../../hooks/useChannelDetailFirstPageLoadRetry';
+import { ChannelMediaEmpty } from './ListStates';
 import { getUserDisplayName } from '../ChannelMembersView/ChannelMembersView.utils';
-import { ChannelMediaEmptyList } from './ChannelMediaEmptyList';
 import type { ChannelMediaItem } from './ChannelMediaView.utils';
 import { useChannelMediaSearch } from './useChannelMediaSearch';
 import { Button } from '../../../../components';
@@ -170,10 +174,24 @@ export const ChannelMediaView: React.ComponentType<ChannelMediaViewProps> = ({
   const {
     BaseImage = DefaultBaseImage,
     Gallery = DefaultGallery,
+    ListEmptyUI = ChannelMediaEmpty,
     Modal = GlobalModal,
   } = useComponentContext();
-  const { channelMediaSearchSource, hasNext, hasResultsLoaded, isLoading, mediaItems } =
-    useChannelMediaSearch();
+  const {
+    channelMediaSearchSource,
+    hasNext,
+    hasResultsLoaded,
+    isLoading,
+    lastQueryError,
+    mediaItems,
+  } = useChannelMediaSearch();
+  // Loaded messages can hold no media to show, so the grid's items decide, not the source's.
+  const firstPageLoadRetry = useChannelDetailFirstPageLoadRetry(
+    channelMediaSearchSource,
+    {
+      hasItemsToShow: mediaItems.length > 0,
+    },
+  );
 
   const [viewerOpen, setViewerOpen] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState(0);
@@ -230,8 +248,9 @@ export const ChannelMediaView: React.ComponentType<ChannelMediaViewProps> = ({
   // Fill loop: a message yields a variable number of attachments, so one fetch may not fill a grid
   // page (the first page can arrive short). Keeps fetching message pages until the visible page is
   // full or the channel is exhausted, and resolves a pending "Next" once its target page has data.
+  // A failed query stops the loop: an empty grid offers Try again, a filled one Next.
   useEffect(() => {
-    if (isLoading) return;
+    if (isLoading || lastQueryError) return;
 
     if (pendingNextRef.current) {
       const nextPageStart = (page + 1) * itemsPerPage;
@@ -258,6 +277,7 @@ export const ChannelMediaView: React.ComponentType<ChannelMediaViewProps> = ({
     hasNext,
     isLoading,
     itemsPerPage,
+    lastQueryError,
     mediaItems.length,
     page,
     pageStart,
@@ -282,7 +302,13 @@ export const ChannelMediaView: React.ComponentType<ChannelMediaViewProps> = ({
       <Prompt.Body className='str-chat__channel-detail__media-view__body'>
         <div className='str-chat__channel-detail__media-view__grid' ref={gridRef}>
           <div className='str-chat__channel-detail__media-view__grid__content'>
-            {pageItems.length > 0 ? (
+            {firstPageLoadRetry.error ? (
+              <ChannelDetailListLoadErrorUI
+                error={firstPageLoadRetry.error}
+                isRetrying={firstPageLoadRetry.isRetrying}
+                retry={firstPageLoadRetry.retry}
+              />
+            ) : pageItems.length > 0 ? (
               <div className='str-chat__channel-detail__media-view__grid__items'>
                 {pageItems.map((item, index) => (
                   <ChannelMediaGridItem
@@ -294,9 +320,14 @@ export const ChannelMediaView: React.ComponentType<ChannelMediaViewProps> = ({
                 ))}
               </div>
             ) : hasResultsLoaded ? (
-              <ChannelMediaEmptyList />
+              <ListEmptyUI />
             ) : null}
-            <ChannelDetailListLoadingIndicator searchSource={channelMediaSearchSource} />
+            {/* A retry shows its progress on the error's button. */}
+            {!firstPageLoadRetry.error && (
+              <ChannelDetailListLoadingNextPageUI
+                searchSource={channelMediaSearchSource}
+              />
+            )}
             {showPagination && (
               <ChannelMediaPagination
                 nextDisabled={!canGoNext || isLoading}

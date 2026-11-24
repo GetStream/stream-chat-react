@@ -1,5 +1,13 @@
 import React from 'react';
-import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import {
+  act,
+  cleanup,
+  fireEvent,
+  render,
+  renderHook,
+  screen,
+  waitFor,
+} from '@testing-library/react';
 import type { RenderResult } from '@testing-library/react';
 import { fromPartial } from '@total-typescript/shoehorn';
 
@@ -7,6 +15,8 @@ import { ChannelHeader, ChannelHeaderSubtitle } from '../ChannelHeader';
 
 import { Channel } from '../../Channel';
 import { Chat } from '../../Chat';
+import { ChannelInstanceProvider } from '../../../context';
+import { Streami18n } from '../../../i18n';
 import { WithComponents } from '../../../context/WithComponents';
 import {
   defaultWorkspaceNavigation,
@@ -26,9 +36,11 @@ import {
 import { axe } from '../../../../axe-helper';
 import { ChannelAvatar } from '../../Avatar';
 import { TypingIndicatorHeader } from '../../TypingIndicator';
+import { useChannelHeaderOnlineStatus } from '../hooks/useChannelHeaderOnlineStatus';
 import type {
   ChannelAPIResponse,
   ChannelResponse,
+  ChannelState,
   Channel as ChannelType,
   StreamChat,
   UserResponse,
@@ -774,11 +786,22 @@ describe('ChannelHeader', () => {
   });
 
   describe('ChannelHeaderSubtitle', () => {
-    const renderSubtitle = async (watchers: UserResponse[]) => {
+    // `user1` is the current user. Online means `member.user.online`, not watching the channel.
+    const renderSubtitle = async ({
+      members = [user1, user2],
+      onlineUserIds,
+      watchers = [],
+    }: {
+      members?: UserResponse[];
+      onlineUserIds: string[];
+      watchers?: UserResponse[];
+    }) => {
       client = await getTestClientWithUser(user1);
       testChannel1 = generateChannel({
-        ...defaultChannelState,
-        channel: { member_count: 2 },
+        channel: { member_count: members.length },
+        members: members.map((user) =>
+          generateMember({ user: { ...user, online: onlineUserIds.includes(user.id) } }),
+        ),
       });
       /* eslint-disable-next-line react-hooks/rules-of-hooks */
       useMockedApis(client, [getOrCreateChannelApi(testChannel1)]);
@@ -787,6 +810,7 @@ describe('ChannelHeader', () => {
       channel.state.watchers = Object.fromEntries(
         watchers.map((user) => [user.id, user]),
       );
+      channel.state.watcher_count = watchers.length;
 
       return render(
         <Chat client={client}>
@@ -797,18 +821,131 @@ describe('ChannelHeader', () => {
       );
     };
 
-    it('shows Online for a direct message whose other member is watching', async () => {
-      const { container } = await renderSubtitle([user2]);
+    it('shows Online for a direct message whose other member is online, watching or not', async () => {
+      const { container } = await renderSubtitle({ onlineUserIds: [user1.id, user2.id] });
 
       expect(await screen.findByText('Online')).toBeInTheDocument();
       expect(await axe(container)).toHaveNoViolations();
     });
 
-    it('shows Offline for a direct message whose other member is not watching', async () => {
-      const { container } = await renderSubtitle([user1]);
+    it('shows Offline for a direct message whose other member is offline', async () => {
+      const { container } = await renderSubtitle({ onlineUserIds: [user1.id] });
 
       expect(await screen.findByText('Offline')).toBeInTheDocument();
       expect(await axe(container)).toHaveNoViolations();
     });
+
+    it('shows Online for a direct message whose other member watches it', async () => {
+      await renderSubtitle({ onlineUserIds: [user1.id], watchers: [user2] });
+
+      expect(await screen.findByText('Online')).toBeInTheDocument();
+    });
+
+    it('counts the members of a group who are online or watch it, not other watchers', async () => {
+      const [user3, user4] = [generateUser(), generateUser()];
+      const nonMembers = [generateUser(), generateUser()];
+      // 4 watchers, of whom 2 are members; online: user1 and user3, and user2 by watching.
+      await renderSubtitle({
+        members: [user1, user2, user3, user4],
+        onlineUserIds: [user1.id, user3.id],
+        watchers: [user1, user2, ...nonMembers],
+      });
+
+      expect(await screen.findByText('4 members · 3 online')).toBeInTheDocument();
+    });
   });
+});
+
+/** `count` members, the first `onlineCount` of them online. */
+const membersWithOnline = (count: number, onlineCount: number) =>
+  Object.fromEntries(
+    Array.from({ length: count }, (_, index) => {
+      const member = generateMember({
+        user: generateUser({ online: index < onlineCount }),
+      });
+      return [member.user!.id, member];
+    }),
+  ) as ChannelState['members'];
+
+describe('useChannelHeaderOnlineStatus', () => {
+  let client: StreamChat;
+  let contextChannel: ChannelType;
+  let givenChannel: ChannelType;
+
+  beforeEach(async () => {
+    client = await getTestClientWithUser({ id: 'own-user' });
+    contextChannel = client.channel('messaging', 'context');
+    contextChannel.data = { member_count: 7 };
+    contextChannel.state.members = membersWithOnline(7, 5);
+    givenChannel = client.channel('messaging', 'given');
+    givenChannel.data = { member_count: 3 };
+    givenChannel.state.members = membersWithOnline(3, 2);
+  });
+
+  it('reads the channel in context when none is given', () => {
+    const { result } = renderHook(() => useChannelHeaderOnlineStatus(), {
+      wrapper: ({ children }: React.PropsWithChildren) => (
+        <Chat client={client}>
+          <ChannelInstanceProvider value={{ channel: contextChannel }}>
+            {children}
+          </ChannelInstanceProvider>
+        </Chat>
+      ),
+    });
+
+    expect(result.current).toBe('7 members · 5 online');
+  });
+
+  it('reads the given channel without a channel provider', () => {
+    const { result } = renderHook(
+      () => useChannelHeaderOnlineStatus({ channel: givenChannel }),
+      {
+        wrapper: ({ children }: React.PropsWithChildren) => (
+          <Chat client={client}>{children}</Chat>
+        ),
+      },
+    );
+
+    expect(result.current).toBe('3 members · 2 online');
+  });
+
+  it('reads the given channel instead of the channel in context', () => {
+    const { result } = renderHook(
+      () => useChannelHeaderOnlineStatus({ channel: givenChannel }),
+      {
+        wrapper: ({ children }: React.PropsWithChildren) => (
+          <Chat client={client}>
+            <ChannelInstanceProvider value={{ channel: contextChannel }}>
+              {children}
+            </ChannelInstanceProvider>
+          </Chat>
+        ),
+      },
+    );
+
+    expect(result.current).toBe('3 members · 2 online');
+  });
+
+  it.each(['{{ onlineCount }}', '{{ watcherCount }}'])(
+    'renders the online count through a translation that uses %s',
+    async (placeholder) => {
+      const i18nInstance = new Streami18n({
+        translationsForLanguage: {
+          'channelHeader.online.online.label': `${placeholder} connected`,
+        },
+      });
+      const { result } = renderHook(
+        () => useChannelHeaderOnlineStatus({ channel: givenChannel }),
+        {
+          wrapper: ({ children }: React.PropsWithChildren) => (
+            <Chat client={client} i18nInstance={i18nInstance}>
+              {children}
+            </Chat>
+          ),
+        },
+      );
+
+      await waitFor(() => expect(result.current).toBe('3 members · 2 connected'));
+    },
+  );
 });

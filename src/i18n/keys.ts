@@ -216,6 +216,7 @@ export type TranslationCatalog = {
   'channelDetail.channelMembersView.browseChannelMembers.description': 'Browse channel members';
   'channelDetail.channelMembersView.members.title_one': '{{ count }} member';
   'channelDetail.channelMembersView.members.title_other': '{{ count }} members';
+  'channelDetail.listLoaded.text': 'List loaded';
   'channelDetail.navButton.channelFiles.label': 'Files';
   'channelDetail.navButton.channelInfo.label': 'Channel info';
   'channelDetail.navButton.channelMedia.label': 'Photos & videos';
@@ -231,7 +232,7 @@ export type TranslationCatalog = {
   'channelDetail.sectionNavigatorHeader.openMenu.ariaLabel': 'Open menu';
   'channelHeader.closeChannel.ariaLabel': 'Close channel';
   'channelHeader.online.members.label': '{{ memberCount }} members';
-  'channelHeader.online.online.label': '{{ watcherCount }} online';
+  'channelHeader.online.online.label': '{{ onlineCount }} online';
   'channelList.channelList.ariaLabel': 'Channel list';
   'channelList.header.chats.text': 'Chats';
   'channelList.loadError.text': "Couldn't load conversations";
@@ -368,6 +369,7 @@ export type TranslationCatalog = {
   'form.switchField.enabled.ariaLabel': '{{ setting }} enabled';
   'gallery.ui.nextImage.ariaLabel': 'Next image';
   'gallery.ui.previousImage.ariaLabel': 'Previous image';
+  'listStates.loadError.text': "Couldn't load the list";
   'loadMore.button.loadMore.label': 'Load more';
   'loading.errorIndicator.error.text': 'Error: {{ errorMessage }}';
   'loading.progressIndicators.percentComplete.ariaLabel': '{{percent}} percent complete';
@@ -556,6 +558,8 @@ export type TranslationCatalog = {
   'poll.addCommentPrompt.updateComment.label': 'Update Your Comment';
   'poll.addCommentPrompt.updateCommentAttachedPoll.label': 'Update the comment attached to your poll answer';
   'poll.answerList.description': 'Review comments submitted with poll answers';
+  'poll.answerList.empty.text': 'No comments yet';
+  'poll.answerList.loaded.text': 'Comments loaded';
   'poll.answerList.pollComments.title': 'Poll Comments';
   'poll.creationDialog.allowOthersAddComments.description': 'Allow Others to Add Comments';
   'poll.creationDialog.anonymousPoll.title': 'Anonymous Poll';
@@ -594,6 +598,7 @@ export type TranslationCatalog = {
   'poll.optionReorder.pressSpaceSelectOption.ariaLabel': 'Press Space to select this option, use the Up and Down arrow keys to move it, then press Space again to deselect it.';
   'poll.optionReorder.reorderOption.ariaLabel': 'Reorder option {{ position }}';
   'poll.optionReorder.reorderPosition.ariaLabel': 'Reorder "{{ option }}" at position {{ position }} of {{ total }}';
+  'poll.optionVotes.loaded.text': 'Votes loaded';
   'poll.optionVotes.question.text': 'Question {{ optionOrderNumber}}';
   'poll.optionVotes.view.text': 'View all';
   'poll.optionVotes.votes.text_one': '{{count}} vote';

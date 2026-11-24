@@ -43,16 +43,6 @@ describe('EmptyStateIndicator', () => {
     expect(screen.queryByText('No conversations yet')).toBeInTheDocument();
   });
 
-  it('should display the scheduled empty state when listType is scheduled', () => {
-    render(<EmptyStateIndicator listType='scheduled' />);
-    expect(screen.getByText('No scheduled messages')).toBeInTheDocument();
-    expect(
-      screen.getByText(
-        'Click the arrow next to the send button in a channel to schedule a message.',
-      ),
-    ).toBeInTheDocument();
-  });
-
   it('should return null if listType is thread', () => {
     const { container } = render(<EmptyStateIndicator listType='thread' />);
     expect(container).toBeEmptyDOMElement();

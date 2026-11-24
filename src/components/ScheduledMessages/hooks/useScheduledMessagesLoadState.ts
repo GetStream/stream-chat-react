@@ -2,8 +2,8 @@ import type { PaginatorState, ScheduledMessageResponse } from 'stream-chat';
 
 import { useTranslationContext } from '../../../context';
 import { useStateStore } from '../../../store';
-import { getFirstPageLoadError } from '../../Loading/getFirstPageLoadError';
-import { useFirstPageLoadRetry } from '../../Loading/hooks/useFirstPageLoadRetry';
+import { useFirstPageLoadRetry } from '../../ListStates/hooks';
+import { getFirstPageLoadError } from '../../ListStates/utils';
 import type {
   ScheduledMessagesLoadState,
   UseScheduledMessagePaginatorParams,

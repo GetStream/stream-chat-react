@@ -18,11 +18,15 @@ import {
 } from '../../SectionNavigator';
 import { ChannelDetailSearchInput } from '../../ChannelDetailSearchInput';
 import { getUserDisplayName } from '../ChannelMembersView/ChannelMembersView.utils';
-import { ChannelDetailListLoadingIndicator } from '../../ChannelDetailListLoadingIndicator';
-import { PinnedMessagesEmptyList } from './PinnedMessagesEmptyList';
+import {
+  ChannelDetailListLoadErrorUI,
+  ChannelDetailListLoadingNextPageUI,
+} from '../../ListStates';
+import { useChannelDetailEmptyPlaceholder } from '../../hooks/useChannelDetailEmptyPlaceholder';
+import { useChannelDetailFirstPageLoadRetry } from '../../hooks/useChannelDetailFirstPageLoadRetry';
+import { PinnedMessagesEmpty } from './ListStates';
 import { usePinnedMessagesSearch } from './usePinnedMessagesSearch';
 import { useChannelDetailContext } from '../../ChannelDetailContext';
-import { ChannelDetailEmptyList } from '../../ChannelDetailEmptyList';
 import { convertTimestampToDate } from 'stream-chat';
 
 type PinnedMessage = MessageResponse | LocalMessage;
@@ -149,6 +153,14 @@ export const PinnedMessagesView: React.ComponentType<PinnedMessagesViewProps> = 
     hasSearchResultsLoaded,
     pinnedMessagesSearchSource,
   } = usePinnedMessagesSearch({ searchSource });
+  const firstPageLoadRetry = useChannelDetailFirstPageLoadRetry(
+    pinnedMessagesSearchSource,
+    {
+      hasItemsToShow: displayedMessages.length > 0,
+    },
+  );
+  // A channel without pinned messages shows "No pinned messages" and queries nothing.
+  const listLoadError = hasPinnedMessages ? firstPageLoadRetry.error : undefined;
 
   const handleSelectMessage = useCallback(
     (message: PinnedMessage) => {
@@ -166,29 +178,18 @@ export const PinnedMessagesView: React.ComponentType<PinnedMessagesViewProps> = 
     [handleSelectMessage],
   );
 
-  const EmptyPlaceholder = useMemo(
-    () =>
-      function PinnedMessagesEmptyPlaceholder() {
-        if (!hasPinnedMessages) return <PinnedMessagesEmptyList />;
-        if (hasSearchResultsLoaded)
-          return (
-            <ChannelDetailEmptyList>
-              {t(
-                'channelDetail.pinnedMessagesView.noMessagesFound.text',
-                'No messages found',
-              )}
-            </ChannelDetailEmptyList>
-          );
-        return null;
-      },
-    [hasPinnedMessages, hasSearchResultsLoaded, t],
+  // A channel without pinned messages queries nothing, so it shows as empty; one with pinned
+  // messages shows its empty state once a search has loaded.
+  const EmptyPlaceholder = useChannelDetailEmptyPlaceholder(
+    PinnedMessagesEmpty,
+    !hasPinnedMessages || hasSearchResultsLoaded,
   );
 
   const Footer = useMemo(
     () =>
       function PinnedMessagesListFooter() {
         return (
-          <ChannelDetailListLoadingIndicator searchSource={pinnedMessagesSearchSource} />
+          <ChannelDetailListLoadingNextPageUI searchSource={pinnedMessagesSearchSource} />
         );
       },
     [pinnedMessagesSearchSource],
@@ -211,15 +212,23 @@ export const PinnedMessagesView: React.ComponentType<PinnedMessagesViewProps> = 
         {hasPinnedMessages && (
           <ChannelDetailSearchInput onSearchChange={handleSearchChange} />
         )}
-        <VirtualizedList
-          className='str-chat__channel-detail__pinned-messages-view__list'
-          computeItemKey={computeItemKey}
-          data={displayedMessages}
-          EmptyPlaceholder={EmptyPlaceholder}
-          Footer={Footer}
-          itemContent={renderItem}
-          loadNext={hasPinnedMessages ? pinnedMessagesSearchSource.search : undefined}
-        />
+        {listLoadError ? (
+          <ChannelDetailListLoadErrorUI
+            error={listLoadError}
+            isRetrying={firstPageLoadRetry.isRetrying}
+            retry={firstPageLoadRetry.retry}
+          />
+        ) : (
+          <VirtualizedList
+            className='str-chat__channel-detail__pinned-messages-view__list'
+            computeItemKey={computeItemKey}
+            data={displayedMessages}
+            EmptyPlaceholder={EmptyPlaceholder}
+            Footer={Footer}
+            itemContent={renderItem}
+            loadNext={hasPinnedMessages ? pinnedMessagesSearchSource.search : undefined}
+          />
+        )}
       </Prompt.Body>
     </div>
   );
