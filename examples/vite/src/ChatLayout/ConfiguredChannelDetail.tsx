@@ -4,6 +4,7 @@ import {
   asDynamicKey,
   ChannelAvatar,
   type ChannelAvatarProps,
+  type ScheduledMessageListDialogProps,
   useChannel,
   useTranslationContext,
 } from 'stream-chat-react';
@@ -17,6 +18,7 @@ import {
   ChannelMembersView,
   type ChannelMembersViewModes,
   defaultChannelDetailSections,
+  ScheduledMessagesChannelDetailDialog,
   type SectionNavigatorSection,
   type SectionNavigatorSectionContentProps,
 } from 'stream-chat-react/channel-detail';
@@ -125,6 +127,15 @@ export const ConfiguredAvatarWithChannelDetail = (
   <AvatarWithChannelDetail
     {...props}
     Avatar={AvatarOpeningDetailBeside}
+    ChannelDetail={ConfiguredChannelDetail}
+  />
+);
+
+export const ConfiguredScheduledMessageListDialog = (
+  props: ScheduledMessageListDialogProps,
+) => (
+  <ScheduledMessagesChannelDetailDialog
+    {...props}
     ChannelDetail={ConfiguredChannelDetail}
   />
 );

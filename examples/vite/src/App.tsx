@@ -57,6 +57,12 @@ import {
 import { ChatSkipNavigation } from './AccessibilityNavigation/ChatSkipNavigation.tsx';
 import { SlotGeometryProvider } from 'stream-chat-react/slot-geometry';
 import { AlsoSentInChannelIndicator } from './ChatLayout/AlsoSentInChannelIndicator.tsx';
+import { ConfiguredScheduledMessageListDialog } from './ChatLayout/ConfiguredChannelDetail.tsx';
+import {
+  CalendarDateInput,
+  ConfirmScheduledMessageDelete,
+  TimeComboboxInput,
+} from './ScheduledMessages';
 import { useAdditiveWorkspaceNavigation } from './ChatLayout/useAdditiveWorkspaceNavigation.ts';
 import { ChannelsPanels, ThreadsPanels } from './ChatLayout/Panels.tsx';
 import { SidebarProvider } from './ChatLayout/SidebarContext.tsx';
@@ -703,6 +709,10 @@ const App = () => {
         MessageComposerPreviews: ConfigurableComposerPreviews,
         PollCreationDialogControls: ConfigurablePollCreationDialogControls,
         ScheduledMessageItem: ConfigurableScheduledMessageItem,
+        ScheduledMessageListDialog: ConfiguredScheduledMessageListDialog,
+        ScheduledMessageDeleteAlert: ConfirmScheduledMessageDelete,
+        ScheduleDateInput: CalendarDateInput,
+        ScheduleTimeInput: TimeComboboxInput,
         StartRecordingAudioButton: ConfigurableStartRecordingAudioButton,
         MessageUI: InlineEditableMessage,
         ...messageUiOverrides,
