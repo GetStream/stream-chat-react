@@ -103,6 +103,51 @@ jobs:
           verbose: true
           use_oidc: true
 
+  browser-test:
+    # Pinned: Playwright installs Chromium only on the Ubuntu releases it supports, and
+    # `ubuntu-latest` can move to one it does not support yet (26.04 did).
+    runs-on: ubuntu-24.04
+    name: Browser tests (virtualized lists)
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: ./.github/actions/setup-node
+
+      - name: Cache Playwright browsers
+        uses: actions/cache@v5
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ hashFiles('yarn.lock') }}
+
+      # Install scripts are disabled (`enableScripts: false`), so the browser is installed here.
+      - name: Install Chromium
+        run: yarn playwright install --with-deps chromium
+
+      # The shipped runtime: invariants, scenarios and fuzz seeds must pass.
+      - name: Real-browser suites (react-virtuoso 4)
+        run: yarn vitest run --project browser-v4
+
+      # The react-virtuoso 2 reference and the trace comparison, recorded for review in the
+      # artifact below and not gating: on CI's slower runners v2 loses races it is known for
+      # (opening at the top, losing a jump), which local runs rarely hit. `yarn test:browser` runs
+      # all three locally, the comparison gating there.
+      - name: react-virtuoso 2 reference and trace comparison (informational)
+        continue-on-error: true
+        run: |
+          yarn vitest run --project browser-v2 || true
+          node scripts/compare-virtuoso-traces.mts
+
+      - name: Upload the trace comparison
+        if: always()
+        uses: actions/upload-artifact@v5
+        with:
+          name: virtuoso-traces
+          path: |
+            .virtuoso-traces/report.md
+            .virtuoso-traces/browser-v2
+            .virtuoso-traces/browser-v4
+          if-no-files-found: ignore
+
   deploy-vite-example:
     concurrency:
       cancel-in-progress: true

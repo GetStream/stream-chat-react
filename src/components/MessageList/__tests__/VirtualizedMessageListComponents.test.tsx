@@ -8,6 +8,7 @@ import {
   messageRenderer,
 } from '../VirtualizedMessageListComponents';
 import { VirtualizedMessageListEmptyUI } from '../ListStates';
+import { MessageListPositioningUI } from '../MessageListPositioningUI';
 import type { VirtuosoContext } from '../VirtualizedMessageList';
 import {
   generateMessage,
@@ -121,6 +122,8 @@ describe('VirtualizedMessageComponents', () => {
           'data-index': PREPEND_OFFSET,
           'data-item-index': PREPEND_OFFSET,
           'data-known-size': 0,
+          // react-virtuoso 4 passes the row's data; this list renders by `totalCount`, so none.
+          item: undefined as never,
         };
         const virtuosoContext = {
           customClasses,
@@ -287,6 +290,32 @@ describe('VirtualizedMessageComponents', () => {
       );
       expect(container).toHaveTextContent('Custom head');
       expect(container.querySelector('.str-chat__loading-indicator')).toBeNull();
+    });
+  });
+
+  describe('MessageListPositioningUI', () => {
+    it('should render the LoadingIndicator over the list while it is positioned', () => {
+      const { container } = renderElements(<MessageListPositioningUI isPositioning />, {
+        LoadingIndicator: () => <div>Custom Loading Indicator</div>,
+      });
+      expect(
+        container.querySelector('.str-chat__virtual-list__positioning'),
+      ).toHaveTextContent('Custom Loading Indicator');
+    });
+
+    it('should render nothing once the list is positioned', () => {
+      const { container } = renderElements(
+        <MessageListPositioningUI isPositioning={false} />,
+        { LoadingIndicator: () => <div>Custom Loading Indicator</div> },
+      );
+      expect(container).toBeEmptyDOMElement();
+    });
+
+    it('should render nothing while LoadingIndicator is set to null', () => {
+      const { container } = renderElements(<MessageListPositioningUI isPositioning />, {
+        LoadingIndicator: null as unknown as undefined,
+      });
+      expect(container).toBeEmptyDOMElement();
     });
   });
 

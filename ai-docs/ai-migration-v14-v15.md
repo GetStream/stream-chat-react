@@ -2480,7 +2480,32 @@ Pass them to `react-virtuoso` through `additionalVirtuosoProps`. `react-virtuoso
 | `overscan`              | `additionalVirtuosoProps.overscan`                                                                               |
 | `scrollSeekPlaceHolder` | `additionalVirtuosoProps.scrollSeekConfiguration` and `additionalVirtuosoProps.components.ScrollSeekPlaceholder` |
 
-In v14, `scrollSeekPlaceHolder` reached `react-virtuoso` as its deprecated `scrollSeek` prop, which logged a warning. `scrollSeekConfiguration` with `components.ScrollSeekPlaceholder` keeps the same behavior without the warning. `defaultItemHeight` and `scrollSeekPlaceHolder` used to win over `additionalVirtuosoProps`; now `additionalVirtuosoProps` is the only source.
+In v14, `scrollSeekPlaceHolder` reached `react-virtuoso` as its deprecated `scrollSeek` prop, which logged a warning. `scrollSeekConfiguration` with `components.ScrollSeekPlaceholder` keeps the same behavior. react-virtuoso 4 removed `scrollSeek` and its other v0 aliases (`item`, `header`, `footer`, `emptyComponent`, `*Container`, …), so a value passed under one of those names now lands on the scroller element as an unknown DOM attribute. `defaultItemHeight` and `scrollSeekPlaceHolder` used to win over `additionalVirtuosoProps`; now `additionalVirtuosoProps` is the only source.
+
+### The virtualized lists run on `react-virtuoso` 4
+
+`VirtualizedMessageList`, `ThreadList` and the Channel Detail lists use `react-virtuoso` 4 (previously 2). Code that passes nothing to Virtuoso is not affected. Code that does — `VirtualizedMessageList`'s `additionalVirtuosoProps`, `ThreadList`'s `virtuosoProps`, custom Virtuoso components, tests that select Virtuoso's markup — should check the following.
+
+- **Types.** `ItemProps` takes the item data type (`ItemProps<Data>`), and `Components` takes `<Data, Context>`. `VirtuosoProps` no longer has `react18ConcurrentRendering`, and types its DOM event handlers for `HTMLDivElement`. Custom components are typed as receiving a required `context` prop. A custom `Item` receives an `item` prop (`undefined` for `VirtualizedMessageList`, which renders by `totalCount`); do not spread it onto a DOM element.
+- **Test IDs.** Virtuoso's `data-test-id` attributes are now `data-testid` (`virtuoso-scroller`, `virtuoso-item-list`, `virtuoso-top-item-list`). `data-virtuoso-scroller`, `data-viewport-type`, `data-index`, `data-item-index` and `data-known-size` are unchanged.
+- **`followOutput`.** A `followOutput` function you pass must return `false` to not scroll: `undefined` and `null` now mean `'auto'`.
+- **`scrollerRef`.** With `useWindowScroll` or `customScrollParent`, Virtuoso now calls `scrollerRef` with the window or the scroll parent (it used to call nothing).
+- **`additionalVirtuosoProps` values of `undefined`.** Pass a prop or leave it out: an explicit `undefined` (for example `itemSize: undefined`) overrides the list's own value, and Virtuoso 4 does not fall back to its default.
+- **Opening a list.** While it positions a freshly mounted list (opening a channel or thread, a jump to a message or to the latest messages), Virtuoso keeps the list hidden — about a quarter of a second — and shows it in place, where v2 showed it at once and moved it into position over the first frames. Meanwhile `VirtualizedMessageList` renders the `MessageListPositioningUI` slot over the list, which shows the `LoadingIndicator` by default. Set the slot in `WithComponents` to replace it, or to `null` to render nothing; a `LoadingIndicator` set to `null` hides the default too. The slot is rendered at all times with `isPositioning`, so a component can also animate the reveal:
+
+  ```tsx
+  // A cover in the list's background color over the list, faded out with a CSS opacity
+  // transition once the list is positioned: the list appears to fade in.
+  const FadeIn = ({ isPositioning }: MessageListPositioningUIProps) => (
+    <div className={clsx('app-list-cover', !isPositioning && 'app-list-cover--hidden')} />
+  );
+
+  <WithComponents overrides={{ MessageListPositioningUI: FadeIn }}>…</WithComponents>;
+  ```
+
+- **Scroll position.** Scrolling up through messages not yet rendered keeps the content still; v2 could jump by the difference between estimated and real message heights.
+- **Staying at the bottom.** A list scrolled to its bottom now stays there while its content grows: a message that measures taller than estimated, an image that loads late, a reply that streams in. Scrolled up by more than the at-bottom threshold, the list does not move. With `suppressAutoscroll`, new messages do not move the list until the reader scrolls; a message already shown that grows still keeps a reader at the bottom. A `followOutput` you pass in `additionalVirtuosoProps` alone decides whether new messages are followed. In a window of older messages (after a jump), a scroll to its end reaches the end and loads the next newer page, which is not followed.
+- **Bundling.** The package is ES2022 with an `exports` map and no dependencies of its own. A build that targets older browsers must transpile it.
 
 ```tsx
 // v14

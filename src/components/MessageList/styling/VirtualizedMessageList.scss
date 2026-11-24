@@ -38,6 +38,16 @@
     position: absolute;
   }
 
+  // Over the list while react-virtuoso keeps it hidden to position it (opening the list, a jump).
+  &__positioning {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+  }
+
   p {
     margin: 0 !important; // always use padding, margin mess up the height calculations
 

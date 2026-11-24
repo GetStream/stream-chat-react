@@ -26,6 +26,7 @@ import {
   type MessageBouncePromptProps,
   type MessageDeletedProps,
   type MessageListItemProps,
+  type MessageListPositioningUIProps,
   type MessageListWrapperProps,
   type MessageProps,
   type MessageReactionsDetailProps,
@@ -297,6 +298,13 @@ export type ComponentContextValue = {
   /** Bubble of a deleted message. */
   MessageDeletedBubble?: React.ComponentType;
   MessageListMainPanel?: React.ComponentType<PropsWithChildrenOnly>;
+  /**
+   * Rendered over `VirtualizedMessageList` at all times, with `isPositioning` true while
+   * react-virtuoso keeps the list hidden to position it (opening the list, a channel switch, a
+   * jump; about a quarter of a second). The default shows the `LoadingIndicator` meanwhile. A custom
+   * one can render anything, or animate the change (fade the list in, say). `null` renders nothing.
+   */
+  MessageListPositioningUI?: React.ComponentType<MessageListPositioningUIProps> | null;
   /** A single notification in `NotificationList`. */
   Notification?: React.ForwardRefExoticComponent<
     NotificationProps & React.RefAttributes<HTMLDivElement>
