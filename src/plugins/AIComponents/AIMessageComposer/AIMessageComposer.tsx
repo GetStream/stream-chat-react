@@ -118,6 +118,7 @@ const AIMessageComposerConversationContext = createContext<
 const statusSelector = ({ status }: AIConversationControllerState) => ({ status });
 
 // Whether the agent of the composer's conversation is answering. `false` without a conversation.
+// A switch to another version on its way doesn't count: sending gives up on it.
 const useIsAnswering = (conversation: AIConversationController | undefined) => {
   const { status } = useStateStore(conversation?.state, statusSelector) ?? {};
   return !!status && isAIConversationAnswering(status);
@@ -396,6 +397,7 @@ export const AIMessageComposer: AIMessageComposer = ({
     if (!conversation || e.defaultPrevented) return;
     e.preventDefault();
     // Enter while the agent answers doesn't send: the send button is a stop button meanwhile.
+    // While another version of a message is on its way it does: the request gives up on it.
     if (isAIConversationAnswering(conversation.state.getLatestValue().status)) return;
     const { attachments, chatOption, custom, text } = stateStore.getLatestValue();
     if (text.trim() === '' && attachments.length === 0) return;

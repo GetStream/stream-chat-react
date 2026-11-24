@@ -1,129 +1,216 @@
-import { render, screen } from '@testing-library/react';
+import { act, render, screen } from '@testing-library/react';
 import React from 'react';
-import { fromPartial } from '@total-typescript/shoehorn';
+import { UserSearchSource } from 'stream-chat';
+import type { SearchSourceState } from 'stream-chat';
 
 import { SearchSourceResultListFooter } from '../SearchResults';
-import { useSearchSourceResultsContext } from '../SearchSourceResultsContext';
-import type { ComponentContextValue, TranslationContextValue } from '../../../context';
-import { useComponentContext, useTranslationContext } from '../../../context';
-import { useStateStore } from '../../../store';
-import { mockT } from '../../../mock-builders/translator';
-
-vi.mock('../SearchSourceResultsContext');
-vi.mock('../../../context');
-vi.mock('../../../store');
+import { SearchSourceResultsContextProvider } from '../SearchSourceResultsContext';
+import { ComponentProvider, TranslationProvider } from '../../../context';
+import type { ComponentContextValue } from '../../../context';
+import type { ListEndReachedUIProps, ListLoadingNextPageUIProps } from '../../ListStates';
+import {
+  getTestClientWithUser,
+  mockComponentContext,
+  mockTranslationContextValue,
+} from '../../../mock-builders';
 
 const SEARCH_FOOTER_TEST_ID = 'search-footer';
+const SEARCH_LOADING_TEST_ID = 'search-loading-indicator';
 
 describe('SearchSourceResultListFooter', () => {
-  const mockSearchSource = {
-    state: {},
-  };
+  let searchSource: UserSearchSource;
 
-  const DefaultLoadingIndicator = () => (
-    <div data-testid='default-loading-indicator'>Loading...</div>
-  );
-
-  beforeEach(() => {
-    vi.clearAllMocks();
-
-    vi.mocked(useSearchSourceResultsContext).mockReturnValue(
-      fromPartial({
-        searchSource: mockSearchSource,
-      }),
+  const renderFooter = (
+    componentContext: Partial<ComponentContextValue> = {},
+    t = mockTranslationContextValue().t,
+  ) =>
+    render(
+      <TranslationProvider value={mockTranslationContextValue({ t })}>
+        <ComponentProvider value={mockComponentContext(componentContext)}>
+          <SearchSourceResultsContextProvider value={{ searchSource }}>
+            <SearchSourceResultListFooter />
+          </SearchSourceResultsContextProvider>
+        </ComponentProvider>
+      </TranslationProvider>,
     );
 
-    vi.mocked(useComponentContext).mockReturnValue(
-      fromPartial<ComponentContextValue>({
-        SearchSourceResultsLoadingIndicator: DefaultLoadingIndicator,
-      }),
-    );
+  const setSourceState = (state: Partial<SearchSourceState>) =>
+    act(() => {
+      searchSource.state.partialNext(state);
+    });
 
-    vi.mocked(useTranslationContext).mockReturnValue(
-      fromPartial<TranslationContextValue>({
-        t: mockT,
-      }),
-    );
-
-    vi.mocked(useStateStore).mockReturnValue({
+  beforeEach(async () => {
+    const client = await getTestClientWithUser({ id: 'test-user' });
+    searchSource = new UserSearchSource(client);
+    searchSource.state.partialNext({
       hasNext: true,
       isLoading: false,
+      items: [{ id: 'u1' }],
     });
   });
 
-  it('renders loading indicator when isLoading is true', () => {
-    vi.mocked(useStateStore).mockReturnValue({
-      hasNext: true,
-      isLoading: true,
-    });
+  it('renders "Searching for…" while the next page loads', () => {
+    searchSource.state.partialNext({ isLoading: true });
 
-    render(<SearchSourceResultListFooter />);
+    renderFooter();
 
-    expect(screen.getByTestId('default-loading-indicator')).toBeInTheDocument();
+    expect(screen.getByTestId(SEARCH_LOADING_TEST_ID)).toHaveTextContent(
+      'Searching for users...',
+    );
     expect(screen.queryByText('All results loaded')).not.toBeInTheDocument();
   });
 
-  it('renders "All results loaded" message when hasNext is false', () => {
-    vi.mocked(useStateStore).mockReturnValue({
-      hasNext: false,
-      isLoading: false,
+  describe('first page', () => {
+    it('renders "Searching for…" while the first page loads', () => {
+      searchSource.state.partialNext({ isLoading: true, items: undefined });
+
+      renderFooter();
+
+      expect(screen.getByTestId(SEARCH_FOOTER_TEST_ID)).toHaveTextContent(
+        'Searching for users...',
+      );
     });
 
-    render(<SearchSourceResultListFooter />);
+    it('renders ListFirstPageLoadingUI while the first page loads', () => {
+      const ListFirstPageLoadingUI = vi.fn(() => <div>Custom first page</div>);
+      const ListLoadingNextPageUI = vi.fn(() => null);
+      searchSource.state.partialNext({ isLoading: true, items: undefined });
 
-    expect(screen.getByText('All results loaded')).toBeInTheDocument();
-    expect(screen.queryByTestId('default-loading-indicator')).not.toBeInTheDocument();
+      renderFooter({ ListFirstPageLoadingUI, ListLoadingNextPageUI });
+
+      expect(screen.getByTestId(SEARCH_FOOTER_TEST_ID)).toHaveTextContent(
+        'Custom first page',
+      );
+      expect(ListLoadingNextPageUI).not.toHaveBeenCalled();
+    });
+
+    it('renders the deprecated SearchSourceResultsLoadingIndicator instead while set', () => {
+      const ListFirstPageLoadingUI = vi.fn(() => null);
+      searchSource.state.partialNext({ isLoading: true, items: undefined });
+
+      renderFooter({
+        ListFirstPageLoadingUI,
+        SearchSourceResultsLoadingIndicator: () => <div>Deprecated loading</div>,
+      });
+
+      expect(screen.getByText('Deprecated loading')).toBeInTheDocument();
+      expect(ListFirstPageLoadingUI).not.toHaveBeenCalled();
+    });
+
+    it('renders no loading state when the deprecated SearchSourceResultsLoadingIndicator is null', () => {
+      const ListFirstPageLoadingUI = vi.fn(() => <div>Custom first page</div>);
+      searchSource.state.partialNext({ isLoading: true, items: undefined });
+
+      renderFooter({
+        ListFirstPageLoadingUI,
+        // Apps turn the state off with `null`, which the key's type does not name.
+        SearchSourceResultsLoadingIndicator: null as unknown as undefined,
+      });
+
+      expect(screen.getByTestId(SEARCH_FOOTER_TEST_ID)).toBeEmptyDOMElement();
+      expect(ListFirstPageLoadingUI).not.toHaveBeenCalled();
+    });
+  });
+
+  it('renders "All results loaded" when hasNext is false', () => {
+    searchSource.state.partialNext({ hasNext: false });
+
+    renderFooter();
+
+    expect(screen.getByText('All results loaded')).toHaveAttribute('aria-hidden', 'true');
+    expect(screen.queryByTestId(SEARCH_LOADING_TEST_ID)).not.toBeInTheDocument();
+  });
+
+  it('does not render "All results loaded" while a page loads', () => {
+    searchSource.state.partialNext({ hasNext: false, isLoading: true });
+
+    renderFooter();
+
+    expect(screen.queryByText('All results loaded')).not.toBeInTheDocument();
   });
 
   it('renders only the footer wrapper when not loading and has more results', () => {
-    vi.mocked(useStateStore).mockReturnValue({
-      hasNext: true,
-      isLoading: false,
-    });
+    renderFooter();
 
-    render(<SearchSourceResultListFooter />);
-
-    expect(screen.getByTestId(SEARCH_FOOTER_TEST_ID)).toBeInTheDocument();
-    expect(screen.queryByTestId('default-loading-indicator')).not.toBeInTheDocument();
-    expect(screen.queryByText('All results loaded')).not.toBeInTheDocument();
+    expect(screen.getByTestId(SEARCH_FOOTER_TEST_ID)).toBeEmptyDOMElement();
   });
 
-  it('uses custom loading indicator when provided', () => {
-    const CustomLoadingIndicator = () => (
-      <div data-testid='custom-loading-indicator'>Custom Loading...</div>
+  it('passes the bottom edge to the shared indicators', () => {
+    const ListEndReachedUI = vi.fn<(props: ListEndReachedUIProps) => null>(() => null);
+    const ListLoadingNextPageUI = vi.fn<(props: ListLoadingNextPageUIProps) => null>(
+      () => null,
     );
+    searchSource.state.partialNext({ hasNext: false });
 
-    vi.mocked(useComponentContext).mockReturnValue(
-      fromPartial<ComponentContextValue>({
-        SearchSourceResultsLoadingIndicator: CustomLoadingIndicator,
-      }),
-    );
+    renderFooter({ ListEndReachedUI, ListLoadingNextPageUI });
 
-    vi.mocked(useStateStore).mockReturnValue({
-      hasNext: true,
-      isLoading: true,
+    expect(ListLoadingNextPageUI.mock.lastCall?.[0]).toEqual({
+      isLoading: false,
+      position: 'bottom',
+    });
+    expect(ListEndReachedUI.mock.lastCall?.[0]).toEqual({
+      hasEnded: true,
+      reached: 'bottom',
     });
 
-    render(<SearchSourceResultListFooter />);
+    setSourceState({ hasNext: true, isLoading: true });
+
+    expect(ListLoadingNextPageUI.mock.lastCall?.[0]).toEqual({
+      isLoading: true,
+      position: 'bottom',
+    });
+    expect(ListEndReachedUI.mock.lastCall?.[0]).toEqual({
+      hasEnded: false,
+      reached: 'bottom',
+    });
+  });
+
+  it('ignores the deprecated EndReachedIndicator, which only the channel list reads', () => {
+    const EndReachedIndicator = vi.fn(() => null);
+    searchSource.state.partialNext({ hasNext: false });
+
+    renderFooter({ EndReachedIndicator });
+
+    expect(EndReachedIndicator).not.toHaveBeenCalled();
+    expect(screen.getByText('All results loaded')).toBeInTheDocument();
+  });
+
+  it('renders the deprecated SearchSourceResultsLoadingIndicator instead of ListLoadingNextPageUI while set', () => {
+    const ListLoadingNextPageUI = vi.fn(() => null);
+    searchSource.state.partialNext({ isLoading: true });
+
+    renderFooter({
+      ListLoadingNextPageUI,
+      SearchSourceResultsLoadingIndicator: () => (
+        <div data-testid='custom-loading-indicator'>Custom Loading...</div>
+      ),
+    });
 
     expect(screen.getByTestId('custom-loading-indicator')).toBeInTheDocument();
-    expect(screen.queryByTestId('default-loading-indicator')).not.toBeInTheDocument();
+    expect(ListLoadingNextPageUI).not.toHaveBeenCalled();
+  });
+
+  it('renders no next-page loading state when the deprecated SearchSourceResultsLoadingIndicator is null', () => {
+    const ListLoadingNextPageUI = vi.fn(() => <div>Custom next page</div>);
+    searchSource.state.partialNext({ isLoading: true });
+
+    renderFooter({
+      ListLoadingNextPageUI,
+      // Apps turn the state off with `null`, which the key's type does not name.
+      SearchSourceResultsLoadingIndicator: null as unknown as undefined,
+    });
+
+    expect(ListLoadingNextPageUI).not.toHaveBeenCalled();
+    expect(screen.getByTestId('search-footer')).toBeEmptyDOMElement();
   });
 
   it('translates "All results loaded" message', () => {
     const mockTranslate = vi.fn(
       (key: any, defaultValue?: any) => `Translated ${defaultValue ?? key}`,
     );
-    vi.mocked(useTranslationContext).mockReturnValue(
-      fromPartial<TranslationContextValue>({ t: mockTranslate }),
-    );
+    searchSource.state.partialNext({ hasNext: false });
 
-    vi.mocked(useStateStore).mockReturnValue({
-      hasNext: false,
-      isLoading: false,
-    });
-
-    render(<SearchSourceResultListFooter />);
+    renderFooter({}, mockTranslate as never);
 
     expect(mockTranslate).toHaveBeenCalledWith(
       'common.resultsLoaded.label',
@@ -133,22 +220,13 @@ describe('SearchSourceResultListFooter', () => {
   });
 
   it('handles state updates correctly', () => {
-    const { rerender } = render(<SearchSourceResultListFooter />);
+    renderFooter();
 
-    vi.mocked(useStateStore).mockReturnValue({
-      hasNext: false,
-      isLoading: false,
-    });
-
-    rerender(<SearchSourceResultListFooter />);
+    setSourceState({ hasNext: false });
     expect(screen.getByText('All results loaded')).toBeInTheDocument();
 
-    vi.mocked(useStateStore).mockReturnValue({
-      hasNext: true,
-      isLoading: true,
-    });
-
-    rerender(<SearchSourceResultListFooter />);
-    expect(screen.getByTestId('default-loading-indicator')).toBeInTheDocument();
+    setSourceState({ hasNext: true, isLoading: true });
+    expect(screen.getByTestId(SEARCH_LOADING_TEST_ID)).toBeInTheDocument();
+    expect(screen.queryByText('All results loaded')).not.toBeInTheDocument();
   });
 });

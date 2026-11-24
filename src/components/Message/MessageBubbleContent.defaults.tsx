@@ -18,10 +18,10 @@ const DefaultMessageBubbleContentComponents = {
   },
   Poll() {
     const { client } = useChatContext();
-    const { message } = useMessageContext();
+    const { message, translationView } = useMessageContext();
     const poll = message.poll_id && client.polls.fromState(message.poll_id);
 
-    return poll ? <Poll poll={poll} /> : null;
+    return poll ? <Poll poll={poll} translationView={translationView} /> : null;
   },
   Attachments() {
     const { Attachment = DefaultAttachment } = useComponentContext();

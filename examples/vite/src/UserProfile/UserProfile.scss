@@ -8,6 +8,16 @@
     color: var(--str-chat__text-primary);
   }
 
+  /* In the channels view's secondary slot the profile is a panel, not a modal: it fills the
+     overlay, without the modal's size, corners and shadow. */
+  .app-chat-secondary-overlay > .app__user-profile {
+    flex: 1 1 auto;
+    width: 100%;
+    max-height: none;
+    border-radius: 0;
+    box-shadow: none;
+  }
+
   .app__user-profile__body {
     display: flex;
     flex-direction: column;

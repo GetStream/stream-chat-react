@@ -9,9 +9,13 @@ import {
   useTranslationContext,
 } from '../../../../../context';
 import * as DEFAULT_ICONS from '../../../../../components/Icons/icons';
-import { useStateStore } from '../../../../../store';
 import { ChannelMembersBrowseView } from '../ChannelMembersBrowseView';
-import { createChannel, emitChannelEvent, renderWithChannel } from './testUtils';
+import {
+  createChannel,
+  mockUseStateStoreForChannel,
+  renderWithChannel,
+  updateChannelMembersState,
+} from './testUtils';
 import { mockT } from '../../../../../mock-builders/translator';
 import { convertDateToTimestamp } from '../../../../../mock-builders';
 
@@ -112,7 +116,7 @@ const members: ChannelMemberResponse[] = [
 ];
 
 describe('ChannelMembersBrowseView', () => {
-  beforeEach(() => {
+  beforeEach(async () => {
     // The context module is auto-mocked, so the icon hook would return undefined; hand back the
     // real icons so assertions still describe what users see.
     vi.mocked(useComponentContextIcons).mockReturnValue(DEFAULT_ICONS);
@@ -131,7 +135,7 @@ describe('ChannelMembersBrowseView', () => {
       {} as ReturnType<typeof useComponentContext>,
     );
 
-    vi.mocked(useStateStore).mockReturnValue({
+    await mockUseStateStoreForChannel({
       isLoading: false,
       members,
     });
@@ -188,20 +192,18 @@ describe('ChannelMembersBrowseView', () => {
     expect(mocks.searchSourceSearch).not.toHaveBeenCalled();
 
     // A member joins; the count is reactive, so the list activates without a remount.
-    channel.data!.member_count = 1;
-    channel.state.members['user-1'] = {
-      user: { id: 'user-1', name: 'Alice' },
-      user_id: 'user-1',
-    };
-    emitChannelEvent(channel, 'member.added');
+    updateChannelMembersState(channel, {
+      memberCount: 1,
+      members: { 'user-1': { user: { id: 'user-1', name: 'Alice' }, user_id: 'user-1' } },
+    });
 
     expect(screen.getByRole('searchbox', { name: 'Search' })).toBeInTheDocument();
     expect(mocks.searchSourceActivate).toHaveBeenCalled();
     expect(mocks.searchSourceSearch).toHaveBeenCalledWith('');
   });
 
-  it('falls back to channel state members when the search source has no items', () => {
-    vi.mocked(useStateStore).mockReturnValue({
+  it('falls back to channel state members when the search source has no items', async () => {
+    await mockUseStateStoreForChannel({
       isLoading: false,
       members: null,
     });

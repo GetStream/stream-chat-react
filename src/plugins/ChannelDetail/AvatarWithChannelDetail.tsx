@@ -1,8 +1,9 @@
 import clsx from 'clsx';
 import React, { useCallback, useState } from 'react';
-import type { ChannelStateData } from 'stream-chat';
+import type { Channel, ChannelStateData } from 'stream-chat';
 
-import { useChannel, useComponentContext, useTranslationContext } from '../../context';
+import { useComponentContext, useTranslationContext } from '../../context';
+import { useResolvedChannel } from '../../context/useContextChannel';
 import {
   type ChannelAvatarProps,
   ChannelAvatar as DefaultChannelAvatar,
@@ -16,6 +17,8 @@ import { useStateStore } from '../../store';
 
 export type AvatarWithChannelDetailProps = ChannelAvatarProps & {
   Avatar?: React.ComponentType<ChannelAvatarProps>;
+  /** The channel whose details it opens. Defaults to the channel in context. */
+  channel?: Channel;
   ChannelDetail?: React.ComponentType<ChannelDetailProps>;
 };
 
@@ -33,12 +36,13 @@ const existsOnServerSelector = ({ initialized, offlineMode }: ChannelStateData) 
 
 export const AvatarWithChannelDetail = ({
   Avatar,
+  channel: channelOverride,
   ChannelDetail = DefaultChannelDetail,
   className,
   ...avatarProps
 }: AvatarWithChannelDetailProps) => {
   const { t } = useTranslationContext();
-  const channel = useChannel();
+  const channel = useResolvedChannel(channelOverride);
   const { Avatar: ContextAvatar, Modal = GlobalModal } = useComponentContext();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const { existsOnServer } = useStateStore(channel.state, existsOnServerSelector);

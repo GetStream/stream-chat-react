@@ -1,11 +1,22 @@
 import React from 'react';
-import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import {
+  act,
+  cleanup,
+  fireEvent,
+  render,
+  renderHook,
+  screen,
+  waitFor,
+} from '@testing-library/react';
+import type { RenderResult } from '@testing-library/react';
 import { fromPartial } from '@total-typescript/shoehorn';
 
 import { ChannelHeader, ChannelHeaderSubtitle } from '../ChannelHeader';
 
 import { Channel } from '../../Channel';
 import { Chat } from '../../Chat';
+import { ChannelInstanceProvider } from '../../../context';
+import { Streami18n } from '../../../i18n';
 import { WithComponents } from '../../../context/WithComponents';
 import {
   defaultWorkspaceNavigation,
@@ -24,9 +35,12 @@ import {
 } from '../../../mock-builders';
 import { axe } from '../../../../axe-helper';
 import { ChannelAvatar } from '../../Avatar';
+import { TypingIndicatorHeader } from '../../TypingIndicator';
+import { useChannelHeaderOnlineStatus } from '../hooks/useChannelHeaderOnlineStatus';
 import type {
   ChannelAPIResponse,
   ChannelResponse,
+  ChannelState,
   Channel as ChannelType,
   StreamChat,
   UserResponse,
@@ -50,26 +64,24 @@ const defaultChannelState = {
 // paths the display helpers read.
 const channelCustom = (custom: Record<string, unknown>) => ({ custom });
 
-const renderComponentBase = ({
-  channel,
-  client,
-  componentOverrides,
-  props,
-}: {
+type RenderOptions = {
   channel: ChannelType;
   client: StreamChat;
   componentOverrides?: Partial<ComponentContextValue>;
   props?: ChannelHeaderProps;
-}) =>
-  render(
-    <Chat client={client}>
-      <Channel channel={channel}>
-        <WithComponents overrides={componentOverrides ?? {}}>
-          <ChannelHeader {...props} />
-        </WithComponents>
-      </Channel>
-    </Chat>,
-  );
+};
+
+const headerTree = ({ channel, client, componentOverrides, props }: RenderOptions) => (
+  <Chat client={client}>
+    <Channel channel={channel}>
+      <WithComponents overrides={componentOverrides ?? {}}>
+        <ChannelHeader {...props} />
+      </WithComponents>
+    </Channel>
+  </Chat>
+);
+
+const renderComponentBase = (options: RenderOptions) => render(headerTree(options));
 
 async function renderComponent({
   channelData,
@@ -92,6 +104,24 @@ async function renderComponent({
 
   return renderComponentBase({ channel, client, props });
 }
+
+// Renders the header for another channel, named `next-channel`, in the same tree, as switching
+// channels in one slot does.
+const renderNextChannel = async (
+  rerender: RenderResult['rerender'],
+  props?: ChannelHeaderProps,
+) => {
+  const nextChannelData = generateChannel({
+    ...defaultChannelState,
+    channel: channelCustom({ name: 'next-channel' }),
+  });
+  /* eslint-disable-next-line react-hooks/rules-of-hooks */
+  useMockedApis(client, [getOrCreateChannelApi(nextChannelData)]);
+  const nextChannel = client.channel('messaging', nextChannelData.channel.id);
+  await nextChannel.query();
+
+  rerender(headerTree({ channel: nextChannel, client, props }));
+};
 
 afterEach(cleanup);
 
@@ -230,6 +260,91 @@ describe('ChannelHeader', () => {
         },
       });
 
+      expect(screen.queryByTestId('typing-indicator-header')).not.toBeInTheDocument();
+    });
+
+    // The header lingers as long as the message-list `TypingIndicator`, which hides 2s after typing
+    // stops.
+    describe('after typing stops', () => {
+      afterEach(() => {
+        vi.useRealTimers();
+      });
+
+      it('keeps the typing indicator for the hide delay, then shows the online status', async () => {
+        const { container } = await renderComponent({
+          channelData: { member_count: 5 },
+          typing: { [user2.id]: fromPartial({ type: 'typing.start', user: user2 }) },
+        });
+        expect(await screen.findByTestId('typing-indicator-header')).toBeInTheDocument();
+        const channel = client.channel('messaging', testChannel1.channel.id);
+        vi.useFakeTimers();
+
+        act(() => {
+          channel.state.typing = {};
+        });
+        act(() => {
+          vi.advanceTimersByTime(1999);
+        });
+        expect(screen.getByTestId('typing-indicator-header')).toBeInTheDocument();
+
+        act(() => {
+          vi.advanceTimersByTime(1);
+        });
+        expect(screen.queryByTestId('typing-indicator-header')).not.toBeInTheDocument();
+        expect(
+          container.querySelector('.str-chat__channel-header__data__subtitle'),
+        ).toHaveTextContent('5 members · 0 online');
+      });
+
+      it('restarts the hide delay when typing stops again', async () => {
+        const typingUser2 = {
+          [user2.id]: fromPartial<ChannelType['state']['typing'][string]>({
+            type: 'typing.start',
+            user: user2,
+          }),
+        };
+        await renderComponent({ typing: typingUser2 });
+        expect(await screen.findByTestId('typing-indicator-header')).toBeInTheDocument();
+        const channel = client.channel('messaging', testChannel1.channel.id);
+        vi.useFakeTimers();
+
+        act(() => {
+          channel.state.typing = {};
+        });
+        act(() => {
+          vi.advanceTimersByTime(1000);
+        });
+        act(() => {
+          channel.state.typing = typingUser2;
+        });
+        act(() => {
+          vi.advanceTimersByTime(500);
+        });
+        act(() => {
+          channel.state.typing = {};
+        });
+        // 3s after typing first stopped, but 1.5s after it stopped again.
+        act(() => {
+          vi.advanceTimersByTime(1500);
+        });
+        expect(screen.getByTestId('typing-indicator-header')).toBeInTheDocument();
+
+        act(() => {
+          vi.advanceTimersByTime(500);
+        });
+        expect(screen.queryByTestId('typing-indicator-header')).not.toBeInTheDocument();
+      });
+    });
+
+    it('does not carry typing over into the next channel', async () => {
+      const { rerender } = await renderComponent({
+        typing: { [user2.id]: fromPartial({ type: 'typing.start', user: user2 }) },
+      });
+      expect(await screen.findByTestId('typing-indicator-header')).toBeInTheDocument();
+
+      await renderNextChannel(rerender);
+
+      expect(screen.getByText('next-channel')).toBeInTheDocument();
       expect(screen.queryByTestId('typing-indicator-header')).not.toBeInTheDocument();
     });
   });
@@ -664,6 +779,20 @@ describe('ChannelHeader', () => {
   });
 
   describe('Subtitle prop', () => {
+    it('does not carry typing in the Subtitle over into the next channel', async () => {
+      const Subtitle = () => <TypingIndicatorHeader />;
+      const { rerender } = await renderComponent({
+        props: { Subtitle },
+        typing: { [user2.id]: fromPartial({ type: 'typing.start', user: user2 }) },
+      });
+      expect(await screen.findByTestId('typing-indicator-header')).toBeInTheDocument();
+
+      await renderNextChannel(rerender, { Subtitle });
+
+      expect(screen.getByText('next-channel')).toBeInTheDocument();
+      expect(screen.queryByTestId('typing-indicator-header')).not.toBeInTheDocument();
+    });
+
     it('renders the Subtitle passed to it in place of the default subtitle', async () => {
       const Subtitle = () => <div data-testid='custom-subtitle'>Custom subtitle</div>;
 
@@ -682,11 +811,22 @@ describe('ChannelHeader', () => {
   });
 
   describe('ChannelHeaderSubtitle', () => {
-    const renderSubtitle = async (watchers: UserResponse[]) => {
+    // `user1` is the current user. Online means `member.user.online`, not watching the channel.
+    const renderSubtitle = async ({
+      members = [user1, user2],
+      onlineUserIds,
+      watchers = [],
+    }: {
+      members?: UserResponse[];
+      onlineUserIds: string[];
+      watchers?: UserResponse[];
+    }) => {
       client = await getTestClientWithUser(user1);
       testChannel1 = generateChannel({
-        ...defaultChannelState,
-        channel: { member_count: 2 },
+        channel: { member_count: members.length },
+        members: members.map((user) =>
+          generateMember({ user: { ...user, online: onlineUserIds.includes(user.id) } }),
+        ),
       });
       /* eslint-disable-next-line react-hooks/rules-of-hooks */
       useMockedApis(client, [getOrCreateChannelApi(testChannel1)]);
@@ -695,6 +835,7 @@ describe('ChannelHeader', () => {
       channel.state.watchers = Object.fromEntries(
         watchers.map((user) => [user.id, user]),
       );
+      channel.state.watcher_count = watchers.length;
 
       return render(
         <Chat client={client}>
@@ -705,18 +846,131 @@ describe('ChannelHeader', () => {
       );
     };
 
-    it('shows Online for a direct message whose other member is watching', async () => {
-      const { container } = await renderSubtitle([user2]);
+    it('shows Online for a direct message whose other member is online, watching or not', async () => {
+      const { container } = await renderSubtitle({ onlineUserIds: [user1.id, user2.id] });
 
       expect(await screen.findByText('Online')).toBeInTheDocument();
       expect(await axe(container)).toHaveNoViolations();
     });
 
-    it('shows Offline for a direct message whose other member is not watching', async () => {
-      const { container } = await renderSubtitle([user1]);
+    it('shows Offline for a direct message whose other member is offline', async () => {
+      const { container } = await renderSubtitle({ onlineUserIds: [user1.id] });
 
       expect(await screen.findByText('Offline')).toBeInTheDocument();
       expect(await axe(container)).toHaveNoViolations();
     });
+
+    it('shows Online for a direct message whose other member watches it', async () => {
+      await renderSubtitle({ onlineUserIds: [user1.id], watchers: [user2] });
+
+      expect(await screen.findByText('Online')).toBeInTheDocument();
+    });
+
+    it('counts the members of a group who are online or watch it, not other watchers', async () => {
+      const [user3, user4] = [generateUser(), generateUser()];
+      const nonMembers = [generateUser(), generateUser()];
+      // 4 watchers, of whom 2 are members; online: user1 and user3, and user2 by watching.
+      await renderSubtitle({
+        members: [user1, user2, user3, user4],
+        onlineUserIds: [user1.id, user3.id],
+        watchers: [user1, user2, ...nonMembers],
+      });
+
+      expect(await screen.findByText('4 members · 3 online')).toBeInTheDocument();
+    });
   });
+});
+
+/** `count` members, the first `onlineCount` of them online. */
+const membersWithOnline = (count: number, onlineCount: number) =>
+  Object.fromEntries(
+    Array.from({ length: count }, (_, index) => {
+      const member = generateMember({
+        user: generateUser({ online: index < onlineCount }),
+      });
+      return [member.user!.id, member];
+    }),
+  ) as ChannelState['members'];
+
+describe('useChannelHeaderOnlineStatus', () => {
+  let client: StreamChat;
+  let contextChannel: ChannelType;
+  let givenChannel: ChannelType;
+
+  beforeEach(async () => {
+    client = await getTestClientWithUser({ id: 'own-user' });
+    contextChannel = client.channel('messaging', 'context');
+    contextChannel.data = { member_count: 7 };
+    contextChannel.state.members = membersWithOnline(7, 5);
+    givenChannel = client.channel('messaging', 'given');
+    givenChannel.data = { member_count: 3 };
+    givenChannel.state.members = membersWithOnline(3, 2);
+  });
+
+  it('reads the channel in context when none is given', () => {
+    const { result } = renderHook(() => useChannelHeaderOnlineStatus(), {
+      wrapper: ({ children }: React.PropsWithChildren) => (
+        <Chat client={client}>
+          <ChannelInstanceProvider value={{ channel: contextChannel }}>
+            {children}
+          </ChannelInstanceProvider>
+        </Chat>
+      ),
+    });
+
+    expect(result.current).toBe('7 members · 5 online');
+  });
+
+  it('reads the given channel without a channel provider', () => {
+    const { result } = renderHook(
+      () => useChannelHeaderOnlineStatus({ channel: givenChannel }),
+      {
+        wrapper: ({ children }: React.PropsWithChildren) => (
+          <Chat client={client}>{children}</Chat>
+        ),
+      },
+    );
+
+    expect(result.current).toBe('3 members · 2 online');
+  });
+
+  it('reads the given channel instead of the channel in context', () => {
+    const { result } = renderHook(
+      () => useChannelHeaderOnlineStatus({ channel: givenChannel }),
+      {
+        wrapper: ({ children }: React.PropsWithChildren) => (
+          <Chat client={client}>
+            <ChannelInstanceProvider value={{ channel: contextChannel }}>
+              {children}
+            </ChannelInstanceProvider>
+          </Chat>
+        ),
+      },
+    );
+
+    expect(result.current).toBe('3 members · 2 online');
+  });
+
+  it.each(['{{ onlineCount }}', '{{ watcherCount }}'])(
+    'renders the online count through a translation that uses %s',
+    async (placeholder) => {
+      const i18nInstance = new Streami18n({
+        translationsForLanguage: {
+          'channelHeader.online.online.label': `${placeholder} connected`,
+        },
+      });
+      const { result } = renderHook(
+        () => useChannelHeaderOnlineStatus({ channel: givenChannel }),
+        {
+          wrapper: ({ children }: React.PropsWithChildren) => (
+            <Chat client={client} i18nInstance={i18nInstance}>
+              {children}
+            </Chat>
+          ),
+        },
+      );
+
+      await waitFor(() => expect(result.current).toBe('3 members · 2 connected'));
+    },
+  );
 });

@@ -18,6 +18,7 @@ const channelMediaSearchSourceItemsStateSelector = (
 ) => ({
   hasNext: state.hasNext,
   isLoading: state.isLoading,
+  lastQueryError: state.lastQueryError,
   messages: state.items,
 });
 
@@ -40,7 +41,7 @@ export const useChannelMediaSearch = () => {
     return source;
   }, [channel.cid, client]);
 
-  const { hasNext, isLoading, messages } = useStateStore(
+  const { hasNext, isLoading, lastQueryError, messages } = useStateStore(
     channelMediaSearchSource.state,
     channelMediaSearchSourceItemsStateSelector,
   );
@@ -64,6 +65,7 @@ export const useChannelMediaSearch = () => {
     hasNext: Boolean(hasNext),
     hasResultsLoaded: Array.isArray(messages),
     isLoading,
+    lastQueryError,
     mediaItems,
   };
 };

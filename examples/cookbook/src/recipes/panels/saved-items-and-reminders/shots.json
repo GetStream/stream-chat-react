@@ -1,7 +1,7 @@
 [
   {
     "file": "saved-items-reminders.png",
-    "query": { "channel": "docs-v15-cb-general", "saved": "open" },
+    "query": { "saved": "open" },
     "waitFor": ".cookbook-saved-items__list, .cookbook-saved-items__note",
     "settleMs": 1500
   },
@@ -16,7 +16,7 @@
     "file": "saved-items-button.png",
     "query": { "channel": "docs-v15-cb-general", "saved": "open" },
     "waitFor": ".cookbook-saved-items",
-    "clip": ".cookbook-channel-list-header",
+    "clip": ".str-chat__channel-list__header",
     "padding": 8
   },
   {

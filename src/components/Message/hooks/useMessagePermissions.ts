@@ -5,7 +5,7 @@ import type { LocalMessage } from 'stream-chat';
 export const useMessagePermissions = (message: LocalMessage) => {
   const channel = useChannel();
   const { client } = useChatContext();
-  const channelCapabilities = useChannelCapabilities({ cid: channel.cid });
+  const channelCapabilities = useChannelCapabilities({ channel });
 
   const isMyMessage = client.userID === message.user?.id;
 

@@ -1,5 +1,5 @@
 import clsx from 'clsx';
-import React, { useMemo } from 'react';
+import React from 'react';
 import type { SearchSource, SearchSourceState } from 'stream-chat';
 
 import { useSearchContext } from '../SearchContext';
@@ -12,6 +12,25 @@ const searchSourceStateSelector = (nextValue: SearchSourceState) => ({
   isActive: nextValue.isActive,
 });
 
+/** The tab label of a search source: bundled copy for the built-in sources, else the source's type. */
+const useSourceLabel = (type: SearchSource['type']) => {
+  const { t } = useTranslationContext();
+  switch (type) {
+    case 'channels':
+      return t('search.resultsHeader.filterSource.channels', 'channels');
+    case 'messages':
+      return t('search.resultsHeader.filterSource.messages', 'messages');
+    case 'users':
+      return t('search.resultsHeader.filterSource.users', 'users');
+    default:
+      // An app names a custom source by translating its label key.
+      return t(
+        asDynamicKey(`search-results-header-filter-source-button-label--${type}`),
+        type,
+      );
+  }
+};
+
 type SearchSourceFilterButtonProps = {
   source: SearchSource;
 };
@@ -20,27 +39,7 @@ const SearchSourceFilterButton = ({ source }: SearchSourceFilterButtonProps) => 
   const { t } = useTranslationContext();
   const { searchController } = useSearchContext();
   const { isActive } = useStateStore(source.state, searchSourceStateSelector);
-  const label = `search-results-header-filter-source-button-label--${source.type}`;
-
-  const knownLabels = useMemo<Record<string, string>>(
-    () => ({
-      'search-results-header-filter-source-button-label--channels': t(
-        'search.resultsHeader.filterSource.channels',
-        'channels',
-      ),
-      'search-results-header-filter-source-button-label--messages': t(
-        'search.resultsHeader.filterSource.messages',
-        'messages',
-      ),
-      'search-results-header-filter-source-button-label--users': t(
-        'search.resultsHeader.filterSource.users',
-        'users',
-      ),
-    }),
-    [t],
-  );
-
-  const buttonContent = knownLabels[label] ?? t(asDynamicKey(label));
+  const buttonContent = useSourceLabel(source.type);
   return (
     <Button
       appearance='outline'
@@ -55,7 +54,6 @@ const SearchSourceFilterButton = ({ source }: SearchSourceFilterButtonProps) => 
       className={clsx('str-chat__search-results-header__filter-source-button', {
         'str-chat__search-results-header__filter-source-button--active': isActive,
       })}
-      key={label}
       onClick={() => {
         if (source.isActive) {
           searchController.deactivateSource(source.type);

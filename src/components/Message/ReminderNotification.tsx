@@ -2,7 +2,7 @@ import React from 'react';
 import { useComponentContextIcons, useTranslationContext } from '../../context';
 import { useStateStore } from '../../store';
 import type { Reminder, ReminderState } from 'stream-chat';
-import { nsToDate, nsToMs } from 'stream-chat';
+import { nsToDate } from 'stream-chat';
 
 export type ReminderNotificationProps = {
   reminder?: Reminder;
@@ -30,62 +30,35 @@ function RemindMeContent({ reminder }: { reminder: Reminder }) {
   const { t } = useTranslationContext();
   const { timeLeftMs } = useStateStore(reminder?.state, reminderStateSelector) ?? {};
 
-  const stopRefreshBoundaryMs = reminder?.timer.stopRefreshBoundaryMs;
   // Nullish, not truthy: `remindAt` is in unix nanoseconds and 0 (the epoch) is a valid value.
-  const stopRefreshTimeStamp =
-    reminder?.remindAt != null && stopRefreshBoundaryMs != null
-      ? nsToMs(reminder.remindAt) + stopRefreshBoundaryMs
-      : undefined;
-
-  const isBehindRefreshBoundary =
-    stopRefreshTimeStamp != null && new Date().getTime() > stopRefreshTimeStamp;
-
   if (timeLeftMs === null || reminder.remindAt == null) return null;
 
-  const nowMs = Date.now();
-  const remindAtMs = nsToMs(reminder.remindAt);
-  const diffMs = remindAtMs - nowMs;
-  const diffMinutes = Math.abs(diffMs) / (60 * 1000);
-  const useAbsoluteFormat = diffMinutes > THRESHOLD_RELATIVE_MINUTES;
+  const remindAtDate = nsToDate(reminder.remindAt);
+  const diffMs = remindAtDate.getTime() - Date.now();
+  const isOverdue = diffMs <= 0;
+  // Within 59 minutes of the deadline the time is relative ("5 minutes ago", "in 30 minutes"),
+  // further away it is the calendar date and time ("Yesterday at 09:30").
+  const useAbsoluteFormat = Math.abs(diffMs) / (60 * 1000) > THRESHOLD_RELATIVE_MINUTES;
+  const time = useAbsoluteFormat
+    ? t('timestamp.ReminderNotification', { timestamp: remindAtDate })
+    : t('duration.messageReminder', { milliseconds: diffMs });
 
   const renderTime = () => {
-    if (isBehindRefreshBoundary) {
-      if (useAbsoluteFormat) {
-        // More than 59 minutes ago: calendar date and time, e.g. "Due since Yesterday at 09:30".
-        return t(
-          'message.reminderNotification.dueSince.label',
-          'Due since {{ dueSince }}',
-          {
-            dueSince: t('timestamp.ReminderNotification', {
-              timestamp:
-                reminder.remindAt != null ? nsToDate(reminder.remindAt) : undefined,
-            }),
-          },
-        );
-      }
-      // Within 59 minutes: relative, e.g. "Due since 5 minutes ago".
+    if (isOverdue) {
+      // e.g. "Due since 5 minutes ago", "Due since Yesterday at 09:30".
       return t(
         'message.reminderNotification.dueSince.label',
         'Due since {{ dueSince }}',
         {
-          dueSince: t('duration.messageReminder', {
-            milliseconds: diffMs,
-          }),
+          dueSince: time,
         },
       );
     }
-    if (useAbsoluteFormat) {
-      // More than 59 minutes from now: calendar date and time without a "Due" prefix, e.g.
-      // "Tomorrow at 09:30".
-      return t('timestamp.ReminderNotification', {
-        timestamp: reminder.remindAt != null ? nsToDate(reminder.remindAt) : undefined,
-      });
-    }
-    // Within 59 minutes: relative, e.g. "Due in 30 minutes".
+    // A deadline more than 59 minutes away shows without a "Due" prefix, e.g. "Tomorrow at 09:30".
+    if (useAbsoluteFormat) return time;
+    // e.g. "Due in 30 minutes".
     return t('message.reminderNotification.due.label', 'Due {{ timeLeft }}', {
-      timeLeft: t('duration.messageReminder', {
-        milliseconds: timeLeftMs,
-      }),
+      timeLeft: time,
     });
   };
 

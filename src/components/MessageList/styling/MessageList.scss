@@ -42,6 +42,14 @@
       padding: 0;
       margin: 0;
     }
+
+    // The next-page indicator above or below the messages, centered as in the virtualized list.
+    .str-chat__list__loading {
+      display: flex;
+      justify-content: center;
+      width: 100%;
+      padding-block: var(--str-chat__space-8);
+    }
   }
 }
 

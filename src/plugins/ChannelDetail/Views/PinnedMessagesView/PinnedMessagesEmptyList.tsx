@@ -1,5 +1,8 @@
+import React from 'react';
+
 import { useComponentContextIcons, useTranslationContext } from '../../../../context';
 
+/** A channel without pinned messages: the pin icon, "No pinned messages" and how to pin one. */
 export const PinnedMessagesEmptyList = () => {
   const { IconPin } = useComponentContextIcons();
   const { t } = useTranslationContext();

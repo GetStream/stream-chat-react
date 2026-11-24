@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useState } from 'react';
 import type { SortParamRequest } from 'stream-chat';
 
 import type { ReactionSummary, ReactionType } from './types';
@@ -17,6 +17,7 @@ import {
 import { defaultReactionOptions, getHasExtendedReactions } from './reactionOptions';
 import type { useProcessReactions } from './hooks/useProcessReactions';
 import { ReactionSelector, type ReactionSelectorProps } from './ReactionSelector';
+import { MessageReactionsDetailFirstPageLoading } from './ListStates';
 
 export type MessageReactionsDetailProps = Partial<
   Pick<MessageContextValue, 'handleFetchReactions' | 'reactionDetailsSort'>
@@ -31,21 +32,6 @@ export type MessageReactionsDetailProps = Partial<
 const defaultReactionDetailsSort: SortParamRequest[] = [
   { direction: -1, field: 'created_at' },
 ];
-
-export const MessageReactionsDetailLoadingIndicator = () => {
-  const elements = useMemo(
-    () =>
-      Array.from({ length: 3 }, (_, index) => (
-        <div className='str-chat__message-reactions-detail__skeleton-item' key={index}>
-          <div className='str-chat__message-reactions-detail__skeleton-avatar' />
-          <div className='str-chat__message-reactions-detail__skeleton-line' />
-        </div>
-      )),
-    [],
-  );
-
-  return <>{elements}</>;
-};
 
 interface MessageReactionsDetailInterface {
   (props: MessageReactionsDetailProps): React.ReactNode;
@@ -70,7 +56,7 @@ export const MessageReactionsDetail: MessageReactionsDetailInterface = ({
   const {
     Avatar = DefaultAvatar,
     extractDisplayInfo = defaultExtractDisplayInfo,
-    LoadingIndicator = MessageReactionsDetailLoadingIndicator,
+    ListFirstPageLoadingUI = MessageReactionsDetailFirstPageLoading,
     reactionOptions = defaultReactionOptions,
     ReactionSelectorExtendedList = ReactionSelector.ExtendedList,
   } = useComponentContext();
@@ -207,7 +193,7 @@ export const MessageReactionsDetail: MessageReactionsDetailInterface = ({
           className='str-chat__message-reactions-detail__user-list'
           data-testid='all-reacting-users'
         >
-          {areReactionsLoading && <LoadingIndicator />}
+          {areReactionsLoading && <ListFirstPageLoadingUI />}
           {!areReactionsLoading && (
             <>
               {reactionDetails.map(({ type, user }) => {

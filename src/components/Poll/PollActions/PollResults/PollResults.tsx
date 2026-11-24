@@ -12,14 +12,17 @@ import type { PollOptionResponseData, PollState } from 'stream-chat';
 import { COUNT_OPTION_VOTES_PREVIEW } from '../../constants';
 import { PollQuestion } from '../PollQuestion';
 import { PollOptionWithVotesList } from './PollOptionWithVotesList';
+import { usePollTextTranslation } from '../../hooks';
 
 const pollStateSelector = ({
   name,
+  name_i18n,
   options,
   vote_count,
   vote_counts_by_option,
 }: PollState) => ({
   name,
+  name_i18n,
   options: [...options],
   vote_count,
   vote_counts_by_option,
@@ -29,10 +32,11 @@ export const PollResults = () => {
   const { t } = useTranslationContext();
   const { poll } = usePollContext();
   const { close } = useModalContext();
-  const { name, options, vote_count, vote_counts_by_option } = useStateStore(
+  const { name, name_i18n, options, vote_count, vote_counts_by_option } = useStateStore(
     poll.state,
     pollStateSelector,
   );
+  const translate = usePollTextTranslation();
   const [optionToView, setOptionToView] = useState<{
     option: PollOptionResponseData;
     optionOrderNumber: number;
@@ -75,7 +79,7 @@ export const PollResults = () => {
             title={t('poll.results.pollResults.title', 'Poll Results')}
           />
           <Viewer.Body className='str-chat__modal__poll-results__body'>
-            <PollQuestion question={name} />
+            <PollQuestion question={translate(name, name_i18n)} />
             <div className='str-chat__modal__poll-results__options'>
               <div className='str-chat__modal__poll-results__option-list'>
                 {options

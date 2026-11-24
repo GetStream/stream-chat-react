@@ -35,7 +35,7 @@ export const PollOptionWithVotes = ({
 }: PollOptionWithVotesProps) => {
   const channel = useChannel();
   const { t } = useTranslationContext();
-  const channelCapabilities = useChannelCapabilities({ cid: channel.cid });
+  const channelCapabilities = useChannelCapabilities({ channel });
   const { poll } = usePollContext();
   const { latest_votes_by_option } = useStateStore(poll.state, pollStateSelector);
 

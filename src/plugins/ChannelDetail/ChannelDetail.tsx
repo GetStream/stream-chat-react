@@ -123,12 +123,21 @@ export const defaultChannelDetailSections: SectionNavigatorSection[] = [
 ];
 
 export type ChannelDetailProps = Omit<SectionNavigatorProps, 'sections'> & {
+  /**
+   * The channel to show, also inside another channel's `Channel` or `Thread`; no `Channel` around it
+   * is needed. Custom sections read it with `useChannelDetailContext()`.
+   */
   channel: Channel;
   /** Closes the channel detail. See `ChannelDetailProviderProps.onClose`. */
   onClose?: ChannelDetailProviderProps['onClose'];
   sections?: SectionNavigatorSection[];
 };
 
+/**
+ * Fills its container, which needs a definite height. In an SDK modal it is 800×640, and full screen
+ * on a viewport narrower than 680px or in the inline layout; there, pass `layout` rather than a
+ * `tabsLayoutMinWidth` above 640, which would alternate the layouts.
+ */
 export const ChannelDetail = ({
   channel,
   className,

@@ -10,7 +10,12 @@ import {
   ChatProvider,
   ModalDialogManagerProvider,
 } from '../../../context';
-import { getTestClientWithUser, mockChatContext } from '../../../mock-builders';
+import { Chat } from '../../../components/Chat';
+import {
+  getTestClientWithUser,
+  initClientWithChannels,
+  mockChatContext,
+} from '../../../mock-builders';
 
 const ChannelDetailCloseButton = () => {
   const { close } = useChannelDetailContext();
@@ -90,5 +95,22 @@ describe('AvatarWithChannelDetail', () => {
     renderAvatar();
 
     expect(openButton()).toBeEnabled();
+  });
+});
+
+describe('AvatarWithChannelDetail channel', () => {
+  it('renders outside a channel provider when given a channel', async () => {
+    const {
+      channels: [channel],
+      client,
+    } = await initClientWithChannels();
+
+    render(
+      <Chat client={client}>
+        <AvatarWithChannelDetail channel={channel} size='md' />
+      </Chat>,
+    );
+
+    expect(screen.getByRole('button', { name: 'Open channel details' })).toBeEnabled();
   });
 });

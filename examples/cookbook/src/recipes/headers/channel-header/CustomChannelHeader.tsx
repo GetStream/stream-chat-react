@@ -1,49 +1,41 @@
-import type { ChannelConfig, ChannelStateData, EventPayload } from 'stream-chat';
+import type { ChannelStateData } from 'stream-chat';
 import {
   ChannelAvatar,
   TypingIndicatorHeader,
   useChannel,
   useChannelPreviewInfo,
-  useChatContext,
+  useDisplayedTypingUsers,
   useStateStore,
   WorkspaceNavigationBackButton,
   WorkspaceNavigationCloseButton,
 } from 'stream-chat-react';
 import './CustomChannelHeader.css';
 
-const channelStateSelector = ({
+const channelStateSelector = ({ memberCount, members, watchers }: ChannelStateData) => ({
   memberCount,
-  typing,
-  watcherCount,
-}: ChannelStateData) => ({
-  memberCount,
-  typing,
-  watcherCount,
-});
-
-const typingEventsSelector = ({ typingEvents }: ChannelConfig) => ({
-  typingEventsEnabled: typingEvents.enabled,
+  members,
+  watchers,
 });
 
 export const CustomChannelHeader = () => {
-  const { client } = useChatContext();
   const channel = useChannel();
-  const { memberCount, typing, watcherCount } = useStateStore(
+  const { memberCount, members, watchers } = useStateStore(
     channel.state,
     channelStateSelector,
   );
-  const { typingEventsEnabled } = useStateStore(
-    channel.configState,
-    typingEventsSelector,
-  );
+  // Members who are online or watch the channel, as the default header counts them.
+  const onlineCount = Object.values(members).filter(
+    (member) =>
+      member.user?.online ||
+      (member.user?.id && Object.prototype.hasOwnProperty.call(watchers, member.user.id)),
+  ).length;
   const { displayImage, displayTitle, groupChannelDisplayInfo } = useChannelPreviewInfo({
     channel,
   });
 
-  // Others typing in the channel itself; replies typed in threads carry a parent_id.
-  const someoneIsTyping = (Object.values(typing) as EventPayload<'typing.start'>[]).some(
-    ({ parent_id, user }) => !parent_id && user?.id !== client.userId,
-  );
+  // Others typing in the channel itself, kept for the same hide delay as the default header after
+  // they stop. Empty while typing events are disabled for the channel.
+  const someoneIsTyping = useDisplayedTypingUsers(channel).length > 0;
 
   return (
     <div className='cookbook-channel-header'>
@@ -57,10 +49,10 @@ export const CustomChannelHeader = () => {
       <div className='cookbook-channel-header__content'>
         <div className='cookbook-channel-header__title'>{displayTitle}</div>
         <div className='cookbook-channel-header__subtitle'>
-          {typingEventsEnabled && someoneIsTyping ? (
+          {someoneIsTyping ? (
             <TypingIndicatorHeader />
           ) : (
-            `${memberCount} members · ${watcherCount} online`
+            `${memberCount} members · ${onlineCount} online`
           )}
         </div>
       </div>
