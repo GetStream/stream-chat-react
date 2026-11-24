@@ -1,5 +1,6 @@
 @use './light' as light;
 @use './dark' as dark;
+@use './dark-button-accents' as dark-button-accents;
 
 .str-chat,
 .str-chat__theme-dark .str-chat__theme-inverse {
@@ -11,4 +12,5 @@
   *:not(.str-chat__theme-dark)
   .str-chat__theme-inverse {
   @include dark.variables;
+  @include dark-button-accents.variables;
 }

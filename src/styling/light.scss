@@ -1,19 +1,29 @@
 /**
- * Do not edit directly, this file was auto-generated.
+ * Do not edit directly: written by `yarn sync-design-tokens` from design-system-tokens
+ * build/web/chat/light.scss (12ab384).
  */
 
 @mixin variables {
-  --str-chat__base-transparent-0: rgba(255, 255, 255, 0);
   --str-chat__base-transparent-white-10: rgba(255, 255, 255, 0.1);
   --str-chat__base-transparent-white-20: rgba(255, 255, 255, 0.2);
-  --str-chat__base-transparent-white-30: rgba(255, 255, 255, 0.3);
-  --str-chat__base-transparent-white-70: rgba(255, 255, 255, 0.7);
+  --str-chat__base-transparent-white-30: rgba(
+    255,
+    255,
+    255,
+    0.3
+  ); /** Legacy value, no longer defined in Figma. Kept for compatibility; prefer the 0/10/15/20/25/50/75 scale. */
+  --str-chat__base-transparent-white-70: rgba(
+    255,
+    255,
+    255,
+    0.7
+  ); /** Legacy value, no longer defined in Figma. Kept for compatibility; prefer the 0/10/15/20/25/50/75 scale. */
   --str-chat__base-transparent-black-5: rgba(
     0,
     0,
     0,
     0.05
-  ); /** Used for bg in closeButton */
+  ); /** Legacy value, no longer defined in Figma. Kept for compatibility; prefer the 0/10/15/20/25/50/75 scale. */
   --str-chat__base-transparent-black-10: rgba(
     0,
     0,
@@ -25,7 +35,8 @@
     0,
     0,
     0.7
-  ); /** Used for bg in closeButton */
+  ); /** Legacy value, no longer defined in Figma. Kept for compatibility; prefer the 0/10/15/20/25/50/75 scale. */
+  --str-chat__base-transparent-white-0: rgba(255, 255, 255, 0);
   --str-chat__base-black: #000000;
   --str-chat__base-white: #ffffff;
   --str-chat__slate-50: #f6f8fa;
@@ -235,10 +246,10 @@
   --str-chat__line-height-line-height-32: 32px;
   --str-chat__line-height-line-height-40: 40px;
   --str-chat__line-height-line-height-48: 48px;
-  --str-chat__typography-font-weight-regular: 400;
-  --str-chat__typography-font-weight-medium: 500;
-  --str-chat__typography-font-weight-semi-bold: 600;
-  --str-chat__typography-font-weight-bold: 700;
+  --str-chat__typography-font-weight-regular: 400; /** Default weight for body text and low-emphasis content. */
+  --str-chat__typography-font-weight-medium: 500; /** Slightly emphasized weight for interactive labels, list items, and secondary headings. */
+  --str-chat__typography-font-weight-semi-bold: 600; /** Strong emphasis for subheadings, active states, and UI labels that need to stand out. */
+  --str-chat__typography-font-weight-bold: 700; /** Highest emphasis weight for titles, primary headings, and critical labels. */
   --str-chat__light-elevation-1:
     0px 0px 0px 1px rgba(0, 0, 0, 0.05), 0px 1px 2px 0px rgba(0, 0, 0, 0.1),
     0px 4px 8px 0px rgba(0, 0, 0, 0.06); /** Low elevation level for subtle separation. */
@@ -266,27 +277,27 @@
   --str-chat__button-padding-y-lg: 14px;
   --str-chat__button-padding-y-md: 10px;
   --str-chat__button-padding-y-sm: 6px;
-  --str-chat__button-padding-y-xs: 4px;
-  --str-chat__button-padding-x-icon-only-lg: 14px;
-  --str-chat__button-padding-x-icon-only-md: 10px;
-  --str-chat__button-padding-x-icon-only-sm: 6px;
+  --str-chat__button-padding-y-xs: 2px;
+  --str-chat__button-padding-x-icon-only-lg: 16px;
+  --str-chat__button-padding-x-icon-only-md: 12px;
+  --str-chat__button-padding-x-icon-only-sm: 8px;
   --str-chat__button-padding-x-icon-only-xs: 4px;
   --str-chat__button-padding-x-with-label-lg: 16px;
   --str-chat__button-padding-x-with-label-md: 16px;
   --str-chat__button-padding-x-with-label-sm: 16px;
   --str-chat__button-padding-x-with-label-xs: 12px;
-  --str-chat__background-core-overlay-light: rgba(
-    255,
-    255,
-    255,
-    0.75
-  ); /** A light semi-transparent layer. Used to lighten surfaces and for hover states on dark backgrounds. */
   --str-chat__background-core-overlay-dark: rgba(
     26,
     27,
     37,
     0.25
   ); /** A dark semi-transparent layer. Used for image overlays. */
+  --str-chat__background-core-overlay-light: rgba(
+    255,
+    255,
+    255,
+    0.75
+  ); /** A light semi-transparent layer. Used to lighten surfaces and for hover states on dark backgrounds. */
   --str-chat__background-core-scrim: rgba(
     26,
     27,
@@ -329,63 +340,82 @@
     37,
     0.15
   ); /** Border for selected or active items. Used for highlighted list items and active controls. */
-  --str-chat__border-core-opacity-subtle: rgba(
-    26,
-    27,
-    37,
-    0.1
-  ); /** A very light transparent border. Used as a frame treatment on images and media attachments. */
   --str-chat__border-core-opacity-strong: rgba(
     26,
     27,
     37,
     0.25
   ); /** A stronger transparent border for elements on colored or dark backgrounds. Used for waveform bars and similar treatments. */
+  --str-chat__border-core-opacity-subtle: rgba(
+    26,
+    27,
+    37,
+    0.1
+  ); /** A very light transparent border. Used as a frame treatment on images and media attachments. */
   --str-chat__system-bg-blur: rgba(255, 255, 255, 0.01);
   --str-chat__system-scrollbar: rgba(0, 0, 0, 0.5);
   --str-chat__badge-bg-overlay: rgba(0, 0, 0, 0.75);
   --str-chat__control-play-button-bg: rgba(0, 0, 0, 0.75);
-  --str-chat__typography-font-family-sans: var(--str-chat__font-family-geist);
-  --str-chat__typography-font-family-mono: var(--str-chat__font-family-geist-mono);
+  --str-chat__base-transparent-0: var(
+    --str-chat__base-transparent-white-0
+  ); /** Deprecated. Superseded by base/transparent/white-0%. Kept as an alias so existing integrations keep working; will be removed in a later release. */
+  --str-chat__typography-font-family-sans: var(
+    --str-chat__font-family-geist
+  ); /** The primary UI typeface. Maps to SF Pro on iOS, Roboto on Android, and Geist on web. */
+  --str-chat__typography-font-family-mono: var(
+    --str-chat__font-family-geist-mono
+  ); /** The monospace typeface. Used for code snippets, and technical string values. */
   --str-chat__typography-font-size-xxs: var(
     --str-chat__font-size-size-10
-  ); /** Micro text such as timestamps or subtle metadata. */
+  ); /** Very small text for fine-print labels, counters, and compact secondary information */
   --str-chat__typography-font-size-xs: var(
     --str-chat__font-size-size-12
-  ); /** Compact secondary text, small UI labels. */
+  ); /** Small text for supporting labels, timestamps, and low-hierarchy metadata. */
   --str-chat__typography-font-size-sm: var(
     --str-chat__font-size-size-14
-  ); /** Default mobile body size, small controls. */
+  ); /** Secondary body text for subtitles, helper text, and de-emphasized UI copy. */
   --str-chat__typography-font-size-md: var(
     --str-chat__font-size-size-16
-  ); /** Default desktop body size, main text. */
+  ); /** Default body text size for most readable UI content. */
   --str-chat__typography-font-size-lg: var(
     --str-chat__font-size-size-18
-  ); /** Medium emphasis, section labels. */
+  ); /** Emphasized body text for primary labels, section headings, and prominent UI copy. */
   --str-chat__typography-font-size-xl: var(
     --str-chat__font-size-size-20
-  ); /** Small headings. */
+  ); /** Large text for titles, screen headings, and high-hierarchy labels */
   --str-chat__typography-font-size-2xl: var(
     --str-chat__font-size-size-24
   ); /** Section titles, important headings. */
   --str-chat__typography-font-size-micro: var(
     --str-chat__font-size-size-8
-  ); /** Micro text such as timestamps or subtle metadata. */
+  ); /** Smallest text size. Reserved for legal, captions, or secondary metadata where space is extremely constrained. */
   --str-chat__typography-line-height-tight: var(
     --str-chat__line-height-line-height-16
-  ); /** Compact text, headers, UI labels. */
+  ); /** Compact line spacing for short labels, badges, and single-line UI text where vertical density matters. */
   --str-chat__typography-line-height-normal: var(
     --str-chat__line-height-line-height-20
-  ); /** Default reading line-height for sizes 14–16px. */
+  ); /** Compact line spacing for short labels, badges, and single-line UI text where vertical density matters. */
   --str-chat__typography-line-height-relaxed: var(
     --str-chat__line-height-line-height-24
-  ); /** For larger text sizes or multiline descriptions. */
-  --str-chat__radius-none: var(--str-chat__radius-0);
-  --str-chat__radius-xxs: var(--str-chat__radius-2);
-  --str-chat__radius-xs: var(--str-chat__radius-4);
-  --str-chat__radius-sm: var(--str-chat__radius-6);
-  --str-chat__radius-md: var(--str-chat__radius-8);
-  --str-chat__radius-lg: var(--str-chat__radius-12);
+  ); /** Generous line spacing for multi-line body text and message content where readability is the priority. */
+  --str-chat__radius-none: var(
+    --str-chat__radius-0
+  ); /** No border radius. Used for elements that must have sharp corners, such as full-width banners or flush containers. */
+  --str-chat__radius-xxs: var(
+    --str-chat__radius-2
+  ); /** 2px radius. Minimal rounding for compact elements like inline badges and tight chips. */
+  --str-chat__radius-xs: var(
+    --str-chat__radius-4
+  ); /** 4px radius. Subtle rounding for small interactive elements like tags and small buttons. */
+  --str-chat__radius-sm: var(
+    --str-chat__radius-6
+  ); /** 6px radius. Light rounding for inputs, secondary buttons, and contained UI elements. */
+  --str-chat__radius-md: var(
+    --str-chat__radius-8
+  ); /** 8px radius. Default radius for cards, modals, and standard interactive components. */
+  --str-chat__radius-lg: var(
+    --str-chat__radius-12
+  ); /** 12px radius. Prominent rounding for sheets, drawers, and larger containers. */
   --str-chat__radius-xl: var(--str-chat__radius-16);
   --str-chat__radius-2xl: var(--str-chat__radius-20);
   --str-chat__radius-max: var(--str-chat__radius-full);
@@ -447,7 +477,6 @@
    * Note: Web uses a placeholder value in Figma due to variable mode constraints.
    */
   --str-chat__button-hit-target-min-width: var(--str-chat__size-48);
-  --str-chat__button-primary-bg-liquid-glass: var(--str-chat__base-transparent-0);
   --str-chat__icon-size-xs: var(--str-chat__size-12);
   --str-chat__icon-size-sm: var(--str-chat__size-16);
   --str-chat__icon-size-md: var(--str-chat__size-20);
@@ -462,28 +491,17 @@
   --str-chat__background-core-highlight: var(
     --str-chat__yellow-50
   ); /** A tint for drawing attention to content. Used for highlights and pinned messages. */
-  --str-chat__chat-waveform-bar: var(--str-chat__border-core-opacity-strong);
-  --str-chat__control-checkbox-bg: var(--str-chat__base-transparent-0);
+  --str-chat__skeleton-loading-highlight: var(
+    --str-chat__background-core-overlay-light
+  ); /** Highlight color for the default skeleton loading gradient. Used for the moving shimmer to indicate loading activity. */
   --str-chat__control-playback-thumb-border-default: var(
     --str-chat__border-core-opacity-strong
   );
-  --str-chat__control-radio-button-bg: var(--str-chat__base-transparent-0);
-  --str-chat__control-radio-check-bg: var(--str-chat__base-transparent-0);
-  --str-chat__avatar-palette-bg-1: var(--str-chat__blue-150);
-  --str-chat__avatar-palette-bg-2: var(--str-chat__cyan-150);
-  --str-chat__avatar-palette-bg-3: var(--str-chat__green-150);
-  --str-chat__avatar-palette-bg-4: var(--str-chat__purple-150);
-  --str-chat__avatar-palette-bg-5: var(--str-chat__yellow-150);
-  --str-chat__avatar-palette-text-1: var(--str-chat__blue-900);
-  --str-chat__avatar-palette-text-2: var(--str-chat__cyan-900);
-  --str-chat__avatar-palette-text-3: var(--str-chat__green-900);
-  --str-chat__avatar-palette-text-4: var(--str-chat__purple-900);
-  --str-chat__avatar-palette-text-5: var(--str-chat__yellow-900);
   --str-chat__accent-success: var(
     --str-chat__green-400
   ); /** Indicates a positive or completed state. Used for confirmations, sent indicators, and success feedback. */
   --str-chat__accent-warning: var(
-    --str-chat__yellow-400
+    --str-chat__yellow-200
   ); /** Indicates a cautionary state that requires attention. Used for moderation flags and non-critical alerts. */
   --str-chat__accent-error: var(
     --str-chat__red-500
@@ -499,12 +517,6 @@
   --str-chat__brand-700: var(--str-chat__blue-700);
   --str-chat__brand-800: var(--str-chat__blue-800);
   --str-chat__brand-900: var(--str-chat__blue-900);
-  --str-chat__skeleton-loading-base: var(
-    --str-chat__base-transparent-0
-  ); /** Base color for the default skeleton loading gradient. Used as the background tone for placeholder surfaces. */
-  --str-chat__skeleton-loading-highlight: var(
-    --str-chat__background-core-overlay-light
-  ); /** Highlight color for the default skeleton loading gradient. Used for the moving shimmer to indicate loading activity. */
   --str-chat__chrome-0: var(--str-chat__base-white);
   --str-chat__chrome-50: var(--str-chat__slate-50);
   --str-chat__chrome-100: var(--str-chat__slate-100);
@@ -518,26 +530,39 @@
   --str-chat__chrome-800: var(--str-chat__slate-800);
   --str-chat__chrome-900: var(--str-chat__slate-900);
   --str-chat__chrome-1000: var(--str-chat__base-black);
+  --str-chat__chat-waveform-bar: var(--str-chat__border-core-opacity-strong);
   --str-chat__device-radius: var(--str-chat__radius-md);
+  --str-chat__button-primary-bg-liquid-glass: var(--str-chat__base-transparent-0);
+  --str-chat__button-primary-border: var(--str-chat__brand-200);
+  --str-chat__button-destructive-bg: var(--str-chat__accent-error);
+  --str-chat__button-destructive-text: var(--str-chat__accent-error);
+  --str-chat__button-destructive-border: var(--str-chat__accent-error);
+  --str-chat__emoji-sm: var(--str-chat__typography-font-size-md);
   --str-chat__message-bubble-radius-group-top: var(--str-chat__radius-2xl);
   --str-chat__message-bubble-radius-group-middle: var(--str-chat__radius-2xl);
   --str-chat__message-bubble-radius-group-bottom: var(--str-chat__radius-2xl);
   --str-chat__message-bubble-radius-tail: var(--str-chat__radius-none);
   --str-chat__message-bubble-radius-attachment: var(--str-chat__radius-lg);
   --str-chat__message-bubble-radius-attachment-inline: var(--str-chat__radius-md);
+  --str-chat__chat-bg-outgoing: var(
+    --str-chat__brand-100
+  ); /** Outgoing bubble background. */
+  --str-chat__chat-bg-attachment-outgoing: var(
+    --str-chat__brand-150
+  ); /** Attachment card in outgoing bubble. */
+  --str-chat__chat-text-outgoing: var(
+    --str-chat__brand-900
+  ); /** Body text in a message sent by the local user. */
+  --str-chat__chat-border-outgoing: var(--str-chat__brand-100);
+  --str-chat__chat-border-on-chat-outgoing: var(--str-chat__brand-300);
   --str-chat__composer-radius-fixed: var(--str-chat__radius-3xl);
   --str-chat__composer-radius-floating: var(--str-chat__radius-3xl);
-  --str-chat__button-primary-border: var(--str-chat__brand-200);
-  --str-chat__button-destructive-bg: var(--str-chat__accent-error);
-  --str-chat__button-destructive-text: var(--str-chat__accent-error);
-  --str-chat__button-destructive-border: var(--str-chat__accent-error);
-  --str-chat__emoji-sm: var(--str-chat__typography-font-size-md);
   --str-chat__background-core-app: var(
     --str-chat__chrome-0
   ); /** The outermost application background. Sits behind all surfaces and is generally not overridden directly. */
   --str-chat__background-core-elevation-0: var(
     --str-chat__chrome-0
-  ); /** The base layer. Always white, used as the reference point for the elevation scale. Steps above this gain depth in dark mode through progressively lighter backgrounds. */
+  ); /** The base layer, and the reference point for the elevation scale. Matches the app background in both themes, so it reads as no elevation at all. Steps above this gain depth in dark mode through progressively lighter backgrounds. */
   --str-chat__background-core-elevation-1: var(
     --str-chat__chrome-0
   ); /** Slightly raised surfaces. Used for content containers that sit directly on the base layer, such as the message list and channel list. */
@@ -547,27 +572,30 @@
   --str-chat__background-core-elevation-3: var(
     --str-chat__chrome-0
   ); /** Used for badge counts that float above other UI elements. */
-  --str-chat__background-core-surface-default: var(
-    --str-chat__chrome-100
-  ); /** Background for sectioned content areas. Used for grouped containers, and distinct content regions. */
-  --str-chat__background-core-surface-subtle: var(
-    --str-chat__chrome-50
-  ); /** A slightly receded background. Used for secondary containers or to create soft visual separation. */
-  --str-chat__background-core-surface-card: var(
-    --str-chat__chrome-50
-  ); /** Background for contained, card-style elements. Matches the surface in light mode but lifts slightly in dark mode to maintain visual separation. */
-  --str-chat__background-core-surface-strong: var(
-    --str-chat__chrome-150
-  ); /** A more prominent background. Used for elements that need to stand out from the main surface. */
   --str-chat__background-core-inverse: var(
     --str-chat__chrome-1000
   ); /** The opposite of the primary surface. Used for tooltips, snackbars, and high-contrast floating elements. */
   --str-chat__background-core-on-accent: var(
     --str-chat__chrome-0
   ); /** Background for elements placed on an accent-colored surface. Ensures legibility against brand colors. */
+  --str-chat__background-core-surface-card: var(
+    --str-chat__chrome-50
+  ); /** Background for contained, card-style elements. Matches the surface in light mode but lifts slightly in dark mode to maintain visual separation. */
+  --str-chat__background-core-surface-default: var(
+    --str-chat__chrome-100
+  ); /** Background for sectioned content areas. Used for grouped containers, and distinct content regions. */
+  --str-chat__background-core-surface-strong: var(
+    --str-chat__chrome-150
+  ); /** A more prominent background. Used for elements that need to stand out from the main surface. */
+  --str-chat__background-core-surface-subtle: var(
+    --str-chat__chrome-50
+  ); /** A slightly receded background. Used for secondary containers or to create soft visual separation. */
   --str-chat__background-utility-disabled: var(
     --str-chat__chrome-100
   ); /** Background for non-interactive elements. Flattens the element visually to signal unavailability. */
+  --str-chat__skeleton-loading-base: var(
+    --str-chat__base-transparent-0
+  ); /** Base color for the default skeleton loading gradient. Used as the background tone for placeholder surfaces. */
   --str-chat__border-utility-focused: var(
     --str-chat__brand-150
   ); /** Focus ring for keyboard and accessibility navigation. Uses the brand color to signal input focus. */
@@ -589,47 +617,40 @@
   --str-chat__border-core-default: var(
     --str-chat__chrome-150
   ); /** Standard border for surfaces and containers. Used for input fields, cards, and dividers on neutral backgrounds. */
-  --str-chat__border-core-subtle: var(
-    --str-chat__chrome-100
-  ); /** A lighter border for minimal separation. Used where a full-strength border would feel too heavy. */
-  --str-chat__border-core-strong: var(
-    --str-chat__chrome-300
-  ); /** An emphatic border for elements that need clear definition. Used for focused containers and prominent dividers. */
-  --str-chat__border-core-inverse: var(
-    --str-chat__chrome-0
-  ); /** Used on dark backgrounds. */
   --str-chat__border-core-on-accent: var(
     --str-chat__chrome-0
   ); /** Border on accent-colored surfaces. Stays white in both modes since the accent background doesn't invert. */
-  --str-chat__border-core-on-surface: var(
-    --str-chat__chrome-300
-  ); /** Border for elements sitting on elevated surfaces. Uses a stronger value than default to maintain visible separation when the background is darker. */
   --str-chat__border-core-on-inverse: var(
     --str-chat__chrome-0
   ); /** Border on inverse-colored surfaces. Stays legible when the background flips between light and dark mode. */
-  --str-chat__chat-bg-outgoing: var(
-    --str-chat__brand-100
-  ); /** Outgoing bubble background. */
-  --str-chat__chat-bg-attachment-outgoing: var(
-    --str-chat__brand-150
-  ); /** Attachment card in outgoing bubble. */
-  --str-chat__chat-text-outgoing: var(--str-chat__brand-900); /** Message body text. */
-  --str-chat__chat-border-outgoing: var(--str-chat__brand-100);
-  --str-chat__chat-border-on-chat-outgoing: var(--str-chat__brand-300);
-  --str-chat__chat-reply-indicator-incoming: var(
-    --str-chat__chrome-400
-  ); /** Reply indicator shading for incoming. */
-  --str-chat__chat-reply-indicator-outgoing: var(
-    --str-chat__brand-400
-  ); /** Reply indicator shading for outgoing. */
-  --str-chat__chat-poll-progress-track-outgoing: var(--str-chat__brand-200);
-  --str-chat__chat-thread-connector-outgoing: var(--str-chat__brand-150);
+  --str-chat__border-core-inverse: var(
+    --str-chat__chrome-0
+  ); /** Border on inverse-colored surfaces. Stays legible when the background flips between light and dark mode. */
+  --str-chat__border-core-on-surface: var(
+    --str-chat__chrome-300
+  ); /** Border for elements sitting on elevated surfaces. Uses a stronger value than default to maintain visible separation when the background is darker. */
+  --str-chat__border-core-strong: var(
+    --str-chat__chrome-300
+  ); /** An emphatic border for elements that need clear definition. Used for focused containers and prominent dividers. */
+  --str-chat__border-core-subtle: var(
+    --str-chat__chrome-100
+  ); /** A lighter border for minimal separation. Used where a full-strength border would feel too heavy. */
+  --str-chat__avatar-presence-bg-online: var(
+    --str-chat__accent-success
+  ); /** The online presence indicator. Uses the success accent in every theme. */
   --str-chat__presence-bg-online: var(
     --str-chat__accent-success
-  ); /** The green online indicator. Uses success accent in normal themes. In high-contrast, color is dropped and replaced with strong black for maximum clarity. */
+  ); /** The online presence indicator. Uses the success accent in every theme. */
+  --str-chat__avatar-bg-default: var(--str-chat__brand-150);
+  --str-chat__avatar-bg-placeholder: var(--str-chat__chrome-150);
+  --str-chat__avatar-text-default: var(--str-chat__brand-900);
+  --str-chat__avatar-text-placeholder: var(--str-chat__chrome-500);
   --str-chat__system-text: var(--str-chat__chrome-1000);
   --str-chat__badge-bg-error: var(--str-chat__accent-error);
   --str-chat__badge-bg-inverse: var(--str-chat__chrome-1000);
+  --str-chat__control-checkbox-bg: var(--str-chat__base-transparent-0);
+  --str-chat__control-radio-button-bg: var(--str-chat__base-transparent-0);
+  --str-chat__control-radio-check-bg: var(--str-chat__base-transparent-0);
   --str-chat__text-primary: var(
     --str-chat__chrome-900
   ); /** Main body text. Used for message content, titles, and any text that carries primary meaning. */
@@ -648,22 +669,29 @@
   --str-chat__text-disabled: var(
     --str-chat__chrome-300
   ); /** Text for non-interactive or unavailable states. Communicates that an element can't be interacted with. */
+  --str-chat__input-send-icon-disabled: var(
+    --str-chat__chrome-300
+  ); /** Text for non-interactive or unavailable states. Communicates that an element can't be interacted with. */
   --str-chat__text-link: var(
     --str-chat__brand-500
   ); /** Hyperlinks and inline actions. Uses the brand color to signal interactivity within text content. */
-  --str-chat__avatar-bg-default: var(--str-chat__avatar-palette-bg-1);
-  --str-chat__avatar-bg-placeholder: var(--str-chat__chrome-150);
-  --str-chat__avatar-text-default: var(--str-chat__avatar-palette-text-1);
-  --str-chat__avatar-text-placeholder: var(--str-chat__chrome-500);
-  --str-chat__avatar-presence-bg-online: var(
-    --str-chat__accent-success
-  ); /** The green online indicator. Uses success accent in normal themes. In high-contrast, color is dropped and replaced with strong black for maximum clarity. */
   --str-chat__accent-primary: var(
+    --str-chat__brand-500
+  ); /** The main brand color. Used for interactive elements, buttons, links, and primary actions. Override this to apply your brand color across the SDK. */
+  --str-chat__input-send-icon: var(
     --str-chat__brand-500
   ); /** The main brand color. Used for interactive elements, buttons, links, and primary actions. Override this to apply your brand color across the SDK. */
   --str-chat__accent-neutral: var(
     --str-chat__chrome-500
   ); /** A mid-tone gray for de-emphasized UI elements. */
+  --str-chat__chat-reply-indicator-incoming: var(
+    --str-chat__chrome-400
+  ); /** Reply indicator shading for incoming. */
+  --str-chat__chat-reply-indicator-outgoing: var(
+    --str-chat__brand-400
+  ); /** Reply indicator shading for outgoing. */
+  --str-chat__chat-poll-progress-track-outgoing: var(--str-chat__brand-200);
+  --str-chat__chat-thread-connector-outgoing: var(--str-chat__brand-150);
   --str-chat__button-primary-bg: var(--str-chat__accent-primary);
   --str-chat__button-primary-text: var(--str-chat__accent-primary);
   --str-chat__button-primary-text-on-accent: var(--str-chat__text-on-accent);
@@ -684,20 +712,36 @@
   --str-chat__button-destructive-text-on-accent: var(--str-chat__text-on-accent);
   --str-chat__button-destructive-text-on-dark: var(--str-chat__text-on-inverse);
   --str-chat__button-destructive-border-on-dark: var(--str-chat__text-on-inverse);
-  --str-chat__border-utility-active: var(
-    --str-chat__accent-primary
-  ); /** Active input border. Used for focused text fields and selected form elements. */
+  --str-chat__input-text-default: var(
+    --str-chat__text-primary
+  ); /** Main text inside the chat input. */
+  --str-chat__input-text-placeholder: var(
+    --str-chat__text-tertiary
+  ); /** Placeholder text for the input. Lower emphasis than main text. */
+  --str-chat__input-text-disabled: var(
+    --str-chat__text-disabled
+  ); /** Text in a disabled input. Lower emphasis than placeholder, and not editable. */
+  --str-chat__input-text-icon: var(
+    --str-chat__text-tertiary
+  ); /** Icons inside the input area, such as attach, emoji, camera and send when idle. Matches tertiary text strength, so they sit below the typed text. */
   --str-chat__chat-bg-incoming: var(
     --str-chat__background-core-surface-default
   ); /** Incoming bubble background. */
   --str-chat__chat-bg-attachment-incoming: var(
     --str-chat__background-core-surface-strong
   ); /** Attachment card in incoming bubble. */
-  --str-chat__chat-text-incoming: var(--str-chat__text-primary); /** Message body text. */
+  --str-chat__message-bubble-text-incoming: var(
+    --str-chat__text-primary
+  ); /** Body text in a message received from someone else. */
+  --str-chat__chat-text-incoming: var(
+    --str-chat__text-primary
+  ); /** Body text in a message received from someone else. */
   --str-chat__chat-text-username: var(--str-chat__text-secondary); /** Username label. */
   --str-chat__chat-text-timestamp: var(--str-chat__text-tertiary); /** Time labels. */
   --str-chat__chat-text-read: var(--str-chat__accent-primary);
-  --str-chat__chat-text-mention: var(--str-chat__text-link); /** Mention styling. */
+  --str-chat__chat-text-mention: var(
+    --str-chat__text-link
+  ); /** A mention of a single user in message body text. */
   --str-chat__chat-text-link: var(
     --str-chat__text-link
   ); /** Links inside message bubbles. */
@@ -709,37 +753,21 @@
   ); /** System messages like date separators. */
   --str-chat__chat-border-incoming: var(--str-chat__border-core-subtle);
   --str-chat__chat-border-on-chat-incoming: var(--str-chat__border-core-strong);
-  --str-chat__chat-waveform-bar-playing: var(--str-chat__accent-primary);
-  --str-chat__chat-poll-progress-fill-outgoing: var(--str-chat__accent-primary);
-  --str-chat__chat-thread-connector-incoming: var(--str-chat__border-core-default);
-  --str-chat__input-text-default: var(
-    --str-chat__text-primary
-  ); /** Main text inside the chat input. */
-  --str-chat__input-text-placeholder: var(
-    --str-chat__text-tertiary
-  ); /** Placeholder text for the input. Lower emphasis than main text. */
-  --str-chat__input-text-disabled: var(
-    --str-chat__text-disabled
-  ); /** Placeholder text for the input. Lower emphasis than main text. */
-  --str-chat__input-text-icon: var(
-    --str-chat__text-tertiary
-  ); /** Icons inside the input area (attach, emoji, camera, send when idle). Matches secondary text strength. */
-  --str-chat__input-send-icon: var(
+  --str-chat__border-utility-active: var(
     --str-chat__accent-primary
-  ); /** Default send icon color in the input. Uses the brand accent. */
-  --str-chat__input-send-icon-disabled: var(
-    --str-chat__text-disabled
-  ); /** Send icon when disabled (e.g. empty input). */
-  --str-chat__reaction-bg: var(--str-chat__background-core-elevation-3);
-  --str-chat__reaction-border: var(--str-chat__border-core-default);
-  --str-chat__reaction-text: var(--str-chat__text-primary);
-  --str-chat__reaction-emoji: var(--str-chat__text-primary);
+  ); /** Active input border. Used for focused text fields and selected form elements. */
+  --str-chat__avatar-presence-border: var(
+    --str-chat__border-core-on-inverse
+  ); /** The thin outline around the presence dot. Separates it from the avatar underneath, whatever the avatar image is. */
   --str-chat__presence-border: var(
-    --str-chat__border-core-inverse
-  ); /** The thin outline around the presence dot. Matches the local surface behind the avatar. In high-contrast it uses the base surface. */
+    --str-chat__border-core-on-inverse
+  ); /** The thin outline around the presence dot. Separates it from the avatar underneath, whatever the avatar image is. */
+  --str-chat__avatar-presence-bg-offline: var(
+    --str-chat__accent-neutral
+  ); /** The offline presence indicator. Uses the neutral accent, so it reads as absence rather than a state worth attention. */
   --str-chat__presence-bg-offline: var(
     --str-chat__accent-neutral
-  ); /** The green online indicator. Uses success accent in normal themes. In high-contrast, color is dropped and replaced with strong black for maximum clarity. */
+  ); /** The offline presence indicator. Uses the neutral accent, so it reads as absence rather than a state worth attention. */
   --str-chat__system-caret: var(--str-chat__accent-primary);
   --str-chat__badge-bg-default: var(--str-chat__background-core-elevation-3);
   --str-chat__badge-bg-primary: var(--str-chat__accent-primary);
@@ -748,9 +776,6 @@
   --str-chat__badge-text-on-inverse: var(--str-chat__text-on-inverse);
   --str-chat__badge-text-on-accent: var(--str-chat__text-on-accent);
   --str-chat__badge-border: var(--str-chat__border-core-on-inverse);
-  --str-chat__control-remove-control-bg: var(--str-chat__background-core-inverse);
-  --str-chat__control-remove-control-icon: var(--str-chat__text-on-inverse);
-  --str-chat__control-remove-control-border: var(--str-chat__border-core-on-inverse);
   --str-chat__control-progress-bar-fill: var(--str-chat__accent-neutral);
   --str-chat__control-progress-bar-track: var(--str-chat__background-core-surface-strong);
   --str-chat__control-toggle-switch-bg: var(--str-chat__accent-neutral);
@@ -759,19 +784,9 @@
     --str-chat__background-utility-disabled
   );
   --str-chat__control-toggle-switch-knob: var(--str-chat__background-core-on-accent);
-  --str-chat__control-playback-toggle-text: var(--str-chat__text-primary);
-  --str-chat__control-playback-toggle-border: var(--str-chat__border-core-default);
   --str-chat__control-checkbox-border: var(--str-chat__border-core-default);
   --str-chat__control-checkbox-bg-selected: var(--str-chat__accent-primary);
   --str-chat__control-checkbox-icon: var(--str-chat__text-on-accent);
-  --str-chat__control-play-button-icon: var(--str-chat__text-on-accent);
-  --str-chat__control-playback-thumb-bg-default: var(
-    --str-chat__background-core-on-accent
-  );
-  --str-chat__control-playback-thumb-bg-active: var(--str-chat__accent-primary);
-  --str-chat__control-playback-thumb-border-active: var(
-    --str-chat__border-core-on-accent
-  );
   --str-chat__control-radio-button-border: var(--str-chat__border-core-default);
   --str-chat__control-radio-button-bg-selected: var(--str-chat__accent-primary);
   --str-chat__control-radio-button-indicator: var(--str-chat__text-on-accent);
@@ -780,14 +795,28 @@
   --str-chat__control-radio-check-icon: var(--str-chat__text-on-accent);
   --str-chat__control-chip-border: var(--str-chat__border-core-default);
   --str-chat__control-chip-text: var(--str-chat__text-primary);
-  --str-chat__avatar-presence-bg-offline: var(
-    --str-chat__accent-neutral
-  ); /** The green online indicator. Uses success accent in normal themes. In high-contrast, color is dropped and replaced with strong black for maximum clarity. */
-  --str-chat__avatar-presence-border: var(
-    --str-chat__border-core-on-inverse
-  ); /** The thin outline around the presence dot. Matches the local surface behind the avatar. In high-contrast it uses the base surface. */
+  --str-chat__control-remove-control-bg: var(--str-chat__background-core-inverse);
+  --str-chat__control-remove-control-icon: var(--str-chat__text-on-inverse);
+  --str-chat__control-remove-control-border: var(--str-chat__border-core-on-inverse);
+  --str-chat__control-playback-toggle-text: var(--str-chat__text-primary);
+  --str-chat__control-playback-toggle-border: var(--str-chat__border-core-default);
+  --str-chat__control-play-button-icon: var(--str-chat__text-on-accent);
+  --str-chat__control-playback-thumb-bg-default: var(
+    --str-chat__background-core-on-accent
+  );
+  --str-chat__control-playback-thumb-bg-active: var(--str-chat__accent-primary);
+  --str-chat__control-playback-thumb-border-active: var(
+    --str-chat__border-core-on-accent
+  );
+  --str-chat__chat-waveform-bar-playing: var(--str-chat__accent-primary);
+  --str-chat__chat-poll-progress-fill-outgoing: var(--str-chat__accent-primary);
+  --str-chat__chat-thread-connector-incoming: var(--str-chat__border-core-default);
+  --str-chat__reaction-bg: var(--str-chat__background-core-elevation-3);
+  --str-chat__reaction-border: var(--str-chat__border-core-default);
+  --str-chat__reaction-text: var(--str-chat__text-primary);
+  --str-chat__reaction-emoji: var(--str-chat__text-primary);
   --str-chat__chat-text-typing-indicator: var(
-    --str-chat__chat-text-incoming
+    --str-chat__message-bubble-text-incoming
   ); /** Typing indicator chip. */
   --str-chat__chat-poll-progress-track-incoming: var(
     --str-chat__control-progress-bar-track
@@ -795,4 +824,14 @@
   --str-chat__chat-poll-progress-fill-incoming: var(
     --str-chat__control-progress-bar-fill
   );
+  --str-chat__avatar-palette-bg-1: var(--str-chat__blue-150);
+  --str-chat__avatar-palette-bg-2: var(--str-chat__cyan-150);
+  --str-chat__avatar-palette-bg-3: var(--str-chat__green-150);
+  --str-chat__avatar-palette-bg-4: var(--str-chat__purple-150);
+  --str-chat__avatar-palette-bg-5: var(--str-chat__yellow-150);
+  --str-chat__avatar-palette-text-1: var(--str-chat__blue-900);
+  --str-chat__avatar-palette-text-2: var(--str-chat__cyan-900);
+  --str-chat__avatar-palette-text-3: var(--str-chat__green-900);
+  --str-chat__avatar-palette-text-4: var(--str-chat__purple-900);
+  --str-chat__avatar-palette-text-5: var(--str-chat__yellow-900);
 }

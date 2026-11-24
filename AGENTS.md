@@ -343,7 +343,7 @@ Vite 8 / Rolldown specifics baked into `vite.config.ts` (do not "simplify" these
 
 ## Styling architecture
 
-All styles live in `src/styling/` (entry: `src/styling/index.scss`) and per-component `src/components/*/styling/index.scss`, `@use`d by the master stylesheet. Nothing is pulled from an external design-system package. Never edit compiled CSS.
+All styles live in `src/styling/` (entry: `src/styling/index.scss`) and per-component `src/components/*/styling/index.scss`, `@use`d by the master stylesheet. Nothing is pulled from an external design-system package at build time: the theme variables are generated into `src/styling/` from design-system-tokens and committed (see [Syncing the design tokens](#syncing-the-design-tokens)). Never edit compiled CSS.
 
 ### CSS layers
 
@@ -361,8 +361,26 @@ Consumers order layers so overrides win without `!important`. Reference implemen
 ### Theming variables
 
 1. **Base values** — `src/styling/variables/` (fonts, shadows)
-2. **Semantic tokens** — `src/styling/light.scss` / `dark.scss` (generated; e.g. `--str-chat__accent-primary`, `--str-chat__text-primary`, `--str-chat__background-core-app`), applied by `variable-tokens.scss` to `.str-chat` and `.str-chat__theme-dark`
+2. **Semantic tokens** — `src/styling/light.scss` / `dark.scss` (generated; e.g. `--str-chat__accent-primary`, `--str-chat__text-primary`, `--str-chat__background-core-app`), applied by `variable-tokens.scss` to `.str-chat` and `.str-chat__theme-dark`. SDK-owned dark values that replace tokens live in `dark-button-accents.scss`, included after the generated dark tokens.
 3. **Component tokens** — per-component SCSS (e.g. `--str-chat__message-bubble-radius-tail`)
+
+The `--str-chat__*` theme variables are the SDK's public theming API. Component stylesheets read only these names, never a design-system-tokens name the SDK does not declare.
+
+### Syncing the design tokens
+
+`light.scss` and `dark.scss` are written by `yarn sync-design-tokens` from the web Chat build of [design-system-tokens](https://github.com/GetStream/design-system-tokens) (`build/web/chat/<theme>.scss`). Never edit them by hand. To pick up the latest tokens:
+
+```bash
+git -C ../design-system-tokens pull   # its default branch, main; the build output is committed
+yarn sync-design-tokens ../design-system-tokens
+```
+
+- Every variable the generated files already declare keeps its name and takes the definition of the token of the same name.
+- A variable whose token was renamed or removed takes the definition listed in `scripts/design-tokens-mapping.mts`.
+- A new token joins only when an SDK variable reads it through its `var()` chain, or when `ADOPTED_TOKENS` lists it. The script prints the tokens it left out.
+- The sync fails on an SDK variable with no token and no mapping, and on a mapped name that is a token again. Fix the mapping; never edit the output.
+
+Check the diff for value changes before committing: a sync takes every upstream value change.
 
 ## i18n system
 
