@@ -74,7 +74,13 @@ export const RemindMeSubmenu = () => {
                 },
                 emitter: 'MessageActions',
                 error: getNotificationError(error),
-                message: getErrorMessage(error, 'Error setting reminder'),
+                message: getErrorMessage(
+                  error,
+                  t(
+                    'messageActions.remindMeSubmenu.errorSettingReminder.text',
+                    'Error setting reminder',
+                  ),
+                ),
                 severity: 'error',
                 type: 'api:message:reminder:set:failed',
               });

@@ -19,10 +19,13 @@ const threadId = 'parent-message';
 // Typing in every thread of a channel lands in the channel's state; the header picks the entries
 // for the channel itself or, with `threadList`, for the thread in context.
 const renderHeader = async ({
+  inThread,
   threadList = false,
   translation,
   typing,
 }: {
+  /** Renders inside a thread context. Defaults to `threadList`. */
+  inThread?: boolean;
   threadList?: boolean;
   translation?: TranslationContextValue;
   typing: Channel['state']['typing'];
@@ -32,7 +35,8 @@ const renderHeader = async ({
     client,
   } = await initClientWithChannels({ customUser: me });
   channel.state.typing = typing;
-  const thread = threadList ? fromPartial<Thread>({ channel, id: threadId }) : undefined;
+  const thread =
+    (inThread ?? threadList) ? fromPartial<Thread>({ channel, id: threadId }) : undefined;
 
   const header = (
     <ChatProvider value={fromPartial<ChatContextValue>({ client })}>
@@ -110,6 +114,19 @@ describe('TypingIndicatorHeader', () => {
 
     expect(screen.getByTestId('typing-indicator-header')).toHaveTextContent(
       'bob is typing',
+    );
+  });
+
+  it('carries the thread modifier class only with threadList', async () => {
+    await renderHeader({ threadList: true, typing: { bob: typingIn('bob', threadId) } });
+    expect(screen.getByTestId('typing-indicator-header')).toHaveClass(
+      'str-chat__typing-indicator-header--thread',
+    );
+    cleanup();
+
+    await renderHeader({ inThread: true, typing: { bob: typingIn('bob') } });
+    expect(screen.getByTestId('typing-indicator-header')).not.toHaveClass(
+      'str-chat__typing-indicator-header--thread',
     );
   });
 

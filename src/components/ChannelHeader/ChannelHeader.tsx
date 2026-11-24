@@ -3,7 +3,7 @@ import type { Channel } from 'stream-chat';
 
 import { type ChannelAvatarProps, ChannelAvatar as DefaultAvatar } from '../Avatar';
 import { TypingIndicatorHeader } from '../TypingIndicator/TypingIndicatorHeader';
-import { useTypingUsers } from '../TypingIndicator/hooks/useTypingUsers';
+import { useDisplayedTypingUsers } from '../TypingIndicator/hooks/useDisplayedTypingUsers';
 import { useChannelHeaderOnlineStatus } from './hooks/useChannelHeaderOnlineStatus';
 import { useChannelPreviewInfo } from '../ChannelListItem/hooks/useChannelPreviewInfo';
 import { useChannel } from '../../context';
@@ -23,13 +23,14 @@ export const ChannelHeaderTitle = ({ displayTitle }: ChannelHeaderTitleProps) =>
 
 /**
  * Default subtitle of `ChannelHeader`, for the channel in context. Shows the typing indicator while
- * other users type, otherwise the online status from `useChannelHeaderOnlineStatus`, and
- * transitions between the two. Renders nothing when there is neither.
+ * other users type and for the same hide delay as `TypingIndicator` after they stop, otherwise the
+ * online status from `useChannelHeaderOnlineStatus`, and transitions between the two. Renders
+ * nothing when there is neither.
  */
 export const ChannelHeaderSubtitle = () => {
   const channel = useChannel();
   const onlineStatusText = useChannelHeaderOnlineStatus();
-  const hasTyping = useTypingUsers(channel).length > 0;
+  const hasTyping = useDisplayedTypingUsers(channel).length > 0;
 
   if (!hasTyping && !onlineStatusText) return null;
 

@@ -85,9 +85,10 @@ const SharedChannel = ({ channel }: { channel: Channel }) => {
 
   return (
     <li>
+      {/* Picked in the side panel, which stays open. `event` lets a ⌘/ctrl-click open it beside. */}
       <button
         className='cookbook-user-details__channel'
-        onClick={(event) => openChannel(channel, { event })}
+        onClick={(event) => openChannel(channel, { event, exclusive: false })}
         type='button'
       >
         <span aria-hidden='true'>#</span> {name}

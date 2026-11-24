@@ -107,6 +107,13 @@
   }
 }
 
+// The next-page spinner below the threads.
+.str-chat__thread-list-loading-indicator {
+  display: flex;
+  justify-content: center;
+  padding-block: var(--str-chat__space-8);
+}
+
 .str-chat__thread-list-empty-placeholder {
   --str-chat-icon-color: var(--str-chat__text-secondary);
   @include utils.empty-theme('thread-list');

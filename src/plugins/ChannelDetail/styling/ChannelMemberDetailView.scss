@@ -57,12 +57,3 @@
   min-width: min(304px, calc(100vw - 32px));
   max-width: min(304px, calc(100vw - 32px));
 }
-
-.str-chat__channel-detail__channel-member-detail-view__empty-state {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 128px;
-  font: var(--str-chat__font-caption-default);
-  color: var(--str-chat__text-secondary);
-}

@@ -15,6 +15,7 @@ const renderSuggestionList = () =>
   );
 
 const announceInteractionMock = vi.fn();
+let mockComponentContextValue: Record<string, unknown> = {};
 
 // `useInteractionAnnouncements` debounces and dedups `suggestions.count` itself, so the tests
 // assert the call to `announceInteraction`, not the live-region text.
@@ -26,7 +27,7 @@ vi.mock('../../Accessibility', () => ({
 
 vi.mock('../../../context', async (importOriginal) => ({
   ...(await importOriginal<typeof import('../../../context')>()),
-  useComponentContext: () => ({}),
+  useComponentContext: () => mockComponentContextValue,
   useMessageComposerContext: () => ({
     textareaRef: { current: null },
   }),
@@ -54,7 +55,7 @@ vi.mock('../../../context', async (importOriginal) => ({
 }));
 
 vi.mock('../../../context/ComponentContext', () => ({
-  useComponentContext: () => ({}),
+  useComponentContext: () => mockComponentContextValue,
 }));
 
 vi.mock('../../../context/MessageComposerContext', () => ({
@@ -257,5 +258,23 @@ describe('SuggestionList', () => {
 
     const results = await axe(container);
     expect(results).toHaveNoViolations();
+  });
+
+  it('renders no loading indicator while a further page of suggestions loads', () => {
+    // A further page loads at a non-zero offset; the suggestion list has no loading state, so it
+    // renders neither the default spinner nor an app's `ListLoadingNextPageUI`.
+    const ListLoadingNextPageUI = vi.fn(() => <div data-testid='next-page' />);
+    mockComponentContextValue = { ListLoadingNextPageUI };
+    fakeComposerState = {
+      ...buildState(3),
+      ...{ isLoading: true, offset: 3 },
+    };
+    const { container } = renderSuggestionList();
+
+    expect(ListLoadingNextPageUI).not.toHaveBeenCalled();
+    expect(
+      container.querySelector('.str-chat__loading-indicator'),
+    ).not.toBeInTheDocument();
+    mockComponentContextValue = {};
   });
 });

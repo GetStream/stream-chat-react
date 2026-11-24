@@ -44,6 +44,7 @@ import {
 } from '../../../../mock-builders/browser';
 import { AudioRecorder } from '../AudioRecorder';
 import { MediaRecordingState } from '../../classes';
+import { BehaviorSubject } from '../../observable/BehaviorSubject';
 import { WithAudioPlayback } from '../../../AudioPlayback';
 import type {
   Attachment,
@@ -139,6 +140,7 @@ window.AudioContext = AudioContextMock as unknown as typeof AudioContext;
 window.AnalyserNode = AnalyserNodeMock as unknown as typeof AnalyserNode;
 
 const fileObjectURL = 'fileObjectURL';
+const recordingObjectURL = 'blob:recording';
 // eslint-disable-next-line
 window.URL.createObjectURL = vi.fn(() => fileObjectURL);
 // eslint-disable-next-line
@@ -156,6 +158,7 @@ describe('MessageInput', () => {
   afterEach(() => {
     vi.clearAllMocks();
     MediaRecorderMock.autoEmitDataOnStop = false;
+    vi.mocked(window.URL.createObjectURL).mockImplementation(() => fileObjectURL);
   });
 
   it('does not render start recording button if disabled', async () => {
@@ -417,6 +420,218 @@ describe('MessageInput', () => {
     expect(sentAttachments[0]).not.toHaveProperty('localMetadata');
   });
 
+  it('keeps a recording whose upload failed in the composer, unsent, and retries it from there', async () => {
+    // Only `blob:` URLs are released by the attachment's upload lifecycle.
+    vi.mocked(window.URL.createObjectURL).mockImplementation(() => recordingObjectURL);
+    MediaRecorderMock.autoEmitDataOnStop = true;
+    const {
+      channels: [channel],
+      client,
+    } = await initClientWithChannels({
+      channelsData: [{ channel: { own_capabilities: ['upload-file'] } }],
+    });
+    vi.spyOn(client, 'getAppSettings').mockResolvedValue(fromPartial({}));
+    const uploadedFileURL = 'https://cdn.example.com/recording.wav';
+    const uploadFileSpy = vi
+      .spyOn(channel, 'uploadFile')
+      .mockRejectedValueOnce(new Error('upload failed'))
+      .mockResolvedValueOnce(fromPartial({ file: uploadedFileURL }));
+    const sendMessageSpy = vi
+      .spyOn(channel, 'sendMessage')
+      .mockResolvedValue(fromPartial({}));
+    await renderComponent({
+      channelStateCtx: { channel },
+      chatCtx: { client },
+    });
+
+    fireEvent.click(screen.getByTestId(START_RECORDING_AUDIO_BUTTON_TEST_ID));
+    await waitFor(() => {
+      expect(screen.getByTestId(AUDIO_RECORDER_TEST_ID)).toBeInTheDocument();
+    });
+    fireEvent.click(screen.getByTestId(AUDIO_RECORDER_STOP_BTN_TEST_ID));
+
+    const retryButton = await screen.findByTestId('file-preview-item-retry-button');
+    expect(screen.getByTestId('voice-preview-slot')).toBeInTheDocument();
+    // The kept recording still plays from its local file URL.
+    expect(window.URL.revokeObjectURL).not.toHaveBeenCalled();
+    expect(uploadFileSpy).toHaveBeenCalledTimes(1);
+    expect(sendMessageSpy).not.toHaveBeenCalled();
+
+    await act(() => {
+      fireEvent.click(retryButton);
+    });
+    await waitFor(() => {
+      expect(uploadFileSpy).toHaveBeenCalledTimes(2);
+    });
+    await waitFor(() => {
+      expect(channel.messageComposer.attachmentManager.attachments).toEqual([
+        expect.objectContaining({
+          asset_url: uploadedFileURL,
+          localMetadata: expect.objectContaining({ uploadState: 'finished' }),
+          type: 'voiceRecording',
+        }),
+      ]);
+    });
+    expect(
+      screen.queryByTestId('file-preview-item-retry-button'),
+    ).not.toBeInTheDocument();
+    // The uploaded URL replaced the local one, which is released.
+    expect(window.URL.revokeObjectURL).toHaveBeenCalledWith(recordingObjectURL);
+    expect(sendMessageSpy).not.toHaveBeenCalled();
+  });
+
+  it('keeps a recording whose upload is blocked in the composer, unsent', async () => {
+    MediaRecorderMock.autoEmitDataOnStop = true;
+    const {
+      channels: [channel],
+      client,
+    } = await initClientWithChannels({
+      channelsData: [{ channel: { own_capabilities: ['upload-file'] } }],
+    });
+    // The transcoder mock turns every recording into a WAV file.
+    vi.spyOn(client, 'getAppSettings').mockResolvedValue(
+      fromPartial({ app: { file_upload_config: { blocked_mime_types: ['audio/wav'] } } }),
+    );
+    const uploadFileSpy = vi.spyOn(channel, 'uploadFile');
+    const sendMessageSpy = vi
+      .spyOn(channel, 'sendMessage')
+      .mockResolvedValue(fromPartial({}));
+    await renderComponent({
+      channelStateCtx: { channel },
+      chatCtx: { client },
+    });
+
+    fireEvent.click(screen.getByTestId(START_RECORDING_AUDIO_BUTTON_TEST_ID));
+    await waitFor(() => {
+      expect(screen.getByTestId(AUDIO_RECORDER_TEST_ID)).toBeInTheDocument();
+    });
+    fireEvent.click(screen.getByTestId(AUDIO_RECORDER_STOP_BTN_TEST_ID));
+
+    // The recorder closes once completion has decided whether to send.
+    await waitFor(() => {
+      expect(screen.queryByTestId(AUDIO_RECORDER_TEST_ID)).not.toBeInTheDocument();
+    });
+    expect(screen.getByText('Upload blocked')).toBeInTheDocument();
+    expect(screen.getByTestId('voice-preview-slot')).toBeInTheDocument();
+    expect(channel.messageComposer.attachmentManager.attachments).toEqual([
+      expect.objectContaining({
+        localMetadata: expect.objectContaining({ uploadState: 'blocked' }),
+        type: 'voiceRecording',
+      }),
+    ]);
+    expect(uploadFileSpy).not.toHaveBeenCalled();
+    expect(sendMessageSpy).not.toHaveBeenCalled();
+  });
+
+  it('with pending uploads allowed, sends the recording right away and posts it once the upload ends', async () => {
+    // Only `blob:` URLs are released by the attachment's upload lifecycle.
+    vi.mocked(window.URL.createObjectURL).mockImplementation(() => recordingObjectURL);
+    MediaRecorderMock.autoEmitDataOnStop = true;
+    const {
+      channels: [channel],
+      client,
+    } = await initClientWithChannels({
+      channelsData: [{ channel: { own_capabilities: ['upload-file'] } }],
+    });
+    vi.spyOn(client, 'getAppSettings').mockResolvedValue(fromPartial({}));
+    channel.messageComposer.updateConfig({
+      attachments: { pendingUploadsEnabled: true },
+    });
+    const uploadedFileURL = 'https://cdn.example.com/recording.wav';
+    let finishUpload: (value: UploadChannelFileResponse) => void = () => undefined;
+    const uploadFileSpy = vi.spyOn(channel, 'uploadFile').mockReturnValue(
+      new Promise((resolve) => {
+        finishUpload = resolve;
+      }),
+    );
+    const sendMessageSpy = vi
+      .spyOn(channel, 'sendMessage')
+      .mockResolvedValue(fromPartial({}));
+    await renderComponent({
+      channelStateCtx: { channel },
+      chatCtx: { client },
+    });
+
+    fireEvent.click(screen.getByTestId(START_RECORDING_AUDIO_BUTTON_TEST_ID));
+    await waitFor(() => {
+      expect(screen.getByTestId(AUDIO_RECORDER_TEST_ID)).toBeInTheDocument();
+    });
+    fireEvent.click(screen.getByTestId(AUDIO_RECORDER_STOP_BTN_TEST_ID));
+
+    // While the upload still runs, the message is in the list, the composer is empty and the recorder
+    // has closed, so the next message can be typed.
+    await waitFor(() => {
+      expect(channel.messagePaginator.items).toEqual([
+        expect.objectContaining({
+          attachments: [expect.objectContaining({ type: 'voiceRecording' })],
+        }),
+      ]);
+    });
+    expect(uploadFileSpy).toHaveBeenCalledTimes(1);
+    expect(channel.messageComposer.attachmentManager.attachments).toEqual([]);
+    await waitFor(() => {
+      expect(screen.queryByTestId(AUDIO_RECORDER_TEST_ID)).not.toBeInTheDocument();
+    });
+    expect(sendMessageSpy).not.toHaveBeenCalled();
+
+    await act(() => {
+      finishUpload(fromPartial({ file: uploadedFileURL }));
+    });
+    await waitFor(() => {
+      expect(sendMessageSpy).toHaveBeenCalledTimes(1);
+    });
+    expect(uploadFileSpy).toHaveBeenCalledTimes(1);
+    expect(sendMessageSpy.mock.calls[0][0].message.attachments).toEqual([
+      expect.objectContaining({ asset_url: uploadedFileURL, type: 'voiceRecording' }),
+    ]);
+    // The uploaded URL replaced the local one, which is released.
+    expect(window.URL.revokeObjectURL).toHaveBeenCalledWith(recordingObjectURL);
+  });
+
+  it('with pending uploads allowed, keeps the recording on the failed message when its upload fails', async () => {
+    MediaRecorderMock.autoEmitDataOnStop = true;
+    const {
+      channels: [channel],
+      client,
+    } = await initClientWithChannels({
+      channelsData: [{ channel: { own_capabilities: ['upload-file'] } }],
+    });
+    vi.spyOn(client, 'getAppSettings').mockResolvedValue(fromPartial({}));
+    channel.messageComposer.updateConfig({
+      attachments: { pendingUploadsEnabled: true },
+    });
+    vi.spyOn(channel, 'uploadFile').mockRejectedValue(new Error('upload failed'));
+    const sendMessageSpy = vi
+      .spyOn(channel, 'sendMessage')
+      .mockResolvedValue(fromPartial({}));
+    await renderComponent({
+      channelStateCtx: { channel },
+      chatCtx: { client },
+    });
+
+    fireEvent.click(screen.getByTestId(START_RECORDING_AUDIO_BUTTON_TEST_ID));
+    await waitFor(() => {
+      expect(screen.getByTestId(AUDIO_RECORDER_TEST_ID)).toBeInTheDocument();
+    });
+    fireEvent.click(screen.getByTestId(AUDIO_RECORDER_STOP_BTN_TEST_ID));
+
+    // The failed message keeps the recording's file, so retrying the message uploads it again.
+    await waitFor(() => {
+      expect(channel.messagePaginator.items).toEqual([
+        expect.objectContaining({
+          attachments: [
+            expect.objectContaining({
+              localMetadata: expect.objectContaining({ file: expect.any(File) }),
+              type: 'voiceRecording',
+            }),
+          ],
+          status: 'failed',
+        }),
+      ]);
+    });
+    expect(sendMessageSpy).not.toHaveBeenCalled();
+  });
+
   it('uploads but does not submit message on recording completion and multiple async messages enabled', async () => {
     MediaRecorderMock.autoEmitDataOnStop = true;
     const {
@@ -572,6 +787,117 @@ describe('AudioRecorder', () => {
       expect((toggleBtn as HTMLButtonElement).disabled).toBe(disabled);
     },
   );
+
+  describe('recording waveform', () => {
+    const AMPLITUDE_BAR_SELECTOR = '.str-chat__wave-progress-bar__amplitude-bar';
+    let trackWidth = 0;
+    let clientWidthSpy: { mockRestore: () => void };
+
+    let barWidth = 2;
+
+    beforeEach(() => {
+      barWidth = 2;
+      // Bars measure `barWidth`; every other div keeps this file's 120px.
+      vi.mocked(HTMLDivElement.prototype.getBoundingClientRect).mockImplementation(
+        function (this: HTMLDivElement) {
+          return fromPartial<DOMRect>({
+            width: this.classList.contains('str-chat__wave-progress-bar__amplitude-bar')
+              ? barWidth
+              : 120,
+          });
+        },
+      );
+      clientWidthSpy = vi
+        .spyOn(HTMLElement.prototype, 'clientWidth', 'get')
+        .mockImplementation(function (this: HTMLElement) {
+          return this.classList.contains('str-chat__wave-progress-bar__track')
+            ? trackWidth
+            : 0;
+        });
+    });
+
+    afterEach(() => {
+      vi.mocked(HTMLDivElement.prototype.getBoundingClientRect).mockReturnValue(
+        fromPartial<DOMRect>({ width: 120 }),
+      );
+      clientWidthSpy.mockRestore();
+      ResizeObserverMock.observers = [];
+    });
+
+    const renderRecordingWaveform = (amplitudeCount: number) =>
+      renderAudioRecorder({
+        recorder: {
+          amplitudeRecorder: {
+            amplitudes: new BehaviorSubject(
+              Array.from({ length: amplitudeCount }, (_, i) => (i % 10) / 10),
+            ),
+          },
+        },
+        recordingState: MediaRecordingState.RECORDING,
+      });
+
+    // jsdom computes no gap, so a bar takes its own width of the track.
+    it('draws as many of the latest amplitudes as fit the track', async () => {
+      trackWidth = 900;
+      const { container } = await renderRecordingWaveform(1000);
+      expect(container.querySelectorAll(AMPLITUDE_BAR_SELECTOR)).toHaveLength(450);
+    });
+
+    it('redraws for the new width when the track resizes', async () => {
+      trackWidth = 900;
+      const { container } = await renderRecordingWaveform(1000);
+
+      trackWidth = 300;
+      act(() => {
+        ResizeObserverMock.observers.forEach((observer) => {
+          if (observer.active) observer.cb([], observer as unknown as ResizeObserver);
+        });
+      });
+
+      expect(container.querySelectorAll(AMPLITUDE_BAR_SELECTOR)).toHaveLength(150);
+    });
+
+    it('measures again with the width of the first rendered bar', async () => {
+      trackWidth = 900;
+      barWidth = 3;
+      const amplitudes = new BehaviorSubject<number[]>([]);
+      const { container } = await renderAudioRecorder({
+        recorder: { amplitudeRecorder: { amplitudes } },
+        recordingState: MediaRecordingState.RECORDING,
+      });
+
+      act(() => {
+        amplitudes.next(Array.from({ length: 1000 }, () => 0.5));
+      });
+
+      expect(container.querySelectorAll(AMPLITUDE_BAR_SELECTOR)).toHaveLength(300);
+    });
+
+    it('counts the gap the track sets between bars', async () => {
+      trackWidth = 900;
+      const getComputedStyle = window.getComputedStyle;
+      const styleSpy = vi
+        .spyOn(window, 'getComputedStyle')
+        .mockImplementation((element, pseudo) => {
+          const style = getComputedStyle(element, pseudo);
+          return element.classList.contains('str-chat__wave-progress-bar__track')
+            ? ({ ...style, columnGap: '1px' } as CSSStyleDeclaration)
+            : style;
+        });
+
+      const { container } = await renderRecordingWaveform(1000);
+      styleSpy.mockRestore();
+
+      // (900 + 1) / (2 + 1)
+      expect(container.querySelectorAll(AMPLITUDE_BAR_SELECTOR)).toHaveLength(300);
+    });
+
+    it('draws every amplitude while there are fewer than fit', async () => {
+      trackWidth = 900;
+      const { container } = await renderRecordingWaveform(30);
+      expect(container.querySelectorAll(AMPLITUDE_BAR_SELECTOR)).toHaveLength(30);
+    });
+  });
 
   it('renders loading indicators while recording being uploaded', async () => {
     await renderAudioRecorder({

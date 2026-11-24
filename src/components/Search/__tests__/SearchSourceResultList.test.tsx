@@ -169,4 +169,16 @@ describe('SearchSourceResultList', () => {
     expect(screen.getByTestId('custom-footer')).toBeInTheDocument();
     expect(screen.queryByTestId('mock-footer')).not.toBeInTheDocument();
   });
+
+  it('renders no footer when SearchSourceResultListFooter is set to null', () => {
+    useComponentContext['mockReturnValue']({
+      // Apps turn the footer off with `null`, which the key's type does not name.
+      SearchSourceResultListFooter: null,
+    });
+
+    render(<SearchSourceResultList SearchResultItems={DefaultSearchResultItems} />);
+
+    expect(screen.getAllByTestId('mock-result-item')).toHaveLength(mockItems.length);
+    expect(screen.queryByTestId('mock-footer')).not.toBeInTheDocument();
+  });
 });

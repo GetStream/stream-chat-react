@@ -491,7 +491,7 @@ describe('MediaRecorderController', () => {
     );
   });
 
-  describe('releaseMicrophone and cleanUp', () => {
+  describe('releaseMicrophone, cleanUp and handOverRecording', () => {
     // A started controller with a live microphone stream and a finished recording.
     const setUpStoppedController = async () => {
       const controller = new MediaRecorderController();
@@ -545,6 +545,61 @@ describe('MediaRecorderController', () => {
       expect(controller.recording.value).toBeUndefined();
       expect(controller.recordingState.value).toBeUndefined();
       expect(window.URL.revokeObjectURL).toHaveBeenCalledWith('recording-uri');
+    });
+
+    it('renewRecordingUri gives the recording a new object URL from its file', async () => {
+      const { controller, recording } = await setUpStoppedController();
+      const file = new File(['audio'], 'recording.aac', { type: 'audio/aac' });
+      controller.recording.next({
+        ...recording,
+        localMetadata: { ...recording.localMetadata, file },
+      });
+      vi.mocked(window.URL.createObjectURL).mockReturnValueOnce('renewed-uri');
+      controller.renewRecordingUri();
+      expect(window.URL.createObjectURL).toHaveBeenCalledWith(file);
+      expect(window.URL.revokeObjectURL).toHaveBeenCalledWith('recording-uri');
+      expect(controller.recordingUri).toBe('renewed-uri');
+      expect(controller.recording.value).toMatchObject({
+        asset_url: 'renewed-uri',
+        localMetadata: { file, previewUri: 'renewed-uri' },
+      });
+    });
+
+    it('renewRecordingUri leaves the URL alone without a recording', async () => {
+      const { controller } = await setUpStoppedController();
+      controller.recording.next(undefined);
+      const createCalls = vi.mocked(window.URL.createObjectURL).mock.calls.length;
+      controller.renewRecordingUri();
+      expect(window.URL.createObjectURL).toHaveBeenCalledTimes(createCalls);
+      expect(window.URL.revokeObjectURL).not.toHaveBeenCalled();
+      expect(controller.recordingUri).toBe('recording-uri');
+    });
+
+    it('renewRecordingUri leaves the URL alone when the recording has no file', async () => {
+      const { controller, recording } = await setUpStoppedController();
+      const recordingWithoutFile = {
+        ...recording,
+        localMetadata: { ...recording.localMetadata, file: undefined },
+      } as unknown as typeof recording;
+      controller.recording.next(recordingWithoutFile);
+      const createCalls = vi.mocked(window.URL.createObjectURL).mock.calls.length;
+      controller.renewRecordingUri();
+      expect(window.URL.createObjectURL).toHaveBeenCalledTimes(createCalls);
+      expect(window.URL.revokeObjectURL).not.toHaveBeenCalled();
+      expect(controller.recordingUri).toBe('recording-uri');
+      expect(controller.recording.value).toBe(recordingWithoutFile);
+    });
+
+    it('handOverRecording stops the microphone and drops the recording but keeps its object URL', async () => {
+      const { controller, track } = await setUpStoppedController();
+      controller.handOverRecording();
+      expect(track.stop).toHaveBeenCalledWith();
+      expect(controller.recording.value).toBeUndefined();
+      expect(controller.recordingState.value).toBeUndefined();
+      expect(controller.recordingUri).toBeUndefined();
+      // Neither now nor when the recorder is cleaned up later, e.g. on unmount.
+      controller.cleanUp();
+      expect(window.URL.revokeObjectURL).not.toHaveBeenCalled();
     });
   });
 
@@ -697,6 +752,7 @@ describe('MediaRecorderController', () => {
             localMetadata: {
               file: recordedFile,
               id: nanoidMockValue,
+              previewUri: fileObjectURL,
               uploadState: 'pending',
             },
             title: recordedFile.name,
@@ -746,6 +802,7 @@ describe('MediaRecorderController', () => {
             localMetadata: {
               file: recordedFile,
               id: nanoidMockValue,
+              previewUri: fileObjectURL,
               uploadState: 'pending',
             },
             title: recordedFile.name,
@@ -789,6 +846,7 @@ describe('MediaRecorderController', () => {
           localMetadata: {
             file: recordedFile,
             id: nanoidMockValue,
+            previewUri: fileObjectURL,
             uploadState: 'pending',
           },
           title: recordedFile.name,

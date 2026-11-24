@@ -10,6 +10,7 @@ import {
   IconAIThumbsUp,
   IconAIThumbsUpFill,
 } from '../icons';
+import { type AIBranchSwitch, AIBranchSwitcher } from './AIBranchSwitcher';
 import { ThemeScopeProvider, useAIThemeScopeClassName } from '../themeScope';
 
 /** How the person rated a reply. */
@@ -18,6 +19,11 @@ export type AIMessageRating = 'positive' | 'negative';
 export type AIReplyActionsProps = {
   /** The reply's text, which copying and sharing hand on. */
   text: string;
+  /**
+   * Which of the reply's versions shows, when it was written again: a ‹ i/n › switcher with
+   * arrows to the others, shown only while `count` is 2 or more.
+   */
+  branch?: AIBranchSwitch;
   className?: string;
   /** Rates the reply, or takes the rating back with `null`. Without it, no rating is offered. */
   onRate?: (rating: AIMessageRating | null) => void;
@@ -45,11 +51,13 @@ const copyText = async (text: string) => {
 };
 
 /**
- * The actions under a finished reply: copy, share (the system share sheet where the browser
+ * The actions under a finished reply: the switcher between its versions when it has several,
+ * copy, share (the system share sheet where the browser
  * has one, else a copy), regenerate, and a thumbs up or down rating. The counterpart of
  * `AIReplyActionsView`.
  */
 export const AIReplyActions = ({
+  branch,
   className,
   onRate,
   onRegenerate,
@@ -99,6 +107,7 @@ export const AIReplyActions = ({
         className={clsx(themeScopeClassName, 'str-chat__ai-reply-actions', className)}
         role='toolbar'
       >
+        {branch && <AIBranchSwitcher {...branch} />}
         <button
           aria-label={
             isCopied

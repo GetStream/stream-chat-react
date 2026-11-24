@@ -57,7 +57,8 @@ export const SearchSourceResultList = ({
             key={`source-search-result-${searchSource.type}-${i}`}
           />
         ))}
-        <SearchSourceResultListFooter />
+        {/* An app turns the footer off with a `null` `SearchSourceResultListFooter`. */}
+        {SearchSourceResultListFooter && <SearchSourceResultListFooter />}
       </InfiniteScrollPaginator>
     </div>
   );

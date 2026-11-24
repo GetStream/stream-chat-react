@@ -2,11 +2,12 @@ import React from 'react';
 import { act, fireEvent, render, screen } from '@testing-library/react';
 import { fromPartial } from '@total-typescript/shoehorn';
 import {
-  EmptyPlaceholder,
+  Footer,
   Header,
   Item,
   messageRenderer,
 } from '../VirtualizedMessageListComponents';
+import { VirtualizedMessageListEmptyUI } from '../ListStates';
 import type { VirtuosoContext } from '../VirtualizedMessageList';
 import {
   generateMessage,
@@ -32,7 +33,7 @@ import type { GroupStyle, RenderedMessage } from '../utils';
 import type { Channel, LocalMessage, StreamChat, Thread } from 'stream-chat';
 import { convertDateToTimestamp } from '../../../mock-builders';
 
-// `EmptyPlaceholder` reads thread-ness from `useThreadContext()`, so provide a truthy thread to
+// `VirtualizedMessageListEmptyUI` reads thread-ness from `useThreadContext()`, so provide a truthy thread to
 // exercise the thread branch.
 const threadStub = {} as unknown as Thread;
 
@@ -42,7 +43,7 @@ let channel: Channel;
 
 const PREPEND_OFFSET = 10 ** 7;
 
-// Item, Header and EmptyPlaceholder only consume `ComponentContext`, `ThreadContext` and
+// Item, Header and VirtualizedMessageListEmptyUI only consume `ComponentContext`, `ThreadContext` and
 // `TranslationContext` (through their default sub-components), so this wrapper provides just those
 // and renders no DOM chrome. Tests that render a `Message` use `renderWithChannel` instead, which
 // supplies the full context stack.
@@ -138,96 +139,73 @@ describe('VirtualizedMessageComponents', () => {
     );
   });
 
+  // The list-state part of the Virtuoso context: a channel's loaded list with older messages above.
+  const listContext = (overrides: Partial<VirtuosoContext> = {}) =>
+    ({
+      head: null,
+      loadingEdge: undefined,
+      loadingMore: false,
+      processedMessages: [],
+      ...overrides,
+    }) as unknown as VirtuosoContext;
+
   describe('Header', () => {
     const head = <div>Custom head</div>;
     const CustomLoadingIndicator = () => <div>Custom Loading Indicator</div>;
-    it('should render empty div in Header when not loading more messages', () => {
+
+    it('should render nothing without a Virtuoso context', () => {
       const { container } = renderElements(<Header />);
       expect(container).toBeEmptyDOMElement();
     });
 
-    it('should render LoadingIndicator in Header when loading more messages', () => {
-      const context = { loadingMore: true };
-      const { container } = renderElements(
-        <Header context={context as unknown as VirtuosoContext} />,
-      );
-      expect(container).toMatchSnapshot();
-    });
-
-    it('should render custom LoadingIndicator in Header when loading more messages', () => {
-      const componentContext = { LoadingIndicator: CustomLoadingIndicator };
-      const context = { loadingMore: true };
-      const { container } = renderElements(
-        <Header context={context as unknown as VirtuosoContext} />,
-        componentContext,
-      );
-      expect(container).toMatchInlineSnapshot(`
-        <div>
-          <div
-            class="str-chat__virtual-list__loading"
-          >
-            <div>
-              Custom Loading Indicator
-            </div>
-          </div>
-        </div>
-      `);
-    });
-
-    it('should not render custom LoadingIndicator in Header when not loading more messages', () => {
-      const componentContext = { LoadingIndicator: CustomLoadingIndicator };
-      const { container } = renderElements(<Header />, componentContext);
+    it('should render nothing while no page loads at the top', () => {
+      const { container } = renderElements(<Header context={listContext()} />);
       expect(container).toBeEmptyDOMElement();
     });
 
-    // FIXME: this is a crazy pattern of having to set LoadingIndicator to null so that additionalVirtuosoProps.head can be rendered.
-    it('should not render custom head in Header when loading more messages, but the LoadingIndicator', () => {
-      const context = { head, loadingMore: true };
+    it('should render the LoadingIndicator while an older page loads', () => {
       const { container } = renderElements(
-        <Header context={context as unknown as VirtuosoContext} />,
+        <Header context={listContext({ loadingEdge: 'top', loadingMore: true })} />,
       );
-      expect(container).toMatchSnapshot();
+      expect(
+        container.querySelector(
+          '.str-chat__virtual-list__loading > .str-chat__loading-indicator',
+        ),
+      ).toBeInTheDocument();
     });
 
-    // FIXME: this is a crazy pattern of having to set LoadingIndicator to null so that additionalVirtuosoProps.head can be rendered.
-    it('should render custom head in Header when LoadingIndicator in component context is set to null', () => {
-      const componentContext = {
-        LoadingIndicator: null,
-      };
-      const context = { head, loadingMore: true };
+    it('should render the custom LoadingIndicator while an older page loads', () => {
       const { container } = renderElements(
-        <Header context={context as unknown as VirtuosoContext} />,
-        componentContext,
+        <Header context={listContext({ loadingEdge: 'top', loadingMore: true })} />,
+        { LoadingIndicator: CustomLoadingIndicator },
       );
       expect(container).toMatchInlineSnapshot(`
         <div>
-          <div>
-            Custom head
+          <div
+            class="str-chat__virtual-list__loading"
+          >
+            <div>
+              Custom Loading Indicator
+            </div>
           </div>
         </div>
       `);
     });
 
-    it('should not render custom head in Header when not loading more messages', () => {
-      const context = { head };
-      const { container } = renderElements(
-        <Header context={context as unknown as VirtuosoContext} />,
-      );
-      expect(container).toMatchInlineSnapshot(`
-        <div>
-          <div>
-            Custom head
-          </div>
-        </div>
-      `);
+    it.each([
+      ['a newer page loads', { loadingEdge: 'bottom' as const, loadingMore: true }],
+      ['the list jumps to a message', { loadingEdge: undefined, loadingMore: true }],
+    ])('should not render the LoadingIndicator while %s', (_, overrides) => {
+      const { container } = renderElements(<Header context={listContext(overrides)} />, {
+        LoadingIndicator: CustomLoadingIndicator,
+      });
+      expect(container).toBeEmptyDOMElement();
     });
 
-    it('should render custom LoadingIndicator instead of head when loading more', () => {
-      const componentContext = { LoadingIndicator: CustomLoadingIndicator };
-      const context = { head, loadingMore: true };
+    it('should render the head above the LoadingIndicator while an older page loads', () => {
       const { container } = renderElements(
-        <Header context={context as unknown as VirtuosoContext} />,
-        componentContext,
+        <Header context={listContext({ head, loadingEdge: 'top', loadingMore: true })} />,
+        { LoadingIndicator: CustomLoadingIndicator },
       );
       expect(container).toMatchInlineSnapshot(`
         <div>
@@ -243,49 +221,234 @@ describe('VirtualizedMessageComponents', () => {
           </div>
         </div>
       `);
+    });
+
+    it('should render the head while no page loads', () => {
+      const { container } = renderElements(<Header context={listContext({ head })} />);
+      expect(container).toMatchInlineSnapshot(`
+        <div>
+          <div>
+            Custom head
+          </div>
+        </div>
+      `);
+    });
+
+    it('should pass the top edge to ListLoadingNextPageUI', () => {
+      const ListEndReachedUI = vi.fn(() => null);
+      const ListLoadingNextPageUI = vi.fn(() => null);
+      renderElements(
+        <Header context={listContext({ loadingEdge: 'top', loadingMore: true })} />,
+        { ListEndReachedUI, ListLoadingNextPageUI },
+      );
+      expect(ListLoadingNextPageUI.mock.lastCall?.[0]).toEqual({
+        isLoading: true,
+        position: 'top',
+      });
+      expect(ListEndReachedUI).not.toHaveBeenCalled();
+    });
+
+    it('should render no loading wrapper while LoadingIndicator is set to null', () => {
+      const { container } = renderElements(
+        <Header context={listContext({ loadingEdge: 'top', loadingMore: true })} />,
+        // Apps turn the spinners off with `null`, which the key's type does not name.
+        { LoadingIndicator: null as unknown as undefined },
+      );
+      expect(container.querySelector('.str-chat__virtual-list__loading')).toBeNull();
+    });
+
+    it('should render ListLoadingNextPageUI over the LoadingIndicator while an older page loads', () => {
+      const ListLoadingNextPageUI = () => <div>Loading older</div>;
+      const { container } = renderElements(
+        <Header context={listContext({ loadingEdge: 'top', loadingMore: true })} />,
+        { ListLoadingNextPageUI, LoadingIndicator: CustomLoadingIndicator },
+      );
+      const wrapper = container.querySelector('.str-chat__virtual-list__loading');
+      expect(wrapper).toHaveTextContent('Loading older');
+      expect(wrapper).not.toHaveTextContent('Custom Loading Indicator');
+    });
+
+    it('should render ListLoadingNextPageUI in its wrapper while the LoadingIndicator is null', () => {
+      const ListLoadingNextPageUI = () => <div>Loading older</div>;
+      const { container } = renderElements(
+        <Header context={listContext({ loadingEdge: 'top', loadingMore: true })} />,
+        {
+          ListLoadingNextPageUI,
+          LoadingIndicator: null as unknown as undefined,
+        },
+      );
+      expect(
+        container.querySelector('.str-chat__virtual-list__loading'),
+      ).toHaveTextContent('Loading older');
+    });
+
+    it('should render the head alone when ListLoadingNextPageUI renders nothing', () => {
+      const { container } = renderElements(
+        <Header context={listContext({ head, loadingEdge: 'top', loadingMore: true })} />,
+        { ListLoadingNextPageUI: () => null },
+      );
+      expect(container).toHaveTextContent('Custom head');
+      expect(container.querySelector('.str-chat__loading-indicator')).toBeNull();
     });
   });
 
-  describe('EmptyPlaceholder', () => {
+  describe('Footer', () => {
+    it.each([
+      ['without a Virtuoso context', undefined],
+      ['while no page loads', listContext()],
+      [
+        'while an older page loads',
+        listContext({ loadingEdge: 'top', loadingMore: true }),
+      ],
+    ])('should render nothing %s', (_, context) => {
+      const { container } = renderElements(<Footer context={context} />);
+      expect(container).toBeEmptyDOMElement();
+    });
+
+    it('should render ListLoadingNextPageUI at the bottom while a newer page loads', () => {
+      const ListLoadingNextPageUI = vi.fn(() => <div>Loading newer</div>);
+      const { container } = renderElements(
+        <Footer
+          context={listContext({
+            loadingEdge: 'bottom',
+            loadingMore: true,
+          })}
+        />,
+        { ListLoadingNextPageUI },
+      );
+      expect(
+        container.querySelector('.str-chat__virtual-list__loading'),
+      ).toHaveTextContent('Loading newer');
+      expect(ListLoadingNextPageUI.mock.lastCall?.[0]).toEqual({
+        isLoading: true,
+        position: 'bottom',
+      });
+    });
+
+    it('should render ListLoadingNextPageUI over the LoadingIndicator while a newer page loads', () => {
+      const ListLoadingNextPageUI = () => <div>Loading newer</div>;
+      const { container } = renderElements(
+        <Footer context={listContext({ loadingEdge: 'bottom', loadingMore: true })} />,
+        {
+          ListLoadingNextPageUI,
+          LoadingIndicator: () => <div>Custom Loading Indicator</div>,
+        },
+      );
+      const wrapper = container.querySelector('.str-chat__virtual-list__loading');
+      expect(wrapper).toHaveTextContent('Loading newer');
+      expect(wrapper).not.toHaveTextContent('Custom Loading Indicator');
+    });
+
+    it('should render no loading wrapper at the bottom for a null LoadingIndicator', () => {
+      const { container } = renderElements(
+        <Footer context={listContext({ loadingEdge: 'bottom', loadingMore: true })} />,
+        { LoadingIndicator: null as unknown as undefined },
+      );
+      expect(container).toBeEmptyDOMElement();
+    });
+
+    it('should render the default LoadingIndicator while a newer page loads', () => {
+      const { container } = renderElements(
+        <Footer context={listContext({ loadingEdge: 'bottom', loadingMore: true })} />,
+      );
+      expect(container.querySelector('.str-chat__loading-indicator')).toBeInTheDocument();
+    });
+  });
+
+  describe('VirtualizedMessageListEmptyUI', () => {
     const EmptyStateIndicator = ({ listType }: { listType?: string }) => (
       <div data-listtype={listType}>Custom EmptyStateIndicator</div>
     );
-    const NullEmptyStateIndicator = null;
-    const componentContext = { EmptyStateIndicator };
-    it('should render for main message list by default', () => {
-      const { container } = renderElements(<EmptyPlaceholder />);
-      expect(container).toMatchSnapshot();
-    });
+    const emptyContext = listContext();
 
-    it('should render empty for thread by default', () => {
-      const { container } = renderElements(<EmptyPlaceholder />, undefined, threadStub);
+    it('should render nothing without a Virtuoso context', () => {
+      const { container } = renderElements(<VirtualizedMessageListEmptyUI />);
       expect(container).toBeEmptyDOMElement();
     });
-    it('should render custom EmptyStateIndicator for main message list', () => {
-      const { container } = renderElements(<EmptyPlaceholder />, componentContext);
-      expect(container).toMatchSnapshot();
+
+    it('should render the default empty state for the main message list', () => {
+      const { container } = renderElements(
+        <VirtualizedMessageListEmptyUI context={emptyContext} />,
+      );
+      expect(container.querySelector('.str-chat__empty-channel')).toHaveTextContent(
+        'Send a message to start the conversation',
+      );
     });
 
-    it('should render custom EmptyStateIndicator for thread', () => {
+    it('should render ListEmptyUI', () => {
+      const ListEmptyUI = vi.fn(() => <div>Custom ListEmptyUI</div>);
+      renderElements(<VirtualizedMessageListEmptyUI context={emptyContext} />, {
+        ListEmptyUI,
+      });
+      expect(screen.getByText('Custom ListEmptyUI')).toBeInTheDocument();
+      expect(ListEmptyUI.mock.lastCall?.[0]).toEqual({});
+    });
+
+    it('should render the deprecated EmptyStateIndicator instead of ListEmptyUI while set', () => {
+      const ListEmptyUI = vi.fn(() => null);
+      renderElements(<VirtualizedMessageListEmptyUI context={emptyContext} />, {
+        EmptyStateIndicator,
+        ListEmptyUI,
+      });
+      expect(screen.getByText('Custom EmptyStateIndicator')).toHaveAttribute(
+        'data-listtype',
+        'message',
+      );
+      expect(ListEmptyUI).not.toHaveBeenCalled();
+    });
+
+    it('should render nothing while messages are loaded', () => {
+      const ListEmptyUI = vi.fn(() => null);
       const { container } = renderElements(
-        <EmptyPlaceholder />,
-        componentContext,
+        <VirtualizedMessageListEmptyUI
+          context={listContext({
+            processedMessages: [generateMessage()],
+          } as Partial<VirtuosoContext>)}
+        />,
+        { EmptyStateIndicator, ListEmptyUI },
+      );
+      expect(container).toBeEmptyDOMElement();
+      expect(ListEmptyUI).not.toHaveBeenCalled();
+    });
+
+    it('should render the empty state while a page loads into the empty list', () => {
+      const ListEmptyUI = vi.fn(() => <div data-testid='empty-list' />);
+      renderElements(
+        <VirtualizedMessageListEmptyUI context={listContext({ loadingMore: true })} />,
+        {
+          ListEmptyUI,
+        },
+      );
+      expect(screen.getByTestId('empty-list')).toBeInTheDocument();
+    });
+
+    it('should render nothing for a thread by default', () => {
+      const ListEmptyUI = vi.fn(() => null);
+      const { container } = renderElements(
+        <VirtualizedMessageListEmptyUI context={listContext()} />,
+        { ListEmptyUI },
         threadStub,
       );
-      expect(container).toMatchSnapshot();
-    });
-
-    it('should render empty if EmptyStateIndicator nullified', () => {
-      const componentContext = { EmptyStateIndicator: NullEmptyStateIndicator };
-      const { container } = renderElements(<EmptyPlaceholder />, componentContext);
       expect(container).toBeEmptyDOMElement();
+      expect(ListEmptyUI).not.toHaveBeenCalled();
     });
 
-    it('should render empty in thread if EmptyStateIndicator nullified', () => {
-      const componentContext = { EmptyStateIndicator: NullEmptyStateIndicator };
+    it('should render the deprecated EmptyStateIndicator with listType thread in a thread', () => {
+      renderElements(
+        <VirtualizedMessageListEmptyUI context={listContext()} />,
+        { EmptyStateIndicator },
+        threadStub,
+      );
+      expect(screen.getByText('Custom EmptyStateIndicator')).toHaveAttribute(
+        'data-listtype',
+        'thread',
+      );
+    });
+
+    it('should render nothing in a thread if EmptyStateIndicator nullified', () => {
       const { container } = renderElements(
-        <EmptyPlaceholder />,
-        componentContext,
+        <VirtualizedMessageListEmptyUI context={listContext()} />,
+        { EmptyStateIndicator: null },
         threadStub,
       );
       expect(container).toBeEmptyDOMElement();

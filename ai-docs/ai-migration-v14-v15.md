@@ -218,7 +218,7 @@ Old → new for the most common changes. Ctrl-F the v14 name; the section has th
 | `ChannelList` `options.limit` / other `options`                                                                      | `paginatorOptions.pageSize` / `requestOptions`                                                                                                             | [6](#channellist-is-driven-by-a-channelpaginator)                                              |
 | `setActiveChannelOnMount` (default `true`)                                                                           | Nothing opens by default; open the first channel yourself                                                                                                  | [6](#v14-list-defaults-that-changed)                                                           |
 | `showChannelSearch`                                                                                                  | `<ChannelNavigation />` (header, search and every registered list)                                                                                         | [6](#channellist-is-driven-by-a-channelpaginator)                                              |
-| `ChannelListUI` override                                                                                             | The list slots (`EmptyListIndicator`, `FirstPageLoadingIndicator`, `ListItem`, ...)                                                                        | [6](#channellistui-is-removed-use-the-list-slots)                                              |
+| `ChannelListUI` override                                                                                             | The list slots (`ListEmptyUI`, `ListFirstPageLoadingUI`, `ListItem`, ...)                                                                                  | [6](#channellistui-is-removed-use-the-list-slots)                                              |
 | `useChannelListContext().channels` / `.loadNextPage()` / `.setChannels`                                              | `useChannelPaginatorState(paginator).channels` / `paginator.toTail()` / `client.channelManager.ingestChannel(channel)`                                     | [6](#channellistcontext-lost-channels-hasnextpage-loadnextpage-and-setchannels)                |
 | `ChannelListItemUIProps.lastMessage` / `latestMessagePreview`                                                        | `previewedMessage` / `<SummarizedMessagePreview latestMessage={previewedMessage} />`                                                                       | [6](#channellistitem-props)                                                                    |
 | `<Thread />`                                                                                                         | `<Thread thread={thread}>` with `ThreadHeader`, `MessageList` and `MessageComposer` as children                                                            | [7](#thread-takes-a-thread-prop-and-renders-its-children)                                      |
@@ -1361,18 +1361,76 @@ These hit apps that never passed the props, because they were v14 defaults:
 
 ### `ChannelListUI` is removed; use the list slots
 
-`ChannelListUI`, `ChannelListUIProps` and the `ComponentContext.ChannelListUI` slot are removed. `ChannelList` renders an `InfiniteScrollPaginator` and reads these `ComponentContext` slots instead (`ThreadList` reads `FirstPageLoadingIndicator` and `ListLoadErrorIndicator` too; only `ChannelList` reads the others today). To give the lists different overrides, wrap each in its own `WithComponents`; under `ChatView`, do it in `slotRenderers.channelList` / `slotRenderers.threadList`, which render `ChannelNavigation` and `ThreadList`. The slots:
+`ChannelListUI`, `ChannelListUIProps` and the `ComponentContext.ChannelListUI` slot are removed. `ChannelList` renders an `InfiniteScrollPaginator` and reads `ComponentContext` slots for its states instead. Since 15.1 these are the shared list-state slots, which every paged list of the SDK reads; the second table lists which list renders which slot. Each list has its own default while a slot is unset, so the channel list keeps `LoadingChannels` and search keeps "Searching for…". The slots:
 
-| Slot                        | Props                          | Default                                                           |
-| --------------------------- | ------------------------------ | ----------------------------------------------------------------- |
-| `EmptyListIndicator`        | none                           | the empty state                                                   |
-| `EndReachedIndicator`       | `{ hasEnded, reached }`        |                                                                   |
-| `FirstPageLoadingIndicator` | none                           | `LoadingChannels`                                                 |
-| `ListItem`                  | `{ item }`                     | renders `ChannelListItem`                                         |
-| `ListLoadErrorIndicator`    | `{ error, isRetrying, retry }` | an icon, the list's "Couldn't load …" text and a Try again button |
-| `LoadingNextPageIndicator`  | `{ isLoading? }`               |                                                                   |
+| Slot                     | Props                          | Channel list default                                          |
+| ------------------------ | ------------------------------ | ------------------------------------------------------------- |
+| `ListEmptyUI`            | none                           | the empty state                                               |
+| `ListEndReachedUI`       | `{ hasEnded, reached }`        | nothing                                                       |
+| `ListFirstPageLoadingUI` | none                           | `LoadingChannels`                                             |
+| `ListItem`               | `{ item }`                     | renders `ChannelListItem`                                     |
+| `ListLoadErrorUI`        | `{ error, isRetrying, retry }` | an icon, "Couldn't load conversations" and a Try again button |
+| `ListLoadingNextPageUI`  | `{ isLoading, position }`      | the SDK's spinner while `isLoading`                           |
 
-`ComponentContext.LoadingIndicator` no longer affects the channel list (the `LoadingErrorIndicator` slot is removed, [section 5](#channel-requires-channel-and-renders-no-placeholder-loading-or-error-state)), and `ComponentContext.EmptyStateIndicator` does not affect it either: override `FirstPageLoadingIndicator` and `EmptyListIndicator`. A v14 `ChannelList` `EmptyStateIndicator` prop becomes an `EmptyListIndicator` override. A first page that fails to load renders `ListLoadErrorIndicator` in place of the list; its `retry` calls `paginator.reload()`. The list keeps it on screen while the retry runs, with `isRetrying` set, so a focused retry button keeps focus, also when the retry fails; a retry that loads the list is announced. A query error that happens while the list is mounted is also reported as an error notification in the `channel-list` panel, which `ChannelNavigation` renders; a `ChannelList` used without it renders no `NotificationList` for that panel. For a fully custom list, read `useChannelPaginatorState(paginator)` and render your own.
+The lists that render each slot:
+
+| Slot                     | Rendered by                                                                                                                                                     |
+| ------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `ListEmptyUI`            | the channel and thread lists, a channel's message list, search results, poll answers, the channel detail views                                                  |
+| `ListFirstPageLoadingUI` | the channel and thread lists, search results, the reactions detail                                                                                              |
+| `ListLoadErrorUI`        | the channel and thread lists, search results, the poll comment and vote lists, the channel detail views                                                         |
+| `ListEndReachedUI`       | the channel list (both edges), search results (bottom)                                                                                                          |
+| `ListLoadingNextPageUI`  | the channel and thread lists, the message lists (older pages at the top, newer at the bottom), search results, poll answers and votes, the channel detail views |
+
+As of 15.1, the error slot and its component are named `ListLoadErrorUI`. Their 15.0 names still work but are deprecated: the `ListLoadErrorIndicator` slot (the channel and thread lists read it, as in 15.0, and there it wins over `ListLoadErrorUI` while set), the exported `ListLoadErrorIndicator` component and its `ListLoadErrorIndicatorProps` type. Use `ListLoadErrorUI` and `ListLoadErrorUIProps`. In `stream-chat-react/channel-detail`, `ChannelDetailListLoadingIndicator` and its `ChannelMembersViewListFooterProps` type are likewise deprecated names of `ChannelDetailListLoadingNextPageUI` and `ChannelDetailListLoadingNextPageUIProps`. The same goes for three default list states renamed to the `<List><State>` pattern: the exported `SearchSourceResultsLoadingIndicator` component is now `SearchSourceResultsFirstPageLoading` (the `SearchSourceResultsLoadingIndicator` slot keeps its name), and in `stream-chat-react/channel-detail`, `ChannelFilesEmptyList` and `ChannelMediaEmptyList` are now `ChannelFilesEmpty` and `ChannelMediaEmpty`.
+
+`ComponentContext.LoadingIndicator` is the spinner of the default list-state slots: the default `ListLoadingNextPageUI` renders it in every list but the channel list, which shows the SDK's own spinner, and search, which shows "Searching for…" (set it to `null` to hide it). In the message lists, the poll answer and vote lists and the channel detail lists, where 15.0 rendered `LoadingIndicator` as the next-page spinner, it stays the next-page spinner until an app sets `ListLoadingNextPageUI`, and `null` hides the spinner there. The poll answer and vote lists show it while their first page loads too, as their next page. The reactions detail shows its skeleton while `LoadingIndicator` is unset, the `LoadingIndicator` once an app sets it, and nothing while it is `null`. The `LoadingErrorIndicator` slot is removed ([section 5](#channel-requires-channel-and-renders-no-placeholder-loading-or-error-state)), and `ComponentContext.EmptyStateIndicator` does not affect the channel list: override `ListFirstPageLoadingUI` and `ListEmptyUI`. A v14 `ChannelList` `EmptyStateIndicator` prop becomes a `ListEmptyUI` override. A first page that fails to load renders `ListLoadErrorUI` in place of the list. Its `retry` and its default title depend on the list:
+
+| List                                           | `retry`                                                | Default title                 |
+| ---------------------------------------------- | ------------------------------------------------------ | ----------------------------- |
+| the channel list                               | calls `paginator.reload()`                             | "Couldn't load conversations" |
+| the thread list                                | calls `client.threads.reload({ force: true })`         | "Couldn't load threads"       |
+| each search source's results, below its header | runs the source's failed search query again            | "Couldn't load the list"      |
+| the poll comment and vote lists                | queries the first page again                           | "Couldn't load the list"      |
+| the channel detail views                       | queries the search source's current search query again | "Couldn't load the list"      |
+
+A list with loaded items keeps showing them when a further page fails, with no error in their place; the poll comment list no longer prints the query error's message below the list. To change one part of the default, render the exported `ListLoadErrorUI` with `className`, `Icon`, `Title` or `RetryButton` (`{ isRetrying, retry }`). Its props type is `ListLoadErrorUIComponentProps`; the old name `DefaultListLoadErrorIndicatorProps` still works but is deprecated. Its `listType` prop is deprecated: pass `className` and `Title` instead. The list keeps it on screen while the retry runs, with `isRetrying` set, so a focused retry button keeps focus, also when the retry fails; a retry that loads the list is announced (search results announce their count instead). A custom search source without `executeQuery` runs the retry after its `search()` debounce, so its retry button is not busy meanwhile. A query error that happens while the list is mounted is also reported as an error notification in the `channel-list` panel, which `ChannelNavigation` renders; a `ChannelList` used without it renders no `NotificationList` for that panel. For a fully custom list, read `useChannelPaginatorState(paginator)` and render your own.
+
+An override of a shared slot reaches every list below its `WithComponents`. That includes the lists rendered inside another list: the channel lists and the search results inside `ChannelNavigation`, and the poll answers and votes and the reactions detail inside a message. A `ListEmptyUI` that says "No conversations", set around `ChannelNavigation`, also shows for empty search results. Copy that names one list belongs on that list's subtree:
+
+| What to change                                 | Where to set the slot                                                                                               |
+| ---------------------------------------------- | ------------------------------------------------------------------------------------------------------------------- |
+| The same look in every list, such as a spinner | Once, in a `WithComponents` around `Chat`'s children                                                                |
+| One list                                       | A `WithComponents` around that list; under `ChatView`, in `slotRenderers.channelList` / `slotRenderers.threadList`  |
+| A list rendered inside another list            | Override the slot that renders the inner list with a component that wraps the SDK's one in its own `WithComponents` |
+
+The slots that render an inner list:
+
+| Slot                     | Renders                                                     | Tell the lists apart by |
+| ------------------------ | ----------------------------------------------------------- | ----------------------- |
+| `ChannelList`            | one channel list, once per paginator, inside `ChannelLists` | `paginator.id`          |
+| `SearchSourceResults`    | the results of one search source                            | `searchSource.type`     |
+| `SearchResults`          | the results of all sources, rendered without props          |                         |
+| `MessageReactionsDetail` | the reactions detail of a message                           |                         |
+| `PollActions`            | the poll answer and vote lists                              |                         |
+
+The channel detail views are sections of `ChannelDetail`: pass `sections` built from `defaultChannelDetailSections`, with each section's `SectionContent` wrapped in its own `WithComponents`.
+
+As of 15.1, the slots below are deprecated. They still work where they worked in 15.0, and only there: each wins over its replacement in the lists that read it while set (`null` turns it off). They are removed in the next major. In particular, the 15.0 channel-list slots `EmptyListIndicator`, `FirstPageLoadingIndicator`, `LoadingNextPageIndicator` and `EndReachedIndicator` do not reach the other lists; the `List…` slots do.
+
+| Deprecated slot                       | Replacement                                                              | Read by                      |
+| ------------------------------------- | ------------------------------------------------------------------------ | ---------------------------- |
+| `EmptyListIndicator`                  | `ListEmptyUI`                                                            | the channel list             |
+| `EndReachedIndicator`                 | `ListEndReachedUI`                                                       | the channel list             |
+| `FirstPageLoadingIndicator`           | `ListFirstPageLoadingUI`                                                 | the channel and thread lists |
+| `ListLoadErrorIndicator`              | `ListLoadErrorUI`                                                        | the channel and thread lists |
+| `LoadingNextPageIndicator`            | `ListLoadingNextPageUI`                                                  | the channel list             |
+| `ThreadListLoadingIndicator`          | `ListLoadingNextPageUI`                                                  | the thread list              |
+| `ThreadListEmptyPlaceholder`          | `ListEmptyUI`                                                            | the thread list              |
+| `SearchSourceResultsLoadingIndicator` | `ListFirstPageLoadingUI` and `ListLoadingNextPageUI`                     | search results               |
+| `SearchSourceResultsEmpty`            | `ListEmptyUI`                                                            | search results               |
+| `SearchSourceResultListFooter`        | `ListFirstPageLoadingUI`, `ListLoadingNextPageUI` and `ListEndReachedUI` | search results               |
+| `EmptyStateIndicator`                 | `ListEmptyUI`                                                            | the message lists            |
 
 ```tsx
 // v14
@@ -1385,19 +1443,56 @@ const CustomListUI = ({ children, loading }: PropsWithChildren<ChannelListUIProp
 ```
 
 ```tsx
+import type { ComponentType } from 'react';
 import type { Channel } from 'stream-chat';
-import { ChannelListItem, ChannelNavigation, WithComponents } from 'stream-chat-react';
+import {
+  ChannelList,
+  ChannelListItem,
+  type ChannelListProps,
+  ChannelNavigation,
+  SearchSourceResults,
+  type SearchSourceResultsProps,
+  WithComponents,
+} from 'stream-chat-react';
 
 const Spinner = () => <div className='my-spinner' />;
+const NoConversations = () => <p>No conversations</p>;
+const NoArchivedChannels = () => <p>Nothing archived</p>;
+const NoResults = () => <p>Nothing matches your search</p>;
+
+// `ChannelNavigation` renders one `ChannelList` per registered paginator: give each its own empty
+// state by paginator id. Render the SDK's `ChannelList`, imported, inside the wrapper.
+const emptyStateByPaginatorId: Record<string, ComponentType> = {
+  archived: NoArchivedChannels,
+  inbox: NoConversations,
+};
+const MyChannelList = (props: ChannelListProps) => {
+  const EmptyState = emptyStateByPaginatorId[props.paginator.id];
+  // A list without its own empty state keeps the one set above it.
+  if (!EmptyState) return <ChannelList {...props} />;
+  return (
+    <WithComponents overrides={{ ListEmptyUI: EmptyState }}>
+      <ChannelList {...props} />
+    </WithComponents>
+  );
+};
+
+// The search results inside `ChannelNavigation` get their own empty state the same way.
+const MySearchSourceResults = (props: SearchSourceResultsProps) => (
+  <WithComponents overrides={{ ListEmptyUI: NoResults }}>
+    <SearchSourceResults {...props} />
+  </WithComponents>
+);
 
 export const Sidebar = () => (
   <WithComponents
     overrides={{
-      EmptyListIndicator: () => <p>No conversations</p>,
-      FirstPageLoadingIndicator: Spinner,
+      ChannelList: MyChannelList,
+      ListFirstPageLoadingUI: Spinner,
       ListItem: ({ item }) => (
         <ChannelListItem channel={item as Channel} className='my-row' />
       ),
+      SearchSourceResults: MySearchSourceResults,
     }}
   >
     <ChannelNavigation />
@@ -1625,7 +1720,7 @@ v14's `<ThreadProvider thread={t}>` rendered `<Channel channel={t.channel}>` aro
 - Mounting `ThreadList` calls `client.threads.reload({ force: true })` every time. v14 reloaded only when the manager was not ready, had unseen threads or a stale order.
 - Clicking a row calls `useWorkspaceNavigation().openThread(thread)`, and a row is active when `isThreadActive(id)` ([section 4](#4-selecting-channels-and-opening-threads-workspace-navigation)). v14 used `ThreadsViewContext`.
 - The list reads `client.threads.paginator.state`. Code reading `client.threads.state.threads` / `.pagination` breaks for `stream-chat` v10 reasons; read the paginator.
-- The first-load skeleton is the shared `FirstPageLoadingIndicator` slot (no props, default `LoadingChannels`), the same one the channel list reads. The shared `ListLoadErrorIndicator` slot (`{ error, isRetrying, retry }`) renders in place of the list when the first load fails; its `retry` calls `client.threads.reload({ force: true })`. A query error that happens while the list is mounted is also reported as an error notification in the `thread-list` panel.
+- The list renders the shared list-state slots ([`ChannelListUI` is removed; use the list slots](#channellistui-is-removed-use-the-list-slots)): the first-load skeleton is `ListFirstPageLoadingUI` (default `LoadingChannels`), the next page `ListLoadingNextPageUI` and the empty state `ListEmptyUI`. The 15.0 `FirstPageLoadingIndicator` slot and the v14 `ThreadListLoadingIndicator` and `ThreadListEmptyPlaceholder` slots still work and win over the shared ones while set, but are deprecated: move them to `ListFirstPageLoadingUI`, `ListLoadingNextPageUI` and `ListEmptyUI`, set in a `WithComponents` around the `ThreadList`. The shared `ListLoadErrorUI` slot (`{ error, isRetrying, retry }`) renders in place of the list when the first load fails; its `retry` calls `client.threads.reload({ force: true })`. A query error that happens while the list is mounted is also reported as an error notification in the `thread-list` panel.
 
 ---
 
@@ -2098,7 +2193,7 @@ In v14 these hooks logged a `console.warn` (or nothing) and returned `{}` or `un
 | `usePollContext`                   | `PollProvider`                                              |
 | `useDialogManager`                 | `DialogManagerProvider` (its own message)                   |
 | `useSearchContext`                 | `SearchContextProvider`                                     |
-| `useSearchSourceResultsContext`    | `SearchSourceResultsProvider`                               |
+| `useSearchSourceResultsContext`    | `SearchSourceResultsContextProvider`                        |
 | `useContextMenuContext`            | `ContextMenu`                                               |
 | `useChannelListItemContext`        | `ChannelListItemUI`                                         |
 | `useGalleryContext`                | `Gallery`                                                   |
@@ -2276,7 +2371,7 @@ Both lists drive themselves from `(thread ?? channel).messagePaginator`.
 | Prop                                                                                                                                                                                | v15                                                                                                                                                                                                         |
 | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `MessageList`: `loadMore`, `loadMoreNewer`, `loadingMoreForJumpToChannelMessage`, `hasMore`, `jumpToLatestMessage`, `loadingMoreNewer`, `messageLimit`                              | Removed                                                                                                                                                                                                     |
-| `MessageList.loadingMore`                                                                                                                                                           | Kept. The `LoadingIndicator` above the messages shows while an older page loads; pass `loadingMore={false}` to hide it                                                                                      |
+| `MessageList.loadingMore`                                                                                                                                                           | Kept. The `ListLoadingNextPageUI` above the messages shows while an older page loads; pass `loadingMore={false}` to hide it                                                                                 |
 | `MessageList.internalInfiniteScrollProps`                                                                                                                                           | Now feeds `InfiniteScrollPaginator`: `hasNextPage`, `hasPreviousPage`, `head`, `initialLoad`, `isLoading`, `loader`, `loadNextPage`, `loadPreviousPage`, `reverse` and `LoadingIndicator` no longer compile |
 | `VirtualizedMessageList`: `hasMore`, `hasMoreNewer`, `loadingMore`, `loadingMoreNewer`, `loadMore`, `loadMoreNewer`, `messageLimit`, `highlightedMessageId`, `channelUnreadUiState` | Removed                                                                                                                                                                                                     |
 

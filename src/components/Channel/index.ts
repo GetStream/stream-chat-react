@@ -1,2 +1,5 @@
 export * from './Channel';
-export { useChannelCapabilities } from './hooks/useChannelCapabilities';
+export {
+  useChannelCapabilities,
+  type UseChannelCapabilitiesParams,
+} from './hooks/useChannelCapabilities';

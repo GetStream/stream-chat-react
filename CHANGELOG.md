@@ -1,3 +1,9 @@
+## [15.0.2](https://github.com/GetStream/stream-chat-react/compare/v15.0.1...v15.0.2) (2026-11-16)
+
+### Bug Fixes
+
+* **LoadingChannel:** lay out the header skeleton like ChannelHeader and pad the message rows ([#3432](https://github.com/GetStream/stream-chat-react/issues/3432)) ([ad4a2b9](https://github.com/GetStream/stream-chat-react/commit/ad4a2b9c48d84e828bf086781430a926ca596a25))
+
 ## [15.0.1](https://github.com/GetStream/stream-chat-react/compare/v15.0.0...v15.0.1) (2026-11-11)
 
 ### Bug Fixes

@@ -9,15 +9,15 @@ import {
   useTranslationContext,
 } from '../../../../../context';
 import * as DEFAULT_ICONS from '../../../../../components/Icons/icons';
-import { useStateStore } from '../../../../../store';
 import { ChannelMembersAddView } from '../ChannelMembersAddView';
 import {
   createChannel,
   createUserSearchSource,
-  emitChannelEvent,
   getSelectableMemberButton,
+  mockUseStateStoreForChannel,
   querySelectableMemberButton,
   renderWithChannel,
+  updateChannelMembersState,
 } from './testUtils';
 import { mockT } from '../../../../../mock-builders/translator';
 
@@ -85,7 +85,7 @@ const searchUsers: UserResponse[] = [
 describe('ChannelMembersAddView', () => {
   const setMode = vi.fn();
 
-  beforeEach(() => {
+  beforeEach(async () => {
     // The context module is auto-mocked, so the icon hook would return undefined; hand back the
     // real icons so assertions still describe what users see.
     vi.mocked(useComponentContextIcons).mockReturnValue(DEFAULT_ICONS);
@@ -105,7 +105,7 @@ describe('ChannelMembersAddView', () => {
       {} as ReturnType<typeof useComponentContext>,
     );
 
-    vi.mocked(useStateStore).mockReturnValue({
+    await mockUseStateStoreForChannel({
       isLoading: false,
       users: searchUsers,
     });
@@ -179,11 +179,12 @@ describe('ChannelMembersAddView', () => {
     expect(screen.queryByText('Already a member')).not.toBeInTheDocument();
 
     // Bob joins the channel; the view updates without a remount.
-    channel.state.members['user-2'] = {
-      user: { id: 'user-2', name: 'Bob' },
-      user_id: 'user-2',
-    };
-    emitChannelEvent(channel, 'member.added');
+    updateChannelMembersState(channel, {
+      members: {
+        ...channel.state.members,
+        'user-2': { user: { id: 'user-2', name: 'Bob' }, user_id: 'user-2' },
+      },
+    });
 
     expect(screen.getByText('Already a member')).toBeInTheDocument();
     expect(querySelectableMemberButton('Bob')).toBeNull();

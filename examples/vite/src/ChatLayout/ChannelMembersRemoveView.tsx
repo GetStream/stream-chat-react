@@ -13,7 +13,7 @@ import {
 } from 'stream-chat-react';
 import {
   ChannelDetailEmptyList,
-  ChannelDetailListLoadingIndicator,
+  ChannelDetailListLoadingNextPageUI,
   ChannelDetailSearchInput,
   type ChannelMembersModeViewProps,
   useChannelDetailContext,
@@ -175,7 +175,7 @@ export const ChannelMembersRemoveView = ({
               )}
             </ChannelDetailEmptyList>
           )}
-          <ChannelDetailListLoadingIndicator searchSource={membersSearchSource} />
+          <ChannelDetailListLoadingNextPageUI searchSource={membersSearchSource} />
         </InfiniteScrollPaginator>
       </Prompt.Body>
       {selectedMemberUserIds.length > 0 && (
