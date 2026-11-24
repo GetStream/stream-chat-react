@@ -9,6 +9,7 @@ import {
 } from 'stream-chat';
 import type {
   Channel,
+  MessageComposer,
   MessageComposerState,
   ScheduledMessageFailureReason,
   ScheduledMessageResponse,
@@ -21,6 +22,7 @@ const MS_IN_SECOND = 1000;
 const CLOCK_SKEW_BUFFER_MS = 60 * MS_IN_SECOND;
 const MORNING_HOUR = 9;
 const AFTERNOON_HOUR = 13;
+const SCHEDULE_TIME_DIALOG_ID_PREFIX = 'schedule-message-dialog';
 
 /** Notifications the UI emits; the composer's own come from `CORE_NOTIFICATION_TYPE`. */
 export const SCHEDULED_MESSAGE_NOTIFICATION_TYPE = {
@@ -39,6 +41,12 @@ export const splitCid = (cid: string) => {
   const [type, id] = cid.split(':');
   return [type, id] as const;
 };
+
+export const getScheduleTimeDialogId = ({
+  channel,
+  threadId,
+}: Pick<MessageComposer, 'channel' | 'threadId'>) =>
+  [SCHEDULE_TIME_DIALOG_ID_PREFIX, channel.cid, threadId].filter(Boolean).join('-');
 
 export const isFailedScheduledMessage = ({ status }: ScheduledMessageResponse) =>
   status === SCHEDULED_MESSAGE_STATUS.Failed;

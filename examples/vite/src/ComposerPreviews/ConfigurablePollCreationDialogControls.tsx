@@ -75,7 +75,7 @@ const AttachPollControls = ({ close }: PollCreationDialogControlsProps) => {
       pollCreatedForScheduleRef.current = messageComposer.pollId;
     }
     if (!messageComposer.pollId) throw new Error('The poll was not created');
-    const { error, status } = await messageComposer.schedule(scheduledAt);
+    const { error, status } = await messageComposer.scheduleMessage(scheduledAt);
     if (status !== 'scheduled' && status !== 'sent') {
       throw error ?? new Error(`The poll was not scheduled: ${status}`);
     }

@@ -28,7 +28,11 @@ import { useMessageComposerController } from '../MessageComposer/hooks/useMessag
 import { GlobalModal } from '../Modal';
 import { Portal } from '../Portal/Portal';
 import { ScheduleTimeDialog as DefaultScheduleTimeDialog } from './ScheduleTimeDialog';
-import { getSchedulePresets, getScheduleTimeBounds } from './utils';
+import {
+  getSchedulePresets,
+  getScheduleTimeBounds,
+  getScheduleTimeDialogId,
+} from './utils';
 
 const getChannelContainer = () => document.getElementById(CHANNEL_CONTAINER_ID);
 
@@ -72,7 +76,7 @@ export const ScheduleMessageButton = () => {
   // the banner confirms a scheduled message, so success needs no notification
   const scheduleMessage = useCallback(
     async (scheduledAt: Date) => {
-      const { error, status } = await messageComposer.schedule(scheduledAt);
+      const { error, status } = await messageComposer.scheduleMessage(scheduledAt);
       if (status === 'scheduled' || status === 'sent') return;
       // the server keeps the ID of a message it scheduled; the next attempt needs a new one
       if (getScheduledMessageErrorReason(error) === ScheduledMessageErrorReason.IdTaken) {
@@ -203,6 +207,7 @@ export const ScheduleMessageButton = () => {
       <Portal getPortalDestination={getChannelContainer} isOpen={!!dialogPreview}>
         <Modal
           className='str-chat__schedule-message-modal'
+          dialogId={getScheduleTimeDialogId(messageComposer)}
           initialFocusStrategy='dialog'
           onClose={closeDialog}
           open={!!dialogPreview}

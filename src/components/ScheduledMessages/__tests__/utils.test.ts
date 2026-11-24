@@ -1,5 +1,5 @@
 import { SCHEDULED_MESSAGE_FAILURE_REASON } from 'stream-chat';
-import type { Channel } from 'stream-chat';
+import type { Channel, MessageComposer } from 'stream-chat';
 
 import { generateScheduledMessage } from '../../../mock-builders';
 import {
@@ -8,6 +8,7 @@ import {
   getDefaultScheduledAt,
   getSchedulePresets,
   getScheduleTimeBounds,
+  getScheduleTimeDialogId,
   getScheduleTimeError,
   matchesScheduledMessageText,
   translateScheduledMessageFailureReason,
@@ -141,5 +142,18 @@ describe('scheduled message utils', () => {
     vi.spyOn(date, 'getTimezoneOffset').mockReturnValue(-330);
 
     expect(formatTimeZoneOffset(date)).toBe('GMT+5:30');
+  });
+
+  it('names the time dialog after the composer channel and thread', () => {
+    const channel = { cid: 'messaging:general' } as Channel;
+    const channelComposer = { channel, threadId: null } as MessageComposer;
+    const threadComposer = { channel, threadId: 'parent-id' } as MessageComposer;
+
+    expect(getScheduleTimeDialogId(channelComposer)).toBe(
+      'schedule-message-dialog-messaging:general',
+    );
+    expect(getScheduleTimeDialogId(threadComposer)).toBe(
+      'schedule-message-dialog-messaging:general-parent-id',
+    );
   });
 });

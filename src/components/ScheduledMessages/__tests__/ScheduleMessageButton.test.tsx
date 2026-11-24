@@ -38,6 +38,7 @@ import {
   setWSConnectionStatus,
   useMockedApis,
 } from '../../../mock-builders';
+import { MediaRecorderMock } from '../../../mock-builders/browser';
 
 const user = generateUser({ id: 'user-id' });
 
@@ -53,19 +54,21 @@ const channelDataWith = (ownCapabilities: string[]) => ({
 });
 
 type SetupOptions = {
+  audioRecordingEnabled?: boolean;
   canSchedule?: boolean;
   components?: Parameters<typeof WithComponents>[0]['overrides'];
   text?: string;
 };
 
 const renderComposer = async ({
+  audioRecordingEnabled = false,
   canSchedule = true,
   components = {},
   text = 'Launch moved to Monday',
 }: SetupOptions = {}) => {
   const ownCapabilities = canSchedule
-    ? ['send-message', 'schedule-message']
-    : ['send-message'];
+    ? ['send-message', 'schedule-message', 'upload-file']
+    : ['send-message', 'upload-file'];
   const {
     channels: [channel],
     client,
@@ -79,7 +82,7 @@ const renderComposer = async ({
       <Chat client={client}>
         <WithComponents overrides={components}>
           <Channel channel={channel}>
-            <MessageComposer />
+            <MessageComposer audioRecordingEnabled={audioRecordingEnabled} />
           </Channel>
         </WithComponents>
       </Chat>,
@@ -110,7 +113,7 @@ const getNotifications = (client: StreamChat) =>
   client.notifications.store.getLatestValue().notifications;
 
 const mockSchedule = (channel: ChannelType) =>
-  vi.spyOn(channel.messageComposer, 'schedule');
+  vi.spyOn(channel.messageComposer, 'scheduleMessage');
 
 const scheduledResult = (
   scheduledMessage: ScheduledMessageResponse,
@@ -262,6 +265,42 @@ describe('ScheduleMessageButton', () => {
         new Date(2026, 9, 29, 13, 0),
       );
       await waitFor(() => expect(channel.messageComposer.textComposer.text).toBe(''));
+    });
+
+    it('sends the scheduled message once an attachment still uploading has finished', async () => {
+      const { channel, client } = await renderComposer();
+      const { attachmentManager } = channel.messageComposer;
+      let finishUpload: (value: { file: string }) => void = () => undefined;
+      channel.messageComposer.updateConfig({
+        attachments: { pendingUploadsEnabled: true },
+      });
+      vi.spyOn(attachmentManager, 'isUploadEnabled', 'get').mockReturnValue(true);
+      attachmentManager.setCustomUploadFn(
+        () =>
+          new Promise((resolve) => {
+            finishUpload = resolve;
+          }),
+      );
+      useMockedApis(client, [
+        sendScheduledMessageApi(generateScheduledMessage({ cid: channel.cid })),
+      ]);
+      const sendMessage = vi.spyOn(channel, 'sendMessage');
+
+      act(() => {
+        void attachmentManager.uploadFiles([
+          new File(['launch plan'], 'launch-plan.pdf', { type: 'application/pdf' }),
+        ]);
+      });
+      await waitFor(() => expect(attachmentManager.uploadsInProgressCount).toBe(1));
+      await openMenu();
+      await act(() => fireEvent.click(screen.getByText('Tomorrow at 13:00')));
+
+      expect(sendMessage).not.toHaveBeenCalled();
+      await act(() => finishUpload({ file: 'https://cdn.example.com/launch-plan.pdf' }));
+      await waitFor(() => expect(sendMessage).toHaveBeenCalledTimes(1));
+      expect(sendMessage.mock.calls[0][0].message.attachments).toEqual([
+        expect.objectContaining({ asset_url: 'https://cdn.example.com/launch-plan.pdf' }),
+      ]);
     });
 
     it('refreshes the composer id when the server reports the id as taken', async () => {
@@ -550,6 +589,54 @@ describe('ScheduleMessageButton', () => {
       const dialog = await openDialog();
 
       expect(await axe(dialog)).toHaveNoViolations();
+    });
+  });
+
+  describe('custom time dialog with audio recording enabled', () => {
+    beforeEach(() => {
+      window.MediaRecorder = MediaRecorderMock as unknown as typeof MediaRecorder;
+      Object.defineProperty(navigator, 'mediaDevices', {
+        configurable: true,
+        value: { getUserMedia: vi.fn().mockResolvedValue({}) },
+      });
+    });
+
+    afterEach(() => {
+      Object.defineProperty(navigator, 'mediaDevices', {
+        configurable: true,
+        value: undefined,
+      });
+    });
+
+    it('stays open and shows the error when the composer empties during a failed request', async () => {
+      const { channel, client } = await renderComposer({ audioRecordingEnabled: true });
+      useMockedApis(client, [
+        erroredScheduledMessageApi(116, ScheduledMessageErrorReason.TooFar),
+      ]);
+
+      const dialog = await openDialog();
+      await act(() => fireEvent.click(screen.getByRole('button', { name: 'Schedule' })));
+
+      expect(await within(dialog).findByRole('alert')).toHaveTextContent(
+        'Choose an earlier time',
+      );
+      expect(screen.getByTestId('schedule-message-dialog')).toBe(dialog);
+      expect(channel.messageComposer.textComposer.text).toBe('Launch moved to Monday');
+    });
+
+    it('closes and shows the recording button once the request succeeds', async () => {
+      const { channel, client } = await renderComposer({ audioRecordingEnabled: true });
+      useMockedApis(client, [
+        sendScheduledMessageApi(generateScheduledMessage({ cid: channel.cid })),
+      ]);
+
+      await openDialog();
+      await act(() => fireEvent.click(screen.getByRole('button', { name: 'Schedule' })));
+
+      await waitFor(() =>
+        expect(screen.queryByTestId('schedule-message-dialog')).not.toBeInTheDocument(),
+      );
+      expect(screen.getByTestId('start-recording-audio-button')).toBeInTheDocument();
     });
   });
 });

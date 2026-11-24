@@ -22,7 +22,8 @@ import { useStateStore } from '../../store';
 import { useInertWhenHidden } from '../Accessibility';
 import { useCanScheduleMessage } from '../ScheduledMessages/hooks/useCanScheduleMessage';
 import { ScheduleMessageButton as DefaultScheduleMessageButton } from '../ScheduledMessages/ScheduleMessageButton';
-import { isComposerEditing } from '../ScheduledMessages/utils';
+import { getScheduleTimeDialogId, isComposerEditing } from '../ScheduledMessages/utils';
+import { useModalDialogIsOpen } from '../Dialog';
 
 // Typed as `AIState[]` because an inferred array of the literal-typed `AIStates` members would
 // reject the wide `AIState` that `useAIState` returns.
@@ -50,6 +51,11 @@ export const MessageComposerActions = () => {
   } = useComponentContext();
 
   const canScheduleMessage = useCanScheduleMessage();
+
+  const isScheduleTimeDialogOpen = useModalDialogIsOpen(
+    getScheduleTimeDialogId(messageComposer),
+  );
+
   const { isEditing } = useStateStore(
     messageComposer.state,
     messageComposerStateSelector,
@@ -102,7 +108,13 @@ export const MessageComposerActions = () => {
     return null;
   } else if (isCooldownActive) {
     content = <CooldownTimer />;
-  } else if (contentIsEmpty && !isEditing && !command && recordingEnabled) {
+  } else if (
+    contentIsEmpty &&
+    !isEditing &&
+    !command &&
+    recordingEnabled &&
+    !isScheduleTimeDialogOpen
+  ) {
     content = <AudioRecordingButtonWithNotification />;
   } else if (canScheduleMessage && ScheduleMessageButton) {
     content = (

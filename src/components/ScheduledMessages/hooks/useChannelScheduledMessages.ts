@@ -34,9 +34,7 @@ export const useChannelScheduledMessages = (view: ScheduledMessagesView) => {
 
   useEffect(() => {
     if (!channel || !initialized) return;
-    const paginator = channel.scheduledMessagesPaginator;
-    if (paginator.hasLoadedPage || !channel.scheduledMessagesEnabled) return;
-    paginator.reload().catch(() => undefined);
+    channel.ensureScheduledMessagesLoaded();
   }, [channel, initialized, isEnabledByConfig, ownCapabilities]);
 
   return useScheduledMessages(view);

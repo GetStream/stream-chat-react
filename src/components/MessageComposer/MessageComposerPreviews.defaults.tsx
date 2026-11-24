@@ -62,7 +62,7 @@ const DefaultMessageComposerPreviewComponents = {
 
     return (
       <ScheduledMessagePreview
-        onCancel={messageComposer.cancelEditScheduledMessage}
+        onCancel={messageComposer.cancelScheduledMessageEdit}
         scheduledMessage={editedScheduledMessage}
       />
     );
