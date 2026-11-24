@@ -42,7 +42,8 @@ export type RenderTextMentionMetadata = Pick<
 >;
 
 type MentionReplacement = {
-  entity: RenderTextMentionEntity;
+  /** Every distinct entity whose display text is `mentionDisplayText`. */
+  entities: RenderTextMentionEntity[];
   mentionDisplayText: string;
 };
 
@@ -157,23 +158,37 @@ export const messageHasMentions = (metadata?: RenderTextMentionMetadata) =>
     metadata?.mentioned_groups?.length,
   );
 
+const isSameMentionEntity = (a: RenderTextMentionEntity, b: RenderTextMentionEntity) =>
+  a.mentionType === b.mentionType && a.id === b.id;
+
+/**
+ * Maps each `@<display text>` to every distinct entity with that display text. The message text
+ * says only `@Alice`, so when several entities share it the mention cannot be resolved to one of
+ * them, whatever their order in the message's mention fields.
+ */
 const createMentionLookup = (
   mentionEntities: RenderTextMentionEntity[],
 ): MentionLookup => {
-  const mentionReplacementMap = mentionEntities.reduce((replacementMap, entity) => {
+  const mentionReplacementMap = new Map<string, MentionReplacement>();
+
+  mentionEntities.forEach((entity) => {
     getMentionDisplayTexts(entity).forEach((mentionDisplayText) => {
       const prefixedMentionDisplayText = `@${mentionDisplayText}`;
+      const replacement = mentionReplacementMap.get(prefixedMentionDisplayText);
 
-      if (!replacementMap.has(prefixedMentionDisplayText)) {
-        replacementMap.set(prefixedMentionDisplayText, {
-          entity,
+      if (!replacement) {
+        mentionReplacementMap.set(prefixedMentionDisplayText, {
+          entities: [entity],
           mentionDisplayText: prefixedMentionDisplayText,
         });
+      } else if (
+        !replacement.entities.some((candidate) => isSameMentionEntity(candidate, entity))
+      ) {
+        replacement.entities.push(entity);
       }
     });
+  });
 
-    return replacementMap;
-  }, new Map<string, MentionReplacement>());
   const mentionReplacements = Array.from(mentionReplacementMap.values()).sort(
     (a, b) => b.mentionDisplayText.length - a.mentionDisplayText.length,
   );
@@ -206,10 +221,15 @@ export const mentionsMarkdownPluginFromLookup =
 
       if (!replacement) return mentionDisplayText;
 
+      const { entities } = replacement;
+
       return u(
         'element',
         {
-          mentionedEntity: replacement.entity,
+          mentionedEntities: entities,
+          // The first candidate. When `mentionedEntities` holds more than one, it is not
+          // necessarily the entity the mention refers to.
+          mentionedEntity: entities[0],
           properties: {},
           tagName: 'mention',
         },

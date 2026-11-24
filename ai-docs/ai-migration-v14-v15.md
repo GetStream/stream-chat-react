@@ -2775,7 +2775,7 @@ renderText(message.text, {
 
 ### Custom mention renderers read `node.mentionedEntity`
 
-The `mention` node given to `customMarkDownRenderers.mention` no longer carries `mentionedUser`. Read `node.mentionedEntity`: for a user mention its `mentionType` is `'user'` and it carries the user's fields.
+The `mention` node given to `customMarkDownRenderers.mention` no longer carries `mentionedUser`. Read `node.mentionedEntity`: for a user mention its `mentionType` is `'user'` and it carries the user's fields. `node.mentionedEntities` lists every entity with the mention's display text. When it holds more than one ([section 12](#mention-handlers-receive-event-message) says when), the text does not say which of them is meant and `node.mentionedEntity` is only the first of them; the default renderer then leaves out the IDs, and a custom renderer should do the same.
 
 ```tsx
 // v14
@@ -2785,18 +2785,30 @@ const CustomMention = ({ children, node }: MentionProps) => (
 ```
 
 ```tsx
-const CustomMention = ({ children, node: { mentionedEntity } }: MentionProps) => (
-  <span
-    data-user-id={mentionedEntity.mentionType === 'user' ? mentionedEntity.id : undefined}
-  >
-    {children}
-  </span>
-);
+const CustomMention = ({
+  children,
+  node: { mentionedEntities, mentionedEntity },
+}: MentionProps) => {
+  const isAmbiguous = (mentionedEntities?.length ?? 0) > 1;
+  return (
+    <span
+      data-user-id={
+        !isAmbiguous && mentionedEntity.mentionType === 'user'
+          ? mentionedEntity.id
+          : undefined
+      }
+    >
+      {children}
+    </span>
+  );
+};
 ```
 
 ### Mention handlers receive `(event, message)`
 
 `onMentionsClick` and `onMentionsHover` (on `MessageList` or `Message`) are called with `(event, message)`; the v14 `mentioned_users` argument between them is removed, and so is the `MentionedUserEventHandler` type; type such handlers as `CustomMentionHandler`. Read `message.mentioned_users`, `mentioned_channel`, `mentioned_here`, `mentioned_roles` and `mentioned_groups`. The handler runs for an event anywhere in the message text; to find the mention that was clicked, read `data-mention-id`, `data-mention-type` or `data-user-id` from the target element. Enter or Space on the focused message text also calls the handler; its target is the text element, not a mention.
+
+The message text says only `@Alice`, so the mention renderer matches it to an entity by display text: a user's name (or ID when it has no name), a role's or user group's name or ID, `channel` or `here`. A mention whose display text matches exactly one entity carries that entity's `data-mention-id`, `data-mention-type` and, for a user, `data-user-id`. When several entities share the display text (two users named Alice, a user named `admin` and the role `admin`, a user named `channel` and `@channel`), the mention is still highlighted but carries no `data-mention-id` and no `data-user-id`, whatever the order of the message's mention fields; it keeps `data-mention-type` only when all of them have the same type. A handler that finds no ID can't tell which entity was meant; fall back to the message's mention fields, e.g. show every candidate.
 
 ```tsx
 // v14
