@@ -151,6 +151,7 @@ const CHANNELS_PAGE_SIZE = 10;
 const UNREAD_LIST_ID = 'channels:unread';
 
 const requestOptions: ChannelPaginatorRequestOptions = {
+  include_active_member_count: true,
   presence: true,
   state: true,
 };

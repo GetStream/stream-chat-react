@@ -70,6 +70,26 @@ describe('useStreami18n', () => {
       await waitFor(() => expect(getByTestId('lang')).toHaveTextContent('en'));
     });
 
+    // The API returns `language: ""` for a user who never set one, and `Intl` rejects `""` as a
+    // locale, so the fallback has to cover an empty string as well as a missing value.
+    it('falls back to English when the user has an empty language', async () => {
+      const { client } = mockClient('');
+
+      const { getByTestId } = render(<Harness client={client} />);
+
+      await waitFor(() => expect(getByTestId('lang')).toHaveTextContent('en'));
+    });
+
+    it('falls back to English when the language is cleared after connect', async () => {
+      const { client, emitUserUpdated } = mockClient('de');
+      const { getByTestId } = render(<Harness client={client} />);
+      await waitFor(() => expect(getByTestId('lang')).toHaveTextContent('de'));
+
+      emitUserUpdated('');
+
+      await waitFor(() => expect(getByTestId('lang')).toHaveTextContent('en'));
+    });
+
     // `client.user` is a plain field, so this needs a `user.updated` subscription.
     it('follows a language changed after connect', async () => {
       const { client, emitUserUpdated } = mockClient('de');

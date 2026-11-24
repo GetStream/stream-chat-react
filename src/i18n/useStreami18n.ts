@@ -22,10 +22,10 @@ export const useStreami18n = ({
   i18nInstance,
 }: UseStreami18nParams): TranslationContextValue => {
   const i18n = useMemo(() => i18nInstance ?? new Streami18n(), [i18nInstance]);
-  const [userLanguage, setUserLanguage] = useState(() => client.user?.language ?? 'en');
+  const [userLanguage, setUserLanguage] = useState(() => client.user?.language || 'en');
 
   useEffect(() => {
-    const sync = () => setUserLanguage(client.user?.language ?? 'en');
+    const sync = () => setUserLanguage(client.user?.language || 'en');
     sync();
     const { unsubscribe } = client.on('user.updated', (event) => {
       if (event.user?.id === client.user?.id) sync();
