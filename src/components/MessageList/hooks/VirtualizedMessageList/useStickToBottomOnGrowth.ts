@@ -6,14 +6,39 @@ type ScrollSnapshot = { atBottom: boolean; scrollHeight: number; scrollTop: numb
 /** Frames after a height change in which the list is kept at its bottom. */
 const PIN_CHECK_FRAMES = 3;
 
-/** Input with which a reader scrolls a list (or starts to). */
-const READER_INPUT_EVENTS = [
-  'wheel',
-  'touchstart',
-  'touchmove',
-  'keydown',
-  'pointerdown',
-] as const;
+/** Input events that may scroll a list; see isScrollInput for which of them do. */
+const READER_INPUT_EVENTS = ['wheel', 'touchmove', 'keydown', 'pointerdown'] as const;
+
+/** Keys that scroll a list whose content (or the list itself) has focus. */
+const SCROLL_KEYS = new Set([
+  ' ',
+  'ArrowDown',
+  'ArrowUp',
+  'End',
+  'Home',
+  'PageDown',
+  'PageUp',
+]);
+
+const isEditable = (target: Element) =>
+  target.closest(
+    'input, textarea, select, [contenteditable=""], [contenteditable="true"]',
+  ) !== null;
+
+// Whether an input event is a reader scrolling the list, as opposed to using its content: a click
+// or tap on a message action, typing, a key that activates a button. A wheel turn and a touch
+// that moves scroll; a press scrolls only on the scroller itself (its scrollbar); a key scrolls
+// when it is a scrolling key outside a text field (and, for the space bar, outside a control).
+const isScrollInput = (event: Event, scroller: Element) => {
+  if (event.type === 'wheel' || event.type === 'touchmove') return true;
+  if (event.type === 'pointerdown') return event.target === scroller;
+  if (event.type !== 'keydown') return false;
+  const { key, target } = event as KeyboardEvent;
+  if (!SCROLL_KEYS.has(key)) return false;
+  if (!(target instanceof Element) || target === scroller) return true;
+  if (isEditable(target)) return false;
+  return key !== ' ' || target.closest('button, a[href], [role="button"]') === null;
+};
 
 /** How long after reader input the next scroll counts as the reader's. */
 const READER_INPUT_SCROLL_WINDOW_MS = 300;
@@ -131,14 +156,17 @@ export const useStickToBottomOnGrowth = ({
 
   useEffect(() => {
     if (!element) return;
-    const onScroll = () => {
+    const readSnapshot = (): ScrollSnapshot => {
       atBottomRef.current =
         element.scrollHeight - element.scrollTop - element.clientHeight <= threshold;
-      const next = {
+      return {
         atBottom: atBottomRef.current,
         scrollHeight: element.scrollHeight,
         scrollTop: element.scrollTop,
       };
+    };
+    const onScroll = () => {
+      const next = readSnapshot();
       const last = lastScrollRef.current;
       const inputAt = readerInputAtRef.current;
       readerInputAtRef.current = null;
@@ -153,13 +181,17 @@ export const useStickToBottomOnGrowth = ({
     // A reader scrolling takes over: a pin scheduled for an earlier growth must not pull them back,
     // even when their first scroll is still within what that growth could explain. The hold on new
     // items is released only by the scroll that follows (see onScroll).
-    const onReaderInput = () => {
+    const onReaderInput = (event: Event) => {
+      if (!isScrollInput(event, element)) return;
       readerInputAtRef.current = performance.now();
       if (frameRef.current !== null) cancelAnimationFrame(frameRef.current);
       frameRef.current = null;
       pinRef.current = null;
     };
-    onScroll();
+    // Seeds the geometry when subscribing (a new scroller, a new threshold). That is no scroll: it
+    // must not release the hold on new messages, nor use up a reader's input.
+    previousScrollRef.current = lastScrollRef.current;
+    lastScrollRef.current = readSnapshot();
     // Capture: runs before Virtuoso's own scroll listener, which renders the newly revealed items at
     // once and so changes the height this reads. What counts is where the reader scrolled to.
     element.addEventListener('scroll', onScroll, { capture: true, passive: true });
@@ -246,7 +278,15 @@ export const useStickToBottomOnGrowth = ({
           pinRef.current = null;
           return;
         }
-        if (short) element.scrollTop = element.scrollHeight;
+        if (short) {
+          // From here on the list's movement is measured from where this pin left it, against what
+          // is left of the allowance once the movement tolerated so far is taken off it: a jump that
+          // moves the list up from the pinned bottom is not mistaken for compensation and undone.
+          const tolerated = Math.max(0, current.scrollTopAtStart - element.scrollTop);
+          element.scrollTop = element.scrollHeight;
+          current.explainedMove = Math.max(threshold, current.explainedMove - tolerated);
+          current.scrollTopAtStart = element.scrollTop;
+        }
         current.lastTop = element.scrollTop;
         framesLeft -= 1;
         if (framesLeft > 0) frameRef.current = requestAnimationFrame(check);

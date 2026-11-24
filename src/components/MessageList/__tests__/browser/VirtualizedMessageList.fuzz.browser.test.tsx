@@ -32,7 +32,7 @@ describe('VirtualizedMessageList fuzzing', () => {
       await runScenario(
         `F-${seed}`,
         { historySize: 300, pageSize: 40, seed },
-        async ({ mounted, step }) => {
+        async ({ mounted, step, violations }) => {
           // The operations draw from their own stream, so the history a seed builds stays the same
           // when operations are added.
           const { createRng } = await import('./prng');
@@ -41,7 +41,7 @@ describe('VirtualizedMessageList fuzzing', () => {
           for (let index = 0; index < STEPS_PER_SEED; index += 1) {
             const operation = pickOperation(rng);
             let detail = '';
-            await step(
+            const point = await step(
               `${index} ${operation.name}`,
               async () => {
                 detail = await operation.run(mounted, rng, state);
@@ -49,6 +49,28 @@ describe('VirtualizedMessageList fuzzing', () => {
               // Fuzzing looks for behavior that diverges; render cost is B-20's job.
               { settle: { timeoutMs: 6000 }, timingDependent: true },
             );
+            // A jump that loads the page around its target centers the target in it, so the list is
+            // at neither edge and loads no other page: one loaded above or below means the list
+            // reported an edge while it was being positioned. On v2 that is its known remount race
+            // (allowlisted for the comparison); on v4 it fails the seed. A jump to a message loaded
+            // before shows the stretch it is in, whose edge the target may sit at: not checked.
+            if (operation.name === 'jump to a message' && RUNTIME !== 'browser-v2') {
+              const queries = point.requests.map(
+                (request) =>
+                  (
+                    request as {
+                      messages?: { id_around?: string; id_gt?: string; id_lt?: string };
+                    }
+                  ).messages,
+              );
+              const loadedAround = queries.some((query) => !!query?.id_around);
+              const pages = queries.filter((query) => !!(query?.id_gt || query?.id_lt));
+              if (loadedAround && pages.length) {
+                violations.push(
+                  `${point.label}: loaded ${pages.length} page(s) besides the jump's own`,
+                );
+              }
+            }
             // Keeps the label informative in the trace without changing the comparison key.
             mounted.frame.setAttribute('data-last-operation', detail);
           }

@@ -1,5 +1,5 @@
 import type { KeyboardEvent as ReactKeyboardEvent, RefObject } from 'react';
-import { useCallback, useRef } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 
 import { getNextRovingFocusIndex } from '../a11yUtils';
 
@@ -60,8 +60,12 @@ export const useVirtualizedListboxKeyboardNavigation = <T>({
   // pending target stale.
   const pendingFromIdRef = useRef<string | undefined>(undefined);
   // The current items, for a chain that outlives the render it started in.
+  // Updated once a render commits: a render React discards (a suspended transition) must not make
+  // a pending target that is still on screen look gone.
   const itemsRef = useRef(items);
-  itemsRef.current = items;
+  useEffect(() => {
+    itemsRef.current = items;
+  }, [items]);
 
   // Focuses the rendered option for the item with this ID; returns whether there was one.
   const focusOptionById = useCallback(

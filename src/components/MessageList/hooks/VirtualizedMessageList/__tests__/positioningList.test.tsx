@@ -53,6 +53,22 @@ describe('makePositioningReportingList', () => {
     expect(report).toHaveBeenLastCalledWith(false);
   });
 
+  it('leaves the report to the main list: the top-item list neither reports nor clears it', () => {
+    // Virtuoso renders the items pinned by `topItemCount` with the same `components.List`; that
+    // list unmounting while the main one is still hidden must not report the list shown.
+    const report = vi.fn();
+    const List = makePositioningReportingList();
+    const { unmount } = render(
+      <ListPositioningReporterContext.Provider value={report}>
+        <List context={undefined} data-testid='virtuoso-top-item-list' style={{}}>
+          <div>pinned</div>
+        </List>
+      </ListPositioningReporterContext.Provider>,
+    );
+    unmount();
+    expect(report).not.toHaveBeenCalled();
+  });
+
   it("renders Virtuoso's own list as Virtuoso does, without the context prop", () => {
     const report = vi.fn();
     const List = makePositioningReportingList();

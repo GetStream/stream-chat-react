@@ -19,6 +19,12 @@ const useIsomorphicLayoutEffect =
 type ListComponent<Context> = NonNullable<Components<unknown, Context>['List']>;
 
 /**
+ * The test ID Virtuoso passes to the list of items pinned at the top (`topItemCount`), which it
+ * renders with the same `components.List`. It is positioned with the main list and is not reported.
+ */
+const TOP_ITEM_LIST_TEST_ID = 'virtuoso-top-item-list';
+
+/**
  * Wraps the item list (Virtuoso's own `div`, or an integrator's `components.List`) to report the
  * `visibility: hidden` react-virtuoso 4 sets in the list's `style` until it reaches
  * `initialTopMostItemIndex`. Read from the props Virtuoso passes, so a custom list that renders
@@ -29,7 +35,10 @@ export const makePositioningReportingList = <Context,>(
 ) => {
   const List = forwardRef<HTMLDivElement, ListProps & { context?: Context }>(
     function PositioningReportingList({ context, ...props }, ref) {
-      const report = useContext(ListPositioningReporterContext);
+      const reportFromContext = useContext(ListPositioningReporterContext);
+      // Read from the prop Virtuoso passes, not from what the list renders.
+      const report =
+        props['data-testid'] === TOP_ITEM_LIST_TEST_ID ? undefined : reportFromContext;
       const hidden = props.style?.visibility === 'hidden';
       useIsomorphicLayoutEffect(() => {
         report?.(hidden);

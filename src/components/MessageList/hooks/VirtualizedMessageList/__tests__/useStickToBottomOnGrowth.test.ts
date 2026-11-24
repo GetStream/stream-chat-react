@@ -319,6 +319,46 @@ describe('useStickToBottomOnGrowth', () => {
       expect(scroller.scrollTop).toBe(1500);
     });
 
+    it('keeps still when the listener re-subscribes (a new threshold) while a message is held', async () => {
+      const { grow, scroller } = makeScroller();
+      const { rerender, result } = setup(scroller, { followNewItems: false });
+      result.current(2000);
+      await flushFrame();
+      arrive(rerender, scroller);
+      // The viewport resizes: a new threshold re-subscribes the scroll listener.
+      rerender({
+        followNewItems: false,
+        itemCount: 11,
+        listKey: 0,
+        scroller,
+        threshold: 60,
+      });
+      grow(300);
+      result.current(2300);
+      await flushFrame();
+      expect(scroller.scrollTop).toBe(1500);
+    });
+
+    it("keeps still when a click comes right before the list's own compensating scroll", async () => {
+      const { grow, scroller } = makeScroller();
+      const { rerender, result } = setup(scroller, { followNewItems: false });
+      result.current(2000);
+      await flushFrame();
+      arrive(rerender, scroller);
+      const button = document.createElement('button');
+      scroller.appendChild(button);
+      button.dispatchEvent(new Event('pointerdown', { bubbles: true }));
+      // The list compensates a growth above the viewport, then the new message measures taller.
+      grow(120);
+      result.current(2120);
+      scroller.scrollTop = 1560;
+      scroller.dispatchEvent(new Event('scroll'));
+      grow(100);
+      result.current(2220);
+      await flushFrame();
+      expect(scroller.scrollTop).toBe(1560);
+    });
+
     it('drops a pin scheduled before new items arrived', async () => {
       const { grow, scroller } = makeScroller();
       const { rerender, result } = setup(scroller, { followNewItems: false });
@@ -346,6 +386,47 @@ describe('useStickToBottomOnGrowth', () => {
     scroller.scrollTop = 1460;
     await flushFrame();
     expect(scroller.scrollTop).toBe(1460);
+  });
+
+  it('does not undo a jump made after a pin, within the allowance the pin started with', async () => {
+    // A growth of 1000px allows 2050px of movement; the first check pins to the bottom. A jump
+    // (no reader input) then moves the list up by more than that from the pinned position.
+    const { grow, scroller } = makeScroller();
+    const { result } = setup(scroller);
+    result.current(2000);
+    await flushFrame();
+    grow(1000);
+    result.current(3000);
+    await flushFrame();
+    expect(scroller.scrollTop).toBe(3000);
+    scroller.scrollTop = 200;
+    await flushFrame();
+    await flushFrame();
+    expect(scroller.scrollTop).toBe(200);
+  });
+
+  it('counts a scrolling key as the reader, and a key typed in a text field not', async () => {
+    const { grow, scroller } = makeScroller();
+    const { result } = setup(scroller);
+    result.current(2000);
+    await flushFrame();
+    grow(100);
+    result.current(2100);
+    // Typing in a field inside the list: no scroll, the pin goes ahead.
+    const input = document.createElement('input');
+    scroller.appendChild(input);
+    input.dispatchEvent(new KeyboardEvent('keydown', { bubbles: true, key: 'ArrowUp' }));
+    await flushFrame();
+    expect(scroller.scrollTop).toBe(2100);
+    // PageUp on the list: the reader scrolls, and a pending pin is dropped.
+    grow(100);
+    result.current(2200);
+    scroller.dispatchEvent(
+      new KeyboardEvent('keydown', { bubbles: true, key: 'PageUp' }),
+    );
+    scroller.scrollTop = 1700;
+    await flushFrame();
+    expect(scroller.scrollTop).toBe(1700);
   });
 
   it('keeps a scroller from another window at its bottom', async () => {

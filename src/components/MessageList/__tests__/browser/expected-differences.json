@@ -68,7 +68,7 @@
       "scenario": "F-.*",
       "checkpoint": "\\d+ jump to a message",
       "field": "requests|itemsRendered|rendered|firstVisible|state\\.atBottomStateChange|geometry\\.atBottom|events",
-      "reason": "In some runs v2 loses a jump to its remount race (see B-08, B-31): the remounted list reports itself at the bottom and loads the next newer page, ending elsewhere. v4 must land on the target (the fuzz step waits until it was viewed). Varies between runs, so the entry is stale in runs where v2 keeps its jumps."
+      "reason": "In some runs v2 loses a jump to its remount race (see B-08, B-31): the remounted list reports itself at the bottom and loads the next newer page, ending elsewhere. v4 must land on the target (the fuzz step waits until it was viewed) and, when it loaded the page around the target, no other page: the fuzz test fails a v4 jump step that does, so this entry cannot hide such a v4 request. Varies between runs, so the entry is stale in runs where v2 keeps its jumps."
     },
     {
       "scenario": "F-1023",
