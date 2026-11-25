@@ -16,7 +16,7 @@ permissions:
 jobs:
   package_release:
     name: Release from "${{ github.ref_name }}" branch
-    runs-on: ubuntu-latest
+    runs-on: { group: github-public-amd64 }
     # Only master and release-v* may use this environment, and the npm trusted publisher requires it.
     environment: npm-release
     # GH does not allow to limit branches in the workflow_dispatch settings so this here is a safety measure

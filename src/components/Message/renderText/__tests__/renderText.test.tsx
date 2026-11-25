@@ -355,6 +355,164 @@ describe(`renderText`, () => {
     `);
   });
 
+  describe('mentions whose display text several entities share', () => {
+    const getMentionAttributes = (container: HTMLElement) =>
+      Array.from(container.querySelectorAll('.str-chat__message-mention')).map(
+        (mention) => ({
+          mentionId: mention.getAttribute('data-mention-id'),
+          mentionType: mention.getAttribute('data-mention-type'),
+          text: mention.textContent,
+          userId: mention.getAttribute('data-user-id'),
+        }),
+      );
+
+    it('highlights @Alice without an ID when two users are named Alice', () => {
+      const { container } = render(
+        renderText(
+          'Hi @Alice and @Alice',
+          userMentions([
+            { id: 'alice-1', name: 'Alice' },
+            { id: 'alice-2', name: 'Alice' },
+          ]),
+        ),
+      );
+
+      expect(getMentionAttributes(container)).toEqual([
+        { mentionId: null, mentionType: 'user', text: '@Alice', userId: null },
+        { mentionId: null, mentionType: 'user', text: '@Alice', userId: null },
+      ]);
+    });
+
+    it.each([
+      ['a role', '@admin', { mentioned_roles: ['admin'] }, 'admin'],
+      ['@channel', '@channel', { mentioned_channel: true }, 'channel'],
+      ['@here', '@here', { mentioned_here: true }, 'here'],
+      [
+        'a user group',
+        '@Backend',
+        {
+          mentioned_groups: [
+            fromPartial<UserGroupResponse>({ id: 'g-1', name: 'Backend' }),
+          ],
+        },
+        'Backend',
+      ],
+    ])(
+      'highlights a mention without an ID or type when a user name matches %s',
+      (_, text, otherMentions, userName) => {
+        const { container } = render(
+          renderText(`Hi ${text}`, {
+            messageMentionEntities: getRenderTextMentionEntities({
+              mentioned_users: [generateUser({ id: 'user-1', name: userName })],
+              ...otherMentions,
+            }),
+          }),
+        );
+
+        expect(getMentionAttributes(container)).toEqual([
+          { mentionId: null, mentionType: null, text, userId: null },
+        ]);
+      },
+    );
+
+    it('keeps every attribute on an unambiguous mention next to an ambiguous one', () => {
+      const { container } = render(
+        renderText(
+          'Hi @Alice and @Bob',
+          userMentions([
+            { id: 'alice-1', name: 'Alice' },
+            { id: 'bob', name: 'Bob' },
+            { id: 'alice-2', name: 'Alice' },
+          ]),
+        ),
+      );
+
+      expect(getMentionAttributes(container)).toEqual([
+        { mentionId: null, mentionType: 'user', text: '@Alice', userId: null },
+        { mentionId: 'bob', mentionType: 'user', text: '@Bob', userId: 'bob' },
+      ]);
+    });
+
+    it('renders the same attributes whatever the order of the mentioned users', () => {
+      const users = [
+        { id: 'alice-1', name: 'Alice' },
+        { id: 'bob', name: 'Bob' },
+        { id: 'alice-2', name: 'Alice' },
+      ];
+      const text = 'Hi @Alice and @Bob';
+      const { container: inOrder } = render(renderText(text, userMentions(users)));
+      const { container: reversed } = render(
+        renderText(text, userMentions([...users].reverse())),
+      );
+
+      expect(getMentionAttributes(reversed)).toEqual(getMentionAttributes(inOrder));
+    });
+
+    it('treats a user group whose ID matches a role as ambiguous only for that text', () => {
+      const { container } = render(
+        renderText('Hi @admin and @Admins', {
+          messageMentionEntities: getRenderTextMentionEntities({
+            mentioned_groups: [
+              fromPartial<UserGroupResponse>({ id: 'admin', name: 'Admins' }),
+            ],
+            mentioned_roles: ['admin'],
+          }),
+        }),
+      );
+
+      expect(getMentionAttributes(container)).toEqual([
+        { mentionId: null, mentionType: null, text: '@admin', userId: null },
+        { mentionId: 'admin', mentionType: 'user_group', text: '@Admins', userId: null },
+      ]);
+    });
+
+    it('treats the same user listed twice as one entity', () => {
+      const { container } = render(
+        renderText(
+          'Hi @Alice',
+          userMentions([
+            { id: 'alice-1', name: 'Alice' },
+            { id: 'alice-1', name: 'Alice' },
+          ]),
+        ),
+      );
+
+      expect(getMentionAttributes(container)).toEqual([
+        { mentionId: 'alice-1', mentionType: 'user', text: '@Alice', userId: 'alice-1' },
+      ]);
+    });
+
+    it('passes every candidate to a custom mention renderer', () => {
+      const mentionNodes = [];
+      const CustomMention = (props) => {
+        mentionNodes.push(props.node);
+        return <span>{props.children}</span>;
+      };
+
+      render(
+        renderText('Hi @admin', {
+          customMarkDownRenderers: { mention: CustomMention },
+          messageMentionEntities: getRenderTextMentionEntities({
+            mentioned_roles: ['admin'],
+            mentioned_users: [generateUser({ id: 'user-1', name: 'admin' })],
+          }),
+        }),
+      );
+
+      expect(mentionNodes).toHaveLength(1);
+      expect(mentionNodes[0].mentionedEntity).toBe(mentionNodes[0].mentionedEntities[0]);
+      expect(
+        mentionNodes[0].mentionedEntities.map(({ id, mentionType }) => ({
+          id,
+          mentionType,
+        })),
+      ).toEqual([
+        { id: 'user-1', mentionType: 'user' },
+        { id: 'admin', mentionType: 'role' },
+      ]);
+    });
+  });
+
   it('renders standard markdown text', () => {
     const Markdown = renderText('Hi, shall we meet on **Tuesday**?');
     const { container } = render(Markdown);

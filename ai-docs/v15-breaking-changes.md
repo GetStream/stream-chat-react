@@ -3066,10 +3066,10 @@ const customRenderText: RenderTextFunction = (text, options) =>
 - User impact: compile error on `node.mentionedUser` in a custom `customMarkDownRenderers.mention` component. In untyped code it is `undefined`, so a renderer that reads the user from it renders without one.
 - Old API:
   - `MentionProps['node'].mentionedUser: UserResponse` for user mentions, `undefined` otherwise (`@deprecated`)
-- Replacement: `node.mentionedEntity` (`RenderTextMentionEntity`). For a user mention, `mentionedEntity.mentionType === 'user'` and the entity carries the user's fields (`id`, `name`, …). `MentionProps['node']` is now `{ mentionedEntity: RenderTextMentionEntity }`.
+- Replacement: `node.mentionedEntity` (`RenderTextMentionEntity`). For a user mention, `mentionedEntity.mentionType === 'user'` and the entity carries the user's fields (`id`, `name`, …). `MentionProps['node']` is now `{ mentionedEntities?: RenderTextMentionEntity[]; mentionedEntity: RenderTextMentionEntity }`. `mentionedEntities` lists every entity with the mention's display text; when it holds more than one, `mentionedEntity` is only the first of them and the default renderer leaves out `data-mention-id` and `data-user-id`.
 - Evidence:
   - `release-v14:src/components/Message/renderText/componentRenderers/Mention.tsx:7-25`
-  - `master:src/components/Message/renderText/componentRenderers/Mention.tsx:6-8`; `master:src/components/Message/renderText/rehypePlugins/mentionsMarkdownPlugin.ts` (`mentionsMarkdownPluginFromLookup` sets only `mentionedEntity`)
+  - `master:src/components/Message/renderText/componentRenderers/Mention.tsx:6-20`; `master:src/components/Message/renderText/rehypePlugins/mentionsMarkdownPlugin.ts` (`mentionsMarkdownPluginFromLookup` sets `mentionedEntities` and `mentionedEntity`)
   - commit: REACT-1467 (PR #3387)
 - Docs impact:
   - `02-ui-components/08-message/06-render-text.md`, `03-ui-cookbook/04-message/03-mentions_actions.md`
