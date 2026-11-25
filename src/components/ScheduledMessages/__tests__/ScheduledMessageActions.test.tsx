@@ -153,6 +153,60 @@ describe('ScheduledMessageActions', () => {
     expect(screen.getAllByRole('separator')).toHaveLength(1);
   });
 
+  it('opens the actions menu when the row itself is clicked', async () => {
+    await renderActions({ openInComposer: vi.fn() });
+
+    await act(() =>
+      fireEvent.click(screen.getByText('Send Thu, Oct 29 at 09:00', { exact: false })),
+    );
+
+    expect(
+      await screen.findByTestId('scheduled-message-actions-menu'),
+    ).toBeInTheDocument();
+  });
+
+  it('says a sending message is still sending when its row is clicked, opening no menu', async () => {
+    const { client } = await renderActions({
+      scheduledMessage: generateScheduledMessage({
+        cid,
+        message: { custom: {}, text: 'Launch moved to Monday' },
+        scheduled_at: convertDateToTimestamp(new Date(2026, 9, 29, 9, 0)),
+        status: 'sending',
+      }),
+    });
+
+    await act(() => fireEvent.click(screen.getByText('Sending...')));
+
+    expect(getNotificationTypes(client)).toEqual([
+      SCHEDULED_MESSAGE_NOTIFICATION_TYPE.stillSending,
+    ]);
+    expect(
+      screen.queryByTestId('scheduled-message-actions-menu'),
+    ).not.toBeInTheDocument();
+  });
+
+  it('marks a thread reply in its row', async () => {
+    const client = await getTestClientWithUser({ id: 'user-id' });
+    const { t, tDateTimeParser } = await new Streami18n({ language: 'en' }).init();
+    const threadReply = generateScheduledMessage({
+      cid,
+      message: { custom: {}, parent_id: 'parent-id', text: 'Launch moved to Monday' },
+      scheduled_at: convertDateToTimestamp(new Date(2026, 9, 29, 9, 0)),
+    });
+
+    render(
+      <ChatProvider value={mockChatContext({ client })}>
+        <TranslationProvider value={{ t, tDateTimeParser, userLanguage: 'en' }}>
+          <DialogManagerProvider id='scheduled-message-thread-reply-test-dialog-manager'>
+            <ScheduledMessageItem scheduledMessage={threadReply} />
+          </DialogManagerProvider>
+        </TranslationProvider>
+      </ChatProvider>,
+    );
+
+    expect(screen.getByText('Thread reply:')).toBeInTheDocument();
+  });
+
   it('leaves out Edit when the list has no edit handler', async () => {
     await renderActions();
 

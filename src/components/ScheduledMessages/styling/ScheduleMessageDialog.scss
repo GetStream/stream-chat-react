@@ -1,4 +1,5 @@
 @use '../../../styling/utils';
+@use 'variables';
 
 .str-chat {
   .str-chat__schedule-message-dialog {
@@ -69,6 +70,32 @@
       @include utils.ellipsis-text();
       font: var(--str-chat__font-caption-default);
       color: var(--str-chat__input-text-default);
+    }
+
+    @media (max-width: variables.$full-screen-max-width) {
+      width: 100dvw;
+      max-width: none;
+      height: 100dvh;
+      border-radius: 0;
+      box-shadow: none;
+
+      .str-chat__schedule-message-dialog__body {
+        flex: 1;
+        min-height: 0;
+        overflow-y: auto;
+      }
+
+      .str-chat__schedule-message-dialog__fields {
+        grid-template-columns: minmax(0, 1fr);
+      }
+
+      .str-chat__prompt__footer__controls {
+        width: 100%;
+
+        .str-chat__prompt__footer__controls-button {
+          flex: 1;
+        }
+      }
     }
   }
 }

@@ -19,15 +19,20 @@ export const ScheduledMessagePreview = ({
 
   const previewMessage = useScheduledMessagePreview(scheduledMessage);
 
-  const authorLabel = isFailedScheduledMessage(scheduledMessage)
+  const isFailed = isFailedScheduledMessage(scheduledMessage);
+  const authorLabel = isFailed
     ? t('scheduledMessages.scheduleAgain', 'Schedule again')
     : t('scheduledMessages.editScheduledMessage', 'Edit scheduled message');
+  const removeLabel = isFailed
+    ? t('scheduledMessages.cancelSchedulingAgain.ariaLabel', 'Cancel scheduling again')
+    : t('scheduledMessages.cancelEdit.ariaLabel', 'Cancel edit');
 
   return (
     <QuotedMessagePreviewUI
       authorLabel={authorLabel}
       onRemove={onCancel}
       quotedMessage={previewMessage}
+      removeLabel={removeLabel}
     />
   );
 };

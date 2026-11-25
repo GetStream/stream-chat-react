@@ -25,6 +25,7 @@ import {
 } from '../Dialog';
 import { useMessageComposerHasSendableData } from '../MessageComposer/hooks';
 import { useMessageComposerController } from '../MessageComposer/hooks/useMessageComposerController';
+import { useMessagePaginator } from '../../hooks/useMessagePaginator';
 import { GlobalModal } from '../Modal';
 import { useNotificationApi } from '../Notifications';
 import { Portal } from '../Portal/Portal';
@@ -90,6 +91,7 @@ export const ScheduleMessageButton = () => {
   } = useComponentContext();
   const { addNotification } = useNotificationApi();
   const messageComposer = useMessageComposerController();
+  const messagePaginator = useMessagePaginator();
   const hasSendableData = useMessageComposerHasSendableData();
 
   const { reachedLimit } = useChannelScheduledMessageLimit(messageComposer.channel);
@@ -109,14 +111,20 @@ export const ScheduleMessageButton = () => {
   // the banner confirms a scheduled message, so success needs no notification
   const scheduleMessage = useCallback(
     async (scheduledAt: Date) => {
+      const messageId = messageComposer.id;
       const { error, status } = await messageComposer.scheduleMessage(scheduledAt);
       if (status === 'sent') {
         addNotification({
+          actions: [
+            {
+              handler: () => {
+                void messagePaginator.jumpToMessage(messageId);
+              },
+              label: t('scheduledMessages.view', 'View'),
+            },
+          ],
           emitter: SCHEDULED_MESSAGES_EMITTER,
-          message: t(
-            'scheduledMessages.notification.sentNow',
-            'Time passed. Message sent now',
-          ),
+          message: t('scheduledMessages.scheduledMessageSent', 'Scheduled message sent'),
           severity: 'success',
           type: SCHEDULED_MESSAGE_NOTIFICATION_TYPE.sentNow,
         });
@@ -129,7 +137,7 @@ export const ScheduleMessageButton = () => {
       }
       throw error ?? new Error(`Message not scheduled: ${status}`);
     },
-    [addNotification, messageComposer, t],
+    [addNotification, messageComposer, messagePaginator, t],
   );
 
   // the dialog shows the failure itself, so the composer's notification of it is dropped

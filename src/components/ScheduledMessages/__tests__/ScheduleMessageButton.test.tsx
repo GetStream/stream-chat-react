@@ -261,12 +261,33 @@ describe('ScheduleMessageButton', () => {
       await waitFor(() =>
         expect(getNotifications(client)).toEqual([
           expect.objectContaining({
-            message: 'Time passed. Message sent now',
+            message: 'Scheduled message sent',
             severity: 'success',
             type: 'api:scheduled-message:create:sent-now',
           }),
         ]),
       );
+    });
+
+    it('jumps to the sent message from the notification', async () => {
+      const { channel, client } = await renderComposer();
+      const messageId = channel.messageComposer.id;
+      mockSchedule(channel).mockResolvedValue({ status: 'sent' });
+      const jumpToMessage = vi
+        .spyOn(channel.messagePaginator, 'jumpToMessage')
+        .mockResolvedValue(true);
+
+      await openMenu();
+      await act(() => fireEvent.click(screen.getByText('Tomorrow at 09:00')));
+      await waitFor(() => expect(getNotifications(client)).toHaveLength(1));
+
+      const [viewAction] = getNotifications(client)[0].actions ?? [];
+      expect(viewAction.label).toBe('View');
+      await act(() => {
+        viewAction.handler();
+      });
+
+      expect(jumpToMessage).toHaveBeenCalledWith(messageId);
     });
 
     it('sends the composition with scheduled_at to the API', async () => {

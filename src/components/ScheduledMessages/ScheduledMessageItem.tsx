@@ -1,5 +1,11 @@
 import clsx from 'clsx';
-import React, { type RefObject, useCallback, useRef, useState } from 'react';
+import React, {
+  type MouseEvent,
+  type RefObject,
+  useCallback,
+  useRef,
+  useState,
+} from 'react';
 import { nsToDate, SCHEDULED_MESSAGE_STATUS } from 'stream-chat';
 import type { OwnCapabilitiesState, ScheduledMessageResponse } from 'stream-chat';
 
@@ -44,6 +50,13 @@ import {
   translateScheduledMessageError,
   translateScheduledMessageFailureReason,
 } from './utils';
+
+const ROW_INTERACTIVE_ELEMENT_SELECTOR = 'a, button, input, textarea, [role="menu"]';
+
+const isClickOnRowItself = ({ currentTarget, target }: MouseEvent<HTMLElement>) =>
+  target instanceof Element &&
+  currentTarget.contains(target) &&
+  !target.closest(ROW_INTERACTIVE_ELEMENT_SELECTOR);
 
 export type ScheduledMessageItemProps = {
   scheduledMessage: ScheduledMessageResponse;
@@ -97,6 +110,8 @@ export const ScheduledMessageItem = ({
   });
   const sendTime = nsToDate(scheduled_at);
   const isFailed = isFailedScheduledMessage(scheduledMessage);
+  const isSending = status === SCHEDULED_MESSAGE_STATUS.Sending;
+  const isThreadReply = !!scheduledMessage.message.parent_id;
   // a pending message is saved by scheduling it, a failed one is scheduled or sent again; a frozen
   // channel allows neither. Unknown for a channel not loaded, so left on there.
   const canEdit =
@@ -141,6 +156,23 @@ export const ScheduledMessageItem = ({
     }
   };
 
+  const openRowMenu = (event: MouseEvent<HTMLDivElement>) => {
+    if (!isClickOnRowItself(event)) return;
+    if (isSending) {
+      addNotification({
+        emitter: SCHEDULED_MESSAGES_EMITTER,
+        message: t(
+          'scheduledMessages.notification.stillSending',
+          'Still sending. Try again in a moment.',
+        ),
+        severity: 'info',
+        type: SCHEDULED_MESSAGE_NOTIFICATION_TYPE.stillSending,
+      });
+      return;
+    }
+    menuButtonRef.current?.click();
+  };
+
   const deleteScheduledMessage = () => {
     closeDialog();
     void runRequest(() => getChannel().messageOperations.deleteScheduledMessage(id), {
@@ -158,6 +190,7 @@ export const ScheduledMessageItem = ({
         'str-chat__scheduled-message-item--failed': isFailed,
       })}
       data-testid='scheduled-message-item'
+      onClick={openRowMenu}
     >
       <time
         className='str-chat__scheduled-message-item__time'
@@ -205,14 +238,21 @@ export const ScheduledMessageItem = ({
               {displayTitle}
             </span>
           )}
-          <SummarizedMessagePreview latestMessage={previewMessage} />
+          <div className='str-chat__scheduled-message-item__preview'>
+            {isThreadReply && (
+              <span className='str-chat__scheduled-message-item__thread-reply-label'>
+                {t('scheduledMessages.threadReply', 'Thread reply:')}
+              </span>
+            )}
+            <SummarizedMessagePreview latestMessage={previewMessage} />
+          </div>
           {status === SCHEDULED_MESSAGE_STATUS.Failed && (
             <span className='str-chat__scheduled-message-item__status str-chat__scheduled-message-item__status--failed'>
               <IconExclamationTriangleFill className='str-chat__scheduled-message-item__status-icon' />
               {translateScheduledMessageFailureReason(t, failure_reason)}
             </span>
           )}
-          {status === SCHEDULED_MESSAGE_STATUS.Sending && (
+          {isSending && (
             <span className='str-chat__scheduled-message-item__status'>
               <IconLoading className='str-chat__scheduled-message-item__status-icon' />
               {t('scheduledMessages.sending', 'Sending...')}

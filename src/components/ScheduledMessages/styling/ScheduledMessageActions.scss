@@ -27,5 +27,10 @@
     box-shadow: var(--str-chat__box-shadow-2);
     opacity: 0;
     pointer-events: none;
+
+    @media (hover: none) {
+      opacity: 1;
+      pointer-events: auto;
+    }
   }
 }

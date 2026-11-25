@@ -154,6 +154,14 @@ describe('editing a scheduled message in the composer', () => {
     expect(messageComposer.textComposer.text).toBe('');
   });
 
+  it('labels the preview dismiss button as cancelling the edit', async () => {
+    const { startEditing } = await renderComposer();
+
+    await startEditing();
+
+    expect(screen.getByRole('button', { name: 'Cancel edit' })).toBeInTheDocument();
+  });
+
   describe('scheduling a failed message again', () => {
     it('shows the schedule-again preview and keeps the schedule button', async () => {
       const { startSchedulingAgain } = await renderComposer();
@@ -170,7 +178,7 @@ describe('editing a scheduled message in the composer', () => {
 
       await startSchedulingAgain();
       await act(() =>
-        fireEvent.click(screen.getByRole('button', { name: /cancel|remove/i })),
+        fireEvent.click(screen.getByRole('button', { name: 'Cancel scheduling again' })),
       );
 
       expect(screen.queryByText('Schedule again')).not.toBeInTheDocument();

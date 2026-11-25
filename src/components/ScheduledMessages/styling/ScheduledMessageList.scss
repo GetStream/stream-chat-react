@@ -1,4 +1,5 @@
 @use '../../../styling/utils';
+@use 'variables';
 
 @mixin loading-shimmer {
   background-color: var(--str-chat__background-core-surface-default);
@@ -19,6 +20,10 @@
 // ancestor.
 .str-chat__scheduled-message-list-modal > .str-chat__modal__dialog {
   max-width: calc(100% - 2 * var(--str-chat__spacing-md));
+
+  @media (max-width: variables.$full-screen-max-width) {
+    max-width: none;
+  }
 }
 
 .str-chat__delete-scheduled-message-alert {
@@ -36,6 +41,14 @@
     // A fixed height, as ChannelDetail's: sized to its content, the dialog would grow and shrink
     // with every search keystroke and page loaded.
     height: min(640px, calc(100dvh - 2 * var(--str-chat__spacing-md)));
+
+    @media (max-width: variables.$full-screen-max-width) {
+      width: 100dvw;
+      max-width: none;
+      height: 100dvh;
+      border-radius: 0;
+      box-shadow: none;
+    }
 
     // the list scrolls, so reaching its end loads the next page
     .str-chat__scheduled-message-list-dialog__body {
@@ -119,6 +132,23 @@
       @include utils.ellipsis-text();
       color: var(--str-chat__text-secondary);
       font: var(--str-chat__font-caption-emphasis);
+    }
+
+    .str-chat__scheduled-message-item__preview {
+      display: flex;
+      align-items: baseline;
+      gap: var(--str-chat__spacing-xxs);
+      min-width: 0;
+
+      .str-chat__summarized-message-preview {
+        flex: 1;
+      }
+    }
+
+    .str-chat__scheduled-message-item__thread-reply-label {
+      flex-shrink: 0;
+      color: var(--str-chat__text-secondary);
+      font: var(--str-chat__font-body-emphasis);
     }
 
     .str-chat__summarized-message-preview {

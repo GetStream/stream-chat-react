@@ -833,6 +833,8 @@ export const deTranslations = {
   'scheduledMessages.banner.scheduledReplies_other': '{{ count }} geplante Antworten',
   'scheduledMessages.blockedByModeration': 'Von der Moderation blockiert',
   'scheduledMessages.cancel': 'Abbrechen',
+  'scheduledMessages.cancelEdit.ariaLabel': 'Bearbeitung abbrechen',
+  'scheduledMessages.cancelSchedulingAgain.ariaLabel': 'Erneutes Planen abbrechen',
   'scheduledMessages.cantSendInThisChannel':
     'Nicht verfügbar: Du kannst in diesem Kanal keine Nachrichten senden',
   'scheduledMessages.channelFrozenNotice':
@@ -883,7 +885,8 @@ export const deTranslations = {
   'scheduledMessages.notification.notEditable':
     'Fehlgeschlagene Nachrichten können nicht bearbeitet werden',
   'scheduledMessages.notification.sending': 'Diese Nachricht wird gerade gesendet',
-  'scheduledMessages.notification.sentNow': 'Zeit verstrichen. Nachricht jetzt gesendet',
+  'scheduledMessages.notification.stillSending':
+    'Wird noch gesendet. Versuche es gleich noch einmal.',
   'scheduledMessages.notification.updateFailed':
     'Die geplante Nachricht konnte nicht aktualisiert werden. Versuche es erneut',
   'scheduledMessages.notification.userLimit':
@@ -926,6 +929,7 @@ export const deTranslations = {
     'Diese Nachricht an {{ name }} wird nicht gesendet. Das kann nicht rückgängig gemacht werden.',
   'scheduledMessages.thisMessageWontBeSentThisCantBe':
     'Diese Nachricht wird nicht gesendet. Das kann nicht rückgängig gemacht werden.',
+  'scheduledMessages.threadReply': 'Thread-Antwort:',
   'scheduledMessages.time': 'Uhrzeit',
   'scheduledMessages.view': 'Anzeigen',
   'scheduledMessages.viewAll': 'Alle anzeigen',

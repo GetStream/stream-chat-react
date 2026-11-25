@@ -634,6 +634,8 @@ export type TranslationCatalog = {
   'scheduledMessages.banner.scheduledReplies_other': '{{ count }} scheduled replies';
   'scheduledMessages.blockedByModeration': 'Blocked by moderation';
   'scheduledMessages.cancel': 'Cancel';
+  'scheduledMessages.cancelEdit.ariaLabel': 'Cancel edit';
+  'scheduledMessages.cancelSchedulingAgain.ariaLabel': 'Cancel scheduling again';
   'scheduledMessages.cantSendInThisChannel': "Unavailable: you can't send messages in this channel";
   'scheduledMessages.channelFrozenNotice': "This channel is frozen. Scheduled messages won't be sent";
   'scheduledMessages.chooseALaterTime': 'Choose a later time';
@@ -671,7 +673,7 @@ export type TranslationCatalog = {
   'scheduledMessages.notification.forbidden': "You can't schedule messages here";
   'scheduledMessages.notification.notEditable': "Failed messages can't be edited";
   'scheduledMessages.notification.sending': 'This message is being sent';
-  'scheduledMessages.notification.sentNow': 'Time passed. Message sent now';
+  'scheduledMessages.notification.stillSending': 'Still sending. Try again in a moment.';
   'scheduledMessages.notification.updateFailed': "Couldn't update the scheduled message. Try again";
   'scheduledMessages.notification.userLimit': "You've reached the limit of scheduled messages";
   'scheduledMessages.openScheduleMessageMenu.ariaLabel': 'Open schedule message menu';
@@ -702,6 +704,7 @@ export type TranslationCatalog = {
   'scheduledMessages.thisChannelWasDeleted': 'This channel was deleted';
   'scheduledMessages.thisMessageToNameWontBeSentThis': "This message to {{ name }} won't be sent. This can't be undone.";
   'scheduledMessages.thisMessageWontBeSentThisCantBe': "This message won't be sent. This can't be undone.";
+  'scheduledMessages.threadReply': 'Thread reply:';
   'scheduledMessages.time': 'Time';
   'scheduledMessages.view': 'View';
   'scheduledMessages.viewAll': 'View all';

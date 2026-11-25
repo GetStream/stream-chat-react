@@ -832,6 +832,8 @@ export const itTranslations = {
   'scheduledMessages.banner.scheduledReplies_other': '{{ count }} risposte programmate',
   'scheduledMessages.blockedByModeration': 'Bloccato dalla moderazione',
   'scheduledMessages.cancel': 'Annulla',
+  'scheduledMessages.cancelEdit.ariaLabel': 'Annulla modifica',
+  'scheduledMessages.cancelSchedulingAgain.ariaLabel': 'Annulla nuova programmazione',
   'scheduledMessages.cantSendInThisChannel':
     'Non disponibile: non puoi inviare messaggi in questo canale',
   'scheduledMessages.channelFrozenNotice':
@@ -882,7 +884,8 @@ export const itTranslations = {
   'scheduledMessages.notification.notEditable':
     'I messaggi non riusciti non possono essere modificati',
   'scheduledMessages.notification.sending': 'Questo messaggio è in fase di invio',
-  'scheduledMessages.notification.sentNow': 'Orario passato. Messaggio inviato ora',
+  'scheduledMessages.notification.stillSending':
+    'Invio in corso. Riprova tra un momento.',
   'scheduledMessages.notification.updateFailed':
     'Impossibile aggiornare il messaggio programmato. Riprova',
   'scheduledMessages.notification.userLimit':
@@ -924,6 +927,7 @@ export const itTranslations = {
     'Questo messaggio a {{ name }} non verrà inviato. Questa azione non può essere annullata.',
   'scheduledMessages.thisMessageWontBeSentThisCantBe':
     'Questo messaggio non verrà inviato. Questa azione non può essere annullata.',
+  'scheduledMessages.threadReply': 'Risposta nel thread:',
   'scheduledMessages.time': 'Ora',
   'scheduledMessages.view': 'Visualizza',
   'scheduledMessages.viewAll': 'Visualizza tutti',

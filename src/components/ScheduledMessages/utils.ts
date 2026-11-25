@@ -31,6 +31,7 @@ export const SCHEDULED_MESSAGE_NOTIFICATION_TYPE = {
   sendNowFailed: 'api:scheduled-message:send-now:failed',
   sendNowSucceeded: 'api:scheduled-message:send-now:success',
   sentNow: 'api:scheduled-message:create:sent-now',
+  stillSending: 'validation:scheduled-message:still-sending',
 } as const;
 
 export const SCHEDULED_MESSAGES_EMITTER = 'ScheduledMessages';
@@ -56,7 +57,9 @@ export const countPendingScheduledMessages = (
   scheduledMessages: ScheduledMessageResponse[] = [],
 ) => {
   const pendingCount = scheduledMessages.filter(
-    ({ status }) => status === SCHEDULED_MESSAGE_STATUS.Scheduled,
+    ({ status }) =>
+      status === SCHEDULED_MESSAGE_STATUS.Scheduled ||
+      status === SCHEDULED_MESSAGE_STATUS.Sending,
   ).length;
   return pendingCount;
 };

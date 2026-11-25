@@ -39,7 +39,7 @@ describe('scheduled message utils', () => {
     expect(matchesScheduledMessageText(launch, '  ')).toBe(true);
   });
 
-  it('counts only the messages still waiting to be sent', () => {
+  it('counts the scheduled and sending messages, not the failed ones', () => {
     const messages = [
       generateScheduledMessage({ status: 'scheduled' }),
       generateScheduledMessage({ status: 'scheduled' }),
@@ -47,7 +47,7 @@ describe('scheduled message utils', () => {
       generateScheduledMessage({ status: 'sending' }),
     ];
 
-    expect(countPendingScheduledMessages(messages)).toBe(2);
+    expect(countPendingScheduledMessages(messages)).toBe(3);
     expect(countPendingScheduledMessages()).toBe(0);
   });
 
