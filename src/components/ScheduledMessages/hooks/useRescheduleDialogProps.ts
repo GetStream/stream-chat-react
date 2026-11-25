@@ -39,7 +39,9 @@ export const useRescheduleDialogProps = ({
     submit: async (scheduledAt: Date) => {
       await client
         .channel(...splitCid(scheduledMessage.cid))
-        .updateScheduledMessage(scheduledMessage.id, { scheduled_at: scheduledAt });
+        .messageOperations.updateScheduledMessage(scheduledMessage.id, {
+          request: { scheduled_at: scheduledAt },
+        });
     },
     submitLabel: t('scheduledMessages.save', 'Save'),
     title: t('scheduledMessages.rescheduleMessage', 'Reschedule message'),

@@ -321,7 +321,7 @@ const DropdownSendNow = () => {
           () =>
             client
               .channel(...splitCid(scheduledMessage.cid))
-              .sendScheduledMessageNow(scheduledMessage.id),
+              .messageOperations.sendScheduledMessageNow(scheduledMessage.id),
           {
             message: t(
               'scheduledMessages.couldntSendTheMessageTryAgain',

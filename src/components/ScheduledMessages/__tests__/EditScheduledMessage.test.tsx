@@ -141,7 +141,7 @@ describe('editing a scheduled message in the composer', () => {
     expect(sendMessage).not.toHaveBeenCalled();
   });
 
-  it('restores the earlier draft when the edit is cancelled', async () => {
+  it('clears the composer when the edit is cancelled', async () => {
     const { messageComposer, startEditing } = await renderComposer();
     await act(() => messageComposer.textComposer.setText('my unsent draft'));
 
@@ -151,7 +151,7 @@ describe('editing a scheduled message in the composer', () => {
     );
 
     expect(screen.queryByText('Edit scheduled message')).not.toBeInTheDocument();
-    expect(messageComposer.textComposer.text).toBe('my unsent draft');
+    expect(messageComposer.textComposer.text).toBe('');
   });
 
   describe('scheduling a failed message again', () => {
@@ -164,7 +164,7 @@ describe('editing a scheduled message in the composer', () => {
       expect(screen.getByTestId('schedule-message-button')).toBeInTheDocument();
     });
 
-    it('restores the earlier draft when cancelled', async () => {
+    it('clears the composer when cancelled', async () => {
       const { messageComposer, startSchedulingAgain } = await renderComposer();
       await act(() => messageComposer.textComposer.setText('my unsent draft'));
 
@@ -174,7 +174,7 @@ describe('editing a scheduled message in the composer', () => {
       );
 
       expect(screen.queryByText('Schedule again')).not.toBeInTheDocument();
-      expect(messageComposer.textComposer.text).toBe('my unsent draft');
+      expect(messageComposer.textComposer.text).toBe('');
     });
 
     it('deletes the failed message after sending it now', async () => {
@@ -183,7 +183,7 @@ describe('editing a scheduled message in the composer', () => {
         fromPartial({ message: { id: 'sent-id', text: 'Launch moved to Monday' } }),
       );
       const deleteScheduledMessage = vi
-        .spyOn(channel, 'deleteScheduledMessage')
+        .spyOn(channel.messageOperations, 'deleteScheduledMessage')
         .mockResolvedValue(failedMessage);
 
       await startSchedulingAgain();

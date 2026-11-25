@@ -143,7 +143,7 @@ export const ScheduledMessageItem = ({
 
   const deleteScheduledMessage = () => {
     closeDialog();
-    void runRequest(() => getChannel().deleteScheduledMessage(id), {
+    void runRequest(() => getChannel().messageOperations.deleteScheduledMessage(id), {
       message: t(
         'scheduledMessages.couldntDeleteTheScheduledMessageTryAgain',
         "Couldn't delete the scheduled message. Try again",

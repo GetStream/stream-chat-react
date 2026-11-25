@@ -258,7 +258,7 @@ describe('ScheduledMessageActions', () => {
   it('sends the message now and confirms it', async () => {
     const { client, scheduledMessage } = await renderActions();
     const sendNow = vi
-      .spyOn(getChannel(client), 'sendScheduledMessageNow')
+      .spyOn(getChannel(client).messageOperations, 'sendScheduledMessageNow')
       .mockResolvedValue(scheduledMessage);
 
     await selectAction('sendNow');
@@ -273,9 +273,10 @@ describe('ScheduledMessageActions', () => {
 
   it('reports a send-now failure with its error', async () => {
     const { client } = await renderActions();
-    vi.spyOn(getChannel(client), 'sendScheduledMessageNow').mockRejectedValue(
-      notFoundError,
-    );
+    vi.spyOn(
+      getChannel(client).messageOperations,
+      'sendScheduledMessageNow',
+    ).mockRejectedValue(notFoundError);
 
     await selectAction('sendNow');
 
@@ -294,7 +295,7 @@ describe('ScheduledMessageActions', () => {
   it('deletes only after the deletion is confirmed', async () => {
     const { client, scheduledMessage } = await renderActions();
     const deleteScheduledMessage = vi
-      .spyOn(getChannel(client), 'deleteScheduledMessage')
+      .spyOn(getChannel(client).messageOperations, 'deleteScheduledMessage')
       .mockResolvedValue(scheduledMessage);
 
     await selectAction('delete');
@@ -322,7 +323,7 @@ describe('ScheduledMessageActions', () => {
       components: { ScheduledMessageDeleteAlert: CustomDeleteAlert },
     });
     const deleteScheduledMessage = vi
-      .spyOn(getChannel(client), 'deleteScheduledMessage')
+      .spyOn(getChannel(client).messageOperations, 'deleteScheduledMessage')
       .mockResolvedValue(scheduledMessage);
 
     await selectAction('delete');
@@ -336,7 +337,10 @@ describe('ScheduledMessageActions', () => {
 
   it('keeps the message when the deletion is cancelled', async () => {
     const { client } = await renderActions();
-    const deleteScheduledMessage = vi.spyOn(getChannel(client), 'deleteScheduledMessage');
+    const deleteScheduledMessage = vi.spyOn(
+      getChannel(client).messageOperations,
+      'deleteScheduledMessage',
+    );
 
     await selectAction('delete');
     await screen.findByTestId('delete-scheduled-message-alert');
@@ -351,7 +355,7 @@ describe('ScheduledMessageActions', () => {
   it('reschedules from the dialog pre-filled with the current time', async () => {
     const { client, scheduledMessage } = await renderActions();
     const updateScheduledMessage = vi
-      .spyOn(getChannel(client), 'updateScheduledMessage')
+      .spyOn(getChannel(client).messageOperations, 'updateScheduledMessage')
       .mockResolvedValue(scheduledMessage);
 
     await selectAction('reschedule');
@@ -366,7 +370,7 @@ describe('ScheduledMessageActions', () => {
     await act(() => fireEvent.click(screen.getByRole('button', { name: 'Save' })));
 
     expect(updateScheduledMessage).toHaveBeenCalledWith(scheduledMessage.id, {
-      scheduled_at: new Date(2026, 9, 29, 14, 30),
+      request: { scheduled_at: new Date(2026, 9, 29, 14, 30) },
     });
     await waitFor(() =>
       expect(screen.queryByTestId('schedule-message-dialog')).not.toBeInTheDocument(),
@@ -375,9 +379,10 @@ describe('ScheduledMessageActions', () => {
 
   it('keeps the reschedule dialog open and reports a failure', async () => {
     const { client } = await renderActions();
-    vi.spyOn(getChannel(client), 'updateScheduledMessage').mockRejectedValue(
-      notFoundError,
-    );
+    vi.spyOn(
+      getChannel(client).messageOperations,
+      'updateScheduledMessage',
+    ).mockRejectedValue(notFoundError);
 
     await selectAction('reschedule');
     await screen.findByTestId('schedule-message-dialog');
@@ -391,9 +396,10 @@ describe('ScheduledMessageActions', () => {
 
   it('clears a reschedule failure once another time is picked', async () => {
     const { client } = await renderActions();
-    vi.spyOn(getChannel(client), 'updateScheduledMessage').mockRejectedValue(
-      notFoundError,
-    );
+    vi.spyOn(
+      getChannel(client).messageOperations,
+      'updateScheduledMessage',
+    ).mockRejectedValue(notFoundError);
 
     await selectAction('reschedule');
     await screen.findByTestId('schedule-message-dialog');
@@ -413,7 +419,7 @@ describe('ScheduledMessageActions', () => {
     });
     const { client } = await renderActions({ scheduledMessage });
     const updateScheduledMessage = vi
-      .spyOn(getChannel(client), 'updateScheduledMessage')
+      .spyOn(getChannel(client).messageOperations, 'updateScheduledMessage')
       .mockResolvedValue(scheduledMessage);
 
     await selectAction('reschedule');
@@ -421,15 +427,16 @@ describe('ScheduledMessageActions', () => {
     await act(() => fireEvent.click(screen.getByRole('button', { name: 'Save' })));
 
     expect(updateScheduledMessage).toHaveBeenCalledWith(scheduledMessage.id, {
-      scheduled_at: sendTime,
+      request: { scheduled_at: sendTime },
     });
   });
 
   it('reports a reschedule failure without a specific reason generically', async () => {
     const { client } = await renderActions();
-    vi.spyOn(getChannel(client), 'updateScheduledMessage').mockRejectedValue(
-      new Error('Network Error'),
-    );
+    vi.spyOn(
+      getChannel(client).messageOperations,
+      'updateScheduledMessage',
+    ).mockRejectedValue(new Error('Network Error'));
 
     await selectAction('reschedule');
     await screen.findByTestId('schedule-message-dialog');
