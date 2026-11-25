@@ -910,7 +910,6 @@ export const itTranslations = {
   'scheduledMessages.scheduledReplies': 'Risposte programmate',
   'scheduledMessages.schedulingUnavailableNotice':
     'Non puoi programmare messaggi in questo canale',
-  'scheduledMessages.search': 'Cerca',
   'scheduledMessages.sendNow': 'Invia ora',
   'scheduledMessages.sendTime': 'Invio: {{ time }}',
   'scheduledMessages.sending': 'Invio in corso...',

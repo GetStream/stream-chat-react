@@ -911,7 +911,6 @@ export const deTranslations = {
   'scheduledMessages.scheduledReplies': 'Geplante Antworten',
   'scheduledMessages.schedulingUnavailableNotice':
     'Du kannst in diesem Kanal keine Nachrichten planen',
-  'scheduledMessages.search': 'Suchen',
   'scheduledMessages.sendNow': 'Jetzt senden',
   'scheduledMessages.sendTime': 'Senden: {{ time }}',
   'scheduledMessages.sending': 'Wird gesendet...',
