@@ -4,8 +4,8 @@ import type { Channel, LocalMessage, ScheduledMessageResponse } from 'stream-cha
 import { useChatContext, useTranslationContext } from '../../../context';
 import type { ScheduleTimeDialogProps } from '../ScheduleTimeDialog';
 import {
+  getChannelByCid,
   isFailedScheduledMessage,
-  splitCid,
   toRescheduledMessageRequest,
 } from '../utils';
 
@@ -43,7 +43,7 @@ export const useRescheduleDialogProps = ({
   const { t } = useTranslationContext();
   const { client } = useChatContext();
   const sendTime = nsToDate(scheduledMessage.scheduled_at);
-  const getChannel = () => client.channel(...splitCid(scheduledMessage.cid));
+  const getChannel = () => getChannelByCid(client, scheduledMessage.cid);
   const title = t('scheduledMessages.rescheduleMessage', 'Reschedule message');
   const errorMessage = t(
     'scheduledMessages.couldntRescheduleTheMessageTryAgain',

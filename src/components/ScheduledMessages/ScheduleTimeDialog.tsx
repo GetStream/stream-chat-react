@@ -1,4 +1,5 @@
 import React, { type MouseEvent, useEffect, useState } from 'react';
+import { ScheduledMessageErrorReason } from 'stream-chat';
 import type { Channel, LocalMessage } from 'stream-chat';
 
 import { useComponentContext, useTranslationContext } from '../../context';
@@ -130,6 +131,10 @@ export const ScheduleTimeDialog = ({
     setSubmitError(undefined);
   };
   const timeError = scheduledAt && getScheduleTimeError(scheduledAt, bounds);
+  const timeErrorMessage =
+    timeError &&
+    ((timeError === ScheduledMessageErrorReason.TooSoon && tooSoonMessage) ||
+      SCHEDULED_MESSAGE_ERROR_TRANSLATIONS[timeError]?.(t));
   const canSubmit = !!scheduledAt && !timeError && isOnline && status !== 'submitting';
 
   const submitScheduledAt = async () => {
@@ -196,14 +201,8 @@ export const ScheduleTimeDialog = ({
             value={timeValue}
           />
         </div>
-        {/* a time out of bounds takes the time zone's place */}
-        {timeError ? (
-          <ScheduledMessagesNotice isError>
-            {timeError === 'tooSoon'
-              ? (tooSoonMessage ??
-                t('scheduledMessages.chooseALaterTime', 'Choose a later time'))
-              : t('scheduledMessages.chooseAnEarlierTime', 'Choose an earlier time')}
-          </ScheduledMessagesNotice>
+        {timeErrorMessage ? (
+          <ScheduledMessagesNotice isError>{timeErrorMessage}</ScheduledMessagesNotice>
         ) : (
           <ScheduledMessagesNotice>
             {t(

@@ -2,26 +2,19 @@ import {
   dateToNs,
   getScheduledMessageLimits,
   SCHEDULED_MESSAGE_STATUS,
+  ScheduledMessageErrorReason,
   toScheduledMessagePreview,
 } from 'stream-chat';
 import type {
   Channel,
-  LocalMessage,
   MessageComposer,
-  MessageComposerState,
   MessageRequest,
   ScheduledMessageResponse,
+  StreamChat,
   UserResponse,
 } from 'stream-chat';
 
 import { RESCHEDULED_MESSAGE_FIELDS } from './constants';
-
-const MS_IN_SECOND = 1000;
-const CLOCK_SKEW_BUFFER_MS = 60 * MS_IN_SECOND;
-const MORNING_HOUR = 9;
-const AFTERNOON_HOUR = 13;
-const SCHEDULE_TIME_DIALOG_ID_PREFIX = 'schedule-message-dialog';
-const TIME_ZONE_LOCALE = 'en-US';
 
 const pickFields = <T extends object, K extends keyof T>(
   source: T,
@@ -33,20 +26,37 @@ const pickFields = <T extends object, K extends keyof T>(
   return picked;
 };
 
-export const splitCid = (cid: string) => {
-  const [type, id] = cid.split(':');
-  return [type, id] as const;
+const padTwoDigits = (value: number) => String(value).padStart(2, '0');
+
+const atLocalHour = (date: Date, dayOffset: number, hour: number) => {
+  const localDate = new Date(date);
+  localDate.setDate(date.getDate() + dayOffset);
+  localDate.setHours(hour, 0, 0, 0);
+  return localDate;
 };
 
-export const getScheduleCompositionDialogId = (
-  messageComposer: Pick<MessageComposer, 'channel' | 'threadId'>,
-) => `${getScheduleTimeDialogId(messageComposer)}-composition`;
+export const getChannelByCid = (client: StreamChat, cid: string) => {
+  const [type, id] = cid.split(':');
+  const channel = client.channel(type, id);
+  return channel;
+};
 
-export const toCompositionPreview = (
-  { attachmentManager, channel, id, textComposer }: MessageComposer,
-  user: UserResponse,
-): LocalMessage => {
+export const getScheduleDialogId = ({
+  channel,
+  threadId,
+}: Pick<MessageComposer, 'channel' | 'threadId'>) =>
+  ['schedule-message-dialog', channel.cid, threadId].filter(Boolean).join('-');
+
+export const toCompositionPreview = ({
+  attachmentManager,
+  channel,
+  client,
+  id,
+  textComposer,
+}: MessageComposer) => {
   const now = dateToNs(new Date());
+  const user = (client.user ?? { id: client.userID ?? '' }) as UserResponse;
+
   const preview = toScheduledMessagePreview({
     cid: channel.cid,
     created_at: now,
@@ -57,7 +67,7 @@ export const toCompositionPreview = (
       text: textComposer.text,
     },
     scheduled_at: now,
-    status: 'scheduled',
+    status: SCHEDULED_MESSAGE_STATUS.Scheduled,
     updated_at: now,
     user,
   });
@@ -69,35 +79,14 @@ export const toRescheduledMessageRequest = ({
 }: ScheduledMessageResponse): MessageRequest =>
   pickFields(message, RESCHEDULED_MESSAGE_FIELDS);
 
-export const getScheduleTimeDialogId = ({
-  channel,
-  threadId,
-}: Pick<MessageComposer, 'channel' | 'threadId'>) =>
-  [SCHEDULE_TIME_DIALOG_ID_PREFIX, channel.cid, threadId].filter(Boolean).join('-');
-
 export const isFailedScheduledMessage = ({ status }: ScheduledMessageResponse) =>
   status === SCHEDULED_MESSAGE_STATUS.Failed;
 
-export const countPendingScheduledMessages = (
-  scheduledMessages: ScheduledMessageResponse[] = [],
-) => {
-  const pendingCount = scheduledMessages.filter(
-    ({ status }) =>
-      status === SCHEDULED_MESSAGE_STATUS.Scheduled ||
-      status === SCHEDULED_MESSAGE_STATUS.Sending,
-  ).length;
-  return pendingCount;
-};
-
 export const toDateInputValue = (date: Date) =>
-  [
-    date.getFullYear(),
-    String(date.getMonth() + 1).padStart(2, '0'),
-    String(date.getDate()).padStart(2, '0'),
-  ].join('-');
+  `${date.getFullYear()}-${padTwoDigits(date.getMonth() + 1)}-${padTwoDigits(date.getDate())}`;
 
 export const toTimeInputValue = (date: Date) =>
-  `${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`;
+  `${padTwoDigits(date.getHours())}:${padTwoDigits(date.getMinutes())}`;
 
 export const fromInputValues = (dateValue: string, timeValue = '00:00') => {
   if (!dateValue || !timeValue) return undefined;
@@ -108,34 +97,34 @@ export const fromInputValues = (dateValue: string, timeValue = '00:00') => {
 export const getScheduleTimeBounds = (channel: Channel, now = new Date()) => {
   const limits = getScheduledMessageLimits(channel);
   const nowMs = now.getTime();
+  const clockSkewBufferMs = 60 * 1000;
+
   const bounds: { earliest: Date; latest?: Date } = {
     earliest: new Date(
-      nowMs + (limits?.minLeadTimeSeconds ?? 0) * MS_IN_SECOND + CLOCK_SKEW_BUFFER_MS,
+      nowMs + (limits?.minLeadTimeSeconds ?? 0) * 1000 + clockSkewBufferMs,
     ),
-    latest: limits && new Date(nowMs + limits.maxLeadTimeSeconds * MS_IN_SECOND),
+    latest: limits && new Date(nowMs + limits.maxLeadTimeSeconds * 1000),
   };
   return bounds;
 };
 
 export const getScheduleTimeError = (
   scheduledAt: Date,
-  { earliest, latest }: { earliest: Date; latest?: Date },
+  { earliest, latest }: ReturnType<typeof getScheduleTimeBounds>,
 ) => {
-  if (scheduledAt < earliest) return 'tooSoon' as const;
-  if (latest && scheduledAt > latest) return 'tooFar' as const;
+  if (scheduledAt < earliest) return ScheduledMessageErrorReason.TooSoon;
+  if (latest && scheduledAt > latest) return ScheduledMessageErrorReason.TooFar;
   return undefined;
 };
 
 export const getDefaultScheduledAt = ({
   earliest,
   latest,
-}: {
-  earliest: Date;
-  latest?: Date;
-}) => {
+}: ReturnType<typeof getScheduleTimeBounds>) => {
   const nextFullHour = new Date(earliest);
   nextFullHour.setHours(nextFullHour.getHours() + 1, 0, 0, 0);
   if (!latest || nextFullHour <= latest) return nextFullHour;
+
   const firstWholeMinute = new Date(earliest);
   if (firstWholeMinute.getSeconds() || firstWholeMinute.getMilliseconds()) {
     firstWholeMinute.setMinutes(firstWholeMinute.getMinutes() + 1, 0, 0);
@@ -143,38 +132,22 @@ export const getDefaultScheduledAt = ({
   return firstWholeMinute;
 };
 
-const atLocalHour = (date: Date, dayOffset: number, hour: number) => {
-  const localDate = new Date(date);
-  localDate.setDate(date.getDate() + dayOffset);
-  localDate.setHours(hour, 0, 0, 0);
-  return localDate;
-};
-
 export const getSchedulePresets = (
   now: Date,
-  bounds: { earliest: Date; latest?: Date },
+  bounds: ReturnType<typeof getScheduleTimeBounds>,
 ) => {
   const daysUntilMonday = (8 - now.getDay()) % 7 || 7;
   const presets = [
-    atLocalHour(now, 1, MORNING_HOUR),
-    atLocalHour(now, 1, AFTERNOON_HOUR),
-    ...(daysUntilMonday === 1 ? [] : [atLocalHour(now, daysUntilMonday, MORNING_HOUR)]),
+    atLocalHour(now, 1, 9),
+    atLocalHour(now, 1, 13),
+    ...(daysUntilMonday === 1 ? [] : [atLocalHour(now, daysUntilMonday, 9)]),
   ];
   return presets.filter((preset) => !getScheduleTimeError(preset, bounds));
 };
 
 export const formatTimeZoneOffset = (date: Date) => {
-  const timeZoneName = new Intl.DateTimeFormat(TIME_ZONE_LOCALE, {
-    timeZoneName: 'shortOffset',
-  })
+  const timeZoneName = new Intl.DateTimeFormat('en-US', { timeZoneName: 'shortOffset' })
     .formatToParts(date)
     .find(({ type }) => type === 'timeZoneName')?.value;
   return timeZoneName ?? 'GMT';
 };
-
-export const isComposerEditing = ({
-  editedMessage,
-  editedScheduledMessage,
-}: Pick<MessageComposerState, 'editedMessage' | 'editedScheduledMessage'>) =>
-  !!editedMessage ||
-  (!!editedScheduledMessage && !isFailedScheduledMessage(editedScheduledMessage));

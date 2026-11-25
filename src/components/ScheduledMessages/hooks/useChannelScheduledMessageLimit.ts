@@ -1,11 +1,15 @@
-import { getScheduledMessageLimits } from 'stream-chat';
+import { getScheduledMessageLimits, SCHEDULED_MESSAGE_STATUS } from 'stream-chat';
 import type { Channel, PaginatorState, ScheduledMessageResponse } from 'stream-chat';
 
 import { useStateStore } from '../../../store';
-import { countPendingScheduledMessages } from '../utils';
+const isPending = ({ status }: ScheduledMessageResponse) =>
+  status === SCHEDULED_MESSAGE_STATUS.Scheduled ||
+  status === SCHEDULED_MESSAGE_STATUS.Sending;
 
-const selectPendingCount = ({ items }: PaginatorState<ScheduledMessageResponse>) => ({
-  pendingCount: countPendingScheduledMessages(items),
+const selectPendingCount = ({
+  items = [],
+}: PaginatorState<ScheduledMessageResponse>) => ({
+  pendingCount: items.filter(isPending).length,
 });
 
 export const useChannelScheduledMessageLimit = (channel: Channel) => {

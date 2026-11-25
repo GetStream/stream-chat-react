@@ -4,7 +4,6 @@ import { CooldownTimer as DefaultCooldownTimer } from './CooldownTimer';
 import { SendButton as DefaultSendButton } from './SendButton';
 import {
   useChannel,
-  useChatContext,
   useComponentContext,
   useComponentContextIcons,
   useMessageComposerContext,
@@ -21,9 +20,9 @@ import { useIsCooldownActive } from './hooks/useIsCooldownActive';
 import { AIStates } from 'stream-chat';
 import type {
   AIState,
+  MessageComposer,
   MessageComposerState,
   TextComposerState,
-  UserResponse,
 } from 'stream-chat';
 import { useStateStore } from '../../store';
 import { useInertWhenHidden } from '../Accessibility';
@@ -35,17 +34,11 @@ import { useScheduleComposition } from '../ScheduledMessages/hooks/useScheduleCo
 import { ScheduleMessageButton as DefaultScheduleMessageButton } from '../ScheduledMessages/ScheduleMessageButton';
 import { ScheduleTimeDialog as DefaultScheduleTimeDialog } from '../ScheduledMessages/ScheduleTimeDialog';
 import {
-  getScheduleCompositionDialogId,
-  getScheduleTimeDialogId,
-  isComposerEditing,
+  getScheduleDialogId,
   isFailedScheduledMessage,
   toCompositionPreview,
 } from '../ScheduledMessages/utils';
-import {
-  useDialogIsOpen,
-  useDialogOnNearestManager,
-  useModalDialogIsOpen,
-} from '../Dialog';
+import { useDialogIsOpen, useDialogOnNearestManager } from '../Dialog';
 
 // Typed as `AIState[]` because an inferred array of the literal-typed `AIStates` members would
 // reject the wide `AIState` that `useAIState` returns.
@@ -53,12 +46,13 @@ const STOPPABLE_AI_STATES: readonly AIState[] = [AIStates.Thinking, AIStates.Gen
 
 const getChannelContainer = () => document.getElementById(CHANNEL_CONTAINER_ID);
 
-const messageComposerStateSelector = (state: MessageComposerState) => ({
-  isEditing: isComposerEditing(state),
-  isSchedulingAgain:
-    !!state.editedScheduledMessage &&
-    isFailedScheduledMessage(state.editedScheduledMessage),
-});
+const createMessageComposerStateSelector =
+  (messageComposer: MessageComposer) => (state: MessageComposerState) => ({
+    isEditing: messageComposer.hasEditInProgress,
+    isSchedulingAgain:
+      !!state.editedScheduledMessage &&
+      isFailedScheduledMessage(state.editedScheduledMessage),
+  });
 
 const textComposerStateSelector = ({ command, text }: TextComposerState) => ({
   command,
@@ -67,7 +61,6 @@ const textComposerStateSelector = ({ command, text }: TextComposerState) => ({
 
 export const MessageComposerActions = () => {
   const { t } = useTranslationContext();
-  const { client } = useChatContext();
   const { IconCheckmark, IconSend } = useComponentContextIcons();
   const channel = useChannel();
   const { hideSendButton } = useMessageComposerContext();
@@ -84,26 +77,20 @@ export const MessageComposerActions = () => {
   const canScheduleMessage = useCanScheduleMessage();
   const { scheduleMessageFromDialog } = useScheduleComposition();
 
-  const scheduleDialogId = getScheduleCompositionDialogId(messageComposer);
+  const scheduleDialogId = getScheduleDialogId(messageComposer);
   const { dialog: scheduleDialog, dialogManager } = useDialogOnNearestManager({
     id: scheduleDialogId,
   });
   const isScheduleDialogRequested = useDialogIsOpen(scheduleDialogId, dialogManager?.id);
   const schedulePreview = useMemo(
-    () =>
-      isScheduleDialogRequested
-        ? toCompositionPreview(
-            messageComposer,
-            (client.user ?? { id: client.userID ?? '' }) as UserResponse,
-          )
-        : undefined,
-    [client, isScheduleDialogRequested, messageComposer],
+    () => (isScheduleDialogRequested ? toCompositionPreview(messageComposer) : undefined),
+    [isScheduleDialogRequested, messageComposer],
   );
 
-  const isScheduleTimeDialogOpen = useModalDialogIsOpen(
-    getScheduleTimeDialogId(messageComposer),
+  const messageComposerStateSelector = useMemo(
+    () => createMessageComposerStateSelector(messageComposer),
+    [messageComposer],
   );
-
   const { isEditing, isSchedulingAgain } = useStateStore(
     messageComposer.state,
     messageComposerStateSelector,
@@ -169,7 +156,7 @@ export const MessageComposerActions = () => {
     !isEditing &&
     !command &&
     recordingEnabled &&
-    !isScheduleTimeDialogOpen
+    !isScheduleDialogRequested
   ) {
     content = <AudioRecordingButtonWithNotification />;
   } else if (canScheduleMessage && ScheduleMessageButton) {
@@ -189,7 +176,6 @@ export const MessageComposerActions = () => {
       <Portal getPortalDestination={getChannelContainer} isOpen={!!schedulePreview}>
         <Modal
           className='str-chat__schedule-message-modal'
-          dialogId={getScheduleTimeDialogId(messageComposer)}
           initialFocusStrategy='dialog'
           onClose={scheduleDialog.close}
           open={!!schedulePreview}

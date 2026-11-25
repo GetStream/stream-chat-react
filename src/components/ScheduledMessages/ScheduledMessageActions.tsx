@@ -21,7 +21,7 @@ import {
   SCHEDULED_MESSAGE_NOTIFICATION_TYPE,
   SCHEDULED_MESSAGES_EMITTER,
 } from './constants';
-import { splitCid } from './utils';
+import { getChannelByCid } from './utils';
 
 export type DefaultScheduledMessageActionType =
   | 'copyMessageText'
@@ -318,9 +318,10 @@ const DropdownSendNow = () => {
         closeMenu();
         void runRequest(
           () =>
-            client
-              .channel(...splitCid(scheduledMessage.cid))
-              .messageOperations.sendScheduledMessageNow(scheduledMessage.id),
+            getChannelByCid(
+              client,
+              scheduledMessage.cid,
+            ).messageOperations.sendScheduledMessageNow(scheduledMessage.id),
           {
             message: t(
               'scheduledMessages.couldntSendTheMessageTryAgain',

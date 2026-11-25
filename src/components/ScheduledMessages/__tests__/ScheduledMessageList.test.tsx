@@ -31,7 +31,7 @@ import {
 } from '../../../mock-builders';
 import type { ScheduledMessageSearchFilter } from '../hooks';
 import { useScheduledMessagesSearch } from '../hooks';
-import { splitCid } from '../utils';
+import { getChannelByCid } from '../utils';
 import type { ScheduledMessageListProps } from '../ScheduledMessageList';
 import { ScheduledMessageList } from '../ScheduledMessageList';
 import type { ScheduledMessageItemProps } from '../ScheduledMessageItem';
@@ -72,7 +72,7 @@ const SearchedList = ({
     <ScheduledMessageList
       filter={searchFilter}
       openInComposer={openInComposer}
-      scheduledMessages={client.channel(...splitCid(cid)).scheduledMessages}
+      scheduledMessages={getChannelByCid(client, cid).scheduledMessages}
       {...listProps}
     />
   );
@@ -334,7 +334,7 @@ describe('ScheduledMessageList', () => {
     setNextCursor(client);
 
     // as a scroll to the bottom would
-    await act(() => client.channel(...splitCid(cid)).scheduledMessages.toTail());
+    await act(() => getChannelByCid(client, cid).scheduledMessages.toTail());
 
     expect(await screen.findByText('Friday demo')).toBeInTheDocument();
     expect(query).toHaveBeenCalledTimes(2);
@@ -368,17 +368,13 @@ describe('ScheduledMessageList', () => {
     expect(await screen.findByText('Friday demo')).toBeInTheDocument();
   });
 
-  // a list-state key overridden for the channel list (`EmptyListIndicator` takes no props) must not
-  // turn up here
-  it('renders the list states passed as props, not the shared list-state keys', async () => {
+  it('renders the shared list-state slots, not the deprecated channel list keys', async () => {
     const { client } = await renderList({
       components: {
         EmptyListIndicator: () => <div>No channels</div>,
         FirstPageLoadingIndicator: () => <div>Loading channels</div>,
-      },
-      listProps: {
-        EmptyListIndicator: () => <div>Nothing scheduled</div>,
-        FirstPageLoadingIndicator: () => <div>Loading scheduled</div>,
+        ListEmptyUI: () => <div>Nothing scheduled</div>,
+        ListFirstPageLoadingUI: () => <div>Loading scheduled</div>,
       },
     });
 
@@ -388,6 +384,30 @@ describe('ScheduledMessageList', () => {
     setPaginatorState(client, { isLoading: true, items: undefined });
 
     expect(screen.getByText('Loading scheduled')).toBeInTheDocument();
+    expect(screen.queryByText('Loading channels')).not.toBeInTheDocument();
+  });
+
+  it('renders the shared load error and next-page slots', async () => {
+    const { client } = await renderList({
+      components: {
+        ListLoadErrorUI: ({ error }) => <div>Failed: {error.message}</div>,
+        ListLoadingNextPageUI: ({ isLoading }) =>
+          isLoading ? <div>Loading more</div> : null,
+      },
+      scheduledMessages: [generateScheduledMessage({ cid })],
+    });
+
+    setPaginatorState(client, { hasMoreTail: true, isLoading: true });
+
+    expect(screen.getByText('Loading more')).toBeInTheDocument();
+
+    setPaginatorState(client, {
+      isLoading: false,
+      items: undefined,
+      lastQueryError: new Error('offline'),
+    });
+
+    expect(screen.getByText('Failed: offline')).toBeInTheDocument();
   });
 
   it('renders a custom empty search results indicator', async () => {

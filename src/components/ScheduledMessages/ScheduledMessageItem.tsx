@@ -7,7 +7,7 @@ import React, {
   useState,
 } from 'react';
 import { nsToDate, SCHEDULED_MESSAGE_STATUS } from 'stream-chat';
-import type { OwnCapabilitiesState, ScheduledMessageResponse } from 'stream-chat';
+import type { ScheduledMessageResponse } from 'stream-chat';
 
 import {
   useChatContext,
@@ -16,17 +16,16 @@ import {
   useTranslationContext,
 } from '../../context';
 import { ChannelAvatar } from '../Avatar';
+import { useChannelCapabilities } from '../Channel/hooks/useChannelCapabilities';
 import { useIsMounted } from '../Channel/hooks/useIsMounted';
 import { useChannelPreviewInfo } from '../ChannelListItem/hooks/useChannelPreviewInfo';
 import { ContextMenu, useDialogIsOpen, useDialogOnNearestManager } from '../Dialog';
 import { useSplitActionSet } from '../Chat/hooks/useSplitActionSet';
 import { GlobalModal } from '../Modal';
 import { useNotificationApi } from '../Notifications';
-import { useStateStore } from '../../store';
 import { SummarizedMessagePreview } from '../SummarizedMessagePreview';
 import { useStableId } from '../UtilityComponents/useStableId';
 import { VisuallyHidden } from '../VisuallyHidden';
-import { SCHEDULE_MESSAGE_CAPABILITY } from './hooks';
 import { useScheduledMessagePreview } from './hooks/useScheduledMessagePreview';
 import { useRescheduleDialogProps } from './hooks/useRescheduleDialogProps';
 import { ScheduledMessageDeleteAlert as DefaultScheduledMessageDeleteAlert } from './ScheduledMessageDeleteAlert';
@@ -43,6 +42,7 @@ import type {
   ScheduledMessageItemDialog,
 } from './ScheduledMessageActions';
 import {
+  SCHEDULE_MESSAGE_CAPABILITY,
   SCHEDULED_MESSAGE_NOTIFICATION_TYPE,
   SCHEDULED_MESSAGES_EMITTER,
 } from './constants';
@@ -51,7 +51,7 @@ import {
   SCHEDULED_MESSAGE_ERROR_TRANSLATIONS,
   SCHEDULED_MESSAGE_FAILURE_REASON_TRANSLATIONS,
 } from './translations';
-import { isFailedScheduledMessage, splitCid } from './utils';
+import { getChannelByCid, isFailedScheduledMessage } from './utils';
 
 const ROW_INTERACTIVE_ELEMENT_SELECTOR = 'a, button, input, textarea, [role="menu"]';
 
@@ -70,11 +70,6 @@ export type ScheduledMessageItemProps = {
    */
   scheduledMessageActionSet?: ScheduledMessageActionSetItem[];
 };
-
-const selectComposeCapabilities = ({ ownCapabilities }: OwnCapabilitiesState) => ({
-  canSchedule: !!ownCapabilities?.includes(SCHEDULE_MESSAGE_CAPABILITY),
-  canSend: !!ownCapabilities?.includes('send-message'),
-});
 
 /** A scheduled message: when it is sent, where, its status and what can be done with it. */
 export const ScheduledMessageItem = ({
@@ -99,12 +94,9 @@ export const ScheduledMessageItem = ({
   const { displayImage, displayTitle, groupChannelDisplayInfo } = useChannelPreviewInfo({
     channel: loadedChannel,
   });
-  const composeCapabilities = useStateStore(
-    loadedChannel?.state,
-    selectComposeCapabilities,
-  );
+  const capabilities = useChannelCapabilities({ channel: loadedChannel });
   const editUnavailableId = useStableId();
-  const getChannel = () => client.channel(...splitCid(cid));
+  const getChannel = () => getChannelByCid(client, cid);
   const previewMessage = useScheduledMessagePreview(scheduledMessage);
   const rescheduleDialogProps = useRescheduleDialogProps({
     previewMessage,
@@ -125,9 +117,9 @@ export const ScheduledMessageItem = ({
   // a pending message is saved by scheduling it, a failed one is scheduled or sent again; a frozen
   // channel allows neither. Unknown for a channel not loaded, so left on there.
   const canEdit =
-    !composeCapabilities ||
-    composeCapabilities.canSchedule ||
-    (isFailed && composeCapabilities.canSend);
+    !loadedChannel ||
+    capabilities.has(SCHEDULE_MESSAGE_CAPABILITY) ||
+    (isFailed && capabilities.has('send-message'));
 
   const menuButtonRef = useRef<HTMLButtonElement | null>(null);
   const [openDialog, setOpenDialog] = useState<ScheduledMessageItemDialog>();

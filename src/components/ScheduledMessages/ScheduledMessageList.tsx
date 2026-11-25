@@ -2,7 +2,6 @@ import React, { useEffect, useMemo, useRef } from 'react';
 import type { ComponentType } from 'react';
 import type {
   ChannelDataState,
-  OwnCapabilitiesState,
   PaginatorState,
   ScheduledMessageResponse,
   ScheduledMessagesView,
@@ -11,20 +10,26 @@ import type {
 import {
   useChatContext,
   useComponentContext,
-  useComponentContextIcons,
   useTranslationContext,
 } from '../../context';
 import { useStateStore } from '../../store';
+import { useChannelCapabilities } from '../Channel/hooks/useChannelCapabilities';
 import { InfiniteScrollPaginator } from '../InfiniteScrollPaginator';
-import { ListLoadErrorUI, type ListLoadErrorUIProps } from '../ListStates';
 import { useFirstPageLoadRetry } from '../ListStates/hooks';
 import { getFirstPageLoadError } from '../ListStates/utils';
-import { LoadingIndicator } from '../Loading';
-import { SCHEDULE_MESSAGE_CAPABILITY, useScheduledMessages } from './hooks';
+import { SCHEDULE_MESSAGE_CAPABILITY } from './constants';
+import { useScheduledMessages } from './hooks';
+import {
+  ScheduledMessageListEmptySearchResults,
+  ScheduledMessageListEmptyUI,
+  ScheduledMessageListFirstPageLoadingUI,
+  ScheduledMessageListLoadErrorUI,
+  ScheduledMessageListLoadingNextPageUI,
+} from './ListStates';
 import type { ScheduledMessageItemProps } from './ScheduledMessageItem';
 import { ScheduledMessageItem as DefaultScheduledMessageItem } from './ScheduledMessageItem';
 import { ScheduledMessagesNotice } from './ScheduledMessagesNotice';
-import { splitCid } from './utils';
+import { getChannelByCid } from './utils';
 
 export type ScheduledMessageListProps = Pick<
   ScheduledMessageItemProps,
@@ -34,18 +39,14 @@ export type ScheduledMessageListProps = Pick<
    * What to list: `channel.scheduledMessages`, `thread.scheduledMessages`, or a view of a list
    * registered with `client.scheduledMessagePaginators`. Further pages load on scroll. When its
    * paginator is a channel's, the list also says why the channel takes no scheduled messages, if
-   * it doesn't.
+   * it doesn't. Its loading, empty and error states are the `ListFirstPageLoadingUI`,
+   * `ListEmptyUI`, `ListLoadingNextPageUI` and `ListLoadErrorUI` slots.
    */
   scheduledMessages: ScheduledMessagesView;
   /** Lists only the messages it accepts, e.g. the search from `useScheduledMessagesSearch`. */
   filter?: (scheduledMessage: ScheduledMessageResponse) => boolean;
-  /** Nothing is scheduled. */
-  EmptyListIndicator?: ComponentType;
   /** Messages are scheduled, but none match the search. */
   EmptySearchResultsIndicator?: ComponentType;
-  FirstPageLoadingIndicator?: ComponentType;
-  ListLoadErrorIndicator?: ComponentType<ListLoadErrorUIProps>;
-  LoadingNextPageIndicator?: ComponentType<{ isLoading?: boolean }>;
 };
 
 const selectLoadState = (state: PaginatorState<ScheduledMessageResponse>) => ({
@@ -56,117 +57,18 @@ const selectLoadState = (state: PaginatorState<ScheduledMessageResponse>) => ({
   lastQueryError: state.lastQueryError,
 });
 
-const ScheduledMessageListLoadErrorTitle = () => {
-  const { t } = useTranslationContext();
-  return (
-    <>
-      {t(
-        'scheduledMessages.couldntLoadScheduledMessages',
-        "Couldn't load scheduled messages",
-      )}
-    </>
-  );
-};
-
-const DefaultListLoadErrorIndicator = (props: ListLoadErrorUIProps) => (
-  <ListLoadErrorUI
-    {...props}
-    className='str-chat__scheduled-message-list-load-error'
-    Title={ScheduledMessageListLoadErrorTitle}
-  />
-);
-
-const DefaultEmptyListIndicator = () => {
-  const { t } = useTranslationContext();
-  const { IconClock } = useComponentContextIcons();
-  return (
-    <div className='str-chat__scheduled-messages-empty-list'>
-      <IconClock className='str-chat__scheduled-messages-empty-list__icon' />
-      <p className='str-chat__scheduled-messages-empty-list__title'>
-        {t('scheduledMessages.noScheduledMessages', 'No scheduled messages')}
-      </p>
-      <p className='str-chat__scheduled-messages-empty-list__description'>
-        {t(
-          'scheduledMessages.clickTheArrowNextToTheSendButton',
-          'Click the arrow next to the send button in a channel to schedule a message.',
-        )}
-      </p>
-    </div>
-  );
-};
-
-const FIRST_PAGE_LOADING_ROW_COUNT = 6;
-
-const loadingRowKeys = Array.from(
-  { length: FIRST_PAGE_LOADING_ROW_COUNT },
-  (_, index) => `scheduled-message-loading-row-${index}`,
-);
-
-const ScheduledMessageLoadingRow = () => (
-  <div className='str-chat__scheduled-message-list-loading__row'>
-    <div className='str-chat__scheduled-message-list-loading__time' />
-    <div className='str-chat__scheduled-message-list-loading__body'>
-      <div className='str-chat__scheduled-message-list-loading__avatar' />
-      <div className='str-chat__scheduled-message-list-loading__lines'>
-        <div className='str-chat__scheduled-message-list-loading__channel-name' />
-        <div className='str-chat__scheduled-message-list-loading__text' />
-      </div>
-    </div>
-  </div>
-);
-
-const DefaultFirstPageLoadingIndicator = () => {
-  const { t } = useTranslationContext();
-  return (
-    <div
-      aria-label={t(
-        'scheduledMessages.loadingScheduledMessages',
-        'Loading scheduled messages',
-      )}
-      className='str-chat__scheduled-message-list-loading'
-      role='status'
-    >
-      {loadingRowKeys.map((key) => (
-        <ScheduledMessageLoadingRow key={key} />
-      ))}
-    </div>
-  );
-};
-
-const DefaultLoadingNextPageIndicator = ({ isLoading }: { isLoading?: boolean }) =>
-  isLoading ? <LoadingIndicator /> : null;
-
-const DefaultEmptySearchResultsIndicator = () => {
-  const { t } = useTranslationContext();
-  const { IconSearch } = useComponentContextIcons();
-  return (
-    <div className='str-chat__scheduled-messages-empty-list'>
-      <IconSearch className='str-chat__scheduled-messages-empty-list__icon' />
-      <p className='str-chat__scheduled-messages-empty-list__title'>
-        {t('scheduledMessages.noMessagesFound', 'No messages found')}
-      </p>
-    </div>
-  );
-};
-
-const selectScheduling = ({
-  data,
-  ownCapabilities,
-}: ChannelDataState & OwnCapabilitiesState) => ({
-  // unknown until the channel is loaded
-  canSchedule:
-    ownCapabilities === undefined ||
-    ownCapabilities.includes(SCHEDULE_MESSAGE_CAPABILITY),
-  frozen: !!data?.frozen,
-});
+const selectFrozen = ({ data }: ChannelDataState) => ({ frozen: !!data?.frozen });
 
 /** Why the channel takes no scheduled messages: frozen, or the user is not allowed to. */
 const SchedulingUnavailableNotice = ({ cid }: { cid: string }) => {
   const { t } = useTranslationContext();
   const { client } = useChatContext();
-  const channel = client.channel(...splitCid(cid));
-  const { canSchedule, frozen } = useStateStore(channel.state, selectScheduling);
-  if (canSchedule) return null;
+  const channel = getChannelByCid(client, cid);
+  const capabilities = useChannelCapabilities({ channel });
+  const { frozen } = useStateStore(channel.state, selectFrozen);
+
+  if (capabilities.has(SCHEDULE_MESSAGE_CAPABILITY)) return null;
+
   return (
     <ScheduledMessagesNotice className='str-chat__scheduled-message-list-notice' isError>
       {frozen
@@ -190,12 +92,8 @@ const SchedulingUnavailableNotice = ({ cid }: { cid: string }) => {
  * nothing to scroll, and the messages to show may be on a page not loaded yet.
  */
 export const ScheduledMessageList = ({
-  EmptyListIndicator = DefaultEmptyListIndicator,
-  EmptySearchResultsIndicator = DefaultEmptySearchResultsIndicator,
+  EmptySearchResultsIndicator = ScheduledMessageListEmptySearchResults,
   filter,
-  FirstPageLoadingIndicator = DefaultFirstPageLoadingIndicator,
-  ListLoadErrorIndicator = DefaultListLoadErrorIndicator,
-  LoadingNextPageIndicator = DefaultLoadingNextPageIndicator,
   openInComposer,
   scheduledMessages: view,
 }: ScheduledMessageListProps) => {
@@ -255,18 +153,20 @@ export const ScheduledMessageList = ({
   const renderContent = () => {
     if (firstPageLoadRetry.error) {
       return (
-        <ListLoadErrorIndicator
+        <ScheduledMessageListLoadErrorUI
           error={firstPageLoadRetry.error}
           isRetrying={firstPageLoadRetry.isRetrying}
           retry={firstPageLoadRetry.retry}
         />
       );
     }
-    if (isFirstPageLoading) return <FirstPageLoadingIndicator />;
-    if (loadsFurther) return <LoadingNextPageIndicator isLoading />;
+    if (isFirstPageLoading) return <ScheduledMessageListFirstPageLoadingUI />;
+    if (loadsFurther) {
+      return <ScheduledMessageListLoadingNextPageUI isLoading position='bottom' />;
+    }
     if (furtherPageLoadError) {
       return (
-        <ListLoadErrorIndicator
+        <ScheduledMessageListLoadErrorUI
           error={furtherPageLoadError}
           isRetrying={isLoading}
           retry={view.toTail}
@@ -278,7 +178,7 @@ export const ScheduledMessageList = ({
       return scheduledMessages.length ? (
         <EmptySearchResultsIndicator />
       ) : (
-        <EmptyListIndicator />
+        <ScheduledMessageListEmptyUI />
       );
     }
     return (
@@ -300,7 +200,7 @@ export const ScheduledMessageList = ({
             </li>
           ))}
         </ul>
-        <LoadingNextPageIndicator isLoading={isLoading} />
+        <ScheduledMessageListLoadingNextPageUI isLoading={isLoading} position='bottom' />
       </InfiniteScrollPaginator>
     );
   };

@@ -33,7 +33,7 @@ import {
   mockChatContext,
 } from '../../../mock-builders';
 import { SCHEDULED_MESSAGE_NOTIFICATION_TYPE } from '../constants';
-import { splitCid } from '../utils';
+import { getChannelByCid } from '../utils';
 import { ScheduledMessageList } from '../ScheduledMessageList';
 import { ScheduledMessageItem } from '../ScheduledMessageItem';
 import type { ScheduledMessageItemProps } from '../ScheduledMessageItem';
@@ -55,7 +55,7 @@ const ChannelScheduledMessageList = ({
   return (
     <ScheduledMessageList
       openInComposer={openInComposer}
-      scheduledMessages={client.channel(...splitCid(cid)).scheduledMessages}
+      scheduledMessages={getChannelByCid(client, cid).scheduledMessages}
     />
   );
 };

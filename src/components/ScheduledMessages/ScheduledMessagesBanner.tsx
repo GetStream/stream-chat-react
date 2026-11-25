@@ -16,8 +16,8 @@ import { useStateStore } from '../../store';
 import { useAriaLiveAnnouncer } from '../Accessibility';
 import { useChannelCapabilities } from '../Channel/hooks/useChannelCapabilities';
 import { useMessageComposerController } from '../MessageComposer/hooks/useMessageComposerController';
+import { SCHEDULE_MESSAGE_CAPABILITY } from './constants';
 import {
-  SCHEDULE_MESSAGE_CAPABILITY,
   useChannelScheduledMessages,
   useChannelWideScheduledMessagesView,
   useOpenScheduledMessageInComposer,
@@ -58,7 +58,7 @@ export const ScheduledMessagesBanner = () => {
   // a thread's composer lists the thread's scheduled replies
   const view = isThreadComposer ? compositionContext.scheduledMessages : channelWideView;
   const { parentId } = view;
-  const canSchedule = useChannelCapabilities({ cid: channel.cid }).has(
+  const canSchedule = useChannelCapabilities({ channel }).has(
     SCHEDULE_MESSAGE_CAPABILITY,
   );
   const { scheduledMessages } = useChannelScheduledMessages(view);

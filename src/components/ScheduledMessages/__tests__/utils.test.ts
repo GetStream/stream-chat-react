@@ -1,14 +1,15 @@
+import { ScheduledMessageErrorReason } from 'stream-chat';
 import type { Channel, MessageComposer } from 'stream-chat';
 
-import { generateScheduledMessage } from '../../../mock-builders';
+import { generateScheduledMessage, getTestClientWithUser } from '../../../mock-builders';
 import {
-  countPendingScheduledMessages,
   formatTimeZoneOffset,
   fromInputValues,
+  getChannelByCid,
   getDefaultScheduledAt,
+  getScheduleDialogId,
   getSchedulePresets,
   getScheduleTimeBounds,
-  getScheduleTimeDialogId,
   getScheduleTimeError,
   toRescheduledMessageRequest,
 } from '../utils';
@@ -25,6 +26,13 @@ const withLimits = (minLeadTimeSeconds: number, maxLeadTimeSeconds: number) =>
   }) as unknown as Channel;
 
 describe('scheduled message utils', () => {
+  it("returns the client's channel instance for a cid", async () => {
+    const client = await getTestClientWithUser({ id: 'user-id' });
+    const channel = client.channel('messaging', 'general');
+
+    expect(getChannelByCid(client, 'messaging:general')).toBe(channel);
+  });
+
   it('takes the content of a failed message to schedule it again, without its id', () => {
     const failed = generateScheduledMessage({
       message: {
@@ -53,18 +61,6 @@ describe('scheduled message utils', () => {
     expect(toRescheduledMessageRequest(failed)).not.toHaveProperty('html');
   });
 
-  it('counts the scheduled and sending messages, not the failed ones', () => {
-    const messages = [
-      generateScheduledMessage({ status: 'scheduled' }),
-      generateScheduledMessage({ status: 'scheduled' }),
-      generateScheduledMessage({ status: 'failed' }),
-      generateScheduledMessage({ status: 'sending' }),
-    ];
-
-    expect(countPendingScheduledMessages(messages)).toBe(3);
-    expect(countPendingScheduledMessages()).toBe(0);
-  });
-
   describe('time bounds', () => {
     it('starts a minute after the minimum lead time and ends at the maximum', () => {
       const now = at(28, 10);
@@ -82,8 +78,12 @@ describe('scheduled message utils', () => {
     it('reports a time outside the bounds', () => {
       const bounds = { earliest: at(28, 10), latest: at(29, 10) };
 
-      expect(getScheduleTimeError(at(28, 9), bounds)).toBe('tooSoon');
-      expect(getScheduleTimeError(at(30, 9), bounds)).toBe('tooFar');
+      expect(getScheduleTimeError(at(28, 9), bounds)).toBe(
+        ScheduledMessageErrorReason.TooSoon,
+      );
+      expect(getScheduleTimeError(at(30, 9), bounds)).toBe(
+        ScheduledMessageErrorReason.TooFar,
+      );
       expect(getScheduleTimeError(at(28, 12), bounds)).toBeUndefined();
     });
 
@@ -144,10 +144,10 @@ describe('scheduled message utils', () => {
     const channelComposer = { channel, threadId: null } as MessageComposer;
     const threadComposer = { channel, threadId: 'parent-id' } as MessageComposer;
 
-    expect(getScheduleTimeDialogId(channelComposer)).toBe(
+    expect(getScheduleDialogId(channelComposer)).toBe(
       'schedule-message-dialog-messaging:general',
     );
-    expect(getScheduleTimeDialogId(threadComposer)).toBe(
+    expect(getScheduleDialogId(threadComposer)).toBe(
       'schedule-message-dialog-messaging:general-parent-id',
     );
   });

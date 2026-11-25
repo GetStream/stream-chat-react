@@ -9,6 +9,8 @@ export const SCHEDULED_MESSAGE_NOTIFICATION_TYPE = {
 
 export const SCHEDULED_MESSAGES_EMITTER = 'ScheduledMessages';
 
+export const SCHEDULE_MESSAGE_CAPABILITY = 'schedule-message';
+
 export const RESCHEDULED_MESSAGE_FIELDS = [
   'attachments',
   'custom',

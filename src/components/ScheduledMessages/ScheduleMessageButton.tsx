@@ -18,11 +18,7 @@ import { useMessageComposerHasSendableData } from '../MessageComposer/hooks';
 import { useMessageComposerController } from '../MessageComposer/hooks/useMessageComposerController';
 import { useChannelScheduledMessageLimit } from './hooks/useChannelScheduledMessageLimit';
 import { useScheduleComposition } from './hooks/useScheduleComposition';
-import {
-  getScheduleCompositionDialogId,
-  getSchedulePresets,
-  getScheduleTimeBounds,
-} from './utils';
+import { getScheduleDialogId, getSchedulePresets, getScheduleTimeBounds } from './utils';
 
 const getScheduleMessageMenuId = ({ threadId }: Pick<MessageComposer, 'threadId'>) =>
   `schedule-message-menu${threadId ? '-thread' : ''}`;
@@ -76,7 +72,7 @@ export const ScheduleMessageButton = () => {
     : undefined;
   const { dialog: menu, dialogManager } = useDialogOnNearestManager({ id: menuId });
   const isMenuOpen = useDialogIsOpen(menuId, dialogManager?.id);
-  const scheduleDialogId = getScheduleCompositionDialogId(messageComposer);
+  const scheduleDialogId = getScheduleDialogId(messageComposer);
   const { dialog: scheduleDialog } = useDialogOnNearestManager({ id: scheduleDialogId });
   const isScheduleDialogOpen = useDialogIsOpen(scheduleDialogId, dialogManager?.id);
   const buttonRef = useRef<HTMLButtonElement>(null);
