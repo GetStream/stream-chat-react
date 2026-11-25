@@ -170,14 +170,16 @@ describe('ScheduleMessageButton', () => {
       expect(screen.getByTestId('schedule-message-button')).toBeInTheDocument();
     });
 
-    it('stays with a shared location', async () => {
+    it('hides the chevron once a shared location is attached', async () => {
       const { channel } = await renderComposer();
+
+      expect(screen.getByTestId('schedule-message-button')).toBeInTheDocument();
 
       await act(() =>
         channel.messageComposer.locationComposer.setData({ latitude: 50, longitude: 14 }),
       );
 
-      expect(screen.getByTestId('schedule-message-button')).toBeInTheDocument();
+      expect(screen.queryByTestId('schedule-message-button')).not.toBeInTheDocument();
     });
 
     it('can be removed through ComponentContext', async () => {

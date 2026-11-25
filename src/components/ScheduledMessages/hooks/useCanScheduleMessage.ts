@@ -21,11 +21,12 @@ const useComposerCanSchedule = (messageComposer: MessageComposer) => {
   );
 
   useEffect(() => {
-    const { channel, textComposer } = messageComposer;
+    const { channel, locationComposer, textComposer } = messageComposer;
     const update = () => setCanSchedule(readComposerCanSchedule(messageComposer));
     const unsubscribes = [
       messageComposer.state,
       textComposer.state,
+      locationComposer.state,
       channel.state,
       channel.configState,
     ].map((store) => store.subscribe(update));
