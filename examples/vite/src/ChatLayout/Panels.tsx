@@ -9,8 +9,10 @@ import {
   type BaseSyntheticEvent,
   type MouseEvent,
   type PropsWithChildren,
+  type TransitionEvent,
   useCallback,
   useEffect,
+  useLayoutEffect,
   useMemo,
   useRef,
   useState,
@@ -190,6 +192,27 @@ const CustomChannelListItem = ({ item }: { item: unknown }) => {
   return <ChannelListItem channel={channel} onSelect={openChannel} />;
 };
 
+const useClosingThread = (thread?: ThreadType) => {
+  const [closingThread, setClosingThread] = useState<ThreadType>();
+  const previousThreadRef = useRef(thread);
+
+  const finishClosing = useCallback(() => setClosingThread(undefined), []);
+
+  useLayoutEffect(() => {
+    const previousThread = previousThreadRef.current;
+    previousThreadRef.current = thread;
+    if (thread || !previousThread) {
+      setClosingThread(undefined);
+      return;
+    }
+    setClosingThread(previousThread);
+    const timeout = setTimeout(finishClosing, 400);
+    return () => clearTimeout(timeout);
+  }, [finishClosing, thread]);
+
+  return { closingThread, finishClosing };
+};
+
 // The in-channel reply thread is opened into the channels view's secondary slot (the same
 // slot a 2nd channel can occupy) — bound by the message "reply in thread" / replies-count
 // actions via `open`. It renders only when a thread is bound, and `useActiveThread`
@@ -208,7 +231,13 @@ const ChannelThreadPanel = ({
 }) => {
   const isOpen = !!thread;
   const registerThreadSlot = useRegisterSlotGeometry(CHANNEL_THREAD_SLOT);
+  const { closingThread, finishClosing } = useClosingThread(thread);
+  const shownThread = thread ?? closingThread;
   useActiveThread({ activeThread: thread });
+
+  const finishClosingOnPanelTransition = (event: TransitionEvent<HTMLDivElement>) => {
+    if (!isOpen && event.target === event.currentTarget) finishClosing();
+  };
 
   const panelClassName = clsx('app-chat-secondary-panel', {
     'app-chat-secondary-panel--open': isOpen,
@@ -216,13 +245,13 @@ const ChannelThreadPanel = ({
 
   // The resize handle is rendered once at the slot level (see `ResponsiveChannelPanels`), not
   // here — the bar belongs to the slot, which may hold layers, not to this base content.
-  return thread ? (
+  return shownThread ? (
     // The dropzone sits inside <Thread> so WithDragAndDropUpload's `useChannel` resolves the
     // thread's own channel — the thread panel no longer depends on an ambient <Channel>, so it
     // can live in its own slot beside the primary channel. The panel shell stays outside, so the
     // open and closed states present the same box to the layout.
-    <div className={panelClassName}>
-      <Thread thread={thread}>
+    <div className={panelClassName} onTransitionEnd={finishClosingOnPanelTransition}>
+      <Thread thread={shownThread}>
         <WithDragAndDropUpload className='str-chat__dropzone-root--thread'>
           <ReturnToSkipNavigation />
           <ThreadHeader />
@@ -231,11 +260,11 @@ const ChannelThreadPanel = ({
               onOpenMemberDetail(
                 getMentionedUserId(event, message),
                 event,
-                thread.channel,
+                shownThread.channel,
               )
             }
             onUserClick={(event, user) =>
-              onOpenMemberDetail(user.id, event, thread.channel)
+              onOpenMemberDetail(user.id, event, shownThread.channel)
             }
           />
           <ConfigurableMessageComposer />
