@@ -252,6 +252,7 @@ const buildChannel = (
       uploads: true,
       url_enrichment: true,
       user_message_reminders: true,
+      voice_transcription: false,
     },
     created_at: createdAt,
     created_by: context.actor,
