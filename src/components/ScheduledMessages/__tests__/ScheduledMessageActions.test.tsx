@@ -239,7 +239,7 @@ describe('ScheduledMessageActions', () => {
       expect(openInComposer).not.toHaveBeenCalled();
     });
 
-    it('disables Edit & reschedule of a failed message', async () => {
+    it('disables Edit of a failed message, keeping it focusable and saying why', async () => {
       const openInComposer = vi.fn();
       const { client } = await renderActions({
         openInComposer,
@@ -251,16 +251,79 @@ describe('ScheduledMessageActions', () => {
       });
       removeComposeCapabilities(client);
 
-      await selectAction('edit');
+      const edit = screen.getByTestId('scheduled-message-edit-button');
+      fireEvent.click(edit);
 
-      const editAndReschedule = screen.getByTestId('scheduled-message-action-edit');
-      expect(editAndReschedule).toHaveAttribute('aria-disabled', 'true');
-      expect(editAndReschedule).toHaveAccessibleDescription(
+      expect(edit).toHaveAttribute('aria-disabled', 'true');
+      expect(edit).toHaveAccessibleDescription(
         "Unavailable: you can't send messages in this channel",
       );
       expect(openInComposer).not.toHaveBeenCalled();
-      // the menu stays open on the unavailable item
-      expect(screen.getByTestId('scheduled-message-actions-menu')).toBeInTheDocument();
+    });
+  });
+
+  describe('a failed message', () => {
+    const failedMessage = () =>
+      generateScheduledMessage({
+        cid,
+        failure_reason: SCHEDULED_MESSAGE_FAILURE_REASON.InternalError,
+        message: { custom: {}, text: 'Launch moved to Monday' },
+        scheduled_at: convertDateToTimestamp(new Date(2026, 9, 27, 9, 0)),
+        status: SCHEDULED_MESSAGE_STATUS.Failed,
+      });
+
+    it('offers an Edit button and Reschedule and Delete', async () => {
+      await renderActions({ openInComposer: vi.fn(), scheduledMessage: failedMessage() });
+
+      await openActionsMenu();
+
+      expect(screen.getByTestId('scheduled-message-edit-button')).toBeInTheDocument();
+      expect(getMenuLabels()).toEqual(['Reschedule', 'Delete']);
+    });
+
+    it('opens it in the composer from the Edit button', async () => {
+      const openInComposer = vi.fn();
+      const { scheduledMessage } = await renderActions({
+        openInComposer,
+        scheduledMessage: failedMessage(),
+      });
+
+      fireEvent.click(screen.getByTestId('scheduled-message-edit-button'));
+
+      expect(openInComposer).toHaveBeenCalledWith(scheduledMessage);
+    });
+
+    it('reschedules it as a new message and deletes the failed one', async () => {
+      const { client, scheduledMessage } = await renderActions({
+        scheduledMessage: failedMessage(),
+      });
+      const { messageOperations } = getChannel(client);
+      const scheduleMessage = vi
+        .spyOn(messageOperations, 'scheduleMessage')
+        .mockResolvedValue(fromPartial({}));
+      const deleteScheduledMessage = vi
+        .spyOn(messageOperations, 'deleteScheduledMessage')
+        .mockResolvedValue(scheduledMessage);
+
+      await selectAction('reschedule');
+      const dialog = await screen.findByTestId('schedule-message-dialog');
+      expect(dialog).toHaveTextContent('Reschedule message');
+
+      enterDate('2026-10-29');
+      enterTime('14:30');
+      await act(() => fireEvent.click(screen.getByRole('button', { name: 'Schedule' })));
+
+      expect(scheduleMessage).toHaveBeenCalledWith({
+        message: expect.objectContaining({ text: 'Launch moved to Monday' }),
+        options: { scheduled_at: new Date(2026, 9, 29, 14, 30) },
+      });
+      expect(scheduleMessage.mock.calls[0][0].message).not.toHaveProperty('id');
+      await waitFor(() =>
+        expect(deleteScheduledMessage).toHaveBeenCalledWith(scheduledMessage.id),
+      );
+      expect(scheduleMessage.mock.invocationCallOrder[0]).toBeLessThan(
+        deleteScheduledMessage.mock.invocationCallOrder[0],
+      );
     });
   });
 

@@ -18,7 +18,6 @@ import { Button } from '../Button';
 import { ContextMenuButton, useContextMenuContext } from '../Dialog';
 import { useNotificationApi } from '../Notifications';
 import {
-  isFailedScheduledMessage,
   SCHEDULED_MESSAGE_NOTIFICATION_TYPE,
   SCHEDULED_MESSAGES_EMITTER,
   splitCid,
@@ -147,7 +146,7 @@ const getAllowedDefaultActionTypes = ({
   // a message to a deleted channel can only be copied before it goes
   return failure_reason === SCHEDULED_MESSAGE_FAILURE_REASON.ChannelDeleted
     ? ['copyMessageText', 'delete']
-    : ['edit', 'delete'];
+    : ['edit', 'reschedule', 'delete'];
 };
 
 const DEFAULT_ACTION_TYPES: ReadonlySet<string> =
@@ -161,8 +160,8 @@ const DEFAULT_ACTION_TYPES: ReadonlySet<string> =
 
 /**
  * Drops the actions a scheduled message's status rules out: none while it is sending; edit,
- * reschedule, send now and delete while it waits; edit and delete once it failed, or copy and
- * delete once its channel was deleted. `edit` also needs `openInComposer`. An action of another type passes
+ * reschedule, send now and delete while it waits; edit, reschedule and delete once it failed, or
+ * copy and delete once its channel was deleted. `edit` also needs `openInComposer`. An action of another type passes
  * these rules. An action they allow still shows only while its own `isVisible` holds. The menu
  * toggle is always kept. Reads the message from `useScheduledMessageActionsContext()`.
  *
@@ -413,8 +412,8 @@ export const DefaultScheduledMessageActionComponents = {
 };
 
 /**
- * The actions `ScheduledMessageItem` renders by default. A waiting message is edited from its own
- * button and the rest from the menu; a failed one is edited ("Edit & reschedule") from the menu.
+ * The actions `ScheduledMessageItem` renders by default: an edit button beside the menu, and the
+ * rest in the menu. A failed message is edited or rescheduled into a new scheduled message.
  * Each item's `isVisible` holds the action's own rule; the message's status is checked by
  * `useBaseScheduledMessageActionSetFilter` and cannot be overridden.
  */
@@ -425,14 +424,7 @@ export const defaultScheduledMessageActionSet: ScheduledMessageActionSetItem[] =
   },
   {
     Component: DefaultScheduledMessageActionComponents.quick.Edit,
-    isVisible: ({ scheduledMessage }) => !isFailedScheduledMessage(scheduledMessage),
     placement: 'quick',
-    type: 'edit',
-  },
-  {
-    Component: DefaultScheduledMessageActionComponents.dropdown.Edit,
-    isVisible: ({ scheduledMessage }) => isFailedScheduledMessage(scheduledMessage),
-    placement: 'dropdown',
     type: 'edit',
   },
   {

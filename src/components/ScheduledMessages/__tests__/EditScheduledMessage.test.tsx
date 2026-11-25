@@ -1,7 +1,6 @@
 import '../../..';
 import React from 'react';
 import { act, cleanup, fireEvent, render, screen, within } from '@testing-library/react';
-import { fromPartial } from '@total-typescript/shoehorn';
 
 import { Channel } from '../../Channel';
 import { Chat } from '../../Chat';
@@ -163,13 +162,14 @@ describe('editing a scheduled message in the composer', () => {
   });
 
   describe('scheduling a failed message again', () => {
-    it('shows the schedule-again preview and keeps the schedule button', async () => {
+    it('shows the schedule-again preview and a save button instead of the schedule button', async () => {
       const { startSchedulingAgain } = await renderComposer();
 
       await startSchedulingAgain();
 
       expect(screen.getByText('Schedule again')).toBeInTheDocument();
-      expect(screen.getByTestId('schedule-message-button')).toBeInTheDocument();
+      expect(screen.getByTestId('send-button')).toBeInTheDocument();
+      expect(screen.queryByTestId('schedule-message-button')).not.toBeInTheDocument();
     });
 
     it('clears the composer when cancelled', async () => {
@@ -185,19 +185,32 @@ describe('editing a scheduled message in the composer', () => {
       expect(messageComposer.textComposer.text).toBe('');
     });
 
-    it('deletes the failed message after sending it now', async () => {
-      const { channel, failedMessage, startSchedulingAgain } = await renderComposer();
-      vi.spyOn(channel, 'sendMessage').mockResolvedValue(
-        fromPartial({ message: { id: 'sent-id', text: 'Launch moved to Monday' } }),
-      );
-      const deleteScheduledMessage = vi
-        .spyOn(channel.messageOperations, 'deleteScheduledMessage')
-        .mockResolvedValue(failedMessage);
+    it('opens the schedule dialog when saved, instead of sending', async () => {
+      const { channel, startSchedulingAgain } = await renderComposer();
+      const sendMessage = vi.spyOn(channel, 'sendMessage');
 
       await startSchedulingAgain();
       await act(() => fireEvent.click(screen.getByTestId('send-button')));
 
-      expect(deleteScheduledMessage).toHaveBeenCalledWith(failedMessage.id);
+      expect(await screen.findByTestId('schedule-message-dialog')).toHaveTextContent(
+        'Launch moved to Monday',
+      );
+      expect(sendMessage).not.toHaveBeenCalled();
+    });
+
+    it('schedules it from the dialog', async () => {
+      const { failedMessage, messageComposer, startSchedulingAgain } =
+        await renderComposer();
+      const scheduleMessage = vi
+        .spyOn(messageComposer, 'scheduleMessage')
+        .mockResolvedValue({ scheduledMessage: failedMessage, status: 'scheduled' });
+
+      await startSchedulingAgain();
+      await act(() => fireEvent.click(screen.getByTestId('send-button')));
+      await screen.findByTestId('schedule-message-dialog');
+      await act(() => fireEvent.click(screen.getByRole('button', { name: 'Schedule' })));
+
+      expect(scheduleMessage).toHaveBeenCalledTimes(1);
     });
   });
 });

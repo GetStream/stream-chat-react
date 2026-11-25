@@ -13,6 +13,7 @@ import {
   getScheduleTimeError,
   isScheduledMessageLimitReached,
   matchesScheduledMessageText,
+  toRescheduledMessageRequest,
   translateScheduledMessageFailureReason,
 } from '../utils';
 
@@ -37,6 +38,32 @@ describe('scheduled message utils', () => {
     expect(matchesScheduledMessageText(lunch, ' LUNCH ')).toBe(true);
     expect(matchesScheduledMessageText(launch, ' LUNCH ')).toBe(false);
     expect(matchesScheduledMessageText(launch, '  ')).toBe(true);
+  });
+
+  it('takes the content of a failed message to schedule it again, without its id', () => {
+    const failed = generateScheduledMessage({
+      message: {
+        custom: { priority: 'high' },
+        mentioned_users: ['user-2'],
+        parent_id: 'parent-id',
+        quoted_message_id: 'quoted-id',
+        show_in_channel: true,
+        text: 'Launch moved to Monday',
+      },
+      status: 'failed',
+    });
+
+    expect(toRescheduledMessageRequest(failed)).toEqual(
+      expect.objectContaining({
+        custom: { priority: 'high' },
+        mentioned_users: ['user-2'],
+        parent_id: 'parent-id',
+        quoted_message_id: 'quoted-id',
+        show_in_channel: true,
+        text: 'Launch moved to Monday',
+      }),
+    );
+    expect(toRescheduledMessageRequest(failed)).not.toHaveProperty('id');
   });
 
   it('counts the scheduled and sending messages, not the failed ones', () => {

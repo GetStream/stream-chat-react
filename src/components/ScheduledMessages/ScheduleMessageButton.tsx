@@ -1,11 +1,4 @@
-import React, { useCallback, useRef, useState } from 'react';
-import {
-  CORE_NOTIFICATION_TYPE,
-  dateToNs,
-  getScheduledMessageErrorReason,
-  ScheduledMessageErrorReason,
-  toScheduledMessagePreview,
-} from 'stream-chat';
+import React, { useRef, useState } from 'react';
 import type { LocalMessage, MessageComposer, UserResponse } from 'stream-chat';
 
 import {
@@ -15,7 +8,6 @@ import {
   useTranslationContext,
 } from '../../context';
 import { Button } from '../Button';
-import { CHANNEL_CONTAINER_ID } from '../Channel/constants';
 import {
   ContextMenu,
   ContextMenuButton,
@@ -25,27 +17,10 @@ import {
 } from '../Dialog';
 import { useMessageComposerHasSendableData } from '../MessageComposer/hooks';
 import { useMessageComposerController } from '../MessageComposer/hooks/useMessageComposerController';
-import { useMessagePaginator } from '../../hooks/useMessagePaginator';
-import { GlobalModal } from '../Modal';
-import { useNotificationApi } from '../Notifications';
-import { Portal } from '../Portal/Portal';
 import { useChannelScheduledMessageLimit } from './hooks/useChannelScheduledMessageLimit';
-import { ScheduleTimeDialog as DefaultScheduleTimeDialog } from './ScheduleTimeDialog';
-import {
-  getSchedulePresets,
-  getScheduleTimeBounds,
-  getScheduleTimeDialogId,
-  SCHEDULED_MESSAGE_NOTIFICATION_TYPE,
-  SCHEDULED_MESSAGES_EMITTER,
-} from './utils';
-
-const getChannelContainer = () => document.getElementById(CHANNEL_CONTAINER_ID);
-
-/** The composer's notifications of a failed schedule, which the dialog reports itself. */
-const SCHEDULING_FAILURE_NOTIFICATION_TYPES: ReadonlySet<string> = new Set([
-  CORE_NOTIFICATION_TYPE.scheduledMessageBlocked,
-  CORE_NOTIFICATION_TYPE.scheduledMessageCreateFailed,
-]);
+import { useScheduleComposition } from './hooks/useScheduleComposition';
+import { ScheduleCompositionDialog } from './ScheduleCompositionDialog';
+import { getSchedulePresets, getScheduleTimeBounds, toCompositionPreview } from './utils';
 
 const getScheduleMessageMenuId = ({ threadId }: Pick<MessageComposer, 'threadId'>) =>
   `schedule-message-menu${threadId ? '-thread' : ''}`;
@@ -84,14 +59,9 @@ export const ScheduleMessageButton = () => {
   const { t } = useTranslationContext();
   const { client } = useChatContext();
   const { IconChevronUp, IconClock } = useComponentContextIcons();
-  const {
-    ContextMenu: ContextMenuComponent = ContextMenu,
-    Modal = GlobalModal,
-    ScheduleTimeDialog = DefaultScheduleTimeDialog,
-  } = useComponentContext();
-  const { addNotification } = useNotificationApi();
+  const { ContextMenu: ContextMenuComponent = ContextMenu } = useComponentContext();
   const messageComposer = useMessageComposerController();
-  const messagePaginator = useMessagePaginator();
+  const { scheduleMessage } = useScheduleComposition();
   const hasSendableData = useMessageComposerHasSendableData();
 
   const { reachedLimit } = useChannelScheduledMessageLimit(messageComposer.channel);
@@ -108,80 +78,13 @@ export const ScheduleMessageButton = () => {
   const buttonRef = useRef<HTMLButtonElement>(null);
   const [dialogPreview, setDialogPreview] = useState<LocalMessage>();
 
-  // the banner confirms a scheduled message, so success needs no notification
-  const scheduleMessage = useCallback(
-    async (scheduledAt: Date) => {
-      const messageId = messageComposer.id;
-      const { error, status } = await messageComposer.scheduleMessage(scheduledAt);
-      if (status === 'sent') {
-        addNotification({
-          actions: [
-            {
-              handler: () => {
-                void messagePaginator.jumpToMessage(messageId);
-              },
-              label: t('scheduledMessages.view', 'View'),
-            },
-          ],
-          emitter: SCHEDULED_MESSAGES_EMITTER,
-          message: t('scheduledMessages.scheduledMessageSent', 'Scheduled message sent'),
-          severity: 'success',
-          type: SCHEDULED_MESSAGE_NOTIFICATION_TYPE.sentNow,
-        });
-        return;
-      }
-      if (status === 'scheduled') return;
-      // the server keeps the ID of a message it scheduled; the next attempt needs a new one
-      if (getScheduledMessageErrorReason(error) === ScheduledMessageErrorReason.IdTaken) {
-        messageComposer.refreshId();
-      }
-      throw error ?? new Error(`Message not scheduled: ${status}`);
-    },
-    [addNotification, messageComposer, messagePaginator, t],
-  );
-
-  // the dialog shows the failure itself, so the composer's notification of it is dropped
-  const scheduleMessageFromDialog = useCallback(
-    async (scheduledAt: Date) => {
-      const { notifications } = client;
-      const shownBefore = new Set(notifications.notifications.map(({ id }) => id));
-      try {
-        await scheduleMessage(scheduledAt);
-      } catch (error) {
-        notifications.notifications
-          .filter(
-            ({ id, origin, type }) =>
-              !shownBefore.has(id) &&
-              origin.context?.composer === messageComposer &&
-              !!type &&
-              SCHEDULING_FAILURE_NOTIFICATION_TYPES.has(type),
-          )
-          .forEach(({ id }) => notifications.remove(id));
-        throw error;
-      }
-    },
-    [client, messageComposer, scheduleMessage],
-  );
-
   const openDialog = () => {
     menu.close();
-    const now = dateToNs(new Date());
-    const { attachmentManager, channel, id, textComposer } = messageComposer;
     setDialogPreview(
-      toScheduledMessagePreview({
-        cid: channel.cid,
-        created_at: now,
-        id,
-        message: {
-          attachments: attachmentManager.attachments,
-          custom: {},
-          text: textComposer.text,
-        },
-        scheduled_at: now,
-        status: 'scheduled',
-        updated_at: now,
-        user: (client.user ?? { id: client.userID ?? '' }) as UserResponse,
-      }),
+      toCompositionPreview(
+        messageComposer,
+        (client.user ?? { id: client.userID ?? '' }) as UserResponse,
+      ),
     );
   };
 
@@ -262,29 +165,7 @@ export const ScheduleMessageButton = () => {
           {t('scheduledMessages.customTime', 'Custom time')}
         </ContextMenuButton>
       </ContextMenuComponent>
-      <Portal getPortalDestination={getChannelContainer} isOpen={!!dialogPreview}>
-        <Modal
-          className='str-chat__schedule-message-modal'
-          dialogId={getScheduleTimeDialogId(messageComposer)}
-          initialFocusStrategy='dialog'
-          onClose={closeDialog}
-          open={!!dialogPreview}
-        >
-          {dialogPreview && (
-            <ScheduleTimeDialog
-              channel={messageComposer.channel}
-              close={closeDialog}
-              errorMessage={t(
-                'scheduledMessages.couldntScheduleMessageTryAgain',
-                "Couldn't schedule message. Try again",
-              )}
-              previewMessage={dialogPreview}
-              submit={scheduleMessageFromDialog}
-              title={t('scheduledMessages.scheduleMessage', 'Schedule message')}
-            />
-          )}
-        </Modal>
-      </Portal>
+      <ScheduleCompositionDialog onClose={closeDialog} previewMessage={dialogPreview} />
     </>
   );
 };

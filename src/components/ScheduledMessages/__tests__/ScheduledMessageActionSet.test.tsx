@@ -77,7 +77,7 @@ describe('useBaseScheduledMessageActionSetFilter', () => {
     ).toEqual(['toggle']);
   });
 
-  it('offers a failed message edit and delete from the menu', () => {
+  it('offers a failed message an edit button, and reschedule and delete from the menu', () => {
     expect(
       filterActions({
         scheduledMessage: generateScheduledMessage({
@@ -85,7 +85,7 @@ describe('useBaseScheduledMessageActionSetFilter', () => {
           status: 'failed',
         }),
       }),
-    ).toEqual(['toggle', 'dropdown:edit', 'dropdown:delete']);
+    ).toEqual(['toggle', 'quick:edit', 'dropdown:reschedule', 'dropdown:delete']);
   });
 
   it('offers copy and delete for a message whose channel was deleted', () => {

@@ -21,8 +21,13 @@ import type { AIState, MessageComposerState, TextComposerState } from 'stream-ch
 import { useStateStore } from '../../store';
 import { useInertWhenHidden } from '../Accessibility';
 import { useCanScheduleMessage } from '../ScheduledMessages/hooks/useCanScheduleMessage';
+import { ScheduleAgainDialog } from '../ScheduledMessages/ScheduleAgainDialog';
 import { ScheduleMessageButton as DefaultScheduleMessageButton } from '../ScheduledMessages/ScheduleMessageButton';
-import { getScheduleTimeDialogId, isComposerEditing } from '../ScheduledMessages/utils';
+import {
+  getScheduleTimeDialogId,
+  isComposerEditing,
+  isFailedScheduledMessage,
+} from '../ScheduledMessages/utils';
 import { useModalDialogIsOpen } from '../Dialog';
 
 // Typed as `AIState[]` because an inferred array of the literal-typed `AIStates` members would
@@ -31,6 +36,9 @@ const STOPPABLE_AI_STATES: readonly AIState[] = [AIStates.Thinking, AIStates.Gen
 
 const messageComposerStateSelector = (state: MessageComposerState) => ({
   isEditing: isComposerEditing(state),
+  isSchedulingAgain:
+    !!state.editedScheduledMessage &&
+    isFailedScheduledMessage(state.editedScheduledMessage),
 });
 
 const textComposerStateSelector = ({ command, text }: TextComposerState) => ({
@@ -56,7 +64,7 @@ export const MessageComposerActions = () => {
     getScheduleTimeDialogId(messageComposer),
   );
 
-  const { isEditing } = useStateStore(
+  const { isEditing, isSchedulingAgain } = useStateStore(
     messageComposer.state,
     messageComposerStateSelector,
   );
@@ -95,7 +103,7 @@ export const MessageComposerActions = () => {
     <SendButton sendMessage={submitMessageFn} />
   ) : (
     <DefaultSendButton sendMessage={submitMessageFn}>
-      {isEditing || command ? <IconCheckmark /> : <IconSend />}
+      {isEditing || isSchedulingAgain || command ? <IconCheckmark /> : <IconSend />}
     </DefaultSendButton>
   );
 
@@ -108,6 +116,13 @@ export const MessageComposerActions = () => {
     return null;
   } else if (isCooldownActive) {
     content = <CooldownTimer />;
+  } else if (isSchedulingAgain) {
+    content = (
+      <>
+        {sendButton}
+        <ScheduleAgainDialog />
+      </>
+    );
   } else if (
     contentIsEmpty &&
     !isEditing &&

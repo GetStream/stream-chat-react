@@ -1,4 +1,5 @@
 import {
+  dateToNs,
   getScheduledMessageErrorReason,
   getScheduledMessageLimits,
   isScheduledMessageNotFoundError,
@@ -6,13 +7,17 @@ import {
   SCHEDULED_MESSAGE_STATUS,
   ScheduledMessageErrorReason,
   StreamAPIError,
+  toScheduledMessagePreview,
 } from 'stream-chat';
 import type {
   Channel,
+  LocalMessage,
   MessageComposer,
   MessageComposerState,
+  MessageRequest,
   ScheduledMessageFailureReason,
   ScheduledMessageResponse,
+  UserResponse,
 } from 'stream-chat';
 
 import type { StreamTFunction } from '../../i18n/types';
@@ -42,6 +47,71 @@ export type ScheduleTimeBounds = { earliest: Date; latest?: Date };
 export const splitCid = (cid: string) => {
   const [type, id] = cid.split(':');
   return [type, id] as const;
+};
+
+export const getScheduleAgainDialogId = (
+  messageComposer: Pick<MessageComposer, 'channel' | 'threadId'>,
+) => `${getScheduleTimeDialogId(messageComposer)}-again`;
+
+export const toCompositionPreview = (
+  { attachmentManager, channel, id, textComposer }: MessageComposer,
+  user: UserResponse,
+): LocalMessage => {
+  const now = dateToNs(new Date());
+  const preview = toScheduledMessagePreview({
+    cid: channel.cid,
+    created_at: now,
+    id,
+    message: {
+      attachments: attachmentManager.attachments,
+      custom: {},
+      text: textComposer.text,
+    },
+    scheduled_at: now,
+    status: 'scheduled',
+    updated_at: now,
+    user,
+  });
+  return preview;
+};
+
+export const toRescheduledMessageRequest = ({
+  message,
+}: ScheduledMessageResponse): MessageRequest => {
+  const {
+    attachments,
+    custom,
+    mentioned_channel,
+    mentioned_group_ids,
+    mentioned_here,
+    mentioned_roles,
+    mentioned_users,
+    parent_id,
+    poll_id,
+    quoted_message_id,
+    restricted_visibility,
+    show_in_channel,
+    silent,
+    text,
+  } = message;
+
+  const messageRequest: MessageRequest = {
+    attachments,
+    custom,
+    mentioned_channel,
+    mentioned_group_ids,
+    mentioned_here,
+    mentioned_roles,
+    mentioned_users,
+    parent_id,
+    poll_id,
+    quoted_message_id,
+    restricted_visibility,
+    show_in_channel,
+    silent,
+    text,
+  };
+  return messageRequest;
 };
 
 export const getScheduleTimeDialogId = ({
