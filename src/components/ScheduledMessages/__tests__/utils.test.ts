@@ -1,4 +1,3 @@
-import { SCHEDULED_MESSAGE_FAILURE_REASON } from 'stream-chat';
 import type { Channel, MessageComposer } from 'stream-chat';
 
 import { generateScheduledMessage } from '../../../mock-builders';
@@ -12,7 +11,6 @@ import {
   getScheduleTimeDialogId,
   getScheduleTimeError,
   toRescheduledMessageRequest,
-  translateScheduledMessageFailureReason,
 } from '../utils';
 
 const at = (day: number, hour: number) => new Date(2026, 9, day, hour, 0);
@@ -128,36 +126,6 @@ describe('scheduled message utils', () => {
         new Date(2026, 10, 2, 9, 0),
       ]);
     });
-  });
-
-  it('explains a failure, except when the user was deleted', () => {
-    const t = ((_key: string, defaultValue: string) => defaultValue) as never;
-
-    expect(
-      translateScheduledMessageFailureReason(
-        t,
-        SCHEDULED_MESSAGE_FAILURE_REASON.ChannelFrozen,
-      ),
-    ).toBe('This channel is frozen');
-    expect(
-      translateScheduledMessageFailureReason(
-        t,
-        SCHEDULED_MESSAGE_FAILURE_REASON.UserDeleted,
-      ),
-    ).toBeUndefined();
-    expect(translateScheduledMessageFailureReason(t)).toBe("Couldn't send. Try again");
-    expect(
-      translateScheduledMessageFailureReason(
-        t,
-        SCHEDULED_MESSAGE_FAILURE_REASON.InternalError,
-      ),
-    ).toBe('Something went wrong. Try again');
-    expect(
-      translateScheduledMessageFailureReason(
-        t,
-        SCHEDULED_MESSAGE_FAILURE_REASON.PendingNotSupported,
-      ),
-    ).toBe('This channel now needs approval. Schedule it again');
   });
 
   it('reads the date and time inputs, rejecting an invalid value', () => {

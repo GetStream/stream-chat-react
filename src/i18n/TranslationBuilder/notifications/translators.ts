@@ -4,7 +4,10 @@ import {
 } from 'stream-chat';
 import type { Notification } from 'stream-chat';
 
-import { translateScheduledMessageError } from '../../../components/ScheduledMessages/utils';
+import {
+  getScheduledMessageErrorKey,
+  SCHEDULED_MESSAGE_ERROR_TRANSLATIONS,
+} from '../../../components/ScheduledMessages/translations';
 import type { NotificationTranslatorOptions } from './types';
 import type { Translator } from '../../index';
 
@@ -104,7 +107,8 @@ export const translateCommandDisabled: Translator<NotificationTranslatorOptions>
 export const translateScheduledMessageRequestFailed: Translator<
   NotificationTranslatorOptions
 > = ({ options: { notification }, t }) => {
-  const specific = translateScheduledMessageError(t, notification?.originalError);
+  const errorKey = getScheduledMessageErrorKey(notification?.originalError);
+  const specific = errorKey && SCHEDULED_MESSAGE_ERROR_TRANSLATIONS[errorKey]?.(t);
   if (specific) return specific;
   switch (notification?.type) {
     case CORE_NOTIFICATION_TYPE.scheduledMessageCreateFailed:

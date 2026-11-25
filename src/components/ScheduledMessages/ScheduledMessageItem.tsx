@@ -47,11 +47,11 @@ import {
   SCHEDULED_MESSAGES_EMITTER,
 } from './constants';
 import {
-  isFailedScheduledMessage,
-  splitCid,
-  translateScheduledMessageError,
-  translateScheduledMessageFailureReason,
-} from './utils';
+  getScheduledMessageErrorKey,
+  SCHEDULED_MESSAGE_ERROR_TRANSLATIONS,
+  SCHEDULED_MESSAGE_FAILURE_REASON_TRANSLATIONS,
+} from './translations';
+import { isFailedScheduledMessage, splitCid } from './utils';
 
 const ROW_INTERACTIVE_ELEMENT_SELECTOR = 'a, button, input, textarea, [role="menu"]';
 
@@ -114,6 +114,14 @@ export const ScheduledMessageItem = ({
   const isFailed = isFailedScheduledMessage(scheduledMessage);
   const isSending = status === SCHEDULED_MESSAGE_STATUS.Sending;
   const isThreadReply = !!scheduledMessage.message.parent_id;
+  const failureReasonTranslation = failure_reason
+    ? SCHEDULED_MESSAGE_FAILURE_REASON_TRANSLATIONS[failure_reason]
+    : undefined;
+  const failureReasonText =
+    failureReasonTranslation === null
+      ? undefined
+      : (failureReasonTranslation?.(t) ??
+        t('scheduledMessages.couldntSendTryAgain', "Couldn't send. Try again"));
   // a pending message is saved by scheduling it, a failed one is scheduled or sent again; a frozen
   // channel allows neither. Unknown for a channel not loaded, so left on there.
   const canEdit =
@@ -146,12 +154,15 @@ export const ScheduledMessageItem = ({
         });
       }
     } catch (error) {
+      const errorKey = getScheduledMessageErrorKey(error);
       addNotification({
         emitter: SCHEDULED_MESSAGES_EMITTER,
         error: error as Error,
         severity: 'error',
         ...failure,
-        message: translateScheduledMessageError(t, error) ?? failure.message,
+        message:
+          (errorKey && SCHEDULED_MESSAGE_ERROR_TRANSLATIONS[errorKey]?.(t)) ??
+          failure.message,
       });
     } finally {
       if (isMounted.current) setIsPending(false);
@@ -251,7 +262,7 @@ export const ScheduledMessageItem = ({
           {status === SCHEDULED_MESSAGE_STATUS.Failed && (
             <span className='str-chat__scheduled-message-item__status str-chat__scheduled-message-item__status--failed'>
               <IconExclamationTriangleFill className='str-chat__scheduled-message-item__status-icon' />
-              {translateScheduledMessageFailureReason(t, failure_reason)}
+              {failureReasonText}
             </span>
           )}
           {isSending && (

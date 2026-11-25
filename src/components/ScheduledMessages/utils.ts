@@ -1,12 +1,7 @@
 import {
   dateToNs,
-  getScheduledMessageErrorReason,
   getScheduledMessageLimits,
-  isScheduledMessageNotFoundError,
-  SCHEDULED_MESSAGE_FAILURE_REASON,
   SCHEDULED_MESSAGE_STATUS,
-  ScheduledMessageErrorReason,
-  StreamAPIError,
   toScheduledMessagePreview,
 } from 'stream-chat';
 import type {
@@ -15,12 +10,10 @@ import type {
   MessageComposer,
   MessageComposerState,
   MessageRequest,
-  ScheduledMessageFailureReason,
   ScheduledMessageResponse,
   UserResponse,
 } from 'stream-chat';
 
-import type { StreamTFunction } from '../../i18n/types';
 import { RESCHEDULED_MESSAGE_FIELDS } from './constants';
 
 const MS_IN_SECOND = 1000;
@@ -29,7 +22,6 @@ const MORNING_HOUR = 9;
 const AFTERNOON_HOUR = 13;
 const SCHEDULE_TIME_DIALOG_ID_PREFIX = 'schedule-message-dialog';
 const TIME_ZONE_LOCALE = 'en-US';
-const FORBIDDEN_STATUS = 403;
 
 const pickFields = <T extends object, K extends keyof T>(
   source: T,
@@ -186,98 +178,3 @@ export const isComposerEditing = ({
 }: Pick<MessageComposerState, 'editedMessage' | 'editedScheduledMessage'>) =>
   !!editedMessage ||
   (!!editedScheduledMessage && !isFailedScheduledMessage(editedScheduledMessage));
-
-export const translateScheduledMessageFailureReason = (
-  t: StreamTFunction,
-  reason?: ScheduledMessageFailureReason,
-) => {
-  switch (reason) {
-    case SCHEDULED_MESSAGE_FAILURE_REASON.Banned:
-      return t(
-        'scheduledMessages.youCantSendMessagesInThisChannel',
-        "You can't send messages in this channel",
-      );
-    case SCHEDULED_MESSAGE_FAILURE_REASON.NoPermission:
-      return t(
-        'scheduledMessages.youreNoLongerAllowedToPostHere',
-        "You're no longer allowed to post here",
-      );
-    case SCHEDULED_MESSAGE_FAILURE_REASON.ChannelFrozen:
-      return t('scheduledMessages.thisChannelIsFrozen', 'This channel is frozen');
-    case SCHEDULED_MESSAGE_FAILURE_REASON.ChannelDeleted:
-      return t('scheduledMessages.thisChannelWasDeleted', 'This channel was deleted');
-    case SCHEDULED_MESSAGE_FAILURE_REASON.UserDeleted:
-      return undefined;
-    case SCHEDULED_MESSAGE_FAILURE_REASON.ModerationBlocked:
-      return t('scheduledMessages.blockedByModeration', 'Blocked by moderation');
-    case SCHEDULED_MESSAGE_FAILURE_REASON.HookRejected:
-      return t('scheduledMessages.rejectedByTheApp', 'Rejected by the app');
-    case SCHEDULED_MESSAGE_FAILURE_REASON.Expired:
-      return t(
-        'scheduledMessages.notSentTheServiceWasDelayed',
-        'Not sent: the service was delayed',
-      );
-    case SCHEDULED_MESSAGE_FAILURE_REASON.InvalidMessage:
-      return t(
-        'scheduledMessages.theMessageNoLongerMeetsTheAppsLimits',
-        "The message no longer meets the app's limits. Edit it",
-      );
-    case SCHEDULED_MESSAGE_FAILURE_REASON.PendingNotSupported:
-      return t(
-        'scheduledMessages.thisChannelNowNeedsApprovalScheduleItAgain',
-        'This channel now needs approval. Schedule it again',
-      );
-    case SCHEDULED_MESSAGE_FAILURE_REASON.InternalError:
-      return t(
-        'scheduledMessages.somethingWentWrongTryAgain',
-        'Something went wrong. Try again',
-      );
-    default:
-      return t('scheduledMessages.couldntSendTryAgain', "Couldn't send. Try again");
-  }
-};
-
-export const translateScheduledMessageError = (t: StreamTFunction, error: unknown) => {
-  switch (getScheduledMessageErrorReason(error)) {
-    case ScheduledMessageErrorReason.Disabled:
-      return t(
-        'scheduledMessages.notification.disabled',
-        'Scheduled messages are turned off',
-      );
-    case ScheduledMessageErrorReason.TooSoon:
-      return t('scheduledMessages.chooseALaterTime', 'Choose a later time');
-    case ScheduledMessageErrorReason.TooFar:
-      return t('scheduledMessages.chooseAnEarlierTime', 'Choose an earlier time');
-    case ScheduledMessageErrorReason.ChannelLimit:
-      return t(
-        'scheduledMessages.notification.channelLimit',
-        "You've reached the limit of scheduled messages in this channel",
-      );
-    case ScheduledMessageErrorReason.UserLimit:
-      return t(
-        'scheduledMessages.notification.userLimit',
-        "You've reached the limit of scheduled messages",
-      );
-    case ScheduledMessageErrorReason.Sending:
-      return t('scheduledMessages.notification.sending', 'This message is being sent');
-    case ScheduledMessageErrorReason.Conflict:
-      return t('scheduledMessages.notification.conflict', 'Updated elsewhere. Try again');
-    case ScheduledMessageErrorReason.NotEditable:
-      return t(
-        'scheduledMessages.notification.notEditable',
-        "Failed messages can't be edited",
-      );
-    default:
-      break;
-  }
-  if (isScheduledMessageNotFoundError(error)) {
-    return t('scheduledMessages.notification.alreadySent', 'Already sent');
-  }
-  if (error instanceof StreamAPIError && error.status === FORBIDDEN_STATUS) {
-    return t(
-      'scheduledMessages.notification.forbidden',
-      "You can't schedule messages here",
-    );
-  }
-  return undefined;
-};

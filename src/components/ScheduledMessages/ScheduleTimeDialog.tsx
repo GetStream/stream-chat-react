@@ -18,8 +18,11 @@ import {
   getScheduleTimeError,
   toDateInputValue,
   toTimeInputValue,
-  translateScheduledMessageError,
 } from './utils';
+import {
+  getScheduledMessageErrorKey,
+  SCHEDULED_MESSAGE_ERROR_TRANSLATIONS,
+} from './translations';
 
 /** The date field of `ScheduleTimeDialog`; values are `YYYY-MM-DD`, as `<input type="date">` takes. */
 export type ScheduleDateInputProps = {
@@ -148,6 +151,8 @@ export const ScheduleTimeDialog = ({
     }
   };
 
+  const submitErrorKey = getScheduledMessageErrorKey(submitError);
+
   return (
     <Prompt.Root
       className='str-chat__schedule-message-dialog'
@@ -169,7 +174,9 @@ export const ScheduleTimeDialog = ({
         />
         {status === 'failed' && (
           <ScheduledMessagesNotice isError>
-            {translateScheduledMessageError(t, submitError) ?? errorMessage}
+            {(submitErrorKey &&
+              SCHEDULED_MESSAGE_ERROR_TRANSLATIONS[submitErrorKey]?.(t)) ??
+              errorMessage}
           </ScheduledMessagesNotice>
         )}
         <div
