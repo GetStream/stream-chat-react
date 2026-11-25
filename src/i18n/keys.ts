@@ -692,7 +692,6 @@ export type TranslationCatalog = {
   'scheduledMessages.scheduledMessages': 'Scheduled messages';
   'scheduledMessages.scheduledReplies': 'Scheduled replies';
   'scheduledMessages.schedulingUnavailableNotice': "You can't schedule messages in this channel";
-  'scheduledMessages.search': 'Search';
   'scheduledMessages.sendNow': 'Send now';
   'scheduledMessages.sendTime': 'Send {{ time }}';
   'scheduledMessages.sending': 'Sending...';

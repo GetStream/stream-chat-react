@@ -1,15 +1,9 @@
-import clsx from 'clsx';
-import React, { useRef } from 'react';
+import React from 'react';
 
-import {
-  useComponentContext,
-  useComponentContextIcons,
-  useTranslationContext,
-} from '../../context';
-import { Button } from '../Button';
+import { useComponentContext, useTranslationContext } from '../../context';
 import { CHANNEL_CONTAINER_ID } from '../Channel/constants';
 import { Prompt } from '../Dialog';
-import { TextInput } from '../Form';
+import { SearchInput } from '../Form';
 import { GlobalModal } from '../Modal';
 import { Portal } from '../Portal/Portal';
 import { useChannelScheduledMessages, useScheduledMessagesSearch } from './hooks';
@@ -34,46 +28,16 @@ const ScheduledMessageListDialogBody = ({
   openInComposer,
   scheduledMessages: view,
 }: Pick<ScheduledMessageListDialogProps, 'openInComposer' | 'scheduledMessages'>) => {
-  const { t } = useTranslationContext();
-  const { IconSearch, IconXCircle } = useComponentContextIcons();
   const { ScheduledMessageList = DefaultScheduledMessageList } = useComponentContext();
   const { scheduledMessages } = useChannelScheduledMessages(view);
-  const { filter, searchQuery, setSearchQuery } = useScheduledMessagesSearch();
-  const searchInputRef = useRef<HTMLInputElement>(null);
+  const { filter, setSearchQuery } = useScheduledMessagesSearch();
 
   return (
     <Prompt.Body className='str-chat__scheduled-message-list-dialog__body'>
       {scheduledMessages.length > 0 && (
-        <TextInput
-          aria-label={t('scheduledMessages.search', 'Search')}
-          autoComplete='off'
+        <SearchInput
           className='str-chat__scheduled-message-list-dialog__search'
-          leading={<IconSearch />}
-          onChange={({ target }) => setSearchQuery(target.value)}
-          placeholder={t('scheduledMessages.search', 'Search')}
-          ref={searchInputRef}
-          trailing={
-            <Button
-              appearance='ghost'
-              aria-label={t('search.bar.clearSearch.ariaLabel', 'Clear search')}
-              circular
-              className={clsx(
-                'str-chat__scheduled-message-list-dialog__clear-search',
-                'str-chat__form-text-input__clear-button',
-                !searchQuery && 'str-chat__form-text-input__clear-button--hidden',
-              )}
-              onClick={() => {
-                setSearchQuery('');
-                searchInputRef.current?.focus();
-              }}
-              size='xs'
-              variant='secondary'
-            >
-              <IconXCircle />
-            </Button>
-          }
-          type='search'
-          value={searchQuery}
+          onSearchChange={setSearchQuery}
         />
       )}
       <ScheduledMessageList
