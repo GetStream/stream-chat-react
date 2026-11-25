@@ -2,7 +2,7 @@ import { useCallback } from 'react';
 
 import { useNearestDialogManagerContext } from '../../../context';
 import {
-  getScheduleAgainDialogId,
+  getScheduleCompositionDialogId,
   isFailedScheduledMessage,
 } from '../../ScheduledMessages/utils';
 import { useMessageComposerController } from './useMessageComposerController';
@@ -22,7 +22,7 @@ export const useMessageComposerSubmitFn = () => {
   return useCallback(() => {
     const { editedScheduledMessage } = messageComposer;
     if (editedScheduledMessage && isFailedScheduledMessage(editedScheduledMessage)) {
-      dialogManager?.open({ id: getScheduleAgainDialogId(messageComposer) });
+      dialogManager?.open({ id: getScheduleCompositionDialogId(messageComposer) });
       return;
     }
     if (editedScheduledMessage) {

@@ -1,8 +1,7 @@
-import React, { useRef, useState } from 'react';
-import type { LocalMessage, MessageComposer, UserResponse } from 'stream-chat';
+import React, { useEffect, useRef } from 'react';
+import type { MessageComposer } from 'stream-chat';
 
 import {
-  useChatContext,
   useComponentContext,
   useComponentContextIcons,
   useTranslationContext,
@@ -19,8 +18,11 @@ import { useMessageComposerHasSendableData } from '../MessageComposer/hooks';
 import { useMessageComposerController } from '../MessageComposer/hooks/useMessageComposerController';
 import { useChannelScheduledMessageLimit } from './hooks/useChannelScheduledMessageLimit';
 import { useScheduleComposition } from './hooks/useScheduleComposition';
-import { ScheduleCompositionDialog } from './ScheduleCompositionDialog';
-import { getSchedulePresets, getScheduleTimeBounds, toCompositionPreview } from './utils';
+import {
+  getScheduleCompositionDialogId,
+  getSchedulePresets,
+  getScheduleTimeBounds,
+} from './utils';
 
 const getScheduleMessageMenuId = ({ threadId }: Pick<MessageComposer, 'threadId'>) =>
   `schedule-message-menu${threadId ? '-thread' : ''}`;
@@ -57,7 +59,6 @@ const ScheduleMessageMenuHeader = () => {
  */
 export const ScheduleMessageButton = () => {
   const { t } = useTranslationContext();
-  const { client } = useChatContext();
   const { IconChevronUp, IconClock } = useComponentContextIcons();
   const { ContextMenu: ContextMenuComponent = ContextMenu } = useComponentContext();
   const messageComposer = useMessageComposerController();
@@ -75,24 +76,24 @@ export const ScheduleMessageButton = () => {
     : undefined;
   const { dialog: menu, dialogManager } = useDialogOnNearestManager({ id: menuId });
   const isMenuOpen = useDialogIsOpen(menuId, dialogManager?.id);
+  const scheduleDialogId = getScheduleCompositionDialogId(messageComposer);
+  const { dialog: scheduleDialog } = useDialogOnNearestManager({ id: scheduleDialogId });
+  const isScheduleDialogOpen = useDialogIsOpen(scheduleDialogId, dialogManager?.id);
   const buttonRef = useRef<HTMLButtonElement>(null);
-  const [dialogPreview, setDialogPreview] = useState<LocalMessage>();
+  const openedScheduleDialogRef = useRef(false);
 
   const openDialog = () => {
     menu.close();
-    setDialogPreview(
-      toCompositionPreview(
-        messageComposer,
-        (client.user ?? { id: client.userID ?? '' }) as UserResponse,
-      ),
-    );
+    openedScheduleDialogRef.current = true;
+    scheduleDialog.open();
   };
 
-  const closeDialog = () => {
-    setDialogPreview(undefined);
-    // the menu item that opened the dialog is gone, so focus returns to the chevron
-    requestAnimationFrame(() => buttonRef.current?.focus());
-  };
+  useEffect(() => {
+    if (isScheduleDialogOpen || !openedScheduleDialogRef.current) return;
+    openedScheduleDialogRef.current = false;
+    const frame = requestAnimationFrame(() => buttonRef.current?.focus());
+    return () => cancelAnimationFrame(frame);
+  }, [isScheduleDialogOpen]);
 
   return (
     <>
@@ -165,7 +166,6 @@ export const ScheduleMessageButton = () => {
           {t('scheduledMessages.customTime', 'Custom time')}
         </ContextMenuButton>
       </ContextMenuComponent>
-      <ScheduleCompositionDialog onClose={closeDialog} previewMessage={dialogPreview} />
     </>
   );
 };

@@ -1,12 +1,14 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useEffect, useMemo } from 'react';
 import { StopAIGenerationButton as DefaultStopAIGenerationButton } from './StopAIGenerationButton';
 import { CooldownTimer as DefaultCooldownTimer } from './CooldownTimer';
 import { SendButton as DefaultSendButton } from './SendButton';
 import {
   useChannel,
+  useChatContext,
   useComponentContext,
   useComponentContextIcons,
   useMessageComposerContext,
+  useTranslationContext,
 } from '../../context';
 import { useAIState } from '../AIStateIndicator';
 import {
@@ -17,22 +19,39 @@ import {
 import { AudioRecordingButtonWithNotification } from '../MediaRecorder/AudioRecorder/AudioRecordingButtonWithNotification';
 import { useIsCooldownActive } from './hooks/useIsCooldownActive';
 import { AIStates } from 'stream-chat';
-import type { AIState, MessageComposerState, TextComposerState } from 'stream-chat';
+import type {
+  AIState,
+  MessageComposerState,
+  TextComposerState,
+  UserResponse,
+} from 'stream-chat';
 import { useStateStore } from '../../store';
 import { useInertWhenHidden } from '../Accessibility';
+import { CHANNEL_CONTAINER_ID } from '../Channel/constants';
+import { GlobalModal } from '../Modal';
+import { Portal } from '../Portal/Portal';
 import { useCanScheduleMessage } from '../ScheduledMessages/hooks/useCanScheduleMessage';
-import { ScheduleAgainDialog } from '../ScheduledMessages/ScheduleAgainDialog';
+import { useScheduleComposition } from '../ScheduledMessages/hooks/useScheduleComposition';
 import { ScheduleMessageButton as DefaultScheduleMessageButton } from '../ScheduledMessages/ScheduleMessageButton';
+import { ScheduleTimeDialog as DefaultScheduleTimeDialog } from '../ScheduledMessages/ScheduleTimeDialog';
 import {
+  getScheduleCompositionDialogId,
   getScheduleTimeDialogId,
   isComposerEditing,
   isFailedScheduledMessage,
+  toCompositionPreview,
 } from '../ScheduledMessages/utils';
-import { useModalDialogIsOpen } from '../Dialog';
+import {
+  useDialogIsOpen,
+  useDialogOnNearestManager,
+  useModalDialogIsOpen,
+} from '../Dialog';
 
 // Typed as `AIState[]` because an inferred array of the literal-typed `AIStates` members would
 // reject the wide `AIState` that `useAIState` returns.
 const STOPPABLE_AI_STATES: readonly AIState[] = [AIStates.Thinking, AIStates.Generating];
+
+const getChannelContainer = () => document.getElementById(CHANNEL_CONTAINER_ID);
 
 const messageComposerStateSelector = (state: MessageComposerState) => ({
   isEditing: isComposerEditing(state),
@@ -47,18 +66,39 @@ const textComposerStateSelector = ({ command, text }: TextComposerState) => ({
 });
 
 export const MessageComposerActions = () => {
+  const { t } = useTranslationContext();
+  const { client } = useChatContext();
   const { IconCheckmark, IconSend } = useComponentContextIcons();
   const channel = useChannel();
   const { hideSendButton } = useMessageComposerContext();
   const messageComposer = useMessageComposerController();
   const {
     CooldownTimer = DefaultCooldownTimer,
+    Modal = GlobalModal,
     ScheduleMessageButton: ScheduleMessageButtonOverride,
+    ScheduleTimeDialog = DefaultScheduleTimeDialog,
     SendButton,
     StopAIGenerationButton: StopAIGenerationButtonOverride,
   } = useComponentContext();
 
   const canScheduleMessage = useCanScheduleMessage();
+  const { scheduleMessageFromDialog } = useScheduleComposition();
+
+  const scheduleDialogId = getScheduleCompositionDialogId(messageComposer);
+  const { dialog: scheduleDialog, dialogManager } = useDialogOnNearestManager({
+    id: scheduleDialogId,
+  });
+  const isScheduleDialogRequested = useDialogIsOpen(scheduleDialogId, dialogManager?.id);
+  const schedulePreview = useMemo(
+    () =>
+      isScheduleDialogRequested
+        ? toCompositionPreview(
+            messageComposer,
+            (client.user ?? { id: client.userID ?? '' }) as UserResponse,
+          )
+        : undefined,
+    [client, isScheduleDialogRequested, messageComposer],
+  );
 
   const isScheduleTimeDialogOpen = useModalDialogIsOpen(
     getScheduleTimeDialogId(messageComposer),
@@ -88,6 +128,12 @@ export const MessageComposerActions = () => {
 
   const { aiState } = useAIState(channel);
   const stopGenerating = useCallback(() => channel?.stopAIResponse(), [channel]);
+
+  useEffect(
+    () => () => dialogManager?.close(scheduleDialogId),
+    [dialogManager, scheduleDialogId],
+  );
+
   const shouldDisplayStopAIGeneration =
     STOPPABLE_AI_STATES.includes(aiState) && !!StopAIGenerationButton;
 
@@ -117,12 +163,7 @@ export const MessageComposerActions = () => {
   } else if (isCooldownActive) {
     content = <CooldownTimer />;
   } else if (isSchedulingAgain) {
-    content = (
-      <>
-        {sendButton}
-        <ScheduleAgainDialog />
-      </>
-    );
+    content = sendButton;
   } else if (
     contentIsEmpty &&
     !isEditing &&
@@ -142,7 +183,34 @@ export const MessageComposerActions = () => {
     content = sendButton;
   }
 
-  return <div className='str-chat__message-composer__actions'>{content}</div>;
+  return (
+    <div className='str-chat__message-composer__actions'>
+      {content}
+      <Portal getPortalDestination={getChannelContainer} isOpen={!!schedulePreview}>
+        <Modal
+          className='str-chat__schedule-message-modal'
+          dialogId={getScheduleTimeDialogId(messageComposer)}
+          initialFocusStrategy='dialog'
+          onClose={scheduleDialog.close}
+          open={!!schedulePreview}
+        >
+          {schedulePreview && (
+            <ScheduleTimeDialog
+              channel={messageComposer.channel}
+              close={scheduleDialog.close}
+              errorMessage={t(
+                'scheduledMessages.couldntScheduleMessageTryAgain',
+                "Couldn't schedule message. Try again",
+              )}
+              previewMessage={schedulePreview}
+              submit={scheduleMessageFromDialog}
+              title={t('scheduledMessages.scheduleMessage', 'Schedule message')}
+            />
+          )}
+        </Modal>
+      </Portal>
+    </div>
+  );
 };
 
 export const AdditionalMessageComposerActions = () => {

@@ -38,9 +38,9 @@ export const splitCid = (cid: string) => {
   return [type, id] as const;
 };
 
-export const getScheduleAgainDialogId = (
+export const getScheduleCompositionDialogId = (
   messageComposer: Pick<MessageComposer, 'channel' | 'threadId'>,
-) => `${getScheduleTimeDialogId(messageComposer)}-again`;
+) => `${getScheduleTimeDialogId(messageComposer)}-composition`;
 
 export const toCompositionPreview = (
   { attachmentManager, channel, id, textComposer }: MessageComposer,
