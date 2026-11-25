@@ -2,7 +2,7 @@ import { getScheduledMessageLimits } from 'stream-chat';
 import type { Channel, PaginatorState, ScheduledMessageResponse } from 'stream-chat';
 
 import { useStateStore } from '../../../store';
-import { countPendingScheduledMessages, isScheduledMessageLimitReached } from '../utils';
+import { countPendingScheduledMessages } from '../utils';
 
 const selectPendingCount = ({ items }: PaginatorState<ScheduledMessageResponse>) => ({
   pendingCount: countPendingScheduledMessages(items),
@@ -15,9 +15,10 @@ export const useChannelScheduledMessageLimit = (channel: Channel) => {
   );
 
   const maxPerChannel = getScheduledMessageLimits(channel)?.maxPerChannel;
-  const reachedLimit = isScheduledMessageLimitReached(pendingCount, maxPerChannel)
-    ? maxPerChannel
-    : undefined;
+  const reachedLimit =
+    maxPerChannel !== undefined && pendingCount >= maxPerChannel
+      ? maxPerChannel
+      : undefined;
 
   const limit = { pendingCount, reachedLimit };
   return limit;

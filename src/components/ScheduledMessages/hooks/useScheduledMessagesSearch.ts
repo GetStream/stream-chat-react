@@ -1,9 +1,13 @@
 import { useCallback, useState } from 'react';
 import type { ScheduledMessageResponse } from 'stream-chat';
 
-import { matchesScheduledMessageText } from '../utils';
-
-export { matchesScheduledMessageText };
+export const matchesScheduledMessageText = (
+  { message }: ScheduledMessageResponse,
+  searchQuery: string,
+) => {
+  const query = searchQuery.trim().toLocaleLowerCase();
+  return !query || !!message.text?.toLocaleLowerCase().includes(query);
+};
 
 /** Whether a scheduled message matches the search; `searchQuery` is the search field's value. */
 export type ScheduledMessageSearchFilter = (

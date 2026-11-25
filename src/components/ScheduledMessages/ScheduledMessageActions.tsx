@@ -20,8 +20,8 @@ import { useNotificationApi } from '../Notifications';
 import {
   SCHEDULED_MESSAGE_NOTIFICATION_TYPE,
   SCHEDULED_MESSAGES_EMITTER,
-  splitCid,
-} from './utils';
+} from './constants';
+import { splitCid } from './utils';
 
 export type DefaultScheduledMessageActionType =
   | 'copyMessageText'

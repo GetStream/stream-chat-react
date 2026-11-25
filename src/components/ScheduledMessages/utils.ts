@@ -21,29 +21,26 @@ import type {
 } from 'stream-chat';
 
 import type { StreamTFunction } from '../../i18n/types';
+import { RESCHEDULED_MESSAGE_FIELDS } from './constants';
 
 const MS_IN_SECOND = 1000;
-/** Keeps the earliest offered time ahead of the server's minimum despite clock skew. */
 const CLOCK_SKEW_BUFFER_MS = 60 * MS_IN_SECOND;
 const MORNING_HOUR = 9;
 const AFTERNOON_HOUR = 13;
 const SCHEDULE_TIME_DIALOG_ID_PREFIX = 'schedule-message-dialog';
+const TIME_ZONE_LOCALE = 'en-US';
+const FORBIDDEN_STATUS = 403;
 
-/** Notifications the UI emits; the composer's own come from `CORE_NOTIFICATION_TYPE`. */
-export const SCHEDULED_MESSAGE_NOTIFICATION_TYPE = {
-  copyFailed: 'browser:scheduled-message:copy:failed',
-  deleteFailed: 'api:scheduled-message:delete:failed',
-  sendNowFailed: 'api:scheduled-message:send-now:failed',
-  sendNowSucceeded: 'api:scheduled-message:send-now:success',
-  sentNow: 'api:scheduled-message:create:sent-now',
-  stillSending: 'validation:scheduled-message:still-sending',
-} as const;
+const pickFields = <T extends object, K extends keyof T>(
+  source: T,
+  fields: readonly K[],
+) => {
+  const picked = Object.fromEntries(
+    fields.filter((field) => field in source).map((field) => [field, source[field]]),
+  ) as Pick<T, K>;
+  return picked;
+};
 
-export const SCHEDULED_MESSAGES_EMITTER = 'ScheduledMessages';
-
-export type ScheduleTimeBounds = { earliest: Date; latest?: Date };
-
-/** A channel's type and ID, for `client.channel(...splitCid(cid))`. Channel IDs contain no `:`. */
 export const splitCid = (cid: string) => {
   const [type, id] = cid.split(':');
   return [type, id] as const;
@@ -77,42 +74,8 @@ export const toCompositionPreview = (
 
 export const toRescheduledMessageRequest = ({
   message,
-}: ScheduledMessageResponse): MessageRequest => {
-  const {
-    attachments,
-    custom,
-    mentioned_channel,
-    mentioned_group_ids,
-    mentioned_here,
-    mentioned_roles,
-    mentioned_users,
-    parent_id,
-    poll_id,
-    quoted_message_id,
-    restricted_visibility,
-    show_in_channel,
-    silent,
-    text,
-  } = message;
-
-  const messageRequest: MessageRequest = {
-    attachments,
-    custom,
-    mentioned_channel,
-    mentioned_group_ids,
-    mentioned_here,
-    mentioned_roles,
-    mentioned_users,
-    parent_id,
-    poll_id,
-    quoted_message_id,
-    restricted_visibility,
-    show_in_channel,
-    silent,
-    text,
-  };
-  return messageRequest;
-};
+}: ScheduledMessageResponse): MessageRequest =>
+  pickFields(message, RESCHEDULED_MESSAGE_FIELDS);
 
 export const getScheduleTimeDialogId = ({
   channel,
@@ -134,21 +97,6 @@ export const countPendingScheduledMessages = (
   return pendingCount;
 };
 
-export const isScheduledMessageLimitReached = (
-  pendingCount: number,
-  maxPerChannel?: number,
-) => maxPerChannel !== undefined && pendingCount >= maxPerChannel;
-
-/** A channel's list holds its replies too: a thread keeps its own, a channel its top-level ones. */
-/** The default search: the text contains the query, ignoring case; a blank query matches all. */
-export const matchesScheduledMessageText = (
-  { message }: ScheduledMessageResponse,
-  searchQuery: string,
-) => {
-  const query = searchQuery.trim().toLocaleLowerCase();
-  return !query || !!message.text?.toLocaleLowerCase().includes(query);
-};
-
 export const toDateInputValue = (date: Date) =>
   [
     date.getFullYear(),
@@ -159,18 +107,16 @@ export const toDateInputValue = (date: Date) =>
 export const toTimeInputValue = (date: Date) =>
   `${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`;
 
-/** The local date of `<input type="date">` and time of `<input type="time">`, if both are valid. */
 export const fromInputValues = (dateValue: string, timeValue = '00:00') => {
   if (!dateValue || !timeValue) return undefined;
   const date = new Date(`${dateValue}T${timeValue}`);
   return Number.isNaN(date.getTime()) ? undefined : date;
 };
 
-/** The times the channel accepts; no `latest` when it reports no limits. */
 export const getScheduleTimeBounds = (channel: Channel, now = new Date()) => {
   const limits = getScheduledMessageLimits(channel);
   const nowMs = now.getTime();
-  const bounds: ScheduleTimeBounds = {
+  const bounds: { earliest: Date; latest?: Date } = {
     earliest: new Date(
       nowMs + (limits?.minLeadTimeSeconds ?? 0) * MS_IN_SECOND + CLOCK_SKEW_BUFFER_MS,
     ),
@@ -181,18 +127,20 @@ export const getScheduleTimeBounds = (channel: Channel, now = new Date()) => {
 
 export const getScheduleTimeError = (
   scheduledAt: Date,
-  { earliest, latest }: ScheduleTimeBounds,
+  { earliest, latest }: { earliest: Date; latest?: Date },
 ) => {
   if (scheduledAt < earliest) return 'tooSoon' as const;
   if (latest && scheduledAt > latest) return 'tooFar' as const;
   return undefined;
 };
 
-/**
- * The next full hour after the earliest allowed time, or, when that is past the latest one, the
- * first whole minute allowed (the fields pick minutes).
- */
-export const getDefaultScheduledAt = ({ earliest, latest }: ScheduleTimeBounds) => {
+export const getDefaultScheduledAt = ({
+  earliest,
+  latest,
+}: {
+  earliest: Date;
+  latest?: Date;
+}) => {
   const nextFullHour = new Date(earliest);
   nextFullHour.setHours(nextFullHour.getHours() + 1, 0, 0, 0);
   if (!latest || nextFullHour <= latest) return nextFullHour;
@@ -210,8 +158,10 @@ const atLocalHour = (date: Date, dayOffset: number, hour: number) => {
   return localDate;
 };
 
-/** Tomorrow morning and afternoon and next Monday morning, within `bounds`. */
-export const getSchedulePresets = (now: Date, bounds: ScheduleTimeBounds) => {
+export const getSchedulePresets = (
+  now: Date,
+  bounds: { earliest: Date; latest?: Date },
+) => {
   const daysUntilMonday = (8 - now.getDay()) % 7 || 7;
   const presets = [
     atLocalHour(now, 1, MORNING_HOUR),
@@ -222,18 +172,14 @@ export const getSchedulePresets = (now: Date, bounds: ScheduleTimeBounds) => {
 };
 
 export const formatTimeZoneOffset = (date: Date) => {
-  const offsetMinutes = -date.getTimezoneOffset();
-  if (!offsetMinutes) return 'GMT';
-  const sign = offsetMinutes < 0 ? '-' : '+';
-  const hours = Math.floor(Math.abs(offsetMinutes) / 60);
-  const minutes = Math.abs(offsetMinutes) % 60;
-  return `GMT${sign}${hours}${minutes ? `:${String(minutes).padStart(2, '0')}` : ''}`;
+  const timeZoneName = new Intl.DateTimeFormat(TIME_ZONE_LOCALE, {
+    timeZoneName: 'shortOffset',
+  })
+    .formatToParts(date)
+    .find(({ type }) => type === 'timeZoneName')?.value;
+  return timeZoneName ?? 'GMT';
 };
 
-/**
- * Whether the composer edits a message: a message, or a pending scheduled one. A failed scheduled
- * message open in it is not edited but sent or scheduled again, so the composer works as usual.
- */
 export const isComposerEditing = ({
   editedMessage,
   editedScheduledMessage,
@@ -241,7 +187,6 @@ export const isComposerEditing = ({
   !!editedMessage ||
   (!!editedScheduledMessage && !isFailedScheduledMessage(editedScheduledMessage));
 
-/** Why a scheduled message failed; `undefined` when the reason needs no explanation. */
 export const translateScheduledMessageFailureReason = (
   t: StreamTFunction,
   reason?: ScheduledMessageFailureReason,
@@ -292,9 +237,6 @@ export const translateScheduledMessageFailureReason = (
   }
 };
 
-const FORBIDDEN_STATUS = 403;
-
-/** What a failed scheduled-message request tells the user, when its error says something specific. */
 export const translateScheduledMessageError = (t: StreamTFunction, error: unknown) => {
   switch (getScheduledMessageErrorReason(error)) {
     case ScheduledMessageErrorReason.Disabled:

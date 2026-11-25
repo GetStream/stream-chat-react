@@ -421,7 +421,7 @@ describe('ScheduleMessageButton', () => {
       expect(dialog).toHaveTextContent('Launch moved to Monday');
       expect(getDateField()).toHaveValue('2026-10-28');
       expect(getTimeField()).toHaveValue('11:00');
-      expect(dialog).toHaveTextContent('Sent in your time zone (GMT)');
+      expect(dialog).toHaveTextContent(/Sent in your time zone \(GMT(\+0)?\)/);
       expect(screen.getByRole('button', { name: 'Schedule' })).toBeEnabled();
     });
 

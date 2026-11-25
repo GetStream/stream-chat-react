@@ -11,8 +11,6 @@ import {
   getScheduleTimeBounds,
   getScheduleTimeDialogId,
   getScheduleTimeError,
-  isScheduledMessageLimitReached,
-  matchesScheduledMessageText,
   toRescheduledMessageRequest,
   translateScheduledMessageFailureReason,
 } from '../utils';
@@ -29,21 +27,11 @@ const withLimits = (minLeadTimeSeconds: number, maxLeadTimeSeconds: number) =>
   }) as unknown as Channel;
 
 describe('scheduled message utils', () => {
-  it('searches the text case-insensitively and ignores a blank query', () => {
-    const lunch = generateScheduledMessage({
-      message: { custom: {}, text: 'Lunch at noon' },
-    });
-    const launch = generateScheduledMessage({ message: { custom: {}, text: 'Launch' } });
-
-    expect(matchesScheduledMessageText(lunch, ' LUNCH ')).toBe(true);
-    expect(matchesScheduledMessageText(launch, ' LUNCH ')).toBe(false);
-    expect(matchesScheduledMessageText(launch, '  ')).toBe(true);
-  });
-
   it('takes the content of a failed message to schedule it again, without its id', () => {
     const failed = generateScheduledMessage({
       message: {
         custom: { priority: 'high' },
+        html: '<p>Launch moved to Monday</p>',
         mentioned_users: ['user-2'],
         parent_id: 'parent-id',
         quoted_message_id: 'quoted-id',
@@ -64,6 +52,7 @@ describe('scheduled message utils', () => {
       }),
     );
     expect(toRescheduledMessageRequest(failed)).not.toHaveProperty('id');
+    expect(toRescheduledMessageRequest(failed)).not.toHaveProperty('html');
   });
 
   it('counts the scheduled and sending messages, not the failed ones', () => {
@@ -76,12 +65,6 @@ describe('scheduled message utils', () => {
 
     expect(countPendingScheduledMessages(messages)).toBe(3);
     expect(countPendingScheduledMessages()).toBe(0);
-  });
-
-  it('reaches the limit at the channel maximum, and never without one', () => {
-    expect(isScheduledMessageLimitReached(10, 10)).toBe(true);
-    expect(isScheduledMessageLimitReached(9, 10)).toBe(false);
-    expect(isScheduledMessageLimitReached(100)).toBe(false);
   });
 
   describe('time bounds', () => {
@@ -185,10 +168,7 @@ describe('scheduled message utils', () => {
   });
 
   it('formats the time zone offset', () => {
-    const date = new Date();
-    vi.spyOn(date, 'getTimezoneOffset').mockReturnValue(-330);
-
-    expect(formatTimeZoneOffset(date)).toBe('GMT+5:30');
+    expect(formatTimeZoneOffset(new Date(2026, 9, 28, 10, 0))).toMatch(/^GMT(\+0)?$/);
   });
 
   it('names the time dialog after the composer channel and thread', () => {

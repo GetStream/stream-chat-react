@@ -12,7 +12,7 @@ import { useNotificationApi } from '../../Notifications';
 import {
   SCHEDULED_MESSAGE_NOTIFICATION_TYPE,
   SCHEDULED_MESSAGES_EMITTER,
-} from '../utils';
+} from '../constants';
 
 const SCHEDULING_FAILURE_NOTIFICATION_TYPES: ReadonlySet<string> = new Set([
   CORE_NOTIFICATION_TYPE.scheduledMessageBlocked,

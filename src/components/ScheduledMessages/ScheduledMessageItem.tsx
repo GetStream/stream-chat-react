@@ -43,9 +43,11 @@ import type {
   ScheduledMessageItemDialog,
 } from './ScheduledMessageActions';
 import {
-  isFailedScheduledMessage,
   SCHEDULED_MESSAGE_NOTIFICATION_TYPE,
   SCHEDULED_MESSAGES_EMITTER,
+} from './constants';
+import {
+  isFailedScheduledMessage,
   splitCid,
   translateScheduledMessageError,
   translateScheduledMessageFailureReason,

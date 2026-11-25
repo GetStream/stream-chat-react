@@ -32,7 +32,8 @@ import {
   hydrateScheduledMessages,
   mockChatContext,
 } from '../../../mock-builders';
-import { SCHEDULED_MESSAGE_NOTIFICATION_TYPE, splitCid } from '../utils';
+import { SCHEDULED_MESSAGE_NOTIFICATION_TYPE } from '../constants';
+import { splitCid } from '../utils';
 import { ScheduledMessageList } from '../ScheduledMessageList';
 import { ScheduledMessageItem } from '../ScheduledMessageItem';
 import type { ScheduledMessageItemProps } from '../ScheduledMessageItem';
