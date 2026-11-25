@@ -119,6 +119,7 @@ const TimeComboboxField = ({ label, onChange, value }: ScheduleTimeInputProps) =
   const inputRef = useRef<HTMLInputElement | null>(null);
   const listBoxRef = useRef<HTMLUListElement>(null);
   const popoverRef = useRef<HTMLDivElement>(null);
+  const firstMatchFocusedForRef = useRef<string | null>(null);
 
   const matchesTypedText = useCallback(
     (time: string, text: string) =>
@@ -158,13 +159,18 @@ const TimeComboboxField = ({ label, onChange, value }: ScheduleTimeInputProps) =
     state,
   );
 
+  const { inputValue, isOpen, selectedItem, selectionManager } = state;
+  const firstMatchKey = state.collection.getFirstKey();
+  const isFiltering = isOpen && inputValue !== (selectedItem?.textValue ?? '');
+
   const setInputElement = useCallback((element: HTMLInputElement | null) => {
     inputRef.current = element;
     setFieldElement(element?.closest<HTMLElement>(FIELD_WRAPPER_SELECTOR) ?? null);
   }, []);
 
-  const keepEscapeInList = (event: KeyboardEvent<HTMLInputElement>) => {
-    if (event.key === 'Escape' && state.isOpen) event.preventDefault();
+  const handleKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === 'Escape' && isOpen) event.preventDefault();
+    if (event.key === 'Enter' && selectionManager.focusedKey === null) commitTypedTime();
   };
 
   const openList = () => {
@@ -172,19 +178,29 @@ const TimeComboboxField = ({ label, onChange, value }: ScheduleTimeInputProps) =
   };
 
   useEffect(() => {
+    if (!isFiltering || firstMatchKey === null) {
+      firstMatchFocusedForRef.current = null;
+      return;
+    }
+    if (firstMatchFocusedForRef.current === inputValue) return;
+    firstMatchFocusedForRef.current = inputValue;
+    selectionManager.setFocusedKey(firstMatchKey);
+  }, [firstMatchKey, inputValue, isFiltering, selectionManager]);
+
+  useEffect(() => {
     if (!dialogManager) return;
-    if (state.isOpen) dialogManager.open({ id: dialogId });
+    if (isOpen) dialogManager.open({ id: dialogId });
     else dialogManager.close(dialogId);
-  }, [dialogId, dialogManager, state.isOpen]);
+  }, [dialogId, dialogManager, isOpen]);
 
   useEffect(() => () => dialogManager?.close(dialogId), [dialogId, dialogManager]);
 
   return (
     <>
       <TextInput
-        {...mergeProps(inputProps, { onClick: openList, onKeyDown: keepEscapeInList })}
+        {...mergeProps(inputProps, { onClick: openList, onKeyDown: handleKeyDown })}
         className={clsx('app__schedule-field', {
-          'app__schedule-field--open': state.isOpen,
+          'app__schedule-field--open': isOpen,
         })}
         label={label}
         leading={<IconClock />}

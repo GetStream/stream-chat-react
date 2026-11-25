@@ -204,14 +204,19 @@ const CalendarDateField = ({
         dialogManagerId={dialogManager?.id}
         focus={false}
         id={dialogId}
-        offset={4}
+        offset={8}
         placement='bottom-start'
         referenceElement={fieldElement}
         role='dialog'
         tabIndex={-1}
       >
         {minValue && focusedValue && (
-          <div id={calendarId} ref={calendarRef}>
+          <div
+            className='app__schedule-calendar-frame'
+            id={calendarId}
+            ref={calendarRef}
+            style={{ width: fieldElement?.offsetWidth }}
+          >
             <DateCalendar
               autoFocus={shouldFocusCalendar}
               focusedValue={focusedValue}

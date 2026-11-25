@@ -55,7 +55,11 @@
 
 .app__schedule-calendar-popover {
   @include picker-surface;
-  width: 276px;
+}
+
+.app__schedule-calendar-frame {
+  box-sizing: border-box;
+  min-width: 276px;
   padding: var(--str-chat__spacing-sm);
 }
 
