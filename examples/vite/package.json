@@ -21,7 +21,7 @@
     "react-aria": "3.48.0",
     "react-dom": "^19.2.6",
     "react-stately": "3.46.0",
-    "stream-chat": "^10.2.0",
+    "stream-chat": "^10.3.1",
     "stream-chat-react": "workspace:^"
   },
   "devDependencies": {

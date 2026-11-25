@@ -3288,7 +3288,7 @@ __metadata:
     react: "npm:^19.2.6"
     react-dom: "npm:^19.2.6"
     sass: "npm:^1.100.0"
-    stream-chat: "npm:^10.2.0"
+    stream-chat: "npm:^10.3.1"
     stream-chat-react: "workspace:^"
     typescript: "npm:^6.0.3"
   languageName: unknown
@@ -3332,7 +3332,7 @@ __metadata:
     react: "npm:^19.2.6"
     react-dom: "npm:^19.2.6"
     react-leaflet: "npm:^5.0.0"
-    stream-chat: "npm:^10.2.0"
+    stream-chat: "npm:^10.3.1"
     stream-chat-react: "workspace:^"
     typescript: "npm:^6.0.3"
     vite: "npm:^8.1.3"
@@ -3350,7 +3350,7 @@ __metadata:
     emoji-mart: "npm:^5.6.0"
     react: "npm:^19.2.6"
     react-dom: "npm:^19.2.6"
-    stream-chat: "npm:^10.2.0"
+    stream-chat: "npm:^10.3.1"
     stream-chat-react: "workspace:^"
     typescript: "npm:^6.0.3"
     vite: "npm:^8.1.3"
@@ -3381,7 +3381,7 @@ __metadata:
     react-dom: "npm:^19.2.6"
     react-stately: "npm:3.46.0"
     sass: "npm:^1.100.0"
-    stream-chat: "npm:^10.2.0"
+    stream-chat: "npm:^10.3.1"
     stream-chat-react: "workspace:^"
     typescript: "npm:^6.0.3"
     vite: "npm:^8.1.3"
@@ -12061,7 +12061,7 @@ __metadata:
     remark-parse: "npm:^11.0.0"
     sass: "npm:^1.100.0"
     semantic-release: "npm:^25.0.3"
-    stream-chat: "npm:^10.2.0"
+    stream-chat: "npm:^10.3.1"
     typescript: "npm:^6.0.3"
     typescript-eslint: "npm:^8.59.4"
     unified: "npm:^11.0.5"
@@ -12084,7 +12084,7 @@ __metadata:
     modern-normalize: ^3.0.1
     react: ^19.0.0 || ^18.0.0 || ^17.0.0
     react-dom: ^19.0.0 || ^18.0.0 || ^17.0.0
-    stream-chat: ^10.2.0
+    stream-chat: ^10.3.1
   dependenciesMeta:
     "@parcel/watcher":
       built: true
@@ -12114,9 +12114,9 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"stream-chat@npm:^10.2.0":
-  version: 10.2.0
-  resolution: "stream-chat@npm:10.2.0"
+"stream-chat@npm:^10.3.1":
+  version: 10.3.1
+  resolution: "stream-chat@npm:10.3.1"
   dependencies:
     "@stream-io/logger": "npm:^2.1.0"
     "@stream-io/state-store": "npm:^1.2.0"
@@ -12127,7 +12127,7 @@ __metadata:
       built: true
     husky:
       built: true
-  checksum: 10c0/4b8e0a850f785b7ef74dcc0ae11c722500ff0a9a01e0b41ecc8c643c2ff77c9967392c82277edae18a33b1988cf11942ecb1bd318e1e32e30b3c0fe6ccba56d0
+  checksum: 10c0/eefb80461f3105b69a4f68e76e985f6f8817816b6d6aca8c32e52000135c799a39bc652c140e5017162322154bf6a33d7891e9651d521c8a177df87d8a81bc24
   languageName: node
   linkType: hard
 
