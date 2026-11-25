@@ -148,7 +148,7 @@ describe('ScheduledMessagesView', () => {
     await renderView([], { ScheduledMessageList: CustomList });
 
     expect(screen.getByTestId('custom-scheduled-message-list')).toHaveTextContent(
-      `channel:${cid}`,
+      `all:${cid}`,
     );
   });
 

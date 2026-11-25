@@ -16,7 +16,12 @@ import { useStateStore } from '../../store';
 import { useAriaLiveAnnouncer } from '../Accessibility';
 import { useChannelCapabilities } from '../Channel/hooks/useChannelCapabilities';
 import { useMessageComposerController } from '../MessageComposer/hooks/useMessageComposerController';
-import { SCHEDULE_MESSAGE_CAPABILITY, useChannelScheduledMessages } from './hooks';
+import {
+  SCHEDULE_MESSAGE_CAPABILITY,
+  useChannelScheduledMessages,
+  useChannelWideScheduledMessagesView,
+  useOpenScheduledMessageInComposer,
+} from './hooks';
 import { ScheduledMessageListDialog as DefaultScheduledMessageListDialog } from './ScheduledMessageListDialog';
 import { useChannelScheduledMessageLimit } from './hooks/useChannelScheduledMessageLimit';
 import { isFailedScheduledMessage } from './utils';
@@ -47,11 +52,11 @@ export const ScheduledMessagesBanner = () => {
     useComponentContext();
   const messageComposer = useMessageComposerController();
   const { channel, compositionContext } = messageComposer;
+  const channelWideView = useChannelWideScheduledMessagesView(channel);
+  const openInChannelComposer = useOpenScheduledMessageInComposer(channel);
+  const isThreadComposer = compositionContext instanceof Thread;
   // a thread's composer lists the thread's scheduled replies
-  const view =
-    compositionContext instanceof Thread
-      ? compositionContext.scheduledMessages
-      : channel.scheduledMessages;
+  const view = isThreadComposer ? compositionContext.scheduledMessages : channelWideView;
   const { parentId } = view;
   const canSchedule = useChannelCapabilities({ cid: channel.cid }).has(
     SCHEDULE_MESSAGE_CAPABILITY,
@@ -123,7 +128,11 @@ export const ScheduledMessagesBanner = () => {
   const closeDialog = () => setIsDialogOpen(false);
   const editScheduledMessage = (scheduledMessage: ScheduledMessageResponse) => {
     closeDialog();
-    messageComposer.editScheduledMessage(scheduledMessage);
+    if (isThreadComposer) {
+      void messageComposer.editScheduledMessage(scheduledMessage);
+      return;
+    }
+    void openInChannelComposer(scheduledMessage);
   };
 
   const Icon = failedCount ? IconExclamationMark : IconClock;

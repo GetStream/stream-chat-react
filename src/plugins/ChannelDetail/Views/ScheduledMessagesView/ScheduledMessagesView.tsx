@@ -10,6 +10,8 @@ import { Prompt } from '../../../../components/Dialog';
 import {
   ScheduledMessageList as DefaultScheduledMessageList,
   useChannelScheduledMessages,
+  useChannelWideScheduledMessagesView,
+  useOpenScheduledMessageInComposer,
   useScheduledMessagesSearch,
 } from '../../../../components/ScheduledMessages';
 import { ChannelDetailSearchInput } from '../../ChannelDetailSearchInput';
@@ -22,15 +24,17 @@ export const ScheduledMessagesView = () => {
   const { close } = useModalContext();
   const { channel } = useChannelDetailContext();
 
-  const { scheduledMessages } = useChannelScheduledMessages(channel.scheduledMessages);
+  const channelWideView = useChannelWideScheduledMessagesView(channel);
+  const openInComposer = useOpenScheduledMessageInComposer(channel);
+  const { scheduledMessages } = useChannelScheduledMessages(channelWideView);
   const { filter, setSearchQuery } = useScheduledMessagesSearch();
 
   const editScheduledMessage = useCallback(
     (scheduledMessage: ScheduledMessageResponse) => {
       close();
-      channel.messageComposer.editScheduledMessage(scheduledMessage);
+      void openInComposer(scheduledMessage);
     },
-    [channel, close],
+    [close, openInComposer],
   );
 
   return (
@@ -46,7 +50,7 @@ export const ScheduledMessagesView = () => {
         <ScheduledMessageList
           filter={filter}
           openInComposer={editScheduledMessage}
-          scheduledMessages={channel.scheduledMessages}
+          scheduledMessages={channelWideView}
         />
       </Prompt.Body>
     </div>

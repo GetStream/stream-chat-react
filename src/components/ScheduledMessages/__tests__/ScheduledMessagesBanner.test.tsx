@@ -22,6 +22,11 @@ import type { AriaLiveAnnounce } from '../../Accessibility';
 import { Channel } from '../../Channel';
 import { Chat } from '../../Chat';
 import { WithComponents } from '../../../context/WithComponents';
+import {
+  defaultWorkspaceNavigation,
+  WorkspaceNavigationProvider,
+} from '../../../context/WorkspaceNavigationContext';
+import type { WorkspaceNavigation } from '../../../context/WorkspaceNavigationContext';
 import { MessageComposer } from '../../MessageComposer';
 import { ThreadProvider } from '../../Threads';
 import {
@@ -52,6 +57,7 @@ type RenderComposerOptions = {
   canSchedule?: boolean;
   components?: Parameters<typeof WithComponents>[0]['overrides'];
   inThread?: boolean;
+  openThread?: WorkspaceNavigation['openThread'];
   scheduledMessages?: ScheduledMessageResponse[];
 };
 
@@ -61,6 +67,7 @@ const renderComposer = async ({
   canSchedule = true,
   components = {},
   inThread = false,
+  openThread = defaultWorkspaceNavigation.openThread,
   scheduledMessages = [],
 }: RenderComposerOptions = {}) => {
   const ownCapabilities = canSchedule
@@ -95,15 +102,19 @@ const renderComposer = async ({
   await act(() => {
     render(
       <Chat client={client}>
-        <AnnouncerScope announce={announce}>
-          <WithComponents overrides={components}>
-            <Channel channel={channel}>
-              <ThreadScope>
-                <MessageComposer />
-              </ThreadScope>
-            </Channel>
-          </WithComponents>
-        </AnnouncerScope>
+        <WorkspaceNavigationProvider
+          value={{ ...defaultWorkspaceNavigation, openThread }}
+        >
+          <AnnouncerScope announce={announce}>
+            <WithComponents overrides={components}>
+              <Channel channel={channel}>
+                <ThreadScope>
+                  <MessageComposer />
+                </ThreadScope>
+              </Channel>
+            </WithComponents>
+          </AnnouncerScope>
+        </WorkspaceNavigationProvider>
       </Chat>,
     );
   });
@@ -145,7 +156,7 @@ describe('ScheduledMessagesBanner', () => {
     expect(queryBanner()).not.toBeInTheDocument();
   });
 
-  it('counts the scheduled messages of the channel', async () => {
+  it('counts the scheduled messages of the channel, thread replies included', async () => {
     await renderComposer({
       scheduledMessages: [
         generateScheduledMessage({ cid }),
@@ -154,7 +165,7 @@ describe('ScheduledMessagesBanner', () => {
       ],
     });
 
-    expect(queryBanner()).toHaveTextContent('2 scheduled messages');
+    expect(queryBanner()).toHaveTextContent('3 scheduled messages');
   });
 
   it('shows the limit once the channel holds as many as it allows, replies included', async () => {
@@ -404,6 +415,39 @@ describe('ScheduledMessagesBanner', () => {
     );
   });
 
+  it('edits a thread reply from the channel list in its thread', async () => {
+    const reply = threadReply();
+    const openThread = vi.fn();
+    const ScheduledMessageListDialog = ({
+      open,
+      openInComposer,
+    }: ScheduledMessageListDialogProps) =>
+      open ? (
+        <button onClick={() => openInComposer?.(reply)} type='button'>
+          Edit it
+        </button>
+      ) : null;
+    const { channel, client } = await renderComposer({
+      components: { ScheduledMessageListDialog },
+      openThread,
+      scheduledMessages: [reply],
+    });
+    vi.spyOn(client, 'getMessage').mockResolvedValue(
+      fromPartial({ message: generateMessage({ cid, id: parentId }) }),
+    );
+
+    await act(() => fireEvent.click(screen.getByRole('button', { name: 'View' })));
+    await act(() => fireEvent.click(screen.getByRole('button', { name: 'Edit it' })));
+
+    await waitFor(() => expect(openThread).toHaveBeenCalledTimes(1));
+    const [thread] = openThread.mock.calls[0] as [Thread];
+    expect(thread.id).toBe(parentId);
+    await waitFor(() =>
+      expect(thread.messageComposer.editedScheduledMessage?.id).toBe(reply.id),
+    );
+    expect(channel.messageComposer.editedScheduledMessage).toBeUndefined();
+  });
+
   it('opens what the ScheduledMessageListDialog slot renders', async () => {
     const scheduledMessage = generateScheduledMessage({ cid });
     const ScheduledMessageListDialog = vi.fn(
@@ -432,7 +476,10 @@ describe('ScheduledMessagesBanner', () => {
     expect(ScheduledMessageListDialog).toHaveBeenLastCalledWith(
       expect.objectContaining({
         open: true,
-        scheduledMessages: channel.scheduledMessages,
+        scheduledMessages: expect.objectContaining({
+          paginator: channel.scheduledMessagesPaginator,
+          scope: { type: 'all' },
+        }),
       }),
       undefined,
     );
