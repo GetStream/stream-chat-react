@@ -1,5 +1,13 @@
+import {
+  CORE_NOTIFICATION_TYPE,
+  ScheduledMessageCompositionEndReason,
+} from 'stream-chat';
 import type { Notification } from 'stream-chat';
 
+import {
+  getScheduledMessageErrorKey,
+  SCHEDULED_MESSAGE_ERROR_TRANSLATIONS,
+} from '../../../components/ScheduledMessages/translations';
 import type { NotificationTranslatorOptions } from './types';
 import type { Translator } from '../../index';
 
@@ -94,3 +102,35 @@ export const translateCommandDisabled: Translator<NotificationTranslatorOptions>
 
   return t('notification.commandDisabled', 'Command not available');
 };
+
+/** A failed request to schedule or edit a scheduled message, both emitted by the composer. */
+export const translateScheduledMessageRequestFailed: Translator<
+  NotificationTranslatorOptions
+> = ({ options: { notification }, t }) => {
+  const errorKey = getScheduledMessageErrorKey(notification?.originalError);
+  const specific = errorKey && SCHEDULED_MESSAGE_ERROR_TRANSLATIONS[errorKey]?.(t);
+  if (specific) return specific;
+  switch (notification?.type) {
+    case CORE_NOTIFICATION_TYPE.scheduledMessageCreateFailed:
+      return t(
+        'scheduledMessages.couldntScheduleMessageTryAgain',
+        "Couldn't schedule message. Try again",
+      );
+    default:
+      return t(
+        'scheduledMessages.notification.updateFailed',
+        "Couldn't update the scheduled message. Try again",
+      );
+  }
+};
+
+/** A scheduled message open in the composer was sent, deleted or failed meanwhile. */
+export const translateScheduledMessageCompositionEnded: Translator<
+  NotificationTranslatorOptions
+> = ({ options: { notification }, t }) =>
+  notification?.metadata?.reason === ScheduledMessageCompositionEndReason.Sent
+    ? t('scheduledMessages.notification.alreadySentEdit', 'This message was already sent')
+    : t(
+        'scheduledMessages.notification.endedEdit',
+        'This scheduled message can no longer be edited',
+      );

@@ -9,6 +9,8 @@ import {
   translateCommandDisabled,
   translatePollCreateFailed,
   translatePollEndFailed,
+  translateScheduledMessageCompositionEnded,
+  translateScheduledMessageRequestFailed,
 } from './translators';
 import type { Translator } from '../../index';
 
@@ -51,6 +53,15 @@ const coreNotificationTranslators: Record<CoreNotificationType, NotificationTran
         'Reached the vote limit. Remove an existing vote first.',
       ),
     [CORE_NOTIFICATION_TYPE.pollCreateFailed]: translatePollCreateFailed,
+    // the schedule button is hidden whenever a block applies, so this follows only a race
+    [CORE_NOTIFICATION_TYPE.scheduledMessageBlocked]: ({ t }) =>
+      t('scheduledMessages.notification.blocked', "This message can't be scheduled"),
+    [CORE_NOTIFICATION_TYPE.scheduledMessageCompositionEnded]:
+      translateScheduledMessageCompositionEnded,
+    [CORE_NOTIFICATION_TYPE.scheduledMessageCreateFailed]:
+      translateScheduledMessageRequestFailed,
+    [CORE_NOTIFICATION_TYPE.scheduledMessageUpdateFailed]:
+      translateScheduledMessageRequestFailed,
   };
 
 /**

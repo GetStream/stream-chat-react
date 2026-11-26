@@ -1,0 +1,50 @@
+@use '../../../styling/utils';
+
+$caret-size: var(--str-chat__button-visual-height-xs);
+
+.str-chat {
+  .str-chat__split-send-button {
+    position: relative;
+    display: inline-flex;
+
+    .str-chat__send-button.str-chat__button--circular {
+      aspect-ratio: auto;
+      // the shrunk icon would leave the button 28px tall
+      min-height: var(--str-chat__button-visual-height-sm);
+
+      .str-chat__icon.str-chat__icon--send {
+        position: relative;
+        z-index: 1;
+        height: var(--str-chat__icon-size-sm);
+        width: var(--str-chat__icon-size-sm);
+      }
+
+      padding-inline: var(--str-chat__spacing-sm)
+        calc(var(--str-chat__spacing-xs) + #{$caret-size} + var(--str-chat__spacing-xxs));
+    }
+
+    .str-chat__schedule-message-button {
+      position: absolute;
+      inset-inline-end: var(--str-chat__spacing-xxs);
+      inset-block-start: 50%;
+      translate: 0 -50%;
+
+      &[aria-expanded='true']:not(:hover)::after {
+        content: none;
+      }
+    }
+
+    &:has(.str-chat__schedule-message-button[aria-expanded='true'])
+      .str-chat__send-button:not(:disabled) {
+      @include utils.overlay-after(var(--str-chat__background-utility-selected));
+    }
+  }
+
+  .str-chat__schedule-message-menu {
+    min-width: 224px;
+
+    .str-chat__schedule-message-menu__header {
+      padding: var(--str-chat__spacing-xs);
+    }
+  }
+}

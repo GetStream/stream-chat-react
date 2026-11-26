@@ -35,7 +35,7 @@ import {
 import { useTextareaPlaceholder } from './hooks/useTextareaPlaceholder';
 import { useAriaLiveAnnouncer, useInteractionAnnouncements } from '../Accessibility';
 import { useMessageComposerHasSendableData } from '../MessageComposer/hooks/useMessageComposerHasSendableData';
-import { useMessageComposerSubmitFn } from '../MessageComposer/hooks/useMessageComposerSubmitFn';
+import { useSubmitOrScheduleAgain } from '../ScheduledMessages/hooks/useSubmitOrScheduleAgain';
 
 const textComposerStateSelector = (state: TextComposerState) => ({
   selection: state.selection,
@@ -156,7 +156,7 @@ const TextareaComposerWithLiveAnnouncements = ({
         textOverflow: 'ellipsis',
         whiteSpace: 'nowrap',
       } satisfies React.CSSProperties);
-  const submitMessage = useMessageComposerSubmitFn();
+  const submitMessage = useSubmitOrScheduleAgain();
 
   const { enabled } = useStateStore(messageComposer.configState, configStateSelector);
   const { quotedMessage } = useStateStore(

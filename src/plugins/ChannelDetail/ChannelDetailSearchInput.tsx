@@ -1,47 +1,14 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React from 'react';
 
-import { useComponentContextIcons, useTranslationContext } from '../../context';
-import { TextInput } from '../../components/Form';
+import { SearchInput } from '../../components/Form';
+import type { SearchInputProps } from '../../components/Form';
 
-export type ChannelDetailSearchInputProps = {
-  autoFocus?: boolean;
-  onSearchChange: (query: string) => void;
-  resetKey?: number;
-};
+export type ChannelDetailSearchInputProps = Omit<SearchInputProps, 'className'>;
 
 export const ChannelDetailSearchInput = React.memo(
-  ({ autoFocus, onSearchChange, resetKey }: ChannelDetailSearchInputProps) => {
-    const { IconSearch } = useComponentContextIcons();
-    const { t } = useTranslationContext();
-    const [searchInput, setSearchInput] = useState('');
-
-    useEffect(() => {
-      setSearchInput('');
-    }, [resetKey]);
-
-    const handleSearchChange = useCallback(
-      (event: React.ChangeEvent<HTMLInputElement>) => {
-        const { value } = event.target;
-        setSearchInput(value);
-        onSearchChange(value);
-      },
-      [onSearchChange],
-    );
-
-    return (
-      <TextInput
-        aria-label={t('common.search.ariaLabel', 'Search')}
-        autoComplete='off'
-        autoFocus={autoFocus}
-        className='str-chat__channel-detail__search-input'
-        leading={<IconSearch />}
-        onChange={handleSearchChange}
-        placeholder={t('common.search.ariaLabel', 'Search')}
-        type='search'
-        value={searchInput}
-      />
-    );
-  },
+  (props: ChannelDetailSearchInputProps) => (
+    <SearchInput {...props} className='str-chat__channel-detail__search-input' />
+  ),
 );
 
 ChannelDetailSearchInput.displayName = 'ChannelDetailSearchInput';

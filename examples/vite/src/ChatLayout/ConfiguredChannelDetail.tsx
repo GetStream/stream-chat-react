@@ -4,6 +4,7 @@ import {
   asDynamicKey,
   ChannelAvatar,
   type ChannelAvatarProps,
+  type ScheduledMessageListDialogProps,
   useChannel,
   useTranslationContext,
 } from 'stream-chat-react';
@@ -13,17 +14,27 @@ import {
   type AvatarWithChannelDetailProps,
   ChannelDetail,
   type ChannelDetailProps,
+  ChannelManagementView,
   ChannelMembersView,
   type ChannelMembersViewModes,
   defaultChannelDetailSections,
+  ScheduledMessagesChannelDetailDialog,
   type SectionNavigatorSection,
   type SectionNavigatorSectionContentProps,
 } from 'stream-chat-react/channel-detail';
 
 import { useAppSettingsSelector } from '../AppSettings/state';
 import { getChannelMembersHeaderActionSet } from '../AppSettings/tabs/ChannelDetail';
+import { channelManagementActionSetWithFreeze } from './ChannelFreezeAction';
 import { ChannelMembersRemoveView } from './ChannelMembersRemoveView';
 import { CHANNEL_THREAD_SLOT } from './constants.ts';
+
+const ChannelManagementViewWithFreeze = (props: SectionNavigatorSectionContentProps) => (
+  <ChannelManagementView
+    {...props}
+    channelManagementActionSet={channelManagementActionSetWithFreeze}
+  />
+);
 
 const ChannelMembersRemoveTitle = () => {
   const { t } = useTranslationContext();
@@ -52,18 +63,20 @@ export const ConfiguredChannelDetail = (props: ChannelDetailProps) => {
   const sections = useMemo<SectionNavigatorSection[]>(
     () => [
       ...defaultChannelDetailSections.map((section) =>
-        section.id !== 'channel-members'
-          ? section
-          : {
-              ...section,
-              SectionContent: (sectionProps: SectionNavigatorSectionContentProps) => (
-                <ChannelMembersView
-                  {...sectionProps}
-                  headerActionSet={headerActionSet}
-                  modeViews={channelMembersModeViews}
-                />
-              ),
-            },
+        section.id === 'channel-info'
+          ? { ...section, SectionContent: ChannelManagementViewWithFreeze }
+          : section.id !== 'channel-members'
+            ? section
+            : {
+                ...section,
+                SectionContent: (sectionProps: SectionNavigatorSectionContentProps) => (
+                  <ChannelMembersView
+                    {...sectionProps}
+                    headerActionSet={headerActionSet}
+                    modeViews={channelMembersModeViews}
+                  />
+                ),
+              },
       ),
     ],
     [headerActionSet],
@@ -114,6 +127,15 @@ export const ConfiguredAvatarWithChannelDetail = (
   <AvatarWithChannelDetail
     {...props}
     Avatar={AvatarOpeningDetailBeside}
+    ChannelDetail={ConfiguredChannelDetail}
+  />
+);
+
+export const ConfiguredScheduledMessageListDialog = (
+  props: ScheduledMessageListDialogProps,
+) => (
+  <ScheduledMessagesChannelDetailDialog
+    {...props}
     ChannelDetail={ConfiguredChannelDetail}
   />
 );

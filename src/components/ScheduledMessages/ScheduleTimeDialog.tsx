@@ -1,0 +1,232 @@
+import React, { type MouseEvent, useEffect, useState } from 'react';
+import { ScheduledMessageErrorReason } from 'stream-chat';
+import type { Channel, LocalMessage } from 'stream-chat';
+
+import { useComponentContext, useTranslationContext } from '../../context';
+import { useIsMounted } from '../Channel/hooks/useIsMounted';
+import { useWSConnectionState } from '../Chat/hooks/useWSConnectionState';
+import { useChannelDisplayName } from '../ChannelListItem/hooks/useChannelDisplayName';
+import { Prompt } from '../Dialog';
+import { QuotedMessagePreviewUI } from '../MessageComposer/QuotedMessagePreview';
+import { ScheduleDateInput as DefaultScheduleDateInput } from './ScheduleDateInput';
+import { ScheduledMessagesNotice } from './ScheduledMessagesNotice';
+import { ScheduleTimeInput as DefaultScheduleTimeInput } from './ScheduleTimeInput';
+import {
+  formatTimeZoneOffset,
+  fromInputValues,
+  getDefaultScheduledAt,
+  getScheduleTimeBounds,
+  getScheduleTimeError,
+  toDateInputValue,
+  toTimeInputValue,
+} from './utils';
+import {
+  getScheduledMessageErrorKey,
+  SCHEDULED_MESSAGE_ERROR_TRANSLATIONS,
+} from './translations';
+
+/** The date field of `ScheduleTimeDialog`; values are `YYYY-MM-DD`, as `<input type="date">` takes. */
+export type ScheduleDateInputProps = {
+  label: string;
+  /** The earliest date allowed. */
+  min: string;
+  onChange: (value: string) => void;
+  value: string;
+  /** The latest date allowed, when there is a limit. */
+  max?: string;
+};
+
+/** The time field of `ScheduleTimeDialog`; values are `HH:mm`, as `<input type="time">` takes. */
+export type ScheduleTimeInputProps = {
+  label: string;
+  onChange: (value: string) => void;
+  value: string;
+};
+
+export type ScheduleTimeDialogProps = {
+  channel: Channel;
+  close: () => void;
+  /** Shown when `submit` rejects with an error that says nothing more specific; the dialog stays open. */
+  errorMessage: string;
+  previewMessage: LocalMessage;
+  /** Closes the dialog once it resolves. */
+  submit: (scheduledAt: Date) => Promise<unknown>;
+  title: string;
+  initialScheduledAt?: Date;
+  /** Above the preview; "Message to {{ name }}" by default. */
+  previewLabel?: string;
+  submitLabel?: string;
+  /** Why an earlier time is refused; "Choose a later time" by default. */
+  tooSoonMessage?: string;
+};
+
+const BOUNDS_REFRESH_INTERVAL_MS = 60 * 1000;
+
+/** The current time, updated every minute, so time limits computed from it do not go stale. */
+const useMinuteClock = () => {
+  const [now, setNow] = useState(() => new Date());
+  useEffect(() => {
+    const interval = setInterval(() => setNow(new Date()), BOUNDS_REFRESH_INTERVAL_MS);
+    return () => clearInterval(interval);
+  }, []);
+  return [now, setNow] as const;
+};
+
+const NATIVE_PICKER_INPUT_SELECTOR = 'input[type="date"], input[type="time"]';
+
+const openNativePicker = ({ target }: MouseEvent<HTMLElement>) => {
+  const input = (target as Element)
+    .closest('.str-chat__form-text-input__wrapper')
+    ?.querySelector<HTMLInputElement>(NATIVE_PICKER_INPUT_SELECTOR);
+  try {
+    input?.showPicker?.();
+  } catch {
+    return;
+  }
+};
+
+/** Picks a date and time within the channel's limits and submits it. */
+export const ScheduleTimeDialog = ({
+  channel,
+  close,
+  errorMessage,
+  initialScheduledAt,
+  previewLabel,
+  previewMessage,
+  submit,
+  submitLabel,
+  title,
+  tooSoonMessage,
+}: ScheduleTimeDialogProps) => {
+  const { t } = useTranslationContext();
+  const {
+    ScheduleDateInput = DefaultScheduleDateInput,
+    ScheduleTimeInput = DefaultScheduleTimeInput,
+  } = useComponentContext();
+  const channelDisplayName = useChannelDisplayName(channel);
+  const isOnline = useWSConnectionState()?.isHealthy ?? false;
+  const isMounted = useIsMounted();
+
+  // the limits move with the clock: a time allowed when the dialog opened may be too soon later
+  const [now, setNow] = useMinuteClock();
+  const bounds = getScheduleTimeBounds(channel, now);
+  const [initialValue] = useState(
+    () => initialScheduledAt ?? getDefaultScheduledAt(bounds),
+  );
+  const [dateValue, setDateValue] = useState(() => toDateInputValue(initialValue));
+  const [timeValue, setTimeValue] = useState(() => toTimeInputValue(initialValue));
+  const [status, setStatus] = useState<'failed' | 'idle' | 'submitting'>('idle');
+  const [submitError, setSubmitError] = useState<unknown>();
+
+  // the fields hold minutes only: unchanged, they stand for the initial instant itself
+  const isUnchanged =
+    dateValue === toDateInputValue(initialValue) &&
+    timeValue === toTimeInputValue(initialValue);
+  const scheduledAt = isUnchanged ? initialValue : fromInputValues(dateValue, timeValue);
+
+  // a failure describes the time it was for, not a newly picked one
+  const changeField = (setValue: (value: string) => void) => (value: string) => {
+    setValue(value);
+    setStatus((current) => (current === 'failed' ? 'idle' : current));
+    setSubmitError(undefined);
+  };
+  const timeError = scheduledAt && getScheduleTimeError(scheduledAt, bounds);
+  const timeErrorMessage =
+    timeError &&
+    ((timeError === ScheduledMessageErrorReason.TooSoon && tooSoonMessage) ||
+      SCHEDULED_MESSAGE_ERROR_TRANSLATIONS[timeError]?.(t));
+  const canSubmit = !!scheduledAt && !timeError && isOnline && status !== 'submitting';
+
+  const submitScheduledAt = async () => {
+    if (!scheduledAt) return;
+    // checked again against the limits as of now; a time already passed would be sent at once
+    const submittedAt = new Date();
+    if (getScheduleTimeError(scheduledAt, getScheduleTimeBounds(channel, submittedAt))) {
+      setNow(submittedAt);
+      return;
+    }
+    setStatus('submitting');
+    try {
+      await submit(scheduledAt);
+      if (isMounted.current) close();
+    } catch (error) {
+      if (!isMounted.current) return;
+      setSubmitError(error);
+      setStatus('failed');
+    }
+  };
+
+  const submitErrorKey = getScheduledMessageErrorKey(submitError);
+
+  return (
+    <Prompt.Root
+      className='str-chat__schedule-message-dialog'
+      data-testid='schedule-message-dialog'
+    >
+      <Prompt.Header close={close} title={title} />
+      <Prompt.Body className='str-chat__schedule-message-dialog__body'>
+        <QuotedMessagePreviewUI
+          authorLabel={
+            previewLabel ??
+            (channelDisplayName
+              ? t('scheduledMessages.messageToName', 'Message to {{ name }}', {
+                  name: channelDisplayName,
+                })
+              : title)
+          }
+          className='str-chat__schedule-message-dialog__preview'
+          quotedMessage={previewMessage}
+        />
+        {status === 'failed' && (
+          <ScheduledMessagesNotice isError>
+            {(submitErrorKey &&
+              SCHEDULED_MESSAGE_ERROR_TRANSLATIONS[submitErrorKey]?.(t)) ??
+              errorMessage}
+          </ScheduledMessagesNotice>
+        )}
+        <div
+          className='str-chat__schedule-message-dialog__fields'
+          onClick={openNativePicker}
+        >
+          <ScheduleDateInput
+            label={t('scheduledMessages.date', 'Date')}
+            max={bounds.latest && toDateInputValue(bounds.latest)}
+            min={toDateInputValue(bounds.earliest)}
+            onChange={changeField(setDateValue)}
+            value={dateValue}
+          />
+          <ScheduleTimeInput
+            label={t('scheduledMessages.time', 'Time')}
+            onChange={changeField(setTimeValue)}
+            value={timeValue}
+          />
+        </div>
+        {timeErrorMessage ? (
+          <ScheduledMessagesNotice isError>{timeErrorMessage}</ScheduledMessagesNotice>
+        ) : (
+          <ScheduledMessagesNotice>
+            {t(
+              'scheduledMessages.sentInYourTimeZoneTimezone',
+              'Sent in your time zone ({{ timeZone }})',
+              { timeZone: formatTimeZoneOffset(scheduledAt ?? bounds.earliest) },
+            )}
+          </ScheduledMessagesNotice>
+        )}
+      </Prompt.Body>
+      <Prompt.Footer>
+        <Prompt.FooterControls>
+          <Prompt.FooterControlsButtonSecondary onClick={close}>
+            {t('scheduledMessages.cancel', 'Cancel')}
+          </Prompt.FooterControlsButtonSecondary>
+          <Prompt.FooterControlsButtonPrimary
+            disabled={!canSubmit}
+            onClick={submitScheduledAt}
+            type='submit'
+          >
+            {submitLabel ?? t('scheduledMessages.schedule', 'Schedule')}
+          </Prompt.FooterControlsButtonPrimary>
+        </Prompt.FooterControls>
+      </Prompt.Footer>
+    </Prompt.Root>
+  );
+};

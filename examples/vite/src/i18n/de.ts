@@ -283,6 +283,12 @@ export const deTranslations = {
   'channelDetail.channelMembersView.members.title_one': '{{ count }} Mitglied',
   'channelDetail.channelMembersView.members.title_other': '{{ count }} Mitglieder',
   'channelDetail.listLoaded.text': 'Liste geladen',
+  'channelDetail.navButton.channelInfo.title': 'Kanalinfo',
+  'channelDetail.navButton.files.title': 'Dateien',
+  'channelDetail.navButton.media.title': 'Fotos & Videos',
+  'channelDetail.navButton.members.title': 'Mitglieder',
+  'channelDetail.navButton.pinnedMessages.title': 'Angeheftete Nachrichten',
+  'channelDetail.navButton.scheduledMessages.title': 'Geplant',
   'channelDetail.pinnedMessagesEmpty.noPinnedMessages.text':
     'Keine angepinnten Nachrichten',
   'channelDetail.pinnedMessagesEmpty.pinMessageSee.text':
@@ -814,6 +820,121 @@ export const deTranslations = {
   'relativeTime.weeksAgo_one': 'vor {{ count }} Wo.',
   'relativeTime.weeksAgo_other': 'vor {{ count }} Wo.',
   'relativeTime.yesterday': 'Gestern',
+  'scheduledMessages.banner.failedToSend_one': '{{ count }} nicht gesendet',
+  'scheduledMessages.banner.failedToSend_other': '{{ count }} nicht gesendet',
+  'scheduledMessages.banner.limitReached_one':
+    '{{ scheduled }} von {{ count }} geplanten Nachricht',
+  'scheduledMessages.banner.limitReached_other':
+    '{{ scheduled }} von {{ count }} geplanten Nachrichten',
+  'scheduledMessages.banner.scheduledFor': 'Geplant für {{ time }}',
+  'scheduledMessages.banner.scheduledMessages_one': '{{ count }} geplante Nachricht',
+  'scheduledMessages.banner.scheduledMessages_other': '{{ count }} geplante Nachrichten',
+  'scheduledMessages.banner.scheduledReplies_one': '{{ count }} geplante Antwort',
+  'scheduledMessages.banner.scheduledReplies_other': '{{ count }} geplante Antworten',
+  'scheduledMessages.blockedByModeration': 'Von der Moderation blockiert',
+  'scheduledMessages.cancel': 'Abbrechen',
+  'scheduledMessages.cancelEdit.ariaLabel': 'Bearbeitung abbrechen',
+  'scheduledMessages.cancelSchedulingAgain.ariaLabel': 'Erneutes Planen abbrechen',
+  'scheduledMessages.cantSendInThisChannel':
+    'Nicht verfügbar: Du kannst in diesem Kanal keine Nachrichten senden',
+  'scheduledMessages.channelFrozenNotice':
+    'Dieser Kanal ist eingefroren. Geplante Nachrichten werden nicht gesendet',
+  'scheduledMessages.chooseALaterTime': 'Wähle einen späteren Zeitpunkt',
+  'scheduledMessages.chooseAnEarlierTime': 'Wähle einen früheren Zeitpunkt',
+  'scheduledMessages.clickTheArrowNextToTheSendButton':
+    'Klicke in einem Kanal auf den Pfeil neben der Senden-Schaltfläche, um eine Nachricht zu planen.',
+  'scheduledMessages.copyText': 'Text kopieren',
+  'scheduledMessages.couldntCopyTheText': 'Der Text konnte nicht kopiert werden',
+  'scheduledMessages.couldntDeleteTheScheduledMessageTryAgain':
+    'Die geplante Nachricht konnte nicht gelöscht werden. Versuche es erneut',
+  'scheduledMessages.couldntLoadScheduledMessages':
+    'Geplante Nachrichten konnten nicht geladen werden',
+  'scheduledMessages.couldntRescheduleTheMessageTryAgain':
+    'Die Nachricht konnte nicht neu geplant werden. Versuche es erneut',
+  'scheduledMessages.couldntScheduleMessageTryAgain':
+    'Die Nachricht konnte nicht geplant werden. Versuche es erneut',
+  'scheduledMessages.couldntSendTheMessageTryAgain':
+    'Die Nachricht konnte nicht gesendet werden. Versuche es erneut',
+  'scheduledMessages.couldntSendTryAgain': 'Senden fehlgeschlagen. Versuche es erneut',
+  'scheduledMessages.customTime': 'Eigener Zeitpunkt',
+  'scheduledMessages.date': 'Datum',
+  'scheduledMessages.delete': 'Löschen',
+  'scheduledMessages.deleteScheduledMessage': 'Geplante Nachricht löschen?',
+  'scheduledMessages.edit': 'Bearbeiten',
+  'scheduledMessages.editReschedule': 'Bearbeiten & neu planen',
+  'scheduledMessages.editScheduledMessage': 'Geplante Nachricht bearbeiten',
+  'scheduledMessages.limitReachedMax': 'Limit erreicht (max. {{ max }})',
+  'scheduledMessages.loaded': 'Geplante Nachrichten geladen',
+  'scheduledMessages.loadingScheduledMessages': 'Geplante Nachrichten werden geladen',
+  'scheduledMessages.messageToName': 'Nachricht an {{ name }}',
+  'scheduledMessages.noMessagesFound': 'Keine Nachrichten gefunden',
+  'scheduledMessages.noScheduledMessages': 'Keine geplanten Nachrichten',
+  'scheduledMessages.notSentTheServiceWasDelayed':
+    'Nicht gesendet: Der Dienst war verzögert',
+  'scheduledMessages.notification.alreadySent': 'Bereits gesendet',
+  'scheduledMessages.notification.alreadySentEdit':
+    'Diese Nachricht wurde bereits gesendet',
+  'scheduledMessages.notification.blocked': 'Diese Nachricht kann nicht geplant werden',
+  'scheduledMessages.notification.channelLimit':
+    'Du hast die maximale Anzahl geplanter Nachrichten in diesem Kanal erreicht',
+  'scheduledMessages.notification.conflict': 'Anderswo geändert. Versuche es erneut',
+  'scheduledMessages.notification.disabled': 'Geplante Nachrichten sind deaktiviert',
+  'scheduledMessages.notification.endedEdit':
+    'Diese geplante Nachricht kann nicht mehr bearbeitet werden',
+  'scheduledMessages.notification.forbidden': 'Du kannst hier keine Nachrichten planen',
+  'scheduledMessages.notification.notEditable':
+    'Fehlgeschlagene Nachrichten können nicht bearbeitet werden',
+  'scheduledMessages.notification.sending': 'Diese Nachricht wird gerade gesendet',
+  'scheduledMessages.notification.stillSending':
+    'Wird noch gesendet. Versuche es gleich noch einmal.',
+  'scheduledMessages.notification.updateFailed':
+    'Die geplante Nachricht konnte nicht aktualisiert werden. Versuche es erneut',
+  'scheduledMessages.notification.userLimit':
+    'Du hast die maximale Anzahl geplanter Nachrichten erreicht',
+  'scheduledMessages.openScheduleMessageMenu.ariaLabel':
+    'Menü zum Planen der Nachricht öffnen',
+  'scheduledMessages.openScheduledMessageActions.ariaLabel':
+    'Aktionen für geplante Nachricht öffnen',
+  'scheduledMessages.pickALaterTimeEditingCantSend':
+    'Wähle einen späteren Zeitpunkt. Beim Bearbeiten kann eine Nachricht nicht sofort gesendet werden.',
+  'scheduledMessages.rejectedByTheApp': 'Von der App abgelehnt',
+  'scheduledMessages.reschedule': 'Neu planen',
+  'scheduledMessages.rescheduleMessage': 'Nachricht neu planen',
+  'scheduledMessages.save': 'Speichern',
+  'scheduledMessages.schedule': 'Planen',
+  'scheduledMessages.scheduleAgain': 'Erneut planen',
+  'scheduledMessages.scheduleMessage': 'Nachricht planen',
+  'scheduledMessages.scheduledForTime': 'Geplant für {{ time }}',
+  'scheduledMessages.scheduledMessageActions': 'Aktionen für geplante Nachricht',
+  'scheduledMessages.scheduledMessageSent': 'Geplante Nachricht gesendet',
+  'scheduledMessages.scheduledMessages': 'Geplante Nachrichten',
+  'scheduledMessages.scheduledReplies': 'Geplante Antworten',
+  'scheduledMessages.schedulingUnavailableNotice':
+    'Du kannst in diesem Kanal keine Nachrichten planen',
+  'scheduledMessages.sendNow': 'Jetzt senden',
+  'scheduledMessages.sendTime': 'Senden: {{ time }}',
+  'scheduledMessages.sending': 'Wird gesendet...',
+  'scheduledMessages.sentInYourTimeZoneTimezone':
+    'Gesendet in deiner Zeitzone ({{ timeZone }})',
+  'scheduledMessages.somethingWentWrongTryAgain':
+    'Etwas ist schiefgelaufen. Versuche es erneut',
+  'scheduledMessages.theMessageNoLongerMeetsTheAppsLimits':
+    'Die Nachricht entspricht nicht mehr den Grenzen der App. Bearbeite sie',
+  'scheduledMessages.thisChannelIsFrozen': 'Dieser Kanal ist eingefroren',
+  'scheduledMessages.thisChannelNowNeedsApprovalScheduleItAgain':
+    'Dieser Kanal erfordert jetzt eine Freigabe. Plane die Nachricht erneut',
+  'scheduledMessages.thisChannelWasDeleted': 'Dieser Kanal wurde gelöscht',
+  'scheduledMessages.thisMessageToNameWontBeSentThis':
+    'Diese Nachricht an {{ name }} wird nicht gesendet. Das kann nicht rückgängig gemacht werden.',
+  'scheduledMessages.thisMessageWontBeSentThisCantBe':
+    'Diese Nachricht wird nicht gesendet. Das kann nicht rückgängig gemacht werden.',
+  'scheduledMessages.threadReply': 'Thread-Antwort:',
+  'scheduledMessages.time': 'Uhrzeit',
+  'scheduledMessages.view': 'Anzeigen',
+  'scheduledMessages.viewAll': 'Alle anzeigen',
+  'scheduledMessages.youCantSendMessagesInThisChannel':
+    'Du kannst in diesem Kanal keine Nachrichten senden',
+  'scheduledMessages.youreNoLongerAllowedToPostHere': 'Du darfst hier nicht mehr posten',
   'search.bar.clearSearch.ariaLabel': 'Suche leeren',
   'search.bar.exitSearch.ariaLabel': 'Suche beenden',
   'search.resultItem.selectUserChannel.ariaLabel': 'Benutzerkanal auswählen: {{ name }}',

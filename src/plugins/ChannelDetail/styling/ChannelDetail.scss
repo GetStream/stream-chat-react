@@ -1,6 +1,4 @@
-// Below this viewport width the windowed modal would be narrower than the default
-// `tabsLayoutMinWidth` (640px), so it goes full screen.
-$channel-detail-modal-full-screen-max-width: 679.98px;
+@use '../../../styling/utils';
 
 // Fills its container. The section navigator measures this element, so no layout sizes it.
 .str-chat__channel-detail {
@@ -75,13 +73,7 @@ $channel-detail-modal-full-screen-max-width: 679.98px;
     height: 100dvh;
   }
 
-  @media (max-width: $channel-detail-modal-full-screen-max-width) {
-    width: 100dvw;
-    max-width: none;
-    height: 100dvh;
-    border-radius: 0;
-    box-shadow: none;
-  }
+  @include utils.modal-full-screen;
 }
 
 .str-chat__channel-detail__nav-button {

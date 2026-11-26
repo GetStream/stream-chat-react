@@ -48,6 +48,10 @@ export const PREVIEW_SECTION_INFO: Record<PreviewSectionType, PreviewSectionInfo
     label: 'Quoted message',
     removes: 'The Quote message action.',
   },
+  scheduledMessage: {
+    label: 'Scheduled message',
+    removes: 'The Edit and Retry actions of the scheduled messages list.',
+  },
   voiceRecording: {
     label: 'Voice recording',
     removes: 'The record button.',

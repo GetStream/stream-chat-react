@@ -194,6 +194,9 @@ export const InfiniteScrollPaginator = forwardRef(function InfiniteScrollPaginat
       });
     });
     observer.observe(root as Element);
+    // content can shrink inside a root of fixed size (a narrowed search, say), which leaves the
+    // root's size unchanged but may bring the bottom within the threshold
+    if (childRef.current) observer.observe(childRef.current);
 
     return () => {
       observer.disconnect();

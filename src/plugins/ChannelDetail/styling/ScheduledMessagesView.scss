@@ -1,0 +1,20 @@
+.str-chat__channel-detail__scheduled-messages-view {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+}
+
+.str-chat__channel-detail__scheduled-messages-view__body {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+
+// aligned with the search input, which the view pads in the same way
+.str-chat__channel-detail__scheduled-messages-view__body
+  .str-chat__scheduled-message-list-notice {
+  margin-inline: var(--str-chat__spacing-xl);
+}

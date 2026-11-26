@@ -102,7 +102,9 @@ const MessageComposerProvider = (props: PropsWithChildren<MessageComposerProps>)
       // it: clearing on unmount would discard an edit the supplier still holds (visible in Strict
       // Mode).
       if (messageComposer === suppliedComposer) return;
-      draftSaved.finally(() => messageComposer.clear());
+      draftSaved.finally(() => {
+        if (!messageComposer.editedScheduledMessage) messageComposer.clear();
+      });
     },
     [messageComposer, suppliedComposer],
   );
@@ -120,7 +122,7 @@ const MessageComposerProvider = (props: PropsWithChildren<MessageComposerProps>)
     messageComposer.channel
       .getDraft({ parent_id: threadId })
       .then(({ draft }) => {
-        if (draft) {
+        if (draft && !messageComposer.editedScheduledMessage) {
           messageComposer.initState({ composition: draft });
         }
       })

@@ -63,6 +63,7 @@ import {
   generateLocalAttachmentData,
   generateMember,
   generateMessage,
+  generateScheduledMessage,
   generateScrapedDataAttachment,
   generateUser,
   initClientWithChannels,
@@ -2249,6 +2250,23 @@ describe(`MessageInputFlat`, () => {
 
       await waitFor(() => expect(clear).toHaveBeenCalledTimes(1));
       expect(consoleError).toHaveBeenCalledWith(error);
+    });
+
+    it('keeps a scheduled message being edited', async () => {
+      const { customChannel, customClient } = await setup();
+      const { messageComposer } = customChannel;
+      const scheduledMessage = generateScheduledMessage({
+        cid: customChannel.cid,
+        message: { custom: {}, text: 'Launch moved to Monday' },
+      });
+      const { unmount } = await renderComponent({ customChannel, customClient });
+      await act(() => messageComposer.editScheduledMessage(scheduledMessage));
+
+      unmount();
+      await flushMicrotasks();
+
+      expect(messageComposer.editedScheduledMessage?.id).toBe(scheduledMessage.id);
+      expect(messageComposer.textComposer.text).toBe('Launch moved to Monday');
     });
 
     it('saves the draft of a supplied composer but leaves clearing it to its owner', async () => {

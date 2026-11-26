@@ -1,0 +1,81 @@
+@use '../../../styling/utils';
+
+$banner-selector: '.str-chat__scheduled-messages-banner';
+$composer-with-banner-selector: '.str-chat__message-composer-container:has(> #{$banner-selector})';
+
+.str-chat {
+  --str-chat__scheduled-messages-banner-height: 40px;
+  --str-chat__scheduled-messages-banner-clearance: calc(
+    var(--str-chat__scheduled-messages-banner-height) + 2 * var(--str-chat__spacing-md)
+  );
+
+  #{$composer-with-banner-selector} {
+    position: relative;
+
+    > #{$banner-selector} {
+      position: absolute;
+      inset-block-end: calc(100% + var(--str-chat__spacing-md));
+      inset-inline: var(--str-chat__spacing-md);
+      z-index: 1;
+      width: auto;
+    }
+  }
+
+  .str-chat__message-list-main-panel:has(
+    ~ .str-chat__message-composer-container > #{$banner-selector}
+  ) {
+    .str-chat__jump-to-latest-message,
+    .str-chat__new-message-notification {
+      inset-block-end: var(--str-chat__scheduled-messages-banner-clearance);
+    }
+
+    .str-chat__message-list .str-chat__ul {
+      padding-block-end: var(--str-chat__scheduled-messages-banner-clearance);
+    }
+  }
+
+  .str-chat__scheduled-messages-banner {
+    display: flex;
+    align-items: center;
+    gap: var(--str-chat__spacing-sm);
+    width: 100%;
+    min-height: var(--str-chat__scheduled-messages-banner-height);
+    box-sizing: border-box;
+    padding: var(--str-chat__spacing-xs) var(--str-chat__spacing-md);
+    border-radius: var(--str-chat__radius-max);
+    background-color: var(--str-chat__background-core-elevation-2);
+    box-shadow: var(--str-chat__box-shadow-3);
+    color: var(--str-chat__text-primary);
+    font: var(--str-chat__font-metadata-emphasis);
+
+    .str-chat__scheduled-messages-banner__icon {
+      flex-shrink: 0;
+      height: var(--str-chat__icon-size-md);
+      width: var(--str-chat__icon-size-md);
+      color: var(--str-chat__accent-primary);
+    }
+
+    .str-chat__scheduled-messages-banner__label {
+      @include utils.ellipsis-text();
+      flex: 1;
+      min-width: 0;
+    }
+
+    &.str-chat__scheduled-messages-banner--failed
+      .str-chat__scheduled-messages-banner__icon {
+      color: var(--str-chat__accent-error);
+    }
+
+    .str-chat__scheduled-messages-banner__view-button {
+      @include utils.button-reset;
+      flex-shrink: 0;
+      cursor: pointer;
+      color: var(--str-chat__text-link);
+      font: var(--str-chat__font-metadata-default);
+
+      &:focus-visible {
+        @include utils.focusable;
+      }
+    }
+  }
+}

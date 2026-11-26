@@ -22,8 +22,8 @@ import {
   isVoiceRecordingAttachment,
   MessageSearchSource,
   POLL_ONLY_COMPOSITION_MIDDLEWARE_ID,
+  SCHEDULED_MESSAGE_COMPOSITION_MIDDLEWARE_ID,
   SearchController,
-  USER_DATA_INJECTION_MIDDLEWARE_ID,
   UserSearchSource,
 } from 'stream-chat';
 import {
@@ -57,6 +57,12 @@ import {
 import { ChatSkipNavigation } from './AccessibilityNavigation/ChatSkipNavigation.tsx';
 import { SlotGeometryProvider } from 'stream-chat-react/slot-geometry';
 import { AlsoSentInChannelIndicator } from './ChatLayout/AlsoSentInChannelIndicator.tsx';
+import { ConfiguredScheduledMessageListDialog } from './ChatLayout/ConfiguredChannelDetail.tsx';
+import {
+  CalendarDateInput,
+  ConfirmScheduledMessageDelete,
+  TimeComboboxInput,
+} from './ScheduledMessages';
 import { useAdditiveWorkspaceNavigation } from './ChatLayout/useAdditiveWorkspaceNavigation.ts';
 import { ChannelsPanels, ThreadsPanels } from './ChatLayout/Panels.tsx';
 import { SidebarProvider } from './ChatLayout/SidebarContext.tsx';
@@ -101,6 +107,7 @@ import {
   ConfigurableStartRecordingAudioButton,
 } from './ComposerPreviews/ConfigurableComposerPreviews.tsx';
 import { ConfigurablePollCreationDialogControls } from './ComposerPreviews/ConfigurablePollCreationDialogControls.tsx';
+import { ConfigurableScheduledMessageItem } from './ComposerPreviews/ConfigurableScheduledMessageItem.tsx';
 import { ConfigurableMessageBubbleContent } from './MessageBubble/ConfigurableMessageBubbleContent.tsx';
 import { applySimulatedListQueryFailures, StreamDebugHandles } from './Debug';
 import {
@@ -583,11 +590,12 @@ const App = () => {
       // While the Poll preview shows, the poll dialog attaches the poll to the message being
       // composed (ConfigurablePollCreationDialogControls). Without the poll-only step the poll is
       // sent with the text and attachments rather than as a message of its own, and the composer
-      // clears after the send. Restored when the preview is turned off, since this setup re-runs.
+      // clears after the send. Restored when the preview is turned off, since this setup re-runs:
+      // after the scheduling check, where the SDK puts it, so a blocked schedule still stops first.
       if (pollDisabled) {
         composer.compositionMiddlewareExecutor.insert({
           middleware: [createPollOnlyCompositionMiddleware(composer)],
-          position: { after: USER_DATA_INJECTION_MIDDLEWARE_ID },
+          position: { after: SCHEDULED_MESSAGE_COMPOSITION_MIDDLEWARE_ID },
           unique: true,
         });
       } else {
@@ -700,6 +708,11 @@ const App = () => {
         MessageBubbleContent: ConfigurableMessageBubbleContent,
         MessageComposerPreviews: ConfigurableComposerPreviews,
         PollCreationDialogControls: ConfigurablePollCreationDialogControls,
+        ScheduledMessageItem: ConfigurableScheduledMessageItem,
+        ScheduledMessageListDialog: ConfiguredScheduledMessageListDialog,
+        ScheduledMessageDeleteAlert: ConfirmScheduledMessageDelete,
+        ScheduleDateInput: CalendarDateInput,
+        ScheduleTimeInput: TimeComboboxInput,
         StartRecordingAudioButton: ConfigurableStartRecordingAudioButton,
         MessageUI: InlineEditableMessage,
         ...messageUiOverrides,

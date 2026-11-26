@@ -332,6 +332,7 @@ type QuotedMessagePreviewUIProps = QuotedMessagePreviewProps & {
   className?: string;
   onClick?: MouseEventHandler<HTMLDivElement>;
   onRemove?: () => void;
+  removeLabel?: string;
 };
 
 export const QuotedMessagePreviewUI = ({
@@ -341,6 +342,7 @@ export const QuotedMessagePreviewUI = ({
   onClick,
   onRemove,
   quotedMessage,
+  removeLabel,
   renderText,
 }: QuotedMessagePreviewUIProps) => {
   const { client } = useChatContext();
@@ -525,10 +527,13 @@ export const QuotedMessagePreviewUI = ({
 
       {onRemove && (
         <RemoveAttachmentPreviewButton
-          aria-label={t(
-            'messageComposer.quotedMessagePreview.cancelReply.ariaLabel',
-            'Cancel Reply',
-          )}
+          aria-label={
+            removeLabel ??
+            t(
+              'messageComposer.quotedMessagePreview.cancelReply.ariaLabel',
+              'Cancel Reply',
+            )
+          }
           data-testid='quoted-message-preview-dismiss-btn'
           onClick={onRemove}
         />

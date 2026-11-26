@@ -81,6 +81,16 @@ import type { SummarizedMessagePreviewProps } from '../components/SummarizedMess
 import type { TypingIndicatorProps } from '../components/TypingIndicator';
 import type { AttachmentUploadProgressIndicatorProps } from '../components/Attachment/components/AttachmentUploadProgressIndicator';
 import type { IconSlots } from '../components/Icons/slots';
+import type {
+  ScheduleDateInputProps,
+  ScheduledMessageDeleteAlertProps,
+  ScheduledMessageItemProps,
+  ScheduledMessageListDialogProps,
+  ScheduledMessageListProps,
+  ScheduledMessagePreviewProps,
+  ScheduleTimeDialogProps,
+  ScheduleTimeInputProps,
+} from '../components/ScheduledMessages';
 
 export type ComponentContextValue = {
   /** Progress of an attachment whose upload is still in flight. */
@@ -375,6 +385,32 @@ export type ComponentContextValue = {
   RecordingPermissionDeniedNotification?: React.ComponentType<RecordingPermissionDeniedNotificationProps>;
   /** Message reminder information in the message UI. */
   ReminderNotification?: React.ComponentType<ReminderNotificationProps>;
+  /** Asks before a scheduled message is deleted, from its list item. */
+  ScheduledMessageDeleteAlert?: React.ComponentType<ScheduledMessageDeleteAlertProps>;
+  /** One item of `ScheduledMessageList`. */
+  ScheduledMessageItem?: React.ComponentType<ScheduledMessageItemProps>;
+  /** Scheduled messages in the banner's dialog and the Channel Detail section. */
+  ScheduledMessageList?: React.ComponentType<ScheduledMessageListProps>;
+  /**
+   * What the banner's "View all" opens: a modal with the channel's (or thread's) scheduled messages
+   * by default. Receives `open` and `close`, so an override can show the list elsewhere.
+   */
+  ScheduledMessageListDialog?: React.ComponentType<ScheduledMessageListDialogProps>;
+  /** Above the composer while a scheduled message is edited or a failed one scheduled again. */
+  ScheduledMessagePreview?: React.ComponentType<ScheduledMessagePreviewProps>;
+  /** Scheduled messages banner above the composer; `null` hides it. */
+  ScheduledMessagesBanner?: React.ComponentType | null;
+  /** Schedule button next to the send button; `null` hides it. */
+  ScheduleMessageButton?: React.ComponentType | null;
+  /** The date field of `ScheduleTimeDialog`; the browser's date picker by default. */
+  ScheduleDateInput?: React.ComponentType<ScheduleDateInputProps>;
+  /**
+   * The dialog for picking a custom time, opened by the schedule button and by rescheduling. Its
+   * date and time fields are the `ScheduleDateInput` and `ScheduleTimeInput` slots.
+   */
+  ScheduleTimeDialog?: React.ComponentType<ScheduleTimeDialogProps>;
+  /** The time field of `ScheduleTimeDialog`; the browser's time picker by default. */
+  ScheduleTimeInput?: React.ComponentType<ScheduleTimeInputProps>;
   /** Translation indicator, shown when the message has `i18n`. */
   MessageTranslationIndicator?: React.ComponentType<TranslationIndicatorProps>;
   /**

@@ -111,3 +111,4 @@ export * from './markRead';
 export * from './threadReplies';
 export * from './sendMessage';
 export * from './error';
+export * from './scheduledMessages';

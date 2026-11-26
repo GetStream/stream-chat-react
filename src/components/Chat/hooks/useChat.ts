@@ -43,6 +43,8 @@ export const useChat = ({ client }: UseChatParams) => {
     client.polls.registerSubscriptions();
     client.reminders.registerSubscriptions();
     client.reminders.initTimers();
+    const releaseScheduledMessagePaginators =
+      client.scheduledMessagePaginators.registerSubscriptions();
 
     return () => {
       releaseChannelManager();
@@ -50,6 +52,7 @@ export const useChat = ({ client }: UseChatParams) => {
       client.polls.unregisterSubscriptions();
       client.reminders.unregisterSubscriptions();
       client.reminders.clearTimers();
+      releaseScheduledMessagePaginators();
     };
   }, [client]);
 

@@ -272,6 +272,12 @@ export const itTranslations = {
   'channelDetail.channelMembersView.members.title_one': '{{ count }} membro',
   'channelDetail.channelMembersView.members.title_other': '{{ count }} membri',
   'channelDetail.listLoaded.text': 'Elenco caricato',
+  'channelDetail.navButton.channelInfo.title': 'Info canale',
+  'channelDetail.navButton.files.title': 'File',
+  'channelDetail.navButton.media.title': 'Foto e video',
+  'channelDetail.navButton.members.title': 'Membri',
+  'channelDetail.navButton.pinnedMessages.title': 'Messaggi fissati',
+  'channelDetail.navButton.scheduledMessages.title': 'Programmati',
   'channelDetail.pinnedMessagesEmpty.noPinnedMessages.text': 'Nessun messaggio fissato',
   'channelDetail.pinnedMessagesEmpty.pinMessageSee.text':
     'Fissa un messaggio per vederlo qui',
@@ -813,6 +819,121 @@ export const itTranslations = {
   'relativeTime.weeksAgo_one': '{{ count }}sett fa',
   'relativeTime.weeksAgo_other': '{{ count }}sett fa',
   'relativeTime.yesterday': 'Ieri',
+  'scheduledMessages.banner.failedToSend_one': '{{ count }} non inviato',
+  'scheduledMessages.banner.failedToSend_other': '{{ count }} non inviati',
+  'scheduledMessages.banner.limitReached_one':
+    '{{ scheduled }} di {{ count }} messaggio programmato',
+  'scheduledMessages.banner.limitReached_other':
+    '{{ scheduled }} di {{ count }} messaggi programmati',
+  'scheduledMessages.banner.scheduledFor': 'Programmato per {{ time }}',
+  'scheduledMessages.banner.scheduledMessages_one': '{{ count }} messaggio programmato',
+  'scheduledMessages.banner.scheduledMessages_other': '{{ count }} messaggi programmati',
+  'scheduledMessages.banner.scheduledReplies_one': '{{ count }} risposta programmata',
+  'scheduledMessages.banner.scheduledReplies_other': '{{ count }} risposte programmate',
+  'scheduledMessages.blockedByModeration': 'Bloccato dalla moderazione',
+  'scheduledMessages.cancel': 'Annulla',
+  'scheduledMessages.cancelEdit.ariaLabel': 'Annulla modifica',
+  'scheduledMessages.cancelSchedulingAgain.ariaLabel': 'Annulla nuova programmazione',
+  'scheduledMessages.cantSendInThisChannel':
+    'Non disponibile: non puoi inviare messaggi in questo canale',
+  'scheduledMessages.channelFrozenNotice':
+    'Questo canale è congelato. I messaggi programmati non verranno inviati',
+  'scheduledMessages.chooseALaterTime': 'Scegli un orario successivo',
+  'scheduledMessages.chooseAnEarlierTime': 'Scegli un orario precedente',
+  'scheduledMessages.clickTheArrowNextToTheSendButton':
+    'Fai clic sulla freccia accanto al pulsante di invio in un canale per programmare un messaggio.',
+  'scheduledMessages.copyText': 'Copia testo',
+  'scheduledMessages.couldntCopyTheText': 'Impossibile copiare il testo',
+  'scheduledMessages.couldntDeleteTheScheduledMessageTryAgain':
+    'Impossibile eliminare il messaggio programmato. Riprova',
+  'scheduledMessages.couldntLoadScheduledMessages':
+    'Impossibile caricare i messaggi programmati',
+  'scheduledMessages.couldntRescheduleTheMessageTryAgain':
+    'Impossibile riprogrammare il messaggio. Riprova',
+  'scheduledMessages.couldntScheduleMessageTryAgain':
+    'Impossibile programmare il messaggio. Riprova',
+  'scheduledMessages.couldntSendTheMessageTryAgain':
+    'Impossibile inviare il messaggio. Riprova',
+  'scheduledMessages.couldntSendTryAgain': 'Invio non riuscito. Riprova',
+  'scheduledMessages.customTime': 'Orario personalizzato',
+  'scheduledMessages.date': 'Data',
+  'scheduledMessages.delete': 'Elimina',
+  'scheduledMessages.deleteScheduledMessage': 'Eliminare il messaggio programmato?',
+  'scheduledMessages.edit': 'Modifica',
+  'scheduledMessages.editReschedule': 'Modifica e riprogramma',
+  'scheduledMessages.editScheduledMessage': 'Modifica messaggio programmato',
+  'scheduledMessages.limitReachedMax': 'Limite raggiunto (max {{ max }})',
+  'scheduledMessages.loaded': 'Messaggi programmati caricati',
+  'scheduledMessages.loadingScheduledMessages': 'Caricamento dei messaggi programmati',
+  'scheduledMessages.messageToName': 'Messaggio a {{ name }}',
+  'scheduledMessages.noMessagesFound': 'Nessun messaggio trovato',
+  'scheduledMessages.noScheduledMessages': 'Nessun messaggio programmato',
+  'scheduledMessages.notSentTheServiceWasDelayed':
+    'Non inviato: il servizio ha subito un ritardo',
+  'scheduledMessages.notification.alreadySent': 'Già inviato',
+  'scheduledMessages.notification.alreadySentEdit':
+    'Questo messaggio è già stato inviato',
+  'scheduledMessages.notification.blocked': 'Questo messaggio non può essere programmato',
+  'scheduledMessages.notification.channelLimit':
+    'Hai raggiunto il limite di messaggi programmati in questo canale',
+  'scheduledMessages.notification.conflict': 'Modificato altrove. Riprova',
+  'scheduledMessages.notification.disabled': 'I messaggi programmati sono disattivati',
+  'scheduledMessages.notification.endedEdit':
+    'Questo messaggio programmato non può più essere modificato',
+  'scheduledMessages.notification.forbidden': 'Non puoi programmare messaggi qui',
+  'scheduledMessages.notification.notEditable':
+    'I messaggi non riusciti non possono essere modificati',
+  'scheduledMessages.notification.sending': 'Questo messaggio è in fase di invio',
+  'scheduledMessages.notification.stillSending':
+    'Invio in corso. Riprova tra un momento.',
+  'scheduledMessages.notification.updateFailed':
+    'Impossibile aggiornare il messaggio programmato. Riprova',
+  'scheduledMessages.notification.userLimit':
+    'Hai raggiunto il limite di messaggi programmati',
+  'scheduledMessages.openScheduleMessageMenu.ariaLabel':
+    'Apri il menu di programmazione del messaggio',
+  'scheduledMessages.openScheduledMessageActions.ariaLabel':
+    'Apri le azioni del messaggio programmato',
+  'scheduledMessages.pickALaterTimeEditingCantSend':
+    'Scegli un orario successivo. La modifica non può inviare subito un messaggio.',
+  'scheduledMessages.rejectedByTheApp': "Rifiutato dall'app",
+  'scheduledMessages.reschedule': 'Riprogramma',
+  'scheduledMessages.rescheduleMessage': 'Riprogramma messaggio',
+  'scheduledMessages.save': 'Salva',
+  'scheduledMessages.schedule': 'Programma',
+  'scheduledMessages.scheduleAgain': 'Programma di nuovo',
+  'scheduledMessages.scheduleMessage': 'Programma messaggio',
+  'scheduledMessages.scheduledForTime': 'Programmato per {{ time }}',
+  'scheduledMessages.scheduledMessageActions': 'Azioni del messaggio programmato',
+  'scheduledMessages.scheduledMessageSent': 'Messaggio programmato inviato',
+  'scheduledMessages.scheduledMessages': 'Messaggi programmati',
+  'scheduledMessages.scheduledReplies': 'Risposte programmate',
+  'scheduledMessages.schedulingUnavailableNotice':
+    'Non puoi programmare messaggi in questo canale',
+  'scheduledMessages.sendNow': 'Invia ora',
+  'scheduledMessages.sendTime': 'Invio: {{ time }}',
+  'scheduledMessages.sending': 'Invio in corso...',
+  'scheduledMessages.sentInYourTimeZoneTimezone':
+    'Inviato nel tuo fuso orario ({{ timeZone }})',
+  'scheduledMessages.somethingWentWrongTryAgain': 'Qualcosa è andato storto. Riprova',
+  'scheduledMessages.theMessageNoLongerMeetsTheAppsLimits':
+    "Il messaggio non rispetta più i limiti dell'app. Modificalo",
+  'scheduledMessages.thisChannelIsFrozen': 'Questo canale è congelato',
+  'scheduledMessages.thisChannelNowNeedsApprovalScheduleItAgain':
+    'Questo canale ora richiede approvazione. Programmalo di nuovo',
+  'scheduledMessages.thisChannelWasDeleted': 'Questo canale è stato eliminato',
+  'scheduledMessages.thisMessageToNameWontBeSentThis':
+    'Questo messaggio a {{ name }} non verrà inviato. Questa azione non può essere annullata.',
+  'scheduledMessages.thisMessageWontBeSentThisCantBe':
+    'Questo messaggio non verrà inviato. Questa azione non può essere annullata.',
+  'scheduledMessages.threadReply': 'Risposta nel thread:',
+  'scheduledMessages.time': 'Ora',
+  'scheduledMessages.view': 'Visualizza',
+  'scheduledMessages.viewAll': 'Visualizza tutti',
+  'scheduledMessages.youCantSendMessagesInThisChannel':
+    'Non puoi inviare messaggi in questo canale',
+  'scheduledMessages.youreNoLongerAllowedToPostHere':
+    'Non hai più il permesso di pubblicare qui',
   'search.bar.clearSearch.ariaLabel': 'Cancella ricerca',
   'search.bar.exitSearch.ariaLabel': 'Esci dalla ricerca',
   'search.resultItem.selectUserChannel.ariaLabel':
