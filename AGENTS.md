@@ -204,7 +204,7 @@ Draft, attachment, poll and command state is owned by the `MessageComposer` clas
 
 **File:** `src/components/MessageList/utils.ts` (`processMessages`)
 
-Per message, in order: deleted messages skipped (`hideDeletedMessages`) → ephemeral giphy preview extracted (`setGiphyPreviewMessage`) → unread separator (skipped for the current user's own messages) → date separator (first message or a date change, never two in a row) → `reviewProcessedMessage` may rewrite the emitted slice. Group styling (`getGroupStyles`) is applied separately, keyed on user ID + time gaps.
+Per message, in order: deleted messages skipped (`hideDeletedMessages`) → ephemeral giphy preview extracted (`setGiphyPreviewMessage`) → date separator (first message or a date change) → `reviewProcessedMessage` may rewrite the emitted slice. The unread marker is `UnreadMessagesSeparator`, rendered by the lists, not a separator. Group styling (`getGroupStyles`) is applied separately, keyed on user ID + time gaps.
 
 Date separators come from `withDateSeparator`: on by default in `MessageList`, off in `VirtualizedMessageList`.
 

@@ -18,7 +18,7 @@ import {
 } from '../utils';
 import type { ProcessMessagesParams } from '../utils';
 import { CUSTOM_MESSAGE_TYPE } from '../../../constants/messageTypes';
-import { asTimestampNS, convertTimestampToDate, msToNs, nowNs } from 'stream-chat';
+import { asTimestampNS, convertTimestampToDate, msToNs } from 'stream-chat';
 import { convertDateToTimestamp } from '../../../mock-builders';
 
 const mockedNanoId = 'V1StGXR8_Z5jdHi6B-myT';
@@ -94,7 +94,6 @@ const dateSeparatorInsertedAt = (
   expectedWhere: any,
   messages: any,
   newMessageList: any,
-  unread?: any,
 ) => {
   if (!expectedWhere) {
     throw new Error('Missing "where"');
@@ -104,11 +103,6 @@ const dateSeparatorInsertedAt = (
 
   const startDateMsg = makeDateSeparator(messages[0]);
   const midDateMsg = makeDateSeparator(messages[1]);
-
-  if (unread) {
-    startDateMsg['unread'] = unread;
-    midDateMsg['unread'] = unread;
-  }
 
   if (expectedWhere[0] === 'start' && expectedWhere[1] === 'mid') {
     expect(newMessageList[0]).toMatchObject(startDateMsg);
@@ -388,66 +382,85 @@ describe('processMessages', () => {
       });
     });
     describe('for unread messages', () => {
-      const expectedWhere = ['start'];
-      const shouldExpectUnreadSeparator = true;
-      const lastRead = nowNs();
-      const oldMsg = {
-        created_at: convertDateToTimestamp(new Date('1970-01-01')),
-        updated_at: convertDateToTimestamp(new Date('1970-01-01')),
-      };
-      const unreadMsg = {
-        created_at: convertDateToTimestamp(new Date('9999-12-31')),
-        updated_at: convertDateToTimestamp(new Date('9999-12-31')),
-      };
-      const myNewMessages = [
-        { user: { id: myUserId }, ...unreadMsg },
-        { user: { id: myUserId }, ...unreadMsg },
-      ];
-      const incomingNewMessages = [
-        { user: { id: otherUserId }, ...unreadMsg },
-        { user: { id: otherUserId }, ...unreadMsg },
-      ];
-      const incomingOldMessages = [
-        { user: { id: otherUserId }, ...oldMsg },
-        { user: { id: otherUserId }, ...oldMsg },
-      ];
+      const readAt = new Date('2026-03-10T10:00:00.000Z');
+      const lastRead = msToNs(readAt.getTime());
+      const at = (iso: string) => ({
+        created_at: convertDateToTimestamp(new Date(iso)),
+        updated_at: convertDateToTimestamp(new Date(iso)),
+      });
+      const fromOtherUser = { user: { id: otherUserId } };
+      const separatorsIn = (list: ReturnType<typeof processMessages>) =>
+        list.filter(isDateSeparatorMessage);
 
-      it('showed from others', () => {
-        const { messages, newMessageList } = runMessageProcessing(incomingNewMessages, {
-          lastRead,
-          ...withDateSeparatorParams,
-        });
-        dateSeparatorInsertedAt(
-          expectedWhere,
-          messages,
-          newMessageList,
-          shouldExpectUnreadSeparator,
+      it('inserts one separator per day when the unread messages start mid-day', () => {
+        const { messages, newMessageList } = runMessageProcessing(
+          [
+            { ...fromOtherUser, ...at('2026-03-10T08:00:00.000Z') },
+            { ...fromOtherUser, ...at('2026-03-10T09:00:00.000Z') },
+            { ...fromOtherUser, ...at('2026-03-10T11:00:00.000Z') },
+            { ...fromOtherUser, ...at('2026-03-10T12:00:00.000Z') },
+          ],
+          { lastRead, ...withDateSeparatorParams },
         );
+
+        expect(newMessageList).toStrictEqual([
+          makeDateSeparator(messages[0]),
+          ...messages,
+        ]);
       });
 
-      it('not showed from others if read', () => {
-        const { messages, newMessageList } = runMessageProcessing(incomingOldMessages, {
+      it('inserts a separator at the first unread message only where the day changes', () => {
+        const { messages, newMessageList } = runMessageProcessing(
+          [
+            { ...fromOtherUser, ...at('2026-03-10T08:00:00.000Z') },
+            { ...fromOtherUser, ...at('2026-03-11T08:00:00.000Z') },
+            { ...fromOtherUser, ...at('2026-03-11T09:00:00.000Z') },
+          ],
+          { lastRead, ...withDateSeparatorParams },
+        );
+
+        expect(newMessageList).toStrictEqual([
+          makeDateSeparator(messages[0]),
+          messages[0],
+          makeDateSeparator(messages[1]),
+          messages[1],
+          messages[2],
+        ]);
+      });
+
+      it('returns the same list whether or not hideNewMessageSeparator is set', () => {
+        const messageData = [
+          { ...fromOtherUser, ...at('2026-03-10T08:00:00.000Z') },
+          { ...fromOtherUser, ...at('2026-03-10T11:00:00.000Z') },
+        ];
+        const messages = messageData.map((message) => generateMessage(message));
+        const params = {
           lastRead,
+          messages,
+          userId: myUserId,
           ...withDateSeparatorParams,
-        });
-        dateSeparatorInsertedAt(expectedWhere, messages, newMessageList);
+        };
+
+        expect(
+          processMessages({ ...params, hideNewMessageSeparator: true }),
+        ).toStrictEqual(processMessages({ ...params, hideNewMessageSeparator: false }));
+        expect(separatorsIn(processMessages(params))).toHaveLength(1);
       });
 
-      it('not showed from others if hideNewMessageSeparator enabled', () => {
-        const { messages, newMessageList } = runMessageProcessing(incomingNewMessages, {
+      it('forwards lastRead and hideNewMessageSeparator to reviewProcessedMessage', () => {
+        const reviewProcessedMessage = vi.fn(({ changes }) => changes);
+        runMessageProcessing([{ ...fromOtherUser, ...at('2026-03-10T11:00:00.000Z') }], {
           hideNewMessageSeparator: true,
           lastRead,
+          reviewProcessedMessage,
           ...withDateSeparatorParams,
         });
-        dateSeparatorInsertedAt(expectedWhere, messages, newMessageList);
-      });
 
-      it('not from me', () => {
-        const { messages, newMessageList } = runMessageProcessing(myNewMessages, {
-          lastRead,
-          ...withDateSeparatorParams,
-        });
-        dateSeparatorInsertedAt(expectedWhere, messages, newMessageList);
+        expect(reviewProcessedMessage).toHaveBeenCalledWith(
+          expect.objectContaining({
+            context: expect.objectContaining({ hideNewMessageSeparator: true, lastRead }),
+          }),
+        );
       });
     });
   });
@@ -543,13 +556,13 @@ describe('processMessages', () => {
       expect(separator).toStrictEqual(expectedSeparator(message));
     });
 
-    it('adds only `unread` for the unread separator', () => {
+    it('never marks a separator as unread, even before an unread message', () => {
       const message = generateMessage({
         created_at: convertDateToTimestamp('2026-01-01'),
         user: { id: otherUserId },
       });
 
-      const [separator] = processMessages({
+      const processed = processMessages({
         ...withDateSeparatorParams,
         // The epoch as "nothing read yet", so the message counts as unread.
         lastRead: asTimestampNS(0),
@@ -557,7 +570,7 @@ describe('processMessages', () => {
         userId: myUserId,
       });
 
-      expect(separator).toStrictEqual({ ...expectedSeparator(message), unread: true });
+      expect(processed).toStrictEqual([expectedSeparator(message), message]);
     });
   });
 });

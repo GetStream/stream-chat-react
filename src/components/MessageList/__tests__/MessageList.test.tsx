@@ -1355,6 +1355,59 @@ describe('MessageList', () => {
       markReadSpy.mockRestore();
     });
 
+    it('renders one date separator per day when the unread messages start mid-day', async () => {
+      const user = generateUser();
+      const otherUser = generateUser();
+      const messages = ['08:00', '09:00', '11:00', '12:00'].map((time) =>
+        generateMessage({
+          created_at: convertDateToTimestamp(`2026-03-10T${time}:00.000Z`),
+          user: otherUser,
+        }),
+      );
+      const {
+        channels: [channel],
+        client,
+      } = await initClientWithChannels({
+        channelsData: [
+          {
+            messages,
+            read: [
+              {
+                last_read: messages[1].created_at,
+                last_read_message_id: messages[1].id,
+                unread_messages: 2,
+                user,
+              },
+            ],
+          },
+        ],
+        customUser: user,
+      });
+      // Guards the setup: the list sees the second message as the last one read.
+      expect(channel.lastRead()).toBe(messages[1].created_at);
+
+      // @ts-expect-error - mock implementation has simplified signature
+      const markReadSpy = vi.spyOn(channel, 'markRead').mockResolvedValue(false);
+      channel.messagePaginator.setUnreadSnapshot({
+        firstUnreadMessageId: messages[2].id,
+        lastReadAt: messages[1].created_at,
+        lastReadMessageId: messages[1].id,
+        unreadCount: 2,
+      });
+
+      await act(() => {
+        renderComponent({
+          channelProps: { channel },
+          chatClient: client,
+          msgListProps: { messages },
+        });
+      });
+
+      expect(screen.getAllByTestId('date-separator')).toHaveLength(1);
+      expect(screen.getByTestId(UNREAD_MESSAGES_SEPARATOR_TEST_ID)).toBeInTheDocument();
+      markReadSpy.mockRestore();
+    });
+
     it('should not display unread messages separator in read main msg list', async () => {
       const user = generateUser();
       const messages = Array.from({ length: 5 }).map((_, i) =>
