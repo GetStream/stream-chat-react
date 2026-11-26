@@ -10,11 +10,7 @@ import {
   useTranslationContext,
 } from '../../context';
 import { useAIState } from '../AIStateIndicator';
-import {
-  useMessageComposerController,
-  useMessageComposerSubmitFn,
-  useMessageContentIsEmpty,
-} from './hooks';
+import { useMessageComposerController, useMessageContentIsEmpty } from './hooks';
 import { AudioRecordingButtonWithNotification } from '../MediaRecorder/AudioRecorder/AudioRecordingButtonWithNotification';
 import { useIsCooldownActive } from './hooks/useIsCooldownActive';
 import { AIStates } from 'stream-chat';
@@ -31,6 +27,7 @@ import { GlobalModal } from '../Modal';
 import { Portal } from '../Portal/Portal';
 import { useCanScheduleMessage } from '../ScheduledMessages/hooks/useCanScheduleMessage';
 import { useScheduleComposition } from '../ScheduledMessages/hooks/useScheduleComposition';
+import { useSubmitOrScheduleAgain } from '../ScheduledMessages/hooks/useSubmitOrScheduleAgain';
 import { ScheduleMessageButton as DefaultScheduleMessageButton } from '../ScheduledMessages/ScheduleMessageButton';
 import { ScheduleTimeDialog as DefaultScheduleTimeDialog } from '../ScheduledMessages/ScheduleTimeDialog';
 import {
@@ -110,7 +107,7 @@ export const MessageComposerActions = () => {
       : StopAIGenerationButtonOverride;
 
   const { recordingController } = useMessageComposerContext();
-  const submitMessageFn = useMessageComposerSubmitFn();
+  const submitMessageFn = useSubmitOrScheduleAgain();
   const isCooldownActive = useIsCooldownActive();
 
   const { aiState } = useAIState(channel);

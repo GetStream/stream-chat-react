@@ -5,6 +5,7 @@ import { act, cleanup, fireEvent, render, screen, within } from '@testing-librar
 import { Channel } from '../../Channel';
 import { Chat } from '../../Chat';
 import { MessageComposer } from '../../MessageComposer';
+import { useMessageComposerSubmitFn } from '../../MessageComposer/hooks/useMessageComposerSubmitFn';
 import {
   convertDateToTimestamp,
   generateMessage,
@@ -16,6 +17,13 @@ import {
 const user = generateUser({ id: 'user-id' });
 const WEDNESDAY_MORNING = new Date(2026, 9, 28, 10, 30);
 const SEND_TIME = new Date(2026, 9, 29, 9, 0);
+
+let submitWithoutDialog: ReturnType<typeof useMessageComposerSubmitFn> | undefined;
+
+const SubmitFnProbe = () => {
+  submitWithoutDialog = useMessageComposerSubmitFn();
+  return null;
+};
 
 const renderComposer = async () => {
   const {
@@ -39,6 +47,7 @@ const renderComposer = async () => {
       <Chat client={client}>
         <Channel channel={channel}>
           <MessageComposer />
+          <SubmitFnProbe />
         </Channel>
       </Chat>,
     );
@@ -196,6 +205,30 @@ describe('editing a scheduled message in the composer', () => {
         'Launch moved to Monday',
       );
       expect(sendMessage).not.toHaveBeenCalled();
+    });
+
+    it('opens the schedule dialog on Enter as well', async () => {
+      const { channel, startSchedulingAgain } = await renderComposer();
+      const sendMessage = vi.spyOn(channel, 'sendMessage');
+
+      await startSchedulingAgain();
+      await act(() =>
+        fireEvent.keyDown(screen.getByRole('textbox'), { code: 'Enter', key: 'Enter' }),
+      );
+
+      expect(await screen.findByTestId('schedule-message-dialog')).toBeInTheDocument();
+      expect(sendMessage).not.toHaveBeenCalled();
+    });
+
+    it('is sent, with no dialog, through useMessageComposerSubmitFn', async () => {
+      const { messageComposer, startSchedulingAgain } = await renderComposer();
+      const send = vi.spyOn(messageComposer, 'send').mockResolvedValue('sent');
+
+      await startSchedulingAgain();
+      await act(() => submitWithoutDialog?.());
+
+      expect(send).toHaveBeenCalledTimes(1);
+      expect(screen.queryByTestId('schedule-message-dialog')).not.toBeInTheDocument();
     });
 
     it('schedules it from the dialog', async () => {
