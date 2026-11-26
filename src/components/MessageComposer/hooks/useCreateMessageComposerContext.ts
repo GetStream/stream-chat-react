@@ -36,6 +36,7 @@ export const useCreateMessageComposerContext = (value: MessageComposerContextVal
       asyncMessagesMultiSendEnabled,
       audioRecordingEnabled,
       hideSendButton,
+      maxRows,
       minRows,
       recordingController,
     ],
