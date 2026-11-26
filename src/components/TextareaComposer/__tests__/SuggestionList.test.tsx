@@ -5,6 +5,7 @@ import { fromPartial } from '@total-typescript/shoehorn';
 import { axe } from '../../../../axe-helper';
 
 import { DialogManagerProvider } from '../../../context';
+import { getItemsMinHeight } from '../../Dialog/hooks/usePopoverPosition';
 import { SuggestionList } from '../SuggestionList';
 
 const renderSuggestionList = () =>
@@ -124,14 +125,20 @@ vi.mock('../../../utils/getTextareaCaretRect', () => ({
   getTextareaCaretRect: () => new DOMRect(0, 0, 1, 1),
 }));
 
-vi.mock('../../Dialog/hooks/usePopoverPosition', () => ({
-  usePopoverPosition: () => ({
-    refs: { setFloating: vi.fn(), setReference: vi.fn() },
-    strategy: 'absolute',
-    update: vi.fn(),
-    x: 0,
-    y: 0,
-  }),
+let popoverOptions: Record<string, unknown> | undefined;
+
+vi.mock('../../Dialog/hooks/usePopoverPosition', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('../../Dialog/hooks/usePopoverPosition')>()),
+  usePopoverPosition: (options: Record<string, unknown>) => {
+    popoverOptions = options;
+    return {
+      refs: { setFloating: vi.fn(), setReference: vi.fn() },
+      strategy: 'absolute',
+      update: vi.fn(),
+      x: 0,
+      y: 0,
+    };
+  },
 }));
 
 const buildState = (count: number, type = 'mentions') => {
@@ -235,6 +242,17 @@ describe('SuggestionList', () => {
 
     expect(container).toBeEmptyDOMElement();
     expect(announceInteractionMock).not.toHaveBeenCalled();
+  });
+
+  it('caps the list to the space available, keeping room for one and a half items', () => {
+    renderSuggestionList();
+
+    expect(popoverOptions).toMatchObject({
+      fitAvailableSpace: true,
+      getMinHeight: getItemsMinHeight,
+    });
+    // Flipping stays on, so the list can open below the caret when there is more room there.
+    expect(popoverOptions?.allowFlip).not.toBe(false);
   });
 
   it('exposes listbox/option semantics with wired ids and has no axe violations', async () => {

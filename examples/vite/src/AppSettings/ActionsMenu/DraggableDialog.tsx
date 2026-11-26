@@ -181,6 +181,8 @@ export const DraggableDialog = ({
       closeOnClickOutside={closeOnClickOutside}
       closeOnEscape={closeOnEscape}
       dialogManagerId={dialogManagerId}
+      // A dragged panel leaves its anchored box, so it keeps its own size.
+      fitAvailableSpace={false}
       focus={focus}
       id={dialogId}
       placement='right-start'

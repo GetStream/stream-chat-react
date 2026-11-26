@@ -13,3 +13,13 @@
 .str-chat__dialog-overlay--with-outside-click-capture {
   pointer-events: auto;
 }
+
+// Lets a scrollable child shrink to the dialog's capped height.
+.str-chat__dialog-contents--fit-available-space {
+  display: flex;
+  flex-direction: column;
+
+  > * {
+    min-height: 0;
+  }
+}

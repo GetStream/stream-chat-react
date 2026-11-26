@@ -371,3 +371,10 @@
     }
   }
 }
+
+// A menu in a dialog capped to the space available scrolls vertically. Its padding leaves room
+// for the items' focus rings.
+.str-chat__dialog-contents--fit-available-space > .str-chat__context-menu {
+  overflow-x: hidden;
+  overflow-y: auto;
+}

@@ -4,9 +4,13 @@ import React, { useEffect, useRef, useState } from 'react';
 import { FocusScope } from '@react-aria/focus';
 import { DialogPortalEntry } from './DialogPortal';
 import { useDialog, useDialogIsOpen } from '../hooks';
-import { type OffsetOpt, usePopoverPosition } from '../hooks/usePopoverPosition';
+import {
+  getItemsMinHeight,
+  type OffsetOpt,
+  usePopoverPosition,
+} from '../hooks/usePopoverPosition';
 import type { PopperLikePlacement } from '../hooks';
-import type { Placement } from '@floating-ui/react';
+import type { Boundary, Placement } from '@floating-ui/react';
 import { AriaLiveOutlet } from '../../Accessibility';
 
 export interface DialogAnchorOptions {
@@ -14,13 +18,39 @@ export interface DialogAnchorOptions {
   placement: PopperLikePlacement;
   referenceElement: HTMLElement | null;
   allowFlip?: boolean;
+  /**
+   * Keeps the dialog inside its dialog overlay (for a message list, between the channel header and
+   * the composer) without covering its reference: it opens above, below or beside it, and when no
+   * side fits, on the roomiest one, capped to the space there but never below one and a half items.
+   * Children form a shrinkable column, so a scrollable child (e.g. a context menu) scrolls. Falls
+   * back to the clipping ancestors while the overlay has no area. `DialogAnchor` defaults to true,
+   * `useDialogAnchor` to false.
+   */
+  fitAvailableSpace?: boolean;
   updateKey?: unknown;
+  /** Recomputes the position in the next frame after the dialog resizes. Defaults to false. */
   updatePositionOnContentResize?: boolean;
   offset?: OffsetOpt;
 }
 
+/** Whether the element takes up any space on screen. */
+const hasArea = (element: Element) => {
+  const { height, width } = element.getBoundingClientRect();
+  return height > 0 && width > 0;
+};
+
+/** Tries the side after the reference (right, left-to-right) when above and below don't fit. */
+const fitFlipOptions = { fallbackAxisSideDirection: 'end' } as const;
+
+/** The dialog's overlay, or its clipping ancestors while the overlay has no area. */
+const getDialogOverlayBoundary = (dialogContents: HTMLElement): Boundary => {
+  const overlay = dialogContents.closest('.str-chat__dialog-overlay');
+  return overlay && hasArea(overlay) ? overlay : 'clippingAncestors';
+};
+
 export function useDialogAnchor<T extends HTMLElement>({
   allowFlip,
+  fitAvailableSpace,
   offset,
   open,
   placement,
@@ -43,7 +73,12 @@ export function useDialogAnchor<T extends HTMLElement>({
     y,
   } = usePopoverPosition({
     allowFlip,
+    fitAvailableSpace,
+    flipOptions: fitAvailableSpace ? fitFlipOptions : undefined,
     freeze: true,
+    getBoundary: fitAvailableSpace ? getDialogOverlayBoundary : undefined,
+    getMinHeight: getItemsMinHeight,
+    measureUncappedSize: fitAvailableSpace,
     offset,
     placement: stabilisedChosenPlacement ?? placement,
   });
@@ -84,11 +119,17 @@ export function useDialogAnchor<T extends HTMLElement>({
   useEffect(() => {
     if (!popperElement || !updatePositionOnContentResize) return;
 
-    const resizeObserver = new ResizeObserver(update);
+    // The update can resize the dialog, so it runs in the next frame (no "ResizeObserver loop").
+    let frame = 0;
+    const resizeObserver = new ResizeObserver(() => {
+      cancelAnimationFrame(frame);
+      frame = requestAnimationFrame(update);
+    });
 
     resizeObserver.observe(popperElement);
 
     return () => {
+      cancelAnimationFrame(frame);
       resizeObserver.disconnect();
     };
   }, [popperElement, update, updatePositionOnContentResize]);
@@ -136,6 +177,7 @@ export const DialogAnchor = ({
   closeOnEscape = true,
   closeTransitionMs = 0,
   dialogManagerId,
+  fitAvailableSpace = true,
   focus = true,
   id,
   offset,
@@ -191,6 +233,7 @@ export const DialogAnchor = ({
     styles,
   } = useDialogAnchor<HTMLDivElement>({
     allowFlip,
+    fitAvailableSpace,
     offset,
     open: shouldRender,
     placement,
@@ -240,7 +283,11 @@ export const DialogAnchor = ({
           aria-label={resolvedAriaLabel}
           aria-labelledby={ariaLabelledBy}
           aria-modal={resolvedAriaModal}
-          className={clsx('str-chat__dialog-contents', className)}
+          className={clsx(
+            'str-chat__dialog-contents',
+            fitAvailableSpace && 'str-chat__dialog-contents--fit-available-space',
+            className,
+          )}
           data-str-chat-dialog-state={isClosing ? 'closing' : 'open'}
           data-str-chat-placement={chosenPlacement}
           data-testid='str-chat__dialog-contents'

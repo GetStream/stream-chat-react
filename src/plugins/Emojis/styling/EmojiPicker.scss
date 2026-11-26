@@ -4,6 +4,15 @@ $emoji-picker-border-radius: 10px;
   border-radius: $emoji-picker-border-radius;
   box-shadow: var(--str-chat__box-shadow-3);
   overflow: hidden;
+  // The picker and its wrapper shrink to the container's height, capped to the space available.
+  display: flex;
+  flex-direction: column;
+
+  > div {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+  }
 
   em-emoji-picker {
     --border-radius: #{$emoji-picker-border-radius};
