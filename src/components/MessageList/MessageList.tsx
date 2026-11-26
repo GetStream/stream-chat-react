@@ -472,8 +472,10 @@ export type MessageListProps = Partial<Pick<MessageProps, PropsDrilledToMessage>
   // todo: data manipulation - should live in MessagePaginator
   /** Hides deleted messages from the list. Defaults to `false`. */
   hideDeletedMessages?: boolean;
-  // todo: data manipulation - should live in MessagePaginator
-  /** Hides the date separator before the first unread incoming message. Defaults to `false`. */
+  /**
+   * Has no effect on separators. To hide the unread marker, override `UnreadMessagesSeparator`.
+   * @deprecated Use `UnreadMessagesSeparator`. Removed in the next major version.
+   */
   hideNewMessageSeparator?: boolean;
   /** Overrides the default props passed to [InfiniteScrollPaginator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/InfiniteScrollPaginator/InfiniteScrollPaginator.tsx) */
   internalInfiniteScrollProps?: InternalPaginatorProps;

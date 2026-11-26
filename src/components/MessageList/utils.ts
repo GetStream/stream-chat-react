@@ -23,8 +23,9 @@ type DateSeparatorMessage = {
   date: Date;
   id: string;
   /**
-   * Set only on the unread separator. Separators carry no `type`, so consumers narrow the union
-   * with `isDateSeparatorMessage` first.
+   * Never set by `processMessages`. Separators carry no `type`; narrow with
+   * `isDateSeparatorMessage`.
+   * @deprecated Use `UnreadMessagesSeparator`. Removed in the next major version.
    */
   unread?: boolean;
 };
@@ -36,12 +37,12 @@ type ProcessMessagesContext = {
   userId: string;
   /** Filters deleted messages out of the result. */
   hideDeletedMessages?: boolean;
-  /** Disables the date separator shown for unread incoming messages. */
-  hideNewMessageSeparator?: boolean;
   /**
-   * Messages created after this timestamp count as unread. Unix nanoseconds, as
-   * `channel.lastRead()` returns.
+   * Has no effect; forwarded to `reviewProcessedMessage`.
+   * @deprecated Use `UnreadMessagesSeparator`. Removed in the next major version.
    */
+  hideNewMessageSeparator?: boolean;
+  /** Last read time in unix ns (`channel.lastRead()`), forwarded to `reviewProcessedMessage`. */
   lastRead?: TimestampNS | null;
   /** Inserts date separators between messages posted on different days. */
   withDateSeparator?: boolean;
@@ -69,25 +70,17 @@ export type ProcessMessagesParams = ProcessMessagesContext & {
 };
 
 /**
- * Prepares messages for rendering: inserts date separators between messages posted on different
- * days and before the first unread message, and optionally drops deleted ones. The ephemeral giphy
- * preview is left out and handed to `setGiphyPreviewMessage`. `MessageList` enables date
- * separators by default, `VirtualizedMessageList` does not.
+ * Prepares messages for rendering: inserts a date separator at the first message and wherever the
+ * day changes, optionally drops deleted ones, and hands the ephemeral giphy preview to
+ * `setGiphyPreviewMessage`.
  *
  * @param params - Only `messages` and `userId` are required.
  * @returns The messages to render, with separators inserted.
  */
 export const processMessages = (params: ProcessMessagesParams) => {
   const { messages, reviewProcessedMessage, setGiphyPreviewMessage, ...context } = params;
-  const {
-    hideDeletedMessages,
-    hideNewMessageSeparator,
-    lastRead,
-    userId,
-    withDateSeparator,
-  } = context;
+  const { hideDeletedMessages, withDateSeparator } = context;
 
-  let unread = false;
   let ephemeralMessagePresent = false;
   let lastDateSeparator;
   const newMessages: RenderedMessage[] = [];
@@ -121,30 +114,6 @@ export const processMessages = (params: ProcessMessagesParams) => {
       : undefined;
     const prevMessageDate = previousCreatedAt ? previousCreatedAt.toDateString() : '';
 
-    if (!unread && !hideNewMessageSeparator) {
-      unread =
-        (lastRead != null &&
-          message.created_at != null &&
-          lastRead < message.created_at) ||
-        false;
-
-      // No unread date separator for the current user's messages.
-      if (
-        withDateSeparator &&
-        unread &&
-        messageCreatedAt &&
-        message.user?.id !== userId
-      ) {
-        const separator: DateSeparatorMessage = {
-          customType: CUSTOM_MESSAGE_TYPE.date,
-          date: messageCreatedAt,
-          id: makeDateMessageId(messageCreatedAt),
-          unread,
-        };
-        changes.push(separator);
-      }
-    }
-
     if (
       withDateSeparator &&
       (i === 0 || // the first message always gets a separator
@@ -152,8 +121,7 @@ export const processMessages = (params: ProcessMessagesParams) => {
         // Hidden deleted messages: add a separator if the last separator is for another date.
         (hideDeletedMessages &&
           previousMessage?.type === 'deleted' &&
-          lastDateSeparator !== messageDate)) &&
-      !isDateSeparatorMessage(changes[changes.length - 1]) // never two separators in a row
+          lastDateSeparator !== messageDate))
     ) {
       lastDateSeparator = messageDate;
 

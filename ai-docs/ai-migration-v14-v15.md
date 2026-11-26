@@ -2499,7 +2499,7 @@ In v14, `scrollSeekPlaceHolder` reached `react-virtuoso` as its deprecated `scro
 
 ### `DateSeparatorMessage`
 
-The `DateSeparatorMessage` member of the `RenderedMessage` union lost `type` (it was never populated at runtime) and `unread` is optional (set only by the unread separator). Narrow with `isDateSeparatorMessage(message)` rather than checking either field.
+The `DateSeparatorMessage` member of the `RenderedMessage` union lost `type` (it was never populated at runtime), and `unread` is deprecated and never set. Narrow with `isDateSeparatorMessage(message)` rather than checking either field. The lists' `hideNewMessageSeparator` prop is deprecated too: `UnreadMessagesSeparator` marks where the unread messages start.
 
 ### Low-level list hooks and utils
 

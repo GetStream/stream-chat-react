@@ -36,6 +36,8 @@ import type { MessageProps } from '../../Message';
 import type { ComponentContextValue } from '../../../context';
 import type { VirtualizedMessageListProps } from '../VirtualizedMessageList';
 import type { GiphyPreviewMessageProps } from '../GiphyPreviewMessage';
+import { isDateSeparatorMessage, type RenderedMessage } from '../utils';
+import { convertDateToTimestamp } from '../../../mock-builders';
 
 const threadWithParentMessage = () =>
   fromPartial<Thread>({
@@ -1023,6 +1025,73 @@ describe('VirtualizedMessageList', () => {
         expect(screen.queryByTestId('first-page-loading')).not.toBeInTheDocument();
         expect(ListEmptyUI).not.toHaveBeenCalled();
       });
+    });
+  });
+
+  describe('date separators', () => {
+    afterEach(() => {
+      mockViewport.current = null;
+    });
+
+    it('inserts one date separator per day when the unread messages start mid-day', async () => {
+      // Renders the items, so the unread marker can be checked too.
+      mockViewport.current = { itemHeight: 30, viewportHeight: 600 };
+      // Explicit IDs, because the file-wide nanoid mock leaves generated ones undefined.
+      const user = generateUser({ id: 'reader' });
+      const otherUser = generateUser({ id: 'sender' });
+      const messages = ['08:00', '09:00', '11:00', '12:00'].map((time, i) =>
+        generateMessage({
+          created_at: convertDateToTimestamp(`2026-03-10T${time}:00.000Z`),
+          id: `same-day-msg-${i}`,
+          text: `same-day-msg-${i}`,
+          user: otherUser,
+        }),
+      );
+      const mockedChannel = generateChannel({
+        channel: { id: 'same-day-channel' },
+        members: [generateMember({ user }), generateMember({ user: otherUser })],
+        messages,
+        read: [
+          {
+            last_read: messages[1].created_at,
+            last_read_message_id: messages[1].id,
+            unread_messages: 2,
+            user,
+          },
+        ],
+      });
+      const client = await getTestClientWithUser({ id: user.id });
+      useMockedApis(client, [getOrCreateChannelApi(mockedChannel)]);
+      const channel = client.channel('messaging', mockedChannel.channel.id);
+      await channel.watch();
+      // Guards the setup: the list sees the second message as the last one read.
+      expect(channel.lastRead()).toBe(messages[1].created_at);
+      virtuosoProps.length = 0;
+
+      await act(() => {
+        render(
+          <Chat client={client}>
+            <Channel channel={channel}>
+              <VirtualizedMessageList withDateSeparator />
+            </Channel>
+          </Chat>,
+        );
+      });
+
+      const { processedMessages } = virtuosoProps[virtuosoProps.length - 1].context as {
+        processedMessages: RenderedMessage[];
+      };
+      expect(processedMessages.filter(isDateSeparatorMessage)).toHaveLength(1);
+      expect(isDateSeparatorMessage(processedMessages[0])).toBe(true);
+      expect(processedMessages.slice(1).map(({ id }) => id)).toEqual(
+        messages.map(({ id }) => id),
+      );
+      // The unread marker sits right after the last read message.
+      const unreadMarker = screen.getByTestId('unread-messages-separator');
+      const position = (text: string) =>
+        unreadMarker.compareDocumentPosition(screen.getByText(text));
+      expect(position('same-day-msg-1')).toBe(Node.DOCUMENT_POSITION_PRECEDING);
+      expect(position('same-day-msg-2')).toBe(Node.DOCUMENT_POSITION_FOLLOWING);
     });
   });
 

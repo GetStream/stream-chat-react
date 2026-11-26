@@ -15,13 +15,15 @@ export type DateSeparatorProps = TimestampFormatterOptions & {
   floating?: boolean;
   /** Replaces the default date formatting. */
   formatDate?: (date: Date) => string;
-  // todo: position and unread are not necessary anymore
   /**
-   * Has no effect: every position renders the same markup.
-   * @default right
+   * Has no effect.
+   * @deprecated Style `.str-chat__date-separator` instead. Removed in the next major version.
    */
   position?: 'left' | 'center' | 'right';
-  /** Has no effect. */
+  /**
+   * Has no effect.
+   * @deprecated Use `UnreadMessagesSeparator`. Removed in the next major version.
+   */
   unread?: boolean;
 };
 

@@ -737,7 +737,10 @@ export type VirtualizedMessageListProps = Partial<
   groupByUser?: boolean;
   /** Hides deleted messages from the list. Defaults to `false`. */
   hideDeletedMessages?: boolean;
-  /** Hides the date separator before the first unread incoming message. Defaults to `false`. */
+  /**
+   * Has no effect on separators. To hide the unread marker, override `UnreadMessagesSeparator`.
+   * @deprecated Use `UnreadMessagesSeparator`. Removed in the next major version.
+   */
   hideNewMessageSeparator?: boolean;
   /** Maximum time (ms) between two messages for them to stay in the same group. */
   maxTimeBetweenGroupedMessages?: number;
