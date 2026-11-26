@@ -322,4 +322,23 @@ describe('ChatView built-in workspace layout empty state', () => {
     expect(screen.getByTestId('fallback-slot2')).toBeInTheDocument();
     expect(screen.queryByTestId('fallback-slot1')).not.toBeInTheDocument();
   });
+
+  it('shows the slots, not the placeholder, while a slot holds only a layer', async () => {
+    const client = await getTestClientWithUser();
+    const channel = client.channel('messaging', 'layered');
+    const layoutController = new LayoutController({
+      initialState: { availableSlots: ['slot1', 'slot2'] },
+    });
+    layoutController.pushLayer(
+      'slot1',
+      createChatViewSlotBinding({ key: channel.cid, kind: 'channel', source: channel }),
+    );
+
+    const { container } = await renderWorkspace({ layoutController });
+
+    expect(screen.getByTestId('bound-channel')).toHaveTextContent(channel.cid);
+    expect(
+      container.querySelector('.str-chat__chat-view__empty-placeholder'),
+    ).not.toBeInTheDocument();
+  });
 });

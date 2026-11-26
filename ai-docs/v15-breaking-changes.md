@@ -1099,7 +1099,7 @@ const App = () => (
 );
 ```
 
-A threads view is declared the same way (a `{ id: 'threads', slots: [...] }` layout and a `threads` entry in `views` rendering `<ThreadList />` plus a `ThreadSlot`); `examples/vite/src/ChatLayout/Panels.tsx` (`ThreadsPanels`) is the reference.
+A threads view is declared the same way (a `{ id: 'threads', slots: [...] }` layout and a `threads` entry in `views` rendering `<ThreadList />` plus a `ThreadSlot`); `examples/vite/src/ChatLayout/Views/ThreadsView.tsx` (`ThreadsView`) is the reference.
 
 ---
 

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useSidebar } from '../ChatLayout/SidebarContext.tsx';
+import { useSidebar } from './SidebarContext.tsx';
 import {
   asDynamicKey,
   Button,
