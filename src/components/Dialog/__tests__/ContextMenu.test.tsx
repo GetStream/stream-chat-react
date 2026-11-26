@@ -368,3 +368,22 @@ describe('ContextMenu keyboard navigation', () => {
     });
   });
 });
+
+describe('ContextMenu size', () => {
+  it('caps the menu to the space available', async () => {
+    render(
+      <DialogManagerProvider>
+        <ContextMenuFixture />
+      </DialogManagerProvider>,
+    );
+
+    fireEvent.click(screen.getByTestId('open-context-menu'));
+    const menu = await screen.findByRole('menu', { name: 'Fixture menu' });
+    const dialogContents = menu.closest('.str-chat__dialog-contents') as HTMLElement;
+
+    expect(dialogContents).toHaveClass('str-chat__dialog-contents--fit-available-space');
+    await waitFor(() => {
+      expect(dialogContents.style.maxHeight).toMatch(/^\d+(\.\d+)?px$/);
+    });
+  });
+});

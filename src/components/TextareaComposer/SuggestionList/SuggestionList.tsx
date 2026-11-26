@@ -23,7 +23,10 @@ import { useStableId } from '../../UtilityComponents/useStableId';
 import { getTextareaCaretRect } from '../../../utils/getTextareaCaretRect';
 import type { ContextMenuItemComponent, ContextMenuItemProps } from '../../Dialog';
 import { ContextMenu } from '../../Dialog';
-import { usePopoverPosition } from '../../Dialog/hooks/usePopoverPosition';
+import {
+  getItemsMinHeight,
+  usePopoverPosition,
+} from '../../Dialog/hooks/usePopoverPosition';
 import { InfiniteScrollPaginator } from '../../InfiniteScrollPaginator/InfiniteScrollPaginator';
 import {
   useMessageComposerCommands,
@@ -146,13 +149,13 @@ export const SuggestionList = ({
     [],
   );
 
+  // Opens above the caret, or below it when there is more room, capped to the space left there
+  // (never covering the text being typed).
   const { refs, strategy, update, x, y } = usePopoverPosition({
-    allowFlip: false,
+    fitAvailableSpace: true,
+    getMinHeight: getItemsMinHeight,
     offset: 8,
     placement: 'top-start',
-    // For top placements the cross axis is Y: with flipping off, this shifts the list back into
-    // view vertically when it overflows the top edge.
-    shiftOptions: { crossAxis: true },
   });
 
   const component = suggestions?.trigger

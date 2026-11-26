@@ -91,6 +91,10 @@
   .str-chat__message-reactions-detail__user-list-container {
     position: relative;
     border-radius: inherit;
+    // Lets the user list shrink and scroll when the dialog caps the detail's height.
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
     @include common.clipping-fade;
     &::before {
       display: none;

@@ -1,5 +1,5 @@
 import React from 'react';
-import { render } from '@testing-library/react';
+import { act, render, screen } from '@testing-library/react';
 import { fromPartial } from '@total-typescript/shoehorn';
 
 import { axe } from '../../../../axe-helper';
@@ -7,13 +7,19 @@ import { axe } from '../../../../axe-helper';
 import { MessageReactions, type MessageReactionsProps } from '../MessageReactions';
 import { MessageProvider } from '../../../context/MessageContext';
 
-import { generateReaction, mockMessageContext } from '../../../mock-builders';
-import { DialogManagerProvider, WithComponents } from '../../../context';
+import {
+  generateReaction,
+  getTestClient,
+  mockChatContext,
+  mockMessageContext,
+} from '../../../mock-builders';
+import { ChatProvider, DialogManagerProvider, WithComponents } from '../../../context';
 import { defaultReactionOptions, type ReactionOptions } from '../reactionOptions';
 
 import type { ReactionGroupResponse } from 'stream-chat';
 import type { ReactionsComparator } from '../types';
 import { convertDateToTimestamp } from '../../../mock-builders';
+import { ResizeObserverMock } from '../../../mock-builders/browser';
 
 const USER_ID = 'mark';
 
@@ -53,7 +59,10 @@ const renderComponent = ({
 };
 
 describe('MessageReactions', () => {
-  afterEach(vi.clearAllMocks);
+  afterEach(() => {
+    vi.clearAllMocks();
+    vi.unstubAllGlobals();
+  });
 
   it('should render the total reaction count in clustered mode', async () => {
     const { container, getByTestId } = renderComponent({
@@ -162,5 +171,36 @@ describe('MessageReactions', () => {
     expect(icons[0]).toBe('👍');
     expect(icons[1]).toContain('❤');
     expect(icons[2]).toBe('😂');
+  });
+
+  it('caps the reactions detail dialog to the space available', async () => {
+    vi.stubGlobal('ResizeObserver', ResizeObserverMock);
+
+    const { container } = render(
+      <ChatProvider value={mockChatContext({ client: getTestClient() })}>
+        <DialogManagerProvider>
+          <MessageProvider
+            value={mockMessageContext({
+              isMyMessage: () => false,
+              message: { id: 'test-msg' },
+            })}
+          >
+            <MessageReactions
+              handleFetchReactions={vi.fn().mockResolvedValue([])}
+              reaction_groups={{ haha: fromPartial<ReactionGroupResponse>({ count: 2 }) }}
+              reactions={[generateReaction({ type: 'haha' })]}
+            />
+          </MessageProvider>
+        </DialogManagerProvider>
+      </ChatProvider>,
+    );
+
+    await act(() => {
+      container.querySelector<HTMLButtonElement>('button')?.click();
+    });
+
+    expect(screen.getByTestId('str-chat__dialog-contents')).toHaveClass(
+      'str-chat__dialog-contents--fit-available-space',
+    );
   });
 });

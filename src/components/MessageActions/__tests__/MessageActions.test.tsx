@@ -800,6 +800,23 @@ describe('<MessageActions />', () => {
       expect(messageActionsMenu).toHaveClass('str-chat__message-actions-box--hidden');
     });
 
+    it('caps the dropdown ReactionSelector dialog to the space available', async () => {
+      await renderMessageActions({
+        channelStateOpts: {
+          channelCapabilities: { 'send-reaction': true },
+        },
+      });
+      await toggleOpenMessageActions();
+
+      await act(async () => {
+        await fireEvent.click(screen.getByTestId(dropdownReactionActionTestId));
+      });
+
+      expect(
+        screen.getByTestId(reactionSelectorTestId).closest('.str-chat__dialog-contents'),
+      ).toHaveClass('str-chat__dialog-contents--fit-available-space');
+    });
+
     it('should close ReactionSelector when dropdown reaction action is clicked while selector is open', async () => {
       await renderMessageActions({
         channelStateOpts: {

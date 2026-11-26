@@ -16,6 +16,12 @@ import { useIsCooldownActive } from '../../components/MessageComposer/hooks/useI
 
 const isShadowRoot = (node: Node): node is ShadowRoot => !!(node as ShadowRoot).host;
 
+/** The picker's own minimum height (emoji-mart's default is 230px). */
+const getPickerMinHeight = (container: HTMLElement) => {
+  const picker = container.querySelector('em-emoji-picker');
+  return picker ? parseFloat(getComputedStyle(picker).minHeight) || 0 : 0;
+};
+
 export type EmojiPickerProps = {
   ButtonIconComponent?: React.ComponentType;
   buttonClassName?: string;
@@ -52,6 +58,8 @@ export const EmojiPicker = (props: EmojiPickerProps) => {
   );
   const [popperElement, setPopperElement] = useState<HTMLDivElement | null>(null);
   const { refs, strategy, x, y } = usePopoverPosition({
+    fitAvailableSpace: true,
+    getMinHeight: getPickerMinHeight,
     offset: 8,
     placement: props.placement ?? 'top-end',
   });

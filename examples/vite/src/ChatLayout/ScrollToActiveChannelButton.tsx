@@ -5,6 +5,23 @@ import { Button, IconArrowDown, IconArrowUp } from 'stream-chat-react';
 
 type ScrollDirection = 'up' | 'down';
 
+/**
+ * Centres `item` in `container`, scrolling only `container`. `Element.scrollIntoView` would also
+ * scroll the sidebar, which has a scroll range in short windows.
+ */
+const scrollItemToContainerCenter = (container: Element, item: Element) => {
+  const containerRect = container.getBoundingClientRect();
+  const itemRect = item.getBoundingClientRect();
+  const offsetInContainer = itemRect.top - containerRect.top - container.clientTop;
+  container.scrollTo({
+    behavior: 'smooth',
+    top:
+      container.scrollTop +
+      offsetInContainer -
+      (container.clientHeight - itemRect.height) / 2,
+  });
+};
+
 // The scroll container the SDK's `ChannelList` renders, and the marker the active (selected) item
 // carries (`ChannelListItemUI` sets `aria-selected` on its button). Both are resolved from the DOM
 // so this keeps working across list switches and pagination without threading refs through the SDK.
@@ -28,10 +45,12 @@ export const ScrollToActiveChannelButton = ({
 }) => {
   const [direction, setDirection] = useState<ScrollDirection | null>(null);
   const activeItemRef = useRef<Element | null>(null);
+  const scrollContainerRef = useRef<Element | null>(null);
 
   const evaluate = useCallback(() => {
     const region = regionRef.current;
-    const container = region?.querySelector(SCROLL_CONTAINER_SELECTOR);
+    const container = region?.querySelector(SCROLL_CONTAINER_SELECTOR) ?? null;
+    scrollContainerRef.current = container;
     // Scope the active-item lookup to the scroll container: sideloaded items above the list also
     // carry `aria-selected`, but they are not what this button scrolls to.
     const activeItem = container?.querySelector(ACTIVE_ITEM_SELECTOR) ?? null;
@@ -99,9 +118,11 @@ export const ScrollToActiveChannelButton = ({
     >
       <Button
         appearance='outline'
-        onClick={() =>
-          activeItemRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' })
-        }
+        onClick={() => {
+          const container = scrollContainerRef.current;
+          const activeItem = activeItemRef.current;
+          if (container && activeItem) scrollItemToContainerCenter(container, activeItem);
+        }}
         size='sm'
         variant='secondary'
       >
