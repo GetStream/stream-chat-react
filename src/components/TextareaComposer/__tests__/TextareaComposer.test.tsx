@@ -9,7 +9,13 @@ import { ChannelInstanceProvider, ChatProvider } from '../../../context';
 import { MessageComposerContextProvider } from '../../../context/MessageComposerContext';
 import { TextareaComposer } from '../TextareaComposer';
 import { ThreadProvider } from '../../Threads/ThreadContext';
-import { initClientWithChannels, mockChatContext } from '../../../mock-builders';
+import {
+  generateMessage,
+  generateMessageDraft,
+  initClientWithChannels,
+  mockChatContext,
+} from '../../../mock-builders';
+import { usePasteHandler } from '../../MessageComposer/hooks/usePasteHandler';
 
 import type { Channel, StreamChat, Thread } from 'stream-chat';
 import type { MessageComposerContextValue } from '../../../context/MessageComposerContext';
@@ -180,6 +186,179 @@ describe('TextareaComposer', () => {
       expect(propOnPaste).toHaveBeenCalledTimes(1);
       expect(composerOnPaste).not.toHaveBeenCalled();
       expect(defaultOnPaste).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe('text the composer does not take', () => {
+    it('puts the composer text back once the selection moves', async () => {
+      const { channel, client } = await setup();
+      const textareaRef = React.createRef<HTMLTextAreaElement>();
+      render(
+        <ChatProvider value={mockChatContext({ client })}>
+          <ChannelInstanceProvider value={{ channel }}>
+            <MessageComposerContextProvider value={fromPartial({ textareaRef })}>
+              {/* An `onChange` that leaves the composer as it is, like a dropped character. */}
+              <TextareaComposer onChange={() => undefined} />
+            </MessageComposerContextProvider>
+          </ChannelInstanceProvider>
+        </ChatProvider>,
+      );
+      const textarea = screen.getByTestId('message-input') as HTMLTextAreaElement;
+      act(() => {
+        channel.messageComposer.textComposer.setText('abcde');
+      });
+
+      fireEvent.change(textarea, { target: { value: 'abcdeX' } });
+      textarea.setSelectionRange(6, 6);
+      fireEvent.select(textarea);
+
+      expect(channel.messageComposer.textComposer.text).toBe('abcde');
+      expect(textarea).toHaveValue('abcde');
+    });
+  });
+
+  // Text the composer sets without typing must be in the textarea before autosize measures it.
+  describe('height when the composer sets the text', () => {
+    // jsdom has no layout: each line is 20px of scroll height, and autosize reads the box below.
+    const ROW_HEIGHT = 20;
+    const heightOf = (rows: number) => `${rows * ROW_HEIGHT}px`;
+    const threeLines = 'line 1\nline 2\nline 3';
+    const fiveLines = 'line 1\nline 2\nline 3\nline 4\nline 5';
+    let style: HTMLStyleElement;
+
+    beforeEach(() => {
+      style = document.createElement('style');
+      style.textContent =
+        'textarea { box-sizing: content-box; padding: 0; border: 0 solid; line-height: 20px; }';
+      document.head.appendChild(style);
+      Object.defineProperty(HTMLTextAreaElement.prototype, 'scrollHeight', {
+        configurable: true,
+        get(this: HTMLTextAreaElement) {
+          return Math.max(1, this.value.split('\n').length) * ROW_HEIGHT;
+        },
+      });
+    });
+
+    afterEach(() => {
+      style.remove();
+      // Restores jsdom's own getter, inherited from `Element.prototype`.
+      delete (HTMLTextAreaElement.prototype as Partial<HTMLTextAreaElement>).scrollHeight;
+    });
+
+    const ComposerWithPasteHandling = (props: TextareaComposerProps) => {
+      const textareaRef = useRef<HTMLTextAreaElement>(null);
+      const { onPaste } = usePasteHandler();
+      return (
+        <MessageComposerContextProvider value={fromPartial({ onPaste, textareaRef })}>
+          <TextareaComposer {...props} />
+        </MessageComposerContextProvider>
+      );
+    };
+
+    const renderComposer = async (minRows?: number) => {
+      const { channel, client } = await setup();
+      render(
+        <ChatProvider value={mockChatContext({ client })}>
+          <ChannelInstanceProvider value={{ channel }}>
+            <ComposerWithPasteHandling minRows={minRows} />
+          </ChannelInstanceProvider>
+        </ChatProvider>,
+      );
+      return { channel, textarea: screen.getByTestId('message-input') };
+    };
+
+    describe.each([
+      { emptyRows: 1, minRows: undefined },
+      { emptyRows: 3, minRows: 3 },
+    ])('with minRows $minRows', ({ emptyRows, minRows }) => {
+      it('fits a draft restored before the textarea mounts', async () => {
+        const { channel, client } = await setup();
+        channel.messageComposer.initState({
+          composition: generateMessageDraft({
+            channel_cid: channel.cid,
+            message: generateMessage({ text: fiveLines }),
+          }),
+        });
+
+        render(
+          <ChatProvider value={mockChatContext({ client })}>
+            <ChannelInstanceProvider value={{ channel }}>
+              <ComposerWithPasteHandling minRows={minRows} />
+            </ChannelInstanceProvider>
+          </ChatProvider>,
+        );
+
+        const textarea = screen.getByTestId('message-input');
+        expect(textarea).toHaveValue(fiveLines);
+        expect(textarea.style.height).toBe(heightOf(5));
+      });
+
+      it('fits a draft restored into the mounted textarea', async () => {
+        const { channel, textarea } = await renderComposer(minRows);
+        expect(textarea.style.height).toBe(heightOf(emptyRows));
+
+        act(() => {
+          channel.messageComposer.initState({
+            composition: generateMessageDraft({
+              channel_cid: channel.cid,
+              message: generateMessage({ text: fiveLines }),
+            }),
+          });
+        });
+
+        expect(textarea).toHaveValue(fiveLines);
+        expect(textarea.style.height).toBe(heightOf(5));
+      });
+
+      it('fits a multi-line paste inserted by the paste handling', async () => {
+        const { textarea } = await renderComposer(minRows);
+        expect(textarea.style.height).toBe(heightOf(emptyRows));
+
+        fireEvent.paste(textarea, {
+          clipboardData: {
+            items: [
+              {
+                getAsString: (callback: (text: string) => void) => callback(fiveLines),
+                kind: 'string',
+                type: 'text/plain',
+              },
+            ],
+          },
+        });
+
+        await vi.waitFor(() => expect(textarea).toHaveValue(fiveLines));
+        expect(textarea.style.height).toBe(heightOf(5));
+      });
+
+      it('shrinks back when the text is cleared after sending a multi-line message', async () => {
+        const { channel, textarea } = await renderComposer(minRows);
+        act(() => {
+          channel.messageComposer.textComposer.setText(fiveLines);
+        });
+        expect(textarea.style.height).toBe(heightOf(5));
+
+        // What the composer does once a message is sent.
+        act(() => {
+          channel.messageComposer.clear();
+        });
+
+        expect(textarea).toHaveValue('');
+        expect(textarea.style.height).toBe(heightOf(emptyRows));
+      });
+
+      it('fits text set while the textarea already holds other text', async () => {
+        const { channel, textarea } = await renderComposer(minRows);
+        act(() => {
+          channel.messageComposer.textComposer.setText(fiveLines);
+        });
+
+        act(() => {
+          channel.messageComposer.textComposer.setText(threeLines);
+        });
+
+        expect(textarea).toHaveValue(threeLines);
+        expect(textarea.style.height).toBe(heightOf(Math.max(3, emptyRows)));
+      });
     });
   });
 });
