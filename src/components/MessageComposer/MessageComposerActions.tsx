@@ -79,10 +79,6 @@ export const MessageComposerActions = () => {
     id: scheduleDialogId,
   });
   const isScheduleDialogRequested = useDialogIsOpen(scheduleDialogId, dialogManager?.id);
-  const schedulePreview = useMemo(
-    () => (isScheduleDialogRequested ? toCompositionPreview(messageComposer) : undefined),
-    [isScheduleDialogRequested, messageComposer],
-  );
 
   const messageComposerStateSelector = useMemo(
     () => createMessageComposerStateSelector(messageComposer),
@@ -170,26 +166,27 @@ export const MessageComposerActions = () => {
   return (
     <div className='str-chat__message-composer__actions'>
       {content}
-      <Portal getPortalDestination={getChannelContainer} isOpen={!!schedulePreview}>
+      <Portal
+        getPortalDestination={getChannelContainer}
+        isOpen={isScheduleDialogRequested}
+      >
         <Modal
           className='str-chat__schedule-message-modal'
           initialFocusStrategy='dialog'
           onClose={scheduleDialog.close}
-          open={!!schedulePreview}
+          open={isScheduleDialogRequested}
         >
-          {schedulePreview && (
-            <ScheduleTimeDialog
-              channel={messageComposer.channel}
-              close={scheduleDialog.close}
-              errorMessage={t(
-                'scheduledMessages.couldntScheduleMessageTryAgain',
-                "Couldn't schedule message. Try again",
-              )}
-              previewMessage={schedulePreview}
-              submit={scheduleMessageFromDialog}
-              title={t('scheduledMessages.scheduleMessage', 'Schedule message')}
-            />
-          )}
+          <ScheduleTimeDialog
+            channel={messageComposer.channel}
+            close={scheduleDialog.close}
+            errorMessage={t(
+              'scheduledMessages.couldntScheduleMessageTryAgain',
+              "Couldn't schedule message. Try again",
+            )}
+            previewMessage={toCompositionPreview(messageComposer)}
+            submit={scheduleMessageFromDialog}
+            title={t('scheduledMessages.scheduleMessage', 'Schedule message')}
+          />
         </Modal>
       </Portal>
     </div>
