@@ -66,7 +66,9 @@ export type ChatViewSlotFallbackProps = {
 
 /**
  * Per-kind render overrides: `slotRenderers[kind]` replaces only that kind's `Component` and keeps
- * its built-in `persistent` and `view` policy.
+ * its built-in `persistent` and `view` policy. A renderer is called as a plain function while the
+ * layout renders, so it must not call hooks: return an element (`<MyChannel/>`) whose component
+ * holds them.
  */
 export type ChatViewSlotRenderers = Partial<{
   [TKind in ChatViewEntityKind]: (props: ChatViewSlotRendererProps<TKind>) => ReactNode;

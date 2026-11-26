@@ -109,6 +109,17 @@ export const renderSlotFromRegistry = (
   return Component({ entity, slot, source: entity.source });
 };
 
+/**
+ * What a slot shows below its layers: `content` when given (`null` and `undefined` count as not
+ * given), otherwise what the registry renders for the slot's bound `entity`.
+ */
+export const resolveSlotBaseContent = (
+  content: ReactNode,
+  entity: ChatViewEntityBinding | undefined,
+  slot: string,
+  registry: SlotKindRegistry,
+): ReactNode => content ?? renderSlotFromRegistry(entity, slot, registry);
+
 /** Whether `kind` is registered as persistent (see {@link SlotKindDefinition.persistent}). */
 export const isPersistentSlotKind = (
   registry: SlotKindRegistry,

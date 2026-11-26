@@ -19,7 +19,7 @@ import type {
   Thread,
 } from 'stream-chat';
 
-import { SCENARIO_CHANNEL_CID } from '../Debug/scenarioChannel';
+import { SCENARIO_CHANNEL_CID } from '../../Debug/scenarioChannel';
 
 /**
  * Full-workspace URL sync for the vite example.

@@ -179,14 +179,17 @@
   min-height: 0;
   min-width: 0;
 
-  &:empty {
+  // Nothing in it renders anything: no base or layer, or only the wrapper of a base whose
+  // component renders nothing.
+  &:not(:has(> :not(:empty))) {
     display: none;
   }
 }
 
 // A panel open beside another one is divided from it. The first open slot needs no divider: it
 // sits next to the channel or thread list, which draws its own edge.
-.str-chat__chat-view__slot:not(:empty) ~ .str-chat__chat-view__slot:not(:empty) {
+.str-chat__chat-view__slot:has(> :not(:empty))
+  ~ .str-chat__chat-view__slot:has(> :not(:empty)) {
   border-inline-start: 1px solid var(--str-chat__border-core-default);
 }
 

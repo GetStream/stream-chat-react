@@ -764,7 +764,47 @@ export const App = ({ client }: { client: StreamChat }) => (
 - **`<Slot>` children replace the renderer.** A `<Slot>` with children renders them for the slot's own binding; one without children renders the `slotRenderers` entry for the bound kind. Layers stacked over a slot always render through `slotRenderers`, so register a renderer for every kind that can land there.
 - **`ChannelSlot` / `ThreadSlot`** resolve the entity bound to their slot and render `<Channel>` / `<Thread>` around their children. Without one bound they render `fallback`. UI that used to live inside `<Channel>` but must show while no channel is open (an empty state, a "create channel" panel) goes in `ChannelSlot`'s `fallback`, wrapped in `ChannelPlaceholder` so it fills the same column.
 - **`ThreadSlot` hides its slot while empty.** `hideIfEmpty` defaults to `true`: with no thread bound it calls `layoutController.hide(slot)`, which marks that `<Slot>` section `str-chat__chat-view__slot--hidden`, and unhides it when a thread opens. Pass `hideIfEmpty={false}` to keep the slot visible (for example to show a `fallback`).
-- [`examples/vite/src/ChatLayout/Panels.tsx`](https://github.com/GetStream/stream-chat-react/blob/master/examples/vite/src/ChatLayout/Panels.tsx) (`ChannelsPanels`, `ThreadsPanels`) is a complete app layout built this way, with resizable side panels.
+- **Layers come from `<Slot>`.** `ChannelSlot` and `ThreadSlot` show only the slot's base binding. Wrapped in a `<Slot>` for the same slot, as above, they get the layers stacked over it (a member's profile, a second channel), and they stay mounted beneath, keeping their scroll position, until the last layer closes.
+- [`examples/vite/src/ChatLayout/`](https://github.com/GetStream/stream-chat-react/tree/master/examples/vite/src/ChatLayout) (`Views/` with `ChannelsView` and `ThreadsView`, `Panels/` with `chatViewSlotRenderers`) is a complete app layout built on `WorkspaceLayout` ([below](#composing-a-layout-with-workspacelayout)), with a collapsible, resizable sidebar and a resizable secondary panel.
+
+#### Composing a layout with `WorkspaceLayout`
+
+`WorkspaceLayout` (`stream-chat-react/slot-layout`) is the layout the built-in `layout='nav-rail-entity-list-workspace'` renders. A view can render it too, to keep the SDK's slot behaviour while laying out its own columns:
+
+```tsx
+import { useRef } from 'react';
+import { ChannelNavigation } from 'stream-chat-react';
+import { ChatView, WorkspaceLayout } from 'stream-chat-react/slot-layout';
+
+// Your own handle; `layoutRef` lets one measure the layout while resizing.
+const ResizeHandle = () => <div aria-hidden className='app-resize-handle' />;
+
+const ChannelsView = () => {
+  const layoutRef = useRef<HTMLDivElement>(null);
+  return (
+    <WorkspaceLayout
+      className='app-channels-layout'
+      ref={layoutRef}
+      renderBetweenSlots={() => <ResizeHandle />}
+      sidebar={
+        <div className='app-sidebar'>
+          <ChatView.Selector />
+          <ChannelNavigation />
+        </div>
+      }
+      slots={[
+        { className: 'app-main-panel', slot: 'channel' },
+        { className: 'app-secondary-panel', slot: 'channel-thread' },
+      ]}
+    />
+  );
+};
+```
+
+- **Each slot is a `<Slot>`.** Without `content` it renders its binding through `slotRenderers`, with its layers over it. `fallback` shows while it renders nothing.
+- **The placeholder** (`ChatViewEmptyPlaceholder`) replaces the slots while none of them shows anything: no `content`, no binding that renders something, no `fallback` and no layer. `navRail` and `sidebar` stay.
+- **Your columns.** `sidebar` renders as given between `navRail` and the slots. `renderBetweenSlots(previousSlot, nextSlot)` renders between each two neighbouring slots, for every pair, including a slot that shows nothing, so a resize handle should hide itself while the next slot is closed. Decide that from the slot's state (`useLayoutViewState()`: `slotBindings[slot]` or `slotLayers[slot]`), as [`examples/vite`](https://github.com/GetStream/stream-chat-react/tree/master/examples/vite) does. Each slot's `className`, `style` and `elementRef` go on its `section`, and `className` and `ref` on the layout's root.
+- **Breakpoints stay in your CSS.** The SDK hides a slot that renders nothing: `.str-chat__chat-view__slot:not(:has(> :not(:empty)))`. Use that selector to tell which columns are open, not `:empty`: content that is an element whose component renders nothing leaves the slot an empty wrapper, so the slot is hidden but not `:empty`.
 
 #### Where an opened entity lands
 
@@ -3745,7 +3785,7 @@ Consumers keep overriding through CSS layers (see [`README.md`](https://github.c
 v14 laid the thread beside the channel inside `Channel` itself: `.str-chat__channel` held a `.str-chat__container` flex **row** with `Window`'s `.str-chat__main-panel` and the `Thread`. v15 has no row inside the channel. `.str-chat__channel` is the content column (header, list, composer), and `<Thread>` is a sibling you render.
 
 - **Without `ChatView`**, a sibling `<Thread>` stacks **below** the channel unless its container is a row. Give the element that holds both `display: flex` (row), and size the panels there.
-- **Inside `ChatView`**, every panel rendered through `<Slot>` (and every panel of the built-in workspace layout) is a `section.str-chat__chat-view__slot` with `data-slot="<slot name>"`. Slots are `display: flex; flex: 1 1 0` siblings, so open panels share the width equally, and an empty slot is hidden. v14 sizing rules on `.str-chat__thread` / `.str-chat__channel` (for example `max-width: 45%` or `flex: 0 1 330px`) now apply **inside** the slot and compound, which can crush a panel to a narrow column. Move panel sizing to the slot:
+- **Inside `ChatView`**, every panel rendered through `<Slot>` (and every panel of the built-in workspace layout) is a `section.str-chat__chat-view__slot` with `data-slot="<slot name>"`. Slots are `display: flex; flex: 1 1 0` siblings, so open panels share the width equally, and an empty slot is hidden. v14 sizing rules on `.str-chat__thread` / `.str-chat__channel` (for example `max-width: 45%` or `flex: 0 1 330px`) now apply **inside** the slot and compound, which can crush a panel to a narrow column. What a slot shows sits in a `div.str-chat__chat-view__slot-layer` with `display: contents`, so its root lays out as the slot's flex child but is not its DOM child: select it with a descendant selector (`.str-chat__chat-view__slot .str-chat__channel`), not `>`. Move panel sizing to the slot:
 
 ```css
 .str-chat__chat-view__slot[data-slot='thread'] {
@@ -3753,7 +3793,7 @@ v14 laid the thread beside the channel inside `Channel` itself: `.str-chat__chan
 }
 ```
 
-A panel your layout renders without `<Slot>` (for example a `ThreadSlot` placed directly in a view, as [`examples/vite`](https://github.com/GetStream/stream-chat-react/tree/master/examples/vite) does) has no slot section; size the element you wrap it in.
+A panel your layout renders without `<Slot>` (for example a `ThreadSlot` placed directly in a view) has no slot section; size the element you wrap it in. `WorkspaceLayout` renders each of its slots as a `<Slot>`, and takes a `className` and a `style` for each ([composing a layout](#composing-a-layout-with-workspacelayout)).
 
 **Give the lists a width.** `ChannelNavigation` / `ChannelList` and `ThreadList` size themselves from `--str-chat__channel-list-width` and `--str-chat__thread-list-width`. Both default to `100%` with `flex-shrink: 0`. In a view that puts a list beside a `<Slot>` (the [channels and threads views](#channels-and-threads-views) above), the list takes the whole row, the slot collapses to nothing and the page scrolls sideways. Set both on the `ChatView` root (`div.str-chat.str-chat__chat-view`):
 

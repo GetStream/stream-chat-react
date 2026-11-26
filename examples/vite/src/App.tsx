@@ -58,20 +58,21 @@ import { ChatSkipNavigation } from './AccessibilityNavigation/ChatSkipNavigation
 import { SlotGeometryProvider } from 'stream-chat-react/slot-geometry';
 import { AlsoSentInChannelIndicator } from './ChatLayout/AlsoSentInChannelIndicator.tsx';
 import { useAdditiveWorkspaceNavigation } from './ChatLayout/useAdditiveWorkspaceNavigation.ts';
-import { ChannelsPanels, ThreadsPanels } from './ChatLayout/Panels.tsx';
-import { SidebarProvider } from './ChatLayout/SidebarContext.tsx';
+import { chatViewSlotRenderers } from './ChatLayout/Panels';
+import { ChannelsView, ThreadsView } from './ChatLayout/Views';
+import { SidebarProvider } from './Sidebar/SidebarContext.tsx';
 import {
   ChatViewSelectorWidthSync,
   PanelLayoutStyleSync,
   SidebarLayoutSync,
-} from './ChatLayout/Resize.tsx';
+} from './ChatLayout/Resize';
 import {
+  getFocusTargetsFromUrl,
   getInitialChannelIdFromUrl,
   getInitialChatViewFromUrl,
   getInitialThreadIdFromUrl,
   WorkspaceUrlSync,
-} from './ChatLayout/WorkspaceUrlSync.tsx';
-import { getFocusTargetsFromUrl } from './ChatLayout/focusUrlParam.ts';
+} from './ChatLayout/UrlSync';
 import { LoadingScreen } from './LoadingScreen/LoadingScreen.tsx';
 import {
   resolveSingleChannel,
@@ -634,14 +635,14 @@ const App = () => {
   const chatViews = useMemo(
     () => ({
       channels: (
-        <ChannelsPanels
+        <ChannelsView
           iconOnly={chatView.iconOnly}
           initialChannelId={initialChannelId ?? undefined}
           itemSet={chatViewSelectorItemSet}
         />
       ),
       threads: (
-        <ThreadsPanels iconOnly={chatView.iconOnly} itemSet={chatViewSelectorItemSet} />
+        <ThreadsView iconOnly={chatView.iconOnly} itemSet={chatViewSelectorItemSet} />
       ),
     }),
     [chatView.iconOnly, initialChannelId],
@@ -740,6 +741,7 @@ const App = () => {
                   deriveWorkspaceNavigation={deriveWorkspaceNavigation}
                   dialogManagerId={globalDialogManager}
                   layouts={chatViewLayouts}
+                  slotRenderers={chatViewSlotRenderers}
                   views={chatViews}
                 >
                   <WorkspaceUrlSync />

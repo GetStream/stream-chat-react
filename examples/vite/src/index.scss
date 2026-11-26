@@ -119,32 +119,24 @@ body {
     z-index: 2;
   }
 
-  /* The channels view's content row (`.app-chat-view__channel-content`) is the layout's main
-     flex child; its own columns — the primary channel (`.app-chat-view__channel-main`) and the
-     secondary panel (`.app-chat-secondary-panel`) — are sized by the rules further down. Each
-     column element is now a <Channel> (or the thread dropzone) carrying that column class, so
-     the channel and thread are siblings rather than one nested inside the other. */
-  .app-chat-view__threads-main {
-    display: flex;
-    flex: 1 1 auto;
-    min-width: 0;
-    height: 100%;
-  }
+  /* Both views are a `WorkspaceLayout`: the sidebar, then the SDK's row of slots
+     (`.str-chat__chat-view__workspace-layout-slots`). Each column is a slot `<section>` carrying
+     the column's class: the main one (`.app-chat-view__channel-main`, `.app-chat-view__thread-main`)
+     and the secondary one (`.app-chat-secondary-panel`), with the resize handle between them. What
+     a slot shows sits in a `display: contents` wrapper (`.str-chat__chat-view__slot-layer`), so
+     its root is a flex item of the column. The SDK hides a slot that shows nothing, so columns
+     here set no `display` unless they must stay while empty. */
 
-  /* Each column (main channel / 2nd channel) wraps a <Channel>; let its root fill the column
-     so the channel’s own message panel stretches edge to edge. */
-  .app-chat-view__channel-main > .str-chat__channel,
-  .app-chat-secondary-panel > .str-chat__channel {
+  /* A column's <Channel> fills it, so the channel's own message panel stretches edge to edge. */
+  .app-chat-view__channel-main > .str-chat__chat-view__slot-layer > .str-chat__channel,
+  .app-chat-secondary-panel > .str-chat__chat-view__slot-layer > .str-chat__channel {
     flex: 1 1 auto;
     min-width: 0;
   }
 
-  .app-chat-view__channel-content,
   .app-chat-view__channel-main {
-    display: flex;
     flex: 1 1 auto;
     min-width: 0;
-    height: 100%;
   }
 
   .app-chat-view__channel-body {
@@ -155,18 +147,24 @@ body {
     min-height: 0;
   }
 
-  /* Threads view mirrors the channels view: the primary thread (and the empty-state
-     placeholder) fill the main column; an optional 2nd thread sits in the resizable secondary
-     column beside it, behind a resize handle. Only the primary/placeholder grow — the handle
-     and secondary panel keep their own widths. */
-  .app-chat-view__threads-main > .str-chat__dropzone-root--thread,
-  .app-chat-view__threads-main > .str-chat__thread-container {
+  /* Threads view mirrors the channels view: the primary thread fills the main column; an
+     optional 2nd thread sits in the resizable secondary column beside it, behind a resize
+     handle. Only the primary grows — the handle and secondary panel keep their own widths. */
+  .app-chat-view__thread-main {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+
+  .app-chat-view__thread-main
+    > .str-chat__chat-view__slot-layer
+    > .str-chat__thread-container {
     flex: 1 1 auto;
     min-width: 0;
     height: 100%;
   }
 
-  .app-chat-view__threads-main
+  .app-chat-view__threads-layout
+    > .str-chat__chat-view__workspace-layout-slots
     > .app-chat-resize-handle--secondary
     + .app-chat-secondary-panel.app-chat-secondary-panel--open {
     flex: 0 0 max(var(--app-secondary-panel-width), 360px);
@@ -178,12 +176,12 @@ body {
   @media (max-width: 767px) {
     /* The resize handle is hidden globally on mobile; when a 2nd thread is open show it
        full-width and collapse the primary (one panel at a time, like the channels view). */
-    .app-chat-view__threads-main--secondary-open > .str-chat__dropzone-root--thread,
-    .app-chat-view__threads-main--secondary-open > .str-chat__thread-container {
+    .app-chat-view__threads-layout--secondary-open .app-chat-view__thread-main {
       display: none;
     }
 
-    .app-chat-view__threads-main--secondary-open
+    .app-chat-view__threads-layout--secondary-open
+      > .str-chat__chat-view__workspace-layout-slots
       > .app-chat-resize-handle--secondary
       + .app-chat-secondary-panel.app-chat-secondary-panel--open {
       flex: 1 1 auto;
@@ -248,37 +246,33 @@ body {
 
   .app-chat-secondary-panel {
     background: var(--str-chat__secondary-background-color);
-    display: flex;
     flex-direction: column;
     height: 100%;
     min-width: 0;
   }
 
-  /* Positioning context for the member-detail layer overlay (below). */
-  .app-chat-view__channel-content {
-    position: relative;
+  /* The channels view keeps its secondary column while it is empty, as a zero-width shell (sized
+     by the rules further down), so opening and closing it animates. */
+  .app-chat-view__channels-layout .app-chat-secondary-panel {
+    display: flex;
   }
 
-  /* A `pushLayer` overlay (e.g. the member detail) covering the secondary column. It sits above
-     the base panel — which stays mounted underneath at its exact scroll position — pinned to the
-     same reserved width the secondary panel uses (`--app-secondary-panel-width`), so popping the
-     layer reveals the thread/2nd-channel untouched. Full-bleed on mobile, where the secondary
-     region is the whole content area. */
-  .app-chat-secondary-overlay {
-    position: absolute;
-    inset-block: 0;
-    inset-inline-end: 0;
-    inline-size: max(var(--app-secondary-panel-width, 360px), 360px);
-    z-index: 3;
+  /* A member's profile, a channel's details or the user's own profile in the secondary slot,
+     as its base or as a layer over a reply thread or a 2nd channel. The slot keeps what it
+     covers mounted, at its scroll position, and shows it again when the layer closes. */
+  .app-chat-secondary-surface {
     display: flex;
+    flex: 1 1 auto;
     flex-direction: column;
-    /* Opaque, theme-aware surface (light: #fff, dark: dark) so the covered thread doesn't bleed
-       through. This theme exposes the `background-core-elevation-*` tokens, not the legacy
-       `--str-chat__*-background-color` ones. */
+    min-width: 0;
+    min-height: 0;
+    /* Theme-aware surface (light: #fff, dark: dark). This theme exposes the
+       `background-core-elevation-*` tokens, not the legacy `--str-chat__*-background-color`
+       ones. */
     background: var(--str-chat__background-core-elevation-1, #ffffff);
   }
 
-  .app-chat-secondary-overlay > .str-chat__channel-detail__channel-member-detail-view {
+  .app-chat-secondary-surface > .str-chat__channel-detail__channel-member-detail-view {
     flex: 1 1 auto;
     min-height: 0;
     overflow-y: auto;
@@ -291,8 +285,8 @@ body {
   }
 
   /* The SDK sizes ChannelDetail as a modal (a fixed box, or the whole viewport inline). In the
-     secondary slot it is a panel: it fills the overlay, without the modal's corners and shadow. */
-  .app-chat-secondary-overlay > .str-chat__channel-detail {
+     secondary slot it is a panel: it fills the slot, without the modal's corners and shadow. */
+  .app-chat-secondary-surface > .str-chat__channel-detail {
     flex: 1 1 auto;
     width: 100%;
     height: 100%;
@@ -301,12 +295,11 @@ body {
     box-shadow: none;
   }
 
-  /* The secondary slot's divider border lives on the SLOT region — the open base panel AND any
-     layer overlay covering it — so it shows consistently for a reply thread, a 2nd channel, and
-     stacked layers like the member profile. This is the same border the SDK Thread draws; we drop
-     the Thread's own copy below (search "border owned by the slot") so it isn't doubled. */
-  .app-chat-secondary-panel--open,
-  .app-chat-secondary-overlay {
+  /* The secondary slot's divider border lives on the slot, so it shows the same for a reply
+     thread, a 2nd channel, and layers like the member profile. This is the same border the SDK
+     Thread draws; we drop the Thread's own copy below (search "border owned by the slot") so it
+     isn't doubled. */
+  .app-chat-secondary-panel--open {
     border-inline-start: 1px solid var(--str-chat__border-core-default);
   }
 
@@ -316,13 +309,6 @@ body {
   .app-chat-secondary-panel .str-chat__thread,
   .app-chat-secondary-panel .str-chat__thread-container {
     border-inline-start: none;
-  }
-
-  @media (max-width: 767px) {
-    .app-chat-secondary-overlay {
-      inset-inline: 0;
-      inline-size: auto;
-    }
   }
 
   .app-loading-screen__window {
@@ -416,7 +402,8 @@ body {
       display: none;
     }
 
-    .app-chat-view__channel-content
+    .app-chat-view__channels-layout
+      > .str-chat__chat-view__workspace-layout-slots
       > .app-chat-secondary-panel:not(.app-chat-secondary-panel--open) {
       flex: 0 0 0;
       width: 0;
@@ -430,7 +417,8 @@ body {
       );
     }
 
-    .app-chat-view__channel-content
+    .app-chat-view__channels-layout
+      > .str-chat__chat-view__workspace-layout-slots
       > .app-chat-secondary-panel.app-chat-secondary-panel--open {
       flex: 1 1 auto;
       min-width: 0;
@@ -583,7 +571,7 @@ body {
       transform: none;
     }
 
-    .app-chat-view__channel-content {
+    .app-chat-view__channels-layout > .str-chat__chat-view__workspace-layout-slots {
       overflow-x: hidden;
       flex: 1 1 auto;
       min-width: 0;
@@ -609,14 +597,6 @@ body {
             var(--str-chat__channel-list-transition-easing, ease),
           transform var(--str-chat__channel-list-transition-duration, 180ms)
             var(--str-chat__channel-list-transition-easing, ease);
-      }
-
-      &.app-chat-view__channel-content--secondary-open > .app-chat-view__channel-main {
-        /* With thread open, give the thread its reserved width first,
-           then let the main panel take whatever space is left. */
-        flex-basis: max(0px, calc(100% - max(var(--app-secondary-panel-width), 360px)));
-        max-width: max(0px, calc(100% - max(var(--app-secondary-panel-width), 360px)));
-        min-width: 360px;
       }
 
       > .app-chat-resize-handle--secondary + .app-chat-secondary-panel {
@@ -658,18 +638,25 @@ body {
       }
     }
 
-    .app-chat-view__channel-content
+    .app-chat-view__channels-layout--secondary-open
+      > .str-chat__chat-view__workspace-layout-slots
+      > .app-chat-view__channel-main {
+      /* With thread open, give the thread its reserved width first,
+         then let the main panel take whatever space is left. */
+      flex-basis: max(0px, calc(100% - max(var(--app-secondary-panel-width), 360px)));
+      max-width: max(0px, calc(100% - max(var(--app-secondary-panel-width), 360px)));
+      min-width: 360px;
+    }
+
+    .app-chat-view__channels-layout
+      > .str-chat__chat-view__workspace-layout-slots
       > .app-chat-resize-handle--secondary
       + .app-chat-secondary-panel
       .str-chat__dropzone-root--thread,
-    .app-chat-view__channel-content
+    .app-chat-view__channels-layout
+      > .str-chat__chat-view__workspace-layout-slots
       > .app-chat-resize-handle--secondary
       + .app-chat-secondary-panel
-      .str-chat__thread-container,
-    .app-chat-view__channel-content
-      > .app-chat-resize-handle--secondary
-      + .app-chat-secondary-panel
-      .str-chat__dropzone-root--thread
       .str-chat__thread-container {
       width: 100%;
       height: 100%;
@@ -679,10 +666,10 @@ body {
     /* If space gets tight while sidebar + thread are both open,
        prioritize the thread and collapse the main panel. */
     @container (max-width: 1148px) {
-      .app-chat-view__channels-layout:not(
+      .app-chat-view__channels-layout--secondary-open:not(
           .app-chat-view__channels-layout--sidebar-collapsed
         )
-        .app-chat-view__channel-content--secondary-open
+        > .str-chat__chat-view__workspace-layout-slots
         > .app-chat-view__channel-main {
         flex: 0 0 0;
         width: 0;
@@ -695,10 +682,10 @@ body {
         );
       }
 
-      .app-chat-view__channels-layout:not(
+      .app-chat-view__channels-layout--secondary-open:not(
           .app-chat-view__channels-layout--sidebar-collapsed
         )
-        .app-chat-view__channel-content--secondary-open
+        > .str-chat__chat-view__workspace-layout-slots
         > .app-chat-resize-handle--secondary {
         flex: 0 0 0;
         width: 0;
@@ -708,27 +695,16 @@ body {
         pointer-events: none;
       }
 
-      .app-chat-view__channels-layout:not(
+      .app-chat-view__channels-layout--secondary-open:not(
           .app-chat-view__channels-layout--sidebar-collapsed
         )
-        .app-chat-view__channel-content--secondary-open
+        > .str-chat__chat-view__workspace-layout-slots
         > .app-chat-secondary-panel.app-chat-secondary-panel--open {
         flex: 1 1 auto;
         width: auto;
         min-width: 360px;
         max-width: none;
         margin-inline-start: 0;
-      }
-
-      /* An overlay in the secondary slot (a profile, channel details) takes the collapsed main
-         panel's place too, so the content area isn't left blank beside it. */
-      .app-chat-view__channels-layout:not(
-          .app-chat-view__channels-layout--sidebar-collapsed
-        )
-        .app-chat-view__channel-content--secondary-open
-        > .app-chat-secondary-overlay {
-        inset-inline: 0;
-        inline-size: auto;
       }
     }
   }
@@ -738,8 +714,8 @@ body {
       display: none;
     }
 
-    .str-chat__chat-view__channels
-      .app-chat-view__channel-content
+    .app-chat-view__channels-layout
+      > .str-chat__chat-view__workspace-layout-slots
       > .app-chat-resize-handle--secondary
       + .app-chat-secondary-panel.app-chat-secondary-panel--open,
     .str-chat__thread-container {
@@ -849,7 +825,7 @@ body {
       display: none;
     }
 
-    .app-chat-view__channel-content--secondary-open .app-chat-view__channel-main {
+    .app-chat-view__channels-layout--secondary-open .app-chat-view__channel-main {
       flex: 0 0 0;
       width: 0;
       min-width: 0;
@@ -861,7 +837,9 @@ body {
       );
     }
 
-    .app-chat-view__channel-content--secondary-open > .app-chat-resize-handle--secondary {
+    .app-chat-view__channels-layout--secondary-open
+      > .str-chat__chat-view__workspace-layout-slots
+      > .app-chat-resize-handle--secondary {
       flex: 0 0 0;
       width: 0;
       min-width: 0;
@@ -870,7 +848,8 @@ body {
       pointer-events: none;
     }
 
-    .app-chat-view__channel-content--secondary-open
+    .app-chat-view__channels-layout--secondary-open
+      > .str-chat__chat-view__workspace-layout-slots
       > .app-chat-secondary-panel.app-chat-secondary-panel--open {
       flex: 1 1 auto;
       min-width: 0;
@@ -879,12 +858,6 @@ body {
       opacity: 1;
       pointer-events: auto;
       transform: translateX(0);
-    }
-
-    /* So does an overlay in the secondary slot. */
-    .app-chat-view__channel-content--secondary-open > .app-chat-secondary-overlay {
-      inset-inline: 0;
-      inline-size: auto;
     }
   }
 }

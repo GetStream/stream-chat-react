@@ -23,7 +23,7 @@ import {
 import { useAppSettingsSelector } from '../AppSettings/state';
 import { getChannelMembersHeaderActionSet } from '../AppSettings/tabs/ChannelDetail';
 import { ChannelMembersRemoveView } from './ChannelMembersRemoveView';
-import { CHANNEL_THREAD_SLOT } from './constants.ts';
+import { CHANNEL_THREAD_SLOT } from '../ChatLayout/constants.ts';
 
 const ChannelMembersRemoveTitle = () => {
   const { t } = useTranslationContext();

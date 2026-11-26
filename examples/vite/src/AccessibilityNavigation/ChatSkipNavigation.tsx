@@ -7,7 +7,7 @@ import {
   CHANNELS_SELECTOR_BUTTON_TARGET_QUERY,
   THREAD_LIST_TARGET_ID,
   THREAD_MESSAGE_COMPOSER_TEXTAREA_TARGET_ID,
-} from '../ChatLayout/Panels.tsx';
+} from './skipNavigationTargets';
 
 export const CHAT_SKIP_NAVIGATION_TARGET_ID = 'app-chat-skip-navigation';
 
