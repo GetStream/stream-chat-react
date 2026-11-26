@@ -21,6 +21,12 @@ type ComposerTabProps = {
   close: () => void;
 };
 
+/** A row count typed into a numeric field: empty or not a positive integer means unset. */
+const parseRows = (raw: string) => {
+  const rows = Number(raw);
+  return raw.trim() !== '' && Number.isInteger(rows) && rows > 0 ? rows : undefined;
+};
+
 export const ComposerTab = ({ close }: ComposerTabProps) => {
   const {
     composer,
@@ -29,6 +35,8 @@ export const ComposerTab = ({ close }: ComposerTabProps) => {
       audioRecordingEnabled,
       customCdnUrl,
       failUploads,
+      maxRows,
+      minRows,
       sendMessagesWithPendingUploads,
       slowUploadMs,
       slowUploads,
@@ -38,6 +46,12 @@ export const ComposerTab = ({ close }: ComposerTabProps) => {
   // NumericInput is a text input that also accepts '', which has no numeric equivalent, so the
   // typed value is held locally and only committed to the store once it parses.
   const [slowUploadDraft, setSlowUploadDraft] = useState(String(slowUploadMs));
+  const [minRowsDraft, setMinRowsDraft] = useState(
+    minRows === undefined ? '' : String(minRows),
+  );
+  const [maxRowsDraft, setMaxRowsDraft] = useState(
+    maxRows === undefined ? '' : String(maxRows),
+  );
 
   return (
     <div className='app__settings-modal__content-stack'>
@@ -61,6 +75,63 @@ export const ComposerTab = ({ close }: ComposerTabProps) => {
             cannot show. Applies to open composers at once.
           </div>
           <PreviewSectionsField />
+        </div>
+
+        <div className='app__settings-modal__field'>
+          <div className='app__settings-modal__field-label'>Textarea rows</div>
+          <div className='app__settings-modal__options-row app__settings-modal__options-row--align-end'>
+            <NumericInput
+              id='composer-min-rows-input'
+              label='Min rows'
+              min={1}
+              onChange={(event) => {
+                const raw = event.target.value;
+                setMinRowsDraft(raw);
+                appSettingsStore.partialNext({
+                  composer: { ...composer, minRows: parseRows(raw) },
+                });
+              }}
+              placeholder='1'
+              step={1}
+              value={minRowsDraft}
+            />
+            <NumericInput
+              id='composer-max-rows-input'
+              label='Max rows'
+              min={1}
+              onChange={(event) => {
+                const raw = event.target.value;
+                setMaxRowsDraft(raw);
+                appSettingsStore.partialNext({
+                  composer: { ...composer, maxRows: parseRows(raw) },
+                });
+              }}
+              placeholder='10'
+              step={1}
+              value={maxRowsDraft}
+            />
+            <Button
+              appearance='outline'
+              disabled={minRows === undefined && maxRows === undefined}
+              onClick={() => {
+                setMinRowsDraft('');
+                setMaxRowsDraft('');
+                appSettingsStore.partialNext({
+                  composer: { ...composer, maxRows: undefined, minRows: undefined },
+                });
+              }}
+              size='sm'
+              variant='secondary'
+            >
+              Reset to defaults
+            </Button>
+          </div>
+          <div className='app__settings-modal__field-comment'>
+            Sets <code>minRows</code> and <code>maxRows</code> on every{' '}
+            <code>MessageComposer</code>: the textarea starts at the min height and grows
+            with its text up to the max, then scrolls. Leave a field empty, or reset both,
+            for the SDK default (one row, ten rows). Applies to open composers at once.
+          </div>
         </div>
 
         <div className='app__settings-modal__field'>
