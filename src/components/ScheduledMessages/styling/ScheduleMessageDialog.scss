@@ -1,5 +1,4 @@
 @use '../../../styling/utils';
-@use 'variables';
 
 .str-chat {
   .str-chat__schedule-message-dialog {
@@ -72,13 +71,7 @@
       color: var(--str-chat__input-text-default);
     }
 
-    @media (max-width: variables.$full-screen-max-width) {
-      width: 100dvw;
-      max-width: none;
-      height: 100dvh;
-      border-radius: 0;
-      box-shadow: none;
-
+    @include utils.modal-full-screen {
       .str-chat__schedule-message-dialog__body {
         flex: 1;
         min-height: 0;

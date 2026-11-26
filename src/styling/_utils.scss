@@ -87,6 +87,23 @@
     0 20px 32px 0 rgba(0, 0, 0, 0.12);
 }
 
+@mixin modal-full-screen-viewport {
+  @media (max-width: 679.98px) {
+    @content;
+  }
+}
+
+@mixin modal-full-screen {
+  @include modal-full-screen-viewport {
+    width: 100dvw;
+    max-width: none;
+    height: 100dvh;
+    border-radius: 0;
+    box-shadow: none;
+    @content;
+  }
+}
+
 @mixin clamped-height-from-original-image-dimensions(
   $max-height-css-var,
   $max-width-css-var
