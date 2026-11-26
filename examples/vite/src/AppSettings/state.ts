@@ -121,6 +121,10 @@ export type ComposerSettingsState = {
   audioRecordingEnabled: boolean;
   /** The CDN upload endpoint used while `uploadDestination` is `custom-url`. */
   customCdnUrl: string;
+  /** Passed to every `<MessageComposer/>` as `maxRows`; unset keeps the SDK default (10). */
+  maxRows?: number;
+  /** Passed to every `<MessageComposer/>` as `minRows`; unset keeps the SDK default (one row). */
+  minRows?: number;
   /**
    * `MessageComposerPreviewSetItem['type']`s left out of the composer. Held as what is turned
    * *off* so a newly shipped default preview appears without a settings migration. Removing one

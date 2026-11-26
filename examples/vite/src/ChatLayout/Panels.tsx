@@ -273,7 +273,6 @@ const SecondChannelContent = ({ channel }: { channel: StreamChannel }) => {
             additionalTextareaProps={{
               id: CHANNEL_MESSAGE_COMPOSER_TEXTAREA_TARGET_ID,
             }}
-            maxRows={10}
             focus
           />
           <ChannelPreviewOverlay />
@@ -630,7 +629,6 @@ const ResponsiveChannelPanels = ({ mainChannel }: { mainChannel?: StreamChannel 
                     additionalTextareaProps={{
                       id: CHANNEL_MESSAGE_COMPOSER_TEXTAREA_TARGET_ID,
                     }}
-                    maxRows={10}
                   />
                   <ChannelPreviewOverlay />
                 </div>

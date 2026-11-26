@@ -405,18 +405,28 @@ const TextareaComposerWithLiveAnnouncements = ({
     return unsubscribe;
   }, [announceInteraction, textComposer.state]);
 
+  // Writes the composer's text into the textarea. A `value` prop would block composed characters
+  // (ô). The ref re-attaches whenever `text` changes, before react-textarea-autosize measures the
+  // height in its layout effect.
+  const attachTextarea = useCallback(
+    (textarea: HTMLTextAreaElement | null) => {
+      textareaRef.current = textarea;
+      if (!textarea || isComposing || textarea.value === text) return;
+      textarea.value = text;
+    },
+    [isComposing, text, textareaRef],
+  );
+
   useLayoutEffect(() => {
-    // Set the text and then the range in the same effect, or the cursor resets to the end.
     const textarea = textareaRef.current;
     if (!textarea || isComposing) return;
 
-    // The value is set here, not through a `value` prop: that would stop `compositionend` from
-    // firing and block composed characters (ô), while no override at all would drop text changes
-    // from middleware (e.g. replacing characters with emojis).
+    // Restores the text when the composer rejected the input (e.g. over the length limit).
     if (textarea.value !== text) {
       textarea.value = text;
     }
 
+    // Writing the text moves the cursor to the end, so the selection is restored after it.
     const length = textarea.value.length;
     const start = Math.max(0, Math.min(selection.start, length));
     const end = Math.max(start, Math.min(selection.end, length));
@@ -458,9 +468,7 @@ const TextareaComposerWithLiveAnnouncements = ({
         onScroll={scrollHandler}
         onSelect={setSelection}
         placeholder={placeholder}
-        ref={(ref) => {
-          textareaRef.current = ref;
-        }}
+        ref={attachTextarea}
         style={textareaStyle}
       />
       {/* todo: X document the layout change for the accessibility purpose (tabIndex) */}
