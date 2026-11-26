@@ -16,6 +16,7 @@ import { ChannelPreviewOverlay } from '../../ChannelPreviewOverlay/ChannelPrevie
 import { ConfigurableMessageComposer } from '../../ConfigurableMessageComposer';
 import { ConfiguredAvatarWithChannelDetail } from '../../ChannelDetail';
 import { useVirtualizedMessageList } from '../hooks';
+import { useMemberDetailClickHandlers } from '../MemberDetail';
 
 // A 2nd channel in the channels view's secondary slot, opened with a ⌘/ctrl-click in the channel
 // list: as the slot's base when it is free, or as a layer over what it holds. The SDK header
@@ -23,6 +24,7 @@ import { useVirtualizedMessageList } from '../hooks';
 // is left out.
 export const SecondChannelPanel = ({ channel }: { channel: StreamChannel }) => {
   const virtualized = useVirtualizedMessageList();
+  const memberDetailClickHandlers = useMemberDetailClickHandlers(channel);
 
   return (
     <WithComponents overrides={{ TypingIndicator }}>
@@ -33,7 +35,7 @@ export const SecondChannelPanel = ({ channel }: { channel: StreamChannel }) => {
             {virtualized ? (
               <VirtualizedMessageList groupByUser returnAllReadData />
             ) : (
-              <MessageList returnAllReadData />
+              <MessageList {...memberDetailClickHandlers} returnAllReadData />
             )}
             <ReturnToSkipNavigation />
             <AIStateIndicator />
