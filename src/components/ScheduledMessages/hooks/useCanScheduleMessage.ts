@@ -15,14 +15,22 @@ const selectIsDisabled = ({ isDisabled }: ScheduledMessagePaginatorsManagerState
 const readComposerCanSchedule = (messageComposer: MessageComposer) =>
   !messageComposer.hasEditInProgress && !messageComposer.scheduleBlockReason;
 
-const useComposerCanSchedule = (messageComposer: MessageComposer) => {
-  const [canSchedule, setCanSchedule] = useState(() =>
+export const useCanScheduleMessage = () => {
+  const { client } = useChatContext();
+  const messageComposer = useMessageComposerController();
+
+  const { isDisabled } = useStateStore(
+    client.scheduledMessagePaginators.state,
+    selectIsDisabled,
+  );
+
+  const [composerCanSchedule, setComposerCanSchedule] = useState(() =>
     readComposerCanSchedule(messageComposer),
   );
 
   useEffect(() => {
     const { channel, locationComposer, textComposer } = messageComposer;
-    const update = () => setCanSchedule(readComposerCanSchedule(messageComposer));
+    const update = () => setComposerCanSchedule(readComposerCanSchedule(messageComposer));
     const unsubscribes = [
       messageComposer.state,
       textComposer.state,
@@ -32,19 +40,6 @@ const useComposerCanSchedule = (messageComposer: MessageComposer) => {
     ].map((store) => store.subscribe(update));
     return () => unsubscribes.forEach((unsubscribe) => unsubscribe());
   }, [messageComposer]);
-
-  return canSchedule;
-};
-
-export const useCanScheduleMessage = () => {
-  const { client } = useChatContext();
-  const messageComposer = useMessageComposerController();
-
-  const { isDisabled } = useStateStore(
-    client.scheduledMessagePaginators.state,
-    selectIsDisabled,
-  );
-  const composerCanSchedule = useComposerCanSchedule(messageComposer);
 
   const canSchedule = !isDisabled && composerCanSchedule;
   return canSchedule;
