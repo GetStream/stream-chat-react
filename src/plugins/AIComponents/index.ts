@@ -9,11 +9,13 @@ export {
 export {
   AIMessageComposer,
   type AIMessageComposerLayout,
+} from './AIMessageComposer/AIMessageComposer';
+export {
   useAIMessageComposerContext,
   useAttachments,
   useIsDisabled,
   useText,
-} from './AIMessageComposer/AIMessageComposer';
+} from './AIMessageComposer/composerState';
 export {
   type AIChatOption,
   ChatOptionsList,

@@ -807,7 +807,15 @@ function ChatComposer({ attachments }: ChatComposerProps) {
       <AIMessageComposer.TextInput name='message' />
       <AIMessageComposer.Actions>
         <AIMessageComposer.FileInput name='attachments' />
-        <AIMessageComposer.ModelSelect name='model' />
+        <AIMessageComposer.ModelSelect
+          name='model'
+          options={
+            <>
+              <option value='fast'>Fast</option>
+              <option value='thorough'>Thorough</option>
+            </>
+          }
+        />
         <AIMessageComposer.SpeechToTextButton />
         <AIMessageComposer.SubmitButton />
       </AIMessageComposer.Actions>
@@ -839,7 +847,7 @@ By default (`layout='stacked'`) the parts are stacked, one under another: put th
 - **`AIMessageComposer.SubmitButton`** - Submit button for sending the message. In a composer with a `conversation`, a `StopButton` takes its place while the agent answers.
 - **`AIMessageComposer.StopButton`** - A round button that stops a reply still being written, to show in place of `SubmitButton` meanwhile. It is `type="button"`, so it never submits, and it is named by the `messageComposer.stopAiGeneration.stopAiGeneration.ariaLabel` string ("Stop AI Generation"). Unlike the other parts it does not follow the composer's `disabled`, since the composer is often disabled exactly while a reply runs; pass `disabled` to it to disable it. Children replace its stop icon. In a composer with a `conversation` it stops the conversation's reply, unless its `onClick` calls `event.preventDefault()`.
 - **`AIMessageComposer.Actions`** - A row for the controls, lined up at its end (`str-chat__ai-message-composer__actions`). Takes any `div` prop.
-- **`AIMessageComposer.ModelSelect`** - Dropdown for selecting AI models. Customizable via `options` prop.
+- **`AIMessageComposer.ModelSelect`** - Dropdown for choosing a model, or anything else the agent's backend reads from the form. Pass the `<option>`s as `options`: the composer has no list of models of its own.
 - **`AIMessageComposer.AttachmentPreview`** - Preview container for attached files.
 - **`AIMessageComposer.AttachmentPreview.Item`** - Preview item component, renders a different look for file types that begin with `image/`.
 
@@ -1291,7 +1299,15 @@ function ChatInterface() {
       <AIMessageComposer.FileInput name='attachments' />
       <AIMessageComposer.TextInput name='message' />
       <AIMessageComposer.SpeechToTextButton />
-      <AIMessageComposer.ModelSelect name='model' />
+      <AIMessageComposer.ModelSelect
+        name='model'
+        options={
+          <>
+            <option value='fast'>Fast</option>
+            <option value='thorough'>Thorough</option>
+          </>
+        }
+      />
       <AIMessageComposer.SubmitButton />
     </AIMessageComposer>
   );

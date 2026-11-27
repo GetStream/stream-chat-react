@@ -1,7 +1,7 @@
 import React from 'react';
 import { fireEvent, render, screen } from '@testing-library/react';
 
-import { AIMessageComposer } from '..';
+import { AIConversationController, AIMessageComposer, useText } from '..';
 
 const Composer = ({
   label,
@@ -54,6 +54,57 @@ describe('AIMessageComposer', () => {
 
     fireEvent.reset(container.querySelector('form') as HTMLFormElement);
     expect(input).toBeDisabled();
+  });
+
+  it("keeps one composer's disabled prop to itself when two share a conversation", () => {
+    const conversation = new AIConversationController({
+      transport: {
+        connect: () => undefined,
+        send: () => Promise.resolve(),
+        stop: () => Promise.resolve(),
+      },
+    });
+    render(
+      <>
+        <AIMessageComposer conversation={conversation} disabled>
+          <AIMessageComposer.TextInput aria-label='first' />
+        </AIMessageComposer>
+        <AIMessageComposer conversation={conversation}>
+          <AIMessageComposer.TextInput aria-label='second' />
+        </AIMessageComposer>
+      </>,
+    );
+    expect(screen.getByLabelText('first')).toBeDisabled();
+    expect(screen.getByLabelText('second')).not.toBeDisabled();
+    expect(conversation.composer.getLatestValue().disabled).toBeFalsy();
+    conversation.dispose();
+  });
+
+  it('warns once when a composer hook is used outside a composer', () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+    const Outside = () => <span>{useText().text}</span>;
+    render(
+      <>
+        <Outside />
+        <Outside />
+      </>,
+    );
+    expect(warn).toHaveBeenCalledTimes(1);
+    expect(warn.mock.calls[0][0]).toMatch(/outside an AIMessageComposer/);
+    warn.mockRestore();
+  });
+
+  it('offers the options it is given, and no models of its own', () => {
+    render(
+      <AIMessageComposer>
+        <AIMessageComposer.ModelSelect
+          aria-label='model'
+          options={<option value='fast'>Fast</option>}
+        />
+      </AIMessageComposer>,
+    );
+    expect(screen.getByRole('combobox', { name: 'model' })).toHaveTextContent('Fast');
+    expect(screen.queryByText(/GPT/)).toBeNull();
   });
 
   it('clears the text on form reset', () => {

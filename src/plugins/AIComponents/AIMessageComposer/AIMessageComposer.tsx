@@ -3,10 +3,8 @@ import {
   createContext,
   type CSSProperties,
   type ReactNode,
-  useCallback,
   useContext,
   useEffect,
-  useMemo,
   useRef,
   useState,
 } from 'react';
@@ -21,6 +19,14 @@ import { useStateStore } from '../../../store';
 import { useStableCallback } from '../../../utils/useStableCallback';
 import { useStableId } from '../../../components/UtilityComponents/useStableId';
 import { AttachmentPreview } from './AttachmentPreview';
+import {
+  AIMessageComposerContext,
+  AIMessageComposerDisabledContext,
+  useAIMessageComposerContext,
+  useAttachments,
+  useIsDisabled,
+  useText,
+} from './composerState';
 import { ChatOptions as ChatOptionsBase, type ChatOptionsProps } from './ChatOptions';
 import { useSpeechToText, type UseSpeechToTextOptions } from './hooks/useSpeechToText';
 import { useIsomorphicLayoutEffect } from '../utils';
@@ -104,12 +110,6 @@ const WithStableId = ({
 
 FileInput.WithStableId = WithStableId;
 
-const AIMessageComposerContext = createContext<StateStore<AIMessageComposerStore>>(
-  new StateStore<AIMessageComposerStore>(initialStoreState),
-);
-
-export const useAIMessageComposerContext = () => useContext(AIMessageComposerContext);
-
 // The conversation the composer writes in, if it was given one.
 const AIMessageComposerConversationContext = createContext<
   AIConversationController | undefined
@@ -127,134 +127,6 @@ const useIsAnswering = (conversation: AIConversationController | undefined) => {
 const isEditingSelector = (currentState: AIMessageComposerStore) => ({
   isEditing: !!currentState.isEditing,
 });
-
-export const useAttachments = () => {
-  const store = useAIMessageComposerContext();
-
-  const removeAttachment = useCallback(
-    (idOrFile: string | File) => {
-      store.next((currentState) => ({
-        ...currentState,
-        attachments: currentState.attachments.filter((attachment) => {
-          if (typeof idOrFile === 'string') {
-            return attachment.id !== idOrFile;
-          }
-
-          return attachment.file !== idOrFile;
-        }),
-      }));
-    },
-    [store],
-  );
-
-  const updateAttachments = useCallback(
-    (
-      idsOrAttachments: (string | AIMessageComposerStore['attachments'][number])[],
-      update: (
-        attachment: AIMessageComposerStore['attachments'][number],
-      ) => AIMessageComposerStore['attachments'][number],
-    ) => {
-      store.next((currentState) => {
-        let hasChanges = false;
-        const newAttachments = [...currentState.attachments];
-
-        for (const idOrAttachment of idsOrAttachments) {
-          const attachmentIndex =
-            typeof idOrAttachment === 'string'
-              ? currentState.attachments.findIndex((a) => a.id === idOrAttachment)
-              : currentState.attachments.indexOf(idOrAttachment);
-
-          if (attachmentIndex === -1) {
-            continue;
-          }
-
-          const currentAttachment = currentState.attachments[attachmentIndex];
-          if (!currentAttachment) continue;
-
-          const updatedAttachment = update(currentAttachment);
-
-          if (updatedAttachment !== currentAttachment) {
-            newAttachments[attachmentIndex] = updatedAttachment;
-            hasChanges = true;
-          }
-        }
-
-        if (!hasChanges) {
-          return currentState;
-        }
-
-        return {
-          ...currentState,
-          attachments: newAttachments,
-        };
-      });
-    },
-    [store],
-  );
-
-  const selector = useCallback(
-    (currentState: AIMessageComposerStore) => ({
-      attachments: currentState.attachments,
-    }),
-    [],
-  );
-
-  const { attachments } = useStateStore(store, selector);
-
-  return useMemo(
-    () => ({ attachments, removeAttachment, updateAttachments }),
-    [attachments, removeAttachment, updateAttachments],
-  );
-};
-
-export const useText = () => {
-  const store = useAIMessageComposerContext();
-
-  const selector = useCallback(
-    (currentState: AIMessageComposerStore) => ({
-      text: currentState.text,
-    }),
-    [],
-  );
-
-  const setText = useCallback(
-    (text: string) => {
-      store.next((currentState) => {
-        if (currentState.text === text) {
-          return currentState;
-        }
-
-        return {
-          ...currentState,
-          text,
-        };
-      });
-    },
-    [store],
-  );
-
-  const { text } = useStateStore(store, selector);
-
-  return { setText, text };
-};
-
-export const useIsDisabled = () => {
-  const store = useAIMessageComposerContext();
-  const selector = useCallback(
-    (currentState: AIMessageComposerStore) => ({
-      disabled: currentState.disabled,
-    }),
-    [],
-  );
-
-  const setDisabled = useCallback(
-    (disabled: boolean) => store.partialNext({ disabled }),
-    [store],
-  );
-
-  const { disabled } = useStateStore(store, selector);
-  return { disabled, setDisabled };
-};
 
 /**
  * How the composer arranges its parts.
@@ -328,10 +200,6 @@ export const AIMessageComposer: AIMessageComposer = ({
   );
   const stateStore = conversation?.composer ?? ownStore;
 
-  useEffect(() => {
-    stateStore.partialNext({ disabled });
-  }, [disabled, stateStore]);
-
   const handleChange = useStableCallback((e: React.ChangeEvent<HTMLFormElement>) => {
     onChange?.(e);
 
@@ -383,12 +251,12 @@ export const AIMessageComposer: AIMessageComposer = ({
 
   const handleReset = useStableCallback((e: React.FormEvent<HTMLFormElement>) => {
     onReset?.(e);
-    // a reset clears the draft but must not re-enable a composer disabled via props, and the
-    // chat option stays picked
+    // a reset clears the draft, but the chat option stays picked and a composer disabled with
+    // `setDisabled` stays disabled (the `disabled` prop is the composer's own, never in the store)
     stateStore.next((currentState) => ({
       ...initialStoreState,
       chatOption: currentState.chatOption,
-      disabled,
+      disabled: currentState.disabled,
     }));
   });
 
@@ -413,23 +281,25 @@ export const AIMessageComposer: AIMessageComposer = ({
   return (
     <ThemeScopeProvider>
       <AIMessageComposerContext.Provider value={stateStore}>
-        <AIMessageComposerConversationContext.Provider value={conversation}>
-          <form
-            className={clsx(
-              themeScopeClassName,
-              'str-chat__ai-message-composer__form',
-              layout === 'inline' && 'str-chat__ai-message-composer__form--inline',
-              className,
-            )}
-            onChange={handleChange}
-            onReset={handleReset}
-            onSubmit={handleSubmit}
-            {...restProps}
-          >
-            <EditingIndicator />
-            {children}
-          </form>
-        </AIMessageComposerConversationContext.Provider>
+        <AIMessageComposerDisabledContext.Provider value={!!disabled}>
+          <AIMessageComposerConversationContext.Provider value={conversation}>
+            <form
+              className={clsx(
+                themeScopeClassName,
+                'str-chat__ai-message-composer__form',
+                layout === 'inline' && 'str-chat__ai-message-composer__form--inline',
+                className,
+              )}
+              onChange={handleChange}
+              onReset={handleReset}
+              onSubmit={handleSubmit}
+              {...restProps}
+            >
+              <EditingIndicator />
+              {children}
+            </form>
+          </AIMessageComposerConversationContext.Provider>
+        </AIMessageComposerDisabledContext.Provider>
       </AIMessageComposerContext.Provider>
     </ThemeScopeProvider>
   );
@@ -753,36 +623,21 @@ const ChatOptions = ({
   );
 };
 
-const availableModels = [
-  { label: 'GPT-4o mini', platform: 'openai', value: 'gpt-4o-mini' },
-  { label: 'GPT-4o', platform: 'openai', value: 'gpt-4o' },
-] as const;
-
-const [defaultModel] = availableModels;
-
-const defaultPlatformModel = `${defaultModel.platform}|${defaultModel.value}`;
-
-const ModelSelect = (
-  props: ComponentPropsWithoutRef<'select'> & { options?: ReactNode },
-) => {
-  const {
-    options = (
-      <>
-        {availableModels.map((model) => (
-          <option key={model.value} value={`${model.platform}|${model.value}`}>
-            {model.label}
-          </option>
-        ))}
-      </>
-    ),
-    ...restProps
-  } = props;
-
+/**
+ * A choice of models, or of anything else the agent's backend reads from the form, such as a
+ * mode. Its `options` are the app's own: the composer doesn't know which models the agent has.
+ */
+const ModelSelect = ({
+  options,
+  ...restProps
+}: ComponentPropsWithoutRef<'select'> & {
+  /** The `<option>`s to choose from. */
+  options: ReactNode;
+}) => {
   const { disabled } = useIsDisabled();
   return (
     <select
       className='str-chat__ai-message-composer__select'
-      defaultValue={defaultPlatformModel}
       {...restProps}
       disabled={disabled}
     >
@@ -800,3 +655,5 @@ AIMessageComposer.Actions = Actions;
 AIMessageComposer.ModelSelect = ModelSelect;
 AIMessageComposer.AttachmentPreview = AttachmentPreview;
 AIMessageComposer.ChatOptions = ChatOptions;
+
+export { useAIMessageComposerContext, useAttachments, useIsDisabled, useText };
