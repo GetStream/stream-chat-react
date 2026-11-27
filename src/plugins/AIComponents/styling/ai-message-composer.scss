@@ -2,11 +2,11 @@
 
 .str-chat__ai-message-composer__form {
   display: flex;
-  padding: 0.75rem;
+  padding: var(--str-chat__spacing-sm);
   flex-direction: column;
-  gap: 1rem;
+  gap: var(--str-chat__spacing-md);
   border: 1px solid var(--str-chat__border-core-default);
-  border-radius: 1.5rem;
+  border-radius: var(--str-chat__radius-3xl);
   flex-grow: 1;
 
   // the text input is `all: unset`, so show its focus on the form container
@@ -20,7 +20,7 @@
     display: flex;
     align-items: center;
     justify-content: flex-end;
-    gap: 0.25rem;
+    gap: var(--str-chat__spacing-xxs);
   }
 
   .str-chat__ai-message-composer__round-button {
@@ -29,15 +29,15 @@
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    padding: 0.25rem;
-    border-radius: 9999px;
+    padding: var(--str-chat__spacing-xxs);
+    border-radius: var(--str-chat__radius-max);
 
-    transition: background-color 0.1s ease-in-out;
+    transition: background-color $ai-duration-instant ease-in-out;
 
     svg {
       flex-shrink: 0;
-      width: 1.5rem;
-      height: 1.5rem;
+      width: var(--str-chat__size-24);
+      height: var(--str-chat__size-24);
       fill: currentColor;
     }
 
@@ -74,9 +74,9 @@
   .str-chat__ai-message-composer__text-input {
     all: unset;
     flex-grow: 1;
-    font-size: 16px;
-    line-height: 1.5;
-    padding-inline: 0.25rem;
+    font-size: var(--str-chat__typography-font-size-md);
+    line-height: var(--str-chat__typography-line-height-relaxed);
+    padding-inline: var(--str-chat__spacing-xxs);
     // A textarea: several lines, grown by TextInput to fit them, then scrolled.
     resize: none;
     // Its height is set to its scrollHeight, which counts any padding, so the padding is inside.
@@ -95,10 +95,11 @@
   .str-chat__ai-message-composer__select {
     all: unset;
     display: flex;
-    font-size: 14px;
+    font-size: var(--str-chat__typography-font-size-sm);
     border: 1px solid var(--str-chat__border-core-default);
-    border-radius: 0.5rem;
-    padding: 0.5rem 1.25rem 0.5rem 1rem;
+    border-radius: var(--str-chat__radius-md);
+    padding: var(--str-chat__spacing-xs) var(--str-chat__spacing-lg)
+      var(--str-chat__spacing-xs) var(--str-chat__spacing-md);
 
     background-color: transparent;
     // chevron drawn with currentColor so it follows the text colour (dark mode)
@@ -130,7 +131,7 @@
     flex-direction: row;
     flex-wrap: wrap;
     align-items: flex-end;
-    gap: 0.5rem;
+    gap: var(--str-chat__spacing-xs);
 
     > .str-chat__ai-attachment-preview {
       flex-basis: 100%;
@@ -147,7 +148,7 @@
       flex: 1 1 0;
       min-width: 0;
       // as tall as a round button (1.5rem icon + 2 × 0.25rem padding) on a single line
-      padding-block: 0.25rem;
+      padding-block: var(--str-chat__spacing-xxs);
     }
   }
 }

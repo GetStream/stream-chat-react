@@ -60,6 +60,7 @@ describe('the AI styles literal audit', () => {
   flex: 1 1 0;
   inset: 0;
   transition: opacity var(--str-chat__menu-roll-duration);
+  transition: visibility 0s linear $ai-duration-slow;
   --str-chat__ai-glow-size: 2rem;
 }`),
     ).toEqual([]);
@@ -83,6 +84,14 @@ describe('the AI styles literal audit', () => {
   padding: 1rem;
 }`),
     ).toEqual(['spacing']);
+  });
+
+  it('counts the sizes handed to a mixin', () => {
+    expect(
+      kinds(
+        '.a {\n  @include ai-icon(1.125rem);\n  @include ai-icon(var(--str-chat__icon-size-md));\n}',
+      ),
+    ).toEqual(['size']);
   });
 
   it('reads nested selectors as selectors, not declarations', () => {

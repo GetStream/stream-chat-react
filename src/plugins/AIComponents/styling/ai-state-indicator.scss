@@ -4,48 +4,48 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 1rem 0;
+  padding: var(--str-chat__spacing-md) 0;
 
   &__content {
     display: flex;
     align-items: center;
-    gap: 0.75rem;
-    padding: 0.5rem 0.75rem;
-    border-radius: 18px;
+    gap: var(--str-chat__spacing-sm);
+    padding: var(--str-chat__spacing-xs) var(--str-chat__spacing-sm);
+    border-radius: var(--str-chat__radius-2xl);
     max-width: 80%;
   }
 
   &__dots {
     display: flex;
     align-items: center;
-    gap: 0.375rem;
+    gap: var(--str-chat__spacing-xs);
   }
 
   &__dot {
-    width: 6px;
-    height: 6px;
+    width: var(--str-chat__size-6);
+    height: var(--str-chat__size-6);
     background-color: var(--str-chat__text-secondary);
-    border-radius: 50%;
-    animation: str-chat__ai-thinking 1.4s ease-in-out infinite;
+    border-radius: var(--str-chat__radius-max);
+    animation: str-chat__ai-thinking $ai-loop-thinking ease-in-out infinite;
 
     &:nth-child(1) {
-      animation-delay: 0s;
+      animation-delay: 0;
     }
 
     &:nth-child(2) {
-      animation-delay: 0.2s;
+      animation-delay: $ai-loop-stagger;
     }
 
     &:nth-child(3) {
-      animation-delay: 0.4s;
+      animation-delay: $ai-loop-stagger * 2;
     }
   }
 
   &__text {
     color: var(--str-chat__text-secondary);
-    font-size: 0.875rem;
-    font-weight: 500;
-    animation: str-chat__ai-text-fade 2s ease-in-out infinite;
+    font-size: var(--str-chat__typography-font-size-sm);
+    font-weight: var(--str-chat__typography-font-weight-medium);
+    animation: str-chat__ai-text-fade $ai-loop-text-fade ease-in-out infinite;
   }
 }
 
@@ -87,15 +87,15 @@
 /* Mobile responsiveness */
 @media (max-width: 768px) {
   .str-chat__ai-state-indicator {
-    padding: 0.75rem 0;
+    padding: var(--str-chat__spacing-sm) 0;
 
     &__content {
-      gap: 0.5rem;
-      padding: 0.375rem 0.625rem;
+      gap: var(--str-chat__spacing-xs);
+      padding: var(--str-chat__spacing-xs) var(--str-chat__spacing-sm);
     }
 
     &__text {
-      font-size: 0.8125rem;
+      font-size: var(--str-chat__typography-font-size-sm);
     }
   }
 }

@@ -12,13 +12,13 @@
   justify-content: center;
   width: $size;
   height: $size;
-  border-radius: 50%;
+  border-radius: var(--str-chat__radius-max);
   background-color: $color;
   color: var(--str-chat__button-primary-text-on-accent);
   font-size: calc(#{$size} * 0.7);
   font-style: normal;
-  font-weight: 700;
-  line-height: 1;
+  font-weight: var(--str-chat__typography-font-weight-bold);
+  line-height: 1; // ai-styles: allow a glyph box, as tall as its font
   content: $glyph;
 }
 

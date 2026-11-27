@@ -1,3 +1,4 @@
+@use './mixins' as *;
 // A reply's generated UI, and how its parts come in.
 
 // Its own stacking context, so the layers of what it shows, such as OpenUI's step numbers or a
@@ -16,9 +17,9 @@
 .str-chat__ai-ui-entrance {
   transform-origin: top center;
   transition:
-    opacity 0.6s cubic-bezier(0.22, 1, 0.36, 1),
-    filter 0.6s cubic-bezier(0.22, 1, 0.36, 1),
-    transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+    opacity $ai-duration-entrance $ai-ease-emphasized,
+    filter $ai-duration-entrance $ai-ease-emphasized,
+    transform $ai-duration-entrance $ai-ease-emphasized;
 
   &--hidden {
     opacity: 0;
@@ -29,7 +30,7 @@
 
 @media (prefers-reduced-motion: reduce) {
   .str-chat__ai-ui-entrance {
-    transition: opacity 0.3s ease-out;
+    transition: opacity $ai-duration-moderate ease-out;
 
     &--hidden {
       filter: none;

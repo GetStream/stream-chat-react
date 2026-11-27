@@ -33,20 +33,20 @@ type Mass = {
 
 /** The masses in the order the shader mixes them, each reaching `reach` R. */
 export const MASSES: Mass[] = [
-  { color: 'var(--str-ai-glow-k0)', orbit: 0, reach: 1.15 },
-  { color: 'var(--str-ai-glow-col-b)', orbit: 1, reach: 1.3 },
-  { color: 'var(--str-ai-glow-col-c)', orbit: 0, reach: 1.15, weight: '0.5' },
+  { color: 'var(--_str-chat-ai-glow-k0)', orbit: 0, reach: 1.15 },
+  { color: 'var(--_str-chat-ai-glow-col-b)', orbit: 1, reach: 1.3 },
+  { color: 'var(--_str-chat-ai-glow-col-c)', orbit: 0, reach: 1.15, weight: '0.5' },
   {
-    color: 'var(--str-ai-glow-col-d)',
+    color: 'var(--_str-chat-ai-glow-col-d)',
     orbit: 2,
     reach: 1.2,
-    weight: 'var(--str-ai-glow-w3, 0)',
+    weight: 'var(--_str-chat-ai-glow-w3, 0)',
   },
   {
-    color: 'var(--str-ai-glow-col-e)',
+    color: 'var(--_str-chat-ai-glow-col-e)',
     orbit: 3,
     reach: 1.25,
-    weight: 'var(--str-ai-glow-w4, 0)',
+    weight: 'var(--_str-chat-ai-glow-w4, 0)',
   },
 ];
 
@@ -135,20 +135,20 @@ export const cssGlowPalette = (palette: Hsv[], dark: number): Record<string, str
   const [first] = colors;
   const mass = (c: Rgb) => rgb(finish(saturated(c, 1.7)));
   return {
-    '--str-ai-glow-base': rgb(finish(saturated(towardWhite(first, 0.06), 1.3))),
-    '--str-ai-glow-col-b': colors[1]
+    '--_str-chat-ai-glow-base': rgb(finish(saturated(towardWhite(first, 0.06), 1.3))),
+    '--_str-chat-ai-glow-col-b': colors[1]
       ? mass(colors[1])
       : rgb(finish(saturated(scaled(first, 1.18), 1.3))),
-    '--str-ai-glow-col-c': colors[2]
+    '--_str-chat-ai-glow-col-c': colors[2]
       ? mass(colors[2])
       : rgb(finish(saturated(scaled(first, 0.85), 1.3))),
-    '--str-ai-glow-col-d': mass(colors[3] ?? first),
-    '--str-ai-glow-col-e': mass(colors[4] ?? first),
-    '--str-ai-glow-halo': rgb(towardWhite(first, dark ? 0.32 : 0.75)),
-    '--str-ai-glow-k0': mass(first),
-    '--str-ai-glow-ring': rgb(towardWhite(saturated(first, 1.7), 0.4)),
-    '--str-ai-glow-w3': colors.length > 3 ? '1' : '0',
-    '--str-ai-glow-w4': colors.length > 4 ? '1' : '0',
+    '--_str-chat-ai-glow-col-d': mass(colors[3] ?? first),
+    '--_str-chat-ai-glow-col-e': mass(colors[4] ?? first),
+    '--_str-chat-ai-glow-halo': rgb(towardWhite(first, dark ? 0.32 : 0.75)),
+    '--_str-chat-ai-glow-k0': mass(first),
+    '--_str-chat-ai-glow-ring': rgb(towardWhite(saturated(first, 1.7), 0.4)),
+    '--_str-chat-ai-glow-w3': colors.length > 3 ? '1' : '0',
+    '--_str-chat-ai-glow-w4': colors.length > 4 ? '1' : '0',
   };
 };
 

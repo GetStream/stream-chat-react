@@ -50,13 +50,13 @@ const Layer = ({
 
 const orbitStyle = (orbit: number) =>
   ({
-    '--str-ai-glow-direction': ORBITS[orbit].direction,
-    '--str-ai-glow-period': `${ORBITS[orbit].period}s`,
-    '--str-ai-glow-start': `${ORBITS[orbit].start}deg`,
+    '--_str-chat-ai-glow-direction': ORBITS[orbit].direction,
+    '--_str-chat-ai-glow-period': `${ORBITS[orbit].period}s`,
+    '--_str-chat-ai-glow-start': `${ORBITS[orbit].start}deg`,
   }) as CSSProperties;
 
 const swayStyle = (orbit: number) =>
-  ({ '--str-ai-glow-sway-period': `${ORBITS[orbit].sway}s` }) as CSSProperties;
+  ({ '--_str-chat-ai-glow-sway-period': `${ORBITS[orbit].sway}s` }) as CSSProperties;
 
 /** The masses the palette fills: the fourth and fifth only with that many colors. */
 const massesFor = (colorCount: number) =>
@@ -74,8 +74,8 @@ const ColorField = ({ colorCount }: { colorCount: number }) => (
               className={`${block}__mass`}
               style={
                 {
-                  '--str-ai-glow-dist': orbitDistance(mass.orbit),
-                  '--str-ai-glow-reach': mass.reach,
+                  '--_str-chat-ai-glow-dist': orbitDistance(mass.orbit),
+                  '--_str-chat-ai-glow-reach': mass.reach,
                   background: massBackground(mass),
                 } as CSSProperties
               }
@@ -102,7 +102,7 @@ const RidingBody = ({ colorCount }: { colorCount: number }) => {
             style={
               {
                 ...swayStyle(orbit),
-                '--str-ai-glow-mask': orbitMask(orbit, reach, alpha),
+                '--_str-chat-ai-glow-mask': orbitMask(orbit, reach, alpha),
               } as CSSProperties
             }
           >
@@ -246,7 +246,7 @@ export const VoiceGlowCss = ({
       level += ((target ?? 0) - level) * ease(MIC, dt);
       if (Math.abs(level - written) > 0.002) {
         written = level;
-        root.style.setProperty('--str-ai-glow-level', level.toFixed(3));
+        root.style.setProperty('--_str-chat-ai-glow-level', level.toFixed(3));
       }
       if (live !== (target !== null)) {
         live = target !== null;
@@ -257,7 +257,7 @@ export const VoiceGlowCss = ({
     frame = requestAnimationFrame(tick);
     return () => {
       cancelAnimationFrame(frame);
-      root.style.removeProperty('--str-ai-glow-level');
+      root.style.removeProperty('--_str-chat-ai-glow-level');
       root.removeAttribute('data-live');
     };
   }, [hasAudioLevel, onScreen]);
@@ -310,7 +310,9 @@ export const VoiceGlowCss = ({
         data-rendering='css'
         data-state={state}
         role='img'
-        style={{ '--str-ai-glow-amp': amplitude.toFixed(3), ...style } as CSSProperties}
+        style={
+          { '--_str-chat-ai-glow-amp': amplitude.toFixed(3), ...style } as CSSProperties
+        }
         {...restProps}
         onPointerUp={handlePointerUp}
         ref={rootRef}

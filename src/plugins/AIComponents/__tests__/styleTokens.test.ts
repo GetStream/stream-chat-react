@@ -22,7 +22,9 @@ const reads = [
 // The type, spacing and radius scale is the same in every theme: light.scss declares it on
 // `.str-chat`, which a dark `.str-chat` has too, and dark.scss redeclares only colours.
 const isScaleToken = (token: string) =>
-  /^--str-chat__(spacing|typography|radius|size|space)-/.test(token);
+  /^--str-chat__(spacing|typography|radius|size|space|icon-size|button-(visual-height|padding|radius|hit-target))-/.test(
+    token,
+  );
 // A colour ramp's step is the same in every theme; the code syntax tokens pick one per theme.
 // A token the light theme declares follows the dark theme when dark.scss redeclares it, or when
 // it is an alias, however indirect, of one that does.
@@ -40,8 +42,8 @@ const isRampStep = (token: string) =>
 
 describe('AI components stylesheet token contract', () => {
   it('reads the SDK tokens, with no AI layer of its own', () => {
-    expect(css).not.toMatch(/--str-chat__ai-(?!glow-)[a-z-]+/);
-    expect(css).not.toMatch(/--_str-chat-(ai|a2ui)-/);
+    expect(css).not.toMatch(/--str-chat__ai-[a-z-]+/);
+    expect(css).not.toMatch(/--_str-chat-(a2ui-|ai-(?!glow-))/);
     expect(reads.length).toBeGreaterThan(40);
   });
 
@@ -106,7 +108,7 @@ describe('AI components stylesheet token contract', () => {
 describe('AI components stylesheet icons', () => {
   it('sizes and colours SCR icons without relying on index.css', () => {
     expect(css).toMatch(
-      /\.str-chat__ai-message-composer__round-button svg\s*\{[^}]*width:\s*1\.5rem;[^}]*height:\s*1\.5rem;[^}]*fill:\s*currentColor/,
+      /\.str-chat__ai-message-composer__round-button svg\s*\{[^}]*width:\s*var\(--str-chat__size-24\);[^}]*height:\s*var\(--str-chat__size-24\);[^}]*fill:\s*currentColor/,
     );
     expect(css).toMatch(
       /\.str-chat__ai-attachment-preview__retry-button svg\s*\{[^}]*width:[^}]*fill:\s*currentColor/,
@@ -170,7 +172,7 @@ describe('AI components stylesheet accessibility', () => {
 
   it('animates the CSS voice glow only through transform and opacity', () => {
     const keyframes = [
-      ...css.matchAll(/@keyframes str-ai-glow-[a-z-]+\s*\{([\s\S]*?)\n\}/g),
+      ...css.matchAll(/@keyframes str-chat__ai-glow-[a-z-]+\s*\{([\s\S]*?)\n\}/g),
     ];
     expect(keyframes.length).toBeGreaterThan(10);
     for (const [, body] of keyframes) {

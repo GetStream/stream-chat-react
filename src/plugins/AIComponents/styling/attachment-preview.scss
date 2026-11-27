@@ -6,23 +6,23 @@
   }
 
   display: flex;
-  gap: 0.75rem;
+  gap: var(--str-chat__spacing-sm);
   overflow-x: auto;
   max-width: 100%;
-  padding-block: 0.25rem;
+  padding-block: var(--str-chat__spacing-xxs);
 
   &::-webkit-scrollbar {
-    height: 0.25rem;
+    height: var(--str-chat__size-4);
   }
 
   &::-webkit-scrollbar-track {
     background: var(--str-chat__background-core-surface-subtle);
-    border-radius: 0.25rem;
+    border-radius: var(--str-chat__radius-xs);
   }
 
   &::-webkit-scrollbar-thumb {
     background: var(--str-chat__system-scrollbar);
-    border-radius: 0.25rem;
+    border-radius: var(--str-chat__radius-xs);
   }
 
   &::-webkit-scrollbar-thumb:hover {
@@ -32,18 +32,18 @@
 
 .str-chat__ai-attachment-preview__item {
   display: flex;
-  height: 4rem;
+  height: var(--str-chat__size-64);
   border: 1px solid var(--str-chat__border-core-default);
-  border-radius: 0.5rem;
+  border-radius: var(--str-chat__radius-md);
   position: relative;
-  padding: 0.25rem;
-  flex-basis: 10rem;
+  padding: var(--str-chat__spacing-xxs);
+  flex-basis: 10rem; // ai-styles: allow measure of an attachment preview
 
   flex-grow: 0;
   flex-shrink: 0;
 
   &:has(> .str-chat__ai-attachment-preview__image) {
-    flex-basis: 4rem;
+    flex-basis: var(--str-chat__size-64);
     padding: 0;
   }
   .str-chat__ai-attachment-preview__image {
@@ -56,23 +56,23 @@
   .str-chat__ai-attachment-preview__failed-state-overlay {
     position: absolute;
     display: flex;
-    width: calc(100% - 2rem);
+    width: calc(100% - var(--str-chat__size-32));
     height: 100%;
     justify-content: center;
     align-items: center;
-    border-radius: 0.5rem;
+    border-radius: var(--str-chat__radius-md);
     top: 0;
     left: 0;
-    margin-inline: 1rem;
+    margin-inline: var(--str-chat__spacing-md);
 
     .str-chat__ai-attachment-preview__retry-button {
       all: unset;
       background-color: var(--str-chat__background-core-surface-strong);
-      border-radius: 9999px;
+      border-radius: var(--str-chat__radius-max);
       display: flex;
-      padding: 0.25rem;
+      padding: var(--str-chat__spacing-xxs);
 
-      transition: background 0.1s ease-in;
+      transition: background $ai-duration-instant ease-in;
 
       &:hover:not(:disabled) {
         background: var(--str-chat__border-core-default);
@@ -81,8 +81,8 @@
 
       svg {
         flex-shrink: 0;
-        width: 1.25rem;
-        height: 1.25rem;
+        width: var(--str-chat__size-20);
+        height: var(--str-chat__size-20);
         fill: currentColor;
       }
 
@@ -100,12 +100,12 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 1rem;
-    height: 1rem;
-    border-radius: 9999px;
+    width: var(--str-chat__size-16);
+    height: var(--str-chat__size-16);
+    border-radius: var(--str-chat__radius-max);
     background: var(--str-chat__background-core-surface-strong);
 
-    transition: background 0.1s ease-in;
+    transition: background $ai-duration-instant ease-in;
 
     &:hover:not(:disabled) {
       background: var(--str-chat__border-core-default);
@@ -118,23 +118,23 @@
 
     svg {
       flex-shrink: 0;
-      width: 1rem;
-      height: 1rem;
+      width: var(--str-chat__size-16);
+      height: var(--str-chat__size-16);
       fill: currentColor;
     }
   }
 
   .str-chat__ai-attachment-preview__item-content {
     display: flex;
-    gap: 0.25rem;
+    gap: var(--str-chat__spacing-xxs);
     justify-content: flex-start;
     align-items: center;
     width: 100%;
 
     > svg {
       flex-shrink: 0;
-      width: 2rem;
-      height: 2rem;
+      width: var(--str-chat__size-32);
+      height: var(--str-chat__size-32);
       fill: currentColor;
     }
 
@@ -145,7 +145,7 @@
       width: 0;
 
       .str-chat__ai-attachment-preview__file-name {
-        font-size: 0.75rem;
+        font-size: var(--str-chat__typography-font-size-xs);
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
@@ -153,7 +153,7 @@
       }
 
       .str-chat__ai-attachment-preview__file-size {
-        font-size: 0.5rem;
+        font-size: var(--str-chat__typography-font-size-micro);
       }
     }
   }

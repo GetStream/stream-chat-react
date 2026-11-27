@@ -113,14 +113,14 @@
 
   // Inline code, wherever it is: in a paragraph, a list item, a heading or a table cell.
   :not(pre) > .str-chat__ai-code {
-    padding: 0.125em 0.375em;
+    padding: 0.125em 0.375em; // ai-styles: allow relative to the text the code sits in
     border-radius: var(--str-chat__radius-sm);
     background-color: var(--str-chat__background-core-surface-default);
     // The SCR mono face first; a system one when the page has not loaded it.
     font-family:
       var(--str-chat__typography-font-family-mono), ui-monospace, SFMono-Regular, Menlo,
       Consolas, monospace;
-    font-size: 0.875em;
+    font-size: 0.875em; // ai-styles: allow relative to the text the code sits in
   }
 
   > table {
@@ -288,7 +288,7 @@
       }
 
       &.bold {
-        font-weight: 700;
+        font-weight: var(--str-chat__typography-font-weight-bold);
       }
 
       &.italic {
@@ -431,6 +431,6 @@
   }
 
   .str-chat__ai-chart {
-    max-height: 20rem;
+    max-height: var(--str-chat__size-320);
   }
 }

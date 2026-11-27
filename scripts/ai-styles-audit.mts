@@ -35,7 +35,8 @@ const ALLOW_MARKER = /\/\/\s*ai-styles:\s*allow\b/;
 const LENGTH =
   /(?<![\w.-])(?!0(?:\.0+)?(?:px|rem|em)\b)(?!1px\b)\d*\.?\d+(?:px|rem|em)\b/;
 const COLOUR = /#[0-9a-f]{3,8}\b|\b(?:rgba?|hsla?)\(\s*[\d.]/i;
-const DURATION = /(?<![\w.-])\d*\.?\d+m?s\b/;
+// Durations other than 0, which only orders a change.
+const DURATION = /(?<![\w.-])(?!0(?:\.0+)?m?s\b)\d*\.?\d+m?s\b/;
 const NUMBER = /^-?\d*\.?\d+$/;
 
 const SPACING =
@@ -49,8 +50,7 @@ const stripBlockComments = (source: string) =>
 const kindsOf = (property: string, value: string): StyleLiteralKind[] => {
   const kinds: StyleLiteralKind[] = [];
   // The `--str-chat__ai-*` layer, read directly or through the bridge's Sass functions.
-  if (/--str-chat__ai-(?!glow-)|\bai-(?:token|scale)\(/.test(value))
-    kinds.push('ai-token');
+  if (/--str-chat__ai-|\bai-(?:token|scale)\(/.test(value)) kinds.push('ai-token');
   if (COLOUR.test(value)) kinds.push('colour');
   // A custom property is judged by the property it feeds, which the scan can't see, so only
   // its colours and AI tokens count.
@@ -106,7 +106,20 @@ export const findStyleLiterals = (source: string): StyleLiteral[] => {
   const declaration = (endLine: number) => {
     const statement = segment.trim();
     segment = '';
-    if (!statement || exempt.length || statement.startsWith('@')) return;
+    if (!statement || exempt.length) return;
+    // A size handed to a mixin, such as `@include ai-icon(1.125rem)`, is written out too.
+    const include = statement.match(/^@include\s+[\w-]+\(([\s\S]*)\)$/);
+    if (include && LENGTH.test(include[1])) {
+      for (let at = segmentStart; at <= endLine; at += 1)
+        if (allowedLines.has(at)) return;
+      findings.push({
+        kind: 'size',
+        line: segmentStart,
+        text: statement.replace(/\s+/g, ' '),
+      });
+      return;
+    }
+    if (statement.startsWith('@')) return;
     const match = statement.match(/^(--[\w-]+|[a-z-]+)\s*:\s*([\s\S]+)$/i);
     if (!match) return;
     for (let at = segmentStart; at <= endLine; at += 1) if (allowedLines.has(at)) return;
