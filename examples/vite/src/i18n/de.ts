@@ -81,6 +81,8 @@ export const deTranslations = {
   'aiComponents.reasoning.thoughtFor.title': '{{ duration }} nachgedacht',
   'aiComponents.reasoning.thoughtProcess.title': 'Denkprozess',
   'aiComponents.replyActions.badResponse.ariaLabel': 'Schlechte Antwort',
+  'aiComponents.replyActions.copiedToClipboard.ariaLabel':
+    'In die Zwischenablage kopiert',
   'aiComponents.replyActions.copied.ariaLabel': 'Kopiert',
   'aiComponents.replyActions.copy.ariaLabel': 'Kopieren',
   'aiComponents.replyActions.goodResponse.ariaLabel': 'Gute Antwort',

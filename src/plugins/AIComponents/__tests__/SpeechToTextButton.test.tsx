@@ -2,6 +2,7 @@ import React from 'react';
 import { act, fireEvent, render, renderHook, screen } from '@testing-library/react';
 
 import { AIMessageComposer, useSpeechToText } from '..';
+import { TranslationProvider } from '../../../context/TranslationContext';
 import type { UseSpeechToTextOptions } from '..';
 import {
   installFakeSpeechRecognition,
@@ -48,6 +49,17 @@ describe('AIMessageComposer.SpeechToTextButton', () => {
       expect(recognition.lang).toBe('de-DE');
       expect(recognition.continuous).toBe(true);
       expect(recognition.interimResults).toBe(false);
+    });
+
+    it("recognises the app's language unless told another", () => {
+      render(
+        <TranslationProvider
+          value={{ t: ((key: string) => key) as never, userLanguage: 'fr' }}
+        >
+          <Composer />
+        </TranslationProvider>,
+      );
+      expect(latestRecognition().lang).toBe('fr');
     });
 
     it('writes the transcript to the composer and calls the consumer onTranscript', () => {

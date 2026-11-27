@@ -25,20 +25,23 @@ import {
 import 'stream-chat-react/css/ai-components.css';
 ```
 
-Load `ai-components.css` in addition to `stream-chat-react/css/index.css`.
+Load `ai-components.css` in addition to `stream-chat-react/css/index.css`. The generated UI renderers have stylesheets of their own, which need both: `stream-chat-react/css/a2ui.css` with `stream-chat-react/a2ui`, and `stream-chat-react/css/openui.css`, after OpenUI's own, with `stream-chat-react/openui`. `ai-components.css` no longer includes them.
 
 ## What is exported
 
 From `stream-chat-react/ai-components`:
 
-- Components: `AIMarkdown`, `AIMessageComposer` (with the static sub-components `FileInput`, `TextInput`, `SpeechToTextButton`, `SubmitButton`, `StopButton`, `Actions`, `ModelSelect`, `ChatOptions`, `AttachmentPreview`, `AttachmentPreview.Item`), `StreamingMessage`, `AIStateIndicator`, `VoiceWave`, `VoiceGlow`
+- Components: `AIMarkdown`, `AIMessageComposer` (with the static sub-components `FileInput`, `TextInput`, `SpeechToTextButton`, `SubmitButton`, `StopButton`, `Actions`, `ModelSelect`, `ChatOptions`, `AttachmentPreview`, `AttachmentPreview.Item`), `StreamingMessage`, `AIThinkingIndicator` (`AIStateIndicator`, deprecated), `VoiceWave`, `VoiceGlow`
 - Agent conversations (see [Agent conversations](#agent-conversations)): `AIConversation`, `AIUserMessage`, `AIAssistantMessage`, `AIMessageAttachment`, `AIReplyActions`, `AIBranchSwitcher`, `AITypingIndicator`, `AISuggestions`, `AIMessageParts`, `AIMessagePart`, `AIToolCall`, `AIToolApproval`, `AIToolApprovalCard`, `AIToolArguments`, `AIToolAuthorization`, `AIToolAuthorizationCard`, `AIReasoning`, `AIThinking`, `AIToolApproverProvider`, `ChatOptionsList`, `SelectedChatOptionChip`
 - Conversation state (see [`AIConversationController`](#aiconversationcontroller)): `AIConversationController`, `AIAgentError`, `AI_AGENT_ERROR_MESSAGE`, `AIAgentActivityStates`, `isAIConversationAnswering`, `useAIConversationState`, `createAIMessageComposerStore`, and the types `AIConversationControllerState`, `AIConversationControllerOptions`, `AIConversationSendData`, `AIConversationTransport`, `AIConversationFeed`, `AIConversationRequest`, `AIConversationRequestKind`, `AIConversationStatus`, `AIConversationActions`, `AIAgentActivity`, `AIAgentActivityState`
 - Functions: `parseMessageParts`, `parseMessagePart`, `isAwaitingApproval`, `isAwaitingAuthorization`, `isAwaitingClient`, `isDeclined`, `isToolCallFinished`, `isSupportedPart`, `isAuthorizationExpired`, `fromStreamMessage`, `createPopupAuthorizer`, `completeConnectorSignIn`, `readConnectorSignInResult`, `AIClientIdentity.installId()`
-- Hooks: `useAttachments`, `useText`, `useIsDisabled`, `useAIMessageComposerContext`, `useSpeechToText`, `useAudioLevel`, `useHeardText`, `useAIToolApprover`
-- Types: `AIMessageComposerStore`, `AIMessageComposerLayout`, `StreamingMessageRef`, `UseMessageTextStreamingProps`, `ToolComponentProps`, `UseSpeechToTextOptions`, `VoiceAgentState`, `VoiceGlowRendering`, `VoiceVisualizationProps`, `VoiceWaveProps`, `VoiceGlowProps`, `HeardTextProgress`, `HeardTextFunction`, `HeardTextSubscribe`, `UseHeardTextParams`, `UseHeardTextResult`, `AIMessage`, `AIMessageRole`, `AIPendingMessage`, `AIMessagePartData`, `AIReasoningPart`, `AIToolCallPart`, `AIToolApprovalData`, `AIToolAuthorizationData`, `AIToolApprover`, `AIToolAuthorizer`, `AIToolApprovalState`, `AIToolAuthorizationState`, `AIMessageAttachmentData`, `AIMessageRating`, `AIChatOption`, `PopupAuthorizerOptions`, `ConnectorSignInResult`
+- Hooks: `useAttachments`, `useText`, `useIsDisabled`, `useAIMessageComposerContext`, `useSpeechToText`, `useAudioLevel`, `useHeardText`, `useAIToolApprover`, `useAIIcons`
+- Icons (see [Icons](#6-icons)): `IconAIReasoning`, `IconAIShare`, `IconAIThumbsUp`, `IconAIThumbsUpFill`, `IconAIThumbsDown`, `IconAIThumbsDownFill`, `IconAIHandRaised`, `IconAIKey`, `IconAIDevice`, and the types `AIIconName`, `AIIconSlots`
+- Types: `AIMessageComposerStore`, `AIMessageComposerLayout`, `StreamingMessageRef`, `StreamingMessageProps`, `StreamingMessagePaceProps` (`UseMessageTextStreamingProps`, deprecated), `ToolComponentProps`, `UseSpeechToTextOptions`, `VoiceAgentState`, `VoiceGlowRendering`, `VoiceVisualizationProps`, `VoiceWaveProps`, `VoiceGlowProps`, `HeardTextProgress`, `HeardTextFunction`, `HeardTextSubscribe`, `UseHeardTextParams`, `UseHeardTextResult`, `AIMessage`, `AIMessageRole`, `AIPendingMessage`, `AIMessagePartData`, `AIReasoningPart`, `AIToolCallPart`, `AIToolApprovalData`, `AIToolAuthorizationData`, `AIToolApprover`, `AIToolAuthorizer`, `AIToolApprovalState`, `AIToolAuthorizationState`, `AIMessageAttachmentData`, `AIMessageRating`, `AIChatOption`, `PopupAuthorizerOptions`, `ConnectorSignInResult`
 
 `useMessageTextStreaming` is not exported from here; import it from the main entry point (`stream-chat-react`).
+
+The entry point names each export, so a helper inside a module is no longer public by accident. These, which were, are not exported any more: `attachmentDetails`, `approvalLines`, `signInFor`, `splitReasoningParagraphs`, `AI_CONNECTOR_SIGN_IN_CHANNEL`, `AI_BRANCH_CUSTOM_DATA_KEY`, `AI_RESENT_FROM_CUSTOM_DATA_KEY`, `AI_MESSAGE_PART_TYPE_PREFIX` and `AI_MESSAGE_PART_SUPPORTED_VERSION`.
 
 ## Agent conversations
 
@@ -363,6 +366,7 @@ npm install @a2ui/web_core@0.15.0 @a2ui/react@0.15.0
 ```
 
 ```tsx
+import 'stream-chat-react/css/a2ui.css';
 import { createA2UIRenderer } from 'stream-chat-react/a2ui';
 
 const ui = new AIUIHost({
@@ -380,7 +384,7 @@ const ui = new AIUIHost({
 - Images, videos and sounds load only what `mediaUrl` allows, before they draw: public web links and the page's own site by default (`aiUIPublicMediaURL`), not `data:` URLs or addresses on the person's network.
 - `basicComponents` draws a basic component the app's way (`{ Divider: MyDivider }`), or leaves one out of the catalog and the instructions (`{ Video: null }`). An app's component named like a basic one is left out, and `onError` says so.
 - What goes wrong, such as a message that is not JSON or a component the catalog lacks, goes to `onError` with the A2UI error code and the reply's id, and the rest of the reply still shows. A batch of components that one bad component spoils shows the others, whether in `updateComponents` or in the `createSurface` that makes the surface. What is wrong with the renderer rather than a reply, such as an app's component that can't join the catalog or packages that couldn't load, comes without an id.
-- The parts a person sees most are Stream's: Button, Text, Card, TextField, ChoicePicker and Icon draw with this package's components and follow its theme, and the rest of the basic catalog, its layouts and media, draws with A2UI's own elements, themed with the AI components' tokens in `ai-components.css` (`.str-chat__a2ui` sets the `--a2ui-*` variables). A Button's words are the agent's, in the case it wrote them. A reply looks as it does in OpenUI: each surface is the reply's card, a Card in it a panel on it, a quote a callout behind its icon, chips pills with the chosen ones in the accent colour, a primary Button a pill as wide as the reply, and borderless Buttons follow-ups in the accent colour with a hairline between them. What the agent says about a part with its `accessibility` (`label`, `description`, `live`, `hidden`) reaches assistive technology as on A2UI's own parts and on iOS: a field's name is its input's, and a Card or Text the agent names is a group. A live reply's parts come in as the agent writes them, like an app component's, and a reply from history shows whole.
+- The parts a person sees most are Stream's: Button, Text, Card, TextField, ChoicePicker and Icon draw with this package's components and follow its theme, and the rest of the basic catalog, its layouts and media, draws with A2UI's own elements, themed with the SDK's tokens in `a2ui.css` (`.str-chat__a2ui` sets the `--a2ui-*` variables, colours, type and spacing alike). A Button's words are the agent's, in the case it wrote them. A reply looks as it does in OpenUI: each surface is the reply's card, a Card in it a panel on it, a quote a callout behind its icon, chips pills with the chosen ones in the accent colour, a primary Button a pill as wide as the reply, and borderless Buttons follow-ups in the accent colour with a hairline between them. What the agent says about a part with its `accessibility` (`label`, `description`, `live`, `hidden`) reaches assistive technology as on A2UI's own parts and on iOS: a field's name is its input's, and a Card or Text the agent names is a group. A live reply's parts come in as the agent writes them, like an app component's, and a reply from history shows whole.
 - `Icon` draws Stream's icon for about half of A2UI's 60 names, restyled like any SDK icon with `WithComponents`'s `icons`. `icons` gives the renderer the app's own for any name (`{ shoppingCart: CartIcon }`), and `iconFont` names an icon font the page loads, such as `'Material Symbols Outlined'`, for the rest. An icon none of them draws takes its place but shows nothing, rather than its name as words.
 - Its Modal is a native dialog, which keeps focus in it while open, closes on Escape or its backdrop, gives focus back to what opened it, and shows above the reply's layout. A trigger other than a Button opens it from the keyboard too.
 - `createA2UIRenderer().capabilities` tells the agent's backend the fence, the catalog id and the instructions for both with the app's components and tools, after the renderer's `instructions` when it has them, as StreamChatA2UI's do. It loads the A2UI core to write them; without them, when it can't load, the rest still goes.
@@ -390,7 +394,7 @@ const ui = new AIUIHost({
 
 ### OpenUI
 
-`stream-chat-react/openui` is the renderer of [OpenUI](https://openui.com), the counterpart of StreamChatOpenUI. It is built on the official OpenUI packages, which the app installs: they are optional peers of this package, which takes the patch releases of the versions it is tested with (`~`). `@openuidev/react-ui` needs `@openuidev/react-headless` and `zustand` beside it. Their styles are the app's to import, and `ai-components.css` themes them.
+`stream-chat-react/openui` is the renderer of [OpenUI](https://openui.com), the counterpart of StreamChatOpenUI. It is built on the official OpenUI packages, which the app installs: they are optional peers of this package, which takes the patch releases of the versions it is tested with (`~`). `@openuidev/react-ui` needs `@openuidev/react-headless` and `zustand` beside it. Their styles are the app's to import, and `openui.css`, loaded after them, themes them.
 
 ```bash
 npm install @openuidev/react-lang@1.0.2 @openuidev/react-ui@0.18.1 @openuidev/react-headless@0.18.1 zustand@^4.5.5
@@ -398,6 +402,7 @@ npm install @openuidev/react-lang@1.0.2 @openuidev/react-ui@0.18.1 @openuidev/re
 
 ```tsx
 import '@openuidev/react-ui/components.css';
+import 'stream-chat-react/css/openui.css';
 import { createOpenUIRenderer, openUIInstructions } from 'stream-chat-react/openui';
 
 const ui = new AIUIHost({
@@ -416,7 +421,7 @@ const instructions = await openUIInstructions([placeCard, tripMap]);
 - A program's `Query()` and `Mutation()` run the host's client tools, or the renderer's `toolProvider`: one that isn't read-only only within 5 s of the person pressing a control in that reply's UI, such as a button (a press elsewhere on the page, such as sending a message, doesn't count), and a Query asking the same again within 5 s gets the answer it got, however often the agent asks it to refresh. Images load only what `mediaUrl` allows, as in A2UI.
 - What the person chose in a reply's forms is kept by the host, so it survives scrolling.
 - What is wrong with a finished reply's program, such as a component the library lacks, goes to `onError` with OpenUI's error code and the reply's id, once, and the rest of the reply still shows. An app's component left out of the library, or packages that couldn't load, come without an id. While the agent writes it, what a program lacks is still coming, so nothing is reported.
-- `.str-chat__openui` sets OpenUI's `--openui-*` variables from the AI components' tokens, so its components follow Stream's light and dark themes, and draws the parts a person sees most as StreamChatOpenUI does on iOS, as the A2UI renderer does too: the reply's card on a raised surface, callouts tinted in their variant's colour with its icon, chips as pills with the chosen ones ticked in the accent colour, buttons as pills sharing their row, and follow-ups in the accent colour with no heading. The rest, such as its chart palette, stays OpenUI's own.
+- `.str-chat__openui` sets OpenUI's `--openui-*` variables from the SDK's tokens (its colours, its type in the SDK's font and scale, its spacing, radii and shadows where the SDK has the same step), so its components follow Stream's light and dark themes, and draws the parts a person sees most as StreamChatOpenUI does on iOS, as the A2UI renderer does too: the reply's card on a raised surface, callouts tinted in their variant's colour with its icon, chips as pills with the chosen ones ticked in the accent colour, buttons as pills sharing their row, and follow-ups in the accent colour with no heading. The rest, such as its chart palette, stays OpenUI's own.
 - `createOpenUIRenderer().capabilities` tells the agent's backend the fence, `openui-lang`, and the instructions with the app's components and tools, saying which a Query may run, after the renderer's `instructions`, as StreamChatOpenUI's do. `openUIInstructions(components, { tools, instructions })` writes the same instructions on their own, with OpenUI's own prompt generator. Both load the OpenUI packages, so ask for them where that is fine, such as once at build time or when the app starts its conversation.
 - `@openuidev/react-lang` mounts OpenUI's inspector on the page in development, with offers of OpenUI's own; the renderer keeps it off unless `devtools: true`.
 - The OpenUI packages load the first time a reply shows OpenUI, so server rendering shows a placeholder and an app whose agent never writes OpenUI never loads them. It needs React 18.3 or later.
@@ -483,7 +488,7 @@ Remove `@stream-io/chat-react-ai`. Remove `material-symbols` too if it was only 
 
 ### 3. Class names and CSS custom properties
 
-All `aicr__` prefixes were renamed to the `str-chat__ai-` namespace. The rule: `aicr__ai-…` becomes `str-chat__ai-…`; every other `aicr__…` becomes `str-chat__ai-…`; custom properties `--aicr__…` become `--str-chat__ai-…`. If you target these classes in your own CSS, update them with the table below.
+All `aicr__` prefixes were renamed to the `str-chat__ai-` namespace. The rule: `aicr__ai-…` becomes `str-chat__ai-…`; every other `aicr__…` becomes `str-chat__ai-…`; custom properties `--aicr__…` become `--str-chat__ai-…`. If you target these classes in your own CSS, update them with the table below. The `--str-chat__ai-…` custom properties have since been replaced by the SDK's own tokens: see [Migrating from the `--str-chat__ai-*` tokens](#migrating-from-the---str-chat__ai--tokens) for the token to set for each.
 
 Classes (and the two keyframes, `thinking` and `text-fade`):
 
@@ -565,7 +570,7 @@ The hook is no longer exported from the AI package. Import it from `stream-chat-
 ### 5. Two `AIStateIndicator` components
 
 - `AIStateIndicator` from `stream-chat-react` is channel-bound: it reads the AI state events of the current channel and renders accordingly.
-- `AIStateIndicator` from `stream-chat-react/ai-components` is presentational: it takes an optional `text` prop and renders the animated indicator. Without `text` it shows a random "thinking" phrase.
+- `AIThinkingIndicator` from `stream-chat-react/ai-components`, which it also exports under the deprecated name `AIStateIndicator`, is presentational: it takes an optional `text` prop and renders the animated indicator. Without `text` it shows a random "thinking" phrase.
 
 Use the first one to react to channel AI state, the second when you drive the text yourself.
 
@@ -580,6 +585,19 @@ import { WithComponents } from 'stream-chat-react';
   <AIMessageComposer>{/* … */}</AIMessageComposer>
 </WithComponents>;
 ```
+
+The icons the SDK's set lacks (`IconAIReasoning`, `IconAIShare`, `IconAIThumbsUp`, `IconAIThumbsUpFill`, `IconAIThumbsDown`, `IconAIThumbsDownFill`, `IconAIHandRaised`, `IconAIKey`, `IconAIDevice`) are exported, and override the same way. `WithComponents` types its `icons` as the SDK's, so type yours with `AIIconSlots` beside them:
+
+```tsx
+import type { IconSlots } from 'stream-chat-react';
+import type { AIIconSlots } from 'stream-chat-react/ai-components';
+
+const icons: IconSlots & AIIconSlots = { IconAIShare: MyShareIcon, IconSend: MySendIcon };
+
+<WithComponents overrides={{ icons }}>{/* … */}</WithComponents>;
+```
+
+`useAIIcons()` returns them, each replaced by the app's override, as `useComponentContextIcons()` does for the SDK's.
 
 ### 7. Internationalization
 
@@ -693,78 +711,63 @@ import { ThemeScopeProvider } from 'stream-chat-react/ai-components';
 </div>;
 ```
 
-The library never declares the `--str-chat__ai-*` custom properties. Each rule reads them with fallbacks:
+The AI components read the SDK's design tokens directly, as the rest of the SDK does: `--str-chat__text-primary`, `--str-chat__background-core-surface-card`, `--str-chat__spacing-md`, `--str-chat__radius-lg` and so on, from `stream-chat-react/css/index.css`. They follow the SDK's light and dark themes, and you theme them the way you theme the rest of the SDK: set the SDK's tokens on `.str-chat` (or on any element inside it), in a CSS layer above the SDK's.
 
 ```css
-var(--str-chat__ai-bg-primary, var(--str-chat__background-core-elevation-0, #ffffff))
+@layer stream-overrides {
+  .str-chat {
+    --str-chat__accent-primary: #5b34d6;
+    --str-chat__text-link: #5b34d6;
+    --str-chat__background-core-surface-card: #f7f4fd;
+  }
+}
 ```
 
-Precedence for every token except the code palette is: your `--str-chat__ai-*` override, then the `stream-chat-react` theme token (inside `.str-chat`, so the SDK light/dark themes apply automatically), then a built-in light literal (outside `.str-chat`). The `--str-chat__ai-syntax-*` palette has no SDK theme token: it falls back directly from your override to a built-in literal. Because nothing is declared by the library, overrides work at any scope, including `:root`.
+Set them on `.str-chat`, not on `:root`: each `.str-chat` scope declares the SDK's tokens again, so a value set above it doesn't reach inside.
 
-| Token (`--str-chat__ai-…`) | Used for                                                   | SDK theme token (`--str-chat__…`) | Literal fallback |
-| -------------------------- | ---------------------------------------------------------- | --------------------------------- | ---------------- |
-| `bg-primary`               | code block background                                      | `background-core-elevation-0`     | `#ffffff`        |
-| `bg-secondary`             | not read by the built-in rules (kept for compatibility)    | `background-core-surface-default` | `#f7f7f8`        |
-| `bg-tertiary`              | not read by the built-in rules (kept for compatibility)    | `background-core-surface-strong`  | `#ececf1`        |
-| `text-primary`             | not read by the built-in rules (kept for compatibility)    | `text-primary`                    | `#353740`        |
-| `text-secondary`           | AI state indicator text and dots                           | `text-secondary`                  | `#565869`        |
-| `border`                   | composer, model select and attachment borders              | `border-core-default`             | `#ccc`           |
-| `border-subtle`            | table row separators                                       | `border-core-subtle`              | `#e9ecef`        |
-| `surface-hover`            | composer round-button hover                                | `background-utility-hover`        | `#e8e8e8`        |
-| `surface-pressed`          | pressed (listening) speech-to-text button                  | `background-utility-selected`     | `#d1eaff`        |
-| `button-bg`                | attachment delete/retry buttons                            | `background-core-surface-strong`  | `#e8e8e8`        |
-| `inline-code-bg`           | inline code in `StreamingMessage`                          | `background-core-surface-default` | `#f5f5f5`        |
-| `table-border`             | table header borders                                       | `border-core-default`             | `#dee2e6`        |
-| `table-header-bg`          | table header and row hover background                      | `background-core-surface-subtle`  | `#f8f9fa`        |
-| `table-header-text`        | table header text                                          | `text-primary`                    | `#212529`        |
-| `table-text`               | table cell text                                            | `text-secondary`                  | `#495057`        |
-| `scrollbar-track`          | attachment list scrollbar track                            | `background-core-surface-subtle`  | `#f1f1f1`        |
-| `scrollbar-thumb`          | attachment list scrollbar thumb                            | `border-core-default`             | `#ddd`           |
-| `voice-color`              | `VoiceWave` / `VoiceGlow` color when `colors` is unset     | `accent-primary`                  | `#005fff`        |
-| `voice-backdrop`           | what `VoiceWave` / `VoiceGlow` sit on (light or dark)      | `background-core-elevation-0`     | `#ffffff`        |
-| `accent`                   | tool call icons, reasoning rule while thinking, chips      | `accent-primary`                  | `#005fff`        |
-| `success`                  | completed tool calls, connected sign-ins                   | `accent-success`                  | `#00a46e`        |
-| `error`                    | failed tool calls, answers that couldn't be sent           | `accent-error`                    | `#d92f26`        |
-| `text-tertiary`            | reasoning footnote                                         | `text-tertiary`                   | `#7a7d87`        |
-| `card-bg`                  | approval and sign-in cards, files, suggestions             | `background-core-surface-card`    | `#f7f7f8`        |
-| `card-border`              | approval and sign-in cards, files                          | `border-core-subtle`              | `#e9ecef`        |
-| `elevated-bg`              | scroll-to-latest button, chat options menu                 | `background-core-elevation-1`     | `#ffffff`        |
-| `user-message-bg`          | the person's message bubble                                | `chat-bg-outgoing`                | `#d2e3ff`        |
-| `user-message-text`        | the person's message text                                  | `chat-text-outgoing`              | `#001a4d`        |
-| `button-primary-bg`        | Allow and Connect buttons                                  | `button-primary-bg`               | `#005fff`        |
-| `button-primary-text`      | Allow and Connect button text                              | `button-primary-text-on-accent`   | `#ffffff`        |
-| `button-secondary-bg`      | Don't Allow and Not now buttons                            | `background-core-elevation-1`     | `#ffffff`        |
-| `button-secondary-text`    | Don't Allow and Not now button text                        | `text-primary`                    | `#353740`        |
-| `button-secondary-border`  | Don't Allow and Not now button border                      | `button-secondary-border`         | `#ccc`           |
-| `link`                     | words in the accent colour in generated UI (else `accent`) | `text-link`                       | `#005fff`        |
-| `color-scheme`             | native controls in generated UI, such as the date input    | the SDK theme (`light` / `dark`)  | `light`          |
-| `syntax-*`                 | code palette (see below)                                   | none                              | built-in palette |
+The one part the SDK has no token for is the colour of highlighted code. The AI components declare it as component tokens, for the SDK's light and dark themes, which you override like any SDK token: `--str-chat__code-syntax-text`, `-comment`, `-punctuation`, `-number`, `-keyword`, `-tag`, `-string`, `-function`, `-cyan`, `-error`, `-selection-bg` and `-whitespace`. Each default reaches 5.4:1 or more on the SDK's surfaces in its theme.
 
-The code palette tokens are `--str-chat__ai-syntax-text`, `-selection-bg`, `-comment`, `-punctuation`, `-number`, `-keyword`, `-tag`, `-string`, `-function`, `-cyan`, `-error` and `-whitespace`.
+Focus rings use the SDK focus token `--str-chat__border-utility-focused`. Icons inside the composer and attachment previews are sized and coloured (`currentColor`) by `ai-components.css` itself.
 
-In the SDK's dark theme, `button-primary-bg` falls back to the SDK's primary fill drawn a fifth of the way toward black, so the white words on it reach 4.5:1 (the SDK's dark `#4586ff` gives 3.4:1). The shade is worked out on the `.str-chat__theme-dark` element, from the SDK token there, in browsers with `color-mix()`; elsewhere the fill is the SDK's as it is. An app that sets `--str-chat__ai-button-primary-bg` gets that colour as it is.
+### Migrating from the `--str-chat__ai-*` tokens
 
-An app that themes generated UI dark with these tokens alone, outside the SDK's dark theme, also sets `--str-chat__ai-color-scheme: dark`, so native controls such as the date input draw dark too.
+Earlier versions read their own `--str-chat__ai-*` tokens before the SDK's, with light-theme literals after them. Those tokens are gone: set the SDK token in the right-hand column instead, on `.str-chat`. `ai-components.css` now needs `index.css` (it always did for the SDK's components), and it shows the SDK's light theme rather than its own literals when no theme class is set.
+
+| Removed (`--str-chat__ai-…`)                      | Set instead (`--str-chat__…`)                            |
+| ------------------------------------------------- | -------------------------------------------------------- |
+| `bg-primary`, `voice-backdrop`                    | `background-core-elevation-0`                            |
+| `bg-secondary`, `inline-code-bg`                  | `background-core-surface-default`                        |
+| `bg-tertiary`, `button-bg`                        | `background-core-surface-strong`                         |
+| `text-primary`, `text-secondary`, `text-tertiary` | `text-primary`, `text-secondary`, `text-tertiary`        |
+| `border`, `table-border`                          | `border-core-default`                                    |
+| `border-subtle`, `card-border`                    | `border-core-subtle`                                     |
+| `surface-hover`, `surface-pressed`                | `background-utility-hover`, `background-utility-pressed` |
+| `table-header-bg`, `scrollbar-track`              | `background-core-surface-subtle`                         |
+| `table-header-text`, `table-text`                 | `text-primary`, `text-secondary`                         |
+| `scrollbar-thumb`                                 | `system-scrollbar`                                       |
+| `accent`, `voice-color`                           | `accent-primary`                                         |
+| `link` (and `accent` used for words)              | `text-link`                                              |
+| `success`                                         | `accent-success`                                         |
+| `error`                                           | `accent-error` (`button-destructive-text` for words)     |
+| `card-bg`                                         | `background-core-surface-card`                           |
+| `elevated-bg`                                     | `background-core-elevation-1`                            |
+| `user-message-bg`, `user-message-text`            | `chat-bg-outgoing`, `chat-text-outgoing`                 |
+| `button-primary-bg`, `button-primary-text`        | `button-primary-bg`, `button-primary-text-on-accent`     |
+| `button-secondary-bg`, `-text`, `-border`         | `button-secondary-bg`, `-text`, `-border`                |
+| `syntax-*`                                        | `code-syntax-*`                                          |
+| `color-scheme`                                    | none: native controls follow the SDK's theme class       |
+
+In the SDK's dark theme the primary button is now the SDK's own: the darker fill the AI components used to work out there is gone, since the SDK's dark theme writes black on its fill.
 
 ### Generated UI
 
-A2UI and OpenUI replies take every colour from these tokens, so an app that sets only `--str-chat__ai-*` themes them in both themes, inside a `.str-chat` element or outside one, where the SDK's theme tokens don't exist and the literal fallbacks apply.
+A2UI and OpenUI replies take every colour from the SDK's tokens too, so they follow the SDK's light and dark themes and an app's overrides of the SDK's tokens.
 
 - `.str-chat__a2ui` sets every `--a2ui-*` colour A2UI's own elements read (text, captions, tab titles, the open tab, inputs, focus, errors, the slider, the date input, the modal), and `.str-chat__openui` every `--openui-*` colour OpenUI's components read. Without them, A2UI falls back to a light theme's literals (dark tab titles at #666, 2.6:1), and OpenUI's follow the person's system rather than the SDK's theme.
-- A2UI's buttons, chips, text fields and check marks are the SDK's own components. In a reply they take the AI tokens: `button-primary-bg` and `button-primary-text` for the main button and checked boxes, `button-secondary-*` for the others, `bg-primary` for fields (`--a2ui-color-input`), `border` and `text-*` for the rest. They're drawn in full by `ai-components.css`, so they need no `.str-chat` around the reply.
-- Words in the accent colour (follow-ups, borderless buttons, the open tab, a chosen chip) take `link`, else `accent`, else the SDK's link colour, which reads on the SDK's surfaces in both themes where its accent doesn't. Words in the error colour take `error`, else the SDK's, drawn toward the text colour.
+- A2UI's buttons, chips, text fields and check marks are the SDK's own components, and read the SDK's tokens as they do anywhere else.
+- Words in the accent colour (follow-ups, borderless buttons, the open tab, a chosen chip) take `text-link`, which reads on the SDK's surfaces in both themes where its accent doesn't. Words in the error colour take `button-destructive-text`.
 - `yarn validate-ai-ui-tokens`, run in CI, fails when either renderer reads a colour these leave unset, such as after an upgrade of its packages.
-- The gallery in `examples/ai-ui-gallery` shows both formats in each theme, inside and outside `.str-chat`, with the SDK's tokens and with only an app's AI tokens, and its `screenshots` script checks every text against what is under it for 4.5:1.
-
-Focus rings use the SDK focus token `--str-chat__border-utility-focused` (falling back to `#005fff` outside `.str-chat`). Icons inside the composer and attachment previews are sized and coloured (`currentColor`) by `ai-components.css` itself.
-
-```css
-:root {
-  --str-chat__ai-bg-secondary: #101828;
-  --str-chat__ai-text-primary: #f2f4f7;
-  --str-chat__ai-syntax-keyword: #c084fc;
-}
-```
+- The gallery in `examples/ai-ui-gallery` shows both formats in each theme, inside and outside `.str-chat`, with the SDK's default tokens and with an app's own, and its `screenshots` script checks every text against what is under it for 4.5:1.
 
 ## Notes
 
@@ -804,7 +807,15 @@ function ChatComposer({ attachments }: ChatComposerProps) {
       <AIMessageComposer.TextInput name='message' />
       <AIMessageComposer.Actions>
         <AIMessageComposer.FileInput name='attachments' />
-        <AIMessageComposer.ModelSelect name='model' />
+        <AIMessageComposer.ModelSelect
+          name='model'
+          options={
+            <>
+              <option value='fast'>Fast</option>
+              <option value='thorough'>Thorough</option>
+            </>
+          }
+        />
         <AIMessageComposer.SpeechToTextButton />
         <AIMessageComposer.SubmitButton />
       </AIMessageComposer.Actions>
@@ -836,7 +847,7 @@ By default (`layout='stacked'`) the parts are stacked, one under another: put th
 - **`AIMessageComposer.SubmitButton`** - Submit button for sending the message. In a composer with a `conversation`, a `StopButton` takes its place while the agent answers.
 - **`AIMessageComposer.StopButton`** - A round button that stops a reply still being written, to show in place of `SubmitButton` meanwhile. It is `type="button"`, so it never submits, and it is named by the `messageComposer.stopAiGeneration.stopAiGeneration.ariaLabel` string ("Stop AI Generation"). Unlike the other parts it does not follow the composer's `disabled`, since the composer is often disabled exactly while a reply runs; pass `disabled` to it to disable it. Children replace its stop icon. In a composer with a `conversation` it stops the conversation's reply, unless its `onClick` calls `event.preventDefault()`.
 - **`AIMessageComposer.Actions`** - A row for the controls, lined up at its end (`str-chat__ai-message-composer__actions`). Takes any `div` prop.
-- **`AIMessageComposer.ModelSelect`** - Dropdown for selecting AI models. Customizable via `options` prop.
+- **`AIMessageComposer.ModelSelect`** - Dropdown for choosing a model, or anything else the agent's backend reads from the form. Pass the `<option>`s as `options`: the composer has no list of models of its own.
 - **`AIMessageComposer.AttachmentPreview`** - Preview container for attached files.
 - **`AIMessageComposer.AttachmentPreview.Item`** - Preview item component, renders a different look for file types that begin with `image/`.
 
@@ -864,8 +875,16 @@ The `AIMarkdown` is a markdown renderer optimized for AI-generated content with 
 | Name                 | Type                 | Required | Description                                                  |
 | -------------------- | -------------------- | -------- | ------------------------------------------------------------ |
 | `children`           | `string`             | yes      | The markdown content to render.                              |
+| `allowImages`        | `boolean`            | no       | Renders the reply's images. Off by default (see below).      |
 | `toolComponents`     | `ToolComponents`     | no       | Custom components for rendering tool outputs (e.g., charts). |
 | `markdownComponents` | `MarkdownComponents` | no       | Custom markdown component overrides.                         |
+
+A model's reply is untrusted, so `AIMarkdown` renders it as the SDK renders a message:
+
+- A link opens in a new tab with `rel="nofollow noreferrer noopener"`, and only web and `mailto:` links are links; any other (`javascript:`, a relative path) shows as its text.
+- An image shows as a link to it, not as an image: an image is fetched as soon as it renders, so a prompt injection could send data out in its URL. Pass `allowImages` to render images, for example when the replies come from your own agent.
+- Raw HTML shows as text.
+- If a renderer throws, the reply shows as plain text instead of breaking the view.
 
 #### Built-in Tool Components
 
@@ -892,7 +911,7 @@ Both draw on a `<canvas>` inside a `div` with `role="img"` and an accessible nam
 | Name           | Type                                                                | Required | Description                                                                                                                                                                                                                       |
 | -------------- | ------------------------------------------------------------------- | -------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `state`        | `'idle' \| 'connecting' \| 'listening' \| 'thinking' \| 'speaking'` | yes      | What the agent is doing. The states differ only in motion, never in color, and a change eases from one motion into the next.                                                                                                      |
-| `colors`       | `string[]`                                                          | no       | One to five CSS colors, flowing through the shape. Past five are ignored. When omitted or empty, `--str-chat__ai-voice-color` is used, which follows the SDK accent color.                                                        |
+| `colors`       | `string[]`                                                          | no       | One to five CSS colors, flowing through the shape. Past five are ignored. When omitted or empty, the SDK accent color (`--str-chat__accent-primary`) is used.                                                                     |
 | `expressivity` | `number`                                                            | no       | From 0 to 2: how far and how fast it moves. Defaults to 1.                                                                                                                                                                        |
 | `audioLevel`   | `() => number \| null \| undefined`                                 | no       | The level of whoever is talking, from 0 to 1, read once a frame, so a level changing many times a second re-renders nothing. Returning `null` (or omitting it) animates speech on its own.                                        |
 | `rendering`    | `'auto' \| 'css'`                                                   | no       | `VoiceGlow` only. `auto` (default) draws with a WebGL shader and falls back to `css` when WebGL is unavailable or its context is lost; `css` builds the glow from CSS gradients animated by the browser's compositor (see below). |
@@ -905,7 +924,7 @@ Behavior:
 - Every WebGL glow on a page draws with one shared WebGL context, so the shader compiles once and a page with many glows stays under the browser's limit on live contexts.
 - It fades in over 0.3 s once its first frame is drawn (instantly with reduced motion), so it never flashes empty while a shader compiles.
 - With `prefers-reduced-motion: reduce`, the motion slows to a crawl and taps and hover are ignored.
-- The palette and the light or dark look follow the theme (`--str-chat__ai-voice-color` and `--str-chat__ai-voice-backdrop`), re-read about once a second, so a theme switch needs no prop.
+- The palette and the light or dark look follow the SDK theme (`--str-chat__accent-primary` and `--str-chat__background-core-elevation-0`), re-read about once a second, so a theme switch needs no prop.
 - `VoiceWave` moves as on Android and iOS, smoothed for speech: its height rises quickly and settles slowly, its syllables swing it a little less, and as it grows its crests spread out rather than steepen into spikes. While idle, connecting or thinking it is the native wave exactly.
 
 `rendering='css'`, also the fallback when WebGL is unavailable, composes the glow the way the shader does, as gradients that are painted once and animated only through `transform` and `opacity`, so the browser's compositor runs the motion. It keeps moving while the main thread is busy (for example while a long answer streams in), needs no canvas or WebGL, and runs no script per frame unless `audioLevel` is given. It lacks the shader's fine marbling and its second, fainter riding mass: a tap bounces the glow and sends out a ring instead of a ripple, and a hovering pointer does nothing. Off screen, its animations pause. It needs `@property`, container query units and `color-mix()` (Chrome 111, Safari 16.4, Firefox 128 and later).
@@ -954,11 +973,12 @@ The `StreamingMessage` is a component that displays text with a typewriter anima
 
 #### Props
 
-| Name                   | Type     | Required | Description                                                 |
-| ---------------------- | -------- | -------- | ----------------------------------------------------------- |
-| `text`                 | `string` | yes      | The text content to display with streaming effect.          |
-| `letterIntervalMs`     | `number` | no       | Interval between character updates. Defaults to `30`.       |
-| `renderingLetterCount` | `number` | no       | Number of characters to render per update. Defaults to `2`. |
+| Name                   | Type                                | Required | Description                                                                                |
+| ---------------------- | ----------------------------------- | -------- | ------------------------------------------------------------------------------------------ |
+| `text`                 | `string`                            | yes      | The text content to display with streaming effect.                                         |
+| `letterIntervalMs`     | `number`                            | no       | Interval between character updates. Defaults to `30`.                                      |
+| `renderingLetterCount` | `number`                            | no       | Number of characters to render per update. Defaults to `2`.                                |
+| `markdown`             | `Omit<AIMarkdownProps, 'children'>` | no       | How the text renders: `AIMarkdown`'s props, such as `allowImages` or `markdownComponents`. |
 
 The component accepts a `ref` (`StreamingMessageRef`) exposing `skipAnimation()`, which immediately shows the full text.
 
@@ -1109,14 +1129,14 @@ Enable voice input using the Web Speech API. Provides speech recognition capabil
 
 #### Props
 
-| Name              | Type                      | Required | Description                                                                         |
-| ----------------- | ------------------------- | -------- | ----------------------------------------------------------------------------------- |
-| `lang`            | `string`                  | no       | Language for speech recognition (e.g., 'en-US', 'es-ES'). Defaults to `'en-US'`.    |
-| `interimResults`  | `boolean`                 | no       | Whether to return interim (partial) results. Defaults to `true`.                    |
-| `maxAlternatives` | `number`                  | no       | Maximum number of alternative transcriptions. Defaults to `1`.                      |
-| `continuous`      | `boolean`                 | no       | Whether recognition should continue after user stops speaking. Defaults to `false`. |
-| `onTranscript`    | `(text: string) => void`  | no       | Callback when transcription text changes.                                           |
-| `onError`         | `(error: string) => void` | no       | Callback when an error occurs.                                                      |
+| Name              | Type                      | Required | Description                                                                                                                       |
+| ----------------- | ------------------------- | -------- | --------------------------------------------------------------------------------------------------------------------------------- |
+| `lang`            | `string`                  | no       | Language for speech recognition (e.g., 'en-US', 'es-ES'). Defaults to the app's language (`userLanguage`, `'en'` outside `Chat`). |
+| `interimResults`  | `boolean`                 | no       | Whether to return interim (partial) results. Defaults to `true`.                                                                  |
+| `maxAlternatives` | `number`                  | no       | Maximum number of alternative transcriptions. Defaults to `1`.                                                                    |
+| `continuous`      | `boolean`                 | no       | Whether recognition should continue after user stops speaking. Defaults to `false`.                                               |
+| `onTranscript`    | `(text: string) => void`  | no       | Callback when transcription text changes.                                                                                         |
+| `onError`         | `(error: string) => void` | no       | Callback when an error occurs.                                                                                                    |
 
 #### Returns
 
@@ -1279,7 +1299,15 @@ function ChatInterface() {
       <AIMessageComposer.FileInput name='attachments' />
       <AIMessageComposer.TextInput name='message' />
       <AIMessageComposer.SpeechToTextButton />
-      <AIMessageComposer.ModelSelect name='model' />
+      <AIMessageComposer.ModelSelect
+        name='model'
+        options={
+          <>
+            <option value='fast'>Fast</option>
+            <option value='thorough'>Thorough</option>
+          </>
+        }
+      />
       <AIMessageComposer.SubmitButton />
     </AIMessageComposer>
   );

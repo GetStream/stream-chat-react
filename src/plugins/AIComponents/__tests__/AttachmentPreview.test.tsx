@@ -55,12 +55,21 @@ describe('AttachmentPreview.Item', () => {
     expect(screen.queryByText('notes.txt')).toBeNull();
   });
 
+  it('marks an uploaded attachment', () => {
+    const { container } = render(
+      <Item file={textFile('notes.txt', 2048)} state='uploaded' />,
+    );
+    expect(
+      container.querySelector('.str-chat__ai-attachment-preview__item--uploaded'),
+    ).not.toBeNull();
+  });
+
   it('renders a file card with a compact size for non-images', () => {
     const { container } = render(<Item file={textFile('notes.txt', 2048)} />);
     expect(screen.getByText('notes.txt')).toBeInTheDocument();
     expect(
       container.querySelector('.str-chat__ai-attachment-preview__file-size'),
-    ).toHaveTextContent('2KB');
+    ).toHaveTextContent('2.00 kB');
     expect(container.querySelector('img')).toBeNull();
   });
 

@@ -1,11 +1,11 @@
 import clsx from 'clsx';
 import React, { type ReactNode } from 'react';
-import { useSyncExternalStore } from 'use-sync-external-store/shim';
+import { useStateStore } from '../../../store';
 
 import type { AIUIDocument } from './AIUIDocument';
 import { AIUIEntranceStage } from './AIUIEntrance';
 import { AIUIErrorBoundary } from './AIUIErrorBoundary';
-import type { AIUIHost } from './AIUIHost';
+import type { AIUIHost, AIUIHostState } from './AIUIHost';
 import { ThemeScopeProvider, useAIThemeScopeClassName } from '../themeScope';
 
 /**
@@ -36,19 +36,14 @@ export const AIUIGenerated = ({
   );
 };
 
-const subscribeToNothing = () => () => undefined;
-const noVersion = () => 0;
+const versionSelector = ({ version }: AIUIHostState) => ({ version });
 
 /**
  * Shows the conversation's replies again whenever the host says what one of them shows changed,
  * such as once a renderer's runtime loads.
  */
 export const useAIUIHostRefresh = (host: AIUIHost | undefined) =>
-  useSyncExternalStore(
-    host ? host.subscribe : subscribeToNothing,
-    host ? host.getVersion : noVersion,
-    host ? host.getVersion : noVersion,
-  );
+  useStateStore(host?.refreshState, versionSelector)?.version ?? 0;
 
 export type AIUIViewProps = {
   document: AIUIDocument;

@@ -72,6 +72,7 @@ export const itTranslations = {
   'aiComponents.reasoning.thoughtFor.title': 'Ha pensato per {{ duration }}',
   'aiComponents.reasoning.thoughtProcess.title': 'Ragionamento',
   'aiComponents.replyActions.badResponse.ariaLabel': 'Risposta negativa',
+  'aiComponents.replyActions.copiedToClipboard.ariaLabel': 'Copiato negli appunti',
   'aiComponents.replyActions.copied.ariaLabel': 'Copiato',
   'aiComponents.replyActions.copy.ariaLabel': 'Copia',
   'aiComponents.replyActions.goodResponse.ariaLabel': 'Risposta positiva',

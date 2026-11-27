@@ -424,6 +424,58 @@ describe('a reply written in A2UI', () => {
     expect(open).toHaveBeenCalledWith(new URL('https://en.wikipedia.org/wiki/Ohrid'));
   });
 
+  it('hands every link of its Markdown to the host, whose open decides, not only web links', async () => {
+    const { open, ui } = setup();
+    const lines = [
+      line({ createSurface: { surfaceId: 's' } }),
+      line({
+        updateComponents: {
+          components: [
+            {
+              component: 'Text',
+              id: 'root',
+              text: 'Ask [the hotel](xmpp:desk@hotel.example).',
+            },
+          ],
+          surfaceId: 's',
+        },
+      }),
+    ];
+    render(<AIConversation messages={[question, replyWith(lines)]} ui={ui} />);
+    const link = await screen.findByRole('link', { name: 'the hotel' });
+    fireEvent.click(link);
+    expect(open).toHaveBeenCalledWith(new URL('xmpp:desk@hotel.example'));
+  });
+
+  it("loads its Markdown's images as the renderer's mediaUrl allows, else links to them", async () => {
+    const { ui } = setup({
+      mediaUrl: (url) => (url.hostname === 'images.example.com' ? url : null),
+    });
+    const lines = [
+      line({ createSurface: { surfaceId: 's' } }),
+      line({
+        updateComponents: {
+          components: [
+            {
+              component: 'Text',
+              id: 'root',
+              text: '![lake](https://images.example.com/lake.jpg) ![pixel](https://tracker.example.net/p.gif)',
+            },
+          ],
+          surfaceId: 's',
+        },
+      }),
+    ];
+    render(<AIConversation messages={[question, replyWith(lines)]} ui={ui} />);
+    const image = await screen.findByRole('img', { name: 'lake' });
+    expect(image).toHaveAttribute('src', 'https://images.example.com/lake.jpg');
+    expect(screen.queryByRole('img', { name: 'pixel' })).toBeNull();
+    expect(screen.getByRole('link', { name: 'pixel' })).toHaveAttribute(
+      'href',
+      'https://tracker.example.net/p.gif',
+    );
+  });
+
   it('opens a Modal as a dialog from its trigger, and closes it from Escape and the backdrop', async () => {
     const { sent, ui } = setup();
     const lines = [

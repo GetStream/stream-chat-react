@@ -7,9 +7,9 @@
  *   yarn workspace @stream-io/stream-chat-react-ai-ui-gallery screenshots [outDir]
  *
  * Each cell is a theme (light, dark), whether the conversation is inside a `.str-chat` element,
- * and whether the app sets only the `--str-chat__ai-*` tokens. Outside `.str-chat` with no app
- * tokens there is no theme to follow (Stream's tokens exist only in `.str-chat`), so that cell is
- * the light fallbacks, once. Text, including what the A2UI
+ * and whether the app themes it with the SDK's tokens. Outside `.str-chat` with no app tokens,
+ * each AI component carries the `str-chat` scope itself with no theme class (there is no
+ * `Chat`), so that cell is the SDK's light theme, once. Text, including what the A2UI
  * elements draw in their shadow roots and the values of inputs, must reach 4.5:1 against what
  * is painted under it. Disabled controls and placeholders are exempt, as WCAG exempts them.
  * Exits non-zero when any text falls short, listing each.
@@ -28,7 +28,7 @@ const cells = [];
 for (const theme of ['light', 'dark']) {
   for (const wrapper of ['inside', 'outside']) {
     for (const tokens of ['default', 'app']) {
-      // Outside `.str-chat` there is no Stream theme, so the fallbacks are the same in both.
+      // Outside `.str-chat` with no `Chat` there is no theme class, so light and dark are the same.
       if (wrapper === 'outside' && tokens === 'default' && theme === 'dark') continue;
       cells.push({ theme, tokens, wrapper });
     }

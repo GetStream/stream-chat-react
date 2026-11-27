@@ -3,21 +3,9 @@ import clsx from 'clsx';
 
 import { useTranslationContext } from '../../../context/TranslationContext';
 import { useComponentContextIcons } from '../../../context/useComponentContextIcons';
+import type { AIBranchSwitch } from '../Conversation/controller/types';
 
-/**
- * Which of a message's versions shows, and how to show the others: a reply written again, or a
- * question the person edited. `index` is 1-based.
- */
-export type AIBranchSwitch = {
-  /** How many versions there are. The switcher shows only when there are two or more. */
-  count: number;
-  /** Which version shows, from 1 to `count`. */
-  index: number;
-  /** Shows the next version. Without it, the next arrow is disabled. */
-  onNext?: () => void;
-  /** Shows the previous version. Without it, the previous arrow is disabled. */
-  onPrevious?: () => void;
-};
+export type { AIBranchSwitch };
 
 export type AIBranchSwitcherProps = AIBranchSwitch & { className?: string };
 

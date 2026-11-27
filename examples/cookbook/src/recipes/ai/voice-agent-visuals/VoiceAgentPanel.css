@@ -1,9 +1,6 @@
 @layer stream-overrides {
   /* A strip under the channel header: the glow, the status, the microphone's wave and End. */
   .cookbook-voice-panel {
-    /* What the glow and the wave sit on, so they pick their light or dark look from it. */
-    --str-chat__ai-voice-backdrop: var(--str-chat__background-core-surface-subtle);
-
     display: flex;
     align-items: center;
     gap: var(--str-chat__spacing-md);

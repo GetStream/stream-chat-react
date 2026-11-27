@@ -1,0 +1,55 @@
+// The colours of highlighted code, the one part of the AI components the SDK has no token for:
+// component tokens, declared for the SDK's light and dark themes on the same elements as
+// `src/styling/variable-tokens.scss` declares the SDK's, from the SDK's colour ramps. Each reaches
+// 5.4:1 or more on the SDK's code, card and page surfaces in its theme. Override them like any
+// SDK token.
+
+@mixin light {
+  --str-chat__code-syntax-text: var(--str-chat__text-primary);
+  --str-chat__code-syntax-comment: var(--str-chat__slate-600);
+  --str-chat__code-syntax-punctuation: var(--str-chat__slate-700);
+  --str-chat__code-syntax-number: var(--str-chat__yellow-600);
+  --str-chat__code-syntax-keyword: var(--str-chat__purple-600);
+  --str-chat__code-syntax-tag: var(--str-chat__red-600);
+  --str-chat__code-syntax-string: var(--str-chat__green-600);
+  --str-chat__code-syntax-function: var(--str-chat__blue-600);
+  --str-chat__code-syntax-cyan: var(--str-chat__cyan-600);
+  --str-chat__code-syntax-error: var(--str-chat__red-600);
+  --str-chat__code-syntax-selection-bg: var(--str-chat__blue-150);
+  --str-chat__code-syntax-whitespace: color-mix(
+    in srgb,
+    var(--str-chat__text-primary) 15%,
+    transparent
+  );
+}
+
+@mixin dark {
+  --str-chat__code-syntax-text: var(--str-chat__text-primary);
+  --str-chat__code-syntax-comment: var(--str-chat__neutral-300);
+  --str-chat__code-syntax-punctuation: var(--str-chat__neutral-200);
+  --str-chat__code-syntax-number: var(--str-chat__yellow-200);
+  --str-chat__code-syntax-keyword: var(--str-chat__purple-300);
+  --str-chat__code-syntax-tag: var(--str-chat__red-300);
+  --str-chat__code-syntax-string: var(--str-chat__green-200);
+  --str-chat__code-syntax-function: var(--str-chat__blue-300);
+  --str-chat__code-syntax-cyan: var(--str-chat__cyan-200);
+  --str-chat__code-syntax-error: var(--str-chat__red-300);
+  --str-chat__code-syntax-selection-bg: var(--str-chat__blue-800);
+  --str-chat__code-syntax-whitespace: color-mix(
+    in srgb,
+    var(--str-chat__text-primary) 15%,
+    transparent
+  );
+}
+
+.str-chat,
+.str-chat__theme-dark .str-chat__theme-inverse {
+  @include light;
+}
+
+.str-chat__theme-dark,
+.str-chat:not(.str-chat__theme-dark)
+  *:not(.str-chat__theme-dark)
+  .str-chat__theme-inverse {
+  @include dark;
+}

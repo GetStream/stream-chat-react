@@ -3,7 +3,7 @@ import clsx from 'clsx';
 
 import { useTranslationContext } from '../../../context/TranslationContext';
 import { useComponentContextIcons } from '../../../context/useComponentContextIcons';
-import { IconAIDevice, IconAIHandRaised, IconAIKey } from '../icons';
+import { useAIIcons } from '../hooks/useAIIcons';
 import { formatCallDuration } from '../utils';
 import { isDeclined, isToolCallFinished } from './parseMessageParts';
 import type { AIToolCallPart } from './types';
@@ -23,6 +23,7 @@ export const AIToolCall = ({ className, part }: AIToolCallProps) => {
   const { t, userLanguage } = useTranslationContext();
   const { IconCheckmark, IconExclamationCircleFill, IconLoading, IconMinusCircle } =
     useComponentContextIcons();
+  const { IconAIDevice, IconAIHandRaised, IconAIKey } = useAIIcons();
 
   const title = part.displayTitle ?? part.name.replace(/_/g, ' ');
   const detail = (() => {

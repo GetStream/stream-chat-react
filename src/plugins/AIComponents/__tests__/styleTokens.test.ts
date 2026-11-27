@@ -5,48 +5,57 @@ import path from 'node:path';
 import { compile } from 'sass';
 
 const css = compile(path.resolve(__dirname, '../styling/index.scss')).css;
+const sdkCss = compile(path.resolve(__dirname, '../../../styling/index.scss')).css;
 const readTheme = (name: string) =>
   readFileSync(path.resolve(__dirname, `../../../styling/${name}.scss`), 'utf8');
 const lightTheme = readTheme('light');
 const darkTheme = readTheme('dark');
 const declaredIn = (theme: string, token: string) => new RegExp(`${token}:`).test(theme);
+const declarations = (source: string) =>
+  new Set(
+    [...source.matchAll(/(--str-chat__[a-z0-9-]+)\s*:/g)].map(([, token]) => token),
+  );
+const reads = [
+  ...new Set([...css.matchAll(/var\((--str-chat__[a-z0-9-]+)/g)].map(([, t]) => t)),
+];
 
 // The type, spacing and radius scale is the same in every theme: light.scss declares it on
 // `.str-chat`, which a dark `.str-chat` has too, and dark.scss redeclares only colours.
 const isScaleToken = (token: string) =>
-  /^--str-chat__(spacing|typography|radius)-/.test(token);
+  /^--str-chat__(spacing|typography|radius|size|space|icon-size|button-(visual-height|padding|radius|hit-target)|composer-radius|message-bubble-radius|box-shadow)-/.test(
+    token,
+  );
+// A colour ramp's step is the same in every theme; the code syntax tokens pick one per theme.
+// A token the light theme declares follows the dark theme when dark.scss redeclares it, or when
+// it is an alias, however indirect, of one that does.
+const followsDarkTheme = (token: string, depth = 0): boolean => {
+  if (declaredIn(darkTheme, token)) return true;
+  const alias = lightTheme.match(
+    new RegExp(`${token}:\\s*var\\(\\s*(--str-chat__[a-z0-9-]+)`),
+  )?.[1];
+  return !!alias && depth < 8 && followsDarkTheme(alias, depth + 1);
+};
+const isRampStep = (token: string) =>
+  /^--str-chat__(slate|neutral|blue|cyan|green|purple|yellow|red|violet|lime)-\d+$/.test(
+    token,
+  );
 
 describe('AI components stylesheet token contract', () => {
-  it('never declares --str-chat__ai-* custom properties (consumer overrides must win)', () => {
-    expect(css).not.toMatch(/--str-chat__ai-[a-z-]+\s*:/);
+  it('reads the SDK tokens, with no AI layer of its own', () => {
+    expect(css).not.toMatch(/--str-chat__ai-[a-z-]+/);
+    expect(css).not.toMatch(/--_str-chat-(a2ui-|ai-(?!glow-))/);
+    expect(reads.length).toBeGreaterThan(40);
   });
 
-  it('reads themable tokens through override > SCR token > literal fallback chains', () => {
-    expect(css).toContain(
-      'var(--str-chat__ai-bg-secondary, var(--str-chat__background-core-surface-default, #f7f7f8))',
-    );
-    expect(css).toContain('var(--str-chat__ai-syntax-keyword, #8b5cf6)');
-    expect(css).toContain(
-      'var(--str-chat__ai-border, var(--str-chat__border-core-default, #ccc))',
-    );
-    expect(css).toContain(
-      'var(--str-chat__ai-table-header-bg, var(--str-chat__background-core-surface-subtle, #f8f9fa))',
-    );
-    expect(css).toContain(
-      'var(--str-chat__ai-voice-color, var(--str-chat__accent-primary, #005fff))',
-    );
-    expect(css).toContain(
-      'var(--str-chat__ai-voice-backdrop, var(--str-chat__background-core-elevation-0, #ffffff))',
-    );
+  it('reads every SDK token without a literal fallback, so the SDK theme always decides', () => {
+    expect(
+      [...css.matchAll(/var\(--str-chat__[a-z0-9-]+,[^)]*/g)].map(([read]) => read),
+    ).toEqual([]);
   });
 
-  it('reads the SCR scale with a literal fallback, for rendering outside .str-chat', () => {
-    expect(css).toContain('var(--str-chat__spacing-sm, 0.75rem)');
-    expect(css).toContain('var(--str-chat__typography-line-height-relaxed, 1.5rem)');
-    const bare = [
-      ...css.matchAll(/var\((--str-chat__(?:spacing|typography|radius)-[a-z0-9-]+)\)/g),
-    ];
-    expect(bare.map(([, token]) => token)).toEqual([]);
+  it('reads only tokens that the SDK stylesheet or this one declares', () => {
+    const declared = new Set([...declarations(sdkCss), ...declarations(css)]);
+    expect(reads.filter((token) => !declared.has(token))).toEqual([]);
   });
 
   it('uses no colour literal outside a var() fallback (so SCR dark mode applies)', () => {
@@ -65,40 +74,41 @@ describe('AI components stylesheet token contract', () => {
     expect(css).not.toContain('data:image/svg');
   });
 
-  it('falls back only to SCR tokens that the light and dark themes both provide', () => {
-    // The SCR tokens A2UI's own parts (Stream's buttons and fields) read, which the stylesheet
-    // points at the reply's captures of the AI tokens there (`--_str-chat-a2ui-*`): those parts
-    // read them, not as fallbacks. Only those are left out.
-    const setHere = new Set(
-      [
-        ...css.matchAll(/(--str-chat__(?!ai-)[a-z0-9-]+)\s*:\s*var\(--_str-chat-a2ui-/g),
-      ].map(([, token]) => token),
-    );
-    const scrTokens = [
-      ...new Set(
-        [...css.matchAll(/var\((--str-chat__(?!ai-)[a-z0-9-]+)/g)].map(
-          ([, token]) => token,
-        ),
-      ),
-    ].filter((token) => !isScaleToken(token) && !setHere.has(token));
-    expect(scrTokens.length).toBeGreaterThan(5);
-    const missing = scrTokens.filter((token) => {
-      if (!declaredIn(lightTheme, token)) return true;
-      if (declaredIn(darkTheme, token)) return false;
-      // light-only semantic tokens must alias a primitive that dark.scss redefines
-      const alias = lightTheme.match(
-        new RegExp(`${token}:\\s*var\\(\\s*(--str-chat__[a-z0-9-]+)`),
-      )?.[1];
-      return !alias || !declaredIn(darkTheme, alias);
-    });
+  it('reads only colour tokens that the light and dark themes both provide', () => {
+    const ownTokens = declarations(css);
+    const missing = reads
+      .filter(
+        (token) => !isScaleToken(token) && !isRampStep(token) && !ownTokens.has(token),
+      )
+      .filter((token) => {
+        if (!declaredIn(lightTheme, token)) return !declaredIn(sdkCss, token);
+        return !followsDarkTheme(token);
+      });
     expect(missing).toEqual([]);
+  });
+
+  it('declares the code syntax colours for the light and the dark theme', () => {
+    const syntax = [...declarations(css)].filter((token) =>
+      token.startsWith('--str-chat__code-syntax-'),
+    );
+    expect(syntax).toHaveLength(12);
+    const lightBlock = css.match(
+      /\.str-chat,\s*\.str-chat__theme-dark \.str-chat__theme-inverse\s*\{([^}]*)\}/,
+    )?.[1];
+    const darkBlock = css.match(
+      /\.str-chat__theme-dark,\s*\.str-chat:not\(\.str-chat__theme-dark\)[^{]*\{([^}]*)\}/,
+    )?.[1];
+    for (const token of syntax) {
+      expect(lightBlock).toContain(`${token}:`);
+      expect(darkBlock).toContain(`${token}:`);
+    }
   });
 });
 
 describe('AI components stylesheet icons', () => {
   it('sizes and colours SCR icons without relying on index.css', () => {
     expect(css).toMatch(
-      /\.str-chat__ai-message-composer__round-button svg\s*\{[^}]*width:\s*1\.5rem;[^}]*height:\s*1\.5rem;[^}]*fill:\s*currentColor/,
+      /\.str-chat__ai-message-composer__round-button svg\s*\{[^}]*width:\s*var\(--str-chat__size-24\);[^}]*height:\s*var\(--str-chat__size-24\);[^}]*fill:\s*currentColor/,
     );
     expect(css).toMatch(
       /\.str-chat__ai-attachment-preview__retry-button svg\s*\{[^}]*width:[^}]*fill:\s*currentColor/,
@@ -162,7 +172,7 @@ describe('AI components stylesheet accessibility', () => {
 
   it('animates the CSS voice glow only through transform and opacity', () => {
     const keyframes = [
-      ...css.matchAll(/@keyframes str-ai-glow-[a-z-]+\s*\{([\s\S]*?)\n\}/g),
+      ...css.matchAll(/@keyframes str-chat__ai-glow-[a-z-]+\s*\{([\s\S]*?)\n\}/g),
     ];
     expect(keyframes.length).toBeGreaterThan(10);
     for (const [, body] of keyframes) {
@@ -181,5 +191,49 @@ describe('AI components stylesheet accessibility', () => {
     expect(reduced).toMatch(
       /\.str-chat__ai-state-indicator__text[^{]*\{[^}]*animation:\s*none/,
     );
+  });
+});
+
+describe('generated UI renderer stylesheets', () => {
+  const a2uiCss = compile(path.resolve(__dirname, '../../A2UI/styling/index.scss')).css;
+  const openUICss = compile(
+    path.resolve(__dirname, '../../OpenUI/styling/index.scss'),
+  ).css;
+
+  it('ship apart from ai-components.css', () => {
+    expect(css).not.toMatch(/\.str-chat__(a2ui|openui)\b/);
+    expect(a2uiCss).toMatch(/\.str-chat__a2ui\s*\{/);
+    expect(a2uiCss).not.toMatch(/\.str-chat__openui\b/);
+    expect(openUICss).toMatch(/\.str-chat__openui\s*\{/);
+    expect(openUICss).not.toMatch(/\.str-chat__a2ui\b/);
+  });
+
+  it.each([
+    ['a2ui.css', a2uiCss],
+    ['openui.css', openUICss],
+  ])('%s reads only declared SDK tokens, with no literal fallback', (_, rendererCss) => {
+    const declared = new Set([...declarations(sdkCss), ...declarations(css)]);
+    const rendererReads = [
+      ...new Set(
+        [...rendererCss.matchAll(/var\((--str-chat__[a-z0-9-]+)/g)].map(([, t]) => t),
+      ),
+    ];
+    expect(rendererReads.filter((token) => !declared.has(token))).toEqual([]);
+    expect(rendererCss).not.toMatch(/var\(--str-chat__[a-z0-9-]+,/);
+    expect(rendererCss).not.toMatch(/--str-chat__ai-/);
+  });
+
+  it("sets A2UI's type and spacing scales, which A2UI works out on :root", () => {
+    for (const step of ['xs', 's', 'm', 'l', 'xl']) {
+      expect(a2uiCss).toContain(`--a2ui-font-size-${step}: var(--str-chat__typography-`);
+      expect(a2uiCss).toContain(`--a2ui-spacing-${step}: var(--str-chat__spacing-`);
+    }
+  });
+
+  it("sets OpenUI's text in the SDK's font", () => {
+    expect(openUICss).toMatch(
+      /--openui-text-body-default: normal var\(--str-chat__typography-font-weight-regular\) var\(--str-chat__typography-font-size-md\) \/ [^;]*var\(--str-chat__font-family\)/,
+    );
+    expect(openUICss).not.toMatch(/--openui-font-(body|heading|label):/);
   });
 });

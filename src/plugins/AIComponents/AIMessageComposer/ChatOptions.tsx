@@ -9,24 +9,9 @@ import {
   ThemeScopeProvider,
   useAIThemeScopeClassName,
 } from '../themeScope';
+import type { AIChatOption } from '../Conversation/controller/types';
 
-/**
- * A way to ask, which the person picks for their next message, such as "Think harder". The
- * counterpart of `ChatOption` in StreamChatAI.
- */
-export type AIChatOption = {
-  id: string;
-  /** The option's name in the menu, such as "Think harder". */
-  title: string;
-  /** Data of your own, such as what the option sends with the message. */
-  customData?: Record<string, unknown>;
-  /** A line under the title in the menu, such as "Takes longer, for harder questions". */
-  description?: string;
-  /** An icon shown in the menu and on the chip. */
-  icon?: ReactNode;
-  /** The option's name on the chip once picked, such as "Think". Defaults to `title`. */
-  shortTitle?: string;
-};
+export type { AIChatOption };
 
 export type ChatOptionsListProps = {
   onSelect: (option: AIChatOption) => void;

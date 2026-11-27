@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import { StateStore } from '@stream-io/state-store';
 
 import type { AIMessage } from '../Conversation/types';
 import { type AIUIAction, aiUIActionProblem } from './AIUIAction';
@@ -70,6 +71,11 @@ const openWebOrEmailLink = (url: URL) => {
  * goes. Give it to `AIConversation` as `ui`; keep one per conversation, for as long as it shows.
  * The counterpart of `AIUIHost` in StreamChatAI.
  */
+export type AIUIHostState = {
+  /** Changes each time the conversation should show its replies again. */
+  version: number;
+};
+
 export class AIUIHost {
   readonly components: AIUIComponent[];
   readonly renderers: AIUIRenderer[];
@@ -77,13 +83,16 @@ export class AIUIHost {
   private readonly engines = new Map<AIUIRenderer, AIUIEngine>();
   private readonly failed = new Set<string>();
   private lastSend: Promise<void> = Promise.resolve();
-  private readonly listeners = new Set<() => void>();
   private readonly options: AIUIHostOptions;
   private readonly received = new Map<string, AIUIDocument>();
   private readonly states = new Map<string, unknown>();
   private readonly tools: Map<string, AIUIClientTool>;
   private refreshing = false;
-  private version = 0;
+  /**
+   * How many times the conversation was asked to show its replies again; read it with
+   * `useStateStore`, as `useAIUIHostRefresh` does.
+   */
+  readonly refreshState = new StateStore<AIUIHostState>({ version: 0 });
 
   constructor(options: AIUIHostOptions) {
     this.options = options;
@@ -258,21 +267,24 @@ export class AIUIHost {
     this.refreshing = true;
     queueMicrotask(() => {
       this.refreshing = false;
-      this.version++;
-      this.listeners.forEach((listener) => listener());
+      this.refreshState.partialNext({
+        version: this.refreshState.getLatestValue().version + 1,
+      });
     });
   }
 
   /** Calls `listener` each time the conversation should show its replies again. */
-  subscribe = (listener: () => void) => {
-    this.listeners.add(listener);
-    return () => {
-      this.listeners.delete(listener);
-    };
-  };
+  subscribe = (listener: () => void) =>
+    // The store hands a new subscriber its current value at once; a listener hears only changes.
+    this.refreshState.subscribeWithSelector(
+      ({ version }) => ({ version }),
+      (_, previous) => {
+        if (previous) listener();
+      },
+    );
 
   /** A number that changes each time the conversation should show its replies again. */
-  getVersion = () => this.version;
+  getVersion = () => this.refreshState.getLatestValue().version;
 
   /**
    * Runs one of the app's tools for a reply's UI, such as to load data on this device. One that

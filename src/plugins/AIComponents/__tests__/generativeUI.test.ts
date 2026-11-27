@@ -693,3 +693,25 @@ describe('AIUICascade', () => {
     expect(cascade.delay(11)).toBe(0);
   });
 });
+
+describe('AIUIHost refreshes', () => {
+  it('tells subscribers each time the conversation should show its replies again, once a tick', async () => {
+    const ui = new AIUIHost({ renderers: [], send: () => Promise.resolve() });
+    const listener = vi.fn();
+    const unsubscribe = ui.subscribe(listener);
+    expect(listener).not.toHaveBeenCalled();
+    expect(ui.getVersion()).toBe(0);
+
+    ui.refresh();
+    ui.refresh();
+    await Promise.resolve();
+    expect(listener).toHaveBeenCalledTimes(1);
+    expect(ui.getVersion()).toBe(1);
+    expect(ui.refreshState.getLatestValue()).toEqual({ version: 1 });
+
+    unsubscribe();
+    ui.refresh();
+    await Promise.resolve();
+    expect(listener).toHaveBeenCalledTimes(1);
+  });
+});

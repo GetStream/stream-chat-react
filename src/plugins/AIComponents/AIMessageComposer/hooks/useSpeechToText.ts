@@ -1,3 +1,4 @@
+import { useTranslationContext } from '../../../../context/TranslationContext';
 import { useEffect, useRef, useState } from 'react';
 import { useStableCallback } from '../../../../utils/useStableCallback';
 
@@ -95,10 +96,12 @@ export type UseSpeechToTextOptions = {
 };
 
 export const useSpeechToText = (options: UseSpeechToTextOptions = {}) => {
+  // Recognises the language the person reads the app in, unless told another.
+  const { userLanguage } = useTranslationContext();
   const {
     continuous = false,
     interimResults = true,
-    lang = 'en-US',
+    lang = userLanguage,
     maxAlternatives = 1,
     onError,
     onTranscript,

@@ -1,5 +1,4 @@
 import {
-  AI_CONNECTOR_SIGN_IN_CHANNEL,
   AIClientIdentity,
   AIConnectorSignInError,
   completeConnectorSignIn,
@@ -7,6 +6,7 @@ import {
   readConnectorSignInResult,
 } from '..';
 import type { AIToolCallPart } from '..';
+import { AI_CONNECTOR_SIGN_IN_CHANNEL } from '../ToolCalls/popupAuthorizer';
 
 const LAUNCH = 'https://router.example.com/v1/agents/connectors/oauth/launch/abc';
 const ORIGIN = 'https://router.example.com';

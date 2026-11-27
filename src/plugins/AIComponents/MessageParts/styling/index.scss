@@ -1,0 +1,432 @@
+@use '../../styling/mixins' as *;
+@use '../../../../styling/utils';
+
+// The steps of a reply: reasoning, tool calls, and the questions and sign-ins they wait for.
+
+.str-chat__ai-message-parts {
+  display: flex;
+  flex-direction: column;
+  gap: var(--str-chat__spacing-xs);
+  width: 100%;
+}
+
+.str-chat__ai-message-part__tool {
+  display: flex;
+  flex-direction: column;
+  gap: var(--str-chat__spacing-xs);
+}
+
+.str-chat__ai-message-part--unsupported {
+  display: flex;
+  align-items: center;
+  gap: var(--str-chat__spacing-xs);
+  color: var(--str-chat__text-secondary);
+  font-size: var(--str-chat__typography-font-size-sm);
+
+  @include ai-icon;
+}
+
+// A text that sweeps a highlight across while it waits or thinks.
+.str-chat__ai-shimmer {
+  animation: str-chat__ai-shimmer $ai-loop-shimmer ease-in-out infinite;
+}
+
+@keyframes str-chat__ai-shimmer {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.45;
+  }
+}
+
+@keyframes str-chat__ai-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.str-chat__ai-spinner {
+  display: inline-flex;
+  color: var(--str-chat__text-secondary);
+
+  @include ai-icon(var(--str-chat__icon-size-md));
+
+  svg {
+    animation: str-chat__ai-spin $ai-loop-spin linear infinite;
+  }
+}
+
+// Tool call
+
+.str-chat__ai-tool-call {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--str-chat__spacing-xs);
+  font-size: var(--str-chat__typography-font-size-sm);
+  line-height: var(--str-chat__typography-line-height-normal);
+
+  &__icon {
+    display: inline-flex;
+    margin-top: var(--str-chat__spacing-xxxs);
+    color: var(--str-chat__text-link);
+
+    @include ai-icon;
+
+    &--spinning svg {
+      animation: str-chat__ai-spin $ai-loop-spin linear infinite;
+    }
+  }
+
+  &--completed &__icon {
+    color: var(--str-chat__accent-success);
+  }
+
+  &--failed &__icon {
+    color: var(--str-chat__button-destructive-text);
+  }
+
+  &--cancelled &__icon {
+    color: var(--str-chat__text-secondary);
+  }
+
+  &__text {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    gap: var(--str-chat__spacing-xxxs);
+    min-width: 0;
+  }
+
+  &__title {
+    color: var(--str-chat__text-primary);
+  }
+
+  &__detail {
+    display: -webkit-box;
+    overflow: hidden;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    color: var(--str-chat__text-secondary);
+    font-size: var(--str-chat__typography-font-size-xs);
+  }
+
+  &__duration {
+    color: var(--str-chat__text-secondary);
+    font-size: var(--str-chat__typography-font-size-xs);
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+}
+
+// Approval and sign-in cards
+
+.str-chat__ai-tool-approval-card,
+.str-chat__ai-tool-authorization-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--str-chat__spacing-sm);
+  padding: var(--str-chat__spacing-sm);
+  border: 1px solid var(--str-chat__border-core-subtle);
+  border-radius: var(--str-chat__radius-xl);
+  background-color: var(--str-chat__background-core-surface-card);
+  color: var(--str-chat__text-primary);
+  font-size: var(--str-chat__typography-font-size-sm);
+}
+
+.str-chat__ai-tool-approval-card {
+  &__text {
+    display: flex;
+    flex-direction: column;
+    gap: var(--str-chat__spacing-xxs);
+  }
+
+  &__title {
+    font-weight: var(--str-chat__typography-font-weight-semi-bold);
+  }
+
+  &__message {
+    color: var(--str-chat__text-secondary);
+    font-size: var(--str-chat__typography-font-size-sm);
+  }
+
+  &__actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--str-chat__spacing-xs);
+  }
+
+  &__failure {
+    color: var(--str-chat__button-destructive-text);
+    font-size: var(--str-chat__typography-font-size-xs);
+  }
+}
+
+// What a tool call will send: its arguments as JSON, on a quiet panel, collapsed when long.
+.str-chat__ai-tool-arguments {
+  min-width: 0;
+
+  &__label {
+    color: var(--str-chat__text-secondary);
+    cursor: pointer;
+    font-size: var(--str-chat__typography-font-size-xs);
+    font-weight: var(--str-chat__typography-font-weight-semi-bold);
+
+    &:focus-visible {
+      @include ai-focus-ring;
+    }
+  }
+
+  &[open] &__label {
+    margin-bottom: var(--str-chat__spacing-xxs);
+  }
+
+  &__code {
+    max-height: 12rem; // ai-styles: allow measure of a tool result
+    margin: 0;
+    padding: var(--str-chat__spacing-xs);
+    overflow: auto;
+    border-radius: var(--str-chat__radius-sm);
+    // A tint of the words, so the panel stands out on any card, light or dark.
+    background-color: color-mix(in srgb, var(--str-chat__text-primary) 7%, transparent);
+    color: var(--str-chat__text-primary);
+    // The SDK's mono font names no generic family, for when it isn't loaded.
+    font-family: var(--str-chat__typography-font-family-mono), monospace;
+    font-size: var(--str-chat__typography-font-size-xs);
+    line-height: var(--str-chat__typography-line-height-normal);
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+  }
+}
+
+.str-chat__ai-tool-authorization-card {
+  &__outcome {
+    color: var(--str-chat__text-secondary);
+    font-size: var(--str-chat__typography-font-size-sm);
+  }
+
+  &--connected &__outcome {
+    color: var(--str-chat__accent-success);
+  }
+
+  &--failed &__outcome,
+  &--expired &__outcome {
+    color: var(--str-chat__button-destructive-text);
+  }
+}
+
+.str-chat__ai-button {
+  // The SDK's small button: primary is solid, secondary is outlined, with the same states.
+  all: unset;
+  box-sizing: border-box;
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--str-chat__spacing-xs);
+  min-height: var(--str-chat__button-visual-height-sm);
+  padding-block: var(--str-chat__button-padding-y-sm);
+  padding-inline: var(--str-chat__button-padding-x-with-label-sm);
+  border-radius: var(--str-chat__button-radius-md);
+  cursor: pointer;
+  font: var(--str-chat__font-heading-xs);
+  white-space: nowrap;
+
+  &::after {
+    border-radius: inherit;
+  }
+
+  &--primary {
+    background-color: var(--str-chat__button-primary-bg);
+    color: var(--str-chat__button-primary-text-on-accent);
+  }
+
+  &--secondary {
+    border: 1px solid var(--str-chat__button-secondary-border);
+    color: var(--str-chat__button-secondary-text);
+  }
+
+  &:not(:disabled):hover {
+    @include utils.overlay-after(var(--str-chat__background-utility-hover));
+  }
+
+  &:not(:disabled):active {
+    @include utils.overlay-after(var(--str-chat__background-utility-pressed));
+  }
+
+  &:not(:disabled):focus-visible {
+    @include utils.focusable;
+  }
+
+  &:disabled {
+    color: var(--str-chat__text-disabled);
+    cursor: default;
+  }
+
+  &--primary:disabled {
+    background-color: var(--str-chat__background-utility-disabled);
+  }
+
+  &--secondary:disabled {
+    border-color: var(--str-chat__border-utility-disabled);
+  }
+}
+
+// Reasoning
+
+.str-chat__ai-reasoning {
+  position: relative;
+  padding-inline-start: var(--str-chat__spacing-sm);
+  color: var(--str-chat__text-secondary);
+  font-size: var(--str-chat__typography-font-size-sm);
+  line-height: var(--str-chat__typography-line-height-normal);
+
+  // the rule along the reasoning
+  &::before {
+    position: absolute;
+    inset-block: 0;
+    inset-inline-start: 0;
+    width: 2px; // ai-styles: allow the reasoning rule, a stroke
+    border-radius: 1px;
+    background-color: var(--str-chat__border-core-subtle);
+    content: '';
+  }
+
+  &--thinking::before {
+    background-color: var(--str-chat__accent-primary);
+    opacity: 0.6;
+  }
+
+  &__header {
+    all: unset;
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    gap: var(--str-chat__spacing-xs);
+    max-width: 100%;
+    color: var(--str-chat__text-primary);
+    cursor: pointer;
+    font-weight: var(--str-chat__typography-font-weight-medium);
+
+    &:focus-visible {
+      @include ai-focus-ring;
+    }
+  }
+
+  &__icon {
+    display: inline-flex;
+
+    @include ai-icon;
+  }
+
+  &--thinking &__icon svg {
+    animation: str-chat__ai-shimmer $ai-loop-shimmer ease-in-out infinite;
+  }
+
+  &__title {
+    flex-shrink: 0;
+    font-variant-numeric: tabular-nums;
+  }
+
+  &__summary {
+    overflow: hidden;
+    min-width: 0;
+    color: var(--str-chat__text-secondary);
+    font-weight: var(--str-chat__typography-font-weight-regular);
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  &__disclosure {
+    display: inline-flex;
+    transition: transform $ai-duration-quick ease-in-out;
+
+    @include ai-icon(var(--str-chat__icon-size-xs));
+  }
+
+  &--expanded &__disclosure {
+    transform: rotate(90deg);
+  }
+
+  [dir='rtl'] &--expanded &__disclosure {
+    transform: rotate(-90deg);
+  }
+
+  // Folding shrinks the panel in place rather than removing it, so what sits below glides with it.
+  &__fold {
+    display: grid;
+    grid-template-rows: 0fr;
+    opacity: 0;
+    transition:
+      grid-template-rows $ai-duration-slow $ai-ease-disclosure,
+      opacity $ai-duration-moderate ease-in-out;
+
+    &[data-open='true'] {
+      grid-template-rows: 1fr;
+      opacity: 1;
+    }
+  }
+
+  &__fold-inner {
+    overflow: hidden;
+    min-height: 0;
+    // out of the tab order and the accessibility tree once folded
+    visibility: hidden;
+    transition: visibility 0s linear $ai-duration-slow;
+  }
+
+  &__fold[data-open='true'] &__fold-inner {
+    visibility: visible;
+    transition-delay: 0;
+  }
+
+  &__scroller {
+    overflow-y: auto;
+    padding-top: var(--str-chat__spacing-xs);
+    overscroll-behavior: contain;
+
+    &--overflowing {
+      mask-image: linear-gradient(to bottom, transparent 0, currentColor 14%);
+    }
+
+    &:focus-visible {
+      @include ai-focus-ring;
+    }
+  }
+
+  &__paragraph {
+    & + & {
+      margin-top: var(--str-chat__spacing-xs);
+    }
+
+    p {
+      margin: 0;
+    }
+  }
+
+  &__footnote {
+    padding-top: var(--str-chat__spacing-xs);
+    color: var(--str-chat__text-tertiary);
+    font-size: var(--str-chat__typography-font-size-xs);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .str-chat__ai-shimmer,
+  .str-chat__ai-reasoning--thinking .str-chat__ai-reasoning__icon svg {
+    animation: none;
+  }
+
+  .str-chat__ai-reasoning__fold,
+  .str-chat__ai-reasoning__fold-inner,
+  .str-chat__ai-reasoning__disclosure {
+    transition: none;
+  }
+
+  .str-chat__ai-tool-call__icon--spinning svg,
+  .str-chat__ai-spinner svg {
+    animation-duration: $ai-loop-reduced;
+  }
+}

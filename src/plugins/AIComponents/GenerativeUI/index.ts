@@ -42,7 +42,12 @@ export {
   AIUIEntranceStage,
   useAIUIEntrance,
 } from './AIUIEntrance';
-export { AIUIHost, type AIUIHostOptions, isWebOrEmailLink } from './AIUIHost';
+export {
+  AIUIHost,
+  type AIUIHostOptions,
+  type AIUIHostState,
+  isWebOrEmailLink,
+} from './AIUIHost';
 export {
   aiUIMediaSource,
   aiUIPublicMediaURL,

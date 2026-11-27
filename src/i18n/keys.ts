@@ -66,6 +66,7 @@ export type TranslationCatalog = {
   'aiComponents.reasoning.thoughtProcess.title': 'Thought process';
   'aiComponents.replyActions.badResponse.ariaLabel': 'Bad response';
   'aiComponents.replyActions.copied.ariaLabel': 'Copied';
+  'aiComponents.replyActions.copiedToClipboard.ariaLabel': 'Copied to the clipboard';
   'aiComponents.replyActions.copy.ariaLabel': 'Copy';
   'aiComponents.replyActions.goodResponse.ariaLabel': 'Good response';
   'aiComponents.replyActions.regenerate.ariaLabel': 'Regenerate';

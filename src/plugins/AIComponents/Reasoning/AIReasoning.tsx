@@ -5,7 +5,7 @@ import { useTranslationContext } from '../../../context/TranslationContext';
 import { useComponentContextIcons } from '../../../context/useComponentContextIcons';
 import { useStableId } from '../../../components/UtilityComponents/useStableId';
 import { AIMarkdown } from '../AIMarkdown';
-import { IconAIReasoning } from '../icons';
+import { useAIIcons } from '../hooks/useAIIcons';
 import type { AIReasoningPart } from '../MessageParts/types';
 import { formatMinutesAndSeconds, useNow } from '../utils';
 import { FINISHED_REASONING_SHOWN_MS, useAIThinkingTurn } from './thinkingClock';
@@ -186,6 +186,7 @@ export const AIReasoning = ({
   const themeScopeClassName = useAIThemeScopeClassName();
   const { t, userLanguage } = useTranslationContext();
   const { IconChevronRight } = useComponentContextIcons();
+  const { IconAIReasoning } = useAIIcons();
   const panelId = `str-chat__ai-reasoning-${useStableId()}`;
   const turn = useAIThinkingTurn();
 

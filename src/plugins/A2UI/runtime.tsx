@@ -1,13 +1,7 @@
 // The part of the A2UI renderer that runs the official A2UI packages. It loads in the browser
 // when a reply first shows A2UI, because the packages define custom elements, which a server
 // cannot, and are of no use to an app whose agent never writes A2UI.
-import React, {
-  createContext,
-  useContext,
-  useEffect,
-  useLayoutEffect,
-  useMemo,
-} from 'react';
+import React, { createContext, useContext, useMemo } from 'react';
 import { useSyncExternalStore } from 'use-sync-external-store/shim';
 import {
   A2uiSurface,
@@ -44,6 +38,7 @@ import {
   isRecord,
   withoutSecretValues,
 } from '../AIComponents/GenerativeUI/AIUIHelpers';
+import { useIsomorphicLayoutEffect } from '../AIComponents/utils';
 import { A2UIPlaceholder } from './A2UIPlaceholder';
 import type { A2UIEngine, A2UIError } from './A2UIRenderer';
 import { A2UIEngineContext, STREAM_BASIC_COMPONENTS } from './basicComponents';
@@ -612,11 +607,6 @@ export const showsNothing = (
   messageId: string,
 ) =>
   !document.isStreaming && replyOf(engine, document, messageId).surfaces().length === 0;
-
-// The layout effect warns under server rendering; this module only runs in the browser, but
-// tests may render it either way.
-const useIsomorphicLayoutEffect =
-  typeof window === 'undefined' ? useEffect : useLayoutEffect;
 
 /** A reply's surfaces, following its document as the agent writes it. */
 export const A2UIReplyContent = ({

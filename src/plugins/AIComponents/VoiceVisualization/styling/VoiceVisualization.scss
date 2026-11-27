@@ -1,5 +1,4 @@
-// Intentionally declares no `--str-chat__ai-*` custom properties; see _tokens.scss.
-@use './tokens' as *;
+@use '../../styling/mixins' as *;
 
 // VoiceWave and VoiceGlow draw on a canvas, which cannot read CSS variables. The script reads
 // the computed `color` as the default palette and the computed `text-decoration-color` as the
@@ -15,8 +14,8 @@
   min-height: 0;
   container-type: size;
   pointer-events: none;
-  color: ai-token(voice-color);
-  text-decoration-color: ai-token(voice-backdrop);
+  color: var(--str-chat__accent-primary);
+  text-decoration-color: var(--str-chat__background-core-elevation-0);
   -webkit-tap-highlight-color: transparent;
 
   // Fades in over 0.3 s once its first frame is drawn, as on iOS.
@@ -27,7 +26,7 @@
     width: 100%;
     height: 100%;
     opacity: 0;
-    transition: opacity 0.3s ease-out;
+    transition: opacity $ai-duration-moderate ease-out;
 
     &[data-ready='true'] {
       opacity: 1;
@@ -57,7 +56,7 @@
 .str-chat__ai-voice-glow .str-chat__ai-voice-visualization__hit {
   width: 64cqmin;
   height: 64cqmin;
-  border-radius: 50%;
+  border-radius: var(--str-chat__radius-max);
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -69,10 +68,10 @@
 // No size of their own, so a default that fits each shape when the integrator gives none.
 .str-chat__ai-voice-wave {
   width: 100%;
-  height: 8rem;
+  height: var(--str-chat__size-128);
 }
 
 .str-chat__ai-voice-glow {
-  width: 12rem;
-  height: 12rem;
+  width: 12rem; // ai-styles: allow the default size of VoiceGlow, documented in the README
+  height: 12rem; // ai-styles: allow the default size of VoiceGlow, documented in the README
 }

@@ -1,20 +1,25 @@
 import React, {
   Children,
+  Component,
   type ComponentProps,
   type ComponentType,
   type ElementType,
   isValidElement,
+  type PropsWithChildren,
   useContext,
   useMemo,
 } from 'react';
 import ReactMarkdown, { type Components, type ExtraProps } from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+import type { PluggableList } from 'unified';
 import { Prism, type SyntaxHighlighterProps } from 'react-syntax-highlighter';
 import clsx from 'clsx';
 
 import { JsonChart } from './tools/charts/JsonChart';
 import { SuspendedChart } from './tools/charts/SuspendedChart';
 import { AIThemeScope } from '../themeScope';
+import { Anchor } from '../../../components/Message/renderText/componentRenderers/Anchor';
+import { imageToLink } from '../../../components/Message/renderText/remarkPlugins/imageToLink';
 
 type CodeElementProps = {
   children?: React.ReactNode;
@@ -172,17 +177,65 @@ const DefaultCode = (props: DefaultCodeProps) => {
   );
 };
 
+/**
+ * Shows the reply as its text when a renderer throws, and tries again once the text changes: a
+ * reply still streaming in can trip a renderer on a part that isn't written yet, such as half a
+ * code fence, and shouldn't stay plain text once the rest arrives.
+ */
+class AIMarkdownErrorBoundary extends Component<
+  PropsWithChildren<{ text: string }>,
+  { hasError: boolean; text: string }
+> {
+  state = { hasError: false, text: this.props.text };
+
+  static getDerivedStateFromProps(
+    props: { text: string },
+    state: { hasError: boolean; text: string },
+  ) {
+    return props.text === state.text ? null : { hasError: false, text: props.text };
+  }
+
+  static getDerivedStateFromError() {
+    return { hasError: true };
+  }
+
+  componentDidCatch(error: unknown) {
+    console.error(error);
+  }
+
+  render() {
+    return this.state.hasError ? <>{this.props.text}</> : this.props.children;
+  }
+}
+
 const DefaultComponents = {
+  // A link a model writes opens in a new tab, without the page's referrer or a link to it, and
+  // only for web and e-mail addresses; any other link is shown as its text.
+  a: Anchor,
   code: DefaultCode,
   pre: DefaultPre,
 } as const;
 
+// A model's reply is untrusted: an image in it would be fetched as soon as it renders, which lets
+// a prompt injection send data out in the image's URL. Images are shown as links to them unless
+// the app allows them.
+const remarkPlugins: PluggableList = [remarkGfm];
+const remarkPluginsWithoutImages: PluggableList = [remarkGfm, imageToLink];
+
+export type AIMarkdownProps = {
+  children: string;
+  /**
+   * Renders the images in the reply. Off by default: an image is fetched as soon as it renders,
+   * so a reply could send data to any server in an image URL. Each image is then shown as a link
+   * to it instead.
+   */
+  allowImages?: boolean;
+  markdownComponents?: MarkdownComponents;
+  toolComponents?: ToolComponents;
+};
+
 interface AIMarkdown {
-  (props: {
-    children: string;
-    toolComponents?: ToolComponents;
-    markdownComponents?: MarkdownComponents;
-  }): React.JSX.Element;
+  (props: AIMarkdownProps): React.JSX.Element;
   default: typeof DefaultComponents;
 }
 
@@ -209,9 +262,15 @@ export const AIMarkdown: AIMarkdown = (props) => {
     // when nothing above provides one.
     <AIThemeScope>
       <AIMarkdownContext.Provider value={{ toolComponents: mergedToolComponents }}>
-        <ReactMarkdown components={mergedMarkdownComponents} remarkPlugins={[remarkGfm]}>
-          {props.children}
-        </ReactMarkdown>
+        {/* A reply the renderer can't draw is shown as its text rather than breaking the view. */}
+        <AIMarkdownErrorBoundary text={props.children}>
+          <ReactMarkdown
+            components={mergedMarkdownComponents}
+            remarkPlugins={props.allowImages ? remarkPlugins : remarkPluginsWithoutImages}
+          >
+            {props.children}
+          </ReactMarkdown>
+        </AIMarkdownErrorBoundary>
       </AIMarkdownContext.Provider>
     </AIThemeScope>
   );

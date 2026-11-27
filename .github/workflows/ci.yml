@@ -36,6 +36,10 @@ jobs:
       - name: Typecheck build scripts
         run: yarn types:scripts
 
+      # The AI components' stylesheets may only write out fewer values than the baseline.
+      - name: Hold the AI stylesheets to the SDK tokens
+        run: yarn validate-ai-styles
+
   build:
     runs-on: { group: github-public-amd64 }
     permissions:

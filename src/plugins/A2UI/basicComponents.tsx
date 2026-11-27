@@ -10,6 +10,7 @@ import React, {
   useCallback,
   useContext,
   useEffect,
+  useMemo,
   useRef,
   useState,
 } from 'react';
@@ -24,7 +25,7 @@ import type { IconSlots } from '../../components/Icons/slots';
 import { useStableId } from '../../components/UtilityComponents/useStableId';
 import { useComponentContextIcons } from '../../context/useComponentContextIcons';
 import { useTranslationContext } from '../../context/TranslationContext';
-import { AIMarkdown } from '../AIComponents/AIMarkdown';
+import { AIMarkdown, type AIMarkdownProps } from '../AIComponents/AIMarkdown';
 import { aiUILinkOpener, isRecord } from '../AIComponents/GenerativeUI/AIUIHelpers';
 import { useAIUIEntrance } from '../AIComponents/GenerativeUI/AIUIEntrance';
 import { aiUIMediaSource } from '../AIComponents/GenerativeUI/AIUIMedia';
@@ -218,12 +219,31 @@ export const A2UIText = ({ props }: ReactA2uiComponentProps<TextProps>) =>
     <A2UITextPart {...props} />
   );
 
+// A link in a Text: any the Markdown keeps, since the Text hands each click to the host, whose
+// `open` decides what opens, rather than only the web and email links a reply's text keeps.
+const A2UITextLink = ({ children, href }: ComponentPropsWithoutRef<'a'>) =>
+  href ? <a href={href}>{children}</a> : <>{children}</>;
+
+// How a Text draws its Markdown: links for the host to open, and images loaded as the
+// renderer's `mediaUrl` allows, as its Image is; one it doesn't load is a link to it.
+const textMarkdownComponents = (
+  engine: A2UIEngine | undefined,
+): NonNullable<AIMarkdownProps['markdownComponents']> => ({
+  a: A2UITextLink,
+  img: ({ alt, src }) => {
+    const source = aiUIMediaSource(src, engine?.mediaURL);
+    if (source) return <img alt={alt ?? ''} src={source} />;
+    return typeof src === 'string' && src ? <a href={src}>{alt || src}</a> : null;
+  },
+});
+
 // A Text that is a part of its own, coming in when it shows.
 const A2UITextPart = (props: TextProps) => {
   const engine = useContext(A2UIEngineContext);
   const { part } = usePart(props);
   const text = textOf(props.text);
   const variant = typeof props.variant === 'string' ? props.variant : 'body';
+  const markdownComponents = useMemo(() => textMarkdownComponents(engine), [engine]);
   const classes = clsx(
     'str-chat__a2ui-text',
     `str-chat__a2ui-text--${variant}`,
@@ -247,7 +267,9 @@ const A2UITextPart = (props: TextProps) => {
       onClickCapture={follow}
       role={role}
     >
-      <AIMarkdown>{text}</AIMarkdown>
+      <AIMarkdown allowImages markdownComponents={markdownComponents}>
+        {text}
+      </AIMarkdown>
     </div>
   );
 };

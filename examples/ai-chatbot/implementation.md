@@ -357,7 +357,7 @@ A hands-free conversation with the agent, built on `VoiceGlow`, `VoiceWave`, `us
 - `useVoiceConversation` runs the turn loop: listen (dictation ends on silence), send through `useSendAIMessage` with a `MessageComposer` of its own (so a spoken turn leaves the typed draft and its attachments alone), wait for the agent's `ai_indicator` events, read the finished answer aloud with `speechSynthesis` (markdown stripped, code skipped), then listen again
 - Voice agent state: `connecting` while the microphone is requested or the agent is being started, `listening` during the user's turn, `thinking` while the agent works, `speaking` while the answer is read aloud, `idle` when paused or stopped
 - Pause/resume and end buttons; Escape closes it; the rate limit, a failed send and a denied microphone stop it with a message; closing it refreshes the composer's rate-limit banner
-- `--str-chat__ai-voice-backdrop` is set to the demo background in `index.scss`, so the visualizations pick their light or dark look from the demo theme rather than the SDK theme
+- `Chat` takes the demo's theme (`str-chat__theme-light` or `-dark`), so the visualizations, like the rest of the SDK, pick their light or dark look from it
 
 ---
 

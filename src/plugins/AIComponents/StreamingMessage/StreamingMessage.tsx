@@ -8,15 +8,27 @@ import React, {
 } from 'react';
 
 import { useStableCallback } from '../../../utils/useStableCallback';
-import { AIMarkdown } from '../AIMarkdown';
+import { AIMarkdown, type AIMarkdownProps } from '../AIMarkdown';
 import { ThemeScopeProvider, useAIThemeScopeClassName } from '../themeScope';
 
-export type UseMessageTextStreamingProps = {
+/** The pace of `StreamingMessage`'s typing. */
+export type StreamingMessagePaceProps = {
   /** A fixed pace instead of catching up: the time between each step, in milliseconds. */
   letterIntervalMs?: number;
   /** A fixed pace instead of catching up: the letters written each step. */
   renderingLetterCount?: number;
   text: string;
+};
+
+/**
+ * @deprecated Use `StreamingMessageProps`: this name is also the props of the
+ * `useMessageTextStreaming` hook that `stream-chat-react` exports, which differ.
+ */
+export type UseMessageTextStreamingProps = StreamingMessagePaceProps;
+
+export type StreamingMessageProps = StreamingMessagePaceProps & {
+  /** How the text is rendered: `AIMarkdown`'s props, such as `allowImages` or `markdownComponents`. */
+  markdown?: Omit<AIMarkdownProps, 'children'>;
 };
 
 export type StreamingMessageRef = { skipAnimation: () => void };
@@ -40,7 +52,7 @@ const useTypedText = ({
   letterIntervalMs,
   renderingLetterCount,
   text,
-}: UseMessageTextStreamingProps) => {
+}: StreamingMessagePaceProps) => {
   const isFixed = letterIntervalMs !== undefined || renderingLetterCount !== undefined;
   const [written, setWritten] = useState(text.length);
   const cursor = useRef(text.length);
@@ -81,26 +93,25 @@ const useTypedText = ({
   return { skipAnimation, typedText: text.slice(0, written) } as const;
 };
 
-export const StreamingMessage = forwardRef<
-  StreamingMessageRef,
-  UseMessageTextStreamingProps
->(({ letterIntervalMs, renderingLetterCount, text }, ref) => {
-  const themeScopeClassName = useAIThemeScopeClassName();
-  const { skipAnimation, typedText } = useTypedText({
-    letterIntervalMs,
-    renderingLetterCount,
-    text,
-  });
+export const StreamingMessage = forwardRef<StreamingMessageRef, StreamingMessageProps>(
+  ({ letterIntervalMs, markdown, renderingLetterCount, text }, ref) => {
+    const themeScopeClassName = useAIThemeScopeClassName();
+    const { skipAnimation, typedText } = useTypedText({
+      letterIntervalMs,
+      renderingLetterCount,
+      text,
+    });
 
-  useImperativeHandle(ref, () => ({ skipAnimation }), [skipAnimation]);
+    useImperativeHandle(ref, () => ({ skipAnimation }), [skipAnimation]);
 
-  return (
-    <ThemeScopeProvider>
-      <div className={clsx(themeScopeClassName, 'str-chat__ai-streaming-message')}>
-        <AIMarkdown>{typedText}</AIMarkdown>
-      </div>
-    </ThemeScopeProvider>
-  );
-});
+    return (
+      <ThemeScopeProvider>
+        <div className={clsx(themeScopeClassName, 'str-chat__ai-streaming-message')}>
+          <AIMarkdown {...markdown}>{typedText}</AIMarkdown>
+        </div>
+      </ThemeScopeProvider>
+    );
+  },
+);
 
 StreamingMessage.displayName = 'StreamingMessage';

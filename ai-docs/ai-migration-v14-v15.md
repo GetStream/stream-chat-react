@@ -3740,6 +3740,16 @@ The pattern skips `.str-chat__main-panel-inner` and `.str-chat__thread-container
 
 Consumers keep overriding through CSS layers (see [`README.md`](https://github.com/GetStream/stream-chat-react/blob/master/README.md)); never edit compiled CSS.
 
+### AI components (`stream-chat-react/ai-components`)
+
+v15 themes the AI components with the SDK's design tokens: the `--str-chat__ai-*` custom properties of v14 are gone, and so are the light-theme literals the AI styles fell back to. A rule that sets `--str-chat__ai-*` matches nothing; set the SDK token that replaces it instead, on `.str-chat` (the AI components' README maps each one, under "Migrating from the `--str-chat__ai-*` tokens"). The code palette is `--str-chat__code-syntax-*`. The A2UI and OpenUI renderers' styles moved out of `ai-components.css`: import `stream-chat-react/css/a2ui.css` and `stream-chat-react/css/openui.css` (after OpenUI's own) when you use them.
+
+```bash
+grep -rnE -- "--str-chat__ai-[a-z]" --include='*.css' --include='*.scss' --include='*.ts' --include='*.tsx' --exclude-dir=node_modules --exclude-dir=dist .
+```
+
+The AI components' styling differs between the lines from here on, so a fix to it on one line is ported by hand, not cherry-picked.
+
 ### Panel layout
 
 v14 laid the thread beside the channel inside `Channel` itself: `.str-chat__channel` held a `.str-chat__container` flex **row** with `Window`'s `.str-chat__main-panel` and the `Thread`. v15 has no row inside the channel. `.str-chat__channel` is the content column (header, list, composer), and `<Thread>` is a sibling you render.

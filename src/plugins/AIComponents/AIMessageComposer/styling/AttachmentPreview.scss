@@ -1,0 +1,165 @@
+@use '../../styling/mixins' as *;
+
+.str-chat__ai-attachment-preview {
+  &:empty {
+    display: none;
+  }
+
+  display: flex;
+  gap: var(--str-chat__spacing-sm);
+  overflow-x: auto;
+  max-width: 100%;
+  padding-block: var(--str-chat__spacing-xxs);
+
+  &::-webkit-scrollbar {
+    height: var(--str-chat__size-4);
+  }
+
+  &::-webkit-scrollbar-track {
+    background: var(--str-chat__background-core-surface-subtle);
+    border-radius: var(--str-chat__radius-xs);
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: var(--str-chat__system-scrollbar);
+    border-radius: var(--str-chat__radius-xs);
+  }
+
+  &::-webkit-scrollbar-thumb:hover {
+    background: var(--str-chat__border-core-default);
+  }
+}
+
+.str-chat__ai-attachment-preview__item {
+  display: flex;
+  height: var(--str-chat__size-64);
+  border: 1px solid var(--str-chat__border-core-default);
+  border-radius: var(--str-chat__radius-md);
+  position: relative;
+  padding: var(--str-chat__spacing-xxs);
+  flex-basis: 10rem; // ai-styles: allow measure of an attachment preview
+
+  flex-grow: 0;
+  flex-shrink: 0;
+
+  &:has(> .str-chat__ai-attachment-preview__image) {
+    flex-basis: var(--str-chat__size-64);
+    padding: 0;
+  }
+  .str-chat__ai-attachment-preview__image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: inherit;
+  }
+
+  .str-chat__ai-attachment-preview__failed-state-overlay {
+    position: absolute;
+    display: flex;
+    width: calc(100% - var(--str-chat__size-32));
+    height: 100%;
+    justify-content: center;
+    align-items: center;
+    border-radius: var(--str-chat__radius-md);
+    top: 0;
+    left: 0;
+    margin-inline: var(--str-chat__spacing-md);
+
+    .str-chat__ai-attachment-preview__retry-button {
+      all: unset;
+      background-color: var(--str-chat__background-core-surface-strong);
+      border-radius: var(--str-chat__button-radius-full);
+      display: flex;
+      padding: var(--str-chat__spacing-xxs);
+      color: var(--str-chat__text-primary);
+      cursor: pointer;
+
+      &:hover:not(:disabled) {
+        @include ai-state-layer(--str-chat__background-utility-hover);
+      }
+
+      &:active:not(:disabled) {
+        @include ai-state-layer(--str-chat__background-utility-pressed);
+      }
+
+      svg {
+        flex-shrink: 0;
+        width: var(--str-chat__size-20);
+        height: var(--str-chat__size-20);
+        fill: currentColor;
+      }
+
+      &:focus-visible {
+        @include ai-focus-ring;
+      }
+    }
+  }
+
+  // The SDK's remove control, as on the main composer's attachment previews.
+  .str-chat__ai-attachment-preview__delete-button {
+    all: unset;
+    box-sizing: border-box;
+    position: absolute;
+    top: calc(-1 * var(--str-chat__spacing-xxs));
+    inset-inline-end: calc(-1 * var(--str-chat__spacing-xxs));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: var(--str-chat__size-16);
+    height: var(--str-chat__size-16);
+    border: 1px solid var(--str-chat__control-remove-control-border);
+    border-radius: var(--str-chat__button-radius-full);
+    background-color: var(--str-chat__control-remove-control-bg);
+    color: var(--str-chat__control-remove-control-icon);
+    cursor: pointer;
+
+    &:hover:not(:disabled) {
+      @include ai-state-layer(--str-chat__background-utility-hover);
+    }
+
+    &:focus-visible {
+      @include ai-focus-ring;
+    }
+
+    svg {
+      flex-shrink: 0;
+      width: var(--str-chat__size-16);
+      height: var(--str-chat__size-16);
+      fill: currentColor;
+    }
+  }
+
+  .str-chat__ai-attachment-preview__item-content {
+    display: flex;
+    gap: var(--str-chat__spacing-xxs);
+    justify-content: flex-start;
+    align-items: center;
+    width: 100%;
+
+    > svg {
+      flex-shrink: 0;
+      width: var(--str-chat__size-32);
+      height: var(--str-chat__size-32);
+      fill: currentColor;
+    }
+
+    .str-chat__ai-attachment-preview__file-metadata {
+      display: flex;
+      flex-direction: column;
+      flex-grow: 1;
+      width: 0;
+
+      .str-chat__ai-attachment-preview__file-name {
+        font-size: var(--str-chat__typography-font-size-xs);
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        width: 100%;
+      }
+
+      .str-chat__ai-attachment-preview__file-size {
+        font-size: var(--str-chat__typography-font-size-micro);
+      }
+    }
+  }
+}

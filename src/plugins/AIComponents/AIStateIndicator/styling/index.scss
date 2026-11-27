@@ -1,0 +1,101 @@
+@use '../../styling/mixins' as *;
+
+.str-chat__ai-state-indicator {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--str-chat__spacing-md) 0;
+
+  &__content {
+    display: flex;
+    align-items: center;
+    gap: var(--str-chat__spacing-sm);
+    padding: var(--str-chat__spacing-xs) var(--str-chat__spacing-sm);
+    border-radius: var(--str-chat__radius-2xl);
+    max-width: 80%;
+  }
+
+  &__dots {
+    display: flex;
+    align-items: center;
+    gap: var(--str-chat__spacing-xs);
+  }
+
+  &__dot {
+    width: var(--str-chat__size-6);
+    height: var(--str-chat__size-6);
+    background-color: var(--str-chat__text-secondary);
+    border-radius: var(--str-chat__radius-max);
+    animation: str-chat__ai-thinking $ai-loop-thinking ease-in-out infinite;
+
+    &:nth-child(1) {
+      animation-delay: 0;
+    }
+
+    &:nth-child(2) {
+      animation-delay: $ai-loop-stagger;
+    }
+
+    &:nth-child(3) {
+      animation-delay: $ai-loop-stagger * 2;
+    }
+  }
+
+  &__text {
+    color: var(--str-chat__text-secondary);
+    font-size: var(--str-chat__typography-font-size-sm);
+    font-weight: var(--str-chat__typography-font-weight-medium);
+    animation: str-chat__ai-text-fade $ai-loop-text-fade ease-in-out infinite;
+  }
+}
+
+@keyframes str-chat__ai-thinking {
+  0%,
+  60%,
+  100% {
+    transform: scale(1);
+    opacity: 0.4;
+  }
+  30% {
+    transform: scale(1.4);
+    opacity: 1;
+  }
+}
+
+@keyframes str-chat__ai-text-fade {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  45%,
+  55% {
+    opacity: 0.5;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .str-chat__ai-state-indicator__dot,
+  .str-chat__ai-state-indicator__text {
+    animation: none;
+  }
+
+  .str-chat__ai-state-indicator__dot {
+    opacity: 0.7;
+  }
+}
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+  .str-chat__ai-state-indicator {
+    padding: var(--str-chat__spacing-sm) 0;
+
+    &__content {
+      gap: var(--str-chat__spacing-xs);
+      padding: var(--str-chat__spacing-xs) var(--str-chat__spacing-sm);
+    }
+
+    &__text {
+      font-size: var(--str-chat__typography-font-size-sm);
+    }
+  }
+}

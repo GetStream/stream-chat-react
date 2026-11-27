@@ -1,6 +1,69 @@
-import type { AIChatOption } from '../../AIMessageComposer/ChatOptions';
-import type { AIMessageRating } from '../../Message/AIReplyActions';
-import type { AIMessage } from '../types';
+import type { ReactNode } from 'react';
+
+import type { AIMessage, AIMessageRating } from '../types';
+
+// What the controller offers the views: data only, so this layer never imports a component.
+
+/**
+ * Which of a message's versions shows, and how to show the others: a reply written again, or a
+ * question the person edited. `index` is 1-based.
+ */
+export type AIBranchSwitch = {
+  /** How many versions there are. The switcher shows only when there are two or more. */
+  count: number;
+  /** Which version shows, from 1 to `count`. */
+  index: number;
+  /** Shows the next version. Without it, the next arrow is disabled. */
+  onNext?: () => void;
+  /** Shows the previous version. Without it, the previous arrow is disabled. */
+  onPrevious?: () => void;
+};
+
+export type AIReplyActionsProps = {
+  /** The reply's text, which copying and sharing hand on. */
+  text: string;
+  /**
+   * Which of the reply's versions shows, when it was written again: a ‹ i/n › switcher with
+   * arrows to the others, shown only while `count` is 2 or more.
+   */
+  branch?: AIBranchSwitch;
+  className?: string;
+  /** Rates the reply, or takes the rating back with `null`. Without it, no rating is offered. */
+  onRate?: (rating: AIMessageRating | null) => void;
+  /** Asks the agent for a new reply in its place. Without it, no regenerate button. */
+  onRegenerate?: () => void;
+  /** How the person rated the reply, if they did. */
+  rating?: AIMessageRating | null;
+};
+
+/** What the default `AIUserMessage` offers for a message of the person's, from `userMessageActions`. */
+export type AIUserMessageActions = {
+  /** Which of the question's versions shows, with how to show the others. */
+  branch?: AIBranchSwitch;
+  /**
+   * Saves the person's edit of the message, which they make in place, with its new text. Without
+   * it, no in-place edit.
+   */
+  onSaveEdit?: (text: string) => void;
+};
+
+/**
+ * A way to ask, which the person picks for their next message, such as "Think harder". The
+ * counterpart of `ChatOption` in StreamChatAI.
+ */
+export type AIChatOption = {
+  id: string;
+  /** The option's name in the menu, such as "Think harder". */
+  title: string;
+  /** Data of your own, such as what the option sends with the message. */
+  customData?: Record<string, unknown>;
+  /** A line under the title in the menu, such as "Takes longer, for harder questions". */
+  description?: string;
+  /** An icon shown in the menu and on the chip. */
+  icon?: ReactNode;
+  /** The option's name on the chip once picked, such as "Think". Defaults to `title`. */
+  shortTitle?: string;
+};
 
 /**
  * Where the latest exchange with the agent is:

@@ -27,6 +27,14 @@ const STYLE_ENTRYPOINTS = [
     entryFile: path.join(SRC_DIR, 'plugins/AIComponents/styling/index.scss'),
     outputFile: path.resolve('dist/css/ai-components.css'),
   },
+  {
+    entryFile: path.join(SRC_DIR, 'plugins/A2UI/styling/index.scss'),
+    outputFile: path.resolve('dist/css/a2ui.css'),
+  },
+  {
+    entryFile: path.join(SRC_DIR, 'plugins/OpenUI/styling/index.scss'),
+    outputFile: path.resolve('dist/css/openui.css'),
+  },
 ];
 const SCSS_EXTENSION = '.scss';
 const BUILD_DELAY_MS = 150;

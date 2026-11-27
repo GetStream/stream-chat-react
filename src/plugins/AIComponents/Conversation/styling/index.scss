@@ -1,0 +1,502 @@
+@use '../../styling/mixins' as *;
+
+// The conversation, its messages, and what sits around them.
+
+// An icon-only control, as the SDK's circular ghost button: the same states and tokens.
+@mixin ai-icon-button($size: var(--str-chat__button-visual-height-sm)) {
+  all: unset;
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: $size;
+  height: $size;
+  border-radius: var(--str-chat__button-radius-full);
+  color: var(--str-chat__text-secondary);
+  cursor: pointer;
+
+  @include ai-icon(var(--str-chat__icon-size-md));
+
+  &:hover:not(:disabled) {
+    @include ai-state-layer(--str-chat__background-utility-hover);
+    color: var(--str-chat__text-primary);
+  }
+
+  &:active:not(:disabled) {
+    @include ai-state-layer(--str-chat__background-utility-pressed);
+  }
+
+  &[aria-pressed='true'] {
+    color: var(--str-chat__text-primary);
+  }
+
+  &:disabled {
+    color: var(--str-chat__text-disabled);
+    cursor: default;
+  }
+
+  &:focus-visible {
+    @include ai-focus-ring;
+  }
+}
+
+.str-chat__ai-conversation {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  // Fills its parent, as it scrolls inside itself: the space left in a flex container, else the
+  // parent's height.
+  flex: 1;
+  min-height: 0;
+  height: 100%;
+
+  &__scroller {
+    // the offset parent of the turns, which scrolling measures them against
+    position: relative;
+    flex: 1;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+
+  &__empty {
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100%;
+    padding-inline: var(--str-chat__spacing-md);
+  }
+
+  &__turns {
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    padding-inline: var(--str-chat__spacing-md);
+  }
+
+  &__turn {
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    gap: var(--str-chat__spacing-md);
+    padding-top: var(--str-chat__spacing-md);
+  }
+
+  &__reply {
+    display: flex;
+    flex-direction: column;
+    gap: var(--str-chat__spacing-xs);
+  }
+
+  &__loading-older {
+    display: flex;
+    justify-content: center;
+    padding: var(--str-chat__spacing-sm) 0;
+    color: var(--str-chat__text-secondary);
+
+    @include ai-icon(var(--str-chat__icon-size-md));
+
+    svg {
+      animation: str-chat__ai-spin $ai-loop-spin linear infinite;
+    }
+  }
+
+  &__scroll-to-latest {
+    @include ai-icon-button(var(--str-chat__button-visual-height-md));
+
+    position: absolute;
+    inset-inline-start: 50%;
+    margin-bottom: var(--str-chat__spacing-xs);
+    border: 1px solid var(--str-chat__border-core-default);
+    background-color: var(--str-chat__background-core-elevation-1);
+    // Floats over the conversation, as the SDK's floating buttons do.
+    box-shadow: var(--str-chat__box-shadow-2);
+    color: var(--str-chat__text-primary);
+    transform: translateX(-50%);
+  }
+}
+
+[dir='rtl'] .str-chat__ai-conversation__scroll-to-latest {
+  transform: translateX(50%);
+}
+
+// Messages
+
+.str-chat__ai-user-message {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: var(--str-chat__spacing-xs);
+  padding-inline-start: var(--str-chat__space-48);
+
+  &__attachments {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: var(--str-chat__spacing-xs);
+  }
+
+  &__row {
+    display: flex;
+    align-items: flex-end;
+    gap: var(--str-chat__spacing-xxs);
+    max-width: 100%;
+  }
+
+  &__edit {
+    opacity: 0;
+  }
+
+  &__row:hover &__edit,
+  &__edit:focus-visible {
+    opacity: 1;
+  }
+
+  &__bubble {
+    padding: var(--str-chat__spacing-sm) var(--str-chat__spacing-md);
+    // The SDK's message bubble, standing alone.
+    border-radius: var(--str-chat__message-bubble-radius-group-top);
+    background-color: var(--str-chat__chat-bg-outgoing);
+    color: var(--str-chat__chat-text-outgoing);
+    overflow-wrap: anywhere;
+    white-space: pre-wrap;
+  }
+
+  // Editing in place: the editor takes the bubble's width, up to the whole row.
+  &--editing {
+    padding-inline-start: 0;
+  }
+
+  &__editor {
+    display: flex;
+    flex-direction: column;
+    gap: var(--str-chat__spacing-xs);
+    width: 100%;
+    padding: var(--str-chat__spacing-sm) var(--str-chat__spacing-sm);
+    border: 1px solid var(--str-chat__border-core-subtle);
+    border-radius: var(--str-chat__radius-2xl);
+    background-color: var(--str-chat__background-core-surface-card);
+
+    &:focus-within {
+      border-color: var(--str-chat__border-core-default);
+    }
+  }
+
+  &__editor-input {
+    all: unset;
+    box-sizing: border-box;
+    width: 100%;
+    color: var(--str-chat__text-primary);
+    font: inherit;
+    overflow-wrap: anywhere;
+    resize: none;
+    white-space: pre-wrap;
+
+    // all: unset removes the native outline; this is the ring every other AI control shows.
+    &:focus-visible {
+      @include ai-focus-ring;
+    }
+  }
+
+  &__editor-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: var(--str-chat__spacing-xs);
+  }
+}
+
+// ‹ i/n ›: which version of a message shows, between arrows to the others. Under a reply it
+// leads its actions; under the person's message it sits on the trailing side.
+.str-chat__ai-branch-switcher {
+  display: inline-flex;
+  align-items: center;
+  color: var(--str-chat__text-secondary);
+  font-size: var(--str-chat__typography-font-size-sm);
+  font-variant-numeric: tabular-nums;
+
+  &__button {
+    @include ai-icon-button(var(--str-chat__size-28));
+  }
+
+  &__position {
+    min-width: var(--str-chat__size-32);
+    text-align: center;
+  }
+}
+
+[dir='rtl'] .str-chat__ai-branch-switcher__button svg {
+  transform: scaleX(-1);
+}
+
+.str-chat__ai-assistant-message {
+  display: flex;
+  flex-direction: column;
+  gap: var(--str-chat__spacing-sm);
+  min-width: 0;
+  color: var(--str-chat__text-primary);
+
+  &__attachments {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--str-chat__spacing-xs);
+  }
+}
+
+.str-chat__ai-message-attachment {
+  color: inherit;
+  text-decoration: none;
+
+  &--image {
+    display: block;
+    overflow: hidden;
+    max-width: var(--str-chat__size-240);
+    border-radius: var(--str-chat__radius-xl);
+  }
+
+  &__image {
+    display: block;
+    width: 100%;
+    max-height: var(--str-chat__size-240);
+    object-fit: cover;
+  }
+
+  &--file {
+    display: flex;
+    align-items: center;
+    gap: var(--str-chat__spacing-sm);
+    max-width: 18rem; // ai-styles: allow measure of a file card
+    padding: var(--str-chat__spacing-sm) var(--str-chat__spacing-sm);
+    border: 1px solid var(--str-chat__border-core-subtle);
+    border-radius: var(--str-chat__radius-xl);
+    background-color: var(--str-chat__background-core-surface-card);
+  }
+
+  &__file-icon {
+    display: inline-flex;
+    color: var(--str-chat__text-secondary);
+
+    @include ai-icon(var(--str-chat__size-24));
+  }
+
+  &__file-text {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+  }
+
+  &__file-name {
+    overflow: hidden;
+    font-size: var(--str-chat__typography-font-size-sm);
+    font-weight: var(--str-chat__typography-font-weight-medium);
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  &__file-details {
+    color: var(--str-chat__text-secondary);
+    font-size: var(--str-chat__typography-font-size-xs);
+  }
+
+  &:focus-visible {
+    @include ai-focus-ring;
+  }
+}
+
+.str-chat__ai-reply-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--str-chat__spacing-xxxs);
+
+  &__button {
+    @include ai-icon-button;
+  }
+}
+
+// Indicators
+
+.str-chat__ai-typing-indicator {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--str-chat__spacing-xs);
+  color: var(--str-chat__text-secondary);
+  font-size: var(--str-chat__typography-font-size-sm);
+
+  &__dots {
+    display: inline-flex;
+    gap: var(--str-chat__spacing-xxs);
+  }
+
+  &__dot {
+    width: var(--str-chat__size-6);
+    height: var(--str-chat__size-6);
+    border-radius: var(--str-chat__radius-max);
+    background-color: currentColor;
+    animation: str-chat__ai-thinking $ai-loop-thinking ease-in-out infinite;
+
+    &:nth-child(2) {
+      animation-delay: $ai-loop-stagger;
+    }
+
+    &:nth-child(3) {
+      animation-delay: $ai-loop-stagger * 2;
+    }
+  }
+}
+
+// Suggestions
+
+.str-chat__ai-suggestions {
+  display: flex;
+  gap: var(--str-chat__spacing-xs);
+  overflow-x: auto;
+  padding: var(--str-chat__spacing-xxs);
+  scrollbar-width: none;
+
+  &__item {
+    all: unset;
+    box-sizing: border-box;
+    display: -webkit-box;
+    overflow: hidden;
+    flex-shrink: 0;
+    max-width: 10rem; // ai-styles: allow measure of a suggestion chip
+    padding: var(--str-chat__spacing-sm) var(--str-chat__spacing-md);
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    // The SDK's chip, on a card.
+    border: 1px solid var(--str-chat__control-chip-border);
+    border-radius: var(--str-chat__radius-xl);
+    background-color: var(--str-chat__background-core-surface-card);
+    color: var(--str-chat__control-chip-text);
+    cursor: pointer;
+    font-size: var(--str-chat__typography-font-size-sm);
+    line-height: var(--str-chat__typography-line-height-tight);
+
+    &:hover {
+      @include ai-state-layer(--str-chat__background-utility-hover);
+    }
+
+    &:focus-visible {
+      @include ai-focus-ring;
+    }
+  }
+}
+
+// Composer chat options
+
+.str-chat__ai-chat-options {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--str-chat__spacing-xs);
+
+  // the composer's own round button styles apply inside its form; outside it, the same look
+  .str-chat__dropdown > .str-chat__ai-message-composer__round-button {
+    @include ai-icon-button(var(--str-chat__button-visual-height-sm));
+
+    @include ai-icon(var(--str-chat__size-24));
+  }
+
+  // placed by the SDK's Dropdown; scoped past its own `.str-chat__dropdown__items` rules
+  .str-chat__dropdown &__list {
+    z-index: 1; // ai-styles: allow above the conversation it floats over
+    display: flex;
+    flex-direction: column;
+    gap: var(--str-chat__spacing-xxxs);
+    min-width: 16rem; // ai-styles: allow measure of the chat options menu
+    max-width: min(22rem, 90vw); // ai-styles: allow measure of the chat options menu
+    // The SDK's context menu.
+    padding: var(--str-chat__spacing-xxs);
+    border-radius: var(--str-chat__radius-lg);
+    background-color: var(--str-chat__background-core-elevation-2);
+    box-shadow: var(--str-chat__box-shadow-3);
+    color: var(--str-chat__text-primary);
+  }
+
+  &__item {
+    all: unset;
+    box-sizing: border-box;
+    display: flex;
+    align-items: flex-start;
+    gap: var(--str-chat__spacing-sm);
+    padding: var(--str-chat__spacing-xs) var(--str-chat__spacing-sm);
+    border-radius: var(--str-chat__radius-md);
+    color: var(--str-chat__text-primary);
+    cursor: pointer;
+
+    &:hover,
+    &:focus-visible {
+      @include ai-state-layer(--str-chat__background-utility-hover);
+    }
+
+    &:active {
+      @include ai-state-layer(--str-chat__background-utility-pressed);
+    }
+
+    &:focus-visible {
+      @include ai-focus-ring;
+    }
+
+    &[aria-checked='true'] {
+      @include ai-state-layer(--str-chat__background-utility-selected);
+    }
+  }
+
+  &__item-icon {
+    display: inline-flex;
+    margin-top: var(--str-chat__spacing-xxxs);
+
+    @include ai-icon(var(--str-chat__icon-size-md));
+  }
+
+  &__item-text {
+    display: flex;
+    flex-direction: column;
+    gap: var(--str-chat__spacing-xxxs);
+  }
+
+  &__item-title {
+    font-size: var(--str-chat__typography-font-size-md);
+    font-weight: var(--str-chat__typography-font-weight-medium);
+  }
+
+  &__item-description {
+    color: var(--str-chat__text-secondary);
+    font-size: var(--str-chat__typography-font-size-sm);
+  }
+
+  &__chip {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--str-chat__spacing-xs);
+    padding: var(--str-chat__spacing-xxs) var(--str-chat__spacing-xxs)
+      var(--str-chat__spacing-xxs) var(--str-chat__spacing-sm);
+    border-radius: var(--str-chat__radius-max);
+    @include ai-state-layer(--str-chat__background-utility-selected);
+    color: var(--str-chat__text-link);
+    font-size: var(--str-chat__typography-font-size-sm);
+    font-weight: var(--str-chat__typography-font-weight-medium);
+  }
+
+  &__chip-icon {
+    display: inline-flex;
+
+    @include ai-icon;
+  }
+
+  &__chip-remove {
+    @include ai-icon-button(var(--str-chat__button-visual-height-xs));
+
+    color: inherit;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .str-chat__ai-typing-indicator__dot {
+    animation: none;
+    opacity: 0.7;
+  }
+
+  .str-chat__ai-conversation__loading-older svg {
+    animation-duration: $ai-loop-reduced;
+  }
+}

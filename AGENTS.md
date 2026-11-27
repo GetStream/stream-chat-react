@@ -69,6 +69,7 @@ yarn fix-staged           # auto-fix only staged files
 # Type checking
 yarn types                # src (tsc -p tsconfig.lib.json --noEmit) — run in CI
 yarn types:scripts        # scripts/*.mts — run in CI (Node strips types, it does not check them)
+yarn validate-ai-styles   # AI/A2UI/OpenUI SCSS sources: fails above scripts/ai-styles-baseline.json — run in CI's lint job, no build needed
 yarn types:tests          # tests + mock-builders — NOT run in CI, currently red (see below)
 
 # i18n
@@ -80,7 +81,7 @@ yarn i18n:export          # write an en.json on demand (for a translator or TMS)
 yarn validate-cjs         # loads dist/cjs in Node + a browser-like context
 yarn validate-esm         # imports dist/es in Node
 yarn validate-entry-isolation # fails if the main entry's ESM graph reaches ai-components or its deps
-yarn validate-ai-ui-tokens # fails if A2UI or OpenUI styles read a colour the --str-chat__ai-* tokens leave unset
+yarn validate-ai-ui-tokens # fails if A2UI or OpenUI read a colour, type or spacing step that a2ui.css / openui.css leave to the renderer's own default
 
 # Examples
 yarn start:tutorial       # @stream-io/stream-chat-react-tutorial dev server
@@ -317,7 +318,7 @@ Mock modules with `vi.mock('../../EmptyStateIndicator', () => ({ … }))`; use `
 1. **`build-translations`** — regenerates `src/i18n/keys.ts` from the `t()` call sites
 2. **`vite build`** — bundles the entry points as ESM (`dist/es/*.mjs`, one file per module) + CJS (`dist/cjs/*.js`)
 3. **`tsc -p tsconfig.lib.json`** — `.d.ts` only → `dist/types/`
-4. **`build-styling`** — Sass → `dist/css/index.css`, `emoji-replacement.css`, `emoji-picker.css`, `channel-detail.css`, `ai-components.css`, plus `cp -r src/styling/assets dist/css/assets`
+4. **`build-styling`** — Sass → `dist/css/index.css`, `emoji-replacement.css`, `emoji-picker.css`, `channel-detail.css`, `ai-components.css`, `a2ui.css`, `openui.css`, plus `cp -r src/styling/assets dist/css/assets`
 
 **Entry points** (`package.json` exports ↔ `vite.config.ts` `lib.entry`):
 
@@ -464,7 +465,7 @@ Follow `.github/pull_request_template.md` (Goal / Implementation details / UI Ch
 - [ ] Screenshots (before/after) for UI changes
 - [ ] Public API changes documented
 
-**CI** (`.github/workflows/ci.yml`, on every PR): lint (`yarn lint`, `yarn types`, `yarn types:scripts`) · build + `validate-cjs` + `validate-esm` + `validate-entry-isolation` + `validate-ai-ui-tokens` + `keys.ts` drift check + `yarn examples:build` · `yarn coverage` → Codecov · deploy `examples/vite` to Vercel. `pr-check.yml` lints the PR title; `size.yml` reports bundle size.
+**CI** (`.github/workflows/ci.yml`, on every PR): lint (`yarn lint`, `yarn types`, `yarn types:scripts`, `yarn validate-ai-styles`) · build + `validate-cjs` + `validate-esm` + `validate-entry-isolation` + `validate-ai-ui-tokens` + `keys.ts` drift check + `yarn examples:build` · `yarn coverage` → Codecov · deploy `examples/vite` to Vercel. `pr-check.yml` lints the PR title; `size.yml` reports bundle size.
 
 **Release:** automated via semantic-release (`.releaserc.json`) from commit messages.
 

@@ -5,19 +5,13 @@ import {
   useRef,
   useState,
 } from 'react';
-import { useAttachments } from './AIMessageComposer';
+import { useAttachments } from './hooks/composerState';
 import clsx from 'clsx';
 import { useComponentContextIcons } from '../../../context/useComponentContextIcons';
 import { useTranslationContext } from '../../../context/TranslationContext';
+import { prettifyFileSize } from '../../../components/MessageComposer/hooks/utils';
 import { useIsomorphicLayoutEffect } from '../utils';
 import { ThemeScopeProvider, useAIThemeScopeClassName } from '../themeScope';
-
-const byteValueNumberFormatter = Intl.NumberFormat('en', {
-  notation: 'compact',
-  style: 'unit',
-  unit: 'byte',
-  unitDisplay: 'narrow',
-});
 
 export const Item = ({
   file,
@@ -28,7 +22,7 @@ export const Item = ({
   title,
 }: {
   file: File;
-  state?: 'uploading' | 'finished' | 'failed' | 'pending' | (string & {});
+  state?: 'uploading' | 'uploaded' | 'failed' | 'pending' | (string & {});
   title?: string;
   imagePreviewSource?: string;
   onDelete?: (_: MouseEvent<HTMLButtonElement>) => void;
@@ -41,7 +35,7 @@ export const Item = ({
     title ||
     file.name ||
     t('aiComponents.attachmentPreview.unknownFileName.text', 'Unknown file name');
-  const readableFileSize = byteValueNumberFormatter.format(file.size);
+  const readableFileSize = prettifyFileSize(file.size);
   const isImage = file.type.startsWith('image/');
 
   return (
@@ -198,12 +192,3 @@ export const AttachmentPreview = ({
 };
 
 AttachmentPreview.Item = Item;
-
-export const chunk = <T extends unknown[]>(array: T, size: number) => {
-  const chunkCount = Math.ceil(array.length / size);
-
-  return Array.from(
-    { length: chunkCount },
-    (_, index) => array.slice(size * index, size * index + size) as T,
-  );
-};
