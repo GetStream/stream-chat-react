@@ -65,6 +65,7 @@ export type TranslationCatalog = {
   'aiComponents.reasoning.thoughtFor.title': 'Thought for {{ duration }}';
   'aiComponents.reasoning.thoughtProcess.title': 'Thought process';
   'aiComponents.replyActions.badResponse.ariaLabel': 'Bad response';
+  'aiComponents.replyActions.copied.announcement': 'Copied to the clipboard';
   'aiComponents.replyActions.copied.ariaLabel': 'Copied';
   'aiComponents.replyActions.copy.ariaLabel': 'Copy';
   'aiComponents.replyActions.goodResponse.ariaLabel': 'Good response';

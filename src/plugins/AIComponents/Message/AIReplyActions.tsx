@@ -1,6 +1,7 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { type KeyboardEvent, useEffect, useRef, useState } from 'react';
 import clsx from 'clsx';
 
+import { useAriaLiveAnnouncer } from '../../../components/Accessibility/useAriaLiveAnnouncer';
 import { useTranslationContext } from '../../../context/TranslationContext';
 import { useComponentContextIcons } from '../../../context/useComponentContextIcons';
 import { useAIIcons } from '../useAIIcons';
@@ -44,6 +45,31 @@ const copyText = async (text: string) => {
   area.remove();
 };
 
+const TOOLBAR_KEYS = ['ArrowLeft', 'ArrowRight', 'Home', 'End'];
+
+/**
+ * Moves focus between a toolbar's buttons with the arrow keys, Home and End, as the ARIA toolbar
+ * pattern asks, the arrows following the reading direction.
+ */
+export const moveToolbarFocus = (event: KeyboardEvent<HTMLElement>) => {
+  if (!TOOLBAR_KEYS.includes(event.key)) return;
+  const buttons = Array.from(
+    event.currentTarget.querySelectorAll<HTMLButtonElement>('button:not(:disabled)'),
+  );
+  const index = buttons.indexOf(document.activeElement as HTMLButtonElement);
+  if (index === -1 || buttons.length < 2) return;
+  const rtl = getComputedStyle(event.currentTarget).direction === 'rtl';
+  const step = (event.key === 'ArrowRight') !== rtl ? 1 : -1;
+  const next =
+    event.key === 'Home'
+      ? 0
+      : event.key === 'End'
+        ? buttons.length - 1
+        : (index + step + buttons.length) % buttons.length;
+  event.preventDefault();
+  buttons[next].focus();
+};
+
 /**
  * The actions under a finished reply: the switcher between its versions when it has several,
  * copy, share (the system share sheet where the browser
@@ -68,6 +94,7 @@ export const AIReplyActions = ({
     IconAIThumbsUp,
     IconAIThumbsUpFill,
   } = useAIIcons();
+  const announce = useAriaLiveAnnouncer();
   const [isCopied, setIsCopied] = useState(false);
   const timer = useRef<ReturnType<typeof setTimeout>>(undefined);
   useEffect(() => () => clearTimeout(timer.current), []);
@@ -75,6 +102,11 @@ export const AIReplyActions = ({
   const copy = () => {
     copyText(text).then(
       () => {
+        // The button's new name isn't read out on its own, so say it.
+        announce(
+          t('aiComponents.replyActions.copied.announcement', 'Copied to the clipboard'),
+          { dedupeMs: 1000 },
+        );
         setIsCopied(true);
         clearTimeout(timer.current);
         timer.current = setTimeout(() => setIsCopied(false), 1500);
@@ -106,6 +138,7 @@ export const AIReplyActions = ({
           'Reply actions',
         )}
         className={clsx(themeScopeClassName, 'str-chat__ai-reply-actions', className)}
+        onKeyDown={moveToolbarFocus}
         role='toolbar'
       >
         {branch && <AIBranchSwitcher {...branch} />}
