@@ -1,11 +1,10 @@
 {
   "src/plugins/AIComponents/styling/a2ui.scss": {
-    "font": 11,
+    "font": 9,
     "motion": 1,
-    "radius": 4,
-    "shadow": 1,
-    "size": 15,
-    "spacing": 14
+    "radius": 2,
+    "size": 13,
+    "spacing": 15
   },
   "src/plugins/AIComponents/styling/openui.scss": {
     "font": 3,

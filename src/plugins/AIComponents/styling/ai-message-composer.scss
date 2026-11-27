@@ -6,7 +6,7 @@
   flex-direction: column;
   gap: var(--str-chat__spacing-md);
   border: 1px solid var(--str-chat__border-core-default);
-  border-radius: var(--str-chat__radius-3xl);
+  border-radius: var(--str-chat__composer-radius-fixed);
   flex-grow: 1;
 
   // the text input is `all: unset`, so show its focus on the form container
@@ -23,14 +23,19 @@
     gap: var(--str-chat__spacing-xxs);
   }
 
+  // The composer's controls, as the SDK's small circular ghost buttons.
   .str-chat__ai-message-composer__round-button {
     all: unset;
+    box-sizing: border-box;
     display: flex;
     align-items: center;
     justify-content: center;
+    min-width: var(--str-chat__button-visual-height-sm);
+    min-height: var(--str-chat__button-visual-height-sm);
     cursor: pointer;
     padding: var(--str-chat__spacing-xxs);
-    border-radius: var(--str-chat__radius-max);
+    border-radius: var(--str-chat__button-radius-full);
+    color: var(--str-chat__button-secondary-text);
 
     transition: background-color $ai-duration-instant ease-in-out;
 
@@ -45,13 +50,17 @@
       @include ai-state-layer(--str-chat__background-utility-hover);
     }
 
-    &:disabled {
-      cursor: not-allowed;
-      opacity: 0.5;
+    &:active:not(:disabled) {
+      @include ai-state-layer(--str-chat__background-utility-pressed);
     }
 
-    &[aria-pressed='true'] {
-      @include ai-state-layer(--str-chat__background-utility-pressed);
+    &:disabled {
+      color: var(--str-chat__text-disabled);
+      cursor: default;
+    }
+
+    &[aria-pressed='true']:not(:disabled) {
+      @include ai-state-layer(--str-chat__background-utility-selected);
     }
 
     &:focus-visible {
@@ -74,6 +83,8 @@
   .str-chat__ai-message-composer__text-input {
     all: unset;
     flex-grow: 1;
+    color: var(--str-chat__input-text-default);
+    caret-color: var(--str-chat__system-caret);
     font-size: var(--str-chat__typography-font-size-md);
     line-height: var(--str-chat__typography-line-height-relaxed);
     padding-inline: var(--str-chat__spacing-xxs);
@@ -90,11 +101,20 @@
     &:not(:disabled):focus-visible {
       outline: none;
     }
+
+    &::placeholder {
+      color: var(--str-chat__input-text-placeholder);
+    }
+
+    &:disabled {
+      color: var(--str-chat__input-text-disabled);
+    }
   }
 
   .str-chat__ai-message-composer__select {
     all: unset;
     display: flex;
+    color: var(--str-chat__input-text-default);
     font-size: var(--str-chat__typography-font-size-sm);
     border: 1px solid var(--str-chat__border-core-default);
     border-radius: var(--str-chat__radius-md);

@@ -29,13 +29,8 @@
   --a2ui-slider-track-color: var(--str-chat__background-core-surface-strong);
   --a2ui-slider-thumb-color: var(--a2ui-color-primary);
   --a2ui-datetimeinput-color: var(--a2ui-color-on-input);
-  --a2ui-modal-backdrop-bg: color-mix(
-    in srgb,
-    var(--a2ui-color-on-background) 40%,
-    transparent
-  );
-  --a2ui-modal-box-shadow: 0 1rem 3rem
-    color-mix(in srgb, var(--a2ui-color-on-background) 22%, transparent);
+  --a2ui-modal-backdrop-bg: var(--str-chat__background-core-scrim);
+  --a2ui-modal-box-shadow: var(--str-chat__box-shadow-4);
   --a2ui-card-box-shadow: none;
   --a2ui-color-background: var(--str-chat__background-core-elevation-0);
   --a2ui-color-on-background: var(--str-chat__text-primary);
@@ -175,110 +170,12 @@
   max-width: 100%;
 }
 
-// A2UI's buttons and chips are Stream's `Button`, drawn here in full, so they look the same with
-// or without a `.str-chat` element around the reply, whose rules for `.str-chat__button` they
-// also match. Their colours, sizes and shapes go through Stream's button tokens, so both sets of
-// rules agree.
-// A button's words are the agent's, in the case it wrote them.
+// A2UI's buttons and chips are Stream's `Button`, which the SDK's stylesheet draws, inside the
+// `str-chat` scope a reply renders in. A button's words are the agent's, in the case it wrote
+// them, rather than capitalized.
 .str-chat__a2ui .str-chat__button:is(.str-chat__a2ui-button, .str-chat__a2ui-chip) {
-  @include utils.button-reset;
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
   margin: 0;
-  cursor: pointer;
-  font-family: inherit;
-  font-size: var(--str-chat__typography-font-size-sm);
-  font-weight: var(--str-chat__typography-font-weight-semi-bold);
-  line-height: var(--str-chat__typography-line-height-normal);
   text-transform: none;
-  white-space: nowrap;
-
-  &.str-chat__button--size-md {
-    padding-block: var(--str-chat__button-padding-y-md);
-    padding-inline: var(--str-chat__button-padding-x-with-label-md);
-    border-radius: var(--str-chat__button-radius-md);
-  }
-
-  &.str-chat__button--size-sm {
-    padding-block: var(--str-chat__button-padding-y-sm);
-    padding-inline: var(--str-chat__button-padding-x-with-label-sm);
-    border-radius: var(--str-chat__button-radius-md);
-  }
-
-  &.str-chat__button--solid.str-chat__button--primary {
-    background-color: var(--str-chat__button-primary-bg);
-    color: var(--str-chat__button-primary-text-on-accent);
-  }
-
-  &.str-chat__button--solid.str-chat__button--secondary {
-    background-color: var(--str-chat__button-secondary-bg);
-    color: var(--str-chat__button-secondary-text-on-accent);
-  }
-
-  &.str-chat__button--ghost.str-chat__button--primary,
-  &.str-chat__button--outline.str-chat__button--primary {
-    color: var(--str-chat__button-primary-text);
-  }
-
-  &.str-chat__button--ghost.str-chat__button--secondary,
-  &.str-chat__button--outline.str-chat__button--secondary {
-    color: var(--str-chat__button-secondary-text);
-  }
-
-  &.str-chat__button--outline {
-    border-width: 1px;
-    border-style: solid;
-  }
-
-  &.str-chat__button--outline.str-chat__button--primary {
-    border-color: var(--str-chat__button-primary-border);
-  }
-
-  &.str-chat__button--outline.str-chat__button--secondary {
-    border-color: var(--str-chat__button-secondary-border);
-  }
-
-  &::after {
-    border-radius: inherit;
-  }
-
-  &:not(:disabled):hover {
-    @include utils.overlay-after(var(--str-chat__background-utility-hover));
-  }
-
-  &:not(:disabled):active {
-    @include utils.overlay-after(var(--str-chat__background-utility-pressed));
-  }
-
-  &:not(:disabled)[aria-pressed='true'] {
-    @include utils.overlay-after(var(--str-chat__background-utility-selected));
-  }
-
-  &:not(:disabled):focus-visible {
-    @include ai-focus-ring;
-  }
-
-  &:disabled {
-    color: var(--str-chat__text-disabled);
-    cursor: default;
-  }
-
-  &.str-chat__button--solid:disabled {
-    background-color: var(--str-chat__background-utility-disabled);
-  }
-
-  &.str-chat__button--outline:disabled {
-    border-color: var(--str-chat__border-utility-disabled);
-  }
-
-  .str-chat__button__content {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: var(--str-chat__spacing-xs);
-  }
 }
 
 // Buttons, chips and follow-ups as OpenUI's are drawn, so a reply looks the same in either format:
@@ -520,18 +417,14 @@
   max-height: calc(100dvh - 4rem);
   padding: 0;
   border: none;
-  border-radius: 1rem;
+  // The SDK's modal: its radius, shadow and scrim.
+  border-radius: var(--str-chat__radius-xl);
   background-color: var(--a2ui-color-surface);
   color: var(--a2ui-color-on-surface);
-  box-shadow: 0 1rem 3rem
-    color-mix(in srgb, var(--a2ui-color-on-background) 22%, transparent);
+  box-shadow: var(--str-chat__box-shadow-4);
 
   &::backdrop {
-    background-color: color-mix(
-      in srgb,
-      var(--a2ui-color-on-background) 40%,
-      transparent
-    );
+    background-color: var(--str-chat__background-core-scrim);
   }
 
   // A block, not `display: contents`, which takes a trigger that opens from the keyboard out of
@@ -554,12 +447,12 @@
     align-items: center;
     justify-content: center;
     align-self: flex-end;
-    width: 2rem;
-    height: 2rem;
-    border-radius: 9999px;
+    width: var(--str-chat__button-visual-height-sm);
+    height: var(--str-chat__button-visual-height-sm);
+    border-radius: var(--str-chat__button-radius-full);
     color: var(--str-chat__text-secondary);
-    font-size: 1.25rem;
-    line-height: 1;
+    font-size: var(--str-chat__typography-font-size-xl);
+    line-height: 1; // ai-styles: allow a glyph box, as tall as its font
     cursor: pointer;
 
     &:hover {

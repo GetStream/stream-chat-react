@@ -68,15 +68,18 @@
     .str-chat__ai-attachment-preview__retry-button {
       all: unset;
       background-color: var(--str-chat__background-core-surface-strong);
-      border-radius: var(--str-chat__radius-max);
+      border-radius: var(--str-chat__button-radius-full);
       display: flex;
       padding: var(--str-chat__spacing-xxs);
-
-      transition: background $ai-duration-instant ease-in;
+      color: var(--str-chat__text-primary);
+      cursor: pointer;
 
       &:hover:not(:disabled) {
-        background: var(--str-chat__border-core-default);
-        cursor: pointer;
+        @include ai-state-layer(--str-chat__background-utility-hover);
+      }
+
+      &:active:not(:disabled) {
+        @include ai-state-layer(--str-chat__background-utility-pressed);
       }
 
       svg {
@@ -92,24 +95,26 @@
     }
   }
 
+  // The SDK's remove control, as on the main composer's attachment previews.
   .str-chat__ai-attachment-preview__delete-button {
     all: unset;
+    box-sizing: border-box;
     position: absolute;
-    top: -0.25rem;
-    right: -0.25rem;
+    top: calc(-1 * var(--str-chat__spacing-xxs));
+    inset-inline-end: calc(-1 * var(--str-chat__spacing-xxs));
     display: flex;
     align-items: center;
     justify-content: center;
     width: var(--str-chat__size-16);
     height: var(--str-chat__size-16);
-    border-radius: var(--str-chat__radius-max);
-    background: var(--str-chat__background-core-surface-strong);
-
-    transition: background $ai-duration-instant ease-in;
+    border: 1px solid var(--str-chat__control-remove-control-border);
+    border-radius: var(--str-chat__button-radius-full);
+    background-color: var(--str-chat__control-remove-control-bg);
+    color: var(--str-chat__control-remove-control-icon);
+    cursor: pointer;
 
     &:hover:not(:disabled) {
-      background: var(--str-chat__border-core-default);
-      cursor: pointer;
+      @include ai-state-layer(--str-chat__background-utility-hover);
     }
 
     &:focus-visible {

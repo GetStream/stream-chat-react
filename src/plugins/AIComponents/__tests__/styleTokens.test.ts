@@ -22,7 +22,7 @@ const reads = [
 // The type, spacing and radius scale is the same in every theme: light.scss declares it on
 // `.str-chat`, which a dark `.str-chat` has too, and dark.scss redeclares only colours.
 const isScaleToken = (token: string) =>
-  /^--str-chat__(spacing|typography|radius|size|space|icon-size|button-(visual-height|padding|radius|hit-target))-/.test(
+  /^--str-chat__(spacing|typography|radius|size|space|icon-size|button-(visual-height|padding|radius|hit-target)|composer-radius|message-bubble-radius|box-shadow)-/.test(
     token,
   );
 // A colour ramp's step is the same in every theme; the code syntax tokens pick one per theme.

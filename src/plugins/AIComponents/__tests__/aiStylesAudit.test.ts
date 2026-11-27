@@ -15,6 +15,7 @@ describe('the AI styles literal audit', () => {
   background: rgba(0, 0, 0, 0.5);
   padding: 0.75rem 1rem;
   gap: 8px;
+  top: -0.25rem;
   border-radius: 9999px;
   font-size: 14px;
   font-weight: 600;
@@ -29,6 +30,7 @@ describe('the AI styles literal audit', () => {
     ).toEqual([
       'colour',
       'colour',
+      'spacing',
       'spacing',
       'spacing',
       'radius',

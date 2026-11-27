@@ -31,9 +31,10 @@ export type StyleLiteralCounts = Partial<Record<StyleLiteralKind, number>>;
 const ALLOW_MARKER = /\/\/\s*ai-styles:\s*allow\b/;
 
 // Lengths other than 0 and a 1px hairline. Percentages, `fr`, unitless numbers and viewport
-// units are layout, not design tokens.
+// units are layout, not design tokens. A minus sign counts; a hyphen inside a name such as
+// `size-24` doesn't.
 const LENGTH =
-  /(?<![\w.-])(?!0(?:\.0+)?(?:px|rem|em)\b)(?!1px\b)\d*\.?\d+(?:px|rem|em)\b/;
+  /(?<![\w.])(?<!\w-)(?!0(?:\.0+)?(?:px|rem|em)\b)(?!1px\b)\d*\.?\d+(?:px|rem|em)\b/;
 const COLOUR = /#[0-9a-f]{3,8}\b|\b(?:rgba?|hsla?)\(\s*[\d.]/i;
 // Durations other than 0, which only orders a change.
 const DURATION = /(?<![\w.-])(?!0(?:\.0+)?m?s\b)\d*\.?\d+m?s\b/;

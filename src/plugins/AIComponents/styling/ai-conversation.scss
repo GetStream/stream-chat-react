@@ -2,6 +2,7 @@
 
 // The conversation, its messages, and what sits around them.
 
+// An icon-only control, as the SDK's circular ghost button: the same states and tokens.
 @mixin ai-icon-button($size: var(--str-chat__button-visual-height-sm)) {
   all: unset;
   box-sizing: border-box;
@@ -10,7 +11,7 @@
   justify-content: center;
   width: $size;
   height: $size;
-  border-radius: var(--str-chat__radius-max);
+  border-radius: var(--str-chat__button-radius-full);
   color: var(--str-chat__text-secondary);
   cursor: pointer;
   transition: background-color $ai-duration-instant ease-in-out;
@@ -22,13 +23,17 @@
     color: var(--str-chat__text-primary);
   }
 
+  &:active:not(:disabled) {
+    @include ai-state-layer(--str-chat__background-utility-pressed);
+  }
+
   &[aria-pressed='true'] {
     color: var(--str-chat__text-primary);
   }
 
   &:disabled {
-    cursor: not-allowed;
-    opacity: 0.5;
+    color: var(--str-chat__text-disabled);
+    cursor: default;
   }
 
   &:focus-visible {
@@ -105,12 +110,10 @@
     margin-bottom: var(--str-chat__spacing-xs);
     border: 1px solid var(--str-chat__border-core-default);
     background-color: var(--str-chat__background-core-elevation-1);
+    // Floats over the conversation, as the SDK's floating buttons do.
+    box-shadow: var(--str-chat__box-shadow-2);
     color: var(--str-chat__text-primary);
     transform: translateX(-50%);
-
-    &:hover:not(:disabled) {
-      background-color: var(--str-chat__background-core-elevation-1);
-    }
   }
 }
 
@@ -152,7 +155,8 @@
 
   &__bubble {
     padding: var(--str-chat__spacing-sm) var(--str-chat__spacing-md);
-    border-radius: var(--str-chat__radius-2xl);
+    // The SDK's message bubble, standing alone.
+    border-radius: var(--str-chat__message-bubble-radius-group-top);
     background-color: var(--str-chat__chat-bg-outgoing);
     color: var(--str-chat__chat-text-outgoing);
     overflow-wrap: anywhere;
@@ -359,9 +363,11 @@
     padding: var(--str-chat__spacing-sm) var(--str-chat__spacing-md);
     -webkit-box-orient: vertical;
     -webkit-line-clamp: 2;
+    // The SDK's chip, on a card.
+    border: 1px solid var(--str-chat__control-chip-border);
     border-radius: var(--str-chat__radius-xl);
     background-color: var(--str-chat__background-core-surface-card);
-    color: var(--str-chat__text-primary);
+    color: var(--str-chat__control-chip-text);
     cursor: pointer;
     font-size: var(--str-chat__typography-font-size-sm);
     line-height: var(--str-chat__typography-line-height-tight);
@@ -400,10 +406,12 @@
     gap: var(--str-chat__spacing-xxxs);
     min-width: 16rem; // ai-styles: allow measure of the chat options menu
     max-width: min(22rem, 90vw); // ai-styles: allow measure of the chat options menu
-    padding: var(--str-chat__spacing-xs);
-    border: 1px solid var(--str-chat__border-core-default);
-    border-radius: var(--str-chat__radius-xl);
-    background-color: var(--str-chat__background-core-elevation-1);
+    // The SDK's context menu.
+    padding: var(--str-chat__spacing-xxs);
+    border-radius: var(--str-chat__radius-lg);
+    background-color: var(--str-chat__background-core-elevation-2);
+    box-shadow: var(--str-chat__box-shadow-3);
+    color: var(--str-chat__text-primary);
   }
 
   &__item {
@@ -413,7 +421,7 @@
     align-items: flex-start;
     gap: var(--str-chat__spacing-sm);
     padding: var(--str-chat__spacing-xs) var(--str-chat__spacing-sm);
-    border-radius: var(--str-chat__radius-lg);
+    border-radius: var(--str-chat__radius-md);
     color: var(--str-chat__text-primary);
     cursor: pointer;
 
@@ -422,12 +430,16 @@
       @include ai-state-layer(--str-chat__background-utility-hover);
     }
 
+    &:active {
+      @include ai-state-layer(--str-chat__background-utility-pressed);
+    }
+
     &:focus-visible {
       @include ai-focus-ring;
     }
 
     &[aria-checked='true'] {
-      @include ai-state-layer(--str-chat__background-utility-pressed);
+      @include ai-state-layer(--str-chat__background-utility-selected);
     }
   }
 

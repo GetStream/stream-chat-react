@@ -1,4 +1,5 @@
 @use './mixins' as *;
+@use '../../../styling/utils';
 
 // The steps of a reply: reasoning, tool calls, and the questions and sign-ins they wait for.
 
@@ -217,18 +218,25 @@
 }
 
 .str-chat__ai-button {
+  // The SDK's small button: primary is solid, secondary is outlined, with the same states.
   all: unset;
   box-sizing: border-box;
+  position: relative;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-height: var(--str-chat__size-32);
-  padding: var(--str-chat__spacing-xs) var(--str-chat__spacing-md);
-  border-radius: var(--str-chat__radius-max);
+  gap: var(--str-chat__spacing-xs);
+  min-height: var(--str-chat__button-visual-height-sm);
+  padding-block: var(--str-chat__button-padding-y-sm);
+  padding-inline: var(--str-chat__button-padding-x-with-label-sm);
+  border-radius: var(--str-chat__button-radius-md);
   cursor: pointer;
-  font-size: var(--str-chat__typography-font-size-sm);
-  font-weight: var(--str-chat__typography-font-weight-semi-bold);
-  transition: opacity $ai-duration-instant ease-in-out;
+  font: var(--str-chat__font-heading-xs);
+  white-space: nowrap;
+
+  &::after {
+    border-radius: inherit;
+  }
 
   &--primary {
     background-color: var(--str-chat__button-primary-bg);
@@ -237,21 +245,32 @@
 
   &--secondary {
     border: 1px solid var(--str-chat__button-secondary-border);
-    background-color: var(--str-chat__button-secondary-bg);
     color: var(--str-chat__button-secondary-text);
   }
 
-  &:hover:not(:disabled) {
-    opacity: 0.88;
+  &:not(:disabled):hover {
+    @include utils.overlay-after(var(--str-chat__background-utility-hover));
+  }
+
+  &:not(:disabled):active {
+    @include utils.overlay-after(var(--str-chat__background-utility-pressed));
+  }
+
+  &:not(:disabled):focus-visible {
+    @include utils.focusable;
   }
 
   &:disabled {
-    cursor: not-allowed;
-    opacity: 0.5;
+    color: var(--str-chat__text-disabled);
+    cursor: default;
   }
 
-  &:focus-visible {
-    @include ai-focus-ring;
+  &--primary:disabled {
+    background-color: var(--str-chat__background-utility-disabled);
+  }
+
+  &--secondary:disabled {
+    border-color: var(--str-chat__border-utility-disabled);
   }
 }
 
