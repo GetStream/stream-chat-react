@@ -4,7 +4,7 @@ import clsx from 'clsx';
 import { useAriaLiveAnnouncer } from '../../../components/Accessibility/useAriaLiveAnnouncer';
 import { useTranslationContext } from '../../../context/TranslationContext';
 import { useComponentContextIcons } from '../../../context/useComponentContextIcons';
-import { useAIIcons } from '../useAIIcons';
+import { useAIIcons } from '../hooks/useAIIcons';
 import { AIBranchSwitcher } from './AIBranchSwitcher';
 import { ThemeScopeProvider, useAIThemeScopeClassName } from '../themeScope';
 import type { AIMessageRating } from '../Conversation/types';
@@ -88,7 +88,10 @@ export const AIReplyActions = ({
       () => {
         // The button's new name isn't read out on its own, so say it.
         announce(
-          t('aiComponents.replyActions.copied.announcement', 'Copied to the clipboard'),
+          t(
+            'aiComponents.replyActions.copiedToClipboard.ariaLabel',
+            'Copied to the clipboard',
+          ),
           { dedupeMs: 1000 },
         );
         setIsCopied(true);

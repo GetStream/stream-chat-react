@@ -1,9 +1,11 @@
 import React, {
   Children,
+  Component,
   type ComponentProps,
   type ComponentType,
   type ElementType,
   isValidElement,
+  type PropsWithChildren,
   useContext,
   useMemo,
 } from 'react';
@@ -18,7 +20,6 @@ import { SuspendedChart } from './tools/charts/SuspendedChart';
 import { AIThemeScope } from '../themeScope';
 import { Anchor } from '../../../components/Message/renderText/componentRenderers/Anchor';
 import { imageToLink } from '../../../components/Message/renderText/remarkPlugins/imageToLink';
-import { ErrorBoundary } from '../../../components/UtilityComponents/ErrorBoundary';
 
 type CodeElementProps = {
   children?: React.ReactNode;
@@ -176,6 +177,37 @@ const DefaultCode = (props: DefaultCodeProps) => {
   );
 };
 
+/**
+ * Shows the reply as its text when a renderer throws, and tries again once the text changes: a
+ * reply still streaming in can trip a renderer on a part that isn't written yet, such as half a
+ * code fence, and shouldn't stay plain text once the rest arrives.
+ */
+class AIMarkdownErrorBoundary extends Component<
+  PropsWithChildren<{ text: string }>,
+  { hasError: boolean; text: string }
+> {
+  state = { hasError: false, text: this.props.text };
+
+  static getDerivedStateFromProps(
+    props: { text: string },
+    state: { hasError: boolean; text: string },
+  ) {
+    return props.text === state.text ? null : { hasError: false, text: props.text };
+  }
+
+  static getDerivedStateFromError() {
+    return { hasError: true };
+  }
+
+  componentDidCatch(error: unknown) {
+    console.error(error);
+  }
+
+  render() {
+    return this.state.hasError ? <>{this.props.text}</> : this.props.children;
+  }
+}
+
 const DefaultComponents = {
   // A link a model writes opens in a new tab, without the page's referrer or a link to it, and
   // only for web and e-mail addresses; any other link is shown as its text.
@@ -231,14 +263,14 @@ export const AIMarkdown: AIMarkdown = (props) => {
     <AIThemeScope>
       <AIMarkdownContext.Provider value={{ toolComponents: mergedToolComponents }}>
         {/* A reply the renderer can't draw is shown as its text rather than breaking the view. */}
-        <ErrorBoundary fallback={<>{props.children}</>}>
+        <AIMarkdownErrorBoundary text={props.children}>
           <ReactMarkdown
             components={mergedMarkdownComponents}
             remarkPlugins={props.allowImages ? remarkPlugins : remarkPluginsWithoutImages}
           >
             {props.children}
           </ReactMarkdown>
-        </ErrorBoundary>
+        </AIMarkdownErrorBoundary>
       </AIMarkdownContext.Provider>
     </AIThemeScope>
   );

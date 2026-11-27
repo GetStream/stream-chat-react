@@ -5,7 +5,7 @@ import {
   useRef,
   useState,
 } from 'react';
-import { useAttachments } from './composerState';
+import { useAttachments } from './hooks/composerState';
 import clsx from 'clsx';
 import { useComponentContextIcons } from '../../../context/useComponentContextIcons';
 import { useTranslationContext } from '../../../context/TranslationContext';

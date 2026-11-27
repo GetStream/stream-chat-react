@@ -20,14 +20,14 @@
 
 // A hover, pressed or selected state drawn over the control's own background, as the SDK's
 // translucent `--str-chat__background-utility-*` tokens are meant to be, rather than replacing it.
+// It is a background image, so a `background-color` transition doesn't animate it.
 @mixin ai-state-layer($token) {
   background-image: linear-gradient(var(#{$token}), var(#{$token}));
 }
 
 // Motion. The SDK has no motion tokens, so the AI components keep theirs here, in one place.
-// State changes are quick, fades moderate; a disclosure opens slower, and generated UI eases in
-// with the emphasized curve.
-$ai-duration-instant: 0.1s;
+// A turn is quick, a fade moderate; a disclosure opens slower, and generated UI eases in with the
+// emphasized curve. Hover and pressed states change at once, as the SDK's buttons do.
 $ai-duration-quick: 0.2s;
 $ai-duration-moderate: 0.3s;
 $ai-duration-slow: 0.45s;

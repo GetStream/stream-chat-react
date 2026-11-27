@@ -13,6 +13,15 @@ $ai-ui-chosen-text: color-mix(
   var(--str-chat__text-primary)
 );
 
+// Words in the error colour: the SDK's destructive words drawn a fifth of the way toward the
+// text colour, so they reach 4.5:1 on the reply's surfaces in both themes, OpenUI's background
+// and a danger callout's tint included, where the SDK's red alone falls just short.
+$ai-ui-error-text: color-mix(
+  in srgb,
+  var(--str-chat__button-destructive-text) 80%,
+  var(--str-chat__text-primary)
+);
+
 // A reply's root: as wide as the reply, light unless the SDK's theme is dark (see
 // `ai-ui-color-scheme`), so native controls such as the date input follow the theme.
 @mixin ai-ui-root {
@@ -93,13 +102,18 @@ $ai-ui-chosen-text: color-mix(
   border-radius: var(--str-chat__radius-lg);
 }
 
-// The hairline parting a follow-up from the one before.
+// The hairline parting a follow-up from the one before: a line of its own, inset by the room
+// around the words, so the follow-up's background stays free for its hover state.
 @mixin ai-ui-follow-up-hairline {
-  background-image: linear-gradient(
-    var(--str-chat__border-core-default),
-    var(--str-chat__border-core-default)
-  );
-  background-position: var(--str-chat__spacing-sm) 0;
-  background-repeat: no-repeat;
-  background-size: calc(100% - 2 * var(--str-chat__spacing-sm)) 1px;
+  position: relative;
+
+  &::before {
+    position: absolute;
+    inset-block-start: 0;
+    inset-inline: var(--str-chat__spacing-sm);
+    height: 1px;
+    background-color: var(--str-chat__border-core-default);
+    content: '';
+    pointer-events: none;
+  }
 }

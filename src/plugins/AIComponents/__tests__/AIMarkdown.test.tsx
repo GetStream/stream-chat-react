@@ -122,6 +122,25 @@ describe('AIMarkdown with untrusted replies', () => {
     expect(container.querySelector('img')).toBeNull();
   });
 
+  it('renders the Markdown again once the text that tripped a renderer changes', () => {
+    const consoleError = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+    const Fragile = ({ children }: { children?: React.ReactNode }) => {
+      if (String(children).includes('half')) throw new Error('not written yet');
+      return <strong>{children}</strong>;
+    };
+    const { container, rerender } = render(
+      <AIMarkdown markdownComponents={{ strong: Fragile }}>{'**half**'}</AIMarkdown>,
+    );
+    expect(container.querySelector('strong')).toBeNull();
+    expect(container).toHaveTextContent('**half**');
+
+    rerender(
+      <AIMarkdown markdownComponents={{ strong: Fragile }}>{'**whole**'}</AIMarkdown>,
+    );
+    expect(container.querySelector('strong')).toHaveTextContent('whole');
+    consoleError.mockRestore();
+  });
+
   it('shows the reply as text when a custom renderer throws', () => {
     const consoleError = vi.spyOn(console, 'error').mockImplementation(() => undefined);
     const Broken = () => {

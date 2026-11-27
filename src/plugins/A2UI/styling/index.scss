@@ -22,11 +22,11 @@
   --a2ui-tabs-header-color: var(--str-chat__text-secondary);
   --a2ui-tabs-header-color-active: var(--str-chat__text-link);
   --a2ui-textfield-color-border-focus: var(--str-chat__border-utility-focused);
-  --a2ui-textfield-color-error: var(--str-chat__button-destructive-text);
-  --a2ui-checkbox-color-error: var(--str-chat__button-destructive-text);
-  --a2ui-choicepicker-color-error: var(--str-chat__button-destructive-text);
-  --a2ui-slider-color-error: var(--str-chat__button-destructive-text);
-  --a2ui-datetimeinput-color-error: var(--str-chat__button-destructive-text);
+  --a2ui-textfield-color-error: #{$ai-ui-error-text};
+  --a2ui-checkbox-color-error: #{$ai-ui-error-text};
+  --a2ui-choicepicker-color-error: #{$ai-ui-error-text};
+  --a2ui-slider-color-error: #{$ai-ui-error-text};
+  --a2ui-datetimeinput-color-error: #{$ai-ui-error-text};
   --a2ui-slider-track-color: var(--str-chat__background-core-surface-strong);
   --a2ui-slider-thumb-color: var(--a2ui-color-primary);
   --a2ui-datetimeinput-color: var(--a2ui-color-on-input);

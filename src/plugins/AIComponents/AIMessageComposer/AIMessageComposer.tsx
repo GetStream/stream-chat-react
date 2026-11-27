@@ -26,7 +26,7 @@ import {
   useAttachments,
   useIsDisabled,
   useText,
-} from './composerState';
+} from './hooks/composerState';
 import { ChatOptions as ChatOptionsBase, type ChatOptionsProps } from './ChatOptions';
 import { useSpeechToText, type UseSpeechToTextOptions } from './hooks/useSpeechToText';
 import { useIsomorphicLayoutEffect } from '../utils';

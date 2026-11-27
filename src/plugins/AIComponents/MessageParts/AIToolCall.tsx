@@ -3,7 +3,7 @@ import clsx from 'clsx';
 
 import { useTranslationContext } from '../../../context/TranslationContext';
 import { useComponentContextIcons } from '../../../context/useComponentContextIcons';
-import { useAIIcons } from '../useAIIcons';
+import { useAIIcons } from '../hooks/useAIIcons';
 import { formatCallDuration } from '../utils';
 import { isDeclined, isToolCallFinished } from './parseMessageParts';
 import type { AIToolCallPart } from './types';

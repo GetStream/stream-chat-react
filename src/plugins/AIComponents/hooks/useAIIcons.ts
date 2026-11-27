@@ -1,8 +1,8 @@
 import { useMemo } from 'react';
 
-import { useComponentContext } from '../../context/ComponentContext';
-import type { IconComponent } from '../../components/Icons/slots';
-import * as DEFAULT_AI_ICONS from './icons';
+import { useComponentContext } from '../../../context/ComponentContext';
+import type { IconComponent } from '../../../components/Icons/slots';
+import * as DEFAULT_AI_ICONS from '../icons';
 
 /** The icons the AI components draw that the SDK's icon set lacks. */
 export type AIIconName = keyof typeof DEFAULT_AI_ICONS;

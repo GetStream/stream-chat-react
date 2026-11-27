@@ -1,8 +1,8 @@
 import { createContext, useCallback, useContext, useMemo } from 'react';
 import { StateStore } from '@stream-io/state-store';
 
-import { useStateStore } from '../../../store';
-import { type AIMessageComposerStore, initialAIMessageComposerState } from './store';
+import { useStateStore } from '../../../../store';
+import { type AIMessageComposerStore, initialAIMessageComposerState } from '../store';
 
 // The state the composer's parts share: the composer's store, and whether its `disabled` prop
 // is set. The prop is the composer's own, so it isn't written into the store, which a

@@ -15,7 +15,7 @@ export {
   useAttachments,
   useIsDisabled,
   useText,
-} from './AIMessageComposer/composerState';
+} from './AIMessageComposer/hooks/composerState';
 export {
   type AIChatOption,
   ChatOptionsList,
@@ -286,4 +286,4 @@ export {
   IconAIThumbsUpFill,
 } from './icons';
 export { ThemeScopeProvider } from './themeScope';
-export { type AIIconName, type AIIconSlots, useAIIcons } from './useAIIcons';
+export { type AIIconName, type AIIconSlots, useAIIcons } from './hooks/useAIIcons';

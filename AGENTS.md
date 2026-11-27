@@ -69,6 +69,7 @@ yarn fix-staged           # auto-fix only staged files
 # Type checking
 yarn types                # src (tsc -p tsconfig.lib.json --noEmit) — run in CI
 yarn types:scripts        # scripts/*.mts — run in CI (Node strips types, it does not check them)
+yarn validate-ai-styles   # AI/A2UI/OpenUI SCSS sources: fails above scripts/ai-styles-baseline.json — run in CI's lint job, no build needed
 yarn types:tests          # tests + mock-builders — NOT run in CI, currently red (see below)
 
 # i18n
@@ -80,8 +81,7 @@ yarn i18n:export          # write an en.json on demand (for a translator or TMS)
 yarn validate-cjs         # loads dist/cjs in Node + a browser-like context
 yarn validate-esm         # imports dist/es in Node
 yarn validate-entry-isolation # fails if the main entry's ESM graph reaches ai-components or its deps
-yarn validate-ai-ui-tokens # fails if A2UI or OpenUI styles read a colour ai-components.css leaves to the renderer's own default
-yarn validate-ai-styles    # fails if the AI stylesheets write out more values than scripts/ai-styles-baseline.json allows
+yarn validate-ai-ui-tokens # fails if A2UI or OpenUI read a colour, type or spacing step that a2ui.css / openui.css leave to the renderer's own default
 
 # Examples
 yarn start:tutorial       # @stream-io/stream-chat-react-tutorial dev server

@@ -14,7 +14,6 @@
   border-radius: var(--str-chat__button-radius-full);
   color: var(--str-chat__text-secondary);
   cursor: pointer;
-  transition: background-color $ai-duration-instant ease-in-out;
 
   @include ai-icon(var(--str-chat__icon-size-md));
 
@@ -371,7 +370,6 @@
     cursor: pointer;
     font-size: var(--str-chat__typography-font-size-sm);
     line-height: var(--str-chat__typography-line-height-tight);
-    transition: background-color $ai-duration-instant ease-in-out;
 
     &:hover {
       @include ai-state-layer(--str-chat__background-utility-hover);

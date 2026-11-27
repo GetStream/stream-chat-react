@@ -37,8 +37,6 @@
     border-radius: var(--str-chat__button-radius-full);
     color: var(--str-chat__button-secondary-text);
 
-    transition: background-color $ai-duration-instant ease-in-out;
-
     svg {
       flex-shrink: 0;
       width: var(--str-chat__size-24);

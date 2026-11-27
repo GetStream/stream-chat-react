@@ -123,10 +123,10 @@
     transparent
   );
   --openui-border-danger-emphasis: var(--str-chat__accent-error);
-  --openui-text-danger-primary: var(--str-chat__button-destructive-text);
+  --openui-text-danger-primary: #{$ai-ui-error-text};
   --openui-text-danger-tertiary: color-mix(
     in srgb,
-    var(--str-chat__button-destructive-text) 60%,
+    #{$ai-ui-error-text} 60%,
     transparent
   );
   // The words on a filled destructive button, whose fill is the error colour's words: the
@@ -149,22 +149,20 @@
     var(--str-chat__accent-error) 2%,
     transparent
   );
-  --openui-interactive-destructive-accent-default: var(
-    --str-chat__button-destructive-text
-  );
+  --openui-interactive-destructive-accent-default: #{$ai-ui-error-text};
   --openui-interactive-destructive-accent-hover: color-mix(
     in srgb,
-    var(--str-chat__button-destructive-text) 88%,
+    #{$ai-ui-error-text} 88%,
     var(--str-chat__text-primary)
   );
   --openui-interactive-destructive-accent-pressed: color-mix(
     in srgb,
-    var(--str-chat__button-destructive-text) 80%,
+    #{$ai-ui-error-text} 80%,
     var(--str-chat__text-primary)
   );
   --openui-interactive-destructive-accent-disabled: color-mix(
     in srgb,
-    var(--str-chat__button-destructive-text) 40%,
+    #{$ai-ui-error-text} 40%,
     transparent
   );
 
