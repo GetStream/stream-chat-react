@@ -414,6 +414,7 @@ export const deTranslations = {
   'common.unblock.ariaLabel': 'Blockierung aufheben',
   'common.unmute.title': 'Stummschaltung aufheben',
   'common.unmuted.label': 'Die Stummschaltung von {{ user }} wurde aufgehoben',
+  'common.unnamedChannel.text': 'Unbenannter Kanal',
   'common.unpin.title': 'Loslösen',
   'common.unsupportedAttachment.text': 'Nicht unterstützter Anhang',
   'common.userBlocked.text': 'Benutzer blockiert',
