@@ -864,8 +864,16 @@ The `AIMarkdown` is a markdown renderer optimized for AI-generated content with 
 | Name                 | Type                 | Required | Description                                                  |
 | -------------------- | -------------------- | -------- | ------------------------------------------------------------ |
 | `children`           | `string`             | yes      | The markdown content to render.                              |
+| `allowImages`        | `boolean`            | no       | Renders the reply's images. Off by default (see below).      |
 | `toolComponents`     | `ToolComponents`     | no       | Custom components for rendering tool outputs (e.g., charts). |
 | `markdownComponents` | `MarkdownComponents` | no       | Custom markdown component overrides.                         |
+
+A model's reply is untrusted, so `AIMarkdown` renders it as the SDK renders a message:
+
+- A link opens in a new tab with `rel="nofollow noreferrer noopener"`, and only web and `mailto:` links are links; any other (`javascript:`, a relative path) shows as its text.
+- An image shows as a link to it, not as an image: an image is fetched as soon as it renders, so a prompt injection could send data out in its URL. Pass `allowImages` to render images, for example when the replies come from your own agent.
+- Raw HTML shows as text.
+- If a renderer throws, the reply shows as plain text instead of breaking the view.
 
 #### Built-in Tool Components
 
@@ -954,11 +962,12 @@ The `StreamingMessage` is a component that displays text with a typewriter anima
 
 #### Props
 
-| Name                   | Type     | Required | Description                                                 |
-| ---------------------- | -------- | -------- | ----------------------------------------------------------- |
-| `text`                 | `string` | yes      | The text content to display with streaming effect.          |
-| `letterIntervalMs`     | `number` | no       | Interval between character updates. Defaults to `30`.       |
-| `renderingLetterCount` | `number` | no       | Number of characters to render per update. Defaults to `2`. |
+| Name                   | Type                                | Required | Description                                                                                |
+| ---------------------- | ----------------------------------- | -------- | ------------------------------------------------------------------------------------------ |
+| `text`                 | `string`                            | yes      | The text content to display with streaming effect.                                         |
+| `letterIntervalMs`     | `number`                            | no       | Interval between character updates. Defaults to `30`.                                      |
+| `renderingLetterCount` | `number`                            | no       | Number of characters to render per update. Defaults to `2`.                                |
+| `markdown`             | `Omit<AIMarkdownProps, 'children'>` | no       | How the text renders: `AIMarkdown`'s props, such as `allowImages` or `markdownComponents`. |
 
 The component accepts a `ref` (`StreamingMessageRef`) exposing `skipAnimation()`, which immediately shows the full text.
 

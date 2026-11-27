@@ -79,3 +79,58 @@ describe('AIMarkdown', () => {
     expect(await axe(container)).toHaveNoViolations();
   });
 });
+
+describe('AIMarkdown with untrusted replies', () => {
+  it('opens web links in a new tab without the referrer', () => {
+    render(<AIMarkdown>{'See [the docs](https://example.com/docs).'}</AIMarkdown>);
+    const link = screen.getByRole('link', { name: 'the docs' });
+    expect(link).toHaveAttribute('href', 'https://example.com/docs');
+    expect(link).toHaveAttribute('target', '_blank');
+    expect(link).toHaveAttribute('rel', 'nofollow noreferrer noopener');
+  });
+
+  it('shows a script link as its text', () => {
+    const { container } = render(
+      <AIMarkdown>{'[click me](javascript:alert(1))'}</AIMarkdown>,
+    );
+    expect(container.querySelector('a')).toBeNull();
+    expect(container).toHaveTextContent('click me');
+  });
+
+  it('shows an image as a link to it unless images are allowed', () => {
+    const reply = '![chart](https://attacker.example/pixel.png?secret=1)';
+    const { container, rerender } = render(<AIMarkdown>{reply}</AIMarkdown>);
+    expect(container.querySelector('img')).toBeNull();
+    expect(screen.getByRole('link')).toHaveAttribute(
+      'href',
+      'https://attacker.example/pixel.png?secret=1',
+    );
+
+    rerender(<AIMarkdown allowImages>{reply}</AIMarkdown>);
+    expect(container.querySelector('img')).toHaveAttribute(
+      'src',
+      'https://attacker.example/pixel.png?secret=1',
+    );
+  });
+
+  it('shows raw HTML as text, not as elements', () => {
+    const { container } = render(
+      <AIMarkdown>
+        {'<img src="https://attacker.example/x.png" onerror="alert(1)">'}
+      </AIMarkdown>,
+    );
+    expect(container.querySelector('img')).toBeNull();
+  });
+
+  it('shows the reply as text when a custom renderer throws', () => {
+    const consoleError = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+    const Broken = () => {
+      throw new Error('broken renderer');
+    };
+    const { container } = render(
+      <AIMarkdown markdownComponents={{ p: Broken }}>{'plain reply'}</AIMarkdown>,
+    );
+    expect(container).toHaveTextContent('plain reply');
+    consoleError.mockRestore();
+  });
+});

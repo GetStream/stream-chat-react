@@ -8,7 +8,7 @@ import React, {
 } from 'react';
 
 import { useStableCallback } from '../../../utils/useStableCallback';
-import { AIMarkdown } from '../AIMarkdown';
+import { AIMarkdown, type AIMarkdownProps } from '../AIMarkdown';
 import { ThemeScopeProvider, useAIThemeScopeClassName } from '../themeScope';
 
 export type UseMessageTextStreamingProps = {
@@ -17,6 +17,11 @@ export type UseMessageTextStreamingProps = {
   /** A fixed pace instead of catching up: the letters written each step. */
   renderingLetterCount?: number;
   text: string;
+};
+
+export type StreamingMessageProps = UseMessageTextStreamingProps & {
+  /** How the text is rendered: `AIMarkdown`'s props, such as `allowImages` or `markdownComponents`. */
+  markdown?: Omit<AIMarkdownProps, 'children'>;
 };
 
 export type StreamingMessageRef = { skipAnimation: () => void };
@@ -81,26 +86,25 @@ const useTypedText = ({
   return { skipAnimation, typedText: text.slice(0, written) } as const;
 };
 
-export const StreamingMessage = forwardRef<
-  StreamingMessageRef,
-  UseMessageTextStreamingProps
->(({ letterIntervalMs, renderingLetterCount, text }, ref) => {
-  const themeScopeClassName = useAIThemeScopeClassName();
-  const { skipAnimation, typedText } = useTypedText({
-    letterIntervalMs,
-    renderingLetterCount,
-    text,
-  });
+export const StreamingMessage = forwardRef<StreamingMessageRef, StreamingMessageProps>(
+  ({ letterIntervalMs, markdown, renderingLetterCount, text }, ref) => {
+    const themeScopeClassName = useAIThemeScopeClassName();
+    const { skipAnimation, typedText } = useTypedText({
+      letterIntervalMs,
+      renderingLetterCount,
+      text,
+    });
 
-  useImperativeHandle(ref, () => ({ skipAnimation }), [skipAnimation]);
+    useImperativeHandle(ref, () => ({ skipAnimation }), [skipAnimation]);
 
-  return (
-    <ThemeScopeProvider>
-      <div className={clsx(themeScopeClassName, 'str-chat__ai-streaming-message')}>
-        <AIMarkdown>{typedText}</AIMarkdown>
-      </div>
-    </ThemeScopeProvider>
-  );
-});
+    return (
+      <ThemeScopeProvider>
+        <div className={clsx(themeScopeClassName, 'str-chat__ai-streaming-message')}>
+          <AIMarkdown {...markdown}>{typedText}</AIMarkdown>
+        </div>
+      </ThemeScopeProvider>
+    );
+  },
+);
 
 StreamingMessage.displayName = 'StreamingMessage';
