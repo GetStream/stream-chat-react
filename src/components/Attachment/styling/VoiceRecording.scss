@@ -44,3 +44,28 @@
     font: var(--str-chat__font-metadata-emphasis);
   }
 }
+
+.str-chat__message-attachment__voice-recording-widget:has(
+  + .str-chat__message-attachment__voice-recording-transcript
+) {
+  padding-bottom: var(--str-chat__spacing-xxxs);
+}
+
+.str-chat__message-attachment__voice-recording-transcript {
+  display: flex;
+  flex-direction: column;
+  gap: var(--str-chat__spacing-xxs);
+  padding: 0 var(--str-chat__spacing-sm) var(--str-chat__spacing-sm);
+  color: var(--str-chat__text-primary);
+
+  .str-chat__message-attachment__voice-recording-transcript__title {
+    font: var(--str-chat__font-caption-emphasis);
+  }
+
+  .str-chat__message-attachment__voice-recording-transcript__text {
+    margin: 0;
+    font: var(--str-chat__font-caption-default);
+    white-space: pre-line;
+    overflow-wrap: anywhere;
+  }
+}

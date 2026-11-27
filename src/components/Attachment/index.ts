@@ -12,5 +12,6 @@ export * from './ModalGallery';
 export * from './UnsupportedAttachment';
 export * from './utils';
 export * from './VoiceRecording';
+export * from './VoiceRecordingTranscript';
 export * from '../Location/hooks/useLiveLocationSharingManager';
 export * from './hooks/useAttachmentUploadState';
