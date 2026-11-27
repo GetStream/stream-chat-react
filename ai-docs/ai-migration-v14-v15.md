@@ -853,7 +853,7 @@ The channel-detail "send direct message" member action and the pinned-message en
 
 Nothing to wire. `ChatView` provides the navigation and binds what is opened into a layout slot. To customize it (for example, open beside the current channel on ⌘/ctrl-click), pass `deriveWorkspaceNavigation`, which receives the SDK-derived navigation and returns the members to override. It must be referentially stable.
 
-The same holds for your own components. Anything that reads `useWorkspaceNavigation()` (an "in a call" panel, a header badge for the open channel) has to render inside `ChatView`. Pass it as a `ChatView` child in a `views` layout: children render inside the provider, before the active view, and stay mounted when the view switches. The built-in `layout="nav-rail-entity-list-workspace"` does not render `children`. `openChannels` lists the active view's channels, so it is empty while the threads view is shown.
+The same holds for your own components. Anything that reads `useWorkspaceNavigation()` (an "in a call" panel, a header badge for the open channel) has to render inside `ChatView`. Pass it as a `ChatView` child, with `views` or with the built-in `layout="nav-rail-entity-list-workspace"`: children render inside the provider, before the active view or the layout, and stay mounted when the view switches. Children that render markup sit next to the view or layout in `ChatView`'s root, so position them with your own CSS. `openChannels` lists the active view's channels, so it is empty while the threads view is shown.
 
 ```tsx
 // `CallControls` stands for a component of your own.

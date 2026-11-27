@@ -8,7 +8,7 @@ import {
   getTestClientWithUser,
   mockTranslationContextValue,
 } from '../../../mock-builders';
-import { ChatView } from '../ChatView';
+import { ChatView, useChatViewContext } from '../ChatView';
 import { LayoutController } from '../layoutController/LayoutController';
 import { createChatViewSlotBinding } from '../slotBinding';
 import { useIsInThemeScope } from '../../../context/ThemeScopeContext';
@@ -340,5 +340,34 @@ describe('ChatView built-in workspace layout empty state', () => {
     expect(
       container.querySelector('.str-chat__chat-view__empty-placeholder'),
     ).not.toBeInTheDocument();
+  });
+
+  it('renders children alongside the layout, in the ChatView contexts', async () => {
+    const ChildProbe = () => (
+      <div data-active-view={useChatViewContext().activeView} data-testid='child' />
+    );
+    const { container } = await renderWorkspace({ children: <ChildProbe /> });
+
+    expect(screen.getByTestId('child')).toHaveAttribute('data-active-view', 'channels');
+    expect(
+      container.querySelector('.str-chat__chat-view__workspace-layout'),
+    ).toBeInTheDocument();
+  });
+
+  it('keeps children mounted when the view switches', async () => {
+    const onUnmount = vi.fn();
+    const ChildProbe = () => {
+      React.useEffect(() => onUnmount, []);
+      return <div data-testid='child' />;
+    };
+    await renderWorkspace({ children: <ChildProbe /> });
+
+    fireEvent.click(screen.getByRole('button', { name: 'Open threads view' }));
+
+    expect(
+      await screen.findByRole('button', { current: true, name: 'Open threads view' }),
+    ).toBeInTheDocument();
+    expect(screen.getByTestId('child')).toBeInTheDocument();
+    expect(onUnmount).not.toHaveBeenCalled();
   });
 });

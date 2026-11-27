@@ -341,7 +341,8 @@ export const ChatView = ({
     [slotRenderers],
   );
 
-  // Always-on `children` (e.g. sync helpers) render alongside the active view's content.
+  // Always-on `children` (e.g. sync helpers) render alongside the active view's content, in both the
+  // `views` mode and the built-in layout.
   const activeViewContent = views?.[activeView];
 
   const content = views ? (
@@ -369,7 +370,12 @@ export const ChatView = ({
         return { fallback: Fallback ? <Fallback slot={slot} /> : undefined, slot };
       });
 
-      return <WorkspaceLayout navRail={<ChatViewSelector />} slots={slots} />;
+      return (
+        <>
+          {children}
+          <WorkspaceLayout navRail={<ChatViewSelector />} slots={slots} />
+        </>
+      );
     })()
   ) : (
     children
