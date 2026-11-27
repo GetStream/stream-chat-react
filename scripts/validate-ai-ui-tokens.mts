@@ -65,7 +65,7 @@ const failures =
 
 if (failures) {
   console.error(
-    `\n${failures} colour(s) the renderers read are not set from the AI components' tokens. Set each in .str-chat__a2ui (a2ui.scss) or .str-chat__openui (openui.scss).`,
+    `\n${failures} colour(s) the renderers read are not set from the SDK's tokens. Set each in .str-chat__a2ui (a2ui.scss) or .str-chat__openui (openui.scss).`,
   );
   process.exit(1);
 }

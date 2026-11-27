@@ -1,4 +1,4 @@
-@use './tokens' as *;
+@use './mixins' as *;
 
 .str-chat__ai-state-indicator {
   display: flex;
@@ -24,7 +24,7 @@
   &__dot {
     width: 6px;
     height: 6px;
-    background-color: ai-token(text-secondary);
+    background-color: var(--str-chat__text-secondary);
     border-radius: 50%;
     animation: str-chat__ai-thinking 1.4s ease-in-out infinite;
 
@@ -42,7 +42,7 @@
   }
 
   &__text {
-    color: ai-token(text-secondary);
+    color: var(--str-chat__text-secondary);
     font-size: 0.875rem;
     font-weight: 500;
     animation: str-chat__ai-text-fade 2s ease-in-out infinite;

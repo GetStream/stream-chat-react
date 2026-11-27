@@ -1,0 +1,16 @@
+// Helpers the AI components' stylesheets share. Every value they write reads the SDK's design
+// tokens (`src/styling/light.scss`, `dark.scss`), which the `str-chat` scope each AI component
+// carries defines, so the AI components follow the SDK theme and an app themes them the way it
+// themes the rest of the SDK.
+
+// The SDK's focus ring, for controls whose native outline `all: unset` removes.
+@mixin ai-focus-ring {
+  outline: 2px solid var(--str-chat__border-utility-focused);
+  outline-offset: 2px;
+}
+
+// A hover, pressed or selected state drawn over the control's own background, as the SDK's
+// translucent `--str-chat__background-utility-*` tokens are meant to be, rather than replacing it.
+@mixin ai-state-layer($token) {
+  background-image: linear-gradient(var(#{$token}), var(#{$token}));
+}

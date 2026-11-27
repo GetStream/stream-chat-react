@@ -1,35 +1,39 @@
-@use './tokens' as *;
+@use './mixins' as *;
 @use './ai-ui-icons' as *;
 
 // A reply's OpenUI, in Stream's look. OpenUI's components read `--openui-*` variables, which its
 // stylesheet defines for the whole page, light, or dark when the person's system is. Every colour
-// they read is set here from the AI components' tokens, so a reply follows Stream's light and
-// dark themes rather than the system's, and an app that sets only `--str-chat__ai-*` themes it.
+// they read is set here from the SDK's tokens, so a reply follows Stream's light and dark themes
+// rather than the system's, and an app's overrides of the SDK's tokens.
 // `yarn validate-ai-ui-tokens` fails when OpenUI reads a colour this leaves unset. The rest, such
 // as its chart palette and sizes, stays OpenUI's own.
 
 .str-chat__openui {
-  --openui-background: #{ai-token(bg-secondary)};
-  --openui-foreground: #{ai-token(card-bg)};
-  --openui-popover-background: #{ai-token(elevated-bg)};
-  --openui-text-neutral-primary: #{ai-token(text-primary)};
-  --openui-text-neutral-secondary: #{ai-token(text-secondary)};
-  --openui-text-neutral-tertiary: #{ai-token(text-tertiary)};
-  --openui-text-neutral-link: #{ai-accent-text()};
-  --openui-text-brand: #{ai-accent-text()};
-  --openui-text-accent-primary: #{ai-token(button-primary-text)};
+  --openui-background: var(--str-chat__background-core-surface-default);
+  --openui-foreground: var(--str-chat__background-core-surface-card);
+  --openui-popover-background: var(--str-chat__background-core-elevation-1);
+  --openui-text-neutral-primary: var(--str-chat__text-primary);
+  --openui-text-neutral-secondary: var(--str-chat__text-secondary);
+  --openui-text-neutral-tertiary: var(--str-chat__text-tertiary);
+  --openui-text-neutral-link: var(--str-chat__text-link);
+  --openui-text-brand: var(--str-chat__text-link);
+  --openui-text-accent-primary: var(--str-chat__button-primary-text-on-accent);
   --openui-text-accent-secondary: color-mix(
     in srgb,
     var(--openui-text-accent-primary) 50%,
     transparent
   );
-  --openui-border-default: #{ai-token(border-subtle)};
-  --openui-border-interactive: #{ai-token(border)};
-  --openui-border-interactive-emphasis: #{ai-token(text-tertiary)};
-  --openui-border-interactive-selected: #{ai-token(text-primary)};
-  --openui-border-accent: color-mix(in srgb, #{ai-token(accent)} 10%, transparent);
-  --openui-interactive-accent-default: #{ai-token(button-primary-bg)};
-  --openui-interactive-accent-pressed: #{ai-token(button-primary-bg)};
+  --openui-border-default: var(--str-chat__border-core-subtle);
+  --openui-border-interactive: var(--str-chat__border-core-default);
+  --openui-border-interactive-emphasis: var(--str-chat__text-tertiary);
+  --openui-border-interactive-selected: var(--str-chat__text-primary);
+  --openui-border-accent: color-mix(
+    in srgb,
+    var(--str-chat__accent-primary) 10%,
+    transparent
+  );
+  --openui-interactive-accent-default: var(--str-chat__button-primary-bg);
+  --openui-interactive-accent-pressed: var(--str-chat__button-primary-bg);
   --openui-interactive-accent-hover: color-mix(
     in srgb,
     var(--openui-interactive-accent-default) 85%,
@@ -45,99 +49,125 @@
     var(--openui-text-accent-primary) 20%,
     transparent
   );
-  --openui-text-white: #{ai-token(button-primary-text)};
+  --openui-text-white: var(--str-chat__button-primary-text-on-accent);
   --openui-border-accent-emphasis: color-mix(
     in srgb,
-    #{ai-token(accent)} 30%,
+    var(--str-chat__accent-primary) 30%,
     transparent
   );
-  --openui-highlight: #{ai-token(surface-hover)};
+  --openui-highlight: var(--str-chat__background-utility-hover);
   --openui-highlight-subtle: color-mix(
     in srgb,
-    #{ai-token(text-primary)} 2%,
+    var(--str-chat__text-primary) 2%,
     transparent
   );
   --openui-highlight-strong: color-mix(
     in srgb,
-    #{ai-token(text-primary)} 8%,
+    var(--str-chat__text-primary) 8%,
     transparent
   );
   --openui-highlight-intense: color-mix(
     in srgb,
-    #{ai-token(text-primary)} 32%,
+    var(--str-chat__text-primary) 32%,
     transparent
   );
-  --openui-sunk-light: color-mix(in srgb, #{ai-token(text-primary)} 2%, transparent);
-  --openui-sunk: color-mix(in srgb, #{ai-token(text-primary)} 4%, transparent);
-  --openui-sunk-deep: color-mix(in srgb, #{ai-token(text-primary)} 8%, transparent);
-  --openui-elevated: color-mix(in srgb, #{ai-token(text-primary)} 8%, transparent);
+  --openui-sunk-light: color-mix(in srgb, var(--str-chat__text-primary) 2%, transparent);
+  --openui-sunk: color-mix(in srgb, var(--str-chat__text-primary) 4%, transparent);
+  --openui-sunk-deep: color-mix(in srgb, var(--str-chat__text-primary) 8%, transparent);
+  --openui-elevated: color-mix(in srgb, var(--str-chat__text-primary) 8%, transparent);
   --openui-elevated-strong: color-mix(
     in srgb,
-    #{ai-token(text-primary)} 16%,
+    var(--str-chat__text-primary) 16%,
     transparent
   );
-  --openui-overlay: color-mix(in srgb, #{ai-token(text-primary)} 40%, transparent);
-  --openui-inverted-background: #{ai-token(text-primary)};
-  --openui-chat-user-response-bg: #{ai-token(user-message-bg)};
-  --openui-chat-user-response-text: #{ai-token(user-message-text)};
+  --openui-overlay: color-mix(in srgb, var(--str-chat__text-primary) 40%, transparent);
+  --openui-inverted-background: var(--str-chat__text-primary);
+  --openui-chat-user-response-bg: var(--str-chat__chat-bg-outgoing);
+  --openui-chat-user-response-text: var(--str-chat__chat-text-outgoing);
 
   // What a status says, in its colour: a tint behind it, its edge, and its words.
-  --openui-info-background: color-mix(in srgb, #{ai-token(accent)} 12%, transparent);
-  --openui-border-info-emphasis: #{ai-token(accent)};
-  --openui-text-info-primary: #{ai-accent-text()};
-  --openui-success-background: color-mix(in srgb, #{ai-token(success)} 12%, transparent);
-  --openui-border-success-emphasis: #{ai-token(success)};
+  --openui-info-background: color-mix(
+    in srgb,
+    var(--str-chat__accent-primary) 12%,
+    transparent
+  );
+  --openui-border-info-emphasis: var(--str-chat__accent-primary);
+  --openui-text-info-primary: var(--str-chat__text-link);
+  --openui-success-background: color-mix(
+    in srgb,
+    var(--str-chat__accent-success) 12%,
+    transparent
+  );
+  --openui-border-success-emphasis: var(--str-chat__accent-success);
   --openui-text-success-primary: color-mix(
     in srgb,
-    #{ai-token(success)} 70%,
-    #{ai-token(text-primary)}
+    var(--str-chat__accent-success) 70%,
+    var(--str-chat__text-primary)
   );
-  --openui-alert-background: color-mix(in srgb, #{$ai-warning} 16%, transparent);
-  --openui-border-alert-emphasis: #{$ai-warning};
+  --openui-alert-background: color-mix(
+    in srgb,
+    var(--str-chat__accent-warning) 16%,
+    transparent
+  );
+  --openui-border-alert-emphasis: var(--str-chat__accent-warning);
   --openui-text-alert-primary: color-mix(
     in srgb,
-    #{$ai-warning} 55%,
-    #{ai-token(text-primary)}
+    var(--str-chat__accent-warning) 55%,
+    var(--str-chat__text-primary)
   );
-  --openui-danger-background: color-mix(in srgb, #{ai-token(error)} 12%, transparent);
-  --openui-border-danger: color-mix(in srgb, #{ai-token(error)} 8%, transparent);
-  --openui-border-danger-emphasis: #{ai-token(error)};
-  --openui-text-danger-primary: #{ai-error-text()};
-  --openui-text-danger-tertiary: color-mix(in srgb, #{ai-error-text()} 60%, transparent);
+  --openui-danger-background: color-mix(
+    in srgb,
+    var(--str-chat__accent-error) 12%,
+    transparent
+  );
+  --openui-border-danger: color-mix(
+    in srgb,
+    var(--str-chat__accent-error) 8%,
+    transparent
+  );
+  --openui-border-danger-emphasis: var(--str-chat__accent-error);
+  --openui-text-danger-primary: var(--str-chat__button-destructive-text);
+  --openui-text-danger-tertiary: color-mix(
+    in srgb,
+    var(--str-chat__button-destructive-text) 60%,
+    transparent
+  );
   // The words on a filled destructive button, whose fill is the error colour's words: the
   // page's colour, which reads on it in both themes, where white doesn't in dark.
-  --openui-text-danger-inverted-primary: #{ai-token(bg-primary)};
+  --openui-text-danger-inverted-primary: var(--str-chat__background-core-elevation-0);
 
   // A destructive button: its words in the error colour, on a quiet fill; filled, white on it.
   --openui-interactive-destructive-default: color-mix(
     in srgb,
-    #{ai-token(error)} 2%,
+    var(--str-chat__accent-error) 2%,
     transparent
   );
   --openui-interactive-destructive-hover: color-mix(
     in srgb,
-    #{ai-token(error)} 8%,
+    var(--str-chat__accent-error) 8%,
     transparent
   );
   --openui-interactive-destructive-disabled: color-mix(
     in srgb,
-    #{ai-token(error)} 2%,
+    var(--str-chat__accent-error) 2%,
     transparent
   );
-  --openui-interactive-destructive-accent-default: #{ai-error-text()};
+  --openui-interactive-destructive-accent-default: var(
+    --str-chat__button-destructive-text
+  );
   --openui-interactive-destructive-accent-hover: color-mix(
     in srgb,
-    #{ai-error-text()} 88%,
-    #{ai-token(text-primary)}
+    var(--str-chat__button-destructive-text) 88%,
+    var(--str-chat__text-primary)
   );
   --openui-interactive-destructive-accent-pressed: color-mix(
     in srgb,
-    #{ai-error-text()} 80%,
-    #{ai-token(text-primary)}
+    var(--str-chat__button-destructive-text) 80%,
+    var(--str-chat__text-primary)
   );
   --openui-interactive-destructive-accent-disabled: color-mix(
     in srgb,
-    #{ai-error-text()} 40%,
+    var(--str-chat__button-destructive-text) 40%,
     transparent
   );
   --openui-font-body: inherit;
@@ -146,21 +176,20 @@
 
   width: 100%;
   min-width: 0;
-  color: ai-token(text-primary);
-  color-scheme: var(--str-chat__ai-color-scheme, light);
+  color: var(--str-chat__text-primary);
+  color-scheme: light;
 
   &__placeholder {
     height: 4rem;
     border-radius: 0.75rem;
-    background-color: ai-token(bg-secondary);
+    background-color: var(--str-chat__background-core-surface-default);
     animation: str-chat__ai-shimmer 1.6s ease-in-out infinite;
   }
 }
 
-// Native controls (the date input, scrollbars) follow the reply's theme: the app's
-// `--str-chat__ai-color-scheme`, else the SDK's theme, else light, as the fallbacks are.
+// Native controls (the date input, scrollbars) follow the SDK's theme.
 .str-chat__theme-dark .str-chat__openui {
-  color-scheme: var(--str-chat__ai-color-scheme, dark);
+  color-scheme: dark;
 }
 
 // The parts a person sees most, drawn as StreamChatOpenUI draws them on iOS, so a reply looks the
@@ -170,32 +199,32 @@
   // The reply's card: a raised surface with a hairline edge, as a reply's card on iOS.
   .openui-card.openui-card-card {
     padding: 1rem;
-    border: 1px solid ai-token(card-border);
-    border-radius: var(--str-chat__radius-xl, 16px);
-    background-color: ai-token(card-bg);
+    border: 1px solid var(--str-chat__border-core-subtle);
+    border-radius: var(--str-chat__radius-xl);
+    background-color: var(--str-chat__background-core-surface-card);
   }
 
   // A form's labels, over what they label.
   .openui-form-control {
-    gap: ai-scale(space-xs);
+    gap: var(--str-chat__spacing-xs);
   }
 
   .openui-label {
-    font-size: ai-scale(font-sm);
+    font-size: var(--str-chat__typography-font-size-sm);
     font-weight: 500;
   }
 
   // A callout: tinted in its variant's colour, with its icon, its title and then its words.
   .openui-callout {
-    --str-chat-openui-callout: #{ai-token(accent)};
+    --str-chat-openui-callout: var(--str-chat__accent-primary);
 
     display: grid;
     grid-template-columns: auto minmax(0, 1fr);
-    column-gap: ai-scale(space-sm);
-    row-gap: ai-scale(space-xxs);
-    padding: ai-scale(space-sm);
+    column-gap: var(--str-chat__spacing-sm);
+    row-gap: var(--str-chat__spacing-xxs);
+    padding: var(--str-chat__spacing-sm);
     border: 0;
-    border-radius: ai-scale(radius-lg);
+    border-radius: var(--str-chat__radius-lg);
     background-color: color-mix(in srgb, var(--str-chat-openui-callout) 12%, transparent);
 
     &::before {
@@ -205,15 +234,15 @@
     }
 
     .openui-callout-title {
-      font-size: ai-scale(font-sm);
-      font-weight: ai-scale(weight-semi-bold);
-      color: ai-token(text-primary);
+      font-size: var(--str-chat__typography-font-size-sm);
+      font-weight: var(--str-chat__typography-font-weight-semi-bold);
+      color: var(--str-chat__text-primary);
     }
 
     .openui-callout-description {
       grid-column: 2;
-      font-size: ai-scale(font-sm);
-      color: ai-token(text-secondary);
+      font-size: var(--str-chat__typography-font-size-sm);
+      color: var(--str-chat__text-secondary);
 
       // Its Markdown, which otherwise sets a size and colour of its own.
       .openui-markdown-renderer,
@@ -225,7 +254,7 @@
   }
 
   .openui-callout-success {
-    --str-chat-openui-callout: #{ai-token(success)};
+    --str-chat-openui-callout: var(--str-chat__accent-success);
 
     &::before {
       content: $ai-ui-glyph-success;
@@ -233,7 +262,7 @@
   }
 
   .openui-callout-warning {
-    --str-chat-openui-callout: #{$ai-warning};
+    --str-chat-openui-callout: var(--str-chat__accent-warning);
 
     &::before {
       content: $ai-ui-glyph-warning;
@@ -241,7 +270,7 @@
   }
 
   .openui-callout-danger {
-    --str-chat-openui-callout: #{ai-token(error)};
+    --str-chat-openui-callout: var(--str-chat__accent-error);
 
     &::before {
       content: $ai-ui-glyph-danger;
@@ -249,7 +278,7 @@
   }
 
   .openui-callout-neutral {
-    --str-chat-openui-callout: #{ai-token(text-secondary)};
+    --str-chat-openui-callout: var(--str-chat__text-secondary);
 
     &::before {
       content: '';
@@ -260,33 +289,37 @@
   // way, so choosing one moves nothing.
   .openui-chip-item {
     gap: 0.375rem;
-    padding: 0.4375rem ai-scale(space-sm);
+    padding: 0.4375rem var(--str-chat__spacing-sm);
     border: 1px solid transparent;
-    border-radius: var(--str-chat__radius-max, 9999px);
-    background-color: color-mix(in srgb, #{ai-token(text-primary)} 8%, transparent);
-    color: ai-token(text-primary);
-    font-size: ai-scale(font-sm);
+    border-radius: var(--str-chat__radius-max);
+    background-color: color-mix(in srgb, var(--str-chat__text-primary) 8%, transparent);
+    color: var(--str-chat__text-primary);
+    font-size: var(--str-chat__typography-font-size-sm);
     font-weight: 500;
 
     &:not(:disabled):not(.openui-chip-item--selected):hover {
       border-color: transparent;
-      background-color: ai-token(surface-hover);
+      @include ai-state-layer(--str-chat__background-utility-hover);
     }
   }
 
   .openui-chip-item--selected {
-    border-color: ai-token(accent);
-    background-color: color-mix(in srgb, #{ai-token(accent)} 8%, transparent);
-    color: ai-chosen-text();
+    border-color: var(--str-chat__accent-primary);
+    background-color: color-mix(in srgb, var(--str-chat__accent-primary) 8%, transparent);
+    color: color-mix(
+      in srgb,
+      var(--str-chat__text-link) 85%,
+      var(--str-chat__text-primary)
+    );
   }
 
   // Buttons: pills as wide as their row shares, but the tertiary one, which is as its words.
   .openui-button-base {
     justify-content: center;
     text-align: center;
-    border-radius: var(--str-chat__radius-max, 9999px);
-    font-size: ai-scale(font-sm);
-    font-weight: ai-scale(weight-semi-bold);
+    border-radius: var(--str-chat__radius-max);
+    font-size: var(--str-chat__typography-font-size-sm);
+    font-weight: var(--str-chat__typography-font-weight-semi-bold);
   }
 
   .openui-buttons > .openui-button-base:not(.openui-button-base-tertiary) {
@@ -304,27 +337,30 @@
     align-items: center;
     // Room around the words for the hover's shape, which the margin takes back, so the words
     // line up with the rest of the reply.
-    width: calc(100% + 2 * #{ai-scale(space-sm)});
-    margin-inline: calc(-1 * #{ai-scale(space-sm)});
-    padding: 0.625rem ai-scale(space-sm);
+    width: calc(100% + 2 * var(--str-chat__spacing-sm));
+    margin-inline: calc(-1 * var(--str-chat__spacing-sm));
+    padding: 0.625rem var(--str-chat__spacing-sm);
     border: 0;
-    border-radius: ai-scale(radius-lg);
-    font-size: ai-scale(font-sm);
+    border-radius: var(--str-chat__radius-lg);
+    font-size: var(--str-chat__typography-font-size-sm);
 
     &:hover {
-      background-color: ai-token(surface-hover);
+      @include ai-state-layer(--str-chat__background-utility-hover);
     }
 
     .openui-follow-up-item-text {
-      color: ai-accent-text();
+      color: var(--str-chat__text-link);
       font-weight: 500;
     }
 
     & + .openui-follow-up-item {
-      background-image: linear-gradient(ai-token(border), ai-token(border));
-      background-position: ai-scale(space-sm) 0;
+      background-image: linear-gradient(
+        var(--str-chat__border-core-default),
+        var(--str-chat__border-core-default)
+      );
+      background-position: var(--str-chat__spacing-sm) 0;
       background-repeat: no-repeat;
-      background-size: calc(100% - 2 * #{ai-scale(space-sm)}) 1px;
+      background-size: calc(100% - 2 * var(--str-chat__spacing-sm)) 1px;
     }
   }
 }

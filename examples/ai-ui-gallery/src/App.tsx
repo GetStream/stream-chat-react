@@ -5,6 +5,7 @@ import {
   type AIConversationAssistantMessageProps,
   type AIToolApprover,
   AIUIHost,
+  ThemeScopeProvider,
 } from 'stream-chat-react/ai-components';
 import { createA2UIRenderer } from 'stream-chat-react/a2ui';
 import { createOpenUIRenderer } from 'stream-chat-react/openui';
@@ -13,7 +14,7 @@ import { CLIENT_ID, messages, USER_ID } from './fixtures';
 
 // Each cell of the gallery is a page: `?theme=light|dark&wrapper=inside|outside&tokens=default|app`.
 // `inside` renders in a `.str-chat` element, as in a Stream app; `outside` renders without one,
-// as an app that uses only the AI components does. `app` sets only `--str-chat__ai-*` tokens.
+// as an app that uses only the AI components does. `app` themes them with the SDK's tokens.
 const params = new URLSearchParams(window.location.search);
 export const theme = params.get('theme') === 'dark' ? 'dark' : 'light';
 export const wrapper = params.get('wrapper') === 'outside' ? 'outside' : 'inside';
@@ -59,6 +60,15 @@ export const App = () => {
       }),
     [],
   );
+  const conversation = (
+    <AIConversation
+      approver={approver}
+      AssistantMessage={AssistantMessage}
+      messages={messages}
+      ReplyActions={null}
+      ui={ui}
+    />
+  );
   const themeClass = `str-chat__theme-${theme}`;
   // No <Chat> or TranslationProvider: outside one, the default translator renders each string's
   // inline English, as an app that uses only the AI components gets.
@@ -66,8 +76,8 @@ export const App = () => {
     <div
       className={[
         'gallery',
-        // Stream's theme tokens exist only in a `.str-chat` element. Outside one, the AI
-        // components take the app's `--str-chat__ai-*` tokens, else their light fallbacks.
+        // Outside a `.str-chat` element, each AI component carries the `str-chat` scope itself,
+        // with no theme class (there is no <Chat>), so it is the SDK's light theme.
         wrapper === 'inside' ? `str-chat ${themeClass}` : undefined,
         tokens === 'app' ? `gallery--app-${theme}` : undefined,
       ]
@@ -77,16 +87,16 @@ export const App = () => {
     >
       <header className='gallery__header'>
         {wrapper === 'outside' && tokens === 'default'
-          ? 'outside .str-chat · fallbacks (no Stream theme, no app tokens)'
+          ? 'outside .str-chat · the scope each AI component carries (light, no app tokens)'
           : `${theme} · ${wrapper} .str-chat · ${tokens} tokens`}
       </header>
-      <AIConversation
-        approver={approver}
-        AssistantMessage={AssistantMessage}
-        messages={messages}
-        ReplyActions={null}
-        ui={ui}
-      />
+      {wrapper === 'inside' ? (
+        // The `.str-chat` element above is the scope, so the conversation adds none of its own,
+        // which would reset its theme: as an app with its own `str-chat` element renders it.
+        <ThemeScopeProvider>{conversation}</ThemeScopeProvider>
+      ) : (
+        conversation
+      )}
     </div>
   );
 };

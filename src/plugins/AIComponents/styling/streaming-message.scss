@@ -1,13 +1,13 @@
-@use './tokens' as *;
+@use './mixins' as *;
 
 // The agent's answer, without a bubble: long-form text set in the SCR type scale, at a relaxed
 // line height for reading, with the space between blocks doing the structuring. It starts at the
 // steps' edge, so the reply reads as one column.
 .str-chat__ai-streaming-message {
   min-width: 0;
-  color: ai-token(text-primary);
-  font-size: ai-scale(font-md);
-  line-height: ai-scale(line-relaxed);
+  color: var(--str-chat__text-primary);
+  font-size: var(--str-chat__typography-font-size-md);
+  line-height: var(--str-chat__typography-line-height-relaxed);
   overflow-wrap: anywhere;
 
   // Paragraphs anywhere (in list items and quotes too) start with no margin. `:where` keeps this
@@ -21,7 +21,7 @@
   }
 
   > * + * {
-    margin-block-start: ai-scale(space-sm);
+    margin-block-start: var(--str-chat__spacing-sm);
   }
 
   // Headings: a step up the scale, more room above than below, so each sits with what follows it.
@@ -31,55 +31,55 @@
   h4,
   h5,
   h6 {
-    color: ai-token(text-primary);
-    font-weight: ai-scale(weight-semi-bold);
-    line-height: ai-scale(line-relaxed);
+    color: var(--str-chat__text-primary);
+    font-weight: var(--str-chat__typography-font-weight-semi-bold);
+    line-height: var(--str-chat__typography-line-height-relaxed);
   }
 
   h1 {
-    font-size: ai-scale(font-xl);
+    font-size: var(--str-chat__typography-font-size-xl);
   }
 
   h2 {
-    font-size: ai-scale(font-lg);
+    font-size: var(--str-chat__typography-font-size-lg);
   }
 
   h3,
   h4,
   h5,
   h6 {
-    font-size: ai-scale(font-md);
+    font-size: var(--str-chat__typography-font-size-md);
   }
 
   > :is(h1, h2, h3, h4, h5, h6):not(:first-child) {
-    margin-block-start: ai-scale(space-lg);
+    margin-block-start: var(--str-chat__spacing-lg);
   }
 
   > :is(h1, h2, h3, h4, h5, h6) + * {
-    margin-block-start: ai-scale(space-xs);
+    margin-block-start: var(--str-chat__spacing-xs);
   }
 
   strong {
-    font-weight: ai-scale(weight-semi-bold);
+    font-weight: var(--str-chat__typography-font-weight-semi-bold);
   }
 
   ul,
   ol {
-    padding-inline-start: ai-scale(space-lg);
+    padding-inline-start: var(--str-chat__spacing-lg);
 
     li + li,
     li > ul,
     li > ol {
-      margin-block-start: ai-scale(space-xxs);
+      margin-block-start: var(--str-chat__spacing-xxs);
     }
 
     li::marker {
-      color: ai-token(text-tertiary);
+      color: var(--str-chat__text-tertiary);
     }
   }
 
   a {
-    color: ai-token(link);
+    color: var(--str-chat__text-link);
     text-decoration: underline;
     text-decoration-thickness: 1px;
     text-underline-offset: 2px;
@@ -91,39 +91,35 @@
 
   blockquote {
     margin-inline: 0;
-    padding-inline-start: ai-scale(space-sm);
-    border-inline-start: 2px solid ai-token(border);
-    color: ai-token(text-secondary);
+    padding-inline-start: var(--str-chat__spacing-sm);
+    border-inline-start: 2px solid var(--str-chat__border-core-default);
+    color: var(--str-chat__text-secondary);
   }
 
   hr {
     height: 1px;
     border: none;
-    background-color: ai-token(border-subtle);
+    background-color: var(--str-chat__border-core-subtle);
   }
 
   > hr {
-    margin-block: ai-scale(space-lg);
+    margin-block: var(--str-chat__spacing-lg);
   }
 
   img {
     max-width: 100%;
-    border-radius: ai-scale(radius-lg);
+    border-radius: var(--str-chat__radius-lg);
   }
 
   // Inline code, wherever it is: in a paragraph, a list item, a heading or a table cell.
   :not(pre) > .str-chat__ai-code {
     padding: 0.125em 0.375em;
-    border-radius: ai-scale(radius-sm);
-    background-color: ai-token(inline-code-bg);
+    border-radius: var(--str-chat__radius-sm);
+    background-color: var(--str-chat__background-core-surface-default);
     // The SCR mono face first; a system one when the page has not loaded it.
     font-family:
-      #{ai-scale(font-mono)},
-      ui-monospace,
-      SFMono-Regular,
-      Menlo,
-      Consolas,
-      monospace;
+      var(--str-chat__typography-font-family-mono), ui-monospace, SFMono-Regular, Menlo,
+      Consolas, monospace;
     font-size: 0.875em;
   }
 
@@ -133,24 +129,24 @@
     overflow-x: auto;
     border-collapse: collapse;
     border-spacing: 0;
-    font-size: ai-scale(font-sm);
-    line-height: ai-scale(line-normal);
+    font-size: var(--str-chat__typography-font-size-sm);
+    line-height: var(--str-chat__typography-line-height-normal);
 
     thead {
-      background-color: ai-token(table-header-bg);
+      background-color: var(--str-chat__background-core-surface-subtle);
 
       th {
-        padding: ai-scale(space-xs) ai-scale(space-sm);
+        padding: var(--str-chat__spacing-xs) var(--str-chat__spacing-sm);
         text-align: start;
-        font-weight: ai-scale(weight-semi-bold);
-        color: ai-token(table-header-text);
-        border-bottom: 1px solid ai-token(table-border);
+        font-weight: var(--str-chat__typography-font-weight-semi-bold);
+        color: var(--str-chat__text-primary);
+        border-bottom: 1px solid var(--str-chat__border-core-default);
       }
     }
 
     tbody {
       tr {
-        border-bottom: 1px solid ai-token(border-subtle);
+        border-bottom: 1px solid var(--str-chat__border-core-subtle);
 
         &:last-child {
           border-bottom: none;
@@ -158,8 +154,8 @@
       }
 
       td {
-        padding: ai-scale(space-xs) ai-scale(space-sm);
-        color: ai-token(table-text);
+        padding: var(--str-chat__spacing-xs) var(--str-chat__spacing-sm);
+        color: var(--str-chat__text-secondary);
         vertical-align: top;
       }
     }
@@ -174,26 +170,21 @@
 
   .str-chat__ai-syntax-highlighter-pre {
     overflow-x: auto;
-    background-color: ai-token(bg-secondary);
-    border: 1px solid ai-token(border-subtle);
-    border-radius: ai-scale(radius-lg);
-    padding: ai-scale(space-sm);
+    background-color: var(--str-chat__background-core-surface-default);
+    border: 1px solid var(--str-chat__border-core-subtle);
+    border-radius: var(--str-chat__radius-lg);
+    padding: var(--str-chat__spacing-sm);
     margin: 0;
-    font-size: ai-scale(font-sm);
-    line-height: ai-scale(line-normal);
+    font-size: var(--str-chat__typography-font-size-sm);
+    line-height: var(--str-chat__typography-line-height-normal);
 
     code[class*='language-'] {
       // background: #272b33;
-      color: ai-token(syntax-text);
+      color: var(--str-chat__code-syntax-text);
       // text-shadow: 0 1px rgba(0, 0, 0, 0.3);
       font-family:
-        #{ai-scale(font-mono)},
-        ui-monospace,
-        SFMono-Regular,
-        'Fira Code',
-        Menlo,
-        Consolas,
-        monospace;
+        var(--str-chat__typography-font-family-mono), ui-monospace, SFMono-Regular,
+        'Fira Code', Menlo, Consolas, monospace;
       direction: ltr;
       text-align: left;
       white-space: pre;
@@ -214,7 +205,7 @@
     // does not recognise one pseudo-element drops the whole rule (Chromium/WebKit drop
     // `::-moz-selection`). Current Firefox supports `::selection`, so only that is needed.
     code[class*='language-']::selection {
-      background: ai-token(syntax-selection-bg);
+      background: var(--str-chat__code-syntax-selection-bg);
       color: inherit;
       text-shadow: none;
     }
@@ -222,7 +213,7 @@
     .token {
       &.cdata,
       &.comment {
-        color: ai-token(syntax-comment);
+        color: var(--str-chat__code-syntax-comment);
       }
 
       &.comment {
@@ -230,13 +221,13 @@
       }
 
       &.prolog {
-        color: ai-token(syntax-comment);
+        color: var(--str-chat__code-syntax-comment);
       }
 
       &.doctype,
       &.entity,
       &.punctuation {
-        color: ai-token(syntax-punctuation);
+        color: var(--str-chat__code-syntax-punctuation);
       }
 
       &.entity {
@@ -249,11 +240,11 @@
       &.class-name,
       &.constant,
       &.number {
-        color: ai-token(syntax-number);
+        color: var(--str-chat__code-syntax-number);
       }
 
       &.keyword {
-        color: ai-token(syntax-keyword);
+        color: var(--str-chat__code-syntax-keyword);
       }
 
       &.deleted,
@@ -261,7 +252,7 @@
       &.property,
       &.symbol,
       &.tag {
-        color: ai-token(syntax-tag);
+        color: var(--str-chat__code-syntax-tag);
       }
 
       &.attr-value,
@@ -271,29 +262,29 @@
       &.regex,
       &.selector,
       &.string {
-        color: ai-token(syntax-string);
+        color: var(--str-chat__code-syntax-string);
       }
 
       &.attr-value > .token.punctuation {
-        color: ai-token(syntax-string);
+        color: var(--str-chat__code-syntax-string);
       }
 
       &.function,
       &.operator,
       &.variable {
-        color: ai-token(syntax-function);
+        color: var(--str-chat__code-syntax-function);
       }
 
       &.url {
-        color: ai-token(syntax-cyan);
+        color: var(--str-chat__code-syntax-cyan);
       }
 
       &.attr-value > .token.punctuation.attr-equals {
-        color: ai-token(syntax-punctuation);
+        color: var(--str-chat__code-syntax-punctuation);
       }
 
       &.special-attr > .token.attr-value > .token.value.css {
-        color: ai-token(syntax-punctuation);
+        color: var(--str-chat__code-syntax-punctuation);
       }
 
       &.bold {
@@ -312,7 +303,7 @@
       &.lf:before,
       &.space:before,
       &.tab:not(:empty):before {
-        color: ai-token(syntax-whitespace);
+        color: var(--str-chat__code-syntax-whitespace);
         text-shadow: none;
       }
     }
@@ -321,31 +312,31 @@
     .language-css {
       .token {
         &.selector {
-          color: ai-token(syntax-tag);
+          color: var(--str-chat__code-syntax-tag);
         }
 
         &.property {
-          color: ai-token(syntax-punctuation);
+          color: var(--str-chat__code-syntax-punctuation);
         }
 
         &.function {
-          color: ai-token(syntax-cyan);
+          color: var(--str-chat__code-syntax-cyan);
         }
 
         &.url > .token.function {
-          color: ai-token(syntax-cyan);
+          color: var(--str-chat__code-syntax-cyan);
         }
 
         &.url > .token.string.url {
-          color: ai-token(syntax-string);
+          color: var(--str-chat__code-syntax-string);
         }
 
         &.atrule .token.rule {
-          color: ai-token(syntax-keyword);
+          color: var(--str-chat__code-syntax-keyword);
         }
 
         &.important {
-          color: ai-token(syntax-keyword);
+          color: var(--str-chat__code-syntax-keyword);
         }
       }
     }
@@ -354,13 +345,13 @@
     .language-javascript {
       .token {
         &.operator {
-          color: ai-token(syntax-keyword);
+          color: var(--str-chat__code-syntax-keyword);
         }
 
         &.template-string
           > .token.interpolation
           > .token.interpolation-punctuation.punctuation {
-          color: ai-token(syntax-error);
+          color: var(--str-chat__code-syntax-error);
         }
       }
     }
@@ -369,11 +360,11 @@
     .language-json {
       .token {
         &.operator {
-          color: ai-token(syntax-punctuation);
+          color: var(--str-chat__code-syntax-punctuation);
         }
 
         &.null.keyword {
-          color: ai-token(syntax-number);
+          color: var(--str-chat__code-syntax-number);
         }
       }
     }
@@ -382,58 +373,58 @@
     .language-markdown {
       .token {
         &.url {
-          color: ai-token(syntax-punctuation);
+          color: var(--str-chat__code-syntax-punctuation);
         }
 
         &.url-reference.url > .token.string {
-          color: ai-token(syntax-punctuation);
+          color: var(--str-chat__code-syntax-punctuation);
         }
 
         &.url > .token.operator {
-          color: ai-token(syntax-punctuation);
+          color: var(--str-chat__code-syntax-punctuation);
         }
 
         &.url > .token.content {
-          color: ai-token(syntax-function);
+          color: var(--str-chat__code-syntax-function);
         }
 
         &.url-reference.url {
-          color: ai-token(syntax-cyan);
+          color: var(--str-chat__code-syntax-cyan);
         }
 
         &.url > .token.url {
-          color: ai-token(syntax-cyan);
+          color: var(--str-chat__code-syntax-cyan);
         }
 
         &.blockquote.punctuation,
         &.hr.punctuation {
-          color: ai-token(syntax-comment);
+          color: var(--str-chat__code-syntax-comment);
           font-style: italic;
         }
 
         &.code-snippet {
-          color: ai-token(syntax-string);
+          color: var(--str-chat__code-syntax-string);
         }
 
         &.bold .token.content {
-          color: ai-token(syntax-number);
+          color: var(--str-chat__code-syntax-number);
         }
 
         &.italic .token.content {
-          color: ai-token(syntax-keyword);
+          color: var(--str-chat__code-syntax-keyword);
         }
 
         &.list.punctuation {
-          color: ai-token(syntax-tag);
+          color: var(--str-chat__code-syntax-tag);
         }
 
         &.strike .token.content,
         &.strike .token.punctuation {
-          color: ai-token(syntax-tag);
+          color: var(--str-chat__code-syntax-tag);
         }
 
         &.title.important > .token.punctuation {
-          color: ai-token(syntax-tag);
+          color: var(--str-chat__code-syntax-tag);
         }
       }
     }

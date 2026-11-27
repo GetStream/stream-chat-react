@@ -1,4 +1,4 @@
-@use './tokens' as *;
+@use './mixins' as *;
 
 .str-chat__ai-attachment-preview {
   &:empty {
@@ -16,24 +16,24 @@
   }
 
   &::-webkit-scrollbar-track {
-    background: ai-token(scrollbar-track);
+    background: var(--str-chat__background-core-surface-subtle);
     border-radius: 0.25rem;
   }
 
   &::-webkit-scrollbar-thumb {
-    background: ai-token(scrollbar-thumb);
+    background: var(--str-chat__system-scrollbar);
     border-radius: 0.25rem;
   }
 
   &::-webkit-scrollbar-thumb:hover {
-    background: ai-token(border);
+    background: var(--str-chat__border-core-default);
   }
 }
 
 .str-chat__ai-attachment-preview__item {
   display: flex;
   height: 4rem;
-  border: 1px solid ai-token(border);
+  border: 1px solid var(--str-chat__border-core-default);
   border-radius: 0.5rem;
   position: relative;
   padding: 0.25rem;
@@ -67,7 +67,7 @@
 
     .str-chat__ai-attachment-preview__retry-button {
       all: unset;
-      background-color: ai-token(button-bg);
+      background-color: var(--str-chat__background-core-surface-strong);
       border-radius: 9999px;
       display: flex;
       padding: 0.25rem;
@@ -75,7 +75,7 @@
       transition: background 0.1s ease-in;
 
       &:hover:not(:disabled) {
-        background: ai-token(border);
+        background: var(--str-chat__border-core-default);
         cursor: pointer;
       }
 
@@ -103,12 +103,12 @@
     width: 1rem;
     height: 1rem;
     border-radius: 9999px;
-    background: ai-token(button-bg);
+    background: var(--str-chat__background-core-surface-strong);
 
     transition: background 0.1s ease-in;
 
     &:hover:not(:disabled) {
-      background: ai-token(border);
+      background: var(--str-chat__border-core-default);
       cursor: pointer;
     }
 

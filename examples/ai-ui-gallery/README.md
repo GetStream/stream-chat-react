@@ -4,8 +4,8 @@ Every A2UI basic component, an OpenUI reply, a reply that finishes without a tex
 
 Each page is one cell: `?theme=light|dark&wrapper=inside|outside&tokens=default|app`.
 
-- `wrapper=inside` renders in a `.str-chat` element with the SDK's theme class, as a Stream app does. `outside` renders without one, as an app that uses only the AI components does. Stream's theme tokens exist only in `.str-chat`, so outside one with the default tokens the AI components use their light fallbacks.
-- `tokens=app` sets only `--str-chat__ai-*` tokens, a purple brand in light and dark (`src/gallery.css`).
+- `wrapper=inside` renders in a `.str-chat` element with the SDK's theme class, as a Stream app does. `outside` renders without one, as an app that uses only the AI components does: each AI component then carries the `str-chat` scope itself, with no theme class, since there is no `Chat`, so it is the SDK's light theme.
+- `tokens=app` themes the AI components with the SDK's tokens, a purple brand in light and dark (`src/gallery.css`), set on each `.str-chat` scope as an app sets them for the rest of the SDK.
 
 ```bash
 yarn build                 # at the repo root: the gallery renders dist/

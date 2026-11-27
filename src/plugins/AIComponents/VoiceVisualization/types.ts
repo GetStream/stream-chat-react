@@ -45,7 +45,7 @@ export type VoiceVisualizationProps = Omit<
   audioLevel?: () => number | null | undefined;
   /**
    * One to five CSS colors. Past five are ignored. When omitted or empty, the theme's accent
-   * color (`--str-chat__ai-voice-color`) is used.
+   * color (`--str-chat__accent-primary`) is used.
    */
   colors?: string[];
   /** From 0 to 2: how far and how fast it moves. Colors never change with it. Defaults to 1. */

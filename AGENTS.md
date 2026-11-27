@@ -80,7 +80,8 @@ yarn i18n:export          # write an en.json on demand (for a translator or TMS)
 yarn validate-cjs         # loads dist/cjs in Node + a browser-like context
 yarn validate-esm         # imports dist/es in Node
 yarn validate-entry-isolation # fails if the main entry's ESM graph reaches ai-components or its deps
-yarn validate-ai-ui-tokens # fails if A2UI or OpenUI styles read a colour the --str-chat__ai-* tokens leave unset
+yarn validate-ai-ui-tokens # fails if A2UI or OpenUI styles read a colour ai-components.css leaves to the renderer's own default
+yarn validate-ai-styles    # fails if the AI stylesheets write out more values than scripts/ai-styles-baseline.json allows
 
 # Examples
 yarn start:tutorial       # @stream-io/stream-chat-react-tutorial dev server
@@ -464,7 +465,7 @@ Follow `.github/pull_request_template.md` (Goal / Implementation details / UI Ch
 - [ ] Screenshots (before/after) for UI changes
 - [ ] Public API changes documented
 
-**CI** (`.github/workflows/ci.yml`, on every PR): lint (`yarn lint`, `yarn types`, `yarn types:scripts`) · build + `validate-cjs` + `validate-esm` + `validate-entry-isolation` + `validate-ai-ui-tokens` + `keys.ts` drift check + `yarn examples:build` · `yarn coverage` → Codecov · deploy `examples/vite` to Vercel. `pr-check.yml` lints the PR title; `size.yml` reports bundle size.
+**CI** (`.github/workflows/ci.yml`, on every PR): lint (`yarn lint`, `yarn types`, `yarn types:scripts`, `yarn validate-ai-styles`) · build + `validate-cjs` + `validate-esm` + `validate-entry-isolation` + `validate-ai-ui-tokens` + `keys.ts` drift check + `yarn examples:build` · `yarn coverage` → Codecov · deploy `examples/vite` to Vercel. `pr-check.yml` lints the PR title; `size.yml` reports bundle size.
 
 **Release:** automated via semantic-release (`.releaserc.json`) from commit messages.
 

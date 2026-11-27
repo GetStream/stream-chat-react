@@ -1,20 +1,17 @@
 {
   "src/plugins/AIComponents/styling/_ai-ui-icons.scss": {
-    "ai-token": 1,
     "font": 2,
     "radius": 1
   },
   "src/plugins/AIComponents/styling/a2ui.scss": {
-    "ai-token": 43,
     "font": 11,
     "motion": 1,
-    "radius": 5,
+    "radius": 4,
     "shadow": 1,
     "size": 15,
     "spacing": 14
   },
   "src/plugins/AIComponents/styling/ai-conversation.scss": {
-    "ai-token": 35,
     "font": 10,
     "motion": 7,
     "radius": 10,
@@ -23,7 +20,6 @@
     "z-index": 1
   },
   "src/plugins/AIComponents/styling/ai-message-composer.scss": {
-    "ai-token": 5,
     "font": 3,
     "motion": 1,
     "radius": 3,
@@ -31,7 +27,6 @@
     "spacing": 8
   },
   "src/plugins/AIComponents/styling/ai-message-parts.scss": {
-    "ai-token": 48,
     "font": 10,
     "motion": 11,
     "radius": 2,
@@ -39,7 +34,6 @@
     "spacing": 14
   },
   "src/plugins/AIComponents/styling/ai-state-indicator.scss": {
-    "ai-token": 2,
     "font": 3,
     "motion": 5,
     "radius": 2,
@@ -50,7 +44,6 @@
     "motion": 3
   },
   "src/plugins/AIComponents/styling/attachment-preview.scss": {
-    "ai-token": 8,
     "font": 2,
     "motion": 2,
     "radius": 6,
@@ -58,15 +51,13 @@
     "spacing": 6
   },
   "src/plugins/AIComponents/styling/openui.scss": {
-    "ai-token": 57,
     "font": 3,
     "motion": 1,
-    "radius": 4,
+    "radius": 1,
     "size": 1,
     "spacing": 5
   },
   "src/plugins/AIComponents/styling/streaming-message.scss": {
-    "ai-token": 80,
     "font": 2,
     "size": 1,
     "spacing": 1
@@ -76,7 +67,6 @@
     "radius": 4
   },
   "src/plugins/AIComponents/styling/voice-visualization.scss": {
-    "ai-token": 2,
     "motion": 1,
     "radius": 1,
     "size": 3

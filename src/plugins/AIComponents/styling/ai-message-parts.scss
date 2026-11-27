@@ -1,4 +1,4 @@
-@use './tokens' as *;
+@use './mixins' as *;
 
 // The steps of a reply: reasoning, tool calls, and the questions and sign-ins they wait for.
 
@@ -13,7 +13,7 @@
 .str-chat__ai-message-parts {
   display: flex;
   flex-direction: column;
-  gap: ai-scale(space-xs);
+  gap: var(--str-chat__spacing-xs);
   width: 100%;
 }
 
@@ -27,7 +27,7 @@
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  color: ai-token(text-secondary);
+  color: var(--str-chat__text-secondary);
   font-size: 0.875rem;
 
   @include ai-icon;
@@ -56,7 +56,7 @@
 
 .str-chat__ai-spinner {
   display: inline-flex;
-  color: ai-token(text-secondary);
+  color: var(--str-chat__text-secondary);
 
   @include ai-icon(1.125rem);
 
@@ -71,13 +71,13 @@
   display: flex;
   align-items: flex-start;
   gap: 0.5rem;
-  font-size: ai-scale(font-sm);
-  line-height: ai-scale(line-normal);
+  font-size: var(--str-chat__typography-font-size-sm);
+  line-height: var(--str-chat__typography-line-height-normal);
 
   &__icon {
     display: inline-flex;
     margin-top: 0.125rem;
-    color: ai-token(accent);
+    color: var(--str-chat__text-link);
 
     @include ai-icon;
 
@@ -87,15 +87,15 @@
   }
 
   &--completed &__icon {
-    color: ai-token(success);
+    color: var(--str-chat__accent-success);
   }
 
   &--failed &__icon {
-    color: ai-token(error);
+    color: var(--str-chat__button-destructive-text);
   }
 
   &--cancelled &__icon {
-    color: ai-token(text-secondary);
+    color: var(--str-chat__text-secondary);
   }
 
   &__text {
@@ -107,7 +107,7 @@
   }
 
   &__title {
-    color: ai-token(text-primary);
+    color: var(--str-chat__text-primary);
   }
 
   &__detail {
@@ -115,13 +115,13 @@
     overflow: hidden;
     -webkit-box-orient: vertical;
     -webkit-line-clamp: 2;
-    color: ai-token(text-secondary);
-    font-size: ai-scale(font-xs);
+    color: var(--str-chat__text-secondary);
+    font-size: var(--str-chat__typography-font-size-xs);
   }
 
   &__duration {
-    color: ai-token(text-secondary);
-    font-size: ai-scale(font-xs);
+    color: var(--str-chat__text-secondary);
+    font-size: var(--str-chat__typography-font-size-xs);
     font-variant-numeric: tabular-nums;
     white-space: nowrap;
   }
@@ -135,11 +135,11 @@
   flex-direction: column;
   gap: 0.75rem;
   padding: 0.75rem;
-  border: 1px solid ai-token(card-border);
+  border: 1px solid var(--str-chat__border-core-subtle);
   border-radius: 1rem;
-  background-color: ai-token(card-bg);
-  color: ai-token(text-primary);
-  font-size: ai-scale(font-sm);
+  background-color: var(--str-chat__background-core-surface-card);
+  color: var(--str-chat__text-primary);
+  font-size: var(--str-chat__typography-font-size-sm);
 }
 
 .str-chat__ai-tool-approval-card {
@@ -154,7 +154,7 @@
   }
 
   &__message {
-    color: ai-token(text-secondary);
+    color: var(--str-chat__text-secondary);
     font-size: 0.875rem;
   }
 
@@ -166,8 +166,8 @@
   }
 
   &__failure {
-    color: ai-token(error);
-    font-size: ai-scale(font-xs);
+    color: var(--str-chat__button-destructive-text);
+    font-size: var(--str-chat__typography-font-size-xs);
   }
 }
 
@@ -176,9 +176,9 @@
   min-width: 0;
 
   &__label {
-    color: ai-token(text-secondary);
+    color: var(--str-chat__text-secondary);
     cursor: pointer;
-    font-size: ai-scale(font-xs);
+    font-size: var(--str-chat__typography-font-size-xs);
     font-weight: 600;
 
     &:focus-visible {
@@ -187,21 +187,21 @@
   }
 
   &[open] &__label {
-    margin-bottom: ai-scale(space-xxs);
+    margin-bottom: var(--str-chat__spacing-xxs);
   }
 
   &__code {
     max-height: 12rem;
     margin: 0;
-    padding: ai-scale(space-xs);
+    padding: var(--str-chat__spacing-xs);
     overflow: auto;
-    border-radius: ai-scale(radius-sm);
+    border-radius: var(--str-chat__radius-sm);
     // A tint of the words, so the panel stands out on any card, light or dark.
-    background-color: color-mix(in srgb, #{ai-token(text-primary)} 7%, transparent);
-    color: ai-token(text-primary);
+    background-color: color-mix(in srgb, var(--str-chat__text-primary) 7%, transparent);
+    color: var(--str-chat__text-primary);
     // The SDK's mono font names no generic family, for when it isn't loaded.
-    font-family: ai-scale(font-mono), monospace;
-    font-size: ai-scale(font-xs);
+    font-family: var(--str-chat__typography-font-family-mono), monospace;
+    font-size: var(--str-chat__typography-font-size-xs);
     line-height: 1.5;
     white-space: pre-wrap;
     overflow-wrap: anywhere;
@@ -210,17 +210,17 @@
 
 .str-chat__ai-tool-authorization-card {
   &__outcome {
-    color: ai-token(text-secondary);
+    color: var(--str-chat__text-secondary);
     font-size: 0.875rem;
   }
 
   &--connected &__outcome {
-    color: ai-token(success);
+    color: var(--str-chat__accent-success);
   }
 
   &--failed &__outcome,
   &--expired &__outcome {
-    color: ai-token(error);
+    color: var(--str-chat__button-destructive-text);
   }
 }
 
@@ -239,14 +239,14 @@
   transition: opacity 0.1s ease-in-out;
 
   &--primary {
-    background-color: ai-token(button-primary-bg);
-    color: ai-token(button-primary-text);
+    background-color: var(--str-chat__button-primary-bg);
+    color: var(--str-chat__button-primary-text-on-accent);
   }
 
   &--secondary {
-    border: 1px solid ai-token(button-secondary-border);
-    background-color: ai-token(button-secondary-bg);
-    color: ai-token(button-secondary-text);
+    border: 1px solid var(--str-chat__button-secondary-border);
+    background-color: var(--str-chat__button-secondary-bg);
+    color: var(--str-chat__button-secondary-text);
   }
 
   &:hover:not(:disabled) {
@@ -268,9 +268,9 @@
 .str-chat__ai-reasoning {
   position: relative;
   padding-inline-start: 0.75rem;
-  color: ai-token(text-secondary);
-  font-size: ai-scale(font-sm);
-  line-height: ai-scale(line-normal);
+  color: var(--str-chat__text-secondary);
+  font-size: var(--str-chat__typography-font-size-sm);
+  line-height: var(--str-chat__typography-line-height-normal);
 
   // the rule along the reasoning
   &::before {
@@ -279,12 +279,12 @@
     inset-inline-start: 0;
     width: 2px;
     border-radius: 1px;
-    background-color: ai-token(border-subtle);
+    background-color: var(--str-chat__border-core-subtle);
     content: '';
   }
 
   &--thinking::before {
-    background-color: ai-token(accent);
+    background-color: var(--str-chat__accent-primary);
     opacity: 0.6;
   }
 
@@ -295,7 +295,7 @@
     align-items: center;
     gap: 0.375rem;
     max-width: 100%;
-    color: ai-token(text-primary);
+    color: var(--str-chat__text-primary);
     cursor: pointer;
     font-weight: 500;
 
@@ -322,7 +322,7 @@
   &__summary {
     overflow: hidden;
     min-width: 0;
-    color: ai-token(text-secondary);
+    color: var(--str-chat__text-secondary);
     font-weight: 400;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -387,7 +387,7 @@
 
   &__paragraph {
     & + & {
-      margin-top: ai-scale(space-xs);
+      margin-top: var(--str-chat__spacing-xs);
     }
 
     p {
@@ -397,8 +397,8 @@
 
   &__footnote {
     padding-top: 0.5rem;
-    color: ai-token(text-tertiary);
-    font-size: ai-scale(font-xs);
+    color: var(--str-chat__text-tertiary);
+    font-size: var(--str-chat__typography-font-size-xs);
   }
 }
 

@@ -11,6 +11,7 @@ import type {
 import { ChannelPaginator } from 'stream-chat';
 import { Chat, useChatContext, useCreateChatClient } from 'stream-chat-react';
 import { ActiveChannelProvider, useActiveChannel } from '../ActiveChannelContext';
+import { useTheme } from '../ThemeContext';
 import { Sidebar } from '../Sidebar';
 import { ChatContainer } from '../ChatContainer';
 import { LoadingScreen } from '../LoadingScreen';
@@ -125,6 +126,7 @@ export const AIChatApp = ({
   initialChannelId,
   ...query
 }: AIChatAppProps) => {
+  const { theme } = useTheme();
   const [minTimeElapsed, setMinTimeElapsed] = useState(false);
   const [isFadingOut, setIsFadingOut] = useState(false);
   const [showLoadingScreen, setShowLoadingScreen] = useState(true);
@@ -159,7 +161,12 @@ export const AIChatApp = ({
   return (
     <div className='ai-demo-app'>
       {chatClient && (
-        <Chat client={chatClient} isMessageAIGenerated={isMessageAIGenerated}>
+        <Chat
+          client={chatClient}
+          isMessageAIGenerated={isMessageAIGenerated}
+          // The SDK and the AI components follow the demo's light or dark theme.
+          theme={`str-chat__theme-${theme}`}
+        >
           <ActiveChannelProvider>
             <ChatContent initialChannelId={initialChannelId} {...query} />
           </ActiveChannelProvider>

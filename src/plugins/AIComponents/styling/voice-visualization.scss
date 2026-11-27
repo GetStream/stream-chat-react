@@ -1,5 +1,4 @@
-// Intentionally declares no `--str-chat__ai-*` custom properties; see _tokens.scss.
-@use './tokens' as *;
+@use './mixins' as *;
 
 // VoiceWave and VoiceGlow draw on a canvas, which cannot read CSS variables. The script reads
 // the computed `color` as the default palette and the computed `text-decoration-color` as the
@@ -15,8 +14,8 @@
   min-height: 0;
   container-type: size;
   pointer-events: none;
-  color: ai-token(voice-color);
-  text-decoration-color: ai-token(voice-backdrop);
+  color: var(--str-chat__accent-primary);
+  text-decoration-color: var(--str-chat__background-core-elevation-0);
   -webkit-tap-highlight-color: transparent;
 
   // Fades in over 0.3 s once its first frame is drawn, as on iOS.
