@@ -1,8 +1,6 @@
 import React, {
   type ComponentType,
   type ReactNode,
-  useCallback,
-  useEffect,
   useMemo,
   useRef,
   useState,
@@ -22,7 +20,9 @@ import type { AIMessagePartData } from '../MessageParts/types';
 import { AIThinking } from '../Reasoning/AIReasoning';
 import { AIThinkingClock, AIThinkingTurnContext } from '../Reasoning/thinkingClock';
 import { type AIToolApprover, AIToolApproverProvider } from '../ToolCalls/AIToolApprover';
-import { prefersReducedMotion, useIsomorphicLayoutEffect } from '../utils';
+import { useIsomorphicLayoutEffect } from '../utils';
+import { useOlderPageLoader } from './hooks/useOlderPageLoader';
+import { useTurnScroller } from './hooks/useTurnScroller';
 import {
   type AIConversationEntry,
   type AIConversationTurn,
@@ -45,14 +45,6 @@ import { useAIConversationState } from './controller/useAIConversationState';
 import type { AIUserMessageActions } from './controller/types';
 
 export type { AIUserMessageActions };
-
-// How far from the end still counts as at the end, in pixels.
-const END_SLACK = 32;
-// How long the spinner above the turns stays in view before older messages load, so a list
-// that opens at its end does not load for the frame its start shows.
-const LOAD_OLDER_DELAY_MS = 300;
-// How long to wait before asking again after loading older messages failed.
-const LOAD_OLDER_RETRY_MS = 3000;
 
 export type AIConversationUserMessageProps = {
   /** What the person sent with it, such as images and files. */
@@ -311,8 +303,6 @@ const EntryView = ({
   );
 };
 
-type HeldTurn = { id: string; top: number };
-
 // The turn's first reasoning step, which takes over the seconds the turn was seen thinking.
 const firstStepOf = (turn: AIConversationTurn | undefined) => {
   for (const { message } of turn?.entries ?? []) {
@@ -321,17 +311,6 @@ const firstStepOf = (turn: AIConversationTurn | undefined) => {
     if (step) return step.id;
   }
   return undefined;
-};
-
-const scrollScroller = (scroller: HTMLElement, top: number, smooth: boolean) => {
-  if (typeof scroller.scrollTo !== 'function') {
-    scroller.scrollTop = top;
-    return;
-  }
-  scroller.scrollTo({
-    behavior: smooth && !prefersReducedMotion() ? 'smooth' : 'auto',
-    top,
-  });
 };
 
 /**
@@ -520,194 +499,31 @@ const ConversationView = ({
   const ReplyActions =
     ReplyActionsProp === undefined ? DefaultReplyActions : ReplyActionsProp;
 
-  const scrollerRef = useRef<HTMLDivElement>(null);
-  const contentRef = useRef<HTMLDivElement>(null);
-  const turnElements = useRef(new Map<string, HTMLDivElement>());
-  const [height, setHeight] = useState(0);
-  const [isEndInView, setIsEndInView] = useState(true);
-  const lastTurnIdRef = useRef<string | undefined>(undefined);
-  lastTurnIdRef.current = latest?.id;
-  const bottomInsetRef = useRef(bottomInset);
-  bottomInsetRef.current = bottomInset;
-
-  // The end is where the latest turn's content ends, above the floating composer: not the
-  // room the latest turn's minimum height leaves under a short reply.
-  const checkEnd = useCallback(() => {
-    const scroller = scrollerRef.current;
-    if (!scroller) return;
-    const turn =
-      lastTurnIdRef.current === undefined
-        ? undefined
-        : turnElements.current.get(lastTurnIdRef.current);
-    const last = turn?.lastElementChild as HTMLElement | null | undefined;
-    const end = last
-      ? last.offsetTop + last.offsetHeight
-      : scroller.scrollHeight - bottomInsetRef.current;
-    const visibleEnd =
-      scroller.scrollTop + scroller.clientHeight - bottomInsetRef.current;
-    setIsEndInView(end <= visibleEnd + END_SLACK);
-  }, []);
-
-  useIsomorphicLayoutEffect(() => {
-    const scroller = scrollerRef.current;
-    if (!scroller) return;
-    setHeight(scroller.clientHeight);
-    if (typeof ResizeObserver === 'undefined') return;
-    const observer = new ResizeObserver(() => {
-      setHeight(scroller.clientHeight);
-      checkEnd();
-    });
-    observer.observe(scroller);
-    return () => observer.disconnect();
-  }, [checkEnd]);
-
-  // Content that grows without this component rendering, such as an answer typing out or an
-  // image loading, moves the end too.
-  const hasTurns = turns.length > 0;
-  useEffect(() => {
-    const content = contentRef.current;
-    if (!content || typeof ResizeObserver === 'undefined') return;
-    const observer = new ResizeObserver(() => checkEnd());
-    observer.observe(content);
-    return () => observer.disconnect();
-  }, [checkEnd, hasTurns]);
-
-  // Where the turns in view were, the one at the top first, so older messages arriving above
-  // them leave them in place.
-  const held = useRef<HeldTurn[]>([]);
-  const noteHeld = useCallback(() => {
-    const scroller = scrollerRef.current;
-    if (!scroller) return;
-    const top = scroller.scrollTop;
-    const bottom = top + scroller.clientHeight;
-    held.current = [...turnElements.current]
-      .map(([id, element]) => ({ element, id }))
-      .filter(
-        ({ element }) =>
-          element.offsetTop + element.offsetHeight > top && element.offsetTop < bottom,
-      )
-      .sort((a, b) => a.element.offsetTop - b.element.offsetTop)
-      .map(({ element, id }) => ({ id, top: element.offsetTop - top }));
-  }, []);
-
-  // Noting where the turns are reads the layout of each, so scrolling does it once a frame.
-  const scrollFrame = useRef<number | undefined>(undefined);
-  const onScroll = () => {
-    if (scrollFrame.current !== undefined) return;
-    scrollFrame.current = requestAnimationFrame(() => {
-      scrollFrame.current = undefined;
-      noteHeld();
-      checkEnd();
-    });
-  };
-  useEffect(() => () => cancelAnimationFrame(scrollFrame.current ?? 0), []);
-
-  const scrollToEnd = useCallback((smooth: boolean) => {
-    const scroller = scrollerRef.current;
-    if (scroller) scrollScroller(scroller, scroller.scrollHeight, smooth);
-  }, []);
-
   const firstTurnId = turns[0]?.id;
   const lastTurnId = latest?.id;
   const loadsOlder = !!loadOlderMessages && turns.length > 0;
-  const shown = useRef<{
-    firstTurnId?: string;
-    height: number;
-    lastTurnId?: string;
-    loadsOlder: boolean;
-    mounted: boolean;
-  }>({ height: 0, loadsOlder, mounted: false });
 
-  // Runs when the turns around what is in view change, not on every render: a reply streaming in
-  // grows only the latest turn, which the observers above follow.
-  useIsomorphicLayoutEffect(() => {
-    const previous = shown.current;
-    shown.current = { firstTurnId, height, lastTurnId, loadsOlder, mounted: true };
-    const scroller = scrollerRef.current;
-    if (!scroller) return;
-
-    // Opens at its end, and again once its height is known, which sets the latest turn's
-    // minimum height and so where the end is.
-    if (!previous.mounted || (previous.height === 0 && height > 0)) {
-      scroller.scrollTop = scroller.scrollHeight;
-    } else if (
-      previous.firstTurnId !== undefined &&
-      (previous.firstTurnId !== firstTurnId || previous.loadsOlder !== loadsOlder) &&
-      previous.lastTurnId === lastTurnId
-    ) {
-      // Older messages arrived above what is in view, or the spinner came or went: the turn at
-      // the top goes back to where it was, rather than being pushed. The top one can be gone: a
-      // turn that starts with a reply joins the turn of its question when older messages bring it.
-      const anchor = held.current.find(({ id }) => turnElements.current.has(id));
-      const element = anchor && turnElements.current.get(anchor.id);
-      if (anchor && element) scroller.scrollTop = element.offsetTop - anchor.top;
-    } else if (lastTurnId !== previous.lastTurnId && lastTurnId !== undefined) {
-      // A new question pins to the top, once laid out at least as tall as the conversation. A
-      // conversation replaced as a whole opens at its end.
-      const continues =
-        previous.lastTurnId !== undefined &&
-        turnElements.current.has(previous.lastTurnId);
-      const element = turnElements.current.get(lastTurnId);
-      if (continues && element) scrollScroller(scroller, element.offsetTop, true);
-      else scroller.scrollTop = scroller.scrollHeight;
-    }
-    noteHeld();
-    checkEnd();
-  }, [checkEnd, firstTurnId, height, lastTurnId, loadsOlder, noteHeld]);
-
-  // Loads older messages once the spinner above the turns has been in view a moment, and again
-  // whenever the first turn changes while it is in view.
-  const loadOlderRef = useRef(loadOlderMessages);
-  loadOlderRef.current = loadOlderMessages;
-  const spinnerRef = useRef<HTMLDivElement>(null);
-  useEffect(() => {
-    const spinner = spinnerRef.current;
-    const scroller = scrollerRef.current;
-    if (
-      !loadsOlder ||
-      !spinner ||
-      !scroller ||
-      typeof IntersectionObserver === 'undefined'
-    ) {
-      return;
-    }
-    let timer: ReturnType<typeof setTimeout> | undefined;
-    let loading = false;
-    let disposed = false;
-    const observer = new IntersectionObserver(
-      ([visible]) => {
-        clearTimeout(timer);
-        if (!visible?.isIntersecting || loading) return;
-        timer = setTimeout(() => {
-          loading = true;
-          let failed = false;
-          Promise.resolve(loadOlderRef.current?.())
-            .catch(() => {
-              failed = true;
-            })
-            .finally(() => {
-              loading = false;
-              if (disposed) return;
-              // Watching the spinner afresh reports whether it is still in view, so a load that
-              // failed, or brought nothing while there is more, asks again: after a pause when
-              // it failed. A load that brought older messages re-runs this effect instead.
-              observer.unobserve(spinner);
-              timer = setTimeout(
-                () => observer.observe(spinner),
-                failed ? LOAD_OLDER_RETRY_MS : 0,
-              );
-            });
-        }, LOAD_OLDER_DELAY_MS);
-      },
-      { root: scroller },
-    );
-    observer.observe(spinner);
-    return () => {
-      disposed = true;
-      clearTimeout(timer);
-      observer.disconnect();
-    };
-  }, [firstTurnId, loadsOlder]);
+  const {
+    contentRef,
+    height,
+    isEndInView,
+    onScroll,
+    scrollerRef,
+    scrollToEnd,
+    turnElements,
+  } = useTurnScroller({
+    bottomInset,
+    firstTurnId,
+    hasTurns: turns.length > 0,
+    lastTurnId,
+    loadsOlder,
+  });
+  const spinnerRef = useOlderPageLoader({
+    firstTurnId,
+    loadOlderMessages,
+    loadsOlder,
+    scrollerRef,
+  });
 
   const renderTurn = (turn: AIConversationTurn) => {
     const isLatest = turn.id === lastTurnId;
