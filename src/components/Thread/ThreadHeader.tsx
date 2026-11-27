@@ -3,22 +3,17 @@ import React from 'react';
 import { useChannel } from '../../context';
 import { useTranslationContext } from '../../context/TranslationContext';
 import { useStateStore } from '../../store';
-import { useChannelPreviewInfo } from '../ChannelListItem/hooks/useChannelPreviewInfo';
 import { TypingIndicatorHeader } from '../TypingIndicator/TypingIndicatorHeader';
 import { useDisplayedTypingUsers } from '../TypingIndicator/hooks/useDisplayedTypingUsers';
 import { useThreadContext } from '../Threads';
+import { useThreadPreviewInfo } from '../Threads/hooks/useThreadPreviewInfo';
 
-import type { LocalMessage, ThreadState } from 'stream-chat';
+import type { ThreadState } from 'stream-chat';
 import { WorkspaceNavigationBackButton, WorkspaceNavigationCloseButton } from '../Button';
 
-const threadStateSelector = ({ parentMessage, replyCount }: ThreadState) => ({
-  parentMessage,
+const threadStateSelector = ({ replyCount }: ThreadState) => ({
   replyCount,
 });
-
-/** Name of the parent message author, if it has one. */
-const displayNameFromParentMessage = (message: LocalMessage): string | undefined =>
-  message.user?.name ?? undefined;
 
 /**
  * Shows the reply count after the thread name. Typing activity in the thread replaces it, and keeps
@@ -77,20 +72,16 @@ export const ThreadHeader = ({
 }: ThreadHeaderProps) => {
   const { t } = useTranslationContext();
   const channel = useChannel();
-  const { displayTitle: channelDisplayTitle } = useChannelPreviewInfo({ channel });
-
   const threadInstance = useThreadContext();
-  const { parentMessage, replyCount: replyCountThreadInstance } =
+  const { displayTitle: threadDisplayName } = useThreadPreviewInfo({
+    channel,
+    overrideTitle,
+    thread: threadInstance,
+  });
+  const { replyCount: replyCountThreadInstance } =
     useStateStore(threadInstance?.state, threadStateSelector) ?? {};
 
   const replyCount = replyCountThreadInstance ?? 0;
-
-  // Falls back from the override to the channel display title, then the parent message author.
-  const threadDisplayName =
-    overrideTitle ??
-    channelDisplayTitle ??
-    (parentMessage && displayNameFromParentMessage(parentMessage)) ??
-    undefined;
 
   return (
     <div className='str-chat__thread-header'>

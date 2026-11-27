@@ -30,6 +30,27 @@ describe('GroupAvatar', () => {
     expect(queryByTestId('group-avatar')).not.toBeInTheDocument();
   });
 
+  it('passes FallbackIcon to the single Avatar', () => {
+    const FallbackIcon = () => <svg data-testid='custom-fallback' />;
+    const { getByTestId } = render(<GroupAvatar FallbackIcon={FallbackIcon} size='xl' />);
+    expect(getByTestId('custom-fallback')).toBeInTheDocument();
+  });
+
+  it('keeps FallbackIcon off the group element', () => {
+    // React warns about an unknown prop that reaches a DOM element.
+    const consoleError = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+    const FallbackIcon = () => <svg data-testid='custom-fallback' />;
+    render(
+      <GroupAvatar
+        displayMembers={[member1, member2]}
+        FallbackIcon={FallbackIcon}
+        size='xl'
+      />,
+    );
+    expect(consoleError).not.toHaveBeenCalled();
+    consoleError.mockRestore();
+  });
+
   it('should render group avatar when 2 or more members are provided', () => {
     const { getByTestId } = render(
       <GroupAvatar displayMembers={[member1, member2]} size='xl' />,

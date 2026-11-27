@@ -3,10 +3,10 @@ import {
   Avatar,
   TypingIndicatorHeader,
   useChannel,
-  useChannelPreviewInfo,
   useDisplayedTypingUsers,
   useStateStore,
   useThreadContext,
+  useThreadPreviewInfo,
   WorkspaceNavigationBackButton,
   WorkspaceNavigationCloseButton,
 } from 'stream-chat-react';
@@ -22,7 +22,9 @@ export const CustomThreadHeader = () => {
   const thread = useThreadContext();
   const { participants = [], replyCount = 0 } =
     useStateStore(thread?.state, threadStateSelector) ?? {};
-  const { displayTitle } = useChannelPreviewInfo({ channel });
+  // The channel's name, else the name of whoever started the thread, as the default header shows.
+  const { displayTitle } = useThreadPreviewInfo({ channel, thread });
+  const repliesText = `${replyCount} ${replyCount === 1 ? 'reply' : 'replies'}`;
 
   // Others typing a reply in this thread, kept for the same hide delay as the default header after
   // they stop. Empty while typing events are disabled for the channel.
@@ -34,12 +36,7 @@ export const CustomThreadHeader = () => {
       <div className='cookbook-thread-header__participants'>
         {participants.map(({ user }) =>
           user ? (
-            <Avatar
-              imageUrl={user.image}
-              key={user.id}
-              size='sm'
-              userName={user.name ?? user.id}
-            />
+            <Avatar imageUrl={user.image} key={user.id} size='sm' userName={user.name} />
           ) : null,
         )}
       </div>
@@ -49,7 +46,7 @@ export const CustomThreadHeader = () => {
           {someoneIsTyping ? (
             <TypingIndicatorHeader threadList />
           ) : (
-            `${displayTitle} · ${replyCount} ${replyCount === 1 ? 'reply' : 'replies'}`
+            [displayTitle, repliesText].filter(Boolean).join(' · ')
           )}
         </div>
       </div>

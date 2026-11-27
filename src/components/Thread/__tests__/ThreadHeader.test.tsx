@@ -23,8 +23,8 @@ import type { TranslationContextValue } from '../../../context/TranslationContex
 import { ThreadHeader } from '../ThreadHeader';
 
 // The channel preview mock lets the header render without an initialized `<Channel>`.
-vi.mock('../../ChannelListItem/hooks/useChannelPreviewInfo', () => ({
-  useChannelPreviewInfo: vi.fn(() => ({ displayTitle: undefined })),
+vi.mock('../../ChannelListItem/hooks/useChannelDisplayName', () => ({
+  useChannelDisplayName: vi.fn(() => undefined),
 }));
 
 vi.mock('../../TypingIndicator/TypingIndicatorHeader', () => ({
@@ -50,7 +50,7 @@ vi.mock('../../../plugins/SlotLayout', () => ({
   useSlotForKind: vi.fn(() => undefined),
 }));
 
-import { useChannelPreviewInfo } from '../../ChannelListItem/hooks/useChannelPreviewInfo';
+import { useChannelDisplayName } from '../../ChannelListItem/hooks/useChannelDisplayName';
 import { useChatViewContext } from '../../../plugins/SlotLayout';
 import { useThreadContext } from '../../Threads';
 import { mockT } from '../../../mock-builders/translator';
@@ -152,9 +152,7 @@ describe('ThreadHeader', () => {
   });
 
   it('renders the channel display title in the subtitle', () => {
-    vi.mocked(useChannelPreviewInfo).mockReturnValue(
-      fromPartial({ displayTitle: 'Bob' }),
-    );
+    vi.mocked(useChannelDisplayName).mockReturnValue('Bob');
 
     renderComponent();
 
@@ -162,9 +160,7 @@ describe('ThreadHeader', () => {
   });
 
   it('falls back to the parent message author when the channel has no display title', () => {
-    vi.mocked(useChannelPreviewInfo).mockReturnValue(
-      fromPartial({ displayTitle: undefined }),
-    );
+    vi.mocked(useChannelDisplayName).mockReturnValue(undefined);
 
     renderComponent({ threadContext: createThreadInstance(alice) });
 
@@ -172,9 +168,7 @@ describe('ThreadHeader', () => {
   });
 
   it('renders only the reply count when no title source is available', () => {
-    vi.mocked(useChannelPreviewInfo).mockReturnValue(
-      fromPartial({ displayTitle: undefined }),
-    );
+    vi.mocked(useChannelDisplayName).mockReturnValue(undefined);
 
     renderComponent({ threadContext: createThreadInstance({ id: 'alice' }) });
 

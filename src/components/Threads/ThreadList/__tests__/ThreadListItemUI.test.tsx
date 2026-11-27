@@ -21,7 +21,7 @@ const mockUseStateStore = vi.fn();
 const mockOpenThread = vi.fn();
 const mockIsThreadActive = vi.fn();
 const mockUseThreadListItemContext = vi.fn();
-const mockUseChannelPreviewInfo = vi.fn();
+const mockUseThreadPreviewInfo = vi.fn();
 const mockUseComponentContext = vi.fn();
 
 // `isThreadActive(id)` drives the selected state; a click opens the thread via `openThread`.
@@ -43,8 +43,8 @@ vi.mock('../ThreadListItem', () => ({
   useThreadListItemContext: () => mockUseThreadListItemContext(),
 }));
 
-vi.mock('../../../ChannelListItem', () => ({
-  useChannelPreviewInfo: (...args) => mockUseChannelPreviewInfo(...args),
+vi.mock('../../hooks/useThreadPreviewInfo', () => ({
+  useThreadPreviewInfo: (...args) => mockUseThreadPreviewInfo(...args),
 }));
 
 vi.mock('../../../Avatar', () => ({
@@ -84,7 +84,7 @@ describe('ThreadListItemUI', () => {
       userLanguage: 'en',
     });
     mockUseThreadListItemContext.mockReturnValue(thread);
-    mockUseChannelPreviewInfo.mockReturnValue({ displayTitle: 'General' });
+    mockUseThreadPreviewInfo.mockReturnValue({ displayTitle: 'General' });
     mockUseComponentContext.mockReturnValue({});
     mockUseStateStore.mockReturnValue({
       channel: {},
@@ -239,6 +239,27 @@ describe('ThreadListItemUI', () => {
       event: expect.objectContaining({ type: 'click' }),
     });
     expect(announceInteraction).not.toHaveBeenCalled();
+  });
+
+  it("never names the avatar after the latest reply author's ID", () => {
+    mockUseStateStore.mockReturnValue({
+      channel: {},
+      deletedAt: undefined,
+      latestReply: { user: { id: 'SmithAnne' } },
+      ownUnreadMessageCount: 0,
+      parentMessage: { text: 'hello world' },
+      participants: [],
+      replyCount: 1,
+    });
+    const CustomAvatar = vi.fn(() => <span data-testid='custom-avatar' />);
+    mockUseComponentContext.mockReturnValue({ Avatar: CustomAvatar });
+
+    render(<ThreadListItemUI />);
+
+    expect(CustomAvatar).toHaveBeenCalledWith(
+      expect.objectContaining({ userName: undefined }),
+      undefined,
+    );
   });
 
   it('renders the Avatar, SummarizedMessagePreview and Timestamp from ComponentContext', () => {

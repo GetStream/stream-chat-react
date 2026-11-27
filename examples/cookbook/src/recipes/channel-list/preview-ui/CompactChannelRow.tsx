@@ -7,6 +7,7 @@ import {
   composeChannelListItemAccessibleLabel,
   SummarizedMessagePreview,
   useChatContext,
+  useComponentContextIcons,
   useTranslationContext,
   useWorkspaceNavigation,
   WithComponents,
@@ -16,17 +17,20 @@ import './CompactChannelRow.css';
 const CompactChannelRow = ({
   accessibleLabelConfig,
   active,
+  avatarName,
   channel,
   className,
   displayImage,
   displayTitle,
   groupChannelDisplayInfo,
+  isGroupChannel,
   messageDeliveryStatus,
   onSelect,
   previewedMessage,
   unread,
 }: ChannelListItemUIProps) => {
   const { client, isMessageAIGenerated } = useChatContext();
+  const { IconUsers } = useComponentContextIcons();
   const { t, tDateTimeParser, userLanguage } = useTranslationContext();
   const { openChannel } = useWorkspaceNavigation();
   // What a screen reader announces for the row: name, unread count, last message and its time.
@@ -66,9 +70,11 @@ const CompactChannelRow = ({
         <ChannelAvatar
           aria-hidden
           displayMembers={groupChannelDisplayInfo?.members}
+          // A channel without a name shows the person icon, or the people icon for a group.
+          FallbackIcon={isGroupChannel ? IconUsers : undefined}
           imageUrl={displayImage}
           size='lg'
-          userName={displayTitle}
+          userName={avatarName ?? undefined}
         />
         <div className='cookbook-channel-row__main'>
           <div className='cookbook-channel-row__top'>

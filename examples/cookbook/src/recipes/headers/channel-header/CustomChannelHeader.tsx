@@ -4,6 +4,7 @@ import {
   TypingIndicatorHeader,
   useChannel,
   useChannelPreviewInfo,
+  useComponentContextIcons,
   useDisplayedTypingUsers,
   useStateStore,
   WorkspaceNavigationBackButton,
@@ -29,9 +30,14 @@ export const CustomChannelHeader = () => {
       member.user?.online ||
       (member.user?.id && Object.prototype.hasOwnProperty.call(watchers, member.user.id)),
   ).length;
-  const { displayImage, displayTitle, groupChannelDisplayInfo } = useChannelPreviewInfo({
-    channel,
-  });
+  const { IconUsers } = useComponentContextIcons();
+  const {
+    avatarName,
+    displayImage,
+    displayTitle,
+    groupChannelDisplayInfo,
+    isGroupChannel,
+  } = useChannelPreviewInfo({ channel });
 
   // Others typing in the channel itself, kept for the same hide delay as the default header after
   // they stop. Empty while typing events are disabled for the channel.
@@ -42,9 +48,10 @@ export const CustomChannelHeader = () => {
       <WorkspaceNavigationBackButton />
       <ChannelAvatar
         displayMembers={groupChannelDisplayInfo.members}
+        FallbackIcon={isGroupChannel ? IconUsers : undefined}
         imageUrl={displayImage}
         size='lg'
-        userName={displayTitle}
+        userName={avatarName}
       />
       <div className='cookbook-channel-header__content'>
         <div className='cookbook-channel-header__title'>{displayTitle}</div>

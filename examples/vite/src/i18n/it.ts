@@ -404,6 +404,7 @@ export const itTranslations = {
   'common.unblock.ariaLabel': 'Sblocca',
   'common.unmute.title': 'Riattiva',
   'common.unmuted.label': '{{ user }} è stato riattivato',
+  'common.unnamedChannel.text': 'Canale senza nome',
   'common.unpin.title': 'Rimuovi dai fissati',
   'common.unsupportedAttachment.text': 'Allegato non supportato',
   'common.userBlocked.text': 'Utente bloccato',

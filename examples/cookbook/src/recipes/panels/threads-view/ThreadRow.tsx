@@ -49,7 +49,7 @@ export const ThreadRow = ({ resetHighlighting }: ThreadListItemUIProps) => {
   const participantInfo = (participants ?? []).map(({ user }) => ({
     id: user?.id,
     imageUrl: user?.image,
-    userName: user?.name ?? user?.id,
+    userName: user?.name,
   }));
   const isActive = isThreadActive(thread.id);
 

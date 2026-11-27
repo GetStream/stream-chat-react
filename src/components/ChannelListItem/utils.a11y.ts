@@ -22,7 +22,10 @@ export type ChannelListItemLabelData = {
   channel: Channel;
   /** Client, used to detect whether the latest message is the current user's own. */
   client: StreamChat;
-  /** Channel display name. */
+  /**
+   * The row's visible title: the channel display name, or the translated "Unnamed channel" for a
+   * channel without one.
+   */
   displayTitle?: string;
   isMessageAIGenerated?: ChatContextValue['isMessageAIGenerated'];
   /**

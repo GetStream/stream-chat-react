@@ -337,6 +337,7 @@ export type TranslationCatalog = {
   'common.unblock.ariaLabel': 'Unblock';
   'common.unmute.title': 'Unmute';
   'common.unmuted.label': '{{ user }} has been unmuted';
+  'common.unnamedChannel.text': 'Unnamed channel';
   'common.unpin.title': 'Unpin';
   'common.unsupportedAttachment.text': 'Unsupported attachment';
   'common.userBlocked.text': 'User blocked';

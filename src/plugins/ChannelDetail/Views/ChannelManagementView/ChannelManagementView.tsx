@@ -54,13 +54,17 @@ export type ChannelManagementInfoBodyProps = {
 export const ChannelManagementInfoBody = ({
   actions,
 }: ChannelManagementInfoBodyProps) => {
-  const { IconMute, IconPin } = useComponentContextIcons();
+  const { IconMute, IconPin, IconUsers } = useComponentContextIcons();
   const { client } = useChatContext();
   const { channel } = useChannelDetailContext();
   const { Avatar = DefaultChannelAvatar } = useComponentContext();
-  const { displayImage, displayTitle, groupChannelDisplayInfo } = useChannelPreviewInfo({
-    channel,
-  });
+  const {
+    avatarName,
+    displayImage,
+    displayTitle,
+    groupChannelDisplayInfo,
+    isGroupChannel,
+  } = useChannelPreviewInfo({ channel });
   const resolvedIsDmChannel = isDmChannel({
     channel,
     ownUserId: client.user?.id,
@@ -84,14 +88,15 @@ export const ChannelManagementInfoBody = ({
       <div className='str-chat__channel-detail__channel-management-view__profile'>
         <Avatar
           displayMembers={groupChannelDisplayInfo.members}
+          FallbackIcon={isGroupChannel ? IconUsers : undefined}
           imageUrl={displayImage}
           isOnline={resolvedIsDmChannel ? isOnline : undefined}
           size='2xl'
-          userName={displayTitle}
+          userName={avatarName}
         />
         <div className='str-chat__channel-detail__channel-management-view__profile__details'>
           <div className='str-chat__channel-detail__channel-management-view__profile__details__title'>
-            {displayTitle && <span>{displayTitle}</span>}
+            <span>{displayTitle}</span>
             {pinned && <IconPin />}
             {(resolvedIsDmChannel && userMuted) ||
             (!resolvedIsDmChannel && channelMuted) ? (
@@ -162,9 +167,8 @@ const useChannelManagementEditForm = ({
   const { t } = useTranslationContext();
   const { client } = useChatContext();
   const { channel } = useChannelDetailContext();
-  const { displayImage, displayTitle, groupChannelDisplayInfo } = useChannelPreviewInfo({
-    channel,
-  });
+  const { avatarName, displayImage, groupChannelDisplayInfo, isGroupChannel } =
+    useChannelPreviewInfo({ channel });
   const { addNotification } = useNotificationApi();
 
   const resolvedIsDmChannel = isDmChannel({ channel, ownUserId: client.user?.id });
@@ -301,8 +305,8 @@ const useChannelManagementEditForm = ({
   );
 
   return {
+    avatarName,
     canSubmit,
-    displayTitle,
     fileInputRef,
     groupChannelDisplayInfo,
     handleDeleteImage,
@@ -310,6 +314,7 @@ const useChannelManagementEditForm = ({
     handleOpenFilePicker,
     handleSubmit,
     hasAvatarImage: !!previewImageUrl,
+    isGroupChannel,
     isOnline,
     name,
     nameLabel,
@@ -321,11 +326,11 @@ const useChannelManagementEditForm = ({
 };
 
 export const ChannelManagementEditBody = (props: ChannelManagementEditBodyProps) => {
-  const { IconCheckmark } = useComponentContextIcons();
+  const { IconCheckmark, IconUsers } = useComponentContextIcons();
   const { Avatar = DefaultChannelAvatar } = useComponentContext();
   const {
+    avatarName,
     canSubmit,
-    displayTitle,
     fileInputRef,
     groupChannelDisplayInfo,
     handleDeleteImage,
@@ -333,6 +338,7 @@ export const ChannelManagementEditBody = (props: ChannelManagementEditBodyProps)
     handleOpenFilePicker,
     handleSubmit,
     hasAvatarImage,
+    isGroupChannel,
     isOnline,
     name,
     nameLabel,
@@ -351,10 +357,11 @@ export const ChannelManagementEditBody = (props: ChannelManagementEditBodyProps)
         <div className='str-chat__channel-detail__channel-management-view__avatar-row'>
           <Avatar
             displayMembers={groupChannelDisplayInfo.members}
+            FallbackIcon={isGroupChannel ? IconUsers : undefined}
             imageUrl={previewImageUrl}
             isOnline={isOnline}
             size='2xl'
-            userName={trimmedName || displayTitle}
+            userName={trimmedName || avatarName}
           />
           <div className='str-chat__channel-detail__channel-management-view__avatar-row__actions'>
             <Button

@@ -63,6 +63,8 @@ describe('useChannelPreviewInfo', () => {
       });
 
       expect(result.current.displayTitle).toBeUndefined();
+      expect(result.current.avatarName).toBeUndefined();
+      expect(result.current.isGroupChannel).toBe(false);
       expect(result.current.displayImage).toBeUndefined();
       expect(result.current.groupChannelDisplayInfo).toEqual({
         members: [],
@@ -178,6 +180,100 @@ describe('useChannelPreviewInfo', () => {
       );
 
       expect(result.current.displayTitle).toBe('Custom Title');
+    });
+
+    it('uses overrideTitle as the avatar name', async () => {
+      const { channel, client } = await getClientAndChannel();
+
+      const { result } = renderHook(
+        () => useChannelPreviewInfo({ channel, overrideTitle: 'Custom Title' }),
+        { wrapper: createWrapper(client) },
+      );
+
+      expect(result.current.avatarName).toBe('Custom Title');
+    });
+
+    it('names the avatar after the channel name', async () => {
+      const { channel, client } = await getClientAndChannel({
+        channel: { custom: { name: 'Design Review' } },
+      });
+
+      const { result } = renderHook(() => useChannelPreviewInfo({ channel }), {
+        wrapper: createWrapper(client),
+      });
+
+      expect(result.current.avatarName).toBe('Design Review');
+      expect(result.current.isGroupChannel).toBe(false);
+    });
+
+    it("names a DM avatar after the other member's name", async () => {
+      const { channel, client } = await getClientAndChannel({
+        members: [
+          generateMember({ user: clientUser }),
+          generateMember({ user: generateUser({ name: 'Anne Smith' }) }),
+        ],
+      });
+
+      const { result } = renderHook(() => useChannelPreviewInfo({ channel }), {
+        wrapper: createWrapper(client),
+      });
+
+      expect(result.current.avatarName).toBe('Anne Smith');
+    });
+
+    it('leaves the avatar name unset for a DM whose other member has no name', async () => {
+      const { channel, client } = await getClientAndChannel({
+        members: [
+          generateMember({ user: clientUser }),
+          generateMember({ user: generateUser({ id: 'SmithAnne', name: undefined }) }),
+        ],
+      });
+
+      const { result } = renderHook(() => useChannelPreviewInfo({ channel }), {
+        wrapper: createWrapper(client),
+      });
+
+      // The title keeps its placeholder; the avatar never takes its or the ID's initials.
+      expect(result.current.displayTitle).toBe('Direct message');
+      expect(result.current.avatarName).toBeUndefined();
+      expect(result.current.isGroupChannel).toBe(false);
+    });
+
+    it('titles a channel without a name "Unnamed channel"', async () => {
+      const { channel, client } = await getClientAndChannel({
+        members: [
+          generateMember({ user: clientUser }),
+          generateMember({ user: generateUser({ name: undefined }) }),
+          generateMember({ user: generateUser({ name: undefined }) }),
+        ],
+      });
+
+      const { result } = renderHook(() => useChannelPreviewInfo({ channel }), {
+        wrapper: createWrapper(client),
+      });
+
+      expect(result.current.displayTitle).toBe('Unnamed channel');
+      expect(result.current.avatarName).toBeUndefined();
+      expect(result.current.isGroupChannel).toBe(true);
+    });
+
+    it('leaves the avatar name unset for a group without a name', async () => {
+      const { channel, client } = await getClientAndChannel({
+        members: [
+          generateMember({ user: clientUser }),
+          generateMember({ user: generateUser({ name: 'Anne' }) }),
+          generateMember({ user: generateUser({ name: 'Bob' }) }),
+        ],
+      });
+
+      const { result } = renderHook(() => useChannelPreviewInfo({ channel }), {
+        wrapper: createWrapper(client),
+      });
+
+      // The title is built from member names; the avatar shows the members, then the people icon.
+      expect(result.current.displayTitle).toBe('Anne, Bob');
+      expect(result.current.avatarName).toBeUndefined();
+      expect(result.current.isGroupChannel).toBe(true);
     });
 
     it('uses overrideImage over channel display image', async () => {

@@ -6,7 +6,7 @@ import { TypingIndicatorHeader } from '../TypingIndicator/TypingIndicatorHeader'
 import { useDisplayedTypingUsers } from '../TypingIndicator/hooks/useDisplayedTypingUsers';
 import { useChannelHeaderOnlineStatus } from './hooks/useChannelHeaderOnlineStatus';
 import { useChannelPreviewInfo } from '../ChannelListItem/hooks/useChannelPreviewInfo';
-import { useChannel } from '../../context';
+import { useChannel, useComponentContextIcons } from '../../context';
 import { WorkspaceNavigationBackButton, WorkspaceNavigationCloseButton } from '../Button';
 
 export type ChannelHeaderTitleProps = {
@@ -89,7 +89,14 @@ export const ChannelHeader = (props: ChannelHeaderProps) => {
   } = props;
 
   const channel = useChannel();
-  const { displayImage, displayTitle, groupChannelDisplayInfo } = useChannelPreviewInfo({
+  const { IconUsers } = useComponentContextIcons();
+  const {
+    avatarName,
+    displayImage,
+    displayTitle,
+    groupChannelDisplayInfo,
+    isGroupChannel,
+  } = useChannelPreviewInfo({
     channel,
     overrideImage,
     overrideTitle,
@@ -108,9 +115,10 @@ export const ChannelHeader = (props: ChannelHeaderProps) => {
         <Avatar
           className='str-chat__avatar--channel-header'
           displayMembers={groupChannelDisplayInfo?.members}
+          FallbackIcon={isGroupChannel ? IconUsers : undefined}
           imageUrl={displayImage}
           size='lg'
-          userName={displayTitle}
+          userName={avatarName}
         />
         <EndContent />
       </div>

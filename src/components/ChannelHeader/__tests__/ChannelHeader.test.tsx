@@ -163,6 +163,13 @@ describe('ChannelHeader', () => {
     expect(getByText('Custom Title')).toBeInTheDocument();
   });
 
+  it('keeps an empty title passed to it empty', async () => {
+    const { container } = await renderComponent({ props: { title: '' } });
+    expect(
+      container.querySelector('.str-chat__channel-header__data__title'),
+    ).toBeEmptyDOMElement();
+  });
+
   it('should render subtitle area for online status', async () => {
     const { container } = await renderComponent({
       channelData: {

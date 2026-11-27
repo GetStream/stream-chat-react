@@ -102,6 +102,49 @@ describe('ChannelPreviewMessenger', () => {
     expect(container).toMatchSnapshot();
   });
 
+  it('names the avatar after displayTitle when avatarName is left out', () => {
+    const { getByTestId } = render(renderComponent({ displayImage: undefined }));
+    expect(getByTestId('avatar')).toHaveAttribute('title', 'Channel name');
+    expect(getByTestId('avatar-fallback')).toHaveTextContent('Cn');
+  });
+
+  it('shows the person icon when avatarName is null', () => {
+    const { container, getByTestId } = render(
+      renderComponent({
+        avatarName: null,
+        displayImage: undefined,
+        displayTitle: 'Direct message',
+      }),
+    );
+    expect(getByTestId('avatar')).not.toHaveAttribute('title');
+    expect(
+      container.querySelector('.str-chat__avatar .str-chat__icon--user'),
+    ).not.toBeNull();
+  });
+
+  it('shows the people icon for a group without a name', () => {
+    const { container } = render(
+      renderComponent({
+        avatarName: null,
+        displayImage: undefined,
+        displayTitle: 'Unnamed channel',
+        isGroupChannel: true,
+      }),
+    );
+    expect(
+      container.querySelector('.str-chat__avatar .str-chat__icon--users'),
+    ).not.toBeNull();
+    expect(
+      container.querySelector('.str-chat__channel-list-item-data__title'),
+    ).toHaveTextContent('Unnamed channel');
+    // The accessible name contains the visible title (WCAG 2.5.3).
+    expect(
+      container
+        .querySelector(`[data-testid="${PREVIEW_TEST_ID}"]`)
+        ?.getAttribute('aria-label'),
+    ).toContain('Unnamed channel');
+  });
+
   it('should open the channel in the workspace on click', async () => {
     mockOpenChannel.mockClear();
     const { container, getByTestId } = render(renderComponent({}));

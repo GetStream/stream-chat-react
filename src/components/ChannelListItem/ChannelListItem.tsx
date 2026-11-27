@@ -26,10 +26,19 @@ export type ChannelListItemUIProps = ChannelListItemProps & {
    * `composeChannelListItemAccessibleLabel`.
    */
   accessibleLabelConfig?: ChannelListItemLabelConfig;
+  /**
+   * Name the avatar's initials come from: the channel's `name`, or in a DM the other member's name.
+   * `null` when the channel has neither, so the avatar shows its fallback icon. When left out, the
+   * avatar uses `displayTitle`. A wrapper that passes its own `displayTitle` and wants the avatar to
+   * follow it passes `avatarName` too.
+   */
+  avatarName?: string | null;
   displayImage?: string;
   displayTitle?: string;
   /** Members for the group avatar; empty unless the channel has more than 2 members. */
   groupChannelDisplayInfo?: GroupChannelDisplayInfo;
+  /** Whether the channel has more than 2 members, so its avatar falls back to the people icon. */
+  isGroupChannel?: boolean;
   /** See {@link ChannelListItemProps.previewedMessage}. */
   previewedMessage?: LocalMessage;
   /** Delivery status of the previewed message. Undefined when it is not an own message. */
@@ -81,9 +90,13 @@ export const ChannelListItem = (props: ChannelListItemProps) => {
   const channelOpenInSlot = useWorkspaceNavigation().isChannelActive(
     channel.cid ?? undefined,
   );
-  const { displayImage, displayTitle, groupChannelDisplayInfo } = useChannelPreviewInfo({
-    channel,
-  });
+  const {
+    avatarName,
+    displayImage,
+    displayTitle,
+    groupChannelDisplayInfo,
+    isGroupChannel,
+  } = useChannelPreviewInfo({ channel });
   const membership = useChannelMembershipState(channel);
 
   const { latestMessage: trackedLatestMessage } = useStateStore(
@@ -138,9 +151,11 @@ export const ChannelListItem = (props: ChannelListItemProps) => {
       <ChannelListItemUI
         {...props}
         active={isActive}
+        avatarName={avatarName ?? null}
         displayImage={displayImage}
         displayTitle={displayTitle}
         groupChannelDisplayInfo={groupChannelDisplayInfo}
+        isGroupChannel={isGroupChannel}
         messageDeliveryStatus={messageDeliveryStatus}
         muted={muted}
         pinned={membership.pinned_at != null}
