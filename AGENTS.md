@@ -376,9 +376,10 @@ yarn sync-design-tokens ../design-system-tokens
 ```
 
 - Every variable the generated files already declare keeps its name and takes the definition of the token of the same name.
-- A variable whose token was renamed or removed takes the definition listed in `scripts/design-tokens-mapping.mts`.
+- A variable whose token was renamed or removed takes the replacement's definition (`TAKES_DEFINITION_OF` in `scripts/design-tokens-mapping.mts`), and a definition that reads a renamed token reads the SDK name instead.
+- `SDK_DEFINITIONS` lists the variables the SDK defines itself: those with no token left, and those that keep reading the SDK variable they read before a token change.
 - A new token joins only when an SDK variable reads it through its `var()` chain, or when `ADOPTED_TOKENS` lists it. The script prints the tokens it left out.
-- The sync fails on an SDK variable with no token and no mapping, and on a mapped name that is a token again. Fix the mapping; never edit the output.
+- The sync fails on an SDK variable with no token and no mapping, on a mapped name that is a token again, and when an SDK variable would read different SDK variables than the committed files: an integrator's override of what it read would stop reaching it. Keep the old definition in `SDK_DEFINITIONS`, or accept the change in `ALLOWED_READ_CHANGES` and empty that list once the sync is committed. Fix the mapping; never edit the output.
 
 Check the diff for value changes before committing: a sync takes every upstream value change.
 

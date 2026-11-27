@@ -3,12 +3,14 @@
 //
 // The SDK's theme variables are its public theming API. Every variable the generated
 // `src/styling/light.scss` already declares keeps its name, and takes the definition of the
-// design-system-tokens variable of the same name. The tables below cover the SDK names that have
-// no token of their own, plus the tokens the SDK adds to its API.
+// design-system-tokens variable of the same name. The tables below cover the exceptions: SDK names
+// with no token of their own, SDK definitions kept instead of a token's, and the tokens the SDK
+// adds to its API.
 
 /**
  * SDK variables whose token was renamed or removed. Each takes, in every theme, the definition of
  * the token named here (for example `var(--str-chat__slate-100)`), never a reference to that token.
+ * Wherever a definition reads one of these tokens, the sync writes the SDK name instead.
  */
 export const TAKES_DEFINITION_OF: Record<string, string> = {
   // Renamed: chat/bg|text|border/* -> message-bubble/*
@@ -46,21 +48,33 @@ export const TAKES_DEFINITION_OF: Record<string, string> = {
   // Renamed: presence/* -> avatar/presence/*, skeleton-loading/* -> background/utility/*
   'presence-bg-offline': 'avatar-presence-bg-offline',
   'presence-bg-online': 'avatar-presence-bg-online',
-  'presence-border': 'avatar-presence-border',
   'skeleton-loading-base': 'background-utility-skeleton-loading-base',
   'skeleton-loading-highlight': 'background-utility-skeleton-loading-highlight',
 
   // Removed: the token with the same value
   'border-core-inverse': 'border-core-on-inverse',
-  'input-send-icon': 'accent-primary',
-  'input-send-icon-disabled': 'text-disabled',
 };
 
 /**
- * SDK variables whose token was removed and pointed at a different color in each theme. Each keeps
- * that theme's definition.
+ * SDK variables the SDK defines itself, in place of a token's definition or because no token is
+ * left. `light` applies to both themes unless `dark` is given.
+ *
+ * Most keep the SDK variable they read before a token change, so an integrator who overrides that
+ * variable still reaches this one.
  */
-export const DEFINITION_PER_THEME: Record<string, { dark: string; light: string }> = {
+export const SDK_DEFINITIONS: Record<string, { dark?: string; light: string }> = {
+  // The token reads `brand-150` / `brand-900`; the SDK keeps the first avatar palette color.
+  'avatar-bg-default': { light: 'var(--str-chat__avatar-palette-bg-1)' },
+  'avatar-text-default': { light: 'var(--str-chat__avatar-palette-text-1)' },
+
+  // Removed tokens that read another SDK variable.
+  'input-send-icon': { light: 'var(--str-chat__accent-primary)' },
+  'input-send-icon-disabled': { light: 'var(--str-chat__text-disabled)' },
+
+  // The token (`avatar-presence-border`) reads `border-core-on-inverse`; the SDK keeps
+  // `border-core-inverse`.
+  'presence-border': { light: 'var(--str-chat__border-core-inverse)' },
+
   // Removed: the avatar palette
   'avatar-palette-bg-1': {
     dark: 'var(--str-chat__blue-600)',
@@ -103,6 +117,13 @@ export const DEFINITION_PER_THEME: Record<string, { dark: string; light: string 
     light: 'var(--str-chat__yellow-900)',
   },
 };
+
+/**
+ * SDK variables whose definition may read different SDK variables after the next sync. The sync
+ * otherwise stops when a definition's reads change, since an integrator's override of the old read
+ * would silently stop reaching the variable. Empty this list once that sync is committed.
+ */
+export const ALLOWED_READ_CHANGES: string[] = [];
 
 /**
  * Tokens the SDK adds to its theme variables. A token is otherwise left out unless an SDK variable

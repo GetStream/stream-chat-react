@@ -641,9 +641,9 @@
   --str-chat__presence-bg-online: var(
     --str-chat__accent-success
   ); /** The online presence indicator. Uses the success accent in every theme. */
-  --str-chat__avatar-bg-default: var(--str-chat__brand-150);
+  --str-chat__avatar-bg-default: var(--str-chat__avatar-palette-bg-1);
   --str-chat__avatar-bg-placeholder: var(--str-chat__chrome-150);
-  --str-chat__avatar-text-default: var(--str-chat__brand-900);
+  --str-chat__avatar-text-default: var(--str-chat__avatar-palette-text-1);
   --str-chat__avatar-text-placeholder: var(--str-chat__chrome-500);
   --str-chat__system-text: var(--str-chat__chrome-1000);
   --str-chat__badge-bg-error: var(--str-chat__accent-error);
@@ -669,16 +669,10 @@
   --str-chat__text-disabled: var(
     --str-chat__chrome-300
   ); /** Text for non-interactive or unavailable states. Communicates that an element can't be interacted with. */
-  --str-chat__input-send-icon-disabled: var(
-    --str-chat__chrome-300
-  ); /** Text for non-interactive or unavailable states. Communicates that an element can't be interacted with. */
   --str-chat__text-link: var(
     --str-chat__brand-500
   ); /** Hyperlinks and inline actions. Uses the brand color to signal interactivity within text content. */
   --str-chat__accent-primary: var(
-    --str-chat__brand-500
-  ); /** The main brand color. Used for interactive elements, buttons, links, and primary actions. Override this to apply your brand color across the SDK. */
-  --str-chat__input-send-icon: var(
     --str-chat__brand-500
   ); /** The main brand color. Used for interactive elements, buttons, links, and primary actions. Override this to apply your brand color across the SDK. */
   --str-chat__accent-neutral: var(
@@ -730,9 +724,6 @@
   --str-chat__chat-bg-attachment-incoming: var(
     --str-chat__background-core-surface-strong
   ); /** Attachment card in incoming bubble. */
-  --str-chat__message-bubble-text-incoming: var(
-    --str-chat__text-primary
-  ); /** Body text in a message received from someone else. */
   --str-chat__chat-text-incoming: var(
     --str-chat__text-primary
   ); /** Body text in a message received from someone else. */
@@ -757,9 +748,6 @@
     --str-chat__accent-primary
   ); /** Active input border. Used for focused text fields and selected form elements. */
   --str-chat__avatar-presence-border: var(
-    --str-chat__border-core-on-inverse
-  ); /** The thin outline around the presence dot. Separates it from the avatar underneath, whatever the avatar image is. */
-  --str-chat__presence-border: var(
     --str-chat__border-core-on-inverse
   ); /** The thin outline around the presence dot. Separates it from the avatar underneath, whatever the avatar image is. */
   --str-chat__avatar-presence-bg-offline: var(
@@ -816,7 +804,7 @@
   --str-chat__reaction-text: var(--str-chat__text-primary);
   --str-chat__reaction-emoji: var(--str-chat__text-primary);
   --str-chat__chat-text-typing-indicator: var(
-    --str-chat__message-bubble-text-incoming
+    --str-chat__chat-text-incoming
   ); /** Typing indicator chip. */
   --str-chat__chat-poll-progress-track-incoming: var(
     --str-chat__control-progress-bar-track
@@ -824,6 +812,9 @@
   --str-chat__chat-poll-progress-fill-incoming: var(
     --str-chat__control-progress-bar-fill
   );
+  --str-chat__input-send-icon: var(--str-chat__accent-primary);
+  --str-chat__input-send-icon-disabled: var(--str-chat__text-disabled);
+  --str-chat__presence-border: var(--str-chat__border-core-inverse);
   --str-chat__avatar-palette-bg-1: var(--str-chat__blue-150);
   --str-chat__avatar-palette-bg-2: var(--str-chat__cyan-150);
   --str-chat__avatar-palette-bg-3: var(--str-chat__green-150);
