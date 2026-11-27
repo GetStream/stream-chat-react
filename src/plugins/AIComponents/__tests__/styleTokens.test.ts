@@ -193,3 +193,47 @@ describe('AI components stylesheet accessibility', () => {
     );
   });
 });
+
+describe('generated UI renderer stylesheets', () => {
+  const a2uiCss = compile(path.resolve(__dirname, '../../A2UI/styling/index.scss')).css;
+  const openUICss = compile(
+    path.resolve(__dirname, '../../OpenUI/styling/index.scss'),
+  ).css;
+
+  it('ship apart from ai-components.css', () => {
+    expect(css).not.toMatch(/\.str-chat__(a2ui|openui)\b/);
+    expect(a2uiCss).toMatch(/\.str-chat__a2ui\s*\{/);
+    expect(a2uiCss).not.toMatch(/\.str-chat__openui\b/);
+    expect(openUICss).toMatch(/\.str-chat__openui\s*\{/);
+    expect(openUICss).not.toMatch(/\.str-chat__a2ui\b/);
+  });
+
+  it.each([
+    ['a2ui.css', a2uiCss],
+    ['openui.css', openUICss],
+  ])('%s reads only declared SDK tokens, with no literal fallback', (_, rendererCss) => {
+    const declared = new Set([...declarations(sdkCss), ...declarations(css)]);
+    const rendererReads = [
+      ...new Set(
+        [...rendererCss.matchAll(/var\((--str-chat__[a-z0-9-]+)/g)].map(([, t]) => t),
+      ),
+    ];
+    expect(rendererReads.filter((token) => !declared.has(token))).toEqual([]);
+    expect(rendererCss).not.toMatch(/var\(--str-chat__[a-z0-9-]+,/);
+    expect(rendererCss).not.toMatch(/--str-chat__ai-/);
+  });
+
+  it("sets A2UI's type and spacing scales, which A2UI works out on :root", () => {
+    for (const step of ['xs', 's', 'm', 'l', 'xl']) {
+      expect(a2uiCss).toContain(`--a2ui-font-size-${step}: var(--str-chat__typography-`);
+      expect(a2uiCss).toContain(`--a2ui-spacing-${step}: var(--str-chat__spacing-`);
+    }
+  });
+
+  it("sets OpenUI's text in the SDK's font", () => {
+    expect(openUICss).toMatch(
+      /--openui-text-body-default: normal var\(--str-chat__typography-font-weight-regular\) var\(--str-chat__typography-font-size-md\) \/ [^;]*var\(--str-chat__font-family\)/,
+    );
+    expect(openUICss).not.toMatch(/--openui-font-(body|heading|label):/);
+  });
+});

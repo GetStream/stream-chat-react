@@ -1,16 +1,1 @@
-{
-  "src/plugins/AIComponents/styling/a2ui.scss": {
-    "font": 9,
-    "motion": 1,
-    "radius": 2,
-    "size": 13,
-    "spacing": 15
-  },
-  "src/plugins/AIComponents/styling/openui.scss": {
-    "font": 3,
-    "motion": 1,
-    "radius": 1,
-    "size": 1,
-    "spacing": 5
-  }
-}
+{}

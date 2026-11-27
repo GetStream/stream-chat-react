@@ -25,7 +25,7 @@ import {
 import 'stream-chat-react/css/ai-components.css';
 ```
 
-Load `ai-components.css` in addition to `stream-chat-react/css/index.css`.
+Load `ai-components.css` in addition to `stream-chat-react/css/index.css`. The generated UI renderers have stylesheets of their own, which need both: `stream-chat-react/css/a2ui.css` with `stream-chat-react/a2ui`, and `stream-chat-react/css/openui.css`, after OpenUI's own, with `stream-chat-react/openui`. `ai-components.css` no longer includes them.
 
 ## What is exported
 
@@ -363,6 +363,7 @@ npm install @a2ui/web_core@0.15.0 @a2ui/react@0.15.0
 ```
 
 ```tsx
+import 'stream-chat-react/css/a2ui.css';
 import { createA2UIRenderer } from 'stream-chat-react/a2ui';
 
 const ui = new AIUIHost({
@@ -380,7 +381,7 @@ const ui = new AIUIHost({
 - Images, videos and sounds load only what `mediaUrl` allows, before they draw: public web links and the page's own site by default (`aiUIPublicMediaURL`), not `data:` URLs or addresses on the person's network.
 - `basicComponents` draws a basic component the app's way (`{ Divider: MyDivider }`), or leaves one out of the catalog and the instructions (`{ Video: null }`). An app's component named like a basic one is left out, and `onError` says so.
 - What goes wrong, such as a message that is not JSON or a component the catalog lacks, goes to `onError` with the A2UI error code and the reply's id, and the rest of the reply still shows. A batch of components that one bad component spoils shows the others, whether in `updateComponents` or in the `createSurface` that makes the surface. What is wrong with the renderer rather than a reply, such as an app's component that can't join the catalog or packages that couldn't load, comes without an id.
-- The parts a person sees most are Stream's: Button, Text, Card, TextField, ChoicePicker and Icon draw with this package's components and follow its theme, and the rest of the basic catalog, its layouts and media, draws with A2UI's own elements, themed with the SDK's tokens in `ai-components.css` (`.str-chat__a2ui` sets the `--a2ui-*` variables). A Button's words are the agent's, in the case it wrote them. A reply looks as it does in OpenUI: each surface is the reply's card, a Card in it a panel on it, a quote a callout behind its icon, chips pills with the chosen ones in the accent colour, a primary Button a pill as wide as the reply, and borderless Buttons follow-ups in the accent colour with a hairline between them. What the agent says about a part with its `accessibility` (`label`, `description`, `live`, `hidden`) reaches assistive technology as on A2UI's own parts and on iOS: a field's name is its input's, and a Card or Text the agent names is a group. A live reply's parts come in as the agent writes them, like an app component's, and a reply from history shows whole.
+- The parts a person sees most are Stream's: Button, Text, Card, TextField, ChoicePicker and Icon draw with this package's components and follow its theme, and the rest of the basic catalog, its layouts and media, draws with A2UI's own elements, themed with the SDK's tokens in `a2ui.css` (`.str-chat__a2ui` sets the `--a2ui-*` variables, colours, type and spacing alike). A Button's words are the agent's, in the case it wrote them. A reply looks as it does in OpenUI: each surface is the reply's card, a Card in it a panel on it, a quote a callout behind its icon, chips pills with the chosen ones in the accent colour, a primary Button a pill as wide as the reply, and borderless Buttons follow-ups in the accent colour with a hairline between them. What the agent says about a part with its `accessibility` (`label`, `description`, `live`, `hidden`) reaches assistive technology as on A2UI's own parts and on iOS: a field's name is its input's, and a Card or Text the agent names is a group. A live reply's parts come in as the agent writes them, like an app component's, and a reply from history shows whole.
 - `Icon` draws Stream's icon for about half of A2UI's 60 names, restyled like any SDK icon with `WithComponents`'s `icons`. `icons` gives the renderer the app's own for any name (`{ shoppingCart: CartIcon }`), and `iconFont` names an icon font the page loads, such as `'Material Symbols Outlined'`, for the rest. An icon none of them draws takes its place but shows nothing, rather than its name as words.
 - Its Modal is a native dialog, which keeps focus in it while open, closes on Escape or its backdrop, gives focus back to what opened it, and shows above the reply's layout. A trigger other than a Button opens it from the keyboard too.
 - `createA2UIRenderer().capabilities` tells the agent's backend the fence, the catalog id and the instructions for both with the app's components and tools, after the renderer's `instructions` when it has them, as StreamChatA2UI's do. It loads the A2UI core to write them; without them, when it can't load, the rest still goes.
@@ -390,7 +391,7 @@ const ui = new AIUIHost({
 
 ### OpenUI
 
-`stream-chat-react/openui` is the renderer of [OpenUI](https://openui.com), the counterpart of StreamChatOpenUI. It is built on the official OpenUI packages, which the app installs: they are optional peers of this package, which takes the patch releases of the versions it is tested with (`~`). `@openuidev/react-ui` needs `@openuidev/react-headless` and `zustand` beside it. Their styles are the app's to import, and `ai-components.css` themes them.
+`stream-chat-react/openui` is the renderer of [OpenUI](https://openui.com), the counterpart of StreamChatOpenUI. It is built on the official OpenUI packages, which the app installs: they are optional peers of this package, which takes the patch releases of the versions it is tested with (`~`). `@openuidev/react-ui` needs `@openuidev/react-headless` and `zustand` beside it. Their styles are the app's to import, and `openui.css`, loaded after them, themes them.
 
 ```bash
 npm install @openuidev/react-lang@1.0.2 @openuidev/react-ui@0.18.1 @openuidev/react-headless@0.18.1 zustand@^4.5.5
@@ -398,6 +399,7 @@ npm install @openuidev/react-lang@1.0.2 @openuidev/react-ui@0.18.1 @openuidev/re
 
 ```tsx
 import '@openuidev/react-ui/components.css';
+import 'stream-chat-react/css/openui.css';
 import { createOpenUIRenderer, openUIInstructions } from 'stream-chat-react/openui';
 
 const ui = new AIUIHost({
@@ -416,7 +418,7 @@ const instructions = await openUIInstructions([placeCard, tripMap]);
 - A program's `Query()` and `Mutation()` run the host's client tools, or the renderer's `toolProvider`: one that isn't read-only only within 5 s of the person pressing a control in that reply's UI, such as a button (a press elsewhere on the page, such as sending a message, doesn't count), and a Query asking the same again within 5 s gets the answer it got, however often the agent asks it to refresh. Images load only what `mediaUrl` allows, as in A2UI.
 - What the person chose in a reply's forms is kept by the host, so it survives scrolling.
 - What is wrong with a finished reply's program, such as a component the library lacks, goes to `onError` with OpenUI's error code and the reply's id, once, and the rest of the reply still shows. An app's component left out of the library, or packages that couldn't load, come without an id. While the agent writes it, what a program lacks is still coming, so nothing is reported.
-- `.str-chat__openui` sets OpenUI's `--openui-*` variables from the SDK's tokens, so its components follow Stream's light and dark themes, and draws the parts a person sees most as StreamChatOpenUI does on iOS, as the A2UI renderer does too: the reply's card on a raised surface, callouts tinted in their variant's colour with its icon, chips as pills with the chosen ones ticked in the accent colour, buttons as pills sharing their row, and follow-ups in the accent colour with no heading. The rest, such as its chart palette, stays OpenUI's own.
+- `.str-chat__openui` sets OpenUI's `--openui-*` variables from the SDK's tokens (its colours, its type in the SDK's font and scale, its spacing, radii and shadows where the SDK has the same step), so its components follow Stream's light and dark themes, and draws the parts a person sees most as StreamChatOpenUI does on iOS, as the A2UI renderer does too: the reply's card on a raised surface, callouts tinted in their variant's colour with its icon, chips as pills with the chosen ones ticked in the accent colour, buttons as pills sharing their row, and follow-ups in the accent colour with no heading. The rest, such as its chart palette, stays OpenUI's own.
 - `createOpenUIRenderer().capabilities` tells the agent's backend the fence, `openui-lang`, and the instructions with the app's components and tools, saying which a Query may run, after the renderer's `instructions`, as StreamChatOpenUI's do. `openUIInstructions(components, { tools, instructions })` writes the same instructions on their own, with OpenUI's own prompt generator. Both load the OpenUI packages, so ask for them where that is fine, such as once at build time or when the app starts its conversation.
 - `@openuidev/react-lang` mounts OpenUI's inspector on the page in development, with offers of OpenUI's own; the renderer keeps it off unless `devtools: true`.
 - The OpenUI packages load the first time a reply shows OpenUI, so server rendering shows a placeholder and an app whose agent never writes OpenUI never loads them. It needs React 18.3 or later.

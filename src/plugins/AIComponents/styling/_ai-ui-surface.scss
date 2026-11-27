@@ -1,0 +1,105 @@
+@use './mixins' as *;
+
+// The look a reply's generated UI shares in A2UI and in OpenUI, as StreamChatOpenUI draws it on
+// iOS, so a reply looks the same in either format and on every platform: the reply's card, its
+// placeholder, callouts, chips, pill buttons and follow-ups. `a2ui.css` and `openui.css` each
+// apply it to their own elements.
+
+// What words in the accent colour on a chosen chip are: the link colour drawn a little toward
+// the text colour, which the accent's tint would otherwise take below 4.5:1 on a light card.
+$ai-ui-chosen-text: color-mix(
+  in srgb,
+  var(--str-chat__text-link) 85%,
+  var(--str-chat__text-primary)
+);
+
+// A reply's root: as wide as the reply, light unless the SDK's theme is dark (see
+// `ai-ui-color-scheme`), so native controls such as the date input follow the theme.
+@mixin ai-ui-root {
+  width: 100%;
+  min-width: 0;
+  color: var(--str-chat__text-primary);
+  color-scheme: light;
+}
+
+// Native controls follow the SDK's dark theme.
+@mixin ai-ui-color-scheme($root) {
+  .str-chat__theme-dark #{$root} {
+    color-scheme: dark;
+  }
+}
+
+// The reply's card: a raised surface with a hairline edge.
+@mixin ai-ui-card {
+  padding: var(--str-chat__spacing-md);
+  border: 1px solid var(--str-chat__border-core-subtle);
+  border-radius: var(--str-chat__radius-xl);
+  background-color: var(--str-chat__background-core-surface-card);
+}
+
+// What shows while the renderer loads.
+@mixin ai-ui-placeholder {
+  height: var(--str-chat__size-64);
+  border-radius: var(--str-chat__radius-lg);
+  background-color: var(--str-chat__background-core-surface-default);
+  animation: str-chat__ai-shimmer $ai-loop-shimmer ease-in-out infinite;
+}
+
+@mixin ai-ui-reduced-motion($placeholder) {
+  @media (prefers-reduced-motion: reduce) {
+    #{$placeholder} {
+      animation: none;
+    }
+  }
+}
+
+// A callout, tinted in its colour; its badge is `ai-ui-badge`.
+@mixin ai-ui-callout($color) {
+  padding: var(--str-chat__spacing-sm);
+  border: 0;
+  border-radius: var(--str-chat__radius-lg);
+  background-color: color-mix(in srgb, #{$color} 12%, transparent);
+  font-size: var(--str-chat__typography-font-size-sm);
+}
+
+// Chips: pills on a quiet fill, the chosen ones in the accent colour, the same size either way,
+// so choosing one moves nothing.
+@mixin ai-ui-chip {
+  gap: var(--str-chat__spacing-xs);
+  border: 1px solid transparent;
+  border-radius: var(--str-chat__radius-max);
+  background-color: color-mix(in srgb, var(--str-chat__text-primary) 8%, transparent);
+  font-size: var(--str-chat__typography-font-size-sm);
+  font-weight: var(--str-chat__typography-font-weight-medium);
+}
+
+@mixin ai-ui-chip-chosen {
+  border-color: var(--str-chat__accent-primary);
+  background-color: color-mix(in srgb, var(--str-chat__accent-primary) 8%, transparent);
+}
+
+// Buttons as pills.
+@mixin ai-ui-pill-button {
+  border-radius: var(--str-chat__radius-max);
+  font-size: var(--str-chat__typography-font-size-sm);
+  font-weight: var(--str-chat__typography-font-weight-semi-bold);
+}
+
+// A follow-up: a row of its own, with room around its words for the hover's shape, which the
+// margin takes back, so the words line up with the rest of the reply.
+@mixin ai-ui-follow-up {
+  max-width: calc(100% + 2 * var(--str-chat__spacing-sm));
+  margin-inline: calc(-1 * var(--str-chat__spacing-sm));
+  border-radius: var(--str-chat__radius-lg);
+}
+
+// The hairline parting a follow-up from the one before.
+@mixin ai-ui-follow-up-hairline {
+  background-image: linear-gradient(
+    var(--str-chat__border-core-default),
+    var(--str-chat__border-core-default)
+  );
+  background-position: var(--str-chat__spacing-sm) 0;
+  background-repeat: no-repeat;
+  background-size: calc(100% - 2 * var(--str-chat__spacing-sm)) 1px;
+}

@@ -1,5 +1,15 @@
-@use './mixins' as *;
-@use './ai-ui-icons' as *;
+@use '../../AIComponents/styling/mixins' as *;
+@use '../../AIComponents/styling/ai-ui-icons' as *;
+@use '../../AIComponents/styling/ai-ui-surface' as *;
+
+// A `font` shorthand from the SDK's tokens: a weight, a size and a line height of its scales.
+@function ai-openui-font($weight, $size, $line) {
+  @return 'normal var(--str-chat__typography-font-weight-#{$weight}) var(--str-chat__typography-font-size-#{$size}) / var(--str-chat__typography-line-height-#{$line}) var(--str-chat__font-family)';
+}
+
+@function ai-openui-code-font($weight, $size) {
+  @return 'normal var(--str-chat__typography-font-weight-#{$weight}) var(--str-chat__typography-font-size-#{$size}) / var(--str-chat__typography-line-height-normal) var(--str-chat__typography-font-family-mono), monospace';
+}
 
 // A reply's OpenUI, in Stream's look. OpenUI's components read `--openui-*` variables, which its
 // stylesheet defines for the whole page, light, or dark when the person's system is. Every colour
@@ -11,18 +21,10 @@
 .str-chat__openui {
   --openui-background: var(--str-chat__background-core-surface-default);
   --openui-foreground: var(--str-chat__background-core-surface-card);
-  --openui-popover-background: var(--str-chat__background-core-elevation-1);
   --openui-text-neutral-primary: var(--str-chat__text-primary);
   --openui-text-neutral-secondary: var(--str-chat__text-secondary);
   --openui-text-neutral-tertiary: var(--str-chat__text-tertiary);
-  --openui-text-neutral-link: var(--str-chat__text-link);
-  --openui-text-brand: var(--str-chat__text-link);
   --openui-text-accent-primary: var(--str-chat__button-primary-text-on-accent);
-  --openui-text-accent-secondary: color-mix(
-    in srgb,
-    var(--openui-text-accent-primary) 50%,
-    transparent
-  );
   --openui-border-default: var(--str-chat__border-core-subtle);
   --openui-border-interactive: var(--str-chat__border-core-default);
   --openui-border-interactive-emphasis: var(--str-chat__text-tertiary);
@@ -42,11 +44,6 @@
   --openui-interactive-accent-disabled: color-mix(
     in srgb,
     var(--openui-interactive-accent-default) 40%,
-    transparent
-  );
-  --openui-text-accent-tertiary: color-mix(
-    in srgb,
-    var(--openui-text-accent-primary) 20%,
     transparent
   );
   --openui-text-white: var(--str-chat__button-primary-text-on-accent);
@@ -170,27 +167,86 @@
     var(--str-chat__button-destructive-text) 40%,
     transparent
   );
-  --openui-font-body: inherit;
-  --openui-font-heading: inherit;
-  --openui-font-label: inherit;
 
-  width: 100%;
-  min-width: 0;
-  color: var(--str-chat__text-primary);
-  color-scheme: light;
+  // OpenUI's type, which its stylesheet sets in Inter at fixed sizes: the SDK's font and scale.
+  @each $level, $size,
+    $line
+      in (
+        ('xs', 'xs', 'tight'),
+        ('sm', 'sm', 'normal'),
+        ('default', 'md', 'relaxed'),
+        ('lg', 'lg', 'relaxed')
+      )
+  {
+    @each $kind in ('body', 'numbers') {
+      --openui-text-#{$kind}-#{$level}: #{ai-openui-font(regular, $size, $line)};
+      --openui-text-#{$kind}-#{$level}-heavy: #{ai-openui-font(medium, $size, $line)};
+    }
+  }
+  @each $level, $size,
+    $line
+      in (
+        ('xs', 'xs', 'tight'),
+        ('sm', 'sm', 'normal'),
+        ('default', 'md', 'normal'),
+        ('lg', 'lg', 'relaxed')
+      )
+  {
+    --openui-text-label-#{$level}: #{ai-openui-font(regular, $size, $line)};
+    --openui-text-label-#{$level}-heavy: #{ai-openui-font(medium, $size, $line)};
+  }
+  @each $level, $size,
+    $line
+      in (
+        ('xs', 'md', 'normal'),
+        ('sm', 'lg', 'relaxed'),
+        ('md', 'xl', 'relaxed'),
+        ('lg', '2xl', 'relaxed'),
+        ('xl', '2xl', 'relaxed')
+      )
+  {
+    --openui-text-heading-#{$level}: #{ai-openui-font(semi-bold, $size, $line)};
+    --openui-text-numbers-heading-#{$level}: #{ai-openui-font(semi-bold, $size, $line)};
+  }
+  --openui-text-code-default: #{ai-openui-code-font(regular, 'sm')};
+  --openui-text-code-default-heavy: #{ai-openui-code-font(bold, 'sm')};
+  --openui-text-code-sm: #{ai-openui-code-font(regular, 'xs')};
+  --openui-text-code-sm-heavy: #{ai-openui-code-font(bold, 'xs')};
+
+  // Its spacing and radius steps that have an SDK step of the same size; the others stay its own.
+  --openui-space-3xs: var(--str-chat__spacing-xxxs);
+  --openui-space-2xs: var(--str-chat__spacing-xxs);
+  --openui-space-s: var(--str-chat__spacing-xs);
+  --openui-space-m: var(--str-chat__spacing-sm);
+  --openui-space-m-l: var(--str-chat__spacing-md);
+  --openui-space-xl: var(--str-chat__spacing-xl);
+  --openui-radius-2xs: var(--str-chat__radius-xxs);
+  --openui-radius-xs: var(--str-chat__radius-xs);
+  --openui-radius-s: var(--str-chat__radius-sm);
+  --openui-radius-m: var(--str-chat__radius-md);
+  --openui-radius-xl: var(--str-chat__radius-lg);
+  --openui-radius-3xl: var(--str-chat__radius-xl);
+  --openui-radius-4xl: var(--str-chat__radius-2xl);
+  --openui-radius-5xl: var(--str-chat__radius-3xl);
+  --openui-radius-7xl: var(--str-chat__radius-4xl);
+  --openui-radius-full: var(--str-chat__radius-max);
+
+  // Its shadows: the SDK's elevations.
+  --openui-shadow-s: var(--str-chat__box-shadow-1);
+  --openui-shadow-m: var(--str-chat__box-shadow-2);
+  --openui-shadow-l: var(--str-chat__box-shadow-2);
+  --openui-shadow-xl: var(--str-chat__box-shadow-3);
+  --openui-shadow-2xl: var(--str-chat__box-shadow-4);
+  --openui-shadow-3xl: var(--str-chat__box-shadow-4);
+
+  @include ai-ui-root;
 
   &__placeholder {
-    height: 4rem;
-    border-radius: 0.75rem;
-    background-color: var(--str-chat__background-core-surface-default);
-    animation: str-chat__ai-shimmer 1.6s ease-in-out infinite;
+    @include ai-ui-placeholder;
   }
 }
 
-// Native controls (the date input, scrollbars) follow the SDK's theme.
-.str-chat__theme-dark .str-chat__openui {
-  color-scheme: dark;
-}
+@include ai-ui-color-scheme('.str-chat__openui');
 
 // The parts a person sees most, drawn as StreamChatOpenUI draws them on iOS, so a reply looks the
 // same on every platform: the reply's card, its callouts, chips, buttons and follow-ups.
@@ -198,10 +254,7 @@
 .str-chat__openui {
   // The reply's card: a raised surface with a hairline edge, as a reply's card on iOS.
   .openui-card.openui-card-card {
-    padding: 1rem;
-    border: 1px solid var(--str-chat__border-core-subtle);
-    border-radius: var(--str-chat__radius-xl);
-    background-color: var(--str-chat__background-core-surface-card);
+    @include ai-ui-card;
   }
 
   // A form's labels, over what they label.
@@ -211,26 +264,24 @@
 
   .openui-label {
     font-size: var(--str-chat__typography-font-size-sm);
-    font-weight: 500;
+    font-weight: var(--str-chat__typography-font-weight-medium);
   }
 
   // A callout: tinted in its variant's colour, with its icon, its title and then its words.
   .openui-callout {
     --str-chat-openui-callout: var(--str-chat__accent-primary);
 
+    @include ai-ui-callout(var(--str-chat-openui-callout));
+
     display: grid;
     grid-template-columns: auto minmax(0, 1fr);
     column-gap: var(--str-chat__spacing-sm);
     row-gap: var(--str-chat__spacing-xxs);
-    padding: var(--str-chat__spacing-sm);
-    border: 0;
-    border-radius: var(--str-chat__radius-lg);
-    background-color: color-mix(in srgb, var(--str-chat-openui-callout) 12%, transparent);
 
     &::before {
       @include ai-ui-badge($ai-ui-glyph-info, var(--str-chat-openui-callout));
       grid-row: 1 / span 2;
-      margin-top: 0.0625rem;
+      margin-top: 1px;
     }
 
     .openui-callout-title {
@@ -288,14 +339,10 @@
   // Chips: pills on a quiet fill, and the chosen ones in the accent colour, the same size either
   // way, so choosing one moves nothing.
   .openui-chip-item {
-    gap: 0.375rem;
-    padding: 0.4375rem var(--str-chat__spacing-sm);
-    border: 1px solid transparent;
-    border-radius: var(--str-chat__radius-max);
-    background-color: color-mix(in srgb, var(--str-chat__text-primary) 8%, transparent);
+    @include ai-ui-chip;
+
+    padding: var(--str-chat__spacing-xs) var(--str-chat__spacing-sm);
     color: var(--str-chat__text-primary);
-    font-size: var(--str-chat__typography-font-size-sm);
-    font-weight: 500;
 
     &:not(:disabled):not(.openui-chip-item--selected):hover {
       border-color: transparent;
@@ -304,22 +351,17 @@
   }
 
   .openui-chip-item--selected {
-    border-color: var(--str-chat__accent-primary);
-    background-color: color-mix(in srgb, var(--str-chat__accent-primary) 8%, transparent);
-    color: color-mix(
-      in srgb,
-      var(--str-chat__text-link) 85%,
-      var(--str-chat__text-primary)
-    );
+    @include ai-ui-chip-chosen;
+
+    color: $ai-ui-chosen-text;
   }
 
   // Buttons: pills as wide as their row shares, but the tertiary one, which is as its words.
   .openui-button-base {
+    @include ai-ui-pill-button;
+
     justify-content: center;
     text-align: center;
-    border-radius: var(--str-chat__radius-max);
-    font-size: var(--str-chat__typography-font-size-sm);
-    font-weight: var(--str-chat__typography-font-weight-semi-bold);
   }
 
   .openui-buttons > .openui-button-base:not(.openui-button-base-tertiary) {
@@ -337,11 +379,11 @@
     align-items: center;
     // Room around the words for the hover's shape, which the margin takes back, so the words
     // line up with the rest of the reply.
+    @include ai-ui-follow-up;
+
     width: calc(100% + 2 * var(--str-chat__spacing-sm));
-    margin-inline: calc(-1 * var(--str-chat__spacing-sm));
-    padding: 0.625rem var(--str-chat__spacing-sm);
+    padding: var(--str-chat__button-padding-y-md) var(--str-chat__spacing-sm);
     border: 0;
-    border-radius: var(--str-chat__radius-lg);
     font-size: var(--str-chat__typography-font-size-sm);
 
     &:hover {
@@ -350,23 +392,13 @@
 
     .openui-follow-up-item-text {
       color: var(--str-chat__text-link);
-      font-weight: 500;
+      font-weight: var(--str-chat__typography-font-weight-medium);
     }
 
     & + .openui-follow-up-item {
-      background-image: linear-gradient(
-        var(--str-chat__border-core-default),
-        var(--str-chat__border-core-default)
-      );
-      background-position: var(--str-chat__spacing-sm) 0;
-      background-repeat: no-repeat;
-      background-size: calc(100% - 2 * var(--str-chat__spacing-sm)) 1px;
+      @include ai-ui-follow-up-hairline;
     }
   }
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .str-chat__openui__placeholder {
-    animation: none;
-  }
-}
+@include ai-ui-reduced-motion('.str-chat__openui__placeholder');

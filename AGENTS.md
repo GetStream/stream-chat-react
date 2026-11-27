@@ -318,7 +318,7 @@ Mock modules with `vi.mock('../../EmptyStateIndicator', () => ({ … }))`; use `
 1. **`build-translations`** — regenerates `src/i18n/keys.ts` from the `t()` call sites
 2. **`vite build`** — bundles the entry points as ESM (`dist/es/*.mjs`, one file per module) + CJS (`dist/cjs/*.js`)
 3. **`tsc -p tsconfig.lib.json`** — `.d.ts` only → `dist/types/`
-4. **`build-styling`** — Sass → `dist/css/index.css`, `emoji-replacement.css`, `emoji-picker.css`, `channel-detail.css`, `ai-components.css`, plus `cp -r src/styling/assets dist/css/assets`
+4. **`build-styling`** — Sass → `dist/css/index.css`, `emoji-replacement.css`, `emoji-picker.css`, `channel-detail.css`, `ai-components.css`, `a2ui.css`, `openui.css`, plus `cp -r src/styling/assets dist/css/assets`
 
 **Entry points** (`package.json` exports ↔ `vite.config.ts` `lib.entry`):
 

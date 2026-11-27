@@ -1,5 +1,6 @@
-@use './mixins' as *;
-@use './ai-ui-icons' as *;
+@use '../../AIComponents/styling/mixins' as *;
+@use '../../AIComponents/styling/ai-ui-icons' as *;
+@use '../../AIComponents/styling/ai-ui-surface' as *;
 @use '../../../styling/utils';
 
 // A reply's A2UI: its surfaces, in Stream's look. The A2UI basic catalog reads `--a2ui-*`
@@ -64,28 +65,50 @@
   --a2ui-color-secondary-hover: var(--str-chat__background-utility-hover);
   --a2ui-color-border: var(--str-chat__border-core-default);
   --a2ui-border: var(--a2ui-border-width, 1px) solid var(--a2ui-color-border);
-  --a2ui-border-radius: 0.75rem;
+  --a2ui-border-radius: var(--str-chat__radius-lg);
   --a2ui-color-input: var(--str-chat__background-core-elevation-0);
   --a2ui-color-on-input: var(--str-chat__text-primary);
   --a2ui-font-family-title: inherit;
-  --a2ui-font-size: 0.9375rem;
+  --a2ui-font-family-monospace: var(--str-chat__typography-font-family-mono);
+
+  // The type and spacing scales A2UI's own elements read, which it works out on `:root` from
+  // `--a2ui-font-size` and `--a2ui-grid-base`, so each step is set here: the SDK's.
+  --a2ui-font-size-xs: var(--str-chat__typography-font-size-xs);
+  --a2ui-font-size-s: var(--str-chat__typography-font-size-sm);
+  --a2ui-font-size-m: var(--str-chat__typography-font-size-md);
+  --a2ui-font-size-l: var(--str-chat__typography-font-size-lg);
+  --a2ui-font-size-xl: var(--str-chat__typography-font-size-xl);
+  --a2ui-font-size-2xl: var(--str-chat__typography-font-size-2xl);
+  --a2ui-spacing-xs: var(--str-chat__spacing-xxxs);
+  --a2ui-spacing-s: var(--str-chat__spacing-xxs);
+  --a2ui-spacing-m: var(--str-chat__spacing-xs);
+  --a2ui-spacing-l: var(--str-chat__spacing-md);
+  --a2ui-spacing-xl: var(--str-chat__spacing-2xl);
+
+  // The sizes and weights of the parts A2UI draws itself: labels, check boxes, the date input.
+  --a2ui-label-font-weight: var(--str-chat__typography-font-weight-semi-bold);
+  --a2ui-slider-label-font-weight: var(--str-chat__typography-font-weight-semi-bold);
+  --a2ui-datetimeinput-label-font-weight: var(
+    --str-chat__typography-font-weight-semi-bold
+  );
+  --a2ui-checkbox-size: var(--str-chat__icon-size-md);
+  --a2ui-choicepicker-checkbox-size: var(--str-chat__icon-size-md);
+  --a2ui-checkbox-border-radius: var(--str-chat__radius-xs);
+  --a2ui-datetimeinput-padding: var(--str-chat__spacing-xs);
+  --a2ui-datetimeinput-border-radius: var(--str-chat__radius-md);
+
+  @include ai-ui-root;
 
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
-  width: 100%;
-  min-width: 0;
-  color: var(--str-chat__text-primary);
-  color-scheme: light;
+  gap: var(--str-chat__spacing-sm);
 
   // A surface is the reply's card, as OpenUI's is: a raised surface with a hairline edge. A Card
   // the agent places in it is a panel on it.
   &__surface {
+    @include ai-ui-card;
+
     min-width: 0;
-    padding: 1rem;
-    border: 1px solid var(--str-chat__border-core-subtle);
-    border-radius: var(--str-chat__radius-xl);
-    background-color: var(--str-chat__background-core-surface-card);
 
     .str-chat__a2ui-card {
       background-color: var(--str-chat__background-core-elevation-1);
@@ -93,10 +116,7 @@
   }
 
   &__placeholder {
-    height: 4rem;
-    border-radius: 0.75rem;
-    background-color: var(--str-chat__background-core-surface-default);
-    animation: str-chat__ai-shimmer 1.6s ease-in-out infinite;
+    @include ai-ui-placeholder;
   }
 }
 
@@ -110,8 +130,7 @@
 
   &--caption {
     color: var(--str-chat__text-secondary);
-    font-size: 0.8125rem;
-    line-height: 1.4;
+    font: var(--str-chat__font-caption-default);
   }
 
   // A Button's words.
@@ -122,24 +141,17 @@
 
   // A quote is a callout, as OpenUI's are: tinted in the accent colour, behind its icon.
   blockquote {
+    @include ai-ui-callout(var(--str-chat__accent-primary));
+
     display: flex;
     gap: var(--str-chat__spacing-sm);
     margin: 0;
-    padding: var(--str-chat__spacing-sm);
-    border: 0;
-    border-radius: var(--str-chat__radius-lg);
-    background-color: color-mix(
-      in srgb,
-      var(--str-chat__accent-primary) 12%,
-      transparent
-    );
     color: var(--str-chat__text-secondary);
-    font-size: var(--str-chat__typography-font-size-sm);
     font-style: normal;
 
     &::before {
       @include ai-ui-badge($ai-ui-glyph-info, var(--str-chat__accent-primary));
-      margin-top: 0.0625rem;
+      margin-top: 1px;
     }
 
     > * {
@@ -156,9 +168,9 @@
 .str-chat__a2ui-card {
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
+  gap: var(--str-chat__spacing-sm);
   min-width: 0;
-  padding: 1rem;
+  padding: var(--str-chat__spacing-md);
   border: 1px solid var(--str-chat__border-core-subtle);
   border-radius: var(--a2ui-border-radius);
   background-color: var(--str-chat__background-core-surface-card);
@@ -182,6 +194,8 @@
 // buttons as pills, the main one as wide as the reply, and the borderless ones of a Column as
 // follow-ups, their words in the accent colour, as on iOS, with a hairline between them.
 .str-chat__a2ui .str-chat__button.str-chat__a2ui-button {
+  @include ai-ui-pill-button;
+
   --str-chat__button-radius-md: var(--str-chat__radius-max);
 
   &.str-chat__a2ui-button--primary {
@@ -191,35 +205,27 @@
   // A borderless Button reads as a link; in a Column, as a follow-up: a row of its own in the
   // accent colour, with a hairline parting it from the one before.
   &.str-chat__a2ui-button--borderless {
-    font-weight: 500;
+    font-weight: var(--str-chat__typography-font-weight-medium);
   }
 
   &.str-chat__a2ui-button--follow-up {
-    // Room around the words for the hover's shape, which the margin takes back, so the words
-    // line up with the rest of the reply.
-    --str-chat__button-padding-y-md: 0.625rem;
+    @include ai-ui-follow-up;
+
     --str-chat__button-padding-x-with-label-md: var(--str-chat__spacing-sm);
     --str-chat__button-radius-md: var(--str-chat__radius-lg);
 
     align-self: stretch;
     justify-content: flex-start;
     gap: var(--str-chat__spacing-xs);
-    max-width: calc(100% + 2 * var(--str-chat__spacing-sm));
-    margin-inline: calc(-1 * var(--str-chat__spacing-sm));
     text-align: start;
     white-space: normal;
   }
 
-  // The hairline, in the gap of the Column that holds them.
+  // The hairline, in the gap of the Column that holds them, which the follow-up takes back.
   &.str-chat__a2ui-button--follow-up-after {
-    margin-top: -0.5rem;
-    background-image: linear-gradient(
-      var(--str-chat__border-core-default),
-      var(--str-chat__border-core-default)
-    );
-    background-position: var(--str-chat__spacing-sm) 0;
-    background-repeat: no-repeat;
-    background-size: calc(100% - 2 * var(--str-chat__spacing-sm)) 1px;
+    @include ai-ui-follow-up-hairline;
+
+    margin-top: calc(-1 * var(--a2ui-spacing-m));
   }
 }
 
@@ -227,25 +233,17 @@
 // way, so choosing one moves nothing. Chosen is said by the accent colour, rather than by
 // Stream's pressed overlay.
 .str-chat__a2ui .str-chat__button.str-chat__a2ui-chip.str-chat__button--ghost {
-  --str-chat__button-padding-y-sm: 0.4375rem;
+  @include ai-ui-chip;
+
+  --str-chat__button-padding-y-sm: var(--str-chat__spacing-xs);
   --str-chat__button-padding-x-with-label-sm: var(--str-chat__spacing-sm);
   --str-chat__button-radius-md: var(--str-chat__radius-max);
   --str-chat__button-secondary-text: var(--str-chat__text-primary);
 
-  gap: 0.375rem;
-  border: 1px solid transparent;
-  background-color: color-mix(in srgb, var(--str-chat__text-primary) 8%, transparent);
-  font-weight: 500;
-
   &.str-chat__a2ui-chip--selected {
-    --str-chat__button-secondary-text: color-mix(
-      in srgb,
-      var(--str-chat__text-link) 85%,
-      var(--str-chat__text-primary)
-    );
+    @include ai-ui-chip-chosen;
 
-    border-color: var(--str-chat__accent-primary);
-    background-color: color-mix(in srgb, var(--str-chat__accent-primary) 8%, transparent);
+    --str-chat__button-secondary-text: #{$ai-ui-chosen-text};
 
     // At rest, chosen shows in the accent colour alone; hovered or pressed, it shows the overlay.
     &:not(:disabled)[aria-pressed='true']:not(:hover):not(:active)::after {
@@ -257,7 +255,7 @@
 .str-chat__a2ui-text-field {
   display: flex;
   flex-direction: column;
-  gap: 0.25rem;
+  gap: var(--str-chat__spacing-xxs);
   min-width: 0;
 
   .str-chat__form-text-input {
@@ -265,46 +263,46 @@
   }
 
   &__long {
-    min-height: 4.5rem;
+    min-height: 4.5rem; // ai-styles: allow three lines of a long text field
     resize: vertical;
     font: inherit;
   }
 }
 
 .str-chat__a2ui-problems {
-  font-size: 0.8125rem;
+  font-size: var(--str-chat__typography-font-size-sm);
 }
 
 .str-chat__a2ui-choice-picker {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: var(--str-chat__spacing-xs);
   min-width: 0;
 
   &__label {
     color: var(--str-chat__text-primary);
-    font-size: 0.875rem;
-    font-weight: 500;
+    font-size: var(--str-chat__typography-font-size-sm);
+    font-weight: var(--str-chat__typography-font-weight-medium);
   }
 
   &__chips {
     display: flex;
     flex-wrap: wrap;
-    gap: 0.5rem;
+    gap: var(--str-chat__spacing-xs);
   }
 
   &__options {
     display: flex;
     flex-direction: column;
-    gap: 0.25rem;
+    gap: var(--str-chat__spacing-xxs);
   }
 
   &__option {
     position: relative;
     display: flex;
     align-items: center;
-    gap: 0.625rem;
-    padding: 0.25rem 0;
+    gap: var(--str-chat__spacing-sm);
+    padding: var(--str-chat__spacing-xxs) 0;
     color: var(--str-chat__text-primary);
     cursor: pointer;
 
@@ -339,28 +337,28 @@
   border-radius: var(--str-chat__radius-lg);
 
   &--icon {
-    width: 1.5rem;
-    height: 1.5rem;
+    width: var(--str-chat__size-24);
+    height: var(--str-chat__size-24);
     border-radius: 0;
   }
 
   &--avatar {
-    width: 2.5rem;
-    height: 2.5rem;
-    border-radius: 50%;
+    width: var(--str-chat__size-40);
+    height: var(--str-chat__size-40);
+    border-radius: var(--str-chat__radius-max);
   }
 
   &--smallFeature {
-    max-width: 6.25rem;
+    max-width: 6.25rem; // ai-styles: allow A2UI's small feature image
   }
 
   &--largeFeature {
-    max-height: 25rem;
+    max-height: 25rem; // ai-styles: allow A2UI's large feature image
   }
 
   &--header {
     width: 100%;
-    height: 12.5rem;
+    height: 12.5rem; // ai-styles: allow A2UI's header image
   }
 }
 
@@ -392,8 +390,8 @@
   flex: none;
   align-items: center;
   justify-content: center;
-  width: var(--a2ui-icon-size, 1.5rem);
-  height: var(--a2ui-icon-size, 1.5rem);
+  width: var(--a2ui-icon-size, var(--str-chat__size-24));
+  height: var(--a2ui-icon-size, var(--str-chat__size-24));
   color: currentColor;
 
   svg {
@@ -403,18 +401,21 @@
   }
 
   &__glyph {
-    font-size: var(--a2ui-icon-size, 1.5rem);
+    font-size: var(--a2ui-icon-size, var(--str-chat__typography-font-size-2xl));
     font-style: normal;
     font-weight: normal;
-    line-height: 1;
+    line-height: 1; // ai-styles: allow a glyph box, as tall as its font
     font-variation-settings: 'FILL' 1;
   }
 }
 
 // A Modal opens as a dialog, in the top layer above everything.
 .str-chat__a2ui-modal {
-  width: min(32rem, calc(100vw - 2rem));
-  max-height: calc(100dvh - 4rem);
+  width: min(
+    32rem,
+    calc(100vw - 2 * var(--str-chat__spacing-md))
+  ); // ai-styles: allow measure of a dialog
+  max-height: calc(100dvh - var(--str-chat__size-64));
   padding: 0;
   border: none;
   // The SDK's modal: its radius, shadow and scrim.
@@ -436,8 +437,8 @@
   &__content {
     display: flex;
     flex-direction: column;
-    gap: 0.75rem;
-    padding: 1rem;
+    gap: var(--str-chat__spacing-sm);
+    padding: var(--str-chat__spacing-md);
   }
 
   &__close {
@@ -467,12 +468,5 @@
 }
 
 // Native controls (the date input, scrollbars) follow the SDK's theme.
-.str-chat__theme-dark .str-chat__a2ui {
-  color-scheme: dark;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .str-chat__a2ui__placeholder {
-    animation: none;
-  }
-}
+@include ai-ui-color-scheme('.str-chat__a2ui');
+@include ai-ui-reduced-motion('.str-chat__a2ui__placeholder');
