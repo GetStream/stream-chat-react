@@ -285,6 +285,7 @@
     "validate-esm": "node scripts/validate-esm-node-bundle.mjs",
     "validate-entry-isolation": "node scripts/validate-entry-isolation.mts",
     "validate-ai-ui-tokens": "node scripts/validate-ai-ui-tokens.mts",
+    "validate-ai-styles": "node scripts/validate-ai-styles.mts",
     "api-surface": "node scripts/api-surface.mts",
     "semantic-release": "semantic-release",
     "prepack": "yarn build",
