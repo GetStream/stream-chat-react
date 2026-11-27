@@ -7,6 +7,7 @@ import {
   useAriaLiveAnnouncer,
   useChannelPreviewInfo,
   useChatContext,
+  useComponentContextIcons,
   useStateStore,
 } from 'stream-chat-react';
 import './Invitations.css';
@@ -42,9 +43,14 @@ const Invitation = ({
 }) => {
   const { client } = useChatContext();
   const announce = useAriaLiveAnnouncer();
-  const { displayImage, displayTitle, groupChannelDisplayInfo } = useChannelPreviewInfo({
-    channel,
-  });
+  const { IconUsers } = useComponentContextIcons();
+  const {
+    avatarName,
+    displayImage,
+    displayTitle,
+    groupChannelDisplayInfo,
+    isGroupChannel,
+  } = useChannelPreviewInfo({ channel });
   const [answering, setAnswering] = useState<Answer>();
   const rowRef = useRef<HTMLLIElement>(null);
   const inviter = channel.data?.created_by?.name;
@@ -87,9 +93,10 @@ const Invitation = ({
       <ChannelAvatar
         aria-hidden='true'
         displayMembers={groupChannelDisplayInfo.members}
+        FallbackIcon={isGroupChannel ? IconUsers : undefined}
         imageUrl={displayImage}
         size='xl'
-        userName={displayTitle}
+        userName={avatarName}
       />
       <div className='cookbook-invitation__body'>
         <p className='cookbook-invitation__title'>{displayTitle}</p>

@@ -56,6 +56,25 @@ export const deriveChannelDisplayName = (
   return undefined;
 };
 
+/**
+ * The name a channel avatar takes its initials from: data.custom.name, else in a DM (2 members)
+ * the other member's user.name. Never an ID or a placeholder such as "Direct message", so without
+ * one the avatar shows its fallback icon.
+ */
+export const deriveChannelAvatarName = (
+  { data, members }: ChannelDisplayState,
+  currentUserId: string | undefined,
+): string | undefined => {
+  const name = data?.custom?.name;
+  if (name && typeof name === 'string') return name;
+
+  // A DM as `deriveChannelDisplayName` sees one: two members, one of them the current user.
+  const memberList = Object.values(members);
+  const otherMembers = memberList.filter((m) => m.user?.id !== currentUserId);
+  if (memberList.length !== 2 || otherMembers.length !== 1) return undefined;
+  return otherMembers[0].user?.name || undefined;
+};
+
 /** data.custom.image, or for a DM (2 members) the other member's user.image. */
 export const deriveChannelDisplayImage = (
   { data, members }: ChannelDisplayState,

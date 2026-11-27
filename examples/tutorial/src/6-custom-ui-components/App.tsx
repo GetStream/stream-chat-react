@@ -48,6 +48,7 @@ const ellipsis = {
 
 const CustomChannelListItem = ({
   active,
+  avatarName,
   channel,
   displayImage,
   displayTitle,
@@ -82,14 +83,13 @@ const CustomChannelListItem = ({
       <ChannelAvatar
         imageUrl={displayImage ?? channel.data?.custom?.image}
         size='xl'
-        userName={displayTitle ?? channel.data?.custom?.name ?? 'Channel'}
+        // Undefined for a channel without a name, so the avatar shows its person icon.
+        userName={avatarName ?? undefined}
       />
       {/* `minWidth: 0` lets the text column shrink below its content, so a long title or preview
           is cut off with an ellipsis instead of squeezing the avatar out of the row. */}
       <div style={{ flex: 1, minWidth: 0 }}>
-        <div style={ellipsis}>
-          {displayTitle ?? channel.data?.custom?.name ?? 'Unnamed Channel'}
-        </div>
+        <div style={ellipsis}>{displayTitle}</div>
         {previewedMessage ? (
           <div style={{ ...ellipsis, fontSize: '14px', opacity: 0.75 }}>
             <SummarizedMessagePreview latestMessage={previewedMessage} />

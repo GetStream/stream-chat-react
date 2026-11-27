@@ -2,6 +2,7 @@ import type { Channel, MessagePaginatorAggregateState } from 'stream-chat';
 import {
   ChannelAvatar,
   useChannelPreviewInfo,
+  useComponentContextIcons,
   useLatestMessagePreview,
   useStateStore,
   useWorkspaceNavigation,
@@ -14,9 +15,14 @@ const latestMessageSelector = ({ latestMessage }: MessagePaginatorAggregateState
 
 export const ChannelChip = ({ channel }: { channel: Channel }) => {
   const { openChannel } = useWorkspaceNavigation();
-  const { displayImage, displayTitle, groupChannelDisplayInfo } = useChannelPreviewInfo({
-    channel,
-  });
+  const { IconUsers } = useComponentContextIcons();
+  const {
+    avatarName,
+    displayImage,
+    displayTitle,
+    groupChannelDisplayInfo,
+    isGroupChannel,
+  } = useChannelPreviewInfo({ channel });
   const { latestMessage } = useStateStore(
     channel.messagePaginator.aggregateState,
     latestMessageSelector,
@@ -35,10 +41,11 @@ export const ChannelChip = ({ channel }: { channel: Channel }) => {
       <ChannelAvatar
         aria-hidden
         displayMembers={groupChannelDisplayInfo.members}
+        FallbackIcon={isGroupChannel ? IconUsers : undefined}
         imageUrl={displayImage}
         // Group avatars come in lg, xl and 2xl.
         size='lg'
-        userName={displayTitle}
+        userName={avatarName}
       />
       <span className='cookbook-channel-chip__text'>
         <span className='cookbook-channel-chip__title'>{displayTitle}</span>

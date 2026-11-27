@@ -13,7 +13,7 @@ import {
 } from '../../Avatar';
 import { extractDisplayInfo as defaultExtractDisplayInfo } from '../../Avatar/utils';
 import { useInteractionAnnouncements } from '../../Accessibility';
-import { useChannelPreviewInfo } from '../../ChannelListItem';
+import { useThreadPreviewInfo } from '../hooks/useThreadPreviewInfo';
 import {
   useChatContext,
   useComponentContext,
@@ -86,7 +86,7 @@ export const ThreadListItemUI = ({
     latestReplySelector,
   );
 
-  const { displayTitle: channelDisplayTitle } = useChannelPreviewInfo({ channel });
+  const { displayTitle } = useThreadPreviewInfo({ thread });
   const { t, tDateTimeParser, userLanguage } = useTranslationContext();
   const { announceInteraction } = useInteractionAnnouncements();
   const { isThreadActive, openThread } = useWorkspaceNavigation();
@@ -135,7 +135,7 @@ export const ThreadListItemUI = ({
           active: isSelected,
           channel,
           client,
-          displayTitle: channelDisplayTitle,
+          displayTitle,
           isMessageAIGenerated,
           latestReply: latestReply ?? undefined,
           parentMessage: parentMessage ?? undefined,
@@ -153,7 +153,7 @@ export const ThreadListItemUI = ({
     [
       accessibleLabelConfig,
       channel,
-      channelDisplayTitle,
+      displayTitle,
       client,
       isMessageAIGenerated,
       isSelected,
@@ -174,7 +174,8 @@ export const ThreadListItemUI = ({
     ? undefined
     : ({
         imageUrl: latestReply?.user?.image,
-        userName: latestReply?.user?.name || latestReply?.user?.id,
+        // Never the ID: without a name the avatar shows its fallback icon.
+        userName: latestReply?.user?.name,
       } as const);
 
   const displayInfo = useMemo(() => {
@@ -211,8 +212,8 @@ export const ThreadListItemUI = ({
           void openThread(thread, { additive: event.ctrlKey || event.metaKey, event });
           // Delayed by the registry so the announcement lands after the thread composer's focus
           // announcement. Skipped when the row is already the active thread.
-          if (!isSelected && channelDisplayTitle) {
-            announceInteraction('thread.opened', { name: channelDisplayTitle });
+          if (!isSelected && displayTitle) {
+            announceInteraction('thread.opened', { name: displayTitle });
           }
           onClickFromProps?.(event);
         }}
@@ -222,9 +223,7 @@ export const ThreadListItemUI = ({
         <Avatar size='xl' {...avatarProps} />
         <div className='str-chat__thread-list-item__content'>
           <div className='str-chat__thread-list-item__content-leading'>
-            <span className='str-chat__thread-list-item__title'>
-              {channelDisplayTitle}
-            </span>
+            <span className='str-chat__thread-list-item__title'>{displayTitle}</span>
             <SummarizedMessagePreview
               latestMessage={parentMessage}
               participantCount={participants?.length}

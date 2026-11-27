@@ -14,6 +14,12 @@ export type GroupAvatarProps = {
   displayMembers?: GroupAvatarMember[];
   size: '2xl' | 'xl' | 'lg' | (string & {}) | null;
   badgeSize?: BadgeSize;
+  /**
+   * Icon of the single `Avatar` rendered for fewer than 2 `displayMembers`. It shows when that
+   * member has neither an image nor a name to take initials from, or when there is no member.
+   * Defaults to the `IconUser` slot. The member tiles rendered for 2 or more members ignore it.
+   */
+  FallbackIcon?: AvatarProps['FallbackIcon'];
   isOnline?: boolean;
 } & ComponentPropsWithoutRef<'div'>;
 
@@ -26,6 +32,7 @@ export const GroupAvatar = ({
   badgeSize,
   className,
   displayMembers = [],
+  FallbackIcon,
   isOnline,
   size,
   ...rest
@@ -41,6 +48,7 @@ export const GroupAvatar = ({
 
     return (
       <Avatar
+        FallbackIcon={FallbackIcon}
         imageUrl={firstUser?.imageUrl}
         isOnline={isOnline}
         size={size}

@@ -19,15 +19,17 @@ import { composeChannelListItemAccessibleLabel } from './utils.a11y';
 import { SummarizedMessagePreview as DefaultSummarizedMessagePreview } from '../SummarizedMessagePreview';
 
 const UnMemoizedChannelListItemUI = (props: ChannelListItemUIProps) => {
-  const { IconMute, IconPin } = useComponentContextIcons();
+  const { IconMute, IconPin, IconUsers } = useComponentContextIcons();
   const {
     accessibleLabelConfig,
     active,
+    avatarName,
     channel,
     className: customClassName = '',
     displayImage,
     displayTitle,
     groupChannelDisplayInfo,
+    isGroupChannel,
     messageDeliveryStatus,
     muted,
     onSelect: customOnSelectChannel,
@@ -89,7 +91,9 @@ const UnMemoizedChannelListItemUI = (props: ChannelListItemUIProps) => {
     ],
   );
 
-  const avatarName = displayTitle || channel.messagePaginator.latestMessage?.user?.id;
+  // `null` means the channel has no name for the avatar; left out, `displayTitle` is used.
+  const avatarUserName =
+    avatarName === undefined ? displayTitle : (avatarName ?? undefined);
 
   const onSelectChannel = (e: React.MouseEvent<HTMLButtonElement>) => {
     if (customOnSelectChannel) {
@@ -134,14 +138,15 @@ const UnMemoizedChannelListItemUI = (props: ChannelListItemUIProps) => {
         <Avatar
           aria-hidden='true'
           displayMembers={groupChannelDisplayInfo?.members}
+          FallbackIcon={isGroupChannel ? IconUsers : undefined}
           imageUrl={displayImage}
           size='xl'
-          userName={avatarName}
+          userName={avatarUserName}
         />
         <div className='str-chat__channel-list-item-data'>
           <div className='str-chat__channel-list-item-data__first-row'>
             <div className='str-chat__channel-list-item-data__title'>
-              <span>{displayTitle || 'N/A'}</span>
+              <span>{displayTitle}</span>
               {pinned && <IconPin />}
               {muted && <IconMute />}
             </div>

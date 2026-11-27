@@ -21,7 +21,7 @@ export type ThreadListItemLabelData = {
   /** The channel the thread belongs to. */
   channel?: Channel;
   client: StreamChat;
-  /** The channel's display name (the thread row's title). */
+  /** The thread row's title, from `useThreadPreviewInfo`. */
   displayTitle?: string;
   isMessageAIGenerated?: ChatContextValue['isMessageAIGenerated'];
   /** The most recent reply in the thread. */
