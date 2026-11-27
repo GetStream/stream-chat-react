@@ -3,13 +3,7 @@ import clsx from 'clsx';
 
 import { useTranslationContext } from '../../../context/TranslationContext';
 import { useComponentContextIcons } from '../../../context/useComponentContextIcons';
-import {
-  IconAIShare,
-  IconAIThumbsDown,
-  IconAIThumbsDownFill,
-  IconAIThumbsUp,
-  IconAIThumbsUpFill,
-} from '../icons';
+import { useAIIcons } from '../useAIIcons';
 import { type AIBranchSwitch, AIBranchSwitcher } from './AIBranchSwitcher';
 import { ThemeScopeProvider, useAIThemeScopeClassName } from '../themeScope';
 
@@ -67,6 +61,13 @@ export const AIReplyActions = ({
   const themeScopeClassName = useAIThemeScopeClassName();
   const { t } = useTranslationContext();
   const { IconCheckmark, IconCopy, IconRefresh } = useComponentContextIcons();
+  const {
+    IconAIShare,
+    IconAIThumbsDown,
+    IconAIThumbsDownFill,
+    IconAIThumbsUp,
+    IconAIThumbsUpFill,
+  } = useAIIcons();
   const [isCopied, setIsCopied] = useState(false);
   const timer = useRef<ReturnType<typeof setTimeout>>(undefined);
   useEffect(() => () => clearTimeout(timer.current), []);

@@ -583,6 +583,19 @@ import { WithComponents } from 'stream-chat-react';
 </WithComponents>;
 ```
 
+The icons the SDK's set lacks (`IconAIReasoning`, `IconAIShare`, `IconAIThumbsUp`, `IconAIThumbsUpFill`, `IconAIThumbsDown`, `IconAIThumbsDownFill`, `IconAIHandRaised`, `IconAIKey`, `IconAIDevice`) are exported, and override the same way. `WithComponents` types its `icons` as the SDK's, so type yours with `AIIconSlots` beside them:
+
+```tsx
+import type { IconSlots } from 'stream-chat-react';
+import type { AIIconSlots } from 'stream-chat-react/ai-components';
+
+const icons: IconSlots & AIIconSlots = { IconAIShare: MyShareIcon, IconSend: MySendIcon };
+
+<WithComponents overrides={{ icons }}>{/* … */}</WithComponents>;
+```
+
+`useAIIcons()` returns them, each replaced by the app's override, as `useComponentContextIcons()` does for the SDK's.
+
 ### 7. Internationalization
 
 All strings go through `t()` with namespaced keys and inline English defaults, like the rest of `stream-chat-react` v15. English is the only bundled language. To translate the components, register a dictionary on your `Streami18n` instance (`i18n.registerTranslation(lang, dict)`), exactly as for the core SDK keys (see `ai-docs/i18n-v15-migration.md`). Inside `<Chat>` the active language is used.
