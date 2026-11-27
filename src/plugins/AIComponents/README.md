@@ -1105,14 +1105,14 @@ Enable voice input using the Web Speech API. Provides speech recognition capabil
 
 #### Props
 
-| Name              | Type                      | Required | Description                                                                         |
-| ----------------- | ------------------------- | -------- | ----------------------------------------------------------------------------------- |
-| `lang`            | `string`                  | no       | Language for speech recognition (e.g., 'en-US', 'es-ES'). Defaults to `'en-US'`.    |
-| `interimResults`  | `boolean`                 | no       | Whether to return interim (partial) results. Defaults to `true`.                    |
-| `maxAlternatives` | `number`                  | no       | Maximum number of alternative transcriptions. Defaults to `1`.                      |
-| `continuous`      | `boolean`                 | no       | Whether recognition should continue after user stops speaking. Defaults to `false`. |
-| `onTranscript`    | `(text: string) => void`  | no       | Callback when transcription text changes.                                           |
-| `onError`         | `(error: string) => void` | no       | Callback when an error occurs.                                                      |
+| Name              | Type                      | Required | Description                                                                                                                       |
+| ----------------- | ------------------------- | -------- | --------------------------------------------------------------------------------------------------------------------------------- |
+| `lang`            | `string`                  | no       | Language for speech recognition (e.g., 'en-US', 'es-ES'). Defaults to the app's language (`userLanguage`, `'en'` outside `Chat`). |
+| `interimResults`  | `boolean`                 | no       | Whether to return interim (partial) results. Defaults to `true`.                                                                  |
+| `maxAlternatives` | `number`                  | no       | Maximum number of alternative transcriptions. Defaults to `1`.                                                                    |
+| `continuous`      | `boolean`                 | no       | Whether recognition should continue after user stops speaking. Defaults to `false`.                                               |
+| `onTranscript`    | `(text: string) => void`  | no       | Callback when transcription text changes.                                                                                         |
+| `onError`         | `(error: string) => void` | no       | Callback when an error occurs.                                                                                                    |
 
 #### Returns
 
