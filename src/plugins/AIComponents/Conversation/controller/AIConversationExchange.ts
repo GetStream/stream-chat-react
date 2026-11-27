@@ -1,6 +1,6 @@
 import isEqual from 'react-fast-compare';
 
-import type { AIMessageAttachmentData } from '../../Message/AIMessageAttachment';
+import type { AIMessageAttachmentData } from '../types';
 import type { AIMessage, AIPendingMessage } from '../types';
 import type { AIConversationRequest } from './types';
 

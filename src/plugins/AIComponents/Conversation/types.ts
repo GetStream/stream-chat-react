@@ -1,7 +1,27 @@
 import type { AIUIDocument } from '../GenerativeUI/AIUIDocument';
-import type { AIMessageAttachmentData } from '../Message/AIMessageAttachment';
-import type { AIMessageRating } from '../Message/AIReplyActions';
 import type { AIMessagePartData } from '../MessageParts/types';
+
+/**
+ * What a message carries besides its text, such as an image or a file. The counterpart of
+ * `AIMessageAttachment` in StreamChatAI.
+ */
+export type AIMessageAttachmentData = {
+  /** `image` shows a thumbnail; `file` shows its name, type and size. An open set. */
+  kind: 'image' | 'file' | (string & {});
+  /** Data of its own, such as what an attachment of a kind of your own needs. */
+  extraData?: Record<string, unknown>;
+  /** Its media type, such as `application/pdf`. Without it, the type comes from its name or URL. */
+  mimeType?: string;
+  /** Its name, such as the file's. */
+  name?: string;
+  /** Its size, in bytes. */
+  size?: number;
+  /** Where it is: a web URL, or an object or data URL of something the app holds, such as a photo just picked. */
+  url?: string;
+};
+
+/** How the person rated a reply. */
+export type AIMessageRating = 'positive' | 'negative';
 
 /** Who wrote a message: the person using the app (`user`) or the agent (`assistant`). */
 export type AIMessageRole = 'user' | 'assistant' | (string & {});

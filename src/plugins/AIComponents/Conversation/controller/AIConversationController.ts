@@ -4,11 +4,8 @@ import {
   type AIMessageComposerStore,
   createAIMessageComposerStore,
 } from '../../AIMessageComposer/store';
-import type { AIChatOption } from '../../AIMessageComposer/ChatOptions';
-import type { AIMessageRating, AIReplyActionsProps } from '../../Message/AIReplyActions';
 import type { AIToolApprover } from '../../ToolCalls/AIToolApprover';
-import type { AIUserMessageActions } from '../AIConversation';
-import type { AIMessage, AIPendingMessage } from '../types';
+import type { AIMessage, AIMessageRating, AIPendingMessage } from '../types';
 import { AIAgentError } from './AIAgentError';
 import {
   AIConversationExchange,
@@ -24,11 +21,14 @@ import {
 import {
   type AIAgentActivity,
   AIAgentActivityStates,
+  type AIChatOption,
   type AIConversationActions,
   type AIConversationFeed,
   type AIConversationRequest,
   type AIConversationStatus,
   type AIConversationTransport,
+  type AIReplyActionsProps,
+  type AIUserMessageActions,
   isAIConversationAnswering,
 } from './types';
 

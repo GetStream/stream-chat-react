@@ -1,9 +1,12 @@
-import { type AIConversationStatus, isAIConversationAnswering } from './types';
+import {
+  type AIBranchSwitch,
+  type AIConversationStatus,
+  type AIReplyActionsProps,
+  type AIUserMessageActions,
+  isAIConversationAnswering,
+} from './types';
 
-import type { AIBranchSwitch } from '../../Message/AIBranchSwitcher';
-import type { AIMessageRating, AIReplyActionsProps } from '../../Message/AIReplyActions';
-import type { AIUserMessageActions } from '../AIConversation';
-import type { AIMessage, AIMessageBranch } from '../types';
+import type { AIMessage, AIMessageBranch, AIMessageRating } from '../types';
 
 type Offerer<Message extends AIMessage> = {
   actions: { edit: boolean; rate: boolean; regenerate: boolean };

@@ -6,25 +6,9 @@ import { useTranslationContext } from '../../../context/TranslationContext';
 import { useComponentContextIcons } from '../../../context/useComponentContextIcons';
 import { prettifyFileSize } from '../../../components/MessageComposer/hooks/utils';
 import { useAIThemeScopeClassName } from '../themeScope';
+import type { AIMessageAttachmentData } from '../Conversation/types';
 
-/**
- * What a message carries besides its text, such as an image or a file. The counterpart of
- * `AIMessageAttachment` in StreamChatAI.
- */
-export type AIMessageAttachmentData = {
-  /** `image` shows a thumbnail; `file` shows its name, type and size. An open set. */
-  kind: 'image' | 'file' | (string & {});
-  /** Data of its own, such as what an attachment of a kind of your own needs. */
-  extraData?: Record<string, unknown>;
-  /** Its media type, such as `application/pdf`. Without it, the type comes from its name or URL. */
-  mimeType?: string;
-  /** Its name, such as the file's. */
-  name?: string;
-  /** Its size, in bytes. */
-  size?: number;
-  /** Where it is: a web URL, or an object or data URL of something the app holds, such as a photo just picked. */
-  url?: string;
-};
+export type { AIMessageAttachmentData };
 
 const extensionOf = (attachment: AIMessageAttachmentData) => {
   for (const candidate of [attachment.name, attachment.url]) {

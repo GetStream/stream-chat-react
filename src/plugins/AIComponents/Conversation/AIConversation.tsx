@@ -42,6 +42,9 @@ import {
   userMessageActionsOf,
 } from './controller/offers';
 import { useAIConversationState } from './controller/useAIConversationState';
+import type { AIUserMessageActions } from './controller/types';
+
+export type { AIUserMessageActions };
 
 // How far from the end still counts as at the end, in pixels.
 const END_SLACK = 32;
@@ -73,17 +76,6 @@ export type AIConversationUserMessageProps = {
    * Saves the person's edit of the message, made in place, from `userMessageActions`, or from a
    * `conversation` whose transport switches versions. `AIUserMessage` uses it in place of
    * `onEdit` when both are passed.
-   */
-  onSaveEdit?: (text: string) => void;
-};
-
-/** What the default `AIUserMessage` offers for a message of the person's, from `userMessageActions`. */
-export type AIUserMessageActions = {
-  /** Which of the question's versions shows, with how to show the others. */
-  branch?: AIBranchSwitch;
-  /**
-   * Saves the person's edit of the message, which they make in place, with its new text. Without
-   * it, no in-place edit.
    */
   onSaveEdit?: (text: string) => void;
 };

@@ -5,28 +5,12 @@ import { useAriaLiveAnnouncer } from '../../../components/Accessibility/useAriaL
 import { useTranslationContext } from '../../../context/TranslationContext';
 import { useComponentContextIcons } from '../../../context/useComponentContextIcons';
 import { useAIIcons } from '../useAIIcons';
-import { type AIBranchSwitch, AIBranchSwitcher } from './AIBranchSwitcher';
+import { AIBranchSwitcher } from './AIBranchSwitcher';
 import { ThemeScopeProvider, useAIThemeScopeClassName } from '../themeScope';
+import type { AIMessageRating } from '../Conversation/types';
+import type { AIReplyActionsProps } from '../Conversation/controller/types';
 
-/** How the person rated a reply. */
-export type AIMessageRating = 'positive' | 'negative';
-
-export type AIReplyActionsProps = {
-  /** The reply's text, which copying and sharing hand on. */
-  text: string;
-  /**
-   * Which of the reply's versions shows, when it was written again: a ‹ i/n › switcher with
-   * arrows to the others, shown only while `count` is 2 or more.
-   */
-  branch?: AIBranchSwitch;
-  className?: string;
-  /** Rates the reply, or takes the rating back with `null`. Without it, no rating is offered. */
-  onRate?: (rating: AIMessageRating | null) => void;
-  /** Asks the agent for a new reply in its place. Without it, no regenerate button. */
-  onRegenerate?: () => void;
-  /** How the person rated the reply, if they did. */
-  rating?: AIMessageRating | null;
-};
+export type { AIMessageRating, AIReplyActionsProps };
 
 const copyText = async (text: string) => {
   if (navigator.clipboard?.writeText) {
