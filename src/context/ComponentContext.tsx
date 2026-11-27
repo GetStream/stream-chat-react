@@ -81,6 +81,7 @@ import type { SummarizedMessagePreviewProps } from '../components/SummarizedMess
 import type { TypingIndicatorProps } from '../components/TypingIndicator';
 import type { AttachmentUploadProgressIndicatorProps } from '../components/Attachment/components/AttachmentUploadProgressIndicator';
 import type { IconSlots } from '../components/Icons/slots';
+import type { VoiceRecordingTranscriptProps } from '../components/Attachment/VoiceRecordingTranscript';
 
 export type ComponentContextValue = {
   /** Progress of an attachment whose upload is still in flight. */
@@ -476,6 +477,7 @@ export type ComponentContextValue = {
   VideoPlayer?: React.ComponentType<VideoPlayerProps>;
   /** Replaces `MessageUI` inside the `VirtualizedMessageList`. No default. */
   VirtualMessage?: React.ComponentType<MessageUIComponentProps>;
+  VoiceRecordingTranscript?: React.ComponentType<VoiceRecordingTranscriptProps> | null;
   /** Wraps the `MessageList` children. Defaults to `ul`. */
   MessageListWrapper?: React.ComponentType<MessageListWrapperProps>;
   /** Wraps each element of the `MessageList`. Defaults to `li`. */

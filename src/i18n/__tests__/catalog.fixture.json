@@ -119,6 +119,7 @@
   "attachment.modalGallery.openImageGallery.label": "Open image in gallery",
   "attachment.unableRenderCard.text": "this content could not be displayed",
   "attachment.visibilityDisclaimer.onlyVisible.text": "Only visible to you",
+  "attachment.voiceRecording.transcript.title": "Transcript",
   "audioPlayback.audioPlayerNotifications.cannotSeekRecording.label": "Cannot seek in the recording",
   "audioPlayback.audioPlayerNotifications.failedPlayRecording.label": "Failed to play the recording",
   "audioPlayback.audioPlayerNotifications.recordingFormatNotSupported.label": "Recording format is not supported and cannot be reproduced",

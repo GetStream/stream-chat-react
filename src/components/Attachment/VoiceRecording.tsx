@@ -24,6 +24,7 @@ import { PlayButton } from '../Button';
 import { useThreadContext } from '../Threads';
 import { getAttachmentPreviewUrl } from 'stream-chat';
 import { useAttachmentUploadState } from './hooks/useAttachmentUploadState';
+import { VoiceRecordingTranscript as DefaultVoiceRecordingTranscript } from './VoiceRecordingTranscript';
 
 const rootClassName = 'str-chat__message-attachment__voice-recording-widget';
 
@@ -123,6 +124,8 @@ export const VoiceRecordingPlayer = ({
   attachment,
   playbackRates,
 }: VoiceRecordingPlayerProps) => {
+  const { VoiceRecordingTranscript = DefaultVoiceRecordingTranscript } =
+    useComponentContext();
   const { t } = useTranslationContext();
   const { asset_url, title = t('common.voiceMessage.label', 'Voice message') } =
     attachment;
@@ -153,7 +156,10 @@ export const VoiceRecordingPlayer = ({
   });
 
   return audioPlayer ? (
-    <VoiceRecordingPlayerUI attachment={attachment} audioPlayer={audioPlayer} />
+    <>
+      <VoiceRecordingPlayerUI attachment={attachment} audioPlayer={audioPlayer} />
+      {VoiceRecordingTranscript && <VoiceRecordingTranscript attachment={attachment} />}
+    </>
   ) : null;
 };
 

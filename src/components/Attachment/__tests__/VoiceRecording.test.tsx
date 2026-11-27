@@ -9,7 +9,7 @@ import {
   mockMessageContext,
 } from '../../../mock-builders';
 import { VoiceRecording, VoiceRecordingPlayer } from '../VoiceRecording';
-import { ChatProvider, MessageProvider } from '../../../context';
+import { ChatProvider, MessageProvider, WithComponents } from '../../../context';
 import { ResizeObserverMock } from '../../../mock-builders/browser';
 import { WithAudioPlayback } from '../../AudioPlayback';
 import { ThreadProvider } from '../../Threads';
@@ -311,5 +311,65 @@ describe('QuotedVoiceRecording', () => {
       isQuoted: true,
     });
     expect(queryByTestId('file-size-indicator')).toHaveTextContent('60 kB');
+  });
+});
+
+describe('VoiceRecording transcript', () => {
+  const TRANSCRIPT_TEST_ID = 'voice-recording-transcript';
+  const transcribedAttachment = {
+    ...attachment,
+    voice_transcript: { text: 'Running ten minutes late, start without me.' },
+  };
+
+  const renderWithComponents = (
+    props: { attachment: typeof transcribedAttachment; isQuoted?: boolean },
+    overrides: Parameters<typeof WithComponents>[0]['overrides'],
+  ) =>
+    render(
+      <ChatProvider value={mockChatContext()}>
+        <WithComponents overrides={overrides}>
+          <WithAudioPlayback>
+            <VoiceRecording {...props} />
+          </WithAudioPlayback>
+        </WithComponents>
+      </ChatProvider>,
+    );
+
+  it('renders the transcript under the player', () => {
+    renderComponent({ attachment: transcribedAttachment });
+
+    const player = screen.getByTestId(AUDIO_RECORDING_PLAYER_TEST_ID);
+    const transcript = screen.getByTestId(TRANSCRIPT_TEST_ID);
+
+    expect(player.nextElementSibling).toBe(transcript);
+    expect(transcript).toHaveTextContent(transcribedAttachment.voice_transcript.text);
+  });
+
+  it('does not render the transcript in a quoted message', () => {
+    renderComponent({ attachment: transcribedAttachment, isQuoted: true });
+
+    expect(screen.queryByTestId(TRANSCRIPT_TEST_ID)).not.toBeInTheDocument();
+  });
+
+  it('renders a custom transcript component', () => {
+    const CustomTranscript = () => <div data-testid='custom-transcript' />;
+
+    renderWithComponents(
+      { attachment: transcribedAttachment },
+      { VoiceRecordingTranscript: CustomTranscript },
+    );
+
+    expect(screen.getByTestId('custom-transcript')).toBeInTheDocument();
+    expect(screen.queryByTestId(TRANSCRIPT_TEST_ID)).not.toBeInTheDocument();
+  });
+
+  it('renders no transcript when the component slot is null', () => {
+    renderWithComponents(
+      { attachment: transcribedAttachment },
+      { VoiceRecordingTranscript: null },
+    );
+
+    expect(screen.getByTestId(AUDIO_RECORDING_PLAYER_TEST_ID)).toBeInTheDocument();
+    expect(screen.queryByTestId(TRANSCRIPT_TEST_ID)).not.toBeInTheDocument();
   });
 });
