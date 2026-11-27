@@ -127,6 +127,7 @@ export {
 export {
   AIUIHost,
   type AIUIHostOptions,
+  type AIUIHostState,
   isWebOrEmailLink,
 } from './GenerativeUI/AIUIHost';
 export {
