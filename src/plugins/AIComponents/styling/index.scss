@@ -1,10 +1,12 @@
+// The AI components' stylesheet (`ai-components.css`): the shared partials here, and each
+// component's styles from its own `styling/` folder.
 @use './code-syntax';
-@use './attachment-preview.scss';
-@use './streaming-message.scss';
-@use './ai-message-composer.scss';
-@use './ai-state-indicator.scss';
-@use './voice-visualization.scss';
-@use './voice-glow-css.scss';
-@use './ai-message-parts.scss';
-@use './ai-conversation.scss';
-@use './ai-ui.scss';
+@use '../AIMessageComposer/styling/AttachmentPreview';
+@use '../StreamingMessage/styling' as StreamingMessage;
+@use '../AIMessageComposer/styling/AIMessageComposer';
+@use '../AIStateIndicator/styling' as AIStateIndicator;
+@use '../VoiceVisualization/styling/VoiceVisualization';
+@use '../VoiceVisualization/styling/VoiceGlowCss';
+@use '../MessageParts/styling' as MessageParts;
+@use '../Conversation/styling' as Conversation;
+@use '../GenerativeUI/styling' as GenerativeUI;

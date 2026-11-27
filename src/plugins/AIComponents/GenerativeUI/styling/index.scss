@@ -1,4 +1,4 @@
-@use './mixins' as *;
+@use '../../styling/mixins' as *;
 // A reply's generated UI, and how its parts come in.
 
 // Its own stacking context, so the layers of what it shows, such as OpenUI's step numbers or a

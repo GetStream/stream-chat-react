@@ -1,5 +1,5 @@
-@use './mixins' as *;
-@use '../../../styling/utils';
+@use '../../styling/mixins' as *;
+@use '../../../../styling/utils';
 
 // The steps of a reply: reasoning, tool calls, and the questions and sign-ins they wait for.
 

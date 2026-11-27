@@ -1,4 +1,4 @@
-@use './mixins' as *;
+@use '../../styling/mixins' as *;
 
 // VoiceGlow drawn with CSS: the shader's composition. An opaque color field (a base and the
 // masses mixed over it in order) is seen through an alpha that the first mass makes: a faint

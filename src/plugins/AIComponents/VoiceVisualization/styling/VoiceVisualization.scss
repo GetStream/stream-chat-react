@@ -1,4 +1,4 @@
-@use './mixins' as *;
+@use '../../styling/mixins' as *;
 
 // VoiceWave and VoiceGlow draw on a canvas, which cannot read CSS variables. The script reads
 // the computed `color` as the default palette and the computed `text-decoration-color` as the
