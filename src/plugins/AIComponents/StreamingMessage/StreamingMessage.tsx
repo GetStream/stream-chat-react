@@ -11,7 +11,8 @@ import { useStableCallback } from '../../../utils/useStableCallback';
 import { AIMarkdown, type AIMarkdownProps } from '../AIMarkdown';
 import { ThemeScopeProvider, useAIThemeScopeClassName } from '../themeScope';
 
-export type UseMessageTextStreamingProps = {
+/** The pace of `StreamingMessage`'s typing. */
+export type StreamingMessagePaceProps = {
   /** A fixed pace instead of catching up: the time between each step, in milliseconds. */
   letterIntervalMs?: number;
   /** A fixed pace instead of catching up: the letters written each step. */
@@ -19,7 +20,13 @@ export type UseMessageTextStreamingProps = {
   text: string;
 };
 
-export type StreamingMessageProps = UseMessageTextStreamingProps & {
+/**
+ * @deprecated Use `StreamingMessageProps`: this name is also the props of the
+ * `useMessageTextStreaming` hook that `stream-chat-react` exports, which differ.
+ */
+export type UseMessageTextStreamingProps = StreamingMessagePaceProps;
+
+export type StreamingMessageProps = StreamingMessagePaceProps & {
   /** How the text is rendered: `AIMarkdown`'s props, such as `allowImages` or `markdownComponents`. */
   markdown?: Omit<AIMarkdownProps, 'children'>;
 };
@@ -45,7 +52,7 @@ const useTypedText = ({
   letterIntervalMs,
   renderingLetterCount,
   text,
-}: UseMessageTextStreamingProps) => {
+}: StreamingMessagePaceProps) => {
   const isFixed = letterIntervalMs !== undefined || renderingLetterCount !== undefined;
   const [written, setWritten] = useState(text.length);
   const cursor = useRef(text.length);

@@ -3,7 +3,7 @@ import { useMemo } from 'react';
 import { useTranslationContext } from '../../../context/TranslationContext';
 import { ThemeScopeProvider, useAIThemeScopeClassName } from '../themeScope';
 
-export const AIStateIndicator = ({ text }: { text?: string }) => {
+export const AIThinkingIndicator = ({ text }: { text?: string }) => {
   const themeScopeClassName = useAIThemeScopeClassName();
   const { t } = useTranslationContext();
   const messages = useMemo(
@@ -64,3 +64,9 @@ export const AIStateIndicator = ({ text }: { text?: string }) => {
     </ThemeScopeProvider>
   );
 };
+
+/**
+ * @deprecated Use `AIThinkingIndicator`: this name is also the channel-bound `AIStateIndicator`
+ * that `stream-chat-react` exports.
+ */
+export const AIStateIndicator = AIThinkingIndicator;
